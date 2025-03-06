@@ -1,0 +1,7 @@
+**/node_modules
+**/.angular
+**/.idea
+**/.vscode
+**/dist
+**/storage
+**/.env

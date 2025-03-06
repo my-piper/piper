@@ -1,0 +1,15 @@
+<ng-template #noPipelinesTemplate>
+  <p>No pipelines were found.</p>
+</ng-template>
+
+<ng-template #loadingTemplate>
+  <ng-container *ngIf="progress.loading">
+    <p>Loading...</p>
+  </ng-container>
+</ng-template>
+
+<div class="projects" *ngIf="projects.length > 0; else loadingTemplate">
+  <button *ngFor="let p of projects" (click)="selected.emit(p)">
+    {{ p.title | i18n }}
+  </button>
+</div>

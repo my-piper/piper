@@ -1,0 +1,76 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<div class="app-container stack vertical align-center justify-center">
+  <div class="form stack vertical align-center">
+    <img width="60px" height="60px" src="assets/app-logo-square.svg" />
+
+    <h1>Register</h1>
+
+    <form data-cy="form-login" [formGroup]="form" (ngSubmit)="login()">
+      <fieldset>
+        <input
+          class="input-primary"
+          id="email"
+          name="email"
+          [class.error]="form | invalidField: 'email'"
+          formControlName="email"
+          placeholder="Your email"
+          i18n-placeholder="@@label.email"
+          type="text"
+        />
+        <input
+          class="input-primary"
+          id="login"
+          name="login"
+          [class.error]="form | invalidField: 'login'"
+          formControlName="login"
+          placeholder="Choose a login"
+          i18n-placeholder="@@label.login"
+          type="text"
+        />
+        <div class="stack horizontal align-center">
+          <div class="checkbox small">
+            <label class="switch">
+              <input type="checkbox" formControlName="sendPassword" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div>Send password to email</div>
+        </div>
+        <input
+          *ngIf="!sendPasswordControl.value"
+          class="input-primary"
+          id="password"
+          name="password"
+          [class.error]="form | invalidField: 'password'"
+          formControlName="password"
+          i18n-placeholder="@@label.password"
+          data-cy="password"
+          placeholder="Password"
+          type="password"
+        />
+      </fieldset>
+      <footer>
+        <button
+          class="primary fluid"
+          [class.busy]="progress.signup"
+          [disabled]="progress.signup"
+          data-cy="login-button"
+          i18n="@@action.register"
+          type="submit"
+        >
+          Register
+        </button>
+      </footer>
+    </form>
+
+    <p>
+      Already registered?
+      <a [routerLink]="['/login']">Login</a>
+    </p>
+  </div>
+</div>

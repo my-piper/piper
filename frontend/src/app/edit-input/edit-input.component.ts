@@ -1,0 +1,231 @@
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  forwardRef,
+  Input,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
+import {
+  ControlValueAccessor,
+  FormBuilder,
+  FormGroup,
+  NG_VALUE_ACCESSOR,
+} from "@angular/forms";
+import { plainToInstance } from "class-transformer";
+import { delay, finalize, map } from "rxjs";
+import { Artefact } from "src/models/artefacts";
+import { Extension } from "src/models/extension";
+import { HttpService } from "src/services/http.service";
+import { Primitive } from "src/types/primitive";
+import { UI_DELAY } from "src/ui-kit/consts";
+import { ModalService } from "../../ui-kit/modal/modal.service";
+
+@Component({
+  selector: "app-edit-input",
+  templateUrl: "./edit-input.component.html",
+  styleUrls: ["./edit-input.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => EditInputComponent),
+      multi: true,
+    },
+  ],
+})
+export class EditInputComponent implements OnInit, ControlValueAccessor {
+  error!: Error;
+  progress: { uploading: boolean } = { uploading: false };
+
+  state = { dragging: false };
+
+  @Input()
+  id!: string;
+
+  @Input()
+  type!: string;
+
+  @Input()
+  enum: Primitive[] = [];
+
+  @Input()
+  freeform: boolean;
+
+  @Input()
+  multiline: boolean;
+
+  @Input()
+  default: Primitive;
+
+  @Input()
+  placeholder: string;
+
+  @Input()
+  min: number;
+
+  @Input()
+  max: number;
+
+  @Input()
+  step: number;
+
+  @Input()
+  extensions: Extension[];
+
+  @Input()
+  inputsForm: FormGroup;
+
+  @ViewChild("inputRef")
+  set inputRef(inputRef: ElementRef<HTMLElement>) {
+    if (!!inputRef) {
+      setTimeout(() => inputRef.nativeElement.focus(), 1);
+    }
+  }
+
+  valueControl = this.fb.control<Primitive | null>(null);
+  form = this.fb.group({
+    value: this.valueControl,
+  });
+
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpService,
+    private modal: ModalService,
+    public cd: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.valueControl.valueChanges.subscribe((value) => {
+      this.onChange(value);
+      this.cd.detectChanges();
+    });
+  }
+
+  writeValue(value: Primitive): void {
+    switch (this.type) {
+      case "boolean":
+        this.valueControl.setValue(!!value, { emitEvent: false });
+        break;
+      default:
+        this.valueControl.setValue(value, { emitEvent: false });
+    }
+    this.cd.detectChanges();
+  }
+
+  onChange: any = () => {};
+  onTouch: any = () => {};
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouch = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    // Handle disabling component
+  }
+
+  putUrl(url: string) {
+    this.valueControl.setValue(url);
+    this.cd.detectChanges();
+
+    this.modal.close();
+  }
+
+  async paste(event: ClipboardEvent) {
+    let clipboardItems: Array<ClipboardItem | File> = [];
+
+    if (typeof navigator?.clipboard?.read === "function") {
+      try {
+        const items = await navigator.clipboard.read();
+        clipboardItems = items;
+      } catch (error) {
+        console.error("Failed to read from clipboard", error);
+        return;
+      }
+    } else if (event.clipboardData?.files) {
+      clipboardItems = Array.from(event.clipboardData.files);
+    }
+
+    for (const clipboardItem of clipboardItems) {
+      if (
+        clipboardItem instanceof File &&
+        clipboardItem.type.startsWith("image/")
+      ) {
+        const blob = clipboardItem;
+        this.upload(blob);
+      } else if (clipboardItem instanceof ClipboardItem) {
+        const imageTypes = clipboardItem.types.filter((type) =>
+          type.startsWith("image/")
+        );
+        for (const imageType of imageTypes) {
+          const blob = await clipboardItem.getType(imageType);
+          this.upload(blob);
+        }
+      }
+    }
+  }
+
+  upload(file: Blob) {
+    this.progress.uploading = true;
+    this.cd.detectChanges();
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    this.http
+      .post("artefacts", formData)
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.uploading = false;
+          this.cd.detectChanges();
+        }),
+        map((json) => plainToInstance(Artefact, json as Object))
+      )
+      .subscribe({
+        next: ({ url }) => {
+          this.valueControl.setValue(url);
+          this.cd.detectChanges();
+
+          this.modal.close();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
+
+  tryDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.state.dragging = true;
+    this.cd.detectChanges();
+  }
+
+  leaveDragZone(event: DragEvent) {
+    event.preventDefault();
+    this.state.dragging = false;
+    this.cd.detectChanges();
+  }
+
+  dropped(event: DragEvent) {
+    event.preventDefault();
+
+    this.state.dragging = false;
+    this.cd.detectChanges();
+
+    const data = event.dataTransfer.getData("text/uri");
+    if (!!data) {
+      this.valueControl.setValue(data);
+      return;
+    }
+
+    const file = event.dataTransfer.files[0];
+    if (!!file && file.type.startsWith("image/")) {
+      this.upload(file);
+    }
+  }
+}

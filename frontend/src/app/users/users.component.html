@@ -1,0 +1,85 @@
+<div class="modal" [class.hidden]="!modal">
+  <header>
+    <a class="primary" [routerLink]="['./']">Close</a>
+  </header>
+  <div class="content filled centered">
+    <router-outlet
+      (activate)="modal = $event"
+      (deactivate)="modal = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<div class="app-container">
+  <header>
+    <a class="primary" [routerLink]="['add']">Create</a>
+  </header>
+
+  <table class="default" [class.busy]="progress.loading || progress.deleting">
+    <thead>
+      <th width="24px"></th>
+      <th>Login</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th width="100px">Created at</th>
+      <th width="100px">Role</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of users; let i = index">
+        <td>
+          <ng-template #actionsTemplate>
+            <ul class="context-menu">
+              <li>
+                <button (click)="remove(i, u)">
+                  <app-icon
+                    class="icon left"
+                    icon="delete"
+                    [size]="18"
+                  ></app-icon>
+                  Delete
+                </button>
+              </li>
+            </ul>
+          </ng-template>
+          <button
+            class="circle small"
+            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+            (attached)="references.popover = $event"
+          >
+            <app-icon class="icon" icon="menu"></app-icon>
+          </button>
+        </td>
+        <td>
+          <a [routerLink]="[u._id]">
+            {{ u._id }}
+          </a>
+        </td>
+        <td>
+          <small>{{ u.name }}</small>
+        </td>
+        <td>
+          <small>{{ u.email }}</small>
+        </td>
+        <td>
+          <small>{{ u.createdAt | date }}</small>
+        </td>
+        <td>
+          <div class="stack horizontal tiny align-center">
+            <app-icon
+              *ngIf="u.roles | includes: userRole.admin"
+              [icon]="'admin'"
+              [size]="20"
+            ></app-icon>
+            <small>{{ u.roles }}</small>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,10 @@
+<form [formGroup]="form">
+  <fieldset>
+    <ngx-monaco-editor
+      formControlName="script"
+      [options]="{ language: 'javascript', minimap: { enabled: false } }"
+      style="height: 600px"
+    >
+    </ngx-monaco-editor>
+  </fieldset>
+</form>

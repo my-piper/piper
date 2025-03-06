@@ -1,0 +1,63 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+@import "src/ui-kit/styles/reset";
+
+:host {
+  display: flex;
+  align-items: center;
+  background-color: rgba($color: $primary-light-color, $alpha: .15);
+  border-radius: 50px;
+  padding: $gutter-tiny;
+  overflow: hidden;
+}
+
+.remaining {
+  font-size: .75rem;
+  line-height: 1em;
+  padding: 0 $gutter-small 0 $gutter-normal;
+}
+
+.user {
+  small {
+    color: $graphite-color-100;
+  }
+}
+
+.refill-balance {
+  @include vertical-stack($gutter-small);
+  width: 100%;
+
+  p {
+    margin: 0;
+    font-size: $font-size-small;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $gutter-small;
+
+    li {
+      a {
+        @include reset-link();
+        display: block;
+        background: $primary-light-color;
+        padding: $gutter-small $gutter-normal;
+        text-align: center;
+        border-radius: $corner-small;
+      }
+    }
+  }
+}
+
+.nsfw {
+  position: relative;
+
+  small {
+    color: #777;
+    font-size: 10px;
+  }
+}

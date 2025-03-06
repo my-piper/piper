@@ -1,0 +1,10 @@
+<form [formGroup]="form">
+  <fieldset>
+    <ngx-monaco-editor
+      formControlName="node"
+      [options]="{ language: 'yaml', minimap: { enabled: false } }"
+      style="height: 600px"
+    >
+    </ngx-monaco-editor>
+  </fieldset>
+</form>

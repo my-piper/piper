@@ -1,0 +1,10 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+  display: block;
+}
+
+form {
+  @include vertical-stack();
+}

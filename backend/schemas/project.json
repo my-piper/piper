@@ -1,0 +1,48 @@
+{
+  "type": "object",
+  "title": "Project",
+  "properties": {
+    "_id": {
+      "type": "string"
+    },
+    "revision": {
+      "type": "string"
+    },
+    "createdAt": { "dateObject": true },
+    "createdBy": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["_id", "name"]
+    },
+    "title": {
+      "type": "string"
+    },
+    "visibility": {
+      "type": "string",
+      "title": "Visibility",
+      "enum": ["private", "shared", "public"],
+      "options": {
+        "enum_titles": ["Private", "Shared", "Public"]
+      },
+      "propertyOrder": 1
+    },
+    "pipeline": {
+      "$ref": "local://pipeline.json"
+    },
+    "launchRequest": {
+      "$ref": "local://launch-request.json"
+    },
+    "cursor": {
+      "type": "string"
+    }
+  },
+  "required": ["visibility"],
+  "additionalProperties": false
+}

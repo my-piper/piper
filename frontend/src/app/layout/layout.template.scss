@@ -1,0 +1,93 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+    display: block;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: #252b56;
+    padding: 20px;
+
+    .logo {
+        img {
+            display: block;
+        }
+
+        margin-right: 50px;
+    }
+
+    ::ng-deep button.circle {
+        .icon svg {
+            stroke: white !important;
+        }
+
+        background-color: rgba(white, 0.1);
+    }
+
+    .me ::ng-deep {
+        .remaining {
+            color: white;
+        }
+    }
+
+    ul {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+
+        li {
+            a {
+                display: inline-block;
+                text-decoration: none;
+                color: white;
+                line-height: 1.45em;
+                padding-top: 4px;
+                border-bottom: 2px solid transparent;
+
+                &.active {
+                    border-color: white;
+                }
+            }
+        }
+    }
+
+}
+
+main {
+    padding: 20px;
+    min-height: calc(100vmin - 200px);
+}
+
+footer {
+    border-top: 1px solid $graphite-color-60;
+
+
+    >div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: $gutter-small;
+
+        small {
+            color: $graphite-color-300;
+        }
+
+        @include wider-tablet() {
+            margin: 0 auto;
+            max-width: 960px;
+        }
+    }
+
+    .menu {
+
+        font-size: .85em;
+    }
+
+
+}

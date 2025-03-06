@@ -1,0 +1,8 @@
+<form [formGroup]="form">
+  <fieldset>
+    <app-json-editor
+      [schema]="schemas.node.properties.environment"
+      formControlName="environment"
+    ></app-json-editor>
+  </fieldset>
+</form>

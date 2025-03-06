@@ -1,0 +1,13 @@
+<div class="modal" [class.hidden]="!modal">
+  <header>
+    <a class="primary" [routerLink]="['./']">Close</a>
+  </header>
+  <div class="content filled">
+    <router-outlet
+      (activate)="modal = $event"
+      (deactivate)="modal = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<app-launches [filter]="filter"></app-launches>

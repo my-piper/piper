@@ -1,0 +1,10 @@
+{
+	"locale": "pt-BR",
+	"translations": {
+		"action.save": " Salvar",
+		"link.node_packages": "Pacotes de nós",
+		"link.pipelines": "Gasodutos",
+		"link.launches": "Lançamentos",
+		"link.users": "Usuários"
+	}
+}

@@ -1,0 +1,59 @@
+<ng-template #projectsTemplate>
+  <app-select-playground (selected)="go($event)"></app-select-playground>
+</ng-template>
+
+<header class="stack horizontal align-center justify-between">
+  <div class="stack horizontal align-center">
+    <a class="circle" [routerLink]="['../..']">
+      <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
+    </a>
+    <div class="stack horizontal">
+      <button
+        class="circle"
+        [appPopover]="{ content: projectsTemplate, trigger: 'click' }"
+        (attached)="instances.popopver = $event"
+      >
+        <app-icon class="icon" [icon]="'menu'"></app-icon>
+      </button>
+      <div>
+        <h1>
+          {{ project.title | i18n }}
+        </h1>
+        <small *ngIf="project.pipeline.description as description">{{
+          description
+        }}</small>
+      </div>
+    </div>
+  </div>
+  <app-me-user></app-me-user>
+</header>
+
+<div class="project">
+  <app-project-playground></app-project-playground>
+</div>
+
+<div class="project-playground launches">
+  <ul class="menu">
+    <li>
+      <a [routerLink]="['readme']" routerLinkActive="active">README</a>
+    </li>
+    <li>|</li>
+    <li>
+      <a
+        [routerLink]="['./']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="active"
+        >Launches</a
+      >
+    </li>
+    <li>|</li>
+    <li>
+      <a [routerLink]="['api']" routerLinkActive="active">API</a>
+    </li>
+    <li>|</li>
+    <li>
+      <a [routerLink]="['batches']" routerLinkActive="active">Batches</a>
+    </li>
+  </ul>
+  <router-outlet></router-outlet>
+</div>

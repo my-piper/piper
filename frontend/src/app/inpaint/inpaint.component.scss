@@ -1,0 +1,67 @@
+@import 'src/ui-kit/styles/variables';
+@import 'src/ui-kit/styles/mixins';
+
+:host {
+  display: block;
+  user-select: none;
+}
+
+@include for-mobile() {
+  :host {
+    display: block;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@include wider-tablet() {
+  .draw:hover {
+    .brush {
+      display: block;
+    }
+  }
+}
+
+.denoising {
+  img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 500/50;
+    max-width: 500px;
+    border-radius: $corner-small;
+  }
+}
+
+.draw {
+  position: relative;
+
+  .brush {
+    display: none;
+    position: absolute;
+    background: yellow;
+    transform: translateX(-50%) translateY(-50%);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: .75;
+    z-index: 5;
+  }
+
+  .mask {
+    display: none;
+  }
+
+  .paint {
+    position: absolute;
+    cursor: none;
+    top: 0;
+    left: 0;
+    opacity: .75;
+    z-index: 2;
+    transform-origin: 0 0;
+  }
+
+  img {
+    display: block;
+    height: auto;
+  }
+}

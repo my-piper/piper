@@ -1,0 +1,191 @@
+@import "src/ui-kit/styles/variables";
+
+@property --border-angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0turn;
+}
+
+:host {
+  display: block;
+  position: relative;
+  width: 250px;
+  user-select: none;
+  border: solid 3px transparent;
+  border-radius: 5px;
+  background: #5d6f80;
+  box-shadow: 2px 2px 2px rgba(black, 0.25);
+
+  @keyframes bg-spin {
+    to {
+      --border-angle: 1turn;
+    }
+  }
+
+  &.running {
+    --border-angle: 0turn;
+    $main-bg: conic-gradient(from var(--border-angle),
+        #3c4fe0,
+        #3c4fe0 5%,
+        #3c4fe0 60%,
+        #3c4fe0 95%);
+    $gradient-border: conic-gradient(from var(--border-angle),
+        transparent 25%,
+        #08f,
+        #f03 99%,
+        transparent);
+    background:
+      $main-bg padding-box,
+      $gradient-border border-box,
+      $main-bg border-box;
+    background-position: center center;
+    animation: bg-spin 3s linear infinite;
+  }
+
+  &.done {
+    background: $green-color;
+  }
+
+  &.error {
+    background: red;
+  }
+}
+
+.start {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+.node {
+  background: white;
+  border-radius: 3.5px;
+
+  h2 {
+    font-size: 0.75em;
+    height: 30px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .io {
+    display: flex;
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      max-width: 50%;
+      flex: 1;
+
+      li {
+        font-size: 0.6em;
+        height: 30px;
+        position: relative;
+        padding: 0 10px;
+        line-height: 1.25;
+        display: flex;
+        flex-direction: column;
+
+        b {
+          display: block;
+          white-space: nowrap;
+          line-height: 1.5;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .circle {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background: silver;
+          border-radius: 50%;
+          border: 2px solid rgba(black, 0.4);
+          box-sizing: border-box;
+          cursor: pointer;
+
+          &:hover {
+            background: green;
+          }
+        }
+
+        &.filled {
+          .circle {
+            background-color: $green-color;
+          }
+
+          &[data-type="image"],
+          &[data-type="video"],
+          &[data-type="image[]"] {
+            b {
+              display: none;
+            }
+          }
+        }
+
+        .string-value,
+        .json-value {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .images-value {
+          position: relative;
+
+          >img {
+            border: 1px solid silver;
+            max-height: 20px;
+
+            &:nth-child(2) {
+              position: absolute;
+              top: 5px;
+              left: 5px;
+            }
+          }
+        }
+
+        img,
+        video {
+          display: block;
+          max-height: 25px;
+          border-radius: 2px;
+        }
+      }
+
+      &.inputs {
+        .circle {
+          left: -6px;
+        }
+      }
+
+      &.outputs {
+        .circle {
+          right: -6px;
+          background-color: silver;
+        }
+      }
+    }
+  }
+}
+
+.progress {
+  height: 5px;
+  display: flex;
+  justify-content: space-between;
+
+  .processed {
+    background: $green-color;
+    transition: width 250ms;
+    height: 100%;
+  }
+
+  .losses {
+    background: red;
+    transition: width 250ms;
+    height: 100%;
+  }
+}

@@ -1,0 +1,57 @@
+<ng-template #uploadingTemplate>
+  <p class="big" i18n="@@message.uploading_image">Uploading image</p>
+  <app-spinner [size]="'large'"></app-spinner>
+</ng-template>
+
+<app-informer
+  *ngIf="progress.saving"
+  [contentTemplate]="uploadingTemplate"
+></app-informer>
+
+<div class="stack vertical normal align-stretch" [formGroup]="form">
+  <div class="stack horizontal justify-between">
+    <button class="primary" (click)="clear()">Clear</button>
+    <button
+      class="primary"
+      (click)="save()"
+      [disabled]="progress.saving"
+      [class.busy]="progress.saving"
+      i18n="@@action.save"
+    >
+      Save
+    </button>
+  </div>
+  <div class="stack vertical align-center">
+    <div class="draw">
+      <div
+        #cursorRef
+        class="brush"
+        [ngStyle]="{
+          width: this.brushSizeControl.value + 'px',
+          height: this.brushSizeControl.value + 'px',
+        }"
+      ></div>
+
+      <img #sourceRef [src]="source" width="800px" (load)="loaded($event)" />
+      <img
+        #maskRef
+        crossorigin
+        class="mask"
+        [src]="mask"
+        (load)="loaded($event)"
+      />
+
+      <canvas
+        class="paint"
+        #paintRef
+        (mousedown)="startDraw($event)"
+        (mousemove)="draw($event)"
+        (mouseup)="stopDraw()"
+        (mouseover)="stopDraw()"
+        (touchstart)="startDraw($event)"
+        (touchmove)="draw($event)"
+        (touchend)="stopDraw()"
+      ></canvas>
+    </div>
+  </div>
+</div>

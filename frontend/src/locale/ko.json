@@ -1,0 +1,11 @@
+{
+	"locale": "ko",
+	"translations": {
+		"action.save": " 저장",
+		"link.node_packages": "노드 패키지",
+		"link.pipelines": "파이프라인",
+		"link.launches": "출시",
+		"link.users": "사용자",
+		"link.playground": "놀이터"
+	}
+}

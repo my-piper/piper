@@ -1,0 +1,12 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+    display: block;
+    padding: $gutter-normal;
+    @include vertical-stack();
+}
+
+h1 {
+    margin: 0;
+}

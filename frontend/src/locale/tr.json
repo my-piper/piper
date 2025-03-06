@@ -1,0 +1,11 @@
+{
+	"locale": "tr",
+	"translations": {
+		"action.save": " Kaydet",
+		"link.node_packages": "Düğüm paketleri",
+		"link.pipelines": "Boru hatları",
+		"link.launches": "Başlatıldı",
+		"link.users": "Kullanıcılar",
+		"link.playground": "Oyun Alanı"
+	}
+}

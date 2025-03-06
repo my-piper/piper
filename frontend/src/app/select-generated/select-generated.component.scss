@@ -1,0 +1,22 @@
+@import "src/ui-kit/styles/mixins";
+@import "src/ui-kit/styles/reset";
+
+:host {
+    display: block;
+
+}
+
+.outputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $gutter-small;
+    min-height: 100px;
+
+    button {
+        @include reset-button();
+    }
+}
+
+img {
+    max-height: 100px;
+}

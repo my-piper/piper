@@ -1,0 +1,11 @@
+{
+	"locale": "ja",
+	"translations": {
+		"action.save": "保存",
+		"link.node_packages": "ノードパッケージ",
+		"link.pipelines": "パイプライン",
+		"link.launches": "起動",
+		"link.users": "ユーザー",
+		"link.playground": "プレイグラウンド"
+	}
+}

@@ -1,0 +1,251 @@
+<div class="modal" [class.hidden]="!modal">
+  <header>
+    <button
+      *ngIf="modal | is: editNodeComponent"
+      class="delete-button"
+      (click)="removeCurrentNode()"
+    >
+      Delete
+    </button>
+    <button
+      *ngIf="modal | is: editPipelineInputComponent"
+      class="delete-button"
+      (click)="removeCurrentPipelineInput()"
+    >
+      Delete
+    </button>
+    <a class="primary" [routerLink]="['./']">Close</a>
+  </header>
+  <div class="content filled">
+    <router-outlet
+      (activate)="modal = $event"
+      (deactivate)="modal = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<div autoHeight #nodesRef class="nodes area">
+  <div
+    *ngIf="userRole.admin | can: project.createdBy | async"
+    class="actions stack horizontal"
+  >
+    <a class="primary with-icon small" routerLink="add-node">
+      <app-icon icon="add" color="white"></app-icon>
+    </a>
+  </div>
+
+  <div class="pane">
+    <div
+      class="input"
+      [class.disabled]="userRole.admin | can: project.createdBy | async | not"
+      *ngFor="let input of pipeline.inputs | keyvalue"
+      [appDragMove]="{
+        dug: dugRef,
+        position: { x: input.value.arrange.x, y: input.value.arrange.y },
+        disabled: (userRole.admin | can: project.createdBy | async),
+      }"
+      (moving)="inputMoving(input.value, $event)"
+      (moved)="inputMoved(input.value, $event)"
+    >
+      <button class="circle small drag" #dugRef>
+        <app-icon class="icon" icon="drag" [size]="20"></app-icon>
+      </button>
+      <app-pipeline-input
+        [id]="input.key"
+        [input]="input.value"
+        [value]="launchRequest.inputs?.get(input.key)"
+        (click)="editPipelineInput(input.key)"
+      ></app-pipeline-input>
+    </div>
+
+    <div
+      class="output"
+      [class.disabled]="userRole.admin | can: project.createdBy | async | not"
+      *ngFor="let output of pipeline.outputs | keyvalue"
+      [appDragMove]="{
+        dug: dugRef,
+        position: { x: output.value.arrange.x, y: output.value.arrange.y },
+      }"
+      (moving)="outputMoving(output.value, $event)"
+      (moved)="outputMoved(output.value, $event)"
+    >
+      <button class="circle small drag" #dugRef>
+        <app-icon class="icon" icon="drag" [size]="20"></app-icon>
+      </button>
+      <app-pipeline-output
+        [id]="output.key"
+        [output]="output.value"
+      ></app-pipeline-output>
+    </div>
+
+    <div
+      class="node"
+      [class.readonly]="userRole.admin | can: project.createdBy | async | not"
+      *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
+      [appDragMove]="{
+        dug: dugRef,
+        position: { x: node.value.arrange.x, y: node.value.arrange.y },
+      }"
+      (moving)="nodeMoving(node.value, $event)"
+      (moved)="nodeMoved(node.value, $event)"
+    >
+      <div class="actions stack horizontal tiny">
+        <button class="circle small drag" #dugRef>
+          <app-icon class="icon" icon="drag" [size]="18"></app-icon>
+        </button>
+        <button class="circle small" (click)="editNode(node.key)">
+          <app-icon class="icon" icon="edit" [size]="18"></app-icon>
+        </button>
+      </div>
+      <app-node
+        [id]="node.key"
+        [node]="node.value"
+        [start]="pipeline.start.nodes | includes: node.key"
+        [inputs]="launchRequest.nodes.get(node.key)?.inputs | plain"
+        (output)="startFlow(node.key, $event)"
+        (input)="!!flow ? addFlow(node.key, $event) : null"
+        (takeOutInput)="takeOutPipelineInput($event)"
+        (takeOutOutput)="takeOutPipelineOutput($event)"
+      ></app-node>
+    </div>
+
+    <svg>
+      <path
+        *ngIf="mode === 'flow' && !!flow && !!mouse"
+        [attr.stroke]="'silver'"
+        [attr.d]="
+          (pipeline | node: flow.from).arrange
+            | shift
+              : {
+                  x: ui.node.width,
+                  y:
+                    ((pipeline | node: flow.from | outputIndex: flow.output) +
+                      1) *
+                      ui.node.input.height +
+                    ui.node.shift,
+                }
+            | curve: mouse
+        "
+        stroke-dasharray="4"
+      />
+
+      <path
+        class="flow"
+        *ngFor="let f of pipeline.flows | keyvalue"
+        (click)="removeFlow(f.key)"
+        stroke-dasharray="2"
+        [attr.stroke]="f.value.color || 'silver'"
+        [attr.d]="
+          (pipeline | node: f.value.from).arrange
+            | shift
+              : {
+                  x: ui.node.width,
+                  y:
+                    ((pipeline
+                      | node: f.value.from
+                      | outputIndex: f.value.output) +
+                      1) *
+                      ui.node.input.height +
+                    ui.node.shift,
+                }
+            | curve
+              : ((pipeline | node: f.value.to).arrange
+                  | shift
+                    : {
+                        y:
+                          ((pipeline
+                            | node: f.value.to
+                            | inputIndex: f.value.input) +
+                            1) *
+                            ui.node.input.height +
+                          ui.node.shift,
+                      })
+        "
+      />
+
+      <ng-container *ngFor="let i of pipeline.inputs | keyvalue">
+        <path
+          class="flow"
+          *ngFor="let f of i.value.flows | keyvalue"
+          (click)="removeInputFlow(i.key, f.key)"
+          stroke-dasharray="2"
+          [attr.stroke]="'silver'"
+          [attr.d]="
+            (pipeline | pipelineInput: i.key).arrange
+              | curve
+                : ((pipeline | node: f.value.to).arrange
+                    | shift
+                      : {
+                          y:
+                            ((pipeline
+                              | node: f.value.to
+                              | inputIndex: f.value.input) +
+                              1) *
+                              ui.node.input.height +
+                            ui.node.shift,
+                        })
+          "
+        />
+      </ng-container>
+
+      <ng-container *ngFor="let o of pipeline.outputs | keyvalue">
+        <path
+          class="flow"
+          *ngFor="let f of o.value.flows | keyvalue"
+          (click)="removeOutputFlow(o.key, f.key)"
+          stroke-dasharray="2"
+          [attr.stroke]="'silver'"
+          [attr.d]="
+            (pipeline | node: f.value.from).arrange
+              | shift
+                : {
+                    x: ui.node.width,
+                    y:
+                      ((pipeline
+                        | node: f.value.from
+                        | outputIndex: f.value.output) +
+                        1) *
+                        ui.node.input.height +
+                      ui.node.shift,
+                  }
+              | curve: (pipeline | pipelineOutput: o.key).arrange
+          "
+        />
+        <path
+          class="flow"
+          *ngIf="!!o.value.from"
+          (click)="removeOutput(o.key)"
+          stroke-dasharray="2"
+          [attr.stroke]="'silver'"
+          [attr.d]="
+            (pipeline | pipelineOutput: o.key).arrange
+              | curve
+                : ((pipeline | node: o.value.from).arrange
+                    | shift
+                      : {
+                          x: ui.node.width,
+                          y:
+                            ((pipeline
+                              | node: o.value.from
+                              | outputIndex: o.value.output) +
+                              1) *
+                              ui.node.input.height +
+                            ui.node.shift,
+                        })
+          "
+        />
+      </ng-container>
+      <defs>
+        <pattern
+          id="dot-pattern"
+          width="10"
+          height="10"
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx="5" cy="5" r="1" fill="black" opacity="0.05" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#dot-pattern)" />
+    </svg>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+  display: block;
+  padding: $gutter-normal;
+  @include vertical-stack();
+}
+
+h1 {
+  margin: 0;
+  line-height: 1em;
+}
+
+header {
+
+  .status {
+    text-transform: uppercase;
+    font-size: .85em;
+    color: white;
+    border-radius: $corner-small;
+    padding: $gutter-tiny $gutter-small;
+    background-color: silver;
+
+    &[data-status=saved] {
+      background-color: green;
+    }
+
+    &[data-status=error] {
+      background-color: $error-color;
+    }
+  }
+}
+
+.launch {
+  display: flex;
+  align-items: center;
+  background-color: #bae4ff;
+  padding: 10px;
+  border-radius: 10px;
+
+  > :not(:last-child) {
+    margin-right: 5px;
+  }
+}

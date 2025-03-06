@@ -1,0 +1,36 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<table class="default" [class.busy]="progress.loading">
+  <thead>
+    <th width="150px">Processed at</th>
+    <th>Pipeline</th>
+    <th>Node</th>
+    <th width="100px">Launch</th>
+    <th width="50px">Cost</th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let u of usages">
+      <td>{{ u.processedAt | date: "short" }}</td>
+      <td>{{ u.pipeline | i18n }}</td>
+      <td>{{ u.node | i18n }}</td>
+      <td>
+        <a target="_blank" [routerLink]="['/launches', u.launch]">
+          {{ u.launch }}
+        </a>
+      </td>
+      <td style="text-align: right">{{ u.costs | currency: "USD" }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<button
+  *ngIf="!progress.loading && chunk.length > 0"
+  class="primary"
+  (click)="loadMore()"
+>
+  Load more
+</button>

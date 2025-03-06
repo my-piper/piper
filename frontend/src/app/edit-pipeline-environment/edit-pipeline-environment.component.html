@@ -1,0 +1,27 @@
+<ng-template #noVariablesTemplate>
+  <p>No one node has require environment variables.</p>
+</ng-template>
+<form
+  *ngIf="
+    (schemas.environment.properties.variables.properties | keyvalue).length > 0;
+    else noVariablesTemplate
+  "
+  [formGroup]="form"
+>
+  <fieldset>
+    <app-json-editor
+      [schema]="schemas.environment"
+      formControlName="environment"
+    ></app-json-editor>
+  </fieldset>
+  <footer>
+    <button
+      class="primary"
+      [class.busy]="progress.saving"
+      [disabled]="form.invalid || progress.saving"
+      (click)="save()"
+    >
+      Save
+    </button>
+  </footer>
+</form>

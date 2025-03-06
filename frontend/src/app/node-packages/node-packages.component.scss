@@ -1,0 +1,41 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+  display: block;
+}
+
+.app-container {
+  @include vertical-stack();
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.version {
+  display: flex;
+  justify-content: right;
+}
+
+h1 {
+  font-size: $font-size-big;
+}
+
+.updates {
+  @include vertical-stack();
+
+  p {
+    font-size: $font-size-small;
+
+    &.errors {
+      color: red;
+    }
+  }
+
+  .notes {
+    font-size: $font-size-small;
+  }
+}

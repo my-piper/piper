@@ -1,0 +1,38 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+
+:host {
+    display: grid;
+    grid-template-columns: .3fr .7fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "header header"
+        "project launches";
+    gap: $gutter-big;
+    padding: $gutter-normal;
+    box-sizing: border-box;
+}
+
+header {
+    grid-area: header;
+
+    h1 {
+        margin: 0;
+        line-height: 1em;
+    }
+
+}
+
+.project {
+    grid-area: project;
+
+}
+
+.launches {
+    grid-area: launches;
+
+    .menu {
+        margin-bottom: $gutter-big;
+    }
+}

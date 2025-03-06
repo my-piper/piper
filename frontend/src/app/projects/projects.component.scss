@@ -1,0 +1,14 @@
+@import "src/ui-kit/styles/mixins";
+
+:host {
+  display: block;
+}
+
+.app-container {
+  @include vertical-stack();
+}
+
+.created,
+.updated {
+  line-height: 1em;
+}

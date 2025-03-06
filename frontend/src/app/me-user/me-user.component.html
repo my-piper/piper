@@ -1,0 +1,92 @@
+<ng-template #userPopover>
+  <div class="stack vertical">
+    <ng-container *ngIf="me.user$ | async as user">
+      <div class="user">
+        {{ user._id }}<br />
+        <small>{{ user.email }}</small>
+      </div>
+    </ng-container>
+
+    <div [formGroup]="form" class="stack horizontal small align-center">
+      <div class="checkbox small">
+        <label class="switch">
+          <input type="checkbox" formControlName="nsfw" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <small>NSFW</small>
+    </div>
+    <div class="refill-balance" *ngIf="config.billing.url as url">
+      <p>Refill balance:</p>
+      <ul>
+        <li>
+          <a
+            href="{{ url }}/add_5usd?language={{ language }}&t={{
+              config.authorization.token
+            }}"
+            >5$</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url }}/add_10usd?language={{ language }}&t={{
+              config.authorization.token
+            }}"
+            >10$</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url }}/add_20usd?language={{ language }}&t={{
+              config.authorization.token
+            }}"
+            >20$</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url }}/add_40usd?language={{ language }}&t={{
+              config.authorization.token
+            }}"
+            >40$</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <ul class="context-menu">
+      <ng-container *ngIf="!!config.billing.url">
+        <li>
+          <a
+            [routerLink]="['expenses']"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="references.popover?.hide()"
+          >
+            <app-icon class="icon left" [icon]="'dollar'"></app-icon>
+            Expenses
+          </a>
+        </li>
+      </ng-container>
+      <li>
+        <button (click)="logout()">
+          <app-icon class="icon left" [icon]="'logout'"></app-icon>
+          Logout
+        </button>
+      </li>
+    </ul>
+  </div>
+</ng-template>
+
+<ng-container *ngIf="me.user$ | async as user">
+  <div *ngIf="config.billing.url" class="remaining">
+    {{ user.balance.remaining | countdown | async | currency: "USD" }}
+  </div>
+</ng-container>
+<button
+  class="circle"
+  [appPopover]="{ content: userPopover, trigger: 'click' }"
+  (attached)="references.popover = $event"
+>
+  <app-icon class="icon" [icon]="'user'" [size]="18"></app-icon>
+</button>

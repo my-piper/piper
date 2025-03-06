@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Package",
+  "properties": {
+    "_id": {
+      "type": "string",
+      "title": "ID",
+      "pattern": "^[a-z0-9_]{5,40}$",
+      "propertyOrder": 1
+    },
+    "version": {
+      "type": "number",
+      "format": "number",
+      "title": "Version",
+      "propertyOrder": 2
+    },
+    "title": {
+      "type": "string",
+      "title": "Title",
+      "propertyOrder": 3
+    },
+    "author": {
+      "type": "string",
+      "title": "Author",
+      "description": "First, last name, email or site",
+      "propertyOrder": 4
+    },
+    "url": {
+      "type": "string",
+      "title": "Url",
+      "format": "url",
+      "description": "URL to find updates",
+      "propertyOrder": 5
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Short description of the package",
+      "format": "textarea",
+      "propertyOrder": 6
+    },
+    "readme": {
+      "type": "string",
+      "title": "README",
+      "description": "Just list of updates in markdown",
+      "format": "textarea",
+      "propertyOrder": 7
+    },
+    "nodes": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "local://node.json"
+      }
+    }
+  },
+  "required": ["_id", "version", "title", "description", "readme"],
+  "additionalProperties": false
+}

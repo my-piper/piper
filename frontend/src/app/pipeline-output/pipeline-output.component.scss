@@ -1,0 +1,29 @@
+@import "src/ui-kit/styles/variables";
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  user-select: none;
+  border: solid 3px blue;
+  border-radius: 50%;
+  background: white;
+  box-sizing: border-box;
+}
+
+label {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  left: -10px;
+  white-space: nowrap;
+  font-size: 0.85em;
+  transform: translateX(-100%);
+  line-height: 1em;
+  height: 1em;
+  background-color: white;
+  padding: 0 2px;
+}

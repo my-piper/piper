@@ -1,0 +1,20 @@
+:host {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+header {
+    display: flex;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+
+    label {
+        padding: 2px 5px;
+        font-size: .75em;
+        font-weight: bold;
+        border-radius: 5px;
+        background-color: lightsalmon;
+    }
+}

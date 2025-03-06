@@ -1,0 +1,41 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+    display: block;
+    @include vertical-stack();
+}
+
+.inputs {
+    display: flex;
+    flex-direction: column;
+    gap: $gutter-big;
+
+    >* {
+        @include vertical-stack($gutter-small);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        background: #f0f0f0;
+        border-radius: $gutter-small;
+        padding: 35px $gutter-normal $gutter-normal $gutter-normal;
+
+        label {
+            @include horizontal-stack($gutter-tiny);
+            display: flex;
+            align-items: center;
+            position: absolute;
+            font-weight: bold;
+            top: -$gutter-small;
+            left: $gutter-small;
+            background: #f0f0f0;
+            padding: $gutter-tiny $gutter-normal;
+            border-radius: $gutter-small;
+
+            sup {
+                color: red;
+                align-self: flex-start;
+            }
+        }
+    }
+}

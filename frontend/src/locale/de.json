@@ -1,0 +1,11 @@
+{
+	"locale": "de",
+	"translations": {
+		"action.save": " Speichern",
+		"link.node_packages": "Knoten-Pakete",
+		"link.pipelines": "Leitungen",
+		"link.launches": "Startet",
+		"link.users": "Benutzer",
+		"link.playground": "Spielplatz"
+	}
+}

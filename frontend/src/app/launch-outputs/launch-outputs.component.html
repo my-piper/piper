@@ -1,0 +1,194 @@
+<ng-container *ngIf="launch.outputs | keyvalue as outputs">
+  <footer>
+    <ng-template #imageIconTemplate>
+      <app-icon icon="image"></app-icon>
+    </ng-template>
+    <ng-container *ngFor="let o of outputs">
+      <ng-container [ngSwitch]="o.value.type">
+        <ng-container *ngSwitchCase="'boolean'">
+          <button
+            #buttonRef
+            [class.active]="active?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            <app-icon icon="switcher"></app-icon>
+          </button>
+        </ng-container>
+        <ng-container *ngSwitchCase="'integer'">
+          <button
+            #buttonRef
+            [class.active]="active?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            <app-icon icon="number"></app-icon>
+          </button>
+        </ng-container>
+        <ng-container *ngSwitchCase="'float'">
+          <button
+            #buttonRef
+            [class.active]="active?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            <app-icon icon="number"></app-icon>
+          </button>
+        </ng-container>
+        <ng-container *ngSwitchCase="'string'">
+          <button
+            #buttonRef
+            [class.active]="active?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            <app-icon icon="text"></app-icon>
+          </button>
+        </ng-container>
+        <ng-container *ngSwitchCase="'json'">
+          <button
+            #buttonRef
+            [class.active]="active?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            <app-icon icon="json"></app-icon>
+          </button>
+        </ng-container>
+        <ng-container *ngSwitchCase="'image'">
+          <button
+            #buttonRef
+            [class.active]="active?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            <img
+              *ngIf="o.value.data as data; else imageIconTemplate"
+              [imageFallback]
+              [src]="data.url | proxyImage: { width: 100 }"
+            />
+          </button>
+        </ng-container>
+        <ng-container *ngSwitchCase="'video'">
+          <button
+            #buttonRef
+            *ngIf="o.value.data as data; else imageIconTemplate"
+            [class.active]="active?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            <img
+              [imageFallback]
+              [src]="data.poster | proxyImage: { width: 100 }"
+            />
+          </button>
+        </ng-container>
+        <ng-container *ngSwitchCase="'image[]'">
+          <ng-container *ngIf="o.value.data as data">
+            <button
+              #buttonRef
+              *ngFor="let image of data.images | slice: 10; let i = index"
+              [class.active]="active?.id == o.key && active?.index == i"
+              (click)="activate(o.key, i)"
+            >
+              <img
+                [imageFallback]
+                [src]="image.url | proxyImage: { width: 100 }"
+              />
+            </button>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </footer>
+
+  <ng-template #outputTemplate let-output="output">
+    <ng-container *ngIf="output.data as data" [ngSwitch]="output.type">
+      <ng-container *ngSwitchCase="'boolean'">
+        {{ data.value ? "true" : "false" }}
+      </ng-container>
+      <ng-container *ngSwitchCase="'integer'">
+        <svg viewBox="0 0 150 50" xmlns="http://www.w3.org/2000/svg">
+          <text
+            x="50%"
+            y="50%"
+            font-size="10px"
+            fill="black"
+            text-anchor="middle"
+            dominant-baseline="middle"
+          >
+            {{ data.value }}
+          </text>
+        </svg>
+      </ng-container>
+      <ng-container *ngSwitchCase="'float'">
+        {{ data.value }}
+      </ng-container>
+      <ng-container *ngSwitchCase="'string'">
+        {{ data.value }}
+      </ng-container>
+      <pre *ngSwitchCase="'json'">{{ data.value | json }}</pre>
+      <ng-container *ngSwitchCase="'image'">
+        <img
+          [imageFallback]
+          [imageSize]="{ width: data.width, height: data.height }"
+          [src]="
+            mode == 'card' ? (data.url | proxyImage: { width: 500 }) : data.url
+          "
+          [class.vertical]="data.height > data.width"
+          [style.aspect-ratio]="data.width + '/' + data.height"
+        />
+      </ng-container>
+      <ng-container *ngSwitchCase="'video'">
+        <video
+          controls
+          preload="none"
+          [poster]="data.poster"
+          [src]="data.url"
+          [class.vertical]="data.height > data.width"
+          [style.aspect-ratio]="data.width + '/' + data.height"
+        ></video>
+      </ng-container>
+      <ng-container *ngSwitchCase="'image[]'">
+        <ng-container *ngFor="let image of data.images; let i = index">
+          <img
+            *ngIf="active?.index == i"
+            [imageSize]="{ width: image.width, height: image.height }"
+            [imageFallback]
+            [src]="
+              mode == 'card'
+                ? (image.url | proxyImage: { width: 500 })
+                : image.url
+            "
+            [class.vertical]="image.height > image.width"
+            [style.aspect-ratio]="image.width + '/' + image.height"
+          />
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </ng-template>
+
+  <ng-container *ngFor="let o of outputs">
+    <ng-container *ngIf="active?.id == o.key">
+      <label>{{ o.value.title | i18n }}</label>
+      <ng-template #cardTemplate>
+        <a
+          class="results"
+          [attr.data-type]="o.value.type"
+          [class.busy-block]="launch.errors?.length <= 0 && !o.value?.data"
+          [routerLink]="['outputs', launch._id]"
+          [queryParams]="active"
+          draggable="true"
+          (dragstart)="startDrag($event, o.value)"
+        >
+          <ng-container
+            *ngTemplateOutlet="outputTemplate; context: { output: o.value }"
+          ></ng-container>
+        </a>
+      </ng-template>
+      <div
+        *ngIf="mode == 'full'; else cardTemplate"
+        class="results"
+        [attr.data-type]="o.value.type"
+        [class.busy-block]="launch.errors?.length <= 0 && !o.value?.data"
+      >
+        <ng-container
+          *ngTemplateOutlet="outputTemplate; context: { output: o.value }"
+        ></ng-container>
+      </div>
+    </ng-container>
+  </ng-container>
+</ng-container>

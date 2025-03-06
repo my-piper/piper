@@ -1,0 +1,31 @@
+@import 'src/ui-kit/styles/variables';
+@import 'src/ui-kit/styles/mixins';
+
+:host {
+  display: grid;
+  cursor: progress;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 185px;
+  gap: $gutter-small;
+
+  @include for-tablet() {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include for-mobile() {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  >* {
+    border-radius: $corner-small;
+    background: rgb(237, 237, 237);
+  }
+}
+
+.tall {
+  grid-row: span 2;
+}
+
+.short {
+  grid-row: span 1;
+}

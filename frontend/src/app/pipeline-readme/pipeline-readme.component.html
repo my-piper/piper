@@ -1,0 +1,4 @@
+<div
+  *ngIf="project?.pipeline?.readme as readme"
+  [innerHTML]="readme | markdown | async"
+></div>

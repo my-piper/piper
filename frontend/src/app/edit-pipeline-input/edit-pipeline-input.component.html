@@ -1,0 +1,17 @@
+<h1>{{ input.title | i18n }}</h1>
+
+<form [formGroup]="form">
+  <app-edit-input
+    class="input"
+    formControlName="value"
+    [type]="input.type"
+    [min]="input.min"
+    [max]="input.max"
+    [step]="input.step"
+    [default]="input.default"
+    [placeholder]="input.placeholder"
+    [enum]="input.enum"
+    [freeform]="input.freeform"
+    [multiline]="input.multiline"
+  ></app-edit-input>
+</form>

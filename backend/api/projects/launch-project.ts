@@ -1,0 +1,76 @@
+import { plainToInstance } from "class-transformer";
+import { toPlain } from "core-kit/utils/models";
+import merge from "lodash/merge";
+import { api } from "../../app/api";
+import mongo from "../../app/mongo";
+import { run } from "../../logic/launches/launching";
+import { LaunchOptions } from "../../models/launch";
+import { LaunchRequest } from "../../models/launch-request";
+import { Project } from "../../models/project";
+import { RunScope } from "../../models/run-scope";
+import { User } from "../../models/user";
+import { checkLogged, handle, toModel } from "../../utils/http";
+import { sid } from "../../utils/string";
+
+api.post(
+  "/api/projects/:_id/launch",
+  handle(({ currentUser }) => async ({ params: { _id }, body }) => {
+    checkLogged(currentUser);
+
+    const project = toModel(
+      await mongo.projects.findOne(
+        {
+          _id,
+        },
+        {
+          projection: {
+            _id: 1,
+            title: 1,
+            createdBy: 1,
+            pipeline: 1,
+            launchRequest: 1,
+            environment: 1,
+          },
+        }
+      ),
+      Project
+    );
+
+    const {
+      pipeline,
+      launchRequest: projectLaunchRequest,
+      environment,
+    } = project;
+
+    const launchRequest = plainToInstance(
+      LaunchRequest,
+      merge(toPlain(projectLaunchRequest), body)
+    );
+
+    const launch = await run({
+      launchedBy: (() => {
+        const { _id, name } = currentUser;
+        return new User({ _id, name });
+      })(),
+      project: (() => {
+        const { _id, title, createdBy } = project;
+        return new Project({ _id, title, createdBy });
+      })(),
+      pipeline,
+      launchRequest,
+      environment,
+      scope: new RunScope({
+        id: sid(),
+        maxConcurrent: 1,
+      }),
+      options: new LaunchOptions({
+        notify: true,
+      }),
+      comment: "UI call",
+    });
+    const plain = toPlain(launch);
+    delete plain.pipeline;
+    delete plain.launchRequest;
+    return plain;
+  })
+);

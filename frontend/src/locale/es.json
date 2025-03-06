@@ -1,0 +1,11 @@
+{
+	"locale": "es",
+	"translations": {
+		"action.save": " Guardar",
+		"link.node_packages": "Paquetes de nodos",
+		"link.pipelines": "Tuberías",
+		"link.launches": "Lanza",
+		"link.users": "Usuarios",
+		"link.playground": "Parque infantil"
+	}
+}

@@ -1,0 +1,32 @@
+<ul class="errors" *ngIf="form.errors?.['validate'] as errors">
+  <li *ngFor="let e of errors">{{ e }}</li>
+</ul>
+
+<ng-template #createCatalogTemplate>
+  <p>You can publish your node to common catalog for reusing.</p>
+  <button class="button primary" (click)="create()">Create config</button>
+</ng-template>
+<form
+  *ngIf="!!catalogControl.value; else createCatalogTemplate"
+  [formGroup]="form"
+>
+  <fieldset>
+    <app-json-editor
+      [schema]="schemas.node.properties.catalog"
+      formControlName="catalog"
+    ></app-json-editor>
+  </fieldset>
+
+  <footer class="stack horizontal justify-between">
+    <button
+      class="button primary"
+      [class.busy]="progress.publishing"
+      [disabled]="progress.publishing || form.invalid"
+      (click)="publish()"
+    >
+      Publish
+    </button>
+
+    <button class="delete-button" (click)="remove()">Remove</button>
+  </footer>
+</form>

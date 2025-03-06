@@ -1,0 +1,27 @@
+<ng-template #noDataTemplate>
+  <p>No messages found.</p>
+</ng-template>
+
+<ng-template #loadingTemplate>
+  <div *ngIf="progress.loading; else noDataTemplate">
+    <p>Loading...</p>
+  </div>
+</ng-template>
+
+<ng-container *ngIf="messages.length > 0; else loadingTemplate">
+  <div *ngFor="let m of messages">
+    <header>
+      <a
+        *ngIf="!!filter?.project"
+        target="_blank"
+        [routerLink]="['/launches', m.launch]"
+      >
+        {{ m.launch }}
+      </a>
+      <small>{{ m.createdAt | date: "short" }}</small>
+      <label *ngIf="m.type as type">{{ type }}</label>
+    </header>
+
+    <div [innerHTML]="m.message | markdown | async"></div>
+  </div>
+</ng-container>

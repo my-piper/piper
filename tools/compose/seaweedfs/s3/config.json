@@ -1,0 +1,14 @@
+{
+  "identities": [
+    {
+      "name": "piper",
+      "credentials": [
+        {
+          "accessKey": "123456",
+          "secretKey": "65432"
+        }
+      ],
+      "actions": ["Read", "Write"]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+	"locale": "hi",
+	"translations": {
+		"action.save": "सुरक्षित",
+		"link.node_packages": "नोड पैकेज",
+		"link.pipelines": "पाइपलाइन",
+		"link.launches": "लॉन्च करता है",
+		"link.users": "उपयोगकर्ता",
+		"link.playground": "खेल का स्थान"
+	}
+}

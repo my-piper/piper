@@ -1,0 +1,75 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<div class="app-container">
+  <header>
+    <button class="primary" (click)="create()">Create</button>
+  </header>
+
+  <table class="default" [class.busy]="progress.loading">
+    <thead>
+      <th width="24px"></th>
+      <th>Title</th>
+      <th width="24px"></th>
+      <th width="250px">Created</th>
+      <th width="250px">Updated</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of projects">
+        <td>
+          <ng-template #actionsTemplate>
+            <ul class="context-menu">
+              <li>
+                <button (click)="remove(p._id)">
+                  <app-icon
+                    class="icon left"
+                    icon="delete"
+                    [size]="18"
+                  ></app-icon>
+                  Delete
+                </button>
+              </li>
+            </ul>
+          </ng-template>
+          <button
+            class="circle small"
+            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+            [disabled]="userRole.admin | can: p.createdBy | async | not"
+            (attached)="references.popover = $event"
+          >
+            <app-icon
+              class="icon"
+              [size]="18"
+              [icon]="
+                (userRole.admin | can: p.createdBy | async) ? 'menu' : 'lock'
+              "
+            ></app-icon>
+          </button>
+        </td>
+        <td>
+          <a [routerLink]="[p._id]">
+            {{ p.title | i18n }}
+          </a>
+        </td>
+        <td>
+          <app-icon
+            *ngIf="p.visibility === 'public'"
+            icon="share"
+            [color]="ui.color.primary"
+          ></app-icon>
+        </td>
+        <td class="created">
+          <div>{{ p.createdBy?.name }}</div>
+          <small>{{ p.createdAt | date }}</small>
+        </td>
+        <td class="updated">
+          <div>{{ p.updatedBy?.name }}</div>
+          <small>{{ p.updatedAt | date: "short" }}</small>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,224 @@
+<ng-template #errorTemplate>
+  <div class="informer errors">
+    <p>{{ error.message }}</p>
+    <ul *ngFor="let m of error?.details">
+      {{
+        m
+      }}
+    </ul>
+    <p>Your data were not saved!</p>
+    <div class="stack horizontal justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
+<app-informer
+  *ngIf="!!error"
+  [contentTemplate]="errorTemplate"
+  (ok)="error = null"
+></app-informer>
+
+<div class="stack horizontal">
+  <a class="circle small" [routerLink]="['..']">
+    <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
+  </a>
+  <ng-template #shareProjectPopover>
+    <app-edit-project
+      [project]="project"
+      (updated)="updated($event)"
+    ></app-edit-project>
+  </ng-template>
+  <button
+    *ngIf="userRole.admin | can: project.createdBy | async"
+    class="circle small"
+    [appPopover]="{
+      trigger: 'click',
+      behavior: 'dropdown',
+      content: shareProjectPopover,
+    }"
+  >
+    <app-icon class="icon" [icon]="'share'"></app-icon>
+  </button>
+  <div>
+    <h1>{{ project.title | i18n }}</h1>
+    <small *ngIf="pipeline.description as description">{{ description }}</small>
+  </div>
+</div>
+
+<ng-template #clonePipelineTemplate>
+  <header>
+    <p>You are not owner of this pipeline.</p>
+    <p>
+      But you can play with it in
+      <a
+        class="primary with-icon"
+        [routerLink]="['/', 'play', project._id]"
+        routerLinkActive="active"
+      >
+        Playground
+        <app-icon class="icon right" [size]="18" icon="open-link"></app-icon>
+      </a>
+      or you can <button class="primary">Clone</button> to ability for edit.
+    </p>
+  </header>
+</ng-template>
+
+<header
+  *ngIf="
+    userRole.admin | can: project.createdBy | async;
+    else clonePipelineTemplate
+  "
+  class="stack horizontal align-center justify-between"
+>
+  <nav class="stack horizontal align-center">
+    <div class="launch">
+      <a
+        class="primary"
+        [routerLink]="['./']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="active"
+      >
+        Pipeline
+      </a>
+      <ng-template #launchTemplate>
+        <button
+          class="primary with-icon only-icon"
+          [class.busy]="progress.launching"
+          [disabled]="progress.launching"
+          (click)="launch()"
+        >
+          <app-icon class="icon" icon="play" [size]="20"></app-icon>
+          <span
+            class="badge"
+            *ngIf="
+              (project._id | pipelineCosts: null : project.revision | async)
+                ?.costs as costs
+            "
+            >{{ costs | currency: "USD" : "symbol" : "1.0-10" }}</span
+          >
+        </button>
+      </ng-template>
+
+      <a
+        *ngIf="child | is: launchComponent; else launchTemplate"
+        class="primary active with-icon only-icon"
+        [routerLink]="['./']"
+      >
+        <app-icon icon="stop" color="white" [size]="20"></app-icon>
+      </a>
+    </div>
+    <a class="primary" [routerLink]="['design']" routerLinkActive="active"
+      >Design</a
+    >
+    <ul class="menu">
+      <li>
+        <a [routerLink]="['environment']" routerLinkActive="active"
+          >Environment</a
+        >
+      </li>
+      <li>|</li>
+      <li>
+        <a [routerLink]="['launches']" routerLinkActive="active">Launches</a>
+      </li>
+      <li>|</li>
+      <li>
+        <a
+          class="item with-icon"
+          [routerLink]="['/', 'play', project._id]"
+          target="_blank"
+          routerLinkActive="active"
+        >
+          Playground
+          <app-icon class="icon right" [size]="18" icon="open-link"></app-icon>
+        </a>
+      </li>
+      <li>|</li>
+      <li>
+        <ng-template #linksMenu>
+          <ul class="context-menu">
+            <li>
+              <a
+                [routerLink]="['readme/edit']"
+                routerLinkActive="active"
+                (click)="references.popover?.hide()"
+                >README</a
+              >
+            </li>
+            <li>
+              <a
+                [routerLink]="['deploy']"
+                routerLinkActive="active"
+                (click)="references.popover?.hide()"
+                >Deploy</a
+              >
+            </li>
+            <li>
+              <a
+                [routerLink]="['yaml']"
+                routerLinkActive="active"
+                (click)="references.popover?.hide()"
+                >YAML</a
+              >
+            </li>
+            <li>
+              <a
+                [routerLink]="['messages']"
+                routerLinkActive="active"
+                (click)="references.popover?.hide()"
+                >Messages</a
+              >
+            </li>
+            <li>
+              <a
+                [routerLink]="['assets']"
+                routerLinkActive="active"
+                (click)="references.popover?.hide()"
+                >Assets</a
+              >
+            </li>
+          </ul>
+        </ng-template>
+        <button
+          class="item with-icon"
+          [appPopover]="{ behavior: 'dropdown', content: linksMenu }"
+          (attached)="references.popover = $event"
+        >
+          More
+          <app-icon class="icon right" icon="chevron-down"></app-icon>
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <div
+    class="status"
+    [attr.data-status]="status"
+    *ngIf="projectManager.status | async as status"
+  >
+    {{ status }}
+  </div>
+</header>
+
+<ng-template #noneModalTemplate>
+  <router-outlet
+    (activate)="child = $event"
+    (deactivate)="child = null"
+  ></router-outlet>
+</ng-template>
+
+<ng-container
+  *ngIf="child | is: pipelineReadmeComponent; else noneModalTemplate"
+>
+  <div class="modal">
+    <header>
+      <a class="primary" [routerLink]="['./']">Close</a>
+    </header>
+    <div class="content filled">
+      <router-outlet
+        (activate)="child = $event"
+        (deactivate)="child = null"
+      ></router-outlet>
+    </div>
+  </div>
+</ng-container>

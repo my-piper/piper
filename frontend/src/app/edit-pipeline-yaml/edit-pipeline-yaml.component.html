@@ -1,0 +1,62 @@
+<ng-template #pipelineTab>
+  <ng-container [formGroup]="form">
+    <ngx-monaco-editor
+      formControlName="pipeline"
+      [options]="{
+        wordWrap: 'wordWrapColumn',
+        wordWrapColumn: 300,
+        wordBreak: 'keepAll',
+        theme: 'vs-dark',
+        language: 'yaml',
+      }"
+      style="height: 500px"
+    >
+    </ngx-monaco-editor>
+  </ng-container>
+</ng-template>
+
+<ng-template #launchRequestTab>
+  <ng-container [formGroup]="form">
+    <ngx-monaco-editor
+      [formGroup]="form"
+      formControlName="launchRequest"
+      [options]="{ wordWrap: 'off', theme: 'vs-dark', language: 'json' }"
+      style="height: 300px"
+    >
+    </ngx-monaco-editor>
+  </ng-container>
+</ng-template>
+
+<ng-template #environmentTab>
+  <ng-container [formGroup]="form">
+    <ngx-monaco-editor
+      [formGroup]="form"
+      formControlName="environment"
+      [options]="{ wordWrap: 'off', theme: 'vs-dark', language: 'json' }"
+      style="height: 300px"
+    >
+    </ngx-monaco-editor>
+  </ng-container>
+</ng-template>
+
+<form>
+  <fieldset>
+    <app-tabs
+      [tabs]="[
+        { title: 'Pipeline', content: pipelineTab },
+        { title: 'Launch request', content: launchRequestTab },
+        { title: 'Environment', content: environmentTab },
+      ]"
+    ></app-tabs>
+  </fieldset>
+  <footer>
+    <button
+      submitButton
+      class="primary"
+      [disabled]="form.invalid"
+      (click)="save()"
+    >
+      Save
+    </button>
+  </footer>
+</form>

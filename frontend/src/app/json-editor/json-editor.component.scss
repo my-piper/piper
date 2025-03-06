@@ -1,0 +1,172 @@
+@import 'src/ui-kit/styles/variables';
+@import 'src/ui-kit/styles/mixins';
+@import 'src/ui-kit/styles/defs/forms';
+@import 'src/ui-kit/styles/defs/buttons';
+@import 'src/ui-kit/styles/reset';
+
+:host {
+    &[data-theme=html]::ng-deep {
+        input {
+            @extend %input-primary;
+            width: 100%;
+        }
+
+        textarea {
+            @extend %input-primary;
+            width: 100%;
+            height: 80px;
+            display: block;
+        }
+
+        select:not(.je-switcher) {
+            @extend %select-primary;
+        }
+
+        select.je-switcher {
+            font-style: normal;
+            border-radius: $corner-small;
+            padding: $gutter-tiny $gutter-small;
+        }
+
+        [role=alert] {
+            margin-top: $gutter-tiny;
+            font-size: $font-size-small;
+        }
+
+        .je-switcher {
+            margin-bottom: $gutter-small;
+        }
+
+        .je-form-input-label:not(label) {
+            margin-top: $gutter-tiny;
+            font-weight: normal;
+            font-size: $font-size-small;
+        }
+
+        .je-object__container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto 1fr;
+            row-gap: $gutter-small;
+            align-items: center;
+            grid-template-areas:
+                "controls title"
+                "indented indented";
+        }
+
+        .je-header {
+            grid-area: title;
+        }
+
+        .je-object__controls {
+            @include reset-div();
+            margin-right: $gutter-small;
+            grid-area: controls;
+        }
+
+        .je-indented-panel {
+            @include reset-div();
+            grid-area: indented;
+            border-left: 2px dashed $primary-light-color;
+            padding-left: $gutter-normal;
+            margin-left: 16px;
+
+            &>div>div {
+                @include vertical-stack($gutter-small);
+            }
+        }
+
+        button.json-editor-btn-edit_properties,
+        button.json-editor-btn-collapse {
+            @extend %button-circle;
+            @extend %button-circle-small;
+            display: inline-flex;
+
+            span {
+                display: none;
+            }
+
+            &::after {
+                content: "";
+                background-size: contain;
+                background-repeat: no-repeat;
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        button.json-editor-btn-edit_properties {
+            &::after {
+                background-image: url(../../assets/icons/context-menu.svg);
+            }
+        }
+
+        button.json-editor-btn-collapse {
+            &::after {
+                background-image: url(../../assets/icons/folder.svg);
+            }
+        }
+
+        button.json-editor-btn-delete,
+        button.json-editor-btn-moveup,
+        button.json-editor-btn-movedown {
+            @extend %button-circle;
+            @extend %button-circle-small;
+            margin: 0 $gutter-small $gutter-normal 0;
+            display: inline-flex;
+
+            span {
+                display: none;
+            }
+
+            &:after {
+                background-size: contain;
+                background-repeat: no-repeat;
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        button.json-editor-btn-delete {
+            &:after {
+                content: "";
+                background-image: url(../../assets/icons/delete.svg);
+            }
+        }
+
+        button.json-editor-btn-moveup {
+            &:after {
+                content: "";
+                background-image: url(../../assets/icons/chevron-up.svg);
+            }
+        }
+
+        button.json-editor-btn-movedown {
+            &:after {
+                content: "";
+                background-image: url(../../assets/icons/chevron-down.svg);
+            }
+        }
+
+        button.json-editor-btn-add {
+            @extend %button-primary;
+            @extend %button-small;
+            margin-top: $gutter-tiny;
+        }
+
+
+        .je-modal {
+            margin-top: $gutter-tiny;
+            padding: $gutter-small;
+            @include vertical-stack($gutter-small);
+
+            input[type=checkbox] {
+                @extend %checkbox;
+            }
+
+            button.json-editor-btn-add {
+                @extend %button-primary;
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+  display: block;
+}
+
+.errors {
+  @include vertical-stack();
+  color: white;
+  font-size: $font-size-big;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+form {
+  @include vertical-stack();
+  min-width: 500px;
+}

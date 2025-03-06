@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "title": "User",
+  "properties": {
+    "_id": {
+      "type": "string",
+      "title": "Login",
+      "pattern": "^[a-z0-9-_]{3,10}$",
+      "propertyOrder": 1
+    },
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "pattern": "^[\\w]{5,14}$",
+      "propertyOrder": 2
+    },
+    "password": {
+      "type": "string",
+      "title": "Password",
+      "pattern": "^.{6,18}$",
+      "propertyOrder": 3
+    },
+    "email": {
+      "type": "string",
+      "title": "Email",
+      "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+      "propertyOrder": 4
+    },
+    "roles": {
+      "type": "array",
+      "title": "Roles",
+      "propertyOrder": 5,
+      "items": {
+        "type": "string",
+        "enum": ["admin"]
+      }
+    }
+  },
+  "required": ["_id", "email"],
+  "additionalProperties": false
+}

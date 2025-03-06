@@ -1,0 +1,26 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<table class="default" [class.busy]="progress.loading">
+  <thead>
+    <th>Refilled at</th>
+    <th width="50px">Amount</th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let r of refills">
+      <td>{{ r.refilledAt | date: "short" }}</td>
+      <td style="text-align: right">{{ r.amount | currency: "USD" }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<button
+  *ngIf="!progress.loading && chunk.length > 0"
+  class="primary"
+  (click)="loadMore()"
+>
+  Load more
+</button>

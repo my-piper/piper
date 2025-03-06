@@ -1,0 +1,24 @@
+<h1>Put package YAML</h1>
+<form [formGroup]="form">
+  <fieldset>
+    <ngx-monaco-editor
+      formControlName="yaml"
+      [options]="{
+        language: 'yaml',
+      }"
+      style="height: 500px"
+    >
+    </ngx-monaco-editor>
+  </fieldset>
+  <footer>
+    <button
+      class="primary"
+      type="button"
+      [class.busy]="progress.importing"
+      [disabled]="form.invalid || progress.importing"
+      (click)="import()"
+    >
+      Import
+    </button>
+  </footer>
+</form>

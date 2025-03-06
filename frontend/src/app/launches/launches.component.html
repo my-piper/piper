@@ -1,0 +1,111 @@
+<div class="cards launches" [class.busy-block]="progress.loading">
+  <div class="card" *ngFor="let l of launches">
+    <header>
+      <ng-template #actionsTemplate>
+        <ul class="context-menu">
+          <li>
+            <a
+              class="link"
+              [href]="'/launches/' + l._id"
+              target="_blank"
+              (click)="references.popover?.hide()"
+            >
+              <app-icon
+                class="icon left"
+                icon="open-link"
+                [size]="18"
+              ></app-icon>
+              Open pipeline
+            </a>
+          </li>
+          <li>
+            <button
+              [class.busy]="progress.removing[l._id]"
+              [disabled]="progress.removing[l._id]"
+              (click)="remove(l)"
+            >
+              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
+              Delete
+            </button>
+          </li>
+        </ul>
+      </ng-template>
+      <button
+        class="actions"
+        [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+        (attached)="references.popover = $event"
+      >
+        <app-icon class="icon" icon="menu"></app-icon>
+      </button>
+
+      <div
+        class="metric"
+        *ngIf="l._id | pipelineFinishedMetric | async as metric"
+      >
+        {{ metric.fromStart }} sec
+      </div>
+    </header>
+    <article>
+      <ng-template #errorsTemplate>
+        <ul>
+          <li *ngFor="let error of l.errors">{{ error }}</li>
+        </ul>
+      </ng-template>
+      <div class="errors" *ngIf="l.errors?.length > 0">
+        <button class="transparent" [appPopover]="{ content: errorsTemplate }">
+          <app-icon icon="error" [color]="'red'"></app-icon>
+        </button>
+      </div>
+      <app-launch-outputs
+        class="outputs"
+        mode="card"
+        [launch]="l"
+      ></app-launch-outputs>
+    </article>
+    <footer>
+      <ng-template #inputsPopover>
+        <ul class="inputs">
+          <li *ngFor="let i of l.inputs | keyvalue | orderBy: ['value.order']">
+            <b>{{ i.value.title | i18n }}:</b>
+            <div class="value" [ngSwitch]="i.value.type">
+              <ng-container *ngSwitchCase="'image'">
+                <img [src]="i.value.data?.url | proxyImage: { width: 100 }" />
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                {{ i.value.data?.value }}
+              </ng-container>
+            </div>
+          </li>
+        </ul>
+      </ng-template>
+      <button
+        class="transparent"
+        *ngIf="!!l.inputs"
+        [appPopover]="{ content: inputsPopover }"
+      >
+        <app-icon icon="info"></app-icon>
+      </button>
+      <span
+        *ngIf="l.launchedBy?._id === config.authorization._id"
+        class="launched-by"
+      >
+        by {{ l.launchedBy?.name }} |
+      </span>
+
+      {{ l.launchedAt | formatDistance }} ago
+    </footer>
+  </div>
+</div>
+
+<button
+  *ngIf="chunk.length > 0"
+  class="primary with-icon"
+  [class.busy]="progress.loading"
+  [disabled]="progress.loading"
+  (click)="loadMore()"
+  [inViewport]
+  (visible)="loadMore()"
+>
+  Load more
+  <app-icon class="icon right" icon="chevron-down"></app-icon>
+</button>

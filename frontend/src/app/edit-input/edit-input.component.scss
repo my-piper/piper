@@ -1,0 +1,83 @@
+@import 'src/ui-kit/styles/mixins';
+@import 'src/ui-kit/styles/variables';
+
+:host {
+  display: block;
+}
+
+.select-asset {
+  @include vertical-stack($gutter-small);
+  width: 80vmax;
+  height: 90vmin;
+
+  p {
+    font-size: $font-size-small;
+
+    span {
+      background: $graphite-color-60;
+      padding: $gutter-tiny $gutter-small;
+      border-radius: $corner-small;
+    }
+  }
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+
+  &.uploading {
+    opacity: 0.5;
+    cursor: progress;
+    pointer-events: none;
+  }
+}
+
+.extensions {
+  margin-bottom: $gutter-normal;
+}
+
+.container {
+  position: relative;
+  cursor: pointer;
+
+  .drag-zone {
+    display: flex;
+    opacity: 0;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba($color: #000000, $alpha: .5);
+    color: white;
+  }
+
+  &.dragging {
+    .drag-zone {
+      opacity: 1;
+    }
+  }
+}
+
+img,
+video {
+  &:not(.mask) {
+    @include placeholder();
+  }
+
+  display: block;
+  width: 100%;
+  min-width: 100px;
+  min-height: 100px;
+  border-radius: $corner-small;
+
+  &.mask {
+    position: absolute;
+    z-index: 1;
+    opacity: .5;
+  }
+}

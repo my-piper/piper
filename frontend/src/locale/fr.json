@@ -1,0 +1,10 @@
+{
+	"locale": "fr",
+	"translations": {
+		"action.save": " Sauvegarde",
+		"link.node_packages": "Paquets de nœuds",
+		"link.launches": "Lancements",
+		"link.users": "Utilisateurs",
+		"link.playground": "Terrain de jeu"
+	}
+}

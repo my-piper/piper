@@ -1,0 +1,43 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error"
+  (ok)="error = null"
+></app-informer>
+
+<form [formGroup]="form">
+  <fieldset>
+    <app-json-editor
+      [schema]="schemas.pipeline.properties.deploy"
+      formControlName="deploy"
+    ></app-json-editor>
+  </fieldset>
+  <footer class="stack horizontal">
+    <button submitButton class="primary" (click)="save()">Save</button>
+    <button
+      class="primary"
+      type="button"
+      [class.busy]="progress.deploying"
+      [disabled]="progress.deploying"
+      (click)="deploy()"
+    >
+      Deploy
+    </button>
+  </footer>
+</form>
+
+<ng-container *ngIf="project.pipeline.deploy as deploy">
+  <h2>How to call</h2>
+  <pre>
+<![CDATA[curl --location --request POST 'https://{{ hostname }}/api/{{
+      deploy.slug
+    }}/launch' \
+  --header 'Content-Type: application/json' \
+  --data '{{ project.launchRequest | json }}']]></pre
+  >
+  <h2>How to check</h2>
+  <pre>
+<![CDATA[curl --location --request GET 'https://{{
+      hostname
+    }}/api/launches/:launch/state']]></pre
+  >
+</ng-container>

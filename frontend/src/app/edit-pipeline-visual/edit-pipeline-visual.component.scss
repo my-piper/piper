@@ -1,0 +1,136 @@
+:host {
+  display: block;
+}
+
+.modal {
+  header {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.input,
+.output {
+  &.disabled {
+    pointer-events: none;
+  }
+}
+
+
+.nodes {
+  position: relative;
+  overflow: scroll;
+  height: 600px;
+
+  .input,
+  .output {
+    display: block;
+    position: absolute;
+    z-index: 1;
+    transform: translateX(-50%) translateY(-50%);
+
+    &:not(.disabled) {
+      cursor: pointer;
+    }
+
+    &.disabled {
+      pointer-events: none;
+    }
+
+    .drag {
+      width: fit-content;
+      height: fit-content;
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      margin: auto;
+      display: none;
+      background: transparent;
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+
+    &:hover {
+      .drag {
+        display: block;
+      }
+    }
+  }
+
+  .node {
+    display: block;
+    position: absolute;
+    z-index: 1;
+
+    &:hover .actions {
+      display: block;
+    }
+
+    &.readonly {
+      .actions {
+        display: none;
+      }
+    }
+
+    .actions {
+      z-index: 1;
+      position: absolute;
+      left: -15px;
+      top: -15px;
+      display: none;
+
+      .drag {
+        &:active {
+          cursor: grabbing;
+        }
+      }
+    }
+
+    &:hover {
+      .drag {
+        opacity: 1;
+      }
+    }
+  }
+
+  .actions {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+  }
+
+  .pane {
+    position: relative;
+    width: 5000px;
+    height: 2000px;
+
+    svg {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+
+      path {
+        stroke-width: 2;
+        fill: transparent;
+
+        &.flow:hover {
+          stroke: green;
+          cursor:
+            url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill-rule="evenodd" clip-rule="evenodd" d="M0.46967 0.46967C0.762563 0.176777 1.23744 0.176777 1.53033 0.46967L9.53033 8.46967C9.82322 8.76256 9.82322 9.23744 9.53033 9.53033C9.23744 9.82322 8.76256 9.82322 8.46967 9.53033L0.46967 1.53033C0.176777 1.23744 0.176777 0.762563 0.46967 0.46967Z" fill="red"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.53033 0.46967C9.82322 0.762563 9.82322 1.23744 9.53033 1.53033L1.53033 9.53033C1.23744 9.82322 0.762563 9.82322 0.46967 9.53033C0.176777 9.23744 0.176777 8.76256 0.46967 8.46967L8.46967 0.46967C8.76256 0.176777 9.23744 0.176777 9.53033 0.46967Z" fill="red"/></svg>') 5 5,
+            auto;
+        }
+      }
+    }
+  }
+}

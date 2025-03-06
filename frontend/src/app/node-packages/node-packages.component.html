@@ -1,0 +1,175 @@
+<div class="modal" [class.hidden]="!modal">
+  <header>
+    <a class="primary" [routerLink]="['./']">Close</a>
+  </header>
+  <div class="content filled">
+    <router-outlet
+      (activate)="modal = $event"
+      (deactivate)="modal = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<ng-template #noUpdatesTemplates>
+  <p>Package has no updates.</p>
+</ng-template>
+
+<ng-template #readmePopover>
+  <div class="updates">
+    <header>
+      <button
+        *ngIf="(state?.updates || [] | packagesForUpdate) > 0"
+        class="primary"
+        [disabled]="progress.updating"
+        [class.busy]="progress.updating"
+        (click)="update()"
+      >
+        Update
+      </button>
+    </header>
+    <ng-template #noUpdatesTemplate>
+      <p>Please, check update.</p>
+    </ng-template>
+    <ul *ngIf="state?.updates.length; else noUpdatesTemplate">
+      <li *ngFor="let update of state.updates">
+        {{ update.current.title | i18n }}
+        <p class="errors" *ngIf="update.errors as errors; else updatesTemplate">
+          {{ errors }}
+        </p>
+        <ng-template #updatesTemplate>
+          <ng-container
+            *ngIf="update.updated as updated; else noUpdatesTemplates"
+          >
+            <p>New version {{ updated.version }}:</p>
+            <div
+              class="notes"
+              [innerHTML]="updated.readme | markdown | async"
+            ></div>
+          </ng-container>
+        </ng-template>
+      </li>
+    </ul>
+  </div>
+</ng-template>
+
+<div class="app-container">
+  <header class="horizontal stack">
+    <a class="primary" [routerLink]="['add']">Create</a>
+    <a class="secondary" [routerLink]="['import']">Import</a>
+
+    <ng-container [ngSwitch]="state?.status">
+      <ng-container *ngSwitchCase="'checking'">
+        <button class="secondary busy" disabled>Checking</button>
+      </ng-container>
+      <ng-container *ngSwitchCase="'updating'">
+        <button class="secondary busy" disabled>Updating</button>
+      </ng-container>
+      <ng-container *ngSwitchDefault>
+        <button
+          class="secondary"
+          [disabled]="progress.loading.state || progress.checking"
+          [class.busy]="progress.loading.state || progress.checking"
+          [appPopover]="{ content: readmePopover }"
+          (attached)="references.popover = $event"
+          (click)="checkUpdates()"
+        >
+          Check updates
+          <span
+            class="badge"
+            *ngIf="state?.updates || [] | packagesForUpdate as updates"
+            >{{ updates }}</span
+          >
+          <span
+            class="badge errors"
+            *ngIf="state?.updates || [] | packagesUpdateErrors as errors"
+            >{{ errors }}</span
+          >
+        </button>
+      </ng-container>
+    </ng-container>
+  </header>
+
+  <table
+    class="default"
+    [class.busy]="progress.loading.packages || progress.deleting"
+  >
+    <thead>
+      <th width="24px"></th>
+      <th width="256px">Title</th>
+      <th width="64px">Version</th>
+      <th>Description</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of packages; let i = index">
+        <td>
+          <ng-template #actionsTemplate>
+            <ul class="context-menu">
+              <li>
+                <a [routerLink]="[p._id]" (click)="references.popover?.hide()">
+                  <app-icon
+                    class="icon left"
+                    icon="edit"
+                    [size]="18"
+                  ></app-icon>
+                  Edit</a
+                >
+              </li>
+              <li>
+                <button (click)="remove(i, p)">
+                  <app-icon
+                    class="icon left"
+                    icon="delete"
+                    [size]="18"
+                  ></app-icon>
+                  Delete
+                </button>
+              </li>
+            </ul>
+          </ng-template>
+          <button
+            class="circle small"
+            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+            (attached)="references.popover = $event"
+          >
+            <app-icon
+              class="icon"
+              [size]="16"
+              [stroke]="3"
+              icon="menu"
+            ></app-icon>
+          </button>
+        </td>
+        <td>
+          <a [routerLink]="[p._id, 'export']">
+            {{ p.title | i18n }}
+          </a>
+        </td>
+        <td class="version">
+          <ng-template #releaseNotedPopover>
+            <h1>Release notes:</h1>
+            <div [innerHTML]="p.readme | markdown | async"></div>
+          </ng-template>
+          <div class="stack horizontal small align-center">
+            <span>{{ p.version }}</span>
+            <button
+              [appPopover]="{ content: releaseNotedPopover }"
+              class="circle small"
+              [disabled]="!p.readme"
+            >
+              <app-icon class="icon" icon="info" size="18"></app-icon>
+            </button>
+          </div>
+        </td>
+        <td>
+          {{ p.description }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

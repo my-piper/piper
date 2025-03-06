@@ -1,0 +1,20 @@
+<h1 *ngIf="!!nodePackage">{{ nodePackage.title | i18n }}</h1>
+<form [formGroup]="form">
+  <fieldset>
+    <app-json-editor
+      [schema]="schemas.nodePackage"
+      [disable]="!!nodePackage ? ['root._id'] : []"
+      formControlName="nodePackage"
+    ></app-json-editor>
+  </fieldset>
+  <footer>
+    <button
+      class="primary"
+      [class.busy]="progress.saving"
+      [disabled]="form.invalid || progress.saving"
+      (click)="save()"
+    >
+      Save
+    </button>
+  </footer>
+</form>

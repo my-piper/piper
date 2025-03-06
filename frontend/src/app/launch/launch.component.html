@@ -1,0 +1,83 @@
+<div class="modal" [class.hidden]="!modal">
+  <header>
+    <a class="primary" [routerLink]="['./']">Close</a>
+  </header>
+  <div class="content filled">
+    <router-outlet
+      (activate)="modal = $event"
+      (deactivate)="modal = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<ng-container *ngIf="!project">
+  <h1 *ngIf="launch.project.title as title">{{ title | i18n }}</h1>
+</ng-container>
+
+<ul class="menu">
+  <li>
+    <a [routerLink]="['outputs']" routerLinkActive="active"> Outputs </a>
+  </li>
+  <li>|</li>
+  <li>
+    <a [routerLink]="['nested']" routerLinkActive="active"> Nested </a>
+  </li>
+  <li>|</li>
+  <li>
+    <a [routerLink]="['messages']" routerLinkActive="active"> Messages </a>
+  </li>
+</ul>
+
+<!--
+<code class="public-url" *ngIf="!!project">https://{{hostname}}/launches/{{launch._id}}</code>
+-->
+
+<div class="nodes area" autoHeight>
+  <div class="pane">
+    <app-node
+      class="node"
+      *ngFor="let node of pipeline.nodes | keyvalue"
+      [style.left.px]="node.value.arrange.x"
+      [style.top.px]="node.value.arrange.y"
+      [id]="node.key"
+      [node]="node.value"
+      [launch]="launch"
+      [start]="pipeline.start.nodes | includes: node.key"
+      (click)="nodeState(node.key)"
+    ></app-node>
+    <svg>
+      <path
+        *ngFor="let flow of pipeline.flows | keyvalue"
+        [attr.d]="
+          (pipeline | node: flow.value.from).arrange
+            | shift
+              : {
+                  x: ui.node.width,
+                  y:
+                    ((pipeline
+                      | node: flow.value.from
+                      | outputIndex: flow.value.output) +
+                      1) *
+                      ui.node.input.height +
+                    ui.node.shift,
+                }
+            | curve
+              : ((pipeline | node: flow.value.to).arrange
+                  | shift
+                    : {
+                        y:
+                          ((pipeline
+                            | node: flow.value.to
+                            | inputIndex: flow.value.input) +
+                            1) *
+                            ui.node.input.height +
+                          ui.node.shift,
+                      })
+        "
+        stroke="silver"
+        fill="transparent"
+        stroke-width="3"
+      />
+    </svg>
+  </div>
+</div>

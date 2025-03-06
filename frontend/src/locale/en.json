@@ -1,0 +1,19 @@
+{
+  "locale": "en",
+  "translations": {
+    "message.uploading_image": "Uploading image",
+    "action.save": " Save ",
+    "link.node_packages": "Node packages",
+    "link.pipelines": "Pipelines",
+    "link.playground": "Playground",
+    "link.launches": "Launches",
+    "link.assets": "Assets",
+    "link.users": "Users",
+    "label.login_or_email": "User name or email",
+    "label.password": "Password",
+    "action.login": " Login ",
+    "label.email": "Your email",
+    "label.login": "Choose a login",
+    "action.register": " Register "
+  }
+}

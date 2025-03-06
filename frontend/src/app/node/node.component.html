@@ -1,0 +1,126 @@
+<ng-template #ioTemplate let-io="io" let-value="value">
+  <ng-container [ngSwitch]="io.type">
+    <span *ngSwitchCase="'integer'">{{ value || io.default }}</span>
+    <span *ngSwitchCase="'float'">{{ value || io.default }}</span>
+    <span *ngSwitchCase="'boolean'">{{ value ? "yes" : "no" }}</span>
+    <span *ngSwitchCase="'json'" class="json-value" [title]="value">
+      JSON:{{ io.schema?.id || io.schema }}
+    </span>
+    <span *ngSwitchCase="'string'" class="string-value" [title]="value">
+      {{ value || io.default }}
+    </span>
+    <div *ngSwitchCase="'image'">
+      <img *ngIf="!!value" [src]="value | proxyImage: { height: 30 }" />
+    </div>
+    <div *ngSwitchCase="'video'">
+      <video *ngIf="!!value" autoplay muted [volume]="0" [src]="value"></video>
+    </div>
+    <ng-container *ngSwitchCase="'image[]'">
+      <div *ngIf="!!value" class="images-value">
+        <img
+          *ngFor="let image of value | split: '|' | slice: 2"
+          [src]="image | proxyImage: { height: 30 }"
+        />
+      </div>
+    </ng-container>
+  </ng-container>
+</ng-template>
+
+<div *ngIf="start" class="start">
+  <app-icon class="icon" icon="play" [size]="20" [color]="'#5d6f80'"></app-icon>
+</div>
+
+<div class="node" [class.done]="status?.state === 'done'">
+  <h2>{{ node.title | i18n }}</h2>
+  <div class="io">
+    <ul class="inputs">
+      <ng-container *ngFor="let g of node.render.inputs">
+        <ng-container *ngFor="let i of g.group.inputs">
+          <ng-template #inputMenuPopover>
+            <div class="context-menu">
+              <li>
+                <button (click)="emitTakeOutInput(i.id, i.input)">
+                  Take out
+                </button>
+              </li>
+            </div>
+          </ng-template>
+          <li
+            [attr.data-type]="i.input.type"
+            [class.filled]="
+              inputs?.[i.id] != null || i.input.default !== undefined
+            "
+          >
+            <b>{{ i.input.title | i18n }}</b>
+            <div
+              class="circle"
+              [appPopover]="{
+                content: inputMenuPopover,
+                trigger: 'click',
+                position: 'left',
+              }"
+              (attached)="references.popover = $event"
+              (mouseup)="pinTo(i.id)"
+            ></div>
+            <ng-container
+              *ngTemplateOutlet="
+                ioTemplate;
+                context: {
+                  io: i.input,
+                  value: inputs?.[i.id] || i.input.default,
+                }
+              "
+            ></ng-container>
+          </li>
+        </ng-container>
+      </ng-container>
+    </ul>
+    <ul class="outputs">
+      <li
+        *ngFor="let o of node.outputs | keyvalue"
+        [attr.data-type]="o.value.type"
+        [class.filled]="outputs?.[o.key]"
+      >
+        <ng-template #outputMenuPopover>
+          <div class="context-menu">
+            <li>
+              <button (click)="emitTakeOutOutput(o.key, o.value)">
+                Take out
+              </button>
+            </li>
+          </div>
+        </ng-template>
+        <b>{{ o.value.title | i18n }}</b>
+        <div
+          class="circle"
+          [appPopover]="{
+            content: outputMenuPopover,
+            trigger: 'click',
+            position: 'right',
+          }"
+          (attached)="references.popover = $event"
+          (mousedown)="pinFrom(o.key)"
+        ></div>
+        <ng-container *ngIf="outputs?.[o.key] as value">
+          <ng-container
+            *ngTemplateOutlet="ioTemplate; context: { io: o.value, value }"
+          ></ng-container>
+        </ng-container>
+      </li>
+    </ul>
+  </div>
+  <div class="progress" *ngIf="status?.state !== 'done' && !!progress">
+    <div
+      class="processed"
+      [style.width.%]="
+        progress.processed > 0 ? (progress.processed / progress.total) * 100 : 0
+      "
+    ></div>
+    <div
+      class="losses"
+      [style.width.%]="
+        progress.losses > 0 ? (progress.losses / progress.total) * 100 : 0
+      "
+    ></div>
+  </div>
+</div>

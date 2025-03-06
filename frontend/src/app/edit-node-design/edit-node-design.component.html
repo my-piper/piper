@@ -1,0 +1,18 @@
+<form [formGroup]="form">
+  <fieldset>
+    <app-json-editor
+      [schema]="schemas.node"
+      formControlName="node"
+    ></app-json-editor>
+  </fieldset>
+  <fieldset class="io">
+    <app-json-editor
+      [schema]="schemas.inputs"
+      formControlName="inputs"
+    ></app-json-editor>
+    <app-json-editor
+      [schema]="schemas.outputs"
+      formControlName="outputs"
+    ></app-json-editor>
+  </fieldset>
+</form>

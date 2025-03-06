@@ -1,0 +1,64 @@
+@import "src/ui-kit/styles/variables";
+
+:host {
+  display: block;
+  padding: $gutter-normal;
+}
+
+.error {
+  color: red;
+}
+
+.io {
+  display: grid;
+  grid-template-columns: 1fr 20px 1fr;
+  gap: 20px;
+
+  .split {
+    background: lightgoldenrodyellow;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    gap: 20px;
+
+    li {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      border-bottom: 1px dashed silver;
+      padding: 5px;
+
+      >b {
+        display: flex;
+        align-items: flex-end;
+      }
+
+      >div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        img,
+        video {
+          display: block;
+          max-height: 100px;
+          border-radius: 2px;
+        }
+
+        &[data-type="image[]"] {
+          display: flex;
+          flex-wrap: wrap;
+
+          img {
+            margin: 0 5px 5px 0;
+            max-height: 30px;
+          }
+        }
+      }
+    }
+  }
+}

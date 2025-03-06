@@ -1,0 +1,56 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<div class="app-container stack vertical align-center justify-center">
+  <div class="form stack vertical align-center">
+    <img width="60px" height="60px" src="assets/app-logo-square.svg" />
+
+    <h1>Login</h1>
+
+    <form data-cy="form-login" [formGroup]="form" (ngSubmit)="login()">
+      <fieldset>
+        <input
+          class="input-primary"
+          id="_id"
+          name="_id"
+          [class.error]="form | invalidField: '_id'"
+          formControlName="_id"
+          placeholder="User name or email"
+          i18n-placeholder="@@label.login_or_email"
+          data-cy="user-name"
+          type="text"
+        />
+        <input
+          class="input-primary"
+          id="password"
+          name="password"
+          [class.error]="form | invalidField: 'password'"
+          formControlName="password"
+          i18n-placeholder="@@label.password"
+          data-cy="password"
+          placeholder="Password"
+          type="password"
+        />
+      </fieldset>
+      <footer>
+        <button
+          class="primary fluid"
+          [class.busy]="progress.login"
+          [disabled]="progress.login"
+          data-cy="login-button"
+          i18n="@@action.login"
+          type="submit"
+        >
+          Login
+        </button>
+      </footer>
+    </form>
+    <p>
+      Have no account yet?
+      <a [routerLink]="['/signup']">Register</a>
+    </p>
+  </div>
+</div>

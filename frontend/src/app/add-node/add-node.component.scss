@@ -1,0 +1,23 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+@import "src/ui-kit/styles/reset";
+
+:host {
+  display: block;
+}
+
+.nodes {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  min-height: 100px;
+
+  article {
+    >button {
+      @include reset-button();
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+}

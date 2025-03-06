@@ -1,0 +1,64 @@
+<ng-container [formGroup]="form">
+  <div class="inputs" formGroupName="inputs">
+    <div
+      *ngFor="
+        let i of project.pipeline.inputs | keyvalue | orderBy: ['value.order']
+      "
+    >
+      <label>
+        <app-icon
+          class="icon"
+          *ngIf="i.value.icon as icon"
+          [icon]="icon"
+        ></app-icon>
+        <span>{{ i.value.title | i18n }}</span>
+        <sup *ngIf="i.value.required">&ast;</sup>
+
+        <ng-template #inputDescriptionPopover>
+          <div [innerHTML]="i.value.description | markdown | async"></div>
+        </ng-template>
+
+        <button
+          class="transparent"
+          [appPopover]="{ content: inputDescriptionPopover }"
+          *ngIf="i.value.description"
+        >
+          <app-icon class="icon" icon="help"></app-icon>
+        </button>
+      </label>
+      <app-edit-input
+        [formControlName]="i.key"
+        [id]="i.key"
+        [type]="i.value.type"
+        [enum]="i.value.enum"
+        [freeform]="i.value.freeform"
+        [multiline]="i.value.multiline"
+        [default]="i.value.default"
+        [placeholder]="i.value.placeholder"
+        [min]="i.value.min"
+        [max]="i.value.max"
+        [step]="i.value.step"
+        [extensions]="i.value.extensions"
+        [inputsForm]="inputsGroup"
+      ></app-edit-input>
+    </div>
+  </div>
+</ng-container>
+
+<button
+  class="primary fluid"
+  [class.busy]="progress.launching"
+  [disabled]="!form.valid || progress.launching"
+  (click)="launch()"
+>
+  Run
+  <ng-container *ngIf="!!request">
+    <span
+      class="badge"
+      *ngIf="(project._id | pipelineCosts: request | async)?.costs as costs"
+      >{{
+        costs | countdown | async | currency: "USD" : "symbol" : "1.0-10"
+      }}</span
+    >
+  </ng-container>
+</button>

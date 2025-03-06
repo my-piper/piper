@@ -1,0 +1,176 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "frontend": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "inlineTemplate": true,
+          "inlineStyle": true,
+          "style": "scss",
+          "skipTests": true
+        },
+        "@schematics/angular:class": {
+          "skipTests": true
+        },
+        "@schematics/angular:directive": {
+          "skipTests": true
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": true
+        },
+        "@schematics/angular:resolver": {
+          "skipTests": true
+        },
+        "@schematics/angular:service": {
+          "skipTests": true
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "i18n": {
+        "sourceLocale": {
+          "code": "en",
+          "baseHref": "/en/"
+        },
+        "locales": {
+          "ru": {
+            "baseHref": "/ru/",
+            "translation": "src/locale/ru.json"
+          },
+          "de": {
+            "baseHref": "/de/",
+            "translation": "src/locale/de.json"
+          },
+          "es": {
+            "baseHref": "/es/",
+            "translation": "src/locale/es.json"
+          },
+          "pt-br": {
+            "baseHref": "/pt-br/",
+            "translation": "src/locale/pt-BR.json"
+          },
+          "fr": {
+            "baseHref": "/fr/",
+            "translation": "src/locale/fr.json"
+          },
+          "ja": {
+            "baseHref": "/ja/",
+            "translation": "src/locale/ja.json"
+          },
+          "ko": {
+            "baseHref": "/ko/",
+            "translation": "src/locale/ko.json"
+          },
+          "zh-cn": {
+            "baseHref": "/zh-cn/",
+            "translation": "src/locale/zh-CN.json"
+          },
+          "zh-tw": {
+            "baseHref": "/zh-tw/",
+            "translation": "src/locale/zh-TW.json"
+          },
+          "hi": {
+            "baseHref": "/hi/",
+            "translation": "src/locale/hi.json"
+          },
+          "tr": {
+            "baseHref": "/tr/",
+            "translation": "src/locale/tr.json"
+          },
+          "it": {
+            "baseHref": "/it/",
+            "translation": "src/locale/it.json"
+          }
+        }
+      },
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              "src/ui-kit/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/monaco-editor",
+                "output": "/assets/monaco/"
+              }
+            ],
+            "styles": ["src/styles.scss"],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "5kb",
+                  "maximumError": "20kb"
+                }
+              ],
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/consts/env.ts",
+                  "with": "src/consts/env.prod.ts"
+                }
+              ]
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "frontend:build:production"
+            },
+            "development": {
+              "buildTarget": "frontend:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "frontend:build"
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}

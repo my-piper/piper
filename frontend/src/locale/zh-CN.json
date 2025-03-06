@@ -1,0 +1,11 @@
+{
+	"locale": "zh-CN",
+	"translations": {
+		"action.save": "保存",
+		"link.node_packages": "节点软件包",
+		"link.pipelines": "管道",
+		"link.launches": "启动",
+		"link.users": "用户",
+		"link.playground": "游乐场"
+	}
+}

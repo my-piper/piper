@@ -1,0 +1,33 @@
+<div class="modal" [class.hidden]="!modal">
+  <header>
+    <a class="primary" [routerLink]="['./']">Close</a>
+  </header>
+  <div class="content filled">
+    <router-outlet
+      (activate)="modal = $event"
+      (deactivate)="modal = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<form [formGroup]="form">
+  <fieldset>
+    <ngx-monaco-editor
+      formControlName="readme"
+      [options]="{ wordWrap: 'off', theme: 'vs-dark', language: 'markdown' }"
+      style="height: 300px"
+    >
+    </ngx-monaco-editor>
+  </fieldset>
+  <footer class="stack horizontal">
+    <a class="secondary" [routerLink]="['view']">View</a>
+    <button
+      submitButton
+      class="primary"
+      [disabled]="form.invalid"
+      (click)="save()"
+    >
+      Save
+    </button>
+  </footer>
+</form>

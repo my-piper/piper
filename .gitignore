@@ -1,0 +1,14 @@
+**/node_modules
+**/.angular
+**/.idea
+**/.env
+**/dist
+**/cache
+**/tmp
+**/storage
+
+*.safetensors
+
+/keys/
+
+.DS_Store

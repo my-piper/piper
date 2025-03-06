@@ -1,0 +1,11 @@
+{
+	"locale": "zh-TW",
+	"translations": {
+		"action.save": "保存",
+		"link.node_packages": "Node包裝",
+		"link.pipelines": "管道",
+		"link.launches": "發射",
+		"link.users": "使用者",
+		"link.playground": "遊樂場"
+	}
+}

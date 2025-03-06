@@ -1,0 +1,26 @@
+<div class="app-container">
+  <nav *ngIf="me.user$ | async as user">
+    <ul class="menu">
+      <li>
+        <a
+          [routerLink]="['./']"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Usages
+          <span class="badge">{{ user.balance.used | currency: "USD" }}</span>
+        </a>
+      </li>
+      <li>|</li>
+      <li>
+        <a [routerLink]="['refills']" routerLinkActive="active">
+          Refills
+          <span class="badge">{{
+            user.balance.available | currency: "USD"
+          }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,12 @@
+{
+  "locale": "ru",
+  "translations": {
+    "action.save": " Сохранить",
+    "link.node_packages": "Пакеты",
+    "link.pipelines": "Проекты",
+    "link.launches": "Результаты",
+    "link.assets": "Исходники",
+    "link.users": "Пользователи",
+    "link.playground": "Песочница"
+  }
+}

@@ -1,0 +1,46 @@
+<ng-template #errorTemplate>
+  <div class="errors">
+    <p>{{ error.message }}</p>
+    <ul *ngFor="let m of error?.details">
+      {{
+        m
+      }}
+    </ul>
+    <p>Your data were not saved!</p>
+    <div class="stack horizontal justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
+<app-informer
+  *ngIf="!!error"
+  [contentTemplate]="errorTemplate"
+  (ok)="error = null"
+></app-informer>
+
+<ng-template #addUserTemplate>
+  <h1>Add user</h1>
+</ng-template>
+
+<h1 *ngIf="!!user; else addUserTemplate">{{ user._id }}</h1>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <fieldset>
+    <app-json-editor
+      [schema]="schemas.user"
+      [disable]="!!user ? ['root._id'] : []"
+      formControlName="user"
+    ></app-json-editor>
+  </fieldset>
+  <footer>
+    <button
+      class="primary"
+      [class.busy]="progress.saving"
+      [disabled]="!form.valid || progress.saving"
+      type="submit"
+    >
+      Save
+    </button>
+  </footer>
+</form>

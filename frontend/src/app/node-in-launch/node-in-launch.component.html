@@ -1,0 +1,24 @@
+<h1>{{ node.title | i18n }}</h1>
+
+<header>
+  <ul class="menu">
+    <li>
+      <a
+        [routerLink]="['./']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="active"
+        >IO</a
+      >
+    </li>
+    <li>|</li>
+    <li>
+      <a [routerLink]="['state']" routerLinkActive="active"> State</a>
+    </li>
+    <li>|</li>
+    <li>
+      <a [routerLink]="['jobs']" routerLinkActive="active">Jobs</a>
+    </li>
+  </ul>
+</header>
+
+<router-outlet></router-outlet>

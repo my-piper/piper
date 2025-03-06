@@ -1,0 +1,85 @@
+@import "src/ui-kit/styles/mixins";
+@import "src/ui-kit/styles/reset";
+
+:host {
+    display: block;
+    @include vertical-stack();
+}
+
+:host-context(.project-playground) {
+    .launches {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.launches {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    min-height: 100px;
+}
+
+header {
+    .metric {
+        position: absolute;
+        top: -$gutter-tiny;
+        right: -$gutter-tiny;
+        background: white;
+        padding: $gutter-tiny;
+        border-radius: $corner-small;
+        font-size: 12px;
+    }
+}
+
+article {
+    display: flex;
+    flex-direction: column;
+
+    .outputs {
+        flex: 1;
+    }
+
+    .errors {
+        z-index: 1;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+:host-context(.project-playground) {
+    .launched-by {
+        display: none;
+    }
+}
+
+.inputs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.75em;
+
+    li {
+        display: flex;
+
+        .value {
+            margin-left: $gutter-tiny;
+
+            img {
+                display: block;
+                max-height: 30px;
+                border-radius: $corner-small;
+            }
+        }
+    }
+}

@@ -1,0 +1,11 @@
+{
+	"locale": "it",
+	"translations": {
+		"action.save": " Salva",
+		"link.node_packages": "Pacchetti di nodi",
+		"link.pipelines": "Condotte",
+		"link.launches": "Lancia",
+		"link.users": "Gli utenti",
+		"link.playground": "Parco giochi"
+	}
+}

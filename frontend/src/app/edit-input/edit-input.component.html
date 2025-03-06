@@ -1,0 +1,255 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<ng-template #selectAssetTemplate let-type="type">
+  <div [formGroup]="form" class="select-asset">
+    <p>Just press <span>Ctrl+V</span> to upload image</p>
+    <textarea
+      #inputRef
+      [class.uploading]="progress.uploading"
+      [disabled]="progress.uploading"
+      formControlName="value"
+      class="input-primary"
+      cols="50"
+      rows="3"
+      (paste)="paste($event)"
+    ></textarea>
+
+    <ng-template #generatedTab>
+      <app-select-generated (selected)="putUrl($event)"></app-select-generated>
+    </ng-template>
+
+    <ng-template #assetsTab>
+      <app-assets
+        [filter]="{ type: type }"
+        (selected)="putUrl($event.url)"
+      ></app-assets>
+    </ng-template>
+
+    <app-tabs
+      [tabs]="[
+        { title: 'Generated', content: generatedTab },
+        { title: 'Assets', content: assetsTab },
+      ]"
+    >
+    </app-tabs>
+  </div>
+</ng-template>
+
+<div class="extensions" *ngIf="extensions?.length > 0">
+  <ng-container *ngFor="let e of extensions">
+    <ng-container [ngSwitch]="e.id">
+      <ng-container *ngSwitchCase="'draw-mask'">
+        <app-draw-mask
+          [image]="id"
+          [mask]="e.params.get('mask')"
+          [inputsForm]="inputsForm"
+          (changed)="cd.detectChanges()"
+        ></app-draw-mask>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</div>
+
+<ng-container [formGroup]="form" [ngSwitch]="type">
+  <ngx-monaco-editor
+    *ngSwitchCase="'json'"
+    formControlName="value"
+    [options]="{ language: 'json', minimap: { enabled: false } }"
+    class="editor"
+    style="height: 100px"
+  >
+  </ngx-monaco-editor>
+
+  <ng-container *ngSwitchCase="'integer'">
+    <ng-template #plainIntegerTemplate>
+      <input
+        *ngSwitchCase="'integer'"
+        class="input-primary"
+        formControlName="value"
+        type="number"
+        [attr.placeholder]="placeholder"
+        [min]="min"
+        [max]="max"
+        [step]="step"
+      />
+    </ng-template>
+    <app-slider
+      *ngIf="!!step; else plainIntegerTemplate"
+      formControlName="value"
+      [min]="min"
+      [max]="max"
+      [step]="step"
+    ></app-slider>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'float'">
+    <ng-template #plainFloatTemplate>
+      <input
+        class="input-primary"
+        formControlName="value"
+        type="number"
+        [attr.placeholder]="placeholder"
+        [min]="min"
+        [max]="max"
+        [step]="step"
+      />
+    </ng-template>
+    <app-slider
+      *ngIf="!!step; else plainFloatTemplate"
+      formControlName="value"
+      [min]="min"
+      [max]="max"
+      [step]="step"
+    ></app-slider>
+  </ng-container>
+  <div *ngSwitchCase="'boolean'" class="checkbox">
+    <label class="switch">
+      <input type="checkbox" formControlName="value" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <ng-container *ngSwitchCase="'image'">
+    <ng-template #selectImageAssetModal>
+      <ng-container
+        *ngTemplateOutlet="selectAssetTemplate; context: { type: 'image' }"
+      ></ng-container>
+    </ng-template>
+    <div
+      class="container"
+      [class.dragging]="state.dragging"
+      (dragover)="tryDragOver($event)"
+      (dragleave)="leaveDragZone($event)"
+      (drop)="dropped($event)"
+      [appModal]="{
+        title: 'Select image',
+        content: selectImageAssetModal,
+      }"
+    >
+      <div class="drag-zone">Drop here...</div>
+      <ng-container *ngFor="let e of extensions">
+        <ng-container [ngSwitch]="e.id">
+          <ng-container *ngSwitchCase="'draw-mask'">
+            <img
+              class="mask"
+              *ngIf="inputsForm.get(e.params.get('mask'))?.value as mask"
+              [src]="mask | proxyImage: { width: 500 }"
+            />
+          </ng-container>
+        </ng-container>
+      </ng-container>
+      <img
+        [imageFallback]
+        [imageSize]="valueControl.value"
+        [src]="valueControl.value | proxyImage: { width: 500 }"
+      />
+    </div>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'video'">
+    <ng-template #selectVideoAssetModal>
+      <ng-container
+        *ngTemplateOutlet="selectAssetTemplate; context: { type: 'video' }"
+      ></ng-container>
+    </ng-template>
+    <div
+      class="container"
+      [class.dragging]="state.dragging"
+      (dragover)="tryDragOver($event)"
+      (dragleave)="leaveDragZone($event)"
+      (drop)="dropped($event)"
+      [appModal]="{
+        title: 'Select video',
+        content: selectVideoAssetModal,
+      }"
+    >
+      <div class="drag-zone">Drop here...</div>
+      <video [src]="valueControl.value" muted autoplay [volume]="0"></video>
+    </div>
+  </ng-container>
+
+  <ng-container *ngSwitchDefault>
+    <ng-container *ngIf="enum?.length > 0; else textInputTemplate">
+      <ng-container *ngIf="freeform; else selectTemplate">
+        <input
+          class="input-primary"
+          type="text"
+          formControlName="value"
+          [attr.placeholder]="placeholder"
+          [attr.list]="id"
+        />
+        <datalist [id]="id">
+          <ng-container *ngFor="let g of enum | nsfw | groupList">
+            <optgroup [value]="g.name">
+              <ng-container *ngFor="let o of g.options">
+                <option *ngIf="o | split: '|' as x" [value]="x[0]">
+                  {{ x[1] ? (x[1] | i18n) : x[0] }}
+                </option>
+              </ng-container>
+            </optgroup>
+          </ng-container>
+        </datalist>
+      </ng-container>
+
+      <ng-template #selectTemplate>
+        <select
+          class="select-primary"
+          type="text"
+          formControlName="value"
+          [attr.placeholder]="placeholder"
+          [attr.list]="id"
+        >
+          <ng-template #optionsTemplate let-options="options">
+            <ng-container *ngFor="let o of options">
+              <option *ngIf="o | split: '|' as x" [value]="x[0]">
+                {{ x[1] ? (x[1] | i18n) : x[0] }}
+              </option>
+            </ng-container>
+          </ng-template>
+          <ng-container *ngFor="let g of enum | nsfw | groupList">
+            <ng-container *ngIf="g.name; else withoutGroupTemplate">
+              <optgroup [label]="g.name">
+                <ng-container
+                  *ngTemplateOutlet="
+                    optionsTemplate;
+                    context: { options: g.options }
+                  "
+                ></ng-container>
+              </optgroup>
+            </ng-container>
+            <ng-template #withoutGroupTemplate>
+              <ng-container
+                *ngTemplateOutlet="
+                  optionsTemplate;
+                  context: { options: g.options }
+                "
+              ></ng-container>
+            </ng-template>
+          </ng-container>
+        </select>
+      </ng-template>
+    </ng-container>
+
+    <ng-template #textInputTemplate>
+      <textarea
+        *ngIf="multiline; else simpleInputTemplate"
+        formControlName="value"
+        class="input-primary"
+        rows="10"
+        [attr.placeholder]="placeholder"
+      >
+      </textarea>
+      <ng-template #simpleInputTemplate>
+        <input
+          formControlName="value"
+          class="input-primary"
+          [attr.placeholder]="placeholder"
+        />
+      </ng-template>
+    </ng-template>
+  </ng-container>
+</ng-container>

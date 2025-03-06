@@ -1,0 +1,54 @@
+<ng-template #errorTemplate>
+  <div class="informer errors">
+    <p>{{ error.message }}</p>
+    <ul *ngFor="let m of error?.details">
+      {{
+        m
+      }}
+    </ul>
+    <p>Your data were not saved!</p>
+    <div class="stack horizontal justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
+<app-informer
+  *ngIf="!!error"
+  [contentTemplate]="errorTemplate"
+  (ok)="error = null"
+></app-informer>
+
+<form [formGroup]="form">
+  <fieldset>
+    <div class="switcher" [class.disabled]="progress.saving">
+      <label
+        class="option"
+        formControlName="visibility"
+        [appSelectable]="{ value: 'private' }"
+      >
+        Private
+      </label>
+      <label
+        class="option"
+        formControlName="visibility"
+        [appSelectable]="{ value: 'shared' }"
+      >
+        <span>Shared</span>
+      </label>
+      <label
+        *ngIf="userRole.admin | can | async"
+        class="option"
+        formControlName="visibility"
+        [appSelectable]="{ value: 'public' }"
+      >
+        <span>Public</span>
+      </label>
+    </div>
+  </fieldset>
+</form>
+
+<ng-container *ngIf="['shared', 'public'] | includes: visibilityControl.value">
+  <p>Link to share:</p>
+  <pre>{{ origin }}/play/{{ project._id }}</pre>
+</ng-container>

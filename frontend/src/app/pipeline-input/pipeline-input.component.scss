@@ -1,0 +1,49 @@
+@import "src/ui-kit/styles/variables";
+
+:host {
+  display: flex;
+  align-items: center;
+  position: relative;
+  user-select: none;
+  transform: translateX(calc(-50% + 16px));
+}
+
+.circle {
+  width: 32px;
+  height: 32px;
+  border: solid 3px green;
+  border-radius: 50%;
+  background: white;
+  box-sizing: border-box;
+}
+
+.value {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  font-size: 0.85em;
+  line-height: 1.25;
+  margin-right: 5px;
+
+  .title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+    width: fit-content;
+  }
+
+  small {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+
+    img {
+      border: 1px solid silver;
+      border-radius: 5px;
+      max-height: 30px;
+    }
+  }
+}

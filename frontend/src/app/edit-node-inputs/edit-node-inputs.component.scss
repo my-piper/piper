@@ -1,0 +1,50 @@
+@import "src/ui-kit/styles/variables";
+
+:host {
+  display: block;
+}
+
+form {
+  fieldset {
+    margin: 30px 0;
+  }
+}
+
+label {
+  display: flex;
+  align-items: flex-end;
+
+  button {
+    margin-left: $gutter-small;
+  }
+}
+
+h1 {
+  margin: 0;
+  line-height: 1;
+}
+
+.inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  input,
+  textarea {
+    width: 100%;
+  }
+
+  .json {
+    border: 1px solid silver;
+  }
+
+  .select-asset {
+    margin-top: 10px;
+  }
+}
+
+.editor {
+  border: 1px solid silver;
+  border-radius: 5px;
+  overflow: hidden;
+}

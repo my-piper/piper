@@ -1,0 +1,342 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Node",
+  "properties": {
+    "_id": {
+      "type": "string",
+      "title": "ID",
+      "pattern": "^[a-z0-9_]{5,40}$",
+      "propertyOrder": 1
+    },
+    "title": {
+      "type": "string",
+      "title": "Title",
+      "propertyOrder": 2
+    },
+    "version": {
+      "type": "number",
+      "title": "Version",
+      "format": "number",
+      "propertyOrder": 3
+    },
+    "description": {
+      "type": "string",
+      "format": "textarea",
+      "title": "Description",
+      "propertyOrder": 4
+    },
+    "category": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "string",
+          "pattern": "^[a-z0-9_]{5,40}$"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": ["id", "title"],
+      "additionalProperties": false
+    },
+    "package": {
+      "type": "string",
+      "title": "Package"
+    },
+    "arrange": {
+      "$ref": "local://arrange.json"
+    },
+    "script": {
+      "type": "string"
+    },
+    "costs": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["node", "catalog"]
+    },
+    "environment": {
+      "$ref": "#/definitions/Environment"
+    },
+    "catalog": {
+      "$ref": "#/definitions/Catalog"
+    },
+    "groups": {
+      "$ref": "#/definitions/Groups"
+    },
+    "inputs": {
+      "$ref": "#/definitions/Inputs"
+    },
+    "outputs": {
+      "$ref": "#/definitions/Outputs"
+    }
+  },
+  "required": ["title", "arrange", "inputs", "outputs"],
+  "additionalProperties": false,
+  "definitions": {
+    "Inputs": {
+      "title": "Inputs",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Input"
+      }
+    },
+    "Outputs": {
+      "title": "Outputs",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Output"
+      }
+    },
+    "Groups": {
+      "type": "object",
+      "properties": {
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Group"
+          }
+        }
+      },
+      "required": ["inputs"],
+      "additionalProperties": false
+    },
+    "Group": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string",
+          "format": "textarea"
+        },
+        "order": {
+          "title": "Order",
+          "type": "number"
+        }
+      },
+      "required": ["title"],
+      "additionalProperties": false
+    },
+    "Input": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "order": {
+          "title": "Order",
+          "type": "number"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "enum": [
+            "boolean",
+            "integer",
+            "float",
+            "string",
+            "string[]",
+            "image",
+            "image[]",
+            "video",
+            "json"
+          ]
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string",
+          "format": "textarea"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "extensions": {
+          "type": "array",
+          "items": {
+            "$ref": "local://input-extension.json"
+          }
+        },
+        "group": {
+          "title": "Group",
+          "type": "string"
+        },
+        "enum": {
+          "title": "Enum",
+          "type": "array",
+          "items": {
+            "type": ["boolean", "integer", "string"]
+          }
+        },
+        "freeform": {
+          "title": "Freeform",
+          "type": "boolean"
+        },
+        "multiline": {
+          "title": "Multiline",
+          "type": "boolean"
+        },
+        "min": {
+          "title": "Min",
+          "type": "number"
+        },
+        "max": {
+          "title": "Max",
+          "type": "number"
+        },
+        "step": {
+          "title": "Step",
+          "type": "number"
+        },
+        "default": {
+          "title": "Default",
+          "type": ["boolean", "number", "string"]
+        },
+        "placeholder": {
+          "title": "Placeholder",
+          "type": "string"
+        },
+        "schema": {
+          "title": "Schema",
+          "$ref": "#/definitions/InputSchema"
+        }
+      },
+      "required": ["type", "title"],
+      "additionalProperties": false
+    },
+    "InputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "additionalProperties": false
+    },
+    "Output": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "order": {
+          "title": "Order",
+          "type": "number"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "enum": [
+            "boolean",
+            "integer",
+            "float",
+            "string",
+            "string[]",
+            "image",
+            "image[]",
+            "video",
+            "json"
+          ]
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "schema": {
+          "title": "Schema",
+          "type": "string"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "title"],
+      "additionalProperties": false
+    },
+    "Catalog": {
+      "title": "Catalog",
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "string",
+          "pattern": "^[a-z0-9_]{5,40}$"
+        },
+        "version": {
+          "title": "Version",
+          "type": "number",
+          "format": "number"
+        },
+        "category": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "title": "ID",
+              "type": "string",
+              "pattern": "^[a-z0-9_]{5,40}$"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": ["id", "title"],
+          "additionalProperties": false
+        },
+        "package": {
+          "title": "Package",
+          "type": "string",
+          "pattern": "^[a-z0-9_]{5,40}$"
+        }
+      },
+      "required": ["id", "version", "category", "package"],
+      "additionalProperties": false
+    },
+    "Environment": {
+      "title": "Environment",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string",
+            "pattern": "^[\\w\\s]{5,40}$"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string",
+            "enum": ["boolean", "number", "string"]
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string",
+            "enum": ["global", "user", "pipeline"],
+            "options": {
+              "enum_titles": ["Global", "User", "Pipeline"]
+            }
+          }
+        },
+        "required": ["title", "type", "scope"]
+      }
+    }
+  }
+}

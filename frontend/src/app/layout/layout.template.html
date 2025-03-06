@@ -1,0 +1,95 @@
+<header class="stack horizontal align-center justify-between">
+  <div class="stack horizontal align-center">
+    <a class="logo" href="/">
+      <img height="45px" src="assets/app-logo.svg?v=x" />
+    </a>
+
+    <ul class="stack horizontal large">
+      <li *ngIf="userRole.admin | can | async">
+        <a
+          [routerLink]="['packages']"
+          routerLinkActive="active"
+          i18n="@@link.node_packages"
+          >Node packages</a
+        >
+      </li>
+      <li>
+        <a
+          [routerLink]="['projects']"
+          routerLinkActive="active"
+          i18n="@@link.pipelines"
+          >Pipelines</a
+        >
+      </li>
+      <li>
+        <a
+          [routerLink]="['play']"
+          routerLinkActive="active"
+          i18n="@@link.playground"
+          >Playground</a
+        >
+      </li>
+      <li>
+        <a
+          [routerLink]="['launches']"
+          routerLinkActive="active"
+          i18n="@@link.launches"
+          >Launches</a
+        >
+      </li>
+      <li>
+        <a
+          [routerLink]="['assets']"
+          routerLinkActive="active"
+          i18n="@@link.assets"
+          >Assets</a
+        >
+      </li>
+      <li *ngIf="userRole.admin | can | async">
+        <a
+          [routerLink]="['users']"
+          routerLinkActive="active"
+          i18n="@@link.users"
+          >Users</a
+        >
+      </li>
+    </ul>
+  </div>
+
+  <div class="stack horizontal small">
+    <button
+      class="circle"
+      [appPopover]="{content: selectLanguagePopover, trigger: 'click'}"
+    >
+      <app-icon class="icon" icon="lang"></app-icon>
+    </button>
+    <app-me-user class="me"></app-me-user>
+    <ng-template #selectLanguagePopover>
+      <app-select-language></app-select-language>
+    </ng-template>
+  </div>
+</header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<footer>
+  <div>
+    <small>Piper — an open source pipelines builder 2025</small>
+    <ul class="menu">
+      <li>
+        <a
+          target="_blank"
+          href="https://github.com/My-Piper/Piper/issues/new?template=bug_report.md"
+        >
+          Report a bug
+        </a>
+      </li>
+      <li>|</li>
+      <a target="_blank" href="https://github.com/My-Piper/Piper/discussions/">
+        Community
+      </a>
+    </ul>
+  </div>
+</footer>
