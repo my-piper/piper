@@ -1,0 +1,43 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  GIT_DEPTH: 5
+  DOCKER_DRIVER: overlay2
+  DOCKER_BUILDKIT: 1
+  DOCKER_IMAGE: ghcr.io/${{ github.repository }}:${{ github.run_id }}
+  DOCKER_IMAGE_CACHE: ghcr.io/${{ github.repository }}/tmp:latest
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ env.GIT_DEPTH }}
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull cache image
+        run: docker pull $DOCKER_IMAGE_CACHE || true
+
+      - name: Build Docker image
+        run: |
+          docker build --cache-from $DOCKER_IMAGE_CACHE \
+            -t $DOCKER_IMAGE_CACHE \
+            -t $DOCKER_IMAGE \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push $DOCKER_IMAGE
+          docker push $DOCKER_IMAGE_CACHE
