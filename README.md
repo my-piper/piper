@@ -26,6 +26,24 @@ Compile schemas
 make schemas
 ```
 
+Run backend
+
+```bash
+cd backend
+npm run sockets
+npm run server
+npm run worker
+```
+
+Run frontend
+
+```bash
+cd frontend
+npm start
+```
+
+Open `http://localhost/`
+
 Add admin user
 
 ```bash
