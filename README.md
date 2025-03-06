@@ -1,4 +1,4 @@
-Piper - visual pipelines builder fo AI.
+Piper - visual pipelines builder for AI.
 
 # Development
 
