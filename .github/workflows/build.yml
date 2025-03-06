@@ -10,8 +10,8 @@ env:
   GIT_DEPTH: 5
   DOCKER_DRIVER: overlay2
   DOCKER_BUILDKIT: 1
-  DOCKER_IMAGE: ghcr.io/${{ github.repository }}:${{ github.run_id }}
-  DOCKER_IMAGE_CACHE: ghcr.io/${{ github.repository }}/tmp:latest
+  DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/piper:${{ github.run_id }}
+  DOCKER_IMAGE_CACHE: ghcr.io/${{ github.repository_owner }}/piper/tmp:latest
 
 jobs:
   build:
@@ -23,6 +23,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: ${{ env.GIT_DEPTH }}
+
+      - name: Convert repository name to lowercase
+        run: |
+          REPO_NAME_LOWERCASE=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "DOCKER_IMAGE=ghcr.io/$REPO_NAME_LOWERCASE:${{ github.run_id }}" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_CACHE=ghcr.io/$REPO_NAME_LOWERCASE/tmp:latest" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
