@@ -37,10 +37,10 @@ export function convertInput(value: Primitive, type: PipelineIOType) {
 
 export const convertInputs =
   ({ node }: { node: Node }) =>
-  (inputs: { [key: string]: Primitive }) => {
+  (inputs: { [key: string]: Primitive } | Map<string, Primitive>) => {
     const converted: NodeInputs = {};
     for (const [key, input] of node.inputs) {
-      const value = inputs[key];
+      const value = inputs instanceof Map ? inputs.get(key) : inputs[key];
       if (value !== undefined && value !== null) {
         converted[key] = convertInput(value, input.type);
       }

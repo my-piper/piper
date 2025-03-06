@@ -79,8 +79,9 @@
 </ng-template>
 
 <ng-container *ngIf="me.user$ | async as user">
-  <div *ngIf="config.billing.url" class="remaining">
-    {{ user.balance.remaining | countdown | async | currency: "USD" }}
+  <ng-container *ngIf="config.billing.url"></ng-container>
+  <div *ngIf="user.balance.remaining as remaining" class="remaining">
+    {{ remaining | countdown | async | currency: "USD" }}
   </div>
 </ng-container>
 <button

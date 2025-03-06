@@ -1,0 +1,80 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "server",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}/backend",
+      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm"],
+      "args": ["${workspaceFolder}/backend/server.ts"]
+    },
+    {
+      "name": "worker",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}/backend",
+      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm"],
+      "args": ["${workspaceFolder}/backend/worker.ts"]
+    },
+    {
+      "name": "periodic",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}/backend",
+      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm"],
+      "args": ["${workspaceFolder}/backend/periodic.ts"]
+    },
+    {
+      "name": "sockets",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}/backend",
+      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm"],
+      "args": ["${workspaceFolder}/backend/sockets.ts"]
+    },
+    {
+      "name": "cli",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}/backend",
+      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm"],
+      "args": ["${workspaceFolder}/backend/cli.ts"]
+    },
+    {
+      "name": "frontend",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:4200",
+      "preLaunchTask": "npm: start - frontend",
+      "webRoot": "${workspaceFolder}/frontend"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "-- all --",
+      "configurations": [
+        "server",
+        "worker",
+        "periodic",
+        "sockets",
+        "cli",
+        "frontend"
+      ],
+      "stopAll": true
+    }
+  ]
+}

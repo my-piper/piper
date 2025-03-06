@@ -12,55 +12,13 @@ import { toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 
 const TEST_PIPELINE = `---
-name: Random image
+name: New project
 version: 1
 
-flows:
-  random_image_to_resize:
-    from: find_random_image
-    output: image
-    to: resize_image
-    input: image
-
+flows: {}
 start:
-  nodes:
-  - find_random_image
-
-nodes:
-  find_random_image:
-    title: Random image
-    handler: random_image
-    arrange:
-      x: 65
-      y: 100
-    inputs:
-      topic:
-        title: Topic
-        type: string
-        required: true
-    outputs:
-      image:
-        title: Image
-        type: image
-  resize_image:
-    title: Resize image
-    handler: resize_image
-    arrange:
-      x: 400
-      y: 100
-    inputs:
-      image:
-        title: Image
-        type: image
-        required: true
-      width:
-        title: Width
-        type: integer
-        required: true
-    outputs:
-      image:
-        title: Resized image
-        type: image
+  nodes: []
+nodes: {}
 `;
 
 const TEST_REQUEST = {

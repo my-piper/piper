@@ -231,10 +231,6 @@ export class Node {
   script: string;
 
   @Expose()
-  @Type(() => String)
-  costs!: string;
-
-  @Expose()
   @Type(() => Arrange)
   arrange: Arrange;
 

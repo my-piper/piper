@@ -51,33 +51,31 @@ export async function getCosts(
   // calculate all nodes
   const nodes: NodeCosts[] = [];
   for (const [id, node] of pipeline.nodes) {
-    if (!!node.costs) {
-      const inputs = (() => {
-        let toLaunch = launchRequest.nodes.get(id);
-        if (!toLaunch) {
-          toLaunch = new NodeToLaunch({
-            inputs: new Map<string, Primitive>(),
-          });
-          launchRequest.nodes.set(id, toLaunch);
-        }
-        return toLaunch.inputs;
-      })();
-
-      for (const [key, input] of node.inputs) {
-        const value = inputs.get(key) || input.default;
-        if (value !== undefined) {
-          inputs.set(key, value);
-        }
+    const inputs = (() => {
+      let toLaunch = launchRequest.nodes.get(id);
+      if (!toLaunch) {
+        toLaunch = new NodeToLaunch({
+          inputs: new Map<string, Primitive>(),
+        });
+        launchRequest.nodes.set(id, toLaunch);
       }
+      return toLaunch.inputs;
+    })();
 
-      const converted = convertInputs({ node })(inputs);
-      nodes.push(
-        new NodeCosts({
-          node: node.title,
-          costs: await run(node.script, converted),
-        })
-      );
+    for (const [key, input] of node.inputs) {
+      const value = inputs.get(key) || input.default;
+      if (value !== undefined) {
+        inputs.set(key, value);
+      }
     }
+
+    const converted = convertInputs({ node })(inputs);
+    nodes.push(
+      new NodeCosts({
+        node: node.title,
+        costs: await run(node.script, converted),
+      })
+    );
   }
 
   return new PipelineCosts({

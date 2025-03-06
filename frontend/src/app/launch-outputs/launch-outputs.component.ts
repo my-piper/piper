@@ -25,7 +25,6 @@ export class LaunchOutputsComponent {
   @Input()
   set launch(launch: Launch) {
     this._launch = launch;
-    console.log(launch);
     const keys = [...launch.outputs.keys()];
     if (keys.length > 0) {
       this.active = { id: first(keys), index: 0 };

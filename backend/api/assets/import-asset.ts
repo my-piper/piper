@@ -38,8 +38,8 @@ api.post(
       _id,
       createdAt: now,
       createdBy: (() => {
-        const { _id, name } = currentUser;
-        return new User({ _id, name });
+        const { _id } = currentUser;
+        return new User({ _id });
       })(),
       type,
       format,

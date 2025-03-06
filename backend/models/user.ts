@@ -39,10 +39,6 @@ export class User {
 
   @Expose()
   @Type(() => String)
-  name!: string;
-
-  @Expose()
-  @Type(() => String)
   password!: string;
 
   @Expose()

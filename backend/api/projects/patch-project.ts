@@ -60,12 +60,12 @@ api.patch(
       revision: sid(),
       // TODO: remove then
       createdBy: (() => {
-        const { _id, name } = currentUser;
-        return new User({ _id, name });
+        const { _id } = currentUser;
+        return new User({ _id });
       })(),
       updatedBy: (() => {
-        const { _id, name } = currentUser;
-        return new User({ _id, name });
+        const { _id } = currentUser;
+        return new User({ _id });
       })(),
       updatedAt: new Date(),
     });

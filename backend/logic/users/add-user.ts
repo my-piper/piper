@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { plainToInstance } from "class-transformer";
-import { toPlain } from "core-kit/utils/models";
+import { toInstance, toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import { ulid } from "ulid";
 import mongo from "../../app/mongo";
@@ -10,7 +10,7 @@ import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
 import { DataError } from "../../types/errors";
 
 export async function addUser(data: Partial<User>): Promise<User> {
-  const user = plainToInstance(User, data);
+  const user = toInstance(data, User);
   const validate = ajv.compile(SCHEMAS.user);
   if (!validate(user)) {
     const { errors } = validate;

@@ -62,11 +62,11 @@
           ></app-icon>
         </td>
         <td class="created">
-          <div>{{ p.createdBy?.name }}</div>
+          <div>{{ p.createdBy?._id }}</div>
           <small>{{ p.createdAt | date }}</small>
         </td>
         <td class="updated">
-          <div>{{ p.updatedBy?.name }}</div>
+          <div>{{ p.updatedBy?._id }}</div>
           <small>{{ p.updatedAt | date: "short" }}</small>
         </td>
       </tr>

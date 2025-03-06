@@ -64,23 +64,23 @@ commander
 commander
   .command("add-user")
   .option("--id <id>")
-  .option("--name <name>")
+  .option("--email <email>")
   .option("--role <role>")
   .option("--password <password>")
   .action(
     async ({
       id: _id,
-      name,
+      email,
       password,
       role,
     }: {
       id: string;
-      name: string;
+      email: string;
       password: string;
       role: UserRole;
     }) => {
       console.log(`Add user ${_id}`);
-      await addUser({ _id, name, password, roles: [role] });
+      await addUser({ _id, email, password, roles: [role] });
       console.log("Done");
       process.exit();
     }

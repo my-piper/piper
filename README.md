@@ -47,7 +47,7 @@ Open `http://localhost/`
 Add admin user
 
 ```bash
-npm --prefix backend run cli add-user -- --id admin --name admin --role admin --password xyzXYZ
+npm --prefix backend run cli add-user -- --id admin --email admin@yourdomain.com --role admin --password xyzXYZ
 ```
 
 # Debug

@@ -7,7 +7,6 @@ import {
   Output,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { plainToInstance } from "class-transformer";
 import { delay, finalize, map } from "rxjs";
 import { AppError } from "src/models/errors";
 import { Project, ProjectVisibility } from "src/models/project";
@@ -15,6 +14,7 @@ import { UserRole } from "src/models/user";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { toInstance } from "src/utils/models";
 
 @Component({
   selector: "app-edit-project",
@@ -83,7 +83,7 @@ export class EditProjectComponent implements OnInit {
           this.progress.saving = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Project, json))
+        map((json) => toInstance(json as object, Project))
       )
       .subscribe({
         next: (project) => this.updated.emit(project),

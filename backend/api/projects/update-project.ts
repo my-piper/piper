@@ -1,5 +1,4 @@
-import { plainToInstance } from "class-transformer";
-import { toPlain } from "core-kit/utils/models";
+import { toInstance, toPlain } from "core-kit/utils/models";
 import { api } from "../../app/api";
 import mongo from "../../app/mongo";
 import ajv from "../../lib/ajv";
@@ -31,11 +30,10 @@ api.post(
       checkAdmin(currentUser);
     }
 
-    const request = plainToInstance(Project, body);
+    const request = toInstance(body, Project);
     const validate = ajv.compile(SCHEMAS.project);
     if (!validate(request)) {
       const { errors } = validate;
-      console.log(errors);
       throw new DataError(
         "Pipeline schema invalid",
         errors.map((e) =>
@@ -53,8 +51,8 @@ api.post(
     const update = new Project({
       visibility,
       updatedBy: (() => {
-        const { _id, name } = currentUser;
-        return new User({ _id, name });
+        const { _id } = currentUser;
+        return new User({ _id });
       })(),
       updatedAt: new Date(),
     });

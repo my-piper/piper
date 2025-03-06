@@ -61,7 +61,10 @@ header {
 
 main {
     padding: 20px;
-    min-height: calc(100vmin - 200px);
+
+    @include wider-tablet() {
+        min-height: calc(100vmin - 200px);
+    }
 }
 
 footer {

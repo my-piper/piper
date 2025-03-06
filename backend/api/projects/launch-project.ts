@@ -49,8 +49,8 @@ api.post(
 
     const launch = await run({
       launchedBy: (() => {
-        const { _id, name } = currentUser;
-        return new User({ _id, name });
+        const { _id } = currentUser;
+        return new User({ _id });
       })(),
       project: (() => {
         const { _id, title, createdBy } = project;

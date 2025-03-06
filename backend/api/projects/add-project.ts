@@ -24,8 +24,8 @@ api.post(
       revision: sid(),
       createdAt: new Date(),
       createdBy: (() => {
-        const { _id, name } = currentUser;
-        return new User({ _id, name });
+        const { _id } = currentUser;
+        return new User({ _id });
       })(),
       title,
       visibility: "private",
