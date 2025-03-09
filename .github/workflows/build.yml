@@ -39,6 +39,5 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          target: production
           cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:_buildcache
           cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:_buildcache,mode=max
