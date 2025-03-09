@@ -8,7 +8,7 @@
     "start": "npm-run-all --parallel server worker periodic sockets chrome",
     "server": "node --import=tsx --experimental-vm-modules server.ts",
     "worker": "node --import=tsx --experimental-vm-modules worker.ts",
-    "periodic": "node --import=tsx periodic.ts",
+    "periodic": "node --import=tsx --experimental-vm-modules periodic.ts",
     "sockets": "node --import=tsx sockets.ts",
     "chrome": "node --import=tsx chrome.ts",
     "cli": "node --import=tsx cli.ts",

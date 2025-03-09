@@ -7,7 +7,7 @@ const MAX_STORE_LAUNCH_DAYS = (() => {
   if (!!value) {
     return parseInt(value);
   }
-  return 30;
+  return 7;
 })();
 
 const logger = createLogger("clear-launches");
