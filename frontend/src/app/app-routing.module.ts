@@ -12,6 +12,7 @@ import { LaunchComponent } from "src/app/launch/launch.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
 import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
+import { ShouldCheckReadmeGuard } from "src/guards/pipeline-readme";
 import { SigninNeededGuard } from "src/guards/signin.guard";
 import { AssetsFilterResolver } from "src/resolvers/assets-filter";
 import { LaunchResolver } from "src/resolvers/launch";
@@ -58,6 +59,7 @@ import { ImportPackageComponent } from "./node-packages/import/import-package.co
 import { NodePackagesComponent } from "./node-packages/node-packages.component";
 import { PipelineMessagesComponent } from "./pipeline-messages/pipeline-messages.component";
 import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.component";
+import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground.component";
@@ -88,6 +90,10 @@ const routes: Routes = [
             component: PipelineReadmeComponent,
           },
           {
+            path: "api",
+            component: PlayViaApiComponent,
+          },
+          {
             path: "batches",
             component: BatchesComponent,
           },
@@ -97,6 +103,7 @@ const routes: Routes = [
               filter: ProjectPlaygroundLaunchesFilterResolver,
             },
             component: LaunchesPageComponent,
+            canActivate: [ShouldCheckReadmeGuard],
             children: [
               {
                 path: "outputs/:id",

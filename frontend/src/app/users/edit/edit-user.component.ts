@@ -8,12 +8,12 @@ import {
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
-import { SHORT_ID as shortId } from "src/consts/core";
 import { AppError } from "src/models/errors";
 import { User, UserRole } from "src/models/user";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { sid } from "src/ui-kit/utils/string";
 import { toInstance } from "src/utils/models";
 
 @Component({
@@ -68,7 +68,7 @@ export class EditUserComponent implements OnInit {
       return;
     }
 
-    this.form.patchValue({ user: { ...user, password: shortId() } });
+    this.form.patchValue({ user: { ...user, password: sid() } });
   }
 
   save() {

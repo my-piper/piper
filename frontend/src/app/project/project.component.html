@@ -20,7 +20,7 @@
 ></app-informer>
 
 <div class="stack horizontal">
-  <a class="circle small" [routerLink]="['..']">
+  <a class="circle" [routerLink]="['..']">
     <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
   </a>
   <ng-template #shareProjectPopover>
@@ -31,7 +31,7 @@
   </ng-template>
   <button
     *ngIf="userRole.admin | can: project.createdBy | async"
-    class="circle small"
+    class="circle"
     [appPopover]="{
       trigger: 'click',
       behavior: 'dropdown',
@@ -42,7 +42,9 @@
   </button>
   <div>
     <h1>{{ project.title | i18n }}</h1>
-    <small *ngIf="pipeline.description as description">{{ description }}</small>
+    <small *ngIf="pipeline.description as description">{{
+      description | i18n
+    }}</small>
   </div>
 </div>
 

@@ -20,6 +20,10 @@ export class AppConfig {
   @Type(() => BillingConfig)
   billing?: BillingConfig;
 
+  @Expose()
+  @Type(() => String)
+  baseUrl?: string;
+
   authorization$ = new BehaviorSubject<Authorization | null>(
     (() => {
       const json = localStorage.getItem(AUTHORIZATION_KEY);

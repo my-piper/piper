@@ -51,7 +51,7 @@
   [disabled]="!form.valid || progress.launching"
   (click)="launch()"
 >
-  Run
+  <ng-container i18n="@@action.run">Run</ng-container>
   <ng-container *ngIf="!!request">
     <span
       class="badge"

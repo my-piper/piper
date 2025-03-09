@@ -6,6 +6,15 @@
 		"link.pipelines": "管道",
 		"link.launches": "启动",
 		"link.users": "用户",
-		"link.playground": "游乐场"
+		"link.playground": "游乐场",
+		"label.select_pipeline": "选择管道",
+		"link.readme": "阅读器",
+		"link.api": "应用程序接口",
+		"link.batches": "批次",
+		"action.run": "运行",
+		"message.confirm_generate_api_key": "以前生成的密钥将失效",
+		"label.how_to_call": "如何呼叫",
+		"label.how_to_check": "如何检查",
+		"action.generate_api_key": "生成 API 密钥"
 	}
 }

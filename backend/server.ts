@@ -3,6 +3,7 @@ import "reflect-metadata";
 
 import { Expose, Type } from "class-transformer";
 import { BILLING_URL } from "consts/billing";
+import { createLogger } from "core-kit/services/logger";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import express from "express";
 import { readFile } from "fs/promises";
@@ -13,6 +14,7 @@ import "./api/artefacts";
 import "./api/assets";
 import "./api/balance-refills";
 import "./api/batches";
+import "./api/deploys";
 import "./api/dms";
 import "./api/environment";
 import "./api/launches";
@@ -24,9 +26,14 @@ import "./api/projects";
 import "./api/users";
 import "./api/utils";
 import { api } from "./app/api";
-import { FRONTEND_ROOT, LANGUAGES, NODE_ENV, SERVER_PORT } from "./consts/core";
+import {
+  BASE_URL,
+  FRONTEND_ROOT,
+  LANGUAGES,
+  NODE_ENV,
+  SERVER_PORT,
+} from "./consts/core";
 import { NO_CACHE_HEADERS } from "./consts/http";
-import { createLogger } from "core-kit/services/logger";
 import { AppConfig } from "./models/app-config";
 import { handle } from "./utils/http";
 
@@ -55,6 +62,7 @@ if (NODE_ENV === "production") {
             billing: {
               url: BILLING_URL,
             },
+            baseUrl: BASE_URL,
           },
         },
         Prerender

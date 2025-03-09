@@ -1,6 +1,5 @@
 import "./delete-launch";
 import "./get-launch";
-import "./launch-outputs";
 import "./launch-state";
 import "./list";
 import "./metrics/finished";

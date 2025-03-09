@@ -1,4 +1,4 @@
-import { plainToInstance } from "class-transformer";
+import { toInstance } from "core-kit/utils/models";
 import "reflect-metadata";
 import { redis } from "../../app/redis";
 import { DEPLOY, DEPLOY_EXPIRED } from "../../consts/redis";
@@ -14,6 +14,5 @@ export async function get(slug: string): Promise<Deploy> {
     throw new DataError(`Deploy ${slug} is not found`);
   }
   await redis.expire(DEPLOY(slug), DEPLOY_EXPIRED);
-
-  return plainToInstance(Deploy, JSON.parse(json) as Object);
+  return toInstance(JSON.parse(json) as object, Deploy);
 }

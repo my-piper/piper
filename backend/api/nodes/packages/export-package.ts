@@ -9,6 +9,7 @@ api.get(
     checkAdmin(currentUser);
 
     const nodePackage = await mongo.nodePackages.findOne({ _id });
+    delete nodePackage["cursor"];
     const nodes = await mongo.nodes.find({ package: _id }).toArray();
 
     return { ...nodePackage, nodes: keyBy(nodes, "_id") };

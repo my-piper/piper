@@ -6,6 +6,13 @@
 		"link.pipelines": "Leitungen",
 		"link.launches": "Startet",
 		"link.users": "Benutzer",
-		"link.playground": "Spielplatz"
+		"link.playground": "Spielplatz",
+		"label.select_pipeline": "Pipeline auswählen",
+		"link.batches": "Chargen",
+		"action.run": "Ausführen",
+		"message.confirm_generate_api_key": "Zuvor generierter Schlüssel wird ungültig",
+		"label.how_to_call": "Wie man anruft",
+		"label.how_to_check": "Wie man prüft",
+		"action.generate_api_key": "API-Schlüssel generieren"
 	}
 }

@@ -1,14 +1,15 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
+import last from "lodash/last";
 import { catchError, delay, finalize, map } from "rxjs";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
-import { Project } from "src/models/project";
+import { Project, ProjectsFilter } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI, UI_DELAY } from "src/ui-kit/consts";
-import { toPlain } from "src/utils/models";
+import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 
 const TEST_PIPELINE = `---
@@ -45,6 +46,7 @@ export class ProjectsComponent implements OnInit {
   error!: Error;
   progress = { loading: false };
 
+  chunk: Project[] = [];
   projects: Project[] = [];
 
   constructor(
@@ -58,16 +60,16 @@ export class ProjectsComponent implements OnInit {
     await this.load();
   }
 
-  private async load() {
+  private async load(cursor?: string) {
     this.progress.loading = true;
     this.cd.detectChanges();
 
     this.http
-      .get("projects")
+      .get("projects", toPlain(new ProjectsFilter({ cursor })))
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) => plainToInstance(Project, plain))
+          (arr as Object[]).map((plain) => toInstance(plain, Project))
         ),
         finalize(() => {
           this.progress.loading = false;
@@ -76,11 +78,19 @@ export class ProjectsComponent implements OnInit {
       )
       .subscribe({
         next: (projects) => {
-          this.projects = projects;
+          this.chunk = projects;
+          this.projects.push(...projects);
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
       });
+  }
+
+  loadMore() {
+    const project = last(this.projects);
+    if (!!project) {
+      this.load(project.cursor);
+    }
   }
 
   create() {

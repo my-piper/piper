@@ -16,6 +16,10 @@ export class AppConfig {
   @Type(() => BillingConfig)
   billing?: BillingConfig;
 
+  @Expose()
+  @Type(() => String)
+  baseUrl?: string;
+
   constructor(defs: Partial<AppConfig> = {}) {
     assign(this, defs);
   }

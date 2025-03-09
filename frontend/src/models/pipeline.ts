@@ -10,7 +10,7 @@ import {
 } from "src/transformers/primitive";
 import { PipelineIOType } from "src/types/pipeline";
 import { Primitive } from "src/types/primitive";
-import { DeployConfig } from "./deploy";
+import { DeployConfig } from "./deploy-config";
 import { Extension } from "./extension";
 import { Node } from "./node";
 import { OutputFlow } from "./output-flow";

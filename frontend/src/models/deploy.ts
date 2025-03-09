@@ -1,35 +1,32 @@
 import { Expose, Type } from "class-transformer";
 import assign from "lodash/assign";
-import "reflect-metadata";
+import { Pipeline } from "../models/pipeline";
+import { Environment } from "./environment";
+import { LaunchRequest } from "./launch-request";
+import { RunScope } from "./run-scope";
 
-export class RunScope {
-  @Expose()
-  @Type(() => String)
-  id: string;
-
-  @Expose()
-  @Type(() => Number)
-  maxConcurrent: number;
-
-  constructor(defs: Partial<RunScope> = {}) {
-    assign(this, defs);
-  }
-}
-
-export class DeployConfig {
+export class Deploy {
   @Expose()
   @Type(() => String)
   slug!: string;
 
   @Expose()
-  @Type(() => String)
-  apiKey!: string;
+  @Type(() => Pipeline)
+  pipeline!: Pipeline;
+
+  @Expose()
+  @Type(() => LaunchRequest)
+  launchRequest!: LaunchRequest;
+
+  @Expose()
+  @Type(() => Environment)
+  environment!: Environment;
 
   @Expose()
   @Type(() => RunScope)
   scope!: RunScope;
 
-  constructor(defs: Partial<DeployConfig> = {}) {
+  constructor(defs: Partial<Deploy> = {}) {
     assign(this, defs);
   }
 }

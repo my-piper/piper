@@ -102,6 +102,7 @@ import {
 import { NsfwDisclaimer } from "./nsfw-disclaimer/nsfw-disclaimer.component";
 import { PipelineMessagesComponent } from "./pipeline-messages/pipeline-messages.component";
 import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.component";
+import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
 import { ProjectPlaygroundComponent } from "./project-playground/project-playground.component";
@@ -215,6 +216,7 @@ import { UsersComponent } from "./users/users.component";
     ExpensesComponent,
     PipelineUsagesComponent,
     BalanceRefillsComponent,
+    PlayViaApiComponent,
   ],
   imports: [
     BrowserModule,

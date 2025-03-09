@@ -1,9 +1,9 @@
 import { Expose, Type } from "class-transformer";
 import { Delta } from "jsondiffpatch";
 import assign from "lodash/assign";
-import { DeployConfig } from "src/models/deploy";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
+import { Deploy } from "./deploy";
 import { Environment } from "./environment";
 import { User } from "./user";
 
@@ -43,10 +43,6 @@ export class Project {
   launchRequest!: LaunchRequest;
 
   @Expose()
-  @Type(() => DeployConfig)
-  deploy!: DeployConfig;
-
-  @Expose()
   @Type(() => Date)
   updatedAt!: Date;
 
@@ -59,8 +55,16 @@ export class Project {
   environment!: Environment;
 
   @Expose()
+  @Type(() => Deploy)
+  deploy!: Deploy;
+
+  @Expose()
   @Type(() => String)
   visibility!: ProjectVisibility;
+
+  @Expose()
+  @Type(() => String)
+  cursor?: string;
 
   constructor(defs: Partial<Project> = {}) {
     assign(this, defs);
@@ -88,6 +92,16 @@ export class LaunchProject {
   comment!: string;
 
   constructor(defs: Partial<LaunchProject> = {}) {
+    assign(this, defs);
+  }
+}
+
+export class ProjectsFilter {
+  @Expose()
+  @Type(() => String)
+  cursor?: string;
+
+  constructor(defs: Partial<ProjectsFilter> = {}) {
     assign(this, defs);
   }
 }

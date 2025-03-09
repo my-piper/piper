@@ -6,12 +6,13 @@ import { redis } from "../../app/redis";
 import { DEPLOY, DEPLOY_EXPIRED } from "../../consts/redis";
 import { Deploy } from "../../models/deploy";
 import { Project } from "../../models/project";
-import { RunScope } from "../../models/run-scope";
-import { handle, toModel } from "../../utils/http";
+import { checkAdmin, handle, toModel } from "../../utils/http";
 
 api.post(
   "/api/projects/:_id/deploy",
-  handle(() => async ({ params: { _id } }) => {
+  handle(({ currentUser }) => async ({ params: { _id } }) => {
+    checkAdmin(currentUser);
+
     const project = toModel(
       await mongo.projects.findOne(
         {
@@ -24,7 +25,6 @@ api.post(
             pipeline: 1,
             launchRequest: 1,
             environment: 1,
-            deploy: 1,
           },
         }
       ),
@@ -36,25 +36,39 @@ api.post(
       deploy: { slug, scope },
     } = pipeline;
 
-    const deploy = new Deploy({
-      slug,
-      scope: (() => {
-        const { id, maxConcurrent } = scope;
-        return new RunScope({ id, maxConcurrent });
-      })(),
-      pipeline,
-      launchRequest,
-      environment,
-      project: (() => {
-        const { _id, title } = project;
-        return new Project({ _id, title });
-      })(),
-    });
-    await redis.setEx(
-      DEPLOY(slug),
-      DEPLOY_EXPIRED,
-      JSON.stringify(toPlain(deploy))
-    );
+    {
+      const deploy = new Deploy({
+        slug,
+        scope,
+        pipeline,
+        launchRequest,
+        environment,
+        project: (() => {
+          const { _id, title } = project;
+          return new Project({ _id, title });
+        })(),
+      });
+      await redis.setEx(
+        DEPLOY(slug),
+        DEPLOY_EXPIRED,
+        JSON.stringify(toPlain(deploy))
+      );
+    }
+
+    {
+      const deploy = new Deploy({
+        slug,
+        scope,
+      });
+      await mongo.projects.updateOne(
+        { _id },
+        {
+          $set: {
+            deploy: toPlain(deploy),
+          },
+        }
+      );
+    }
 
     return null;
   })

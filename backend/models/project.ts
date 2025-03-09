@@ -1,6 +1,7 @@
 import { Expose, Type } from "class-transformer";
 import assign from "lodash/assign";
 import "reflect-metadata";
+import { Deploy } from "./deploy";
 import { Environment } from "./environment";
 import { LaunchRequest } from "./launch-request";
 import { Pipeline } from "./pipeline";
@@ -34,6 +35,10 @@ export class Project {
   @Expose()
   @Type(() => LaunchRequest)
   launchRequest!: LaunchRequest;
+
+  @Expose()
+  @Type(() => Deploy)
+  deploy!: Deploy;
 
   @Expose()
   @Type(() => Environment)

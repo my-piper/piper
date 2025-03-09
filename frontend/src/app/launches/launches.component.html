@@ -1,4 +1,7 @@
-<div class="cards launches" [class.busy-block]="progress.loading">
+<div
+  class="cards launches"
+  [class.busy-block]="launches.length < 0 && progress.loading"
+>
   <div class="card" *ngFor="let l of launches">
     <header>
       <ng-template #actionsTemplate>
@@ -97,15 +100,8 @@
   </div>
 </div>
 
-<button
-  *ngIf="chunk.length > 0"
-  class="primary with-icon"
-  [class.busy]="progress.loading"
-  [disabled]="progress.loading"
-  (click)="loadMore()"
+<div
+  *ngIf="chunk.length > 0 && !progress.loading"
   [inViewport]
   (visible)="loadMore()"
->
-  Load more
-  <app-icon class="icon right" icon="chevron-down"></app-icon>
-</button>
+></div>

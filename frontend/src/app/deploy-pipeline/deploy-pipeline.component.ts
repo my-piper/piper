@@ -4,13 +4,14 @@ import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
 import { delay, finalize } from "rxjs";
-import { SHORT_ID as shortId } from "src/consts/core";
 import { Pipeline } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { Languages } from "src/ui-kit/enums/languages";
+import { getLabel } from "src/ui-kit/utils/i18n";
 import { toPlain } from "src/utils/models";
 
 @Component({
@@ -20,7 +21,6 @@ import { toPlain } from "src/utils/models";
 })
 export class DeployPipelineComponent implements OnInit {
   schemas = SCHEMAS;
-  hostname = document.location.hostname;
 
   progress = { deploying: false };
   error: Error;
@@ -53,16 +53,15 @@ export class DeployPipelineComponent implements OnInit {
       title,
       pipeline: { deploy },
     } = this.project;
-    const slug = title.toLowerCase().replace(/\s/g, "-") + "-v1";
+    const slug =
+      getLabel(title, Languages.en).toLowerCase().replace(/\s/g, "-") + "-v1";
 
     this.form.patchValue({
       deploy: !!deploy
         ? toPlain(deploy)
         : {
             slug,
-            apiKey: [shortId(), shortId(), shortId()].join("-"),
             scope: {
-              id: shortId(),
               maxConcurrent: 1,
             },
           },

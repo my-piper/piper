@@ -6,6 +6,13 @@
 		"link.pipelines": "パイプライン",
 		"link.launches": "起動",
 		"link.users": "ユーザー",
-		"link.playground": "プレイグラウンド"
+		"link.playground": "プレイグラウンド",
+		"label.select_pipeline": "パイプラインを選択",
+		"link.batches": "バッチ",
+		"action.run": "実行",
+		"message.confirm_generate_api_key": "以前に生成されたキーは無効になります。",
+		"label.how_to_call": "呼び出し方",
+		"label.how_to_check": "確認方法",
+		"action.generate_api_key": "APIキーの生成"
 	}
 }

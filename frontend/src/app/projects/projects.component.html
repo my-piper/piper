@@ -72,4 +72,9 @@
       </tr>
     </tbody>
   </table>
+  <div
+    *ngIf="chunk.length > 0 && !progress.loading"
+    [inViewport]
+    (visible)="loadMore()"
+  ></div>
 </div>

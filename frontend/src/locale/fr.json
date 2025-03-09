@@ -5,6 +5,14 @@
 		"link.node_packages": "Paquets de nœuds",
 		"link.launches": "Lancements",
 		"link.users": "Utilisateurs",
-		"link.playground": "Terrain de jeu"
+		"link.playground": "Terrain de jeu",
+		"label.select_pipeline": "Sélectionner un pipeline",
+		"link.readme": "LISEZ-MOI",
+		"link.batches": "Lots",
+		"action.run": "Exécuter",
+		"message.confirm_generate_api_key": "La clé générée précédemment ne sera pas valide",
+		"label.how_to_call": "Comment appeler",
+		"label.how_to_check": "Comment vérifier",
+		"action.generate_api_key": "Générer une clé API"
 	}
 }

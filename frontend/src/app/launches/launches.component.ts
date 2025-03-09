@@ -112,7 +112,7 @@ export class LaunchesComponent extends UntilDestroyed {
     this.subscriptions.errors?.();
   }
 
-  private load(cursor: string | null = undefined) {
+  private load(cursor?: string) {
     this.progress.loading = true;
     this.cd.detectChanges();
 

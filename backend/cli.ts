@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { writeFile } from "fs/promises";
+import { ulid } from "ulid";
 import mongo from "./app/mongo";
 import { queues } from "./app/queue";
 import { loadPipelines } from "./cli/load-pipelines/logic";
@@ -101,6 +102,29 @@ commander
   .option("--id <id>")
   .action(async ({ id }: { id: string }) => {
     await packages.checkUpdates(id);
+    process.exit();
+  });
+
+// TODO: remove soon
+commander
+  .command("cursors")
+  .option("--id <id>")
+  .action(async () => {
+    const projects = await mongo.projects.find().toArray();
+    for (const { _id } of projects) {
+      console.log(_id);
+      await mongo.projects.updateOne({ _id }, { $set: { cursor: ulid() } });
+    }
+    const nodePackages = await mongo.nodePackages.find().toArray();
+    for (const { _id } of nodePackages) {
+      console.log(_id);
+      await mongo.nodePackages.updateOne({ _id }, { $set: { cursor: ulid() } });
+    }
+    const users = await mongo.users.find().toArray();
+    for (const { _id } of users) {
+      console.log(_id);
+      await mongo.users.updateOne({ _id }, { $set: { cursor: ulid() } });
+    }
     process.exit();
   });
 

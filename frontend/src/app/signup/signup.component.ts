@@ -101,7 +101,7 @@ export class SigupComponent implements OnInit {
       .subscribe({
         next: (authorization) => {
           this.config.authorization = authorization;
-          this.router.navigate(["/"]);
+          this.router.navigate(["/play"]);
         },
         error: (err) => (this.error = err),
       });

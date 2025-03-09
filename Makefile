@@ -8,7 +8,7 @@ COMPOSE_ARGS=-f tools/compose/compose.yaml
 
 BACKEND=npm --prefix ./backend
 FRONTEND=npm --prefix ./frontend
-IMAGE_TAG=registry.gitlab.com/generative-core/piper/fullstack:1.1.6
+IMAGE_TAG=registry.gitlab.com/generative-core/piper/fullstack:1.1.8
 
 schemas:
 	npm run --prefix ./backend cli compile-schemas

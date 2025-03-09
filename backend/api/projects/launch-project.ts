@@ -69,8 +69,8 @@ api.post(
       comment: "UI call",
     });
     const plain = toPlain(launch);
-    delete plain.pipeline;
-    delete plain.launchRequest;
+    delete plain["pipeline"];
+    delete plain["launchRequest"];
     return plain;
   })
 );

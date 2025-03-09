@@ -3,7 +3,7 @@ import { ulid } from "ulid";
 import { queues } from "../app/queue";
 import { streams } from "../app/stream";
 
-const UPDATE_BALANCE_DELAY = 2000;
+const UPDATE_BALANCE_DELAY = 5000;
 
 queues.pipelines.usages.process(async (recordUsageJob) => {
   const { project, pipeline, launch, launchedBy, node, processedAt, costs } =

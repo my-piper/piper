@@ -28,23 +28,10 @@ type BodyType = string | Object | Object[];
 interface HttpOptions {
   headers?: { [key: string]: string };
   withCredentials?: boolean;
-  responseType?: "json";
+  responseType?: "json" | "text";
   params?: {
     [key: string]: number | string;
   };
-}
-
-const enum Header {
-  cacheControl = "Cache-Control",
-  contentType = "Content-Type",
-  site = "Site",
-  country = "Country",
-  currency = "Currency",
-}
-
-export class ResponseType {
-  static json = "json";
-  static text = "text";
 }
 
 function getRequestUrl(path: string) {

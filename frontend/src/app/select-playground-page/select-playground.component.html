@@ -2,7 +2,7 @@
   <a class="circle small" [routerLink]="['..']">
     <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
   </a>
-  <h1>Select pipeline</h1>
+  <h1 i18n="@@label.select_pipeline">Select pipeline</h1>
 </header>
 
 <app-select-playground (selected)="go($event)"></app-select-playground>

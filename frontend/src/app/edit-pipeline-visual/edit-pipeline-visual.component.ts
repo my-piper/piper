@@ -7,13 +7,12 @@ import {
   ViewChild,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { assign, sample } from "lodash";
+import { assign, random, sample } from "lodash";
 import { customAlphabet } from "nanoid";
 import { Subscription } from "rxjs";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { matchIO } from "src/app/edit-pipeline-visual/utils";
-import { SHORT_ID } from "src/consts/core";
 import { UI } from "src/consts/ui";
 import { Arrange } from "src/models/arrange";
 import { InputFlow } from "src/models/input-flow";
@@ -27,6 +26,7 @@ import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
 import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
+import { sid } from "src/ui-kit/utils/string";
 import { AddNodeComponent } from "../add-node/add-node.component";
 
 function tieUp({ x, y }: Point): Point {
@@ -162,9 +162,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   addNode(node: Node) {
-    const id = `${node._id}_${SHORT_ID()}`;
+    const id = `${node._id}_${sid()}`;
     delete node.catalog;
     this.pipeline.nodes.set(id, node);
+    if (this.pipeline.nodes.size > 0) {
+      this.pipeline.start.nodes.push(id);
+    }
+    assign(node.arrange, { x: random(100, 400), y: random(100, 300) });
     this.save();
   }
 
@@ -174,7 +178,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
     }
 
     const exists = !!this.pipeline.inputs.get(id);
-    const key = !exists ? id : `${id}_${SHORT_ID()}`;
+    const key = !exists ? id : `${id}_${sid()}`;
 
     this.pipeline.inputs.set(key, input);
     const value = input.default;
@@ -192,7 +196,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
     }
 
     const exists = !!this.pipeline.outputs.get(id);
-    const key = !exists ? id : `${id}_${SHORT_ID()}`;
+    const key = !exists ? id : `${id}_${sid()}`;
     debugger;
     this.pipeline.outputs.set(key, output);
     this.save();

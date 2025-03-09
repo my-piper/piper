@@ -14,13 +14,23 @@ export class CanPipe implements PipeTransform {
       return this.can;
     }
 
-    const { user: currentUser } = this.me;
-    const can = () =>
-      currentUser?.roles?.includes(targetRole) ||
-      owner?._id === currentUser?._id;
-    this.me.user$.pipe(skip(1)).subscribe(() => this.can.next(can()));
+    const can = (currentUser: User) => {
+      if (!!currentUser) {
+        if (!!owner) {
+          if (owner?._id === currentUser?._id) {
+            return true;
+          }
+        }
+        if (currentUser?.roles?.includes(targetRole)) {
+          return true;
+        }
+      }
 
-    this.can = new BehaviorSubject<boolean>(can());
+      return false;
+    };
+    const { user: currentUser } = this.me;
+    this.can = new BehaviorSubject<boolean>(can(currentUser));
+    this.me.user$.pipe(skip(1)).subscribe((user) => this.can.next(can(user)));
     return this.can;
   }
 }

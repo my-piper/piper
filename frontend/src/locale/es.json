@@ -6,6 +6,14 @@
 		"link.pipelines": "Tuberías",
 		"link.launches": "Lanza",
 		"link.users": "Usuarios",
-		"link.playground": "Parque infantil"
+		"link.playground": "Parque infantil",
+		"label.select_pipeline": "Seleccionar canal",
+		"link.readme": "LÉEME",
+		"link.batches": "Lotes",
+		"action.run": "Ejecutar",
+		"message.confirm_generate_api_key": "La clave generada previamente no será válida",
+		"label.how_to_call": "Cómo llamar",
+		"label.how_to_check": "Cómo comprobarlo",
+		"action.generate_api_key": "Generar clave API"
 	}
 }

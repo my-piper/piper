@@ -1,4 +1,5 @@
-import { plainToInstance } from "class-transformer";
+import { redis } from "app/redis";
+import { USER_API_TOKEN_EXPIRED, USER_API_TOKEN_KEY } from "consts/redis";
 import { Languages } from "core-kit/enums/languages";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import { Request, Response } from "express";
@@ -19,6 +20,7 @@ import {
 import { Injector } from "../types/injector";
 
 const USER_TOKEN_HEADER = "user-token";
+const API_KEY_HEADER = "api-key";
 const LANGUAGE_HEADER = "accept-language";
 
 const logger = createLogger("process-node");
@@ -57,8 +59,62 @@ export const handle =
         const token = header as string;
         try {
           const decoded = jwt.verify(token, JWT_SECRET);
-          const { _id } = plainToInstance(User, decoded as Object);
-          const user = toModel(await mongo.users.findOne({ _id }), User);
+          const { _id } = toInstance(decoded as Object, User);
+          const user = toModel(
+            await mongo.users.findOne(
+              { _id },
+              {
+                projection: {
+                  _id: 1,
+                  email: 1,
+                  roles: 1,
+                  balance: 1,
+                  createdAt: 1,
+                },
+              }
+            ),
+            User
+          );
+          assign(injector, { currentUser: user });
+        } catch (err) {
+          console.error(err);
+          res.status(401).send("Wrong user token");
+          return;
+        }
+      }
+    }
+
+    {
+      const header = req.headers[API_KEY_HEADER];
+      if (!!header) {
+        const hash = header as string;
+        try {
+          const token = await redis.get(USER_API_TOKEN_KEY(hash));
+          if (!token) {
+            throw new DataError("API hash is invalid");
+          }
+          // update expire for key
+          redis
+            .expire(USER_API_TOKEN_KEY(hash), USER_API_TOKEN_EXPIRED)
+            .then(() => null);
+
+          const decoded = jwt.verify(token, JWT_SECRET);
+          const { _id } = toInstance(decoded as Object, User);
+          const user = toModel(
+            await mongo.users.findOne(
+              { _id },
+              {
+                projection: {
+                  _id: 1,
+                  email: 1,
+                  roles: 1,
+                  balance: 1,
+                  createdAt: 1,
+                },
+              }
+            ),
+            User
+          );
           assign(injector, { currentUser: user });
         } catch (err) {
           console.error(err);

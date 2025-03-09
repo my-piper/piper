@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Socket } from "ngx-socket-io";
-import { SHORT_ID as shortId } from "src/consts/core";
+import { sid } from "src/ui-kit/utils/string";
 
 @Injectable({ providedIn: "root" })
 export class LiveService {
@@ -9,7 +9,7 @@ export class LiveService {
   constructor(public socket: Socket) {}
 
   subscribe(name: string): () => void {
-    const id = shortId();
+    const id = sid();
 
     let room = this.rooms.get(name);
     if (!room) {

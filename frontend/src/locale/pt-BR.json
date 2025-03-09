@@ -5,6 +5,14 @@
 		"link.node_packages": "Pacotes de nós",
 		"link.pipelines": "Gasodutos",
 		"link.launches": "Lançamentos",
-		"link.users": "Usuários"
+		"link.users": "Usuários",
+		"label.select_pipeline": "Selecione o pipeline",
+		"link.readme": "LEIAME",
+		"link.batches": "Lotes",
+		"action.run": "Executar",
+		"message.confirm_generate_api_key": "A chave gerada anteriormente será inválida",
+		"label.how_to_call": "Como chamar",
+		"label.how_to_check": "Como verificar",
+		"action.generate_api_key": "Gerar chave de API"
 	}
 }

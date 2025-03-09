@@ -37,6 +37,7 @@ export function appConfigFactory(): AppConfig {
         billing: {
           url: "https://google.com",
         },
+        baseUrl: location.origin,
       }
   );
 }

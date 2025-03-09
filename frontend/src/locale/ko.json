@@ -6,6 +6,13 @@
 		"link.pipelines": "파이프라인",
 		"link.launches": "출시",
 		"link.users": "사용자",
-		"link.playground": "놀이터"
+		"link.playground": "놀이터",
+		"label.select_pipeline": "파이프라인 선택",
+		"link.batches": "배치",
+		"action.run": "실행",
+		"message.confirm_generate_api_key": "이전에 생성된 키는 유효하지 않습니다",
+		"label.how_to_call": "전화하는 방법",
+		"label.how_to_check": "확인 방법",
+		"action.generate_api_key": "API 키 생성"
 	}
 }

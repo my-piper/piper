@@ -6,6 +6,14 @@
 		"link.pipelines": "Boru hatları",
 		"link.launches": "Başlatıldı",
 		"link.users": "Kullanıcılar",
-		"link.playground": "Oyun Alanı"
+		"link.playground": "Oyun Alanı",
+		"label.select_pipeline": "Boru hattı seçin",
+		"link.readme": "OKU BENİ",
+		"link.batches": "Toplu İşler",
+		"action.run": "Çalıştır",
+		"message.confirm_generate_api_key": "Önceden oluşturulan anahtar geçersiz olacaktır",
+		"label.how_to_call": "Nasıl çağırılır",
+		"label.how_to_check": "Nasıl kontrol edilir",
+		"action.generate_api_key": "API anahtarı oluşturun"
 	}
 }

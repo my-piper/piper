@@ -4,8 +4,15 @@
 		"action.save": "保存",
 		"link.node_packages": "Node包裝",
 		"link.pipelines": "管道",
-		"link.launches": "發射",
+		"link.launches": "啟動",
 		"link.users": "使用者",
-		"link.playground": "遊樂場"
+		"link.playground": "遊樂場",
+		"label.select_pipeline": "選擇管道",
+		"link.batches": "批次",
+		"action.run": "運行",
+		"message.confirm_generate_api_key": "先前生成的金鑰將無效",
+		"label.how_to_call": "如何致電",
+		"label.how_to_check": "如何檢查",
+		"action.generate_api_key": "生成 API 金鑰"
 	}
 }

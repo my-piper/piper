@@ -2,8 +2,8 @@
   <app-select-playground (selected)="go($event)"></app-select-playground>
 </ng-template>
 
-<header class="stack horizontal align-center justify-between">
-  <div class="stack horizontal align-center">
+<header class="stack horizontal justify-between">
+  <div class="stack horizontal">
     <a class="circle" [routerLink]="['../..']">
       <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
     </a>
@@ -20,7 +20,7 @@
           {{ project.title | i18n }}
         </h1>
         <small *ngIf="project.pipeline.description as description">{{
-          description
+          description | i18n
         }}</small>
       </div>
     </div>
@@ -35,7 +35,12 @@
 <div class="project-playground launches">
   <ul class="menu">
     <li>
-      <a [routerLink]="['readme']" routerLinkActive="active">README</a>
+      <a
+        [routerLink]="['readme']"
+        routerLinkActive="active"
+        i18n="@@link.readme"
+        >README</a
+      >
     </li>
     <li>|</li>
     <li>
@@ -43,16 +48,26 @@
         [routerLink]="['./']"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLinkActive="active"
+        i18n="@@link.launches"
         >Launches</a
       >
     </li>
     <li>|</li>
+    <ng-container *ngIf="!!project.deploy">
+      <li>
+        <a [routerLink]="['api']" routerLinkActive="active" i18n="@@link.api"
+          >API</a
+        >
+      </li>
+      <li>|</li>
+    </ng-container>
     <li>
-      <a [routerLink]="['api']" routerLinkActive="active">API</a>
-    </li>
-    <li>|</li>
-    <li>
-      <a [routerLink]="['batches']" routerLinkActive="active">Batches</a>
+      <a
+        [routerLink]="['batches']"
+        routerLinkActive="active"
+        i18n="@@link.batches"
+        >Batches</a
+      >
     </li>
   </ul>
   <router-outlet></router-outlet>

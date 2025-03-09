@@ -1,0 +1,23 @@
+<button *ngIf="!key" class="primary with-icon" (click)="generateToken()">
+  <app-icon class="icon left" icon="lock" [size]="18"></app-icon>
+  <ng-container i18n="@@action.generate_api_key">Generate API key</ng-container>
+</button>
+
+<ng-container *ngIf="project.deploy as deploy">
+  <h2 i18n="@@label.how_to_call">How to call</h2>
+  <pre>
+<![CDATA[curl --location --request POST '{{ config.baseUrl }}/api/{{
+      deploy.slug
+    }}/launch' \
+--header 'Content-Type: application/json' \
+--header 'api-key: {{ key?.hash || "[YOUR_API_KEY_HERE]" }}' \
+--data '{{ inputs | json }}']]></pre
+  >
+  <h2 i18n="@@label.how_to_check">How to check</h2>
+  <pre>
+<![CDATA[curl --location --request GET '{{
+      config.baseUrl
+    }}/api/launches/[LAUNCH_ID]/state' \
+--header 'api-key: {{ key?.hash || "[YOUR_API_KEY_HERE]" }}']]></pre
+  >
+</ng-container>
