@@ -1,49 +1,43 @@
-name: Build and Push Docker Image
+name: build
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [pull_request, push]
 
 env:
-  GIT_DEPTH: 5
-  DOCKER_DRIVER: overlay2
-  DOCKER_BUILDKIT: 1
-  DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/piper:${{ github.run_id }}
-  DOCKER_IMAGE_CACHE: ghcr.io/${{ github.repository_owner }}/piper/tmp:latest
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          fetch-depth: ${{ env.GIT_DEPTH }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Convert repository name to lowercase
-        run: |
-          REPO_NAME_LOWERCASE=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          echo "DOCKER_IMAGE=ghcr.io/$REPO_NAME_LOWERCASE:${{ github.run_id }}" >> $GITHUB_ENV
-          echo "DOCKER_IMAGE_CACHE=ghcr.io/$REPO_NAME_LOWERCASE/tmp:latest" >> $GITHUB_ENV
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,priority=300
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
 
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Pull cache image
-        run: docker pull $DOCKER_IMAGE_CACHE || true
-
-      - name: Build Docker image
-        run: |
-          docker build --cache-from $DOCKER_IMAGE_CACHE \
-            -t $DOCKER_IMAGE_CACHE \
-            -t $DOCKER_IMAGE \
-            .
-
-      - name: Push Docker image
-        run: |
-          docker push $DOCKER_IMAGE
-          docker push $DOCKER_IMAGE_CACHE
+      - name: Build production and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:_buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:_buildcache,mode=max
