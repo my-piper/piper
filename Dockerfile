@@ -25,8 +25,6 @@ COPY ./frontend ./frontend
 
 RUN npm --prefix ./frontend ci \
     && npm --prefix ./backend ci \
-    && rm -rf ./frontend/src/ui-kit || true \
-    && git clone https://github.com/my-Piper/Piper-UI-Kit.git frontend/src/ui-kit \
     && npm --prefix ./frontend run build
 
 EXPOSE 8080
