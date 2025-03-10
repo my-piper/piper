@@ -4,11 +4,12 @@ import { delay, finalize, map } from "rxjs";
 import { AppConfig } from "src/models/app-config";
 import { Authorization } from "src/models/authorisation";
 import { AppError } from "src/models/errors";
+import { LaunchRequest } from "src/models/launch-request";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/ui-kit/consts";
-import { toInstance } from "src/utils/models";
+import { toInstance, toPlain } from "src/utils/models";
 
 @Component({
   selector: "app-play-via-api",
@@ -20,7 +21,7 @@ export class PlayViaApiComponent {
   error!: AppError;
 
   project!: Project;
-  inputs: { [key: string]: Primitive } = {};
+  launchRequest!: object;
   authorization!: Authorization;
 
   constructor(
@@ -38,10 +39,12 @@ export class PlayViaApiComponent {
   }
 
   private build() {
+    const inputs = new Map<string, Primitive>();
     const { pipeline, launchRequest } = this.project;
     for (const [key, value] of pipeline.inputs) {
-      this.inputs[key] = launchRequest.inputs.get(key) || value.default;
+      inputs.set(key, launchRequest.inputs.get(key) || value.default);
     }
+    this.launchRequest = toPlain(new LaunchRequest({ inputs }));
     this.cd.detectChanges();
   }
 
