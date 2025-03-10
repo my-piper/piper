@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
-import { ApiKey } from "src/models/api-key";
 import { AppConfig } from "src/models/app-config";
+import { Authorization } from "src/models/authorisation";
 import { AppError } from "src/models/errors";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
@@ -21,7 +21,7 @@ export class PlayViaApiComponent {
 
   project!: Project;
   inputs: { [key: string]: Primitive } = {};
-  key!: ApiKey;
+  authorization!: Authorization;
 
   constructor(
     private http: HttpService,
@@ -58,18 +58,18 @@ export class PlayViaApiComponent {
     this.cd.detectChanges();
 
     this.http
-      .post("me/api-key/generate")
+      .post("me/api-token/generate")
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
           this.progress.generating = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, ApiKey))
+        map((json) => toInstance(json as Object, Authorization))
       )
       .subscribe({
-        next: (key) => {
-          this.key = key;
+        next: (authorization) => {
+          this.authorization = authorization;
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),

@@ -13,6 +13,7 @@
 		"message.confirm_generate_api_key": "A chave gerada anteriormente será inválida",
 		"label.how_to_call": "Como chamar",
 		"label.how_to_check": "Como verificar",
-		"action.generate_api_key": "Gerar chave de API"
+		"action.generate_api_key": "Gerar chave de API",
+		"label.your_api_token": "Seu token de API"
 	}
 }

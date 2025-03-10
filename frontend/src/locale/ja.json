@@ -13,6 +13,7 @@
 		"message.confirm_generate_api_key": "以前に生成されたキーは無効になります。",
 		"label.how_to_call": "呼び出し方",
 		"label.how_to_check": "確認方法",
-		"action.generate_api_key": "APIキーの生成"
+		"action.generate_api_key": "APIキーの生成",
+		"label.your_api_token": "APIトークン"
 	}
 }

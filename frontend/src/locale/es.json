@@ -14,6 +14,7 @@
 		"message.confirm_generate_api_key": "La clave generada previamente no será válida",
 		"label.how_to_call": "Cómo llamar",
 		"label.how_to_check": "Cómo comprobarlo",
-		"action.generate_api_key": "Generar clave API"
+		"action.generate_api_key": "Generar clave API",
+		"label.your_api_token": "Su token API"
 	}
 }

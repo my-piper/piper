@@ -20,12 +20,18 @@ RUN apt-get update \
 
 WORKDIR /app
 
+COPY ./backend/package-lock.json ./backend/package-lock.json
+COPY ./backend/package.json ./backend/package.json
+COPY ./frontend/package-lock.json ./frontend/package-lock.json
+COPY ./frontend/package.json ./frontend/package.json
+
+RUN npm --prefix ./backend ci
+RUN npm --prefix ./frontend ci
+
 COPY ./backend ./backend
 COPY ./frontend ./frontend
 
-RUN npm --prefix ./frontend ci \
-    && npm --prefix ./backend ci \
-    && npm --prefix ./frontend run build
+RUN npm --prefix ./frontend run build
 
 EXPOSE 8080
 

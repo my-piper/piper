@@ -13,6 +13,7 @@
 		"message.confirm_generate_api_key": "先前生成的金鑰將無效",
 		"label.how_to_call": "如何致電",
 		"label.how_to_check": "如何檢查",
-		"action.generate_api_key": "生成 API 金鑰"
+		"action.generate_api_key": "生成 API 金鑰",
+		"label.your_api_token": "您的 API 令牌"
 	}
 }

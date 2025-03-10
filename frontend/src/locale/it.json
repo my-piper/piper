@@ -14,6 +14,7 @@
 		"message.confirm_generate_api_key": "La chiave generata in precedenza non sarà valida",
 		"label.how_to_call": "Come chiamare",
 		"label.how_to_check": "Come controllare",
-		"action.generate_api_key": "Generare la chiave API"
+		"action.generate_api_key": "Generare la chiave API",
+		"label.your_api_token": "Il vostro token API"
 	}
 }

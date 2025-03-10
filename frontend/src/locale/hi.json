@@ -13,6 +13,7 @@
 		"message.confirm_generate_api_key": "पहले उत्पन्न की गई कुंजी अवैध हो जाएगी",
 		"label.how_to_call": "कैसे कॉल करें",
 		"label.how_to_check": "कैसे चेक करें",
-		"action.generate_api_key": "एपीआई कुंजी उत्पन्न करें"
+		"action.generate_api_key": "एपीआई कुंजी उत्पन्न करें",
+		"label.your_api_token": "आपका एपीआई टोकन"
 	}
 }

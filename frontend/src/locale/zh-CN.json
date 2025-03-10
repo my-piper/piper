@@ -15,6 +15,7 @@
 		"message.confirm_generate_api_key": "以前生成的密钥将失效",
 		"label.how_to_call": "如何呼叫",
 		"label.how_to_check": "如何检查",
-		"action.generate_api_key": "生成 API 密钥"
+		"action.generate_api_key": "生成 API 密钥",
+		"label.your_api_token": "您的应用程序接口令牌"
 	}
 }

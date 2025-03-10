@@ -10,6 +10,7 @@
     "link.assets": "Assets",
     "link.users": "Users",
     "action.generate_api_key": "Generate API key",
+    "label.your_api_token": "Your API token",
     "label.how_to_call": "How to call",
     "label.how_to_check": "How to check",
     "message.confirm_generate_api_key": "Previously generated key will be invalid",

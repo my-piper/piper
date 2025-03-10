@@ -13,6 +13,7 @@
 		"message.confirm_generate_api_key": "이전에 생성된 키는 유효하지 않습니다",
 		"label.how_to_call": "전화하는 방법",
 		"label.how_to_check": "확인 방법",
-		"action.generate_api_key": "API 키 생성"
+		"action.generate_api_key": "API 키 생성",
+		"label.your_api_token": "API 토큰"
 	}
 }

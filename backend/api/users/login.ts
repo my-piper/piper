@@ -32,10 +32,10 @@ api.post(
       throw new DataError("Email or password is incorrect");
     }
 
-    const { name, email } = user;
+    const { email } = user;
 
     {
-      const user = new User({ _id, name, email });
+      const user = new User({ _id, email });
       const token = jwt.sign(toPlain(user), JWT_SECRET, {
         expiresIn: JWT_EXPIRES,
       });
