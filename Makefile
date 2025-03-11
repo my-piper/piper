@@ -11,8 +11,11 @@ FRONTEND=npm --prefix ./frontend
 IMAGE_TAG=registry.gitlab.com/generative-core/piper/fullstack:1.2.2
 
 install:
+	git submodule init
+	git submodule update
 	npm --prefix ./backend install
 	npm --prefix ./frontend install
+	npm --prefix ./translator install
 
 schemas:
 	npm run --prefix ./backend cli compile-schemas
