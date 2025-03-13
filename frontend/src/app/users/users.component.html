@@ -21,7 +21,7 @@
     <a class="primary" [routerLink]="['add']">Create</a>
   </header>
 
-  <table class="default" [class.busy]="progress.loading || progress.deleting">
+  <table class="default">
     <thead>
       <th width="24px"></th>
       <th>Login</th>
@@ -79,6 +79,9 @@
             <small>{{ u.roles }}</small>
           </div>
         </td>
+      </tr>
+      <tr *ngIf="progress.loading || progress.deleting">
+        <td colspan="6">Loading...</td>
       </tr>
     </tbody>
   </table>

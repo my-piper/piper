@@ -6,7 +6,7 @@
     "_id": {
       "type": "string",
       "title": "ID",
-      "pattern": "^[a-z0-9_]{5,40}$",
+      "pattern": "^[a-z0-9_]{3,40}$",
       "propertyOrder": 1
     },
     "version": {

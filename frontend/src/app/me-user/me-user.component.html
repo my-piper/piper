@@ -80,7 +80,7 @@
 
 <ng-container *ngIf="me.user$ | async as user">
   <ng-container *ngIf="config.billing.url"></ng-container>
-  <div *ngIf="user.balance.remaining as remaining" class="remaining">
+  <div *ngIf="user.balance?.remaining as remaining" class="remaining">
     {{ remaining | countdown | async | currency: "USD" : "symbol" : "1.0-3" }}
   </div>
 </ng-container>

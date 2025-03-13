@@ -1,8 +1,10 @@
 import { Command } from "commander";
+import { toPlain } from "core-kit/utils/models";
 import { writeFile } from "fs/promises";
 import { ulid } from "ulid";
 import mongo from "./app/mongo";
 import { queues } from "./app/queue";
+import * as environment from "./cli/environment";
 import { loadPipelines } from "./cli/load-pipelines/logic";
 import * as packages from "./logic/node-packages";
 import { addUser } from "./logic/users/add-user";
@@ -104,6 +106,28 @@ commander
     await packages.checkUpdates(id);
     process.exit();
   });
+
+commander
+  .command("set-variable")
+  .option("--name <name>")
+  .option("--value <value>")
+  .action(async ({ name, value }: { name: string; value: string }) => {
+    await environment.set(name, value);
+    process.exit();
+  });
+
+commander
+  .command("remove-variable")
+  .option("--name <name>")
+  .action(async ({ name }: { name: string }) => {
+    await environment.remove(name);
+    process.exit();
+  });
+
+commander.command("environment").action(async () => {
+  console.log(toPlain(await environment.get()));
+  process.exit();
+});
 
 // TODO: remove soon
 commander

@@ -300,7 +300,7 @@
         "package": {
           "title": "Package",
           "type": "string",
-          "pattern": "^[a-z0-9_]{5,40}$"
+          "pattern": "^[a-z0-9_]{3,40}$"
         }
       },
       "required": ["id", "version", "category", "package"],

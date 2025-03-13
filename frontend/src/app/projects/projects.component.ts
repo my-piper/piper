@@ -9,6 +9,7 @@ import { Project, ProjectsFilter } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI, UI_DELAY } from "src/ui-kit/consts";
+import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 
@@ -44,7 +45,9 @@ export class ProjectsComponent implements OnInit {
   userRole = UserRole;
 
   error!: Error;
-  progress = { loading: false };
+  progress = { loading: false, deleting: false };
+
+  references: { popover: PopoverComponent } = { popover: null };
 
   chunk: Project[] = [];
   projects: Project[] = [];
@@ -110,10 +113,26 @@ export class ProjectsComponent implements OnInit {
       });
   }
 
-  remove(id: string) {
-    this.http.delete(`projects/${id}`).subscribe({
-      next: () => this.load(),
-      error: (err) => (this.error = err),
-    });
+  remove(index: number, { _id }: Project) {
+    this.progress.deleting = true;
+    this.cd.detectChanges();
+
+    this.http
+      .delete(`projects/${_id}`)
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.deleting = false;
+          this.references?.popover?.hide();
+          this.cd.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.projects.splice(index, 1);
+          this.cd.detectChanges();
+        },
+        error: (err) => (this.error = err),
+      });
   }
 }

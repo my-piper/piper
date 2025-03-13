@@ -50,6 +50,26 @@ Add admin user
 npm --prefix backend run cli add-user -- --id admin --email admin@yourdomain.com --role admin --password xyzXYZ
 ```
 
+# How to
+
+## Get environment
+
+```bash
+npm --prefix backend run cli environment
+```
+
+## Set variable
+
+```bash
+npm --prefix backend run cli set-variable -- --name XXX --value xyzXYZ
+```
+
+## Remove variable
+
+```bash
+npm --prefix backend run cli remove-variable -- --name XXX
+```
+
 # Debug
 
 ## Read Kafka stream

@@ -9,21 +9,21 @@
     <button class="primary" (click)="create()">Create</button>
   </header>
 
-  <table class="default" [class.busy]="progress.loading">
+  <table class="default">
     <thead>
       <th width="24px"></th>
       <th>Title</th>
       <th width="24px"></th>
-      <th width="250px">Created</th>
-      <th width="250px">Updated</th>
+      <th width="150px">Created</th>
+      <th width="150px">Updated</th>
     </thead>
     <tbody>
-      <tr *ngFor="let p of projects">
+      <tr *ngFor="let p of projects; let i = index">
         <td>
           <ng-template #actionsTemplate>
-            <ul class="context-menu">
+            <ul class="context-menu" [class.busy]="progress.deleting">
               <li>
-                <button (click)="remove(p._id)">
+                <button (click)="remove(i, p)">
                   <app-icon
                     class="icon left"
                     icon="delete"
@@ -49,26 +49,29 @@
             ></app-icon>
           </button>
         </td>
-        <td>
+        <td i18n-title="@@label.title" title="Title">
           <a [routerLink]="[p._id]">
             {{ p.title | i18n }}
           </a>
         </td>
-        <td>
+        <td i18n-title="@@label.visibility" title="Visibility">
           <app-icon
             *ngIf="p.visibility === 'public'"
             icon="share"
             [color]="ui.color.primary"
           ></app-icon>
         </td>
-        <td class="created">
+        <td class="created" i18n-title="@@label.created" title="Created">
           <div>{{ p.createdBy?._id }}</div>
           <small>{{ p.createdAt | date }}</small>
         </td>
-        <td class="updated">
+        <td class="updated" i18n-title="@@label.updated" title="Updated">
           <div>{{ p.updatedBy?._id }}</div>
           <small>{{ p.updatedAt | date: "short" }}</small>
         </td>
+      </tr>
+      <tr class="loading" *ngIf="progress.loading">
+        <td colspan="6"></td>
       </tr>
     </tbody>
   </table>
