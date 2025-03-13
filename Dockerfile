@@ -40,4 +40,4 @@ WORKDIR /app/backend
 
 VOLUME /var/packages
 
-ENTRYPOINT ["npm", "run", "--prefix", "./backend server"]
+ENTRYPOINT ["npm", "run", "server"]
