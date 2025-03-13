@@ -1,5 +1,7 @@
 FROM node:22
 
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     ffmpeg \
@@ -7,6 +9,7 @@ RUN apt-get update \
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     curl \
@@ -25,14 +28,16 @@ COPY ./backend/package.json ./backend/package.json
 COPY ./frontend/package-lock.json ./frontend/package-lock.json
 COPY ./frontend/package.json ./frontend/package.json
 
-RUN npm --prefix ./backend ci
-RUN npm --prefix ./frontend ci
+RUN npm --prefix ./backend ci \
+    && npm --prefix ./frontend ci
 
 COPY ./backend ./backend
 COPY ./frontend ./frontend
 
 RUN npm --prefix ./frontend run build
 
-EXPOSE 8080
+WORKDIR /app/backend
 
-CMD npm run --prefix ./backend server
+VOLUME /var/packages
+
+ENTRYPOINT ["npm", "run", "--prefix", "./backend server"]

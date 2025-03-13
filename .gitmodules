@@ -1,9 +1,9 @@
 [submodule "frontend/src/ui-kit"]
 	path = frontend/src/ui-kit
-	url = git@github.com:My-Piper/Piper-UI-Kit.git
+	url = git@github.com:my-piper/piper-ui-kit.git
 [submodule "translator"]
 	path = translator
-	url = git@github.com:My-Piper/Translator.git
+	url = git@github.com:my-piper/translator.git
 [submodule "backend/core-kit"]
 	path = backend/core-kit
-	url = git@github.com:My-Piper/Core-Kit.git
+	url = git@github.com:my-piper/core-kit.git
