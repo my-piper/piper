@@ -11,13 +11,58 @@ header {
     margin-bottom: 10px;
     background-color: #252b56;
     padding: 20px;
+    gap: $gutter-normal;
 
-    .logo {
-        img {
-            display: block;
+    @include less-tablet() {
+        flex-direction: column;
+    }
+
+    .left {
+        display: flex;
+        gap: $gutter-normal;
+        align-items: center;
+
+        @include less-tablet() {
+            flex-direction: column;
         }
 
-        margin-right: 50px;
+        .logo {
+            img {
+                display: block;
+            }
+
+            margin-right: 50px;
+        }
+
+        ul {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            gap: $gutter-large;
+
+            @include less-tablet() {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: $gutter-small;
+            }
+
+            li {
+                a {
+                    display: inline-block;
+                    text-decoration: none;
+                    color: white;
+                    line-height: 1.45em;
+                    padding-top: 4px;
+                    border-bottom: 2px solid transparent;
+
+                    &.active {
+                        border-color: white;
+                    }
+                }
+            }
+        }
     }
 
     ::ng-deep button.circle {
@@ -31,29 +76,6 @@ header {
     .me ::ng-deep {
         .remaining {
             color: white;
-        }
-    }
-
-    ul {
-        list-style: none;
-        display: flex;
-        align-items: center;
-        margin: 0;
-        padding: 0;
-
-        li {
-            a {
-                display: inline-block;
-                text-decoration: none;
-                color: white;
-                line-height: 1.45em;
-                padding-top: 4px;
-                border-bottom: 2px solid transparent;
-
-                &.active {
-                    border-color: white;
-                }
-            }
         }
     }
 
