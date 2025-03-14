@@ -51,6 +51,10 @@ export async function getCosts(
   // calculate all nodes
   const nodes: NodeCosts[] = [];
   for (const [id, node] of pipeline.nodes) {
+    if (!node.script) {
+      continue;
+    }
+
     const inputs = (() => {
       let toLaunch = launchRequest.nodes.get(id);
       if (!toLaunch) {

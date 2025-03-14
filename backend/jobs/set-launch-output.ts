@@ -44,8 +44,8 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
     filledAt: new Date(),
     launchedBy: !!launchedBy
       ? (() => {
-          const { _id, name } = launchedBy;
-          return new User({ _id, name });
+          const { _id } = launchedBy;
+          return new User({ _id });
         })()
       : null,
     type,
