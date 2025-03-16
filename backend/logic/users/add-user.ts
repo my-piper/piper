@@ -8,7 +8,7 @@ import ajv from "../../lib/ajv";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
 
-export async function addUser(data: Partial<User>): Promise<User> {
+export async function add(data: Partial<User>): Promise<User> {
   const user = toInstance(data, User);
   const validate = ajv.compile(SCHEMAS.user);
   if (!validate(user)) {

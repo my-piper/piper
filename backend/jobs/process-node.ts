@@ -1,4 +1,5 @@
 import { createLogger } from "core-kit/services/logger";
+import { FatalError, TimeoutError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { differenceInSeconds } from "date-fns";
 import { pathToFileURL } from "node:url";
@@ -6,7 +7,6 @@ import { Module, SourceTextModule } from "node:vm";
 import path from "path";
 import io from "../app/io";
 import { queues } from "../app/queue";
-import { redis } from "../app/redis";
 import { streams } from "../app/stream";
 import { BASE_URL } from "../consts/core";
 import {
@@ -27,11 +27,11 @@ import {
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
 } from "../consts/redis";
+import { redis } from "../core-kit/services/redis/redis";
 import { PipelineEvent } from "../models/events";
 import { Launch } from "../models/launch";
 import { NodeStatus } from "../models/node";
 import sentry from "../sentry";
-import { FatalError, TimeoutError } from "../types/errors";
 import { NextNode, NodeInputs, NodeJobResult, RepeatNode } from "../types/node";
 import { PipelineEventType } from "../types/pipeline";
 import {

@@ -14,6 +14,20 @@
 		"label.how_to_call": "如何致電",
 		"label.how_to_check": "如何檢查",
 		"action.generate_api_key": "生成 API 金鑰",
-		"label.your_api_token": "您的 API 令牌"
+		"label.your_api_token": "您的 API 令牌",
+		"action.login": "登錄",
+		"label.register": "註冊",
+		"label.your_email": "您的電子郵件",
+		"label.choose_login": "選擇登錄",
+		"label.send_password": "發送密碼到郵件",
+		"action.register": "Register",
+		"action.create": "創建",
+		"label.email": "電子郵件",
+		"label.created_at": "建立於",
+		"label.login": "登錄",
+		"label.login_or_email": "使用者名稱或電子郵件",
+		"label.password": "密碼",
+		"message.no_account": "尚未註冊帳戶嗎？ {$START_LINK}註冊{$CLOSE_LINK}",
+		"message.already_registered": "已註冊？ {$START_LINK}登入{$CLOSE_LINK}"
 	}
 }

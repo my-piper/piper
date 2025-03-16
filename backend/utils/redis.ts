@@ -1,7 +1,7 @@
 import { plainToInstance } from "class-transformer";
 import { toInstance, toPlain } from "core-kit/utils/models";
-import { redis } from "../app/redis";
 import { LAUNCH_EXPIRED } from "../consts/redis";
+import { redis } from "../core-kit/services/redis/redis";
 import { Primitive } from "../types/primitive";
 
 export function toRedisValue(type: string, value: Primitive): string {

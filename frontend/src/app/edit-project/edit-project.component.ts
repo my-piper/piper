@@ -8,8 +8,9 @@ import {
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { delay, finalize, map } from "rxjs";
+import { ProjectVisibility } from "src/enums/project-visibility";
 import { AppError } from "src/models/errors";
-import { Project, ProjectVisibility } from "src/models/project";
+import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
@@ -44,7 +45,9 @@ export class EditProjectComponent implements OnInit {
   @Output()
   updated = new EventEmitter<Project>();
 
-  visibilityControl = this.fb.control<ProjectVisibility>("private");
+  visibilityControl = this.fb.control<ProjectVisibility>(
+    ProjectVisibility.private
+  );
   form = this.fb.group({
     visibility: this.visibilityControl,
   });

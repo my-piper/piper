@@ -1,7 +1,14 @@
-import { redis } from "app/redis";
 import bcrypt from "bcrypt";
 import { USER_API_TOKEN_KEY } from "consts/redis";
 import { Languages } from "core-kit/enums/languages";
+import { redis } from "core-kit/services/redis";
+import {
+  DataError,
+  NotFoundError,
+  PenTestingError,
+  TooManyRequestsError,
+  UnauthorizedError,
+} from "core-kit/types/errors";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -11,13 +18,6 @@ import { DEFAULT_LANG, JWT_SECRET, LANGUAGES } from "../consts/core";
 import { NO_CACHE_HEADERS } from "../consts/http";
 import { createLogger } from "../logger";
 import { User, UserRole } from "../models/user";
-import {
-  DataError,
-  NotFoundError,
-  PenTestingError,
-  TooManyRequestsError,
-  UnauthorizedError,
-} from "../types/errors";
 import { Injector } from "../types/injector";
 
 const USER_TOKEN_HEADER = "user-token";

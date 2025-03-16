@@ -30,6 +30,10 @@ h1 {
   p {
     font-size: $font-size-small;
 
+    &.new {
+      color: green
+    }
+
     &.errors {
       color: red;
     }

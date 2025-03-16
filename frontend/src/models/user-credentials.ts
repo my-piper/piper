@@ -4,7 +4,7 @@ import assign from "lodash/assign";
 export class UserCredentials {
   @Expose()
   @Type(() => String)
-  _id!: string;
+  identity!: string;
 
   @Expose()
   @Type(() => String)

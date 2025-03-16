@@ -1,4 +1,5 @@
 import { plainToInstance } from "class-transformer";
+import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
@@ -9,7 +10,6 @@ import sharp from "sharp";
 import { ulid } from "ulid";
 import mongo from "../../app/mongo";
 import { queues } from "../../app/queue";
-import { redis } from "../../app/redis";
 import * as storage from "../../app/storage";
 import { BASE_URL } from "../../consts/core";
 import {
@@ -19,6 +19,7 @@ import {
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
 } from "../../consts/redis";
+import { redis } from "../../core-kit/services/redis/redis";
 import { createLogger } from "../../logger";
 import {
   BooleanData,
@@ -34,7 +35,6 @@ import {
   StringData,
   VideoData,
 } from "../../models/launch";
-import { FatalError, NotFoundError } from "../../types/errors";
 import { PipelineIOType } from "../../types/pipeline";
 import { Primitive } from "../../types/primitive";
 import { withTempContext } from "../../utils/files";

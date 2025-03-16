@@ -1,12 +1,11 @@
 import bcrypt from "bcrypt";
 import { plainToInstance } from "class-transformer";
+import { DataError, NotFoundError } from "core-kit/types/errors";
 import { toPlain, validate } from "core-kit/utils/models";
-import jwt from "jsonwebtoken";
+import { getToken } from "logic/users/auth";
 import { api } from "../../app/api";
 import mongo from "../../app/mongo";
-import { JWT_EXPIRES, JWT_SECRET } from "../../consts/core";
 import { User } from "../../models/user";
-import { DataError } from "../../types/errors";
 import { handle, toModel } from "../../utils/http";
 import { Authorization } from "./models/authorization";
 import { UserCredentials } from "./models/user-credentials";
@@ -17,29 +16,36 @@ api.post(
     const request = plainToInstance(UserCredentials, body as Object);
     await validate(request);
 
-    const { _id, password } = request;
+    const { identity, password } = request;
 
-    const user = toModel(
-      await mongo.users.findOne(
-        { _id },
-        { projection: { name: 1, email: 1, password: 1 } }
-      ),
-      User
-    );
+    let user: User;
+    try {
+      user = toModel(
+        await mongo.users.findOne(
+          {
+            $or: [{ _id: identity }, { email: identity }],
+          },
+          { projection: { email: 1, password: 1 } }
+        ),
+        User
+      );
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new DataError("Email or password is incorrect");
+      }
+      throw e;
+    }
 
     const matched = await bcrypt.compare(password, user.password);
     if (!matched) {
       throw new DataError("Email or password is incorrect");
     }
 
-    const { email } = user;
+    const { _id, email } = user;
 
     {
       const user = new User({ _id, email });
-      const token = jwt.sign(toPlain(user), JWT_SECRET, {
-        expiresIn: JWT_EXPIRES,
-      });
-      return toPlain(new Authorization({ token, user }));
+      return toPlain(new Authorization({ token: getToken(user), user }));
     }
   })
 );

@@ -15,6 +15,20 @@
 		"label.how_to_call": "Nasıl çağırılır",
 		"label.how_to_check": "Nasıl kontrol edilir",
 		"action.generate_api_key": "API anahtarı oluşturun",
-		"label.your_api_token": "API belirteciniz"
+		"label.your_api_token": "API belirteciniz",
+		"action.login": " Giriş",
+		"label.register": "Kaydol",
+		"label.your_email": "E-posta adresiniz",
+		"label.choose_login": "Bir giriş seçin",
+		"label.send_password": "Şifreyi e-postaya gönder",
+		"action.register": " Kaydol",
+		"action.create": "Oluşturmak",
+		"label.email": "E-posta",
+		"label.created_at": "Şu adreste oluşturuldu",
+		"label.login": "Giriş",
+		"label.login_or_email": "Kullanıcı adı veya e-posta",
+		"label.password": "Şifre",
+		"message.no_account": " Henüz hesabınız yok mu? {$START_LINK}Register{$CLOSE_LINK}",
+		"message.already_registered": " Zaten kayıtlı mısınız? {$START_LINK}Login{$CLOSE_LINK}"
 	}
 }

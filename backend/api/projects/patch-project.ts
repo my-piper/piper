@@ -1,4 +1,5 @@
 import { plainToInstance } from "class-transformer";
+import { DataError, NotFoundError } from "core-kit/types/errors";
 import { toInstance, toPlain, validate } from "core-kit/utils/models";
 import { patch } from "jsondiffpatch";
 import assign from "lodash/assign";
@@ -12,7 +13,6 @@ import { Pipeline } from "../../models/pipeline";
 import { Project } from "../../models/project";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { DataError, NotFoundError } from "../../types/errors";
 import { Primitive } from "../../types/primitive";
 import { checkAdmin, checkLogged, handle, toModel } from "../../utils/http";
 import { sid } from "../../utils/string";

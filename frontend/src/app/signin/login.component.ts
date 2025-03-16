@@ -29,9 +29,9 @@ export class LoginComponent implements OnInit {
   @Output()
   logged = new EventEmitter();
 
-  idControl = this.fb.control<string | null>(null, [Validators.required]);
+  identityControl = this.fb.control<string | null>(null, [Validators.required]);
   form = this.fb.group({
-    _id: this.idControl,
+    identity: this.identityControl,
     password: this.fb.control<string | null>(null, [Validators.required]),
   });
 
@@ -47,7 +47,7 @@ export class LoginComponent implements OnInit {
     if (ENV_MODE == "development") {
       this.form.patchValue(
         {
-          _id: "admin",
+          identity: "admin",
           password: "",
         },
         { emitEvent: false }

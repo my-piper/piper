@@ -45,6 +45,9 @@
       "title": "Thumbnail",
       "propertyOrder": 6
     },
+    "category": {
+      "$ref": "#/definitions/PipelineCategory"
+    },
     "start": {
       "$ref": "#/definitions/Start"
     },
@@ -90,6 +93,30 @@
         }
       },
       "required": ["nodes"],
+      "additionalProperties": false
+    },
+    "PipelineCategory": {
+      "title": "Category",
+      "type": "object",
+      "properties": {
+        "_id": {
+          "title": "ID",
+          "type": "string",
+          "pattern": "^[a-z0-9_]{5,40}$",
+          "propertyOrder": 1
+        },
+        "title": {
+          "title": "Title",
+          "type": "string",
+          "propertyOrder": 2
+        },
+        "icon": {
+          "title": "Icon",
+          "type": "string",
+          "propertyOrder": 3
+        }
+      },
+      "required": ["_id", "title"],
       "additionalProperties": false
     },
     "Deploy": {

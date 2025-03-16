@@ -14,6 +14,7 @@ import { DeployConfig } from "./deploy-config";
 import { Extension } from "./extension";
 import { Node } from "./node";
 import { OutputFlow } from "./output-flow";
+import { PipelineCategory } from "./pipeline-category";
 
 export class Start {
   @Expose()
@@ -153,6 +154,10 @@ export class Pipeline {
   @Expose()
   @Type(() => String)
   thumbnail!: string;
+
+  @Expose()
+  @Type(() => PipelineCategory)
+  category!: PipelineCategory;
 
   @Expose()
   @Type(() => Start)

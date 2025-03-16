@@ -1,10 +1,10 @@
 import { HttpsAgent } from "agentkeepalive";
 import axios from "axios";
 import { plainToInstance } from "class-transformer";
+import { DataError, FatalError, UnknownError } from "core-kit/types/errors";
 import fs from "fs";
 import { NODE_ENV, PAAS_AUTH, PAAS_BASE_URL } from "../consts/core";
 import { createLogger } from "../logger";
-import { DataError, FatalError, UnknownError } from "../types/errors";
 
 const logger = createLogger("paas");
 

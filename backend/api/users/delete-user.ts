@@ -1,6 +1,6 @@
+import { NotFoundError } from "core-kit/types/errors";
 import { api } from "../../app/api";
 import mongo from "../../app/mongo";
-import { NotFoundError } from "../../types/errors";
 import { checkAdmin, handle } from "../../utils/http";
 
 api.delete(

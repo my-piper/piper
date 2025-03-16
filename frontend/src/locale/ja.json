@@ -14,6 +14,20 @@
 		"label.how_to_call": "呼び出し方",
 		"label.how_to_check": "確認方法",
 		"action.generate_api_key": "APIキーの生成",
-		"label.your_api_token": "APIトークン"
+		"label.your_api_token": "APIトークン",
+		"action.login": "ログイン",
+		"label.register": "登録",
+		"label.your_email": "Eメール",
+		"label.choose_login": "ログイン",
+		"label.send_password": "パスワードをメールで送信",
+		"action.register": "登録",
+		"action.create": "作成",
+		"label.email": "電子メール",
+		"label.created_at": "制作は",
+		"label.login": "ログイン",
+		"label.login_or_email": "ユーザー名またはメールアドレス",
+		"label.password": "パスワード",
+		"message.no_account": "まだアカウントをお持ちでないですか？ {$START_LINK}登録{$CLOSE_LINK}",
+		"message.already_registered": " 既に登録済みですか？ {$START_LINK}ログイン{$CLOSE_LINK}"
 	}
 }

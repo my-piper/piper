@@ -1,6 +1,7 @@
 import { HttpsAgent } from "agentkeepalive";
 import axios from "axios";
 import { plainToInstance } from "class-transformer";
+import { DataError, FatalError, TimeoutError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { fileTypeFromBuffer } from "file-type";
 import { writeFile } from "fs/promises";
@@ -11,7 +12,6 @@ import { createRequire } from "node:module";
 import { createContext as createVmContext } from "node:vm";
 import path from "path";
 import { Logger } from "pino";
-import { redis } from "../../app/redis";
 import { artefact } from "../../app/storage";
 import { streams } from "../../app/stream";
 import { SHARE_FOLDER } from "../../consts/chrome";
@@ -20,6 +20,7 @@ import {
   GLOBAL_ENVIRONMENT_KEY,
   USER_ENVIRONMENT_KEY,
 } from "../../consts/redis";
+import { redis } from "../../core-kit/services/redis/redis";
 import * as deploying from "../../logic/deploy/get-deploy";
 import { decrypt } from "../../logic/environment/crypt-environment";
 import * as launching from "../../logic/launches/launching";
@@ -27,7 +28,6 @@ import { run } from "../../logic/launches/launching";
 import { Environment } from "../../models/environment";
 import { Launch } from "../../models/launch";
 import { LaunchRequest } from "../../models/launch-request";
-import { DataError, FatalError, TimeoutError } from "../../types/errors";
 import { NextNode, RepeatNode } from "../../types/node";
 import { Primitive } from "../../types/primitive";
 import { withTempContext } from "../../utils/files";

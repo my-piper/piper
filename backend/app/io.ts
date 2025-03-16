@@ -1,9 +1,9 @@
 import { createAdapter } from "@socket.io/redis-adapter";
 import { createLogger } from "core-kit/services/logger";
+import { REDIS_URL } from "core-kit/services/redis/consts";
 import { toPlain } from "core-kit/utils/models";
 import { createClient } from "redis";
 import { Server } from "socket.io";
-import { REDIS_URL } from "../consts/core";
 
 const logger = createLogger("io");
 

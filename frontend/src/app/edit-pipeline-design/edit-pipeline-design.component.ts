@@ -18,8 +18,15 @@ import { toPlain } from "src/utils/models";
 })
 export class EditPipelineDesignComponent implements OnInit {
   schemas = (() => {
-    const { name, description, version, url, checkUpdates, thumbnail } =
-      SCHEMAS.pipeline.properties;
+    const {
+      name,
+      description,
+      version,
+      url,
+      checkUpdates,
+      thumbnail,
+      category,
+    } = SCHEMAS.pipeline.properties;
     return {
       pipeline: {
         ...SCHEMAS.pipeline,
@@ -30,6 +37,7 @@ export class EditPipelineDesignComponent implements OnInit {
           url,
           checkUpdates,
           thumbnail,
+          category,
         },
         required: ["name", "version"],
       },
@@ -61,8 +69,15 @@ export class EditPipelineDesignComponent implements OnInit {
 
   private build() {
     const { pipeline } = this.project;
-    const { name, description, version, url, checkUpdates, thumbnail } =
-      toPlain(pipeline);
+    const {
+      name,
+      description,
+      version,
+      url,
+      checkUpdates,
+      thumbnail,
+      category,
+    } = toPlain(pipeline);
     this.form.patchValue({
       pipeline: shrink({
         name,
@@ -71,19 +86,27 @@ export class EditPipelineDesignComponent implements OnInit {
         url,
         checkUpdates,
         thumbnail,
+        category,
       }),
     });
   }
 
   save() {
-    const { name, description, version, url, checkUpdates, thumbnail } =
-      plainToInstance(
-        Pipeline,
-        (() => {
-          const { pipeline } = this.form.getRawValue();
-          return pipeline;
-        })()
-      );
+    const {
+      name,
+      description,
+      version,
+      url,
+      checkUpdates,
+      thumbnail,
+      category,
+    } = plainToInstance(
+      Pipeline,
+      (() => {
+        const { pipeline } = this.form.getRawValue();
+        return pipeline;
+      })()
+    );
 
     assign(this.project, { title: name });
 
@@ -95,6 +118,7 @@ export class EditPipelineDesignComponent implements OnInit {
       url,
       checkUpdates,
       thumbnail,
+      category,
     });
     this.projectManager.update({ title: name, pipeline });
   }

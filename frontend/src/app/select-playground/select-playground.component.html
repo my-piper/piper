@@ -1,15 +1,47 @@
-<ng-template #noPipelinesTemplate>
-  <p>No pipelines were found.</p>
+<ng-template #toolsPopover>
+  <ul class="context-menu" [class.busy]="progress.organizing">
+    <li>
+      <button [disabled]="progress.organizing" (click)="organize()">
+        Organize
+      </button>
+    </li>
+  </ul>
 </ng-template>
 
-<ng-template #loadingTemplate>
-  <ng-container *ngIf="progress.loading">
-    <p>Loading...</p>
-  </ng-container>
-</ng-template>
+<button
+  *ngIf="userRole.admin | can | async"
+  class="tools button circle"
+  [appPopover]="{ content: toolsPopover }"
+  (attached)="references.popover = $event"
+>
+  <app-icon class="icon" icon="menu"></app-icon>
+</button>
 
-<div class="projects" *ngIf="projects.length > 0; else loadingTemplate">
-  <button *ngFor="let p of projects" (click)="selected.emit(p)">
-    {{ p.title | i18n }}
-  </button>
+<form [formGroup]="form" class="categories">
+  <label
+    *ngFor="let c of categories"
+    [class.selected]="categoryControl.value === c._id"
+  >
+    <input type="radio" [value]="c._id" formControlName="category" />
+    <app-icon [icon]="c.icon"></app-icon>
+    {{ c.title | i18n }}
+    <span class="badge">{{ c.projects }}</span>
+  </label>
+</form>
+
+<div class="projects cards" [class.busy-block]="progress.loading.projects">
+  <div class="card" *ngFor="let p of projects">
+    <header>
+      <h2>{{ p.title | i18n }}</h2>
+    </header>
+    <article>
+      <button (click)="selected.emit(p)">
+        <div class="title">{{ p.title | i18n }}</div>
+        <img *ngIf="p.pipeline.thumbnail as thumbnail" [src]="thumbnail" />
+      </button>
+    </article>
+    <footer *ngIf="p.pipeline.description as description">
+      <p>{{ description }}</p>
+    </footer>
+  </div>
 </div>

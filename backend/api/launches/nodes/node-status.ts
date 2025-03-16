@@ -1,6 +1,6 @@
 import { api } from "../../../app/api";
-import { redis } from "../../../app/redis";
 import { NODE_STATUS } from "../../../consts/redis";
+import { redis } from "../../../core-kit/services/redis/redis";
 import { handle } from "../../../utils/http";
 
 api.get(

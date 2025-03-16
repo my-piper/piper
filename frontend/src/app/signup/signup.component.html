@@ -4,11 +4,22 @@
   (ok)="error = null"
 ></app-informer>
 
-<div class="app-container stack vertical align-center justify-center">
-  <div class="form stack vertical align-center">
-    <img width="60px" height="60px" src="assets/app-logo-square.svg" />
+<div class="app-container">
+  <div class="frame">
+    <ng-template #selectLanguagePopover>
+      <app-select-language></app-select-language>
+    </ng-template>
+    <button
+      class="select-language circle"
+      [appPopover]="{ content: selectLanguagePopover, trigger: 'click' }"
+    >
+      <app-icon class="icon" icon="lang"></app-icon>
+    </button>
 
-    <h1>Register</h1>
+    <div class="stack vertical align-center">
+      <img width="60px" height="60px" src="assets/app-logo-square.svg" />
+      <h1 i18n="@@label.register">Register</h1>
+    </div>
 
     <form data-cy="form-login" [formGroup]="form" (ngSubmit)="login()">
       <fieldset>
@@ -19,7 +30,7 @@
           [class.error]="form | invalidField: 'email'"
           formControlName="email"
           placeholder="Your email"
-          i18n-placeholder="@@label.email"
+          i18n-placeholder="@@label.your_email"
           type="text"
         />
         <input
@@ -29,7 +40,7 @@
           [class.error]="form | invalidField: 'login'"
           formControlName="login"
           placeholder="Choose a login"
-          i18n-placeholder="@@label.login"
+          i18n-placeholder="@@label.choose_login"
           type="text"
         />
         <div class="stack horizontal align-center">
@@ -39,7 +50,7 @@
               <span class="slider"></span>
             </label>
           </div>
-          <div>Send password to email</div>
+          <div i18n="@@label.send_password">Send password to email</div>
         </div>
         <input
           *ngIf="!sendPasswordControl.value"
@@ -68,9 +79,20 @@
       </footer>
     </form>
 
-    <p>
-      Already registered?
-      <a [routerLink]="['/login']">Login</a>
-    </p>
+    <div class="stack vertical align-center">
+      <div class="stack horizontal small align-center">
+        <a class="button circle light" href="/oauth/google">
+          <app-icon class="icon" icon="google"></app-icon>
+        </a>
+        <a class="button circle light" href="/oauth/yandex">
+          <app-icon class="icon" icon="yandex"></app-icon>
+        </a>
+      </div>
+
+      <p i18n="@@message.already_registered">
+        Already registered?
+        <a [routerLink]="['/login']">Login</a>
+      </p>
+    </div>
   </div>
 </div>

@@ -1,9 +1,9 @@
+import { DataError } from "core-kit/types/errors";
 import { toInstance } from "core-kit/utils/models";
 import { api } from "../../../app/api";
-import { redis } from "../../../app/redis";
 import { LAUNCH } from "../../../consts/redis";
+import { redis } from "../../../core-kit/services/redis/redis";
 import { Launch } from "../../../models/launch";
-import { DataError } from "../../../types/errors";
 import { handle } from "../../../utils/http";
 import { getNodeInputs } from "../../../utils/node";
 

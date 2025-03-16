@@ -1,3 +1,4 @@
+import "core-kit/env";
 import "reflect-metadata";
 
 import bottleneck from "bottleneck";

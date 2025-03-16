@@ -1,9 +1,9 @@
 import { plainToClass } from "class-transformer";
 import { fileTypeFromBuffer } from "file-type";
 import { PipelineIOType } from "types/pipeline";
-import { redis } from "../app/redis";
 import * as storage from "../app/storage";
 import { NODE_INPUT, NODE_STATUS } from "../consts/redis";
+import { redis } from "../core-kit/services/redis/redis";
 import { Launch } from "../models/launch";
 import { Node, NodeInput, NodeOutput, NodeStatus } from "../models/node";
 import { NodeInputs, NodeOutputs } from "../types/node";

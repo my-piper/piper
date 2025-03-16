@@ -1,3 +1,6 @@
+import "./categories";
+import "./organize-projects";
+
 import "./add-project";
 import "./delete-project";
 import "./deploy-project";

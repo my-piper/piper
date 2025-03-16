@@ -1,4 +1,4 @@
-<header class="stack horizontal align-center justify-between">
+<header>
   <div class="left">
     <a class="logo" href="/">
       <img width="143px" height="35px" src="assets/app-logo.svg?v=y" />
@@ -57,6 +57,9 @@
   </div>
 
   <div class="stack horizontal small">
+    <ng-template #selectLanguagePopover>
+      <app-select-language></app-select-language>
+    </ng-template>
     <button
       class="circle"
       [appPopover]="{content: selectLanguagePopover, trigger: 'click'}"
@@ -64,9 +67,6 @@
       <app-icon class="icon" icon="lang"></app-icon>
     </button>
     <app-me-user class="me"></app-me-user>
-    <ng-template #selectLanguagePopover>
-      <app-select-language></app-select-language>
-    </ng-template>
   </div>
 </header>
 

@@ -15,6 +15,9 @@ export default {
   launches: db.collection<Object & { _id: string }>("launches"),
   launchOutputs: db.collection<Object & { _id: string }>("launchOutputs"),
   projects: db.collection<Object & { _id: string }>("projects"),
+  projectCategories: db.collection<Object & { _id: string }>(
+    "projectCategories"
+  ),
   buckets: db.collection<Object & { _id: string }>("buckets"),
   assets: db.collection<Object & { _id: string }>("assets"),
   batches: db.collection<Object & { _id: string }>("batches"),

@@ -4,20 +4,31 @@
   (ok)="error = null"
 ></app-informer>
 
-<div class="app-container stack vertical align-center justify-center">
-  <div class="form stack vertical align-center">
-    <img width="60px" height="60px" src="assets/app-logo-square.svg" />
+<div class="app-container">
+  <div class="frame">
+    <ng-template #selectLanguagePopover>
+      <app-select-language></app-select-language>
+    </ng-template>
+    <button
+      class="select-language circle"
+      [appPopover]="{ content: selectLanguagePopover, trigger: 'click' }"
+    >
+      <app-icon class="icon" icon="lang"></app-icon>
+    </button>
 
-    <h1>Login</h1>
+    <div class="stack vertical align-center">
+      <img width="60px" height="60px" src="assets/app-logo-square.svg" />
+      <h1 i18n="@@label.login">Login</h1>
+    </div>
 
     <form data-cy="form-login" [formGroup]="form" (ngSubmit)="login()">
       <fieldset>
         <input
           class="input-primary"
-          id="_id"
-          name="_id"
-          [class.error]="form | invalidField: '_id'"
-          formControlName="_id"
+          id="identity"
+          name="identity"
+          [class.error]="form | invalidField: 'identity'"
+          formControlName="identity"
           placeholder="User name or email"
           i18n-placeholder="@@label.login_or_email"
           data-cy="user-name"
@@ -29,9 +40,9 @@
           name="password"
           [class.error]="form | invalidField: 'password'"
           formControlName="password"
-          i18n-placeholder="@@label.password"
           data-cy="password"
           placeholder="Password"
+          i18n-placeholder="@@label.password"
           type="password"
         />
       </fieldset>
@@ -40,7 +51,6 @@
           class="primary fluid"
           [class.busy]="progress.login"
           [disabled]="progress.login"
-          data-cy="login-button"
           i18n="@@action.login"
           type="submit"
         >
@@ -48,9 +58,21 @@
         </button>
       </footer>
     </form>
-    <p>
-      Have no account yet?
-      <a [routerLink]="['/signup']">Register</a>
-    </p>
+
+    <div class="stack vertical align-center">
+      <div class="stack horizontal small align-center">
+        <a class="button circle light" href="/oauth/google">
+          <app-icon class="icon" icon="google"></app-icon>
+        </a>
+        <a class="button circle light" href="/oauth/yandex">
+          <app-icon class="icon" icon="yandex"></app-icon>
+        </a>
+      </div>
+
+      <p i18n="@@message.no_account">
+        Have no account yet?
+        <a [routerLink]="['/signup']">Register</a>
+      </p>
+    </div>
   </div>
 </div>

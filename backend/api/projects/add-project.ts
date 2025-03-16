@@ -1,4 +1,5 @@
 import { plainToInstance } from "class-transformer";
+import { DataError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { ulid } from "ulid";
 import { api } from "../../app/api";
@@ -7,7 +8,6 @@ import ajv from "../../lib/ajv";
 import { Project } from "../../models/project";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { DataError } from "../../types/errors";
 import { checkLogged, handle } from "../../utils/http";
 import { sid } from "../../utils/string";
 

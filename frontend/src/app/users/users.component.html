@@ -1,6 +1,32 @@
+<ng-template #errorTemplate>
+  <div class="informer errors">
+    <p>{{ error.message }}</p>
+    <ul *ngIf="error?.details as details">
+      <li *ngFor="let m of details">{{ m }}</li>
+    </ul>
+    <div class="stack horizontal justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
+<app-informer
+  *ngIf="!!error"
+  [contentTemplate]="errorTemplate"
+  (ok)="error = null"
+></app-informer>
+
 <div class="modal" [class.hidden]="!modal">
   <header>
-    <a class="primary" [routerLink]="['./']">Close</a>
+    <a
+      class="primary with-icon"
+      [hotKey]="'escape'"
+      (hotKeyPressed)="back()"
+      [routerLink]="['./']"
+    >
+      <app-icon class="icon right" icon="close"></app-icon>
+      <span class="badge">ESC</span>
+    </a>
   </header>
   <div class="content filled centered">
     <router-outlet
@@ -10,31 +36,24 @@
   </div>
 </div>
 
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
-
 <div class="app-container">
   <header>
-    <a class="primary" [routerLink]="['add']">Create</a>
+    <a class="primary" [routerLink]="['add']" i18n="@@action.create">Create</a>
   </header>
 
   <table class="default">
     <thead>
       <th width="24px"></th>
-      <th>Login</th>
-      <th>Name</th>
-      <th>Email</th>
-      <th width="100px">Created at</th>
-      <th width="100px">Role</th>
+      <th i18n="@@label.login">Login</th>
+      <th i18n="@@label.email">Email</th>
+      <th i18n="@@label.created_at" width="100px">Created at</th>
+      <th width="24px"></th>
     </thead>
     <tbody>
       <tr *ngFor="let u of users; let i = index">
         <td>
           <ng-template #actionsTemplate>
-            <ul class="context-menu">
+            <ul class="context-menu" [class.busy]="progress.deleting">
               <li>
                 <button (click)="remove(i, u)">
                   <app-icon
@@ -55,18 +74,15 @@
             <app-icon class="icon" icon="menu"></app-icon>
           </button>
         </td>
-        <td>
+        <td title="Login" i18n-title="@@label.login">
           <a [routerLink]="[u._id]">
             {{ u._id }}
           </a>
         </td>
-        <td>
-          <small>{{ u.name }}</small>
-        </td>
-        <td>
+        <td title="Email" i18n-title="@@label.email">
           <small>{{ u.email }}</small>
         </td>
-        <td>
+        <td title="Created at" i18n-title="@@label.created_at">
           <small>{{ u.createdAt | date }}</small>
         </td>
         <td>
@@ -76,13 +92,17 @@
               [icon]="'admin'"
               [size]="20"
             ></app-icon>
-            <small>{{ u.roles }}</small>
           </div>
         </td>
       </tr>
-      <tr *ngIf="progress.loading || progress.deleting">
-        <td colspan="6">Loading...</td>
+      <tr class="loading" *ngIf="progress.loading">
+        <td colspan="6"></td>
       </tr>
     </tbody>
   </table>
+  <div
+    *ngIf="chunk.length > 0 && !progress.loading"
+    [inViewport]
+    (visible)="loadMore()"
+  ></div>
 </div>

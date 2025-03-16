@@ -78,6 +78,11 @@
 							"title": "Description",
 							"propertyOrder": 4
 						},
+						"thumbnail": {
+							"type": "string",
+							"title": "Thumbnail",
+							"propertyOrder": 5
+						},
 						"category": {
 							"type": "object",
 							"properties": {
@@ -183,30 +188,49 @@
 							"type": "object",
 							"properties": {
 								"id": {
+									"title": "ID (deprecated)",
+									"type": "string",
+									"propertyOrder": 1
+								},
+								"_id": {
 									"title": "ID",
 									"type": "string",
-									"pattern": "^[a-z0-9_]{5,40}$"
+									"pattern": "^[a-z0-9_]{5,40}$",
+									"propertyOrder": 2
 								},
 								"version": {
 									"title": "Version",
 									"type": "number",
-									"format": "number"
+									"format": "number",
+									"propertyOrder": 3
 								},
 								"category": {
 									"type": "object",
 									"properties": {
 										"id": {
+											"title": "ID (deprecated)",
+											"type": "string",
+											"propertyOrder": 1
+										},
+										"_id": {
 											"title": "ID",
 											"type": "string",
-											"pattern": "^[a-z0-9_]{5,40}$"
+											"pattern": "^[a-z0-9_]{5,40}$",
+											"propertyOrder": 2
 										},
 										"title": {
 											"title": "Title",
-											"type": "string"
+											"type": "string",
+											"propertyOrder": 3
+										},
+										"thumbnail": {
+											"title": "Thumbnail",
+											"type": "string",
+											"propertyOrder": 4
 										}
 									},
 									"required": [
-										"id",
+										"_id",
 										"title"
 									],
 									"additionalProperties": false
@@ -218,6 +242,7 @@
 								}
 							},
 							"required": [
+								"_id",
 								"id",
 								"version",
 								"category",
@@ -897,30 +922,49 @@
 							"type": "object",
 							"properties": {
 								"id": {
+									"title": "ID (deprecated)",
+									"type": "string",
+									"propertyOrder": 1
+								},
+								"_id": {
 									"title": "ID",
 									"type": "string",
-									"pattern": "^[a-z0-9_]{5,40}$"
+									"pattern": "^[a-z0-9_]{5,40}$",
+									"propertyOrder": 2
 								},
 								"version": {
 									"title": "Version",
 									"type": "number",
-									"format": "number"
+									"format": "number",
+									"propertyOrder": 3
 								},
 								"category": {
 									"type": "object",
 									"properties": {
 										"id": {
+											"title": "ID (deprecated)",
+											"type": "string",
+											"propertyOrder": 1
+										},
+										"_id": {
 											"title": "ID",
 											"type": "string",
-											"pattern": "^[a-z0-9_]{5,40}$"
+											"pattern": "^[a-z0-9_]{5,40}$",
+											"propertyOrder": 2
 										},
 										"title": {
 											"title": "Title",
-											"type": "string"
+											"type": "string",
+											"propertyOrder": 3
+										},
+										"thumbnail": {
+											"title": "Thumbnail",
+											"type": "string",
+											"propertyOrder": 4
 										}
 									},
 									"required": [
-										"id",
+										"_id",
 										"title"
 									],
 									"additionalProperties": false
@@ -932,6 +976,7 @@
 								}
 							},
 							"required": [
+								"_id",
 								"id",
 								"version",
 								"category",
@@ -1027,6 +1072,11 @@
 				"format": "textarea",
 				"title": "Description",
 				"propertyOrder": 4
+			},
+			"thumbnail": {
+				"type": "string",
+				"title": "Thumbnail",
+				"propertyOrder": 5
 			},
 			"category": {
 				"type": "object",
@@ -1133,30 +1183,49 @@
 				"type": "object",
 				"properties": {
 					"id": {
+						"title": "ID (deprecated)",
+						"type": "string",
+						"propertyOrder": 1
+					},
+					"_id": {
 						"title": "ID",
 						"type": "string",
-						"pattern": "^[a-z0-9_]{5,40}$"
+						"pattern": "^[a-z0-9_]{5,40}$",
+						"propertyOrder": 2
 					},
 					"version": {
 						"title": "Version",
 						"type": "number",
-						"format": "number"
+						"format": "number",
+						"propertyOrder": 3
 					},
 					"category": {
 						"type": "object",
 						"properties": {
 							"id": {
+								"title": "ID (deprecated)",
+								"type": "string",
+								"propertyOrder": 1
+							},
+							"_id": {
 								"title": "ID",
 								"type": "string",
-								"pattern": "^[a-z0-9_]{5,40}$"
+								"pattern": "^[a-z0-9_]{5,40}$",
+								"propertyOrder": 2
 							},
 							"title": {
 								"title": "Title",
-								"type": "string"
+								"type": "string",
+								"propertyOrder": 3
+							},
+							"thumbnail": {
+								"title": "Thumbnail",
+								"type": "string",
+								"propertyOrder": 4
 							}
 						},
 						"required": [
-							"id",
+							"_id",
 							"title"
 						],
 						"additionalProperties": false
@@ -1168,6 +1237,7 @@
 					}
 				},
 				"required": [
+					"_id",
 					"id",
 					"version",
 					"category",
@@ -1847,30 +1917,49 @@
 				"type": "object",
 				"properties": {
 					"id": {
+						"title": "ID (deprecated)",
+						"type": "string",
+						"propertyOrder": 1
+					},
+					"_id": {
 						"title": "ID",
 						"type": "string",
-						"pattern": "^[a-z0-9_]{5,40}$"
+						"pattern": "^[a-z0-9_]{5,40}$",
+						"propertyOrder": 2
 					},
 					"version": {
 						"title": "Version",
 						"type": "number",
-						"format": "number"
+						"format": "number",
+						"propertyOrder": 3
 					},
 					"category": {
 						"type": "object",
 						"properties": {
 							"id": {
+								"title": "ID (deprecated)",
+								"type": "string",
+								"propertyOrder": 1
+							},
+							"_id": {
 								"title": "ID",
 								"type": "string",
-								"pattern": "^[a-z0-9_]{5,40}$"
+								"pattern": "^[a-z0-9_]{5,40}$",
+								"propertyOrder": 2
 							},
 							"title": {
 								"title": "Title",
-								"type": "string"
+								"type": "string",
+								"propertyOrder": 3
+							},
+							"thumbnail": {
+								"title": "Thumbnail",
+								"type": "string",
+								"propertyOrder": 4
 							}
 						},
 						"required": [
-							"id",
+							"_id",
 							"title"
 						],
 						"additionalProperties": false
@@ -1882,6 +1971,7 @@
 					}
 				},
 				"required": [
+					"_id",
 					"id",
 					"version",
 					"category",
@@ -1985,6 +2075,33 @@
 				"type": "string",
 				"title": "Thumbnail",
 				"propertyOrder": 6
+			},
+			"category": {
+				"title": "Category",
+				"type": "object",
+				"properties": {
+					"_id": {
+						"title": "ID",
+						"type": "string",
+						"pattern": "^[a-z0-9_]{5,40}$",
+						"propertyOrder": 1
+					},
+					"title": {
+						"title": "Title",
+						"type": "string",
+						"propertyOrder": 2
+					},
+					"icon": {
+						"title": "Icon",
+						"type": "string",
+						"propertyOrder": 3
+					}
+				},
+				"required": [
+					"_id",
+					"title"
+				],
+				"additionalProperties": false
 			},
 			"start": {
 				"type": "object",
@@ -2317,6 +2434,11 @@
 							"title": "Description",
 							"propertyOrder": 4
 						},
+						"thumbnail": {
+							"type": "string",
+							"title": "Thumbnail",
+							"propertyOrder": 5
+						},
 						"category": {
 							"type": "object",
 							"properties": {
@@ -2422,30 +2544,49 @@
 							"type": "object",
 							"properties": {
 								"id": {
+									"title": "ID (deprecated)",
+									"type": "string",
+									"propertyOrder": 1
+								},
+								"_id": {
 									"title": "ID",
 									"type": "string",
-									"pattern": "^[a-z0-9_]{5,40}$"
+									"pattern": "^[a-z0-9_]{5,40}$",
+									"propertyOrder": 2
 								},
 								"version": {
 									"title": "Version",
 									"type": "number",
-									"format": "number"
+									"format": "number",
+									"propertyOrder": 3
 								},
 								"category": {
 									"type": "object",
 									"properties": {
 										"id": {
+											"title": "ID (deprecated)",
+											"type": "string",
+											"propertyOrder": 1
+										},
+										"_id": {
 											"title": "ID",
 											"type": "string",
-											"pattern": "^[a-z0-9_]{5,40}$"
+											"pattern": "^[a-z0-9_]{5,40}$",
+											"propertyOrder": 2
 										},
 										"title": {
 											"title": "Title",
-											"type": "string"
+											"type": "string",
+											"propertyOrder": 3
+										},
+										"thumbnail": {
+											"title": "Thumbnail",
+											"type": "string",
+											"propertyOrder": 4
 										}
 									},
 									"required": [
-										"id",
+										"_id",
 										"title"
 									],
 									"additionalProperties": false
@@ -2457,6 +2598,7 @@
 								}
 							},
 							"required": [
+								"_id",
 								"id",
 								"version",
 								"category",
@@ -3136,30 +3278,49 @@
 							"type": "object",
 							"properties": {
 								"id": {
+									"title": "ID (deprecated)",
+									"type": "string",
+									"propertyOrder": 1
+								},
+								"_id": {
 									"title": "ID",
 									"type": "string",
-									"pattern": "^[a-z0-9_]{5,40}$"
+									"pattern": "^[a-z0-9_]{5,40}$",
+									"propertyOrder": 2
 								},
 								"version": {
 									"title": "Version",
 									"type": "number",
-									"format": "number"
+									"format": "number",
+									"propertyOrder": 3
 								},
 								"category": {
 									"type": "object",
 									"properties": {
 										"id": {
+											"title": "ID (deprecated)",
+											"type": "string",
+											"propertyOrder": 1
+										},
+										"_id": {
 											"title": "ID",
 											"type": "string",
-											"pattern": "^[a-z0-9_]{5,40}$"
+											"pattern": "^[a-z0-9_]{5,40}$",
+											"propertyOrder": 2
 										},
 										"title": {
 											"title": "Title",
-											"type": "string"
+											"type": "string",
+											"propertyOrder": 3
+										},
+										"thumbnail": {
+											"title": "Thumbnail",
+											"type": "string",
+											"propertyOrder": 4
 										}
 									},
 									"required": [
-										"id",
+										"_id",
 										"title"
 									],
 									"additionalProperties": false
@@ -3171,6 +3332,7 @@
 								}
 							},
 							"required": [
+								"_id",
 								"id",
 								"version",
 								"category",
@@ -3249,6 +3411,33 @@
 				},
 				"required": [
 					"nodes"
+				],
+				"additionalProperties": false
+			},
+			"PipelineCategory": {
+				"title": "Category",
+				"type": "object",
+				"properties": {
+					"_id": {
+						"title": "ID",
+						"type": "string",
+						"pattern": "^[a-z0-9_]{5,40}$",
+						"propertyOrder": 1
+					},
+					"title": {
+						"title": "Title",
+						"type": "string",
+						"propertyOrder": 2
+					},
+					"icon": {
+						"title": "Icon",
+						"type": "string",
+						"propertyOrder": 3
+					}
+				},
+				"required": [
+					"_id",
+					"title"
 				],
 				"additionalProperties": false
 			},
@@ -3573,12 +3762,6 @@
 				"pattern": "^[a-z0-9-_]{3,10}$",
 				"propertyOrder": 1
 			},
-			"name": {
-				"type": "string",
-				"title": "Name",
-				"pattern": "^[\\w]{5,14}$",
-				"propertyOrder": 2
-			},
 			"password": {
 				"type": "string",
 				"title": "Password",
@@ -3699,6 +3882,33 @@
 						"type": "string",
 						"title": "Thumbnail",
 						"propertyOrder": 6
+					},
+					"category": {
+						"title": "Category",
+						"type": "object",
+						"properties": {
+							"_id": {
+								"title": "ID",
+								"type": "string",
+								"pattern": "^[a-z0-9_]{5,40}$",
+								"propertyOrder": 1
+							},
+							"title": {
+								"title": "Title",
+								"type": "string",
+								"propertyOrder": 2
+							},
+							"icon": {
+								"title": "Icon",
+								"type": "string",
+								"propertyOrder": 3
+							}
+						},
+						"required": [
+							"_id",
+							"title"
+						],
+						"additionalProperties": false
 					},
 					"start": {
 						"type": "object",
@@ -4031,6 +4241,11 @@
 									"title": "Description",
 									"propertyOrder": 4
 								},
+								"thumbnail": {
+									"type": "string",
+									"title": "Thumbnail",
+									"propertyOrder": 5
+								},
 								"category": {
 									"type": "object",
 									"properties": {
@@ -4136,30 +4351,49 @@
 									"type": "object",
 									"properties": {
 										"id": {
+											"title": "ID (deprecated)",
+											"type": "string",
+											"propertyOrder": 1
+										},
+										"_id": {
 											"title": "ID",
 											"type": "string",
-											"pattern": "^[a-z0-9_]{5,40}$"
+											"pattern": "^[a-z0-9_]{5,40}$",
+											"propertyOrder": 2
 										},
 										"version": {
 											"title": "Version",
 											"type": "number",
-											"format": "number"
+											"format": "number",
+											"propertyOrder": 3
 										},
 										"category": {
 											"type": "object",
 											"properties": {
 												"id": {
+													"title": "ID (deprecated)",
+													"type": "string",
+													"propertyOrder": 1
+												},
+												"_id": {
 													"title": "ID",
 													"type": "string",
-													"pattern": "^[a-z0-9_]{5,40}$"
+													"pattern": "^[a-z0-9_]{5,40}$",
+													"propertyOrder": 2
 												},
 												"title": {
 													"title": "Title",
-													"type": "string"
+													"type": "string",
+													"propertyOrder": 3
+												},
+												"thumbnail": {
+													"title": "Thumbnail",
+													"type": "string",
+													"propertyOrder": 4
 												}
 											},
 											"required": [
-												"id",
+												"_id",
 												"title"
 											],
 											"additionalProperties": false
@@ -4171,6 +4405,7 @@
 										}
 									},
 									"required": [
+										"_id",
 										"id",
 										"version",
 										"category",
@@ -4850,30 +5085,49 @@
 									"type": "object",
 									"properties": {
 										"id": {
+											"title": "ID (deprecated)",
+											"type": "string",
+											"propertyOrder": 1
+										},
+										"_id": {
 											"title": "ID",
 											"type": "string",
-											"pattern": "^[a-z0-9_]{5,40}$"
+											"pattern": "^[a-z0-9_]{5,40}$",
+											"propertyOrder": 2
 										},
 										"version": {
 											"title": "Version",
 											"type": "number",
-											"format": "number"
+											"format": "number",
+											"propertyOrder": 3
 										},
 										"category": {
 											"type": "object",
 											"properties": {
 												"id": {
+													"title": "ID (deprecated)",
+													"type": "string",
+													"propertyOrder": 1
+												},
+												"_id": {
 													"title": "ID",
 													"type": "string",
-													"pattern": "^[a-z0-9_]{5,40}$"
+													"pattern": "^[a-z0-9_]{5,40}$",
+													"propertyOrder": 2
 												},
 												"title": {
 													"title": "Title",
-													"type": "string"
+													"type": "string",
+													"propertyOrder": 3
+												},
+												"thumbnail": {
+													"title": "Thumbnail",
+													"type": "string",
+													"propertyOrder": 4
 												}
 											},
 											"required": [
-												"id",
+												"_id",
 												"title"
 											],
 											"additionalProperties": false
@@ -4885,6 +5139,7 @@
 										}
 									},
 									"required": [
+										"_id",
 										"id",
 										"version",
 										"category",
@@ -4963,6 +5218,33 @@
 						},
 						"required": [
 							"nodes"
+						],
+						"additionalProperties": false
+					},
+					"PipelineCategory": {
+						"title": "Category",
+						"type": "object",
+						"properties": {
+							"_id": {
+								"title": "ID",
+								"type": "string",
+								"pattern": "^[a-z0-9_]{5,40}$",
+								"propertyOrder": 1
+							},
+							"title": {
+								"title": "Title",
+								"type": "string",
+								"propertyOrder": 2
+							},
+							"icon": {
+								"title": "Icon",
+								"type": "string",
+								"propertyOrder": 3
+							}
+						},
+						"required": [
+							"_id",
+							"title"
 						],
 						"additionalProperties": false
 					},

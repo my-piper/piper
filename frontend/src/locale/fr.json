@@ -14,6 +14,20 @@
 		"label.how_to_call": "Comment appeler",
 		"label.how_to_check": "Comment vérifier",
 		"action.generate_api_key": "Générer une clé API",
-		"label.your_api_token": "Votre jeton API"
+		"label.your_api_token": "Votre jeton API",
+		"action.login": " Connexion",
+		"label.register": "S'inscrire",
+		"label.your_email": "Votre courriel",
+		"label.choose_login": "Choisir un login",
+		"label.send_password": "Envoyer le mot de passe à l'adresse électronique",
+		"action.register": " S'inscrire",
+		"action.create": "Créer",
+		"label.email": "Courriel",
+		"label.created_at": "Créé à",
+		"label.login": "Connexion",
+		"label.login_or_email": "Nom d'utilisateur ou courriel",
+		"label.password": "Mot de passe",
+		"message.no_account": " Vous n'avez pas encore de compte ? {$START_LINK}Enregistrer{$CLOSE_LINK}",
+		"message.already_registered": " Vous êtes déjà inscrit ? connexion {$START_LINK}{$CLOSE_LINK}"
 	}
 }

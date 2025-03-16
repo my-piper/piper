@@ -14,6 +14,20 @@
 		"label.how_to_call": "전화하는 방법",
 		"label.how_to_check": "확인 방법",
 		"action.generate_api_key": "API 키 생성",
-		"label.your_api_token": "API 토큰"
+		"label.your_api_token": "API 토큰",
+		"action.login": " 로그인",
+		"label.register": "등록하기",
+		"label.your_email": "이메일",
+		"label.choose_login": "로그인 선택",
+		"label.send_password": "이메일로 비밀번호 보내기",
+		"action.register": " 등록하기",
+		"action.create": "만들기",
+		"label.email": "이메일",
+		"label.created_at": "만든 곳",
+		"label.login": "로그인",
+		"label.login_or_email": "사용자 이름 또는 이메일",
+		"label.password": "비밀번호",
+		"message.no_account": " 아직 계정이 없으신가요? {$START_LINK}등록{$CLOSE_LINK}",
+		"message.already_registered": " 이미 등록하셨나요? {$START_LINK}로그인{$CLOSE_LINK}"
 	}
 }

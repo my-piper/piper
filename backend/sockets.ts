@@ -1,3 +1,6 @@
+import "core-kit/env";
+import "reflect-metadata";
+
 import express from "express";
 import http from "http";
 import io from "./app/io";

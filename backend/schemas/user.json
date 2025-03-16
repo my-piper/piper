@@ -8,12 +8,6 @@
       "pattern": "^[a-z0-9-_]{3,10}$",
       "propertyOrder": 1
     },
-    "name": {
-      "type": "string",
-      "title": "Name",
-      "pattern": "^[\\w]{5,14}$",
-      "propertyOrder": 2
-    },
     "password": {
       "type": "string",
       "title": "Password",

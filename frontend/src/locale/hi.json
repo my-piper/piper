@@ -14,6 +14,20 @@
 		"label.how_to_call": "कैसे कॉल करें",
 		"label.how_to_check": "कैसे चेक करें",
 		"action.generate_api_key": "एपीआई कुंजी उत्पन्न करें",
-		"label.your_api_token": "आपका एपीआई टोकन"
+		"label.your_api_token": "आपका एपीआई टोकन",
+		"action.login": "लॉगिन",
+		"label.register": "रजिस्टर",
+		"label.your_email": "आपका ईमेल",
+		"label.choose_login": "एक लॉगिन चुनें",
+		"label.send_password": "ईमेल पर पासवर्ड भेजें",
+		"action.register": "रजिस्टर",
+		"action.create": "बनाना",
+		"label.email": "ईमेल",
+		"label.created_at": "निर्मित किया गया",
+		"label.login": "लॉगिन",
+		"label.login_or_email": "उपयोगकर्ता नाम या ईमेल",
+		"label.password": "पासवर्ड",
+		"message.no_account": "अभी तक खाता नहीं है? {$START_LINK}रजिस्टर करें{$CLOSE_LINK}",
+		"message.already_registered": "क्या आप पहले से रजिस्टर्ड हैं? {$START_LINK}लॉगिन करें{$CLOSE_LINK}"
 	}
 }

@@ -15,12 +15,14 @@ api.get(
     const filter = toInstance(query, ProjectsFilter);
     await validate(filter);
 
-    const { cursor } = filter;
+    const { visibility, category, cursor } = filter;
 
     return await mongo.projects
       .find(
         {
-          ...(() => (cursor ? { cursor: { $lt: cursor } } : {}))(),
+          ...(!!visibility ? { visibility } : {}),
+          ...(!!category ? { "category._id": category } : {}),
+          ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
           ...(checkRoles(currentUser, UserRole.admin)
             ? {}
             : {
@@ -39,6 +41,8 @@ api.get(
             title: 1,
             updatedAt: 1,
             updatedBy: 1,
+            "pipeline.thumbnail": 1,
+            "pipeline.description": 1,
             cursor: 1,
           },
         }

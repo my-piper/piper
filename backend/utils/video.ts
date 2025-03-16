@@ -1,7 +1,7 @@
+import { DataError } from "core-kit/types/errors";
 import ffmpeg from "fluent-ffmpeg";
 import { PassThrough } from "stream";
 import { createLogger } from "../logger";
-import { DataError } from "../types/errors";
 
 const logger = createLogger("utils/video");
 

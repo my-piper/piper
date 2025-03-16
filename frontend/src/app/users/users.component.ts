@@ -2,10 +2,12 @@ import { ChangeDetectorRef, Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
+import last from "lodash/last";
 import { delay, finalize, map, merge } from "rxjs";
-import { User, UserRole } from "src/models/user";
+import { User, UserRole, UsersFilter } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { toPlain } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { EditUserComponent } from "./edit/edit-user.component";
 
@@ -46,6 +48,7 @@ export class UsersComponent {
     return this._modal;
   }
 
+  chunk: User[] = [];
   users: User[] = [];
 
   constructor(
@@ -55,16 +58,20 @@ export class UsersComponent {
     private cd: ChangeDetectorRef
   ) {}
 
-  async ngOnInit() {
-    await this.load();
+  ngOnInit() {
+    this.load();
   }
 
-  private load() {
+  back() {
+    this.router.navigate(["./"], { relativeTo: this.route });
+  }
+
+  private load(cursor?: string) {
     this.progress.loading = true;
     this.cd.detectChanges();
 
     this.http
-      .get("users")
+      .get("users", toPlain(new UsersFilter({ cursor })))
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
@@ -84,8 +91,14 @@ export class UsersComponent {
       });
   }
 
+  loadMore() {
+    const user = last(this.users);
+    if (!!user) {
+      this.load(user.cursor);
+    }
+  }
+
   remove(index: number, { _id }: User) {
-    this.references?.popover?.hide();
     this.progress.deleting = true;
     this.cd.detectChanges();
 
@@ -95,6 +108,7 @@ export class UsersComponent {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.deleting = false;
+          this.references?.popover?.hide();
           this.cd.detectChanges();
         })
       )

@@ -9,6 +9,7 @@ header {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    justify-content: space-between;
     background-color: #252b56;
     padding: 20px;
     gap: $gutter-normal;
@@ -20,6 +21,7 @@ header {
     .left {
         display: flex;
         gap: $gutter-normal;
+        column-gap: $gutter-huge;
         align-items: center;
 
         @include less-tablet() {
@@ -30,8 +32,6 @@ header {
             img {
                 display: block;
             }
-
-            margin-right: 50px;
         }
 
         ul {
@@ -45,7 +45,6 @@ header {
             @include less-tablet() {
                 flex-wrap: wrap;
                 justify-content: center;
-                gap: $gutter-small;
             }
 
             li {
@@ -82,9 +81,8 @@ header {
 }
 
 main {
-    padding: 20px;
-
     @include wider-tablet() {
+        padding: 20px;
         min-height: calc(100vmin - 200px);
     }
 }

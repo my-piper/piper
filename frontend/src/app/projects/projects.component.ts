@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import last from "lodash/last";
-import { catchError, delay, finalize, map } from "rxjs";
+import { delay, finalize, map } from "rxjs";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
 import { Project, ProjectsFilter } from "src/models/project";
@@ -13,25 +13,16 @@ import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 
-const TEST_PIPELINE = `---
+const TEST_PIPELINE = `
 name: New project
 version: 1
-
-flows: {}
 start:
   nodes: []
-nodes: {}
-`;
+flows: {}
+nodes: {}`;
 
 const TEST_REQUEST = {
-  nodes: {
-    find_random_image: {
-      inputs: { topic: "cats" },
-    },
-    resize_image: {
-      inputs: { width: 1000 },
-    },
-  },
+  nodes: {},
   inputs: {},
 };
 
@@ -71,13 +62,13 @@ export class ProjectsComponent implements OnInit {
       .get("projects", toPlain(new ProjectsFilter({ cursor })))
       .pipe(
         delay(UI_DELAY),
-        map((arr) =>
-          (arr as Object[]).map((plain) => toInstance(plain, Project))
-        ),
         finalize(() => {
           this.progress.loading = false;
           this.cd.detectChanges();
-        })
+        }),
+        map((arr) =>
+          (arr as Object[]).map((plain) => toInstance(plain, Project))
+        )
       )
       .subscribe({
         next: (projects) => {
@@ -105,11 +96,19 @@ export class ProjectsComponent implements OnInit {
     this.http
       .post(`projects`, toPlain(request))
       .pipe(
-        catchError((err) => (this.error = err)),
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.deleting = false;
+          this.references?.popover?.hide();
+          this.cd.detectChanges();
+        }),
         map((json) => plainToInstance(Project, json as Object))
       )
-      .subscribe((project) => {
-        this.router.navigate([project._id], { relativeTo: this.route });
+      .subscribe({
+        next: (project) => {
+          this.router.navigate([project._id], { relativeTo: this.route });
+        },
+        error: (err) => (this.error = err),
       });
   }
 

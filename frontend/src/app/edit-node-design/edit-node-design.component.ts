@@ -16,12 +16,12 @@ import { toPlain } from "src/utils/models";
 })
 export class EditNodeDesignComponent implements OnInit {
   schemas = (() => {
-    const { _id, title, version, description, inputs, outputs } =
+    const { _id, title, version, description, thumbnail, inputs, outputs } =
       SCHEMAS.node.properties;
     return {
       node: {
         ...SCHEMAS.node,
-        properties: { _id, title, version, description },
+        properties: { _id, title, version, description, thumbnail },
         required: ["title", "version"],
       },
       inputs,
@@ -55,11 +55,10 @@ export class EditNodeDesignComponent implements OnInit {
   }
 
   private build() {
-    const { _id, title, version, description, inputs, outputs } = toPlain(
-      this.node
-    );
+    const { _id, title, version, description, thumbnail, inputs, outputs } =
+      toPlain(this.node);
     this.form.patchValue({
-      node: essential({ _id, title, version, description }),
+      node: essential({ _id, title, version, description, thumbnail }),
       inputs,
       outputs,
     });
@@ -67,7 +66,7 @@ export class EditNodeDesignComponent implements OnInit {
 
   private save() {
     const { pipeline, launchRequest } = this.project;
-    const { _id, title, version, description, inputs, outputs } =
+    const { _id, title, version, description, thumbnail, inputs, outputs } =
       plainToInstance(
         Node,
         (() => {
@@ -75,7 +74,15 @@ export class EditNodeDesignComponent implements OnInit {
           return { ...node, inputs, outputs };
         })()
       );
-    assign(this.node, { _id, title, version, description, inputs, outputs });
+    assign(this.node, {
+      _id,
+      title,
+      version,
+      description,
+      thumbnail,
+      inputs,
+      outputs,
+    });
     this.node.build();
     this.projectManager.update({ pipeline, launchRequest });
   }

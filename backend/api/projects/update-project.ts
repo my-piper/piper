@@ -1,3 +1,4 @@
+import { DataError } from "core-kit/types/errors";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import { api } from "../../app/api";
 import mongo from "../../app/mongo";
@@ -5,7 +6,6 @@ import ajv from "../../lib/ajv";
 import { Project } from "../../models/project";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { DataError } from "../../types/errors";
 import { checkAdmin, checkLogged, handle, toModel } from "../../utils/http";
 
 api.post(

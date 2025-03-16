@@ -1,11 +1,23 @@
+<ng-template #errorTemplate>
+  <div class="informer errors">
+    <p>{{ error.message }}</p>
+    <ul *ngIf="error?.details as details">
+      <li *ngFor="let m of details">{{ m }}</li>
+    </ul>
+    <div class="stack horizontal justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
 <app-informer
   *ngIf="!!error"
-  [message]="error.message"
+  [contentTemplate]="errorTemplate"
   (ok)="error = null"
 ></app-informer>
 
 <div class="app-container">
-  <header>
+  <header *ngIf="userRole.admin | can | async">
     <button class="primary" (click)="create()">Create</button>
   </header>
 

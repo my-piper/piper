@@ -4,11 +4,11 @@ import { toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import * as YAML from "yaml";
 import mongo from "../../app/mongo";
-import { redis } from "../../app/redis";
 import {
   PACKAGES_UPDATES,
   PACKAGES_UPDATES_TIMEOUT,
 } from "../../consts/packages";
+import { redis } from "../../core-kit/services/redis/redis";
 import ajv from "../../lib/ajv";
 import { createLogger } from "../../logger";
 import { NodePackage, NodePackageUpdates } from "../../models/node-package";

@@ -1,3 +1,6 @@
+import "core-kit/env";
+import "reflect-metadata";
+
 import { Command } from "commander";
 import { toPlain } from "core-kit/utils/models";
 import { writeFile } from "fs/promises";
@@ -7,7 +10,7 @@ import { queues } from "./app/queue";
 import * as environment from "./cli/environment";
 import { loadPipelines } from "./cli/load-pipelines/logic";
 import * as packages from "./logic/node-packages";
-import { addUser } from "./logic/users/add-user";
+import { add } from "./logic/users/add-user";
 import { refillBalance } from "./logic/users/refill-balance";
 import { UserRole } from "./models/user";
 import NODE_PACKAGE_SCHEMA from "./schemas/node-package.json" with { type: "json" };
@@ -83,7 +86,7 @@ commander
       role: UserRole;
     }) => {
       console.log(`Add user ${_id}`);
-      await addUser({ _id, email, password, roles: [role] });
+      await add({ _id, email, password, roles: [role] });
       console.log("Done");
       process.exit();
     }

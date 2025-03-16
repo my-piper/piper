@@ -46,7 +46,7 @@
           <ng-container
             *ngIf="update.updated as updated; else noUpdatesTemplates"
           >
-            <p>New version {{ updated.version }}:</p>
+            <p class="new">New version {{ updated.version }}:</p>
             <div
               class="notes"
               [innerHTML]="updated.readme | markdown | async"

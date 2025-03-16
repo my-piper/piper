@@ -36,14 +36,22 @@ export class NodeEnvironment {
 export class NodeCategory {
   @Expose()
   @Type(() => String)
+  _id!: string;
+
+  @Expose()
+  @Type(() => String)
   id!: string;
 
   @Expose()
   @Type(() => String)
   title: string;
 
+  @Expose()
+  @Type(() => String)
+  thumbnail: string;
+
   toString() {
-    return this.id;
+    return this._id;
   }
 }
 
@@ -51,6 +59,10 @@ export class NodeCatalog {
   @Expose()
   @Type(() => String)
   id: string;
+
+  @Expose()
+  @Type(() => String)
+  _id: string;
 
   @Expose()
   @Type(() => Number)
@@ -221,6 +233,14 @@ export class Node {
   @Expose()
   @Type(() => String)
   title: string;
+
+  @Expose()
+  @Type(() => String)
+  description!: string;
+
+  @Expose()
+  @Type(() => String)
+  thumbnail!: string;
 
   @Expose()
   @Type(() => String)

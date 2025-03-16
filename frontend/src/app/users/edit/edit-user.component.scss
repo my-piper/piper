@@ -3,21 +3,18 @@
 
 :host {
   display: block;
+  width: 100%;
+  @include vertical-stack();
+
+  @include wider-tablet() {
+    width: 500px;
+  }
 }
 
-.errors {
-  @include vertical-stack();
-  color: white;
-  font-size: $font-size-big;
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
+h1 {
+  margin: 0;
 }
 
 form {
   @include vertical-stack();
-  min-width: 500px;
 }

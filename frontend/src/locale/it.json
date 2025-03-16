@@ -15,6 +15,19 @@
 		"label.how_to_call": "Come chiamare",
 		"label.how_to_check": "Come controllare",
 		"action.generate_api_key": "Generare la chiave API",
-		"label.your_api_token": "Il vostro token API"
+		"label.your_api_token": "Il vostro token API",
+		"action.login": " Accesso",
+		"label.register": "Registro",
+		"label.your_email": "La vostra e-mail",
+		"label.choose_login": "Scegliere un login",
+		"label.send_password": "Invia la password all'e-mail",
+		"action.register": " Registro",
+		"action.create": "Creare",
+		"label.email": "E-mail",
+		"label.created_at": "Creato presso",
+		"label.login": "Accesso",
+		"label.login_or_email": "Nome utente o e-mail",
+		"message.no_account": " Non hai ancora un account? registrati{$START_LINK}Registrati{$CLOSE_LINK}",
+		"message.already_registered": " Sei già registrato? accedi{$START_LINK}Login{$CLOSE_LINK}"
 	}
 }

@@ -1,6 +1,6 @@
 import axios from "axios";
+import { UnknownError } from "core-kit/types/errors";
 import { ASTICA_KEY } from "../consts/core";
-import { UnknownError } from "../types/errors";
 
 export async function describe(apiKey: string, image: Buffer): Promise<string> {
   try {

@@ -16,45 +16,60 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     min-height: 100px;
-}
 
-header {
-    .metric {
-        position: absolute;
-        top: -$gutter-tiny;
-        right: -$gutter-tiny;
-        background: white;
-        padding: $gutter-tiny;
-        border-radius: $corner-small;
-        font-size: 12px;
-    }
-}
-
-article {
-    display: flex;
-    flex-direction: column;
-
-    .outputs {
-        flex: 1;
+    @include for-desktop() {
+        grid-template-columns: repeat(4, 1fr);
     }
 
-    .errors {
-        z-index: 1;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    @include for-tablet() {
+        grid-template-columns: repeat(3, 1fr);
     }
-}
 
-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    @include for-mobile() {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        header {
+            .metric {
+                position: absolute;
+                top: -$gutter-tiny;
+                right: -$gutter-tiny;
+                background: white;
+                padding: $gutter-tiny;
+                border-radius: $corner-small;
+                font-size: 12px;
+            }
+        }
+
+        article {
+            display: flex;
+            flex-direction: column;
+
+            .outputs {
+                flex: 1;
+            }
+
+            .errors {
+                z-index: 1;
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(2px);
+            }
+        }
+
+        footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
 }
 
 :host-context(.project-playground) {

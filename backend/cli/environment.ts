@@ -1,5 +1,5 @@
-import { redis } from "app/redis";
 import { GLOBAL_ENVIRONMENT_KEY } from "consts/redis";
+import { redis } from "core-kit/services/redis";
 import { toInstance, toPlain, validate } from "core-kit/utils/models";
 import { decrypt, encrypt } from "logic/environment/crypt-environment";
 import { merge } from "logic/environment/merge-environment";

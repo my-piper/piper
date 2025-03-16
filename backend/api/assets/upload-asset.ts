@@ -1,3 +1,4 @@
+import { DataError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { Request, Response } from "express";
 import multer, { memoryStorage } from "multer";
@@ -8,7 +9,6 @@ import mongo from "../../app/mongo";
 import * as storage from "../../app/storage";
 import { Asset } from "../../models/assets";
 import { User } from "../../models/user";
-import { DataError } from "../../types/errors";
 import { checkLogged, handle } from "../../utils/http";
 import { getMetadata } from "../../utils/metadata";
 import { sid } from "../../utils/string";

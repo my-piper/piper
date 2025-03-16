@@ -1,10 +1,10 @@
+import { DataError } from "core-kit/types/errors";
 import { toInstance } from "core-kit/utils/models";
 import "reflect-metadata";
-import { redis } from "../../app/redis";
 import { DEPLOY, DEPLOY_EXPIRED } from "../../consts/redis";
+import { redis } from "../../core-kit/services/redis/redis";
 import { createLogger } from "../../logger";
 import { Deploy } from "../../models/deploy";
-import { DataError } from "../../types/errors";
 
 const logger = createLogger("utils/deploy");
 

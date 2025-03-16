@@ -1,10 +1,8 @@
 <ng-template #errorTemplate>
   <div class="informer errors">
     <p>{{ error.message }}</p>
-    <ul *ngFor="let m of error?.details">
-      {{
-        m
-      }}
+    <ul *ngIf="error?.details as details">
+      <li *ngFor="let m of details">{{ m }}</li>
     </ul>
     <p>Your data were not saved!</p>
     <div class="stack horizontal justify-center">
@@ -50,18 +48,23 @@
 
 <ng-template #clonePipelineTemplate>
   <header>
-    <p>You are not owner of this pipeline.</p>
     <p>
-      But you can play with it in
+      <ng-container i18n="@@message.not_owner_pipeline">
+        You are not owner of this pipeline, but you can play with it in
+      </ng-container>
+
       <a
         class="primary with-icon"
         [routerLink]="['/', 'play', project._id]"
         routerLinkActive="active"
+        i18n="@@link.open_playground"
       >
-        Playground
+        Open playground
         <app-icon class="icon right" [size]="18" icon="open-link"></app-icon>
       </a>
+      <!--
       or you can <button class="primary">Clone</button> to ability for edit.
+      -->
     </p>
   </header>
 </ng-template>

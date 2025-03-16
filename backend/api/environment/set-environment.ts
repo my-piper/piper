@@ -1,7 +1,7 @@
 import { toInstance, toPlain, validate } from "core-kit/utils/models";
 import { api } from "../../app/api";
-import { redis } from "../../app/redis";
 import { GLOBAL_ENVIRONMENT_KEY } from "../../consts/redis";
+import { redis } from "../../core-kit/services/redis/redis";
 import { encrypt } from "../../logic/environment/crypt-environment";
 import { merge } from "../../logic/environment/merge-environment";
 import { Environment } from "../../models/environment";

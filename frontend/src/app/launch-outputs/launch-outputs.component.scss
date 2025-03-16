@@ -3,8 +3,10 @@
 @import "src/ui-kit/styles/reset";
 
 :host {
+    @include placeholder();
     display: flex;
     position: relative;
+    min-height: 50px;
 
     &[data-mode=card] {
         footer {
@@ -104,7 +106,6 @@ label {
 }
 
 .results {
-    @include placeholder();
     display: flex;
     align-items: center;
     justify-content: center;

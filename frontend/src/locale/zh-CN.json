@@ -16,6 +16,20 @@
 		"label.how_to_call": "如何呼叫",
 		"label.how_to_check": "如何检查",
 		"action.generate_api_key": "生成 API 密钥",
-		"label.your_api_token": "您的应用程序接口令牌"
+		"label.your_api_token": "您的应用程序接口令牌",
+		"action.login": "登录",
+		"label.register": "注册",
+		"label.your_email": "您的电子邮件",
+		"label.choose_login": "选择登录",
+		"label.send_password": "发送密码到电子邮件",
+		"action.register": "注册",
+		"action.create": "创建",
+		"label.email": "电子邮件",
+		"label.created_at": "创建于",
+		"label.login": "登录",
+		"label.login_or_email": "用户名或电子邮件",
+		"label.password": "密码",
+		"message.no_account": "还没有账户？{$START_LINK}注册{$CLOSE_LINK}。",
+		"message.already_registered": "已经注册？{$START_LINK}登录{$CLOSE_LINK}。"
 	}
 }

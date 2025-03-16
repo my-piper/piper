@@ -1,11 +1,11 @@
 <div
   class="cards launches"
-  [class.busy-block]="launches.length < 0 && progress.loading"
+  [class.busy-block]="launches.length <= 0 && progress.loading"
 >
   <div class="card" *ngFor="let l of launches">
     <header>
       <ng-template #actionsTemplate>
-        <ul class="context-menu">
+        <ul class="context-menu" [class.busy]="progress.removing[l._id]">
           <li>
             <a
               class="link"
@@ -22,11 +22,7 @@
             </a>
           </li>
           <li>
-            <button
-              [class.busy]="progress.removing[l._id]"
-              [disabled]="progress.removing[l._id]"
-              (click)="remove(l)"
-            >
+            <button (click)="remove(l)">
               <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
               Delete
             </button>

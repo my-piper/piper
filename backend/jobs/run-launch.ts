@@ -1,10 +1,10 @@
 import { queues } from "../app/queue";
-import { redis } from "../app/redis";
 import {
   LAUNCH,
   LAUNCH_HEARTBEAT,
   LAUNCH_HEARTBEAT_EXPIRED,
 } from "../consts/redis";
+import { redis } from "../core-kit/services/redis/redis";
 import { createLogger } from "../logger";
 import { Launch } from "../models/launch";
 import { RunLaunchJobResult } from "../types/launch";

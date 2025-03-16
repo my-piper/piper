@@ -5,6 +5,7 @@ import { Deploy } from "./deploy";
 import { Environment } from "./environment";
 import { LaunchRequest } from "./launch-request";
 import { Pipeline } from "./pipeline";
+import { PipelineCategory } from "./pipeline-category";
 import { User } from "./user";
 
 export class Project {
@@ -55,6 +56,10 @@ export class Project {
   @Expose()
   @Type(() => User)
   updatedBy!: User;
+
+  @Expose()
+  @Type(() => PipelineCategory)
+  category!: PipelineCategory;
 
   @Expose()
   @Type(() => String)

@@ -14,7 +14,7 @@ api.post(
     await validate(node);
 
     const {
-      catalog: { id: _id, version, category },
+      catalog: { _id, version, category },
     } = node;
     assign(node, { _id, version, category, package: node.catalog.package });
 

@@ -10,6 +10,7 @@
     "worker": "node --import=tsx --experimental-vm-modules worker.ts",
     "periodic": "node --import=tsx --experimental-vm-modules periodic.ts",
     "sockets": "node --import=tsx sockets.ts",
+    "oauth": "node --import=tsx oauth.ts",
     "chrome": "node --import=tsx chrome.ts",
     "cli": "node --import=tsx cli.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -56,6 +57,9 @@
     "mongodb": "^6.3.0",
     "multer": "^1.4.5-lts.1",
     "nanoid": "^5.0.6",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-yandex": "^0.0.5",
     "pino": "^9.2.0",
     "pino-pretty": "^11.2.2",
     "prom-client": "^15.1.2",

@@ -21,14 +21,7 @@ export const BULL_REDIS_PORT =
 export const BULL_REDIS_PASSWORD = process.env["BULL_REDIS_PASSWORD"] || "";
 export const TMP_PATH = process.env["TMP_PATH"] || "../tmp";
 
-export const REDIS_URL = process.env["REDIS_URL"] || "redis://redis:6379/";
-export const REDIS_PASSWORD = process.env["REDIS_PASSWORD"] || "";
-
-export const PAAS_BASE_URL =
-  process.env["PAAS_BASE_URL"] || "https://api.generativecore.ai/api/v3";
-
 export const MONGO_URL = process.env["MONGO_URL"] || "mongodb://mongo:27017";
-
 export const BASE_URL = process.env["BASE_URL"] || "http://localhost";
 
 export const PAAS_AUTH = process.env["PAAS_AUTH"] || "login|password";
@@ -52,15 +45,6 @@ export const SOCKETS_PORT =
     }
     return 0;
   })() || 80;
-
-export const METRICS_PORT =
-  (() => {
-    const port = process.env["METRICS_PORT"];
-    if (!!port) {
-      return parseInt(port);
-    }
-    return 0;
-  })() || 5555;
 
 export const STORAGE_ROOT = process.env["STORAGE_ROOT"] || "/app/storage";
 export const FRONTEND_ROOT = "../frontend/dist";

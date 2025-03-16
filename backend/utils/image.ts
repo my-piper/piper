@@ -1,5 +1,5 @@
+import { DataError } from "core-kit/types/errors";
 import sharp, { Sharp } from "sharp";
-import { DataError } from "../types/errors";
 
 export async function fit(
   image: Sharp,

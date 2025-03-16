@@ -1,6 +1,6 @@
 import { plainToInstance } from "class-transformer";
+import { PenTestingError } from "core-kit/types/errors";
 import { validate } from "core-kit/utils/models";
-import { PenTestingError } from "types/errors";
 import { api } from "../../app/api";
 import mongo from "../../app/mongo";
 import { MASTER_KEY } from "../../consts/core";
