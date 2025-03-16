@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { plainToInstance } from "class-transformer";
+import { DataError } from "core-kit/types/errors";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import { ulid } from "ulid";
@@ -7,7 +7,6 @@ import mongo from "../../app/mongo";
 import ajv from "../../lib/ajv";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { DataError } from "../../types/errors";
 
 export async function addUser(data: Partial<User>): Promise<User> {
   const user = toInstance(data, User);
@@ -25,7 +24,10 @@ export async function addUser(data: Partial<User>): Promise<User> {
     assign(user, { password: await bcrypt.hash(password, 10) });
   }
 
-  assign(user, { cursor: ulid() });
+  assign(user, {
+    createdAt: new Date(),
+    cursor: ulid(),
+  });
 
   try {
     await mongo.users.insertOne(toPlain(user) as { _id: string });
