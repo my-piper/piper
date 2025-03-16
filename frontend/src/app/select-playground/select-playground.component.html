@@ -37,11 +37,25 @@
     <article>
       <button (click)="selected.emit(p)">
         <div class="title">{{ p.title | i18n }}</div>
-        <img *ngIf="p.pipeline.thumbnail as thumbnail" [src]="thumbnail" />
+
+        <ng-container *ngIf="p.pipeline.thumbnail as thumbnail">
+          <ng-container [ngSwitch]="thumbnail | fileType">
+            <video
+              *ngSwitchCase="'video'"
+              [attr.muted]="true"
+              [attr.autoplay]="true"
+              playsinline
+              loop
+            >
+              <source [src]="thumbnail" type="video/webm" />
+            </video>
+            <img *ngSwitchDefault [src]="thumbnail" />
+          </ng-container>
+        </ng-container>
       </button>
     </article>
     <footer *ngIf="p.pipeline.description as description">
-      <p>{{ description }}</p>
+      <p>{{ description | i18n }}</p>
     </footer>
   </div>
 </div>

@@ -16,6 +16,7 @@
 .categories {
     display: flex;
     flex-wrap: wrap;
+    gap: $gutter-normal;
 
     label {
         @include reset-button();
@@ -91,7 +92,8 @@
                     padding: $gutter-small;
                 }
 
-                img {
+                img,
+                video {
                     display: block;
                     width: 100%;
                     aspect-ratio: 400 / 400;
