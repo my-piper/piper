@@ -4,6 +4,17 @@
   (ok)="error = null"
 ></app-informer>
 
+<ng-template #uploadImage>
+  <div class="upload">
+    <app-icon
+      class="icon"
+      icon="select-image"
+      [stroke]="1"
+      [size]="64"
+    ></app-icon>
+  </div>
+</ng-template>
+
 <ng-template #selectAssetTemplate let-type="type">
   <div [formGroup]="form" class="select-asset">
     <p>Just press <span>Ctrl+V</span> to upload image</p>
@@ -71,7 +82,7 @@
         class="input-primary"
         formControlName="value"
         type="number"
-        [attr.placeholder]="placeholder"
+        [attr.placeholder]="placeholder | i18n"
         [min]="min"
         [max]="max"
         [step]="step"
@@ -92,7 +103,7 @@
         class="input-primary"
         formControlName="value"
         type="number"
-        [attr.placeholder]="placeholder"
+        [attr.placeholder]="placeholder | i18n"
         [min]="min"
         [max]="max"
         [step]="step"
@@ -143,9 +154,10 @@
         </ng-container>
       </ng-container>
       <img
+        *ngIf="valueControl.value as url; else uploadImage"
         [imageFallback]
-        [imageSize]="valueControl.value"
-        [src]="valueControl.value | proxyImage: { width: 500 }"
+        [imageSize]="url"
+        [src]="url | proxyImage: { width: 500 }"
       />
     </div>
   </ng-container>
@@ -179,7 +191,7 @@
           class="input-primary"
           type="text"
           formControlName="value"
-          [attr.placeholder]="placeholder"
+          [attr.placeholder]="placeholder | i18n"
           [attr.list]="id"
         />
         <datalist [id]="id">
@@ -200,7 +212,7 @@
           class="select-primary"
           type="text"
           formControlName="value"
-          [attr.placeholder]="placeholder"
+          [attr.placeholder]="placeholder | i18n"
           [attr.list]="id"
         >
           <ng-template #optionsTemplate let-options="options">
@@ -240,14 +252,14 @@
         formControlName="value"
         class="input-primary"
         rows="10"
-        [attr.placeholder]="placeholder"
+        [attr.placeholder]="placeholder | i18n"
       >
       </textarea>
       <ng-template #simpleInputTemplate>
         <input
           formControlName="value"
           class="input-primary"
-          [attr.placeholder]="placeholder"
+          [attr.placeholder]="placeholder | i18n"
         />
       </ng-template>
     </ng-template>

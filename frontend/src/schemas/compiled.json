@@ -2233,6 +2233,10 @@
 							"title": "Step",
 							"type": "number"
 						},
+						"placeholder": {
+							"title": "Placeholder",
+							"type": "string"
+						},
 						"default": {
 							"type": [
 								"boolean",
@@ -3620,6 +3624,10 @@
 						"title": "Step",
 						"type": "number"
 					},
+					"placeholder": {
+						"title": "Placeholder",
+						"type": "string"
+					},
 					"default": {
 						"type": [
 							"boolean",
@@ -4039,6 +4047,10 @@
 								"step": {
 									"title": "Step",
 									"type": "number"
+								},
+								"placeholder": {
+									"title": "Placeholder",
+									"type": "string"
 								},
 								"default": {
 									"type": [
@@ -5426,6 +5438,10 @@
 							"step": {
 								"title": "Step",
 								"type": "number"
+							},
+							"placeholder": {
+								"title": "Placeholder",
+								"type": "string"
 							},
 							"default": {
 								"type": [

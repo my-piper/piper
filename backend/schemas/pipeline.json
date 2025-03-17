@@ -261,6 +261,10 @@
           "title": "Step",
           "type": "number"
         },
+        "placeholder": {
+          "title": "Placeholder",
+          "type": "string"
+        },
         "default": {
           "type": ["boolean", "number", "string"]
         },

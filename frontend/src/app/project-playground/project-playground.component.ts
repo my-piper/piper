@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import { ChangeDetectorRef, Component, Renderer2 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { toPairs } from "lodash";
 import { delay, finalize, map } from "rxjs";
@@ -37,7 +37,7 @@ export class ProjectPlaygroundComponent {
     private signals: SignalsService,
     private cd: ChangeDetectorRef,
     private route: ActivatedRoute,
-    private router: Router
+    private renderer: Renderer2
   ) {}
 
   ngOnInit() {
@@ -50,6 +50,25 @@ export class ProjectPlaygroundComponent {
       this.fillRequest();
       this.save();
     });
+
+    this.renderer.setProperty(
+      window,
+      "play",
+      (data: object, element?: HTMLElement) => {
+        this.inputsGroup.patchValue(data);
+        if (!!element) {
+          if (element instanceof HTMLButtonElement) {
+            this.renderer.addClass(element, "busy");
+            this.renderer.setProperty(element, "disabled", true);
+
+            setTimeout(() => {
+              this.renderer.removeClass(element, "busy");
+              this.renderer.setProperty(element, "disabled", false);
+            }, 1000);
+          }
+        }
+      }
+    );
   }
 
   private fillRequest() {

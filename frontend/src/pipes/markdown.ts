@@ -1,7 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Inject, Pipe, PipeTransform } from "@angular/core";
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import * as marked from "marked";
-import { map, Observable, of } from "rxjs";
+import { Observable, of } from "rxjs";
 import { Languages } from "src/ui-kit/enums/languages";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 
@@ -24,22 +25,25 @@ function i18n(text: string, language: Languages): string {
 export class MarkdownPipe implements PipeTransform {
   constructor(
     @Inject(CURRENT_LANGUAGE) private language: Languages,
-    private http: HttpClient
+    private http: HttpClient,
+    private sanitizer: DomSanitizer
   ) {}
 
-  transform(markdown: string): Observable<string> {
-    if (/^github\:\/\//.test(markdown)) {
-      const url = markdown.replace(
-        "github://",
-        "https://raw.githubusercontent.com/"
-      );
-      return this.http
-        .get<string>(url, { responseType: "text" as "json" })
-        .pipe(
-          map((content) => marked.parse(i18n(content, this.language)) as string)
-        );
-    }
-
-    return of(marked.parse(i18n(markdown, this.language)) as string);
+  transform(markdown: string): Observable<SafeHtml> {
+    return new Observable<SafeHtml>((subscriber) => {
+      const content = (() => {
+        if (/^https\:\/\//.test(markdown)) {
+          const url = markdown;
+          return this.http.get<string>(url, { responseType: "text" as "json" });
+        }
+        return of(markdown);
+      })();
+      content.subscribe((content) => {
+        const parsed = marked.parse(i18n(content, this.language)) as string;
+        const safe = this.sanitizer.bypassSecurityTrustHtml(parsed);
+        subscriber.next(safe);
+        subscriber.complete();
+      });
+    });
   }
 }

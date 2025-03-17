@@ -5,6 +5,18 @@
   display: block;
 }
 
+.upload {
+  @include placeholder();
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $gutter-normal;
+
+  .icon {
+    opacity: .5;
+  }
+}
+
 .select-asset {
   @include vertical-stack($gutter-small);
   width: 80vmax;

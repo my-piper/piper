@@ -1,0 +1,76 @@
+@import "src/ui-kit/styles/variables";
+
+:host {
+    display: block;
+
+    ::ng-deep {
+        .row {
+            display: flex;
+            margin: -$gutter-normal;
+        }
+
+        [class^="col-"] {
+            padding: $gutter-normal;
+            flex: 1;
+        }
+
+        .col-1 {
+            flex: 8.33%;
+        }
+
+        .col-2 {
+            flex: 16.66%;
+        }
+
+        .col-3 {
+            flex: 25%;
+        }
+
+        .col-4 {
+            flex: 33.33%;
+        }
+
+        .col-5 {
+            flex: 41.66%;
+        }
+
+        .col-6 {
+            flex: 50%;
+        }
+
+        .col-7 {
+            flex: 58.33%;
+        }
+
+        .col-8 {
+            flex: 66.66%;
+        }
+
+        .col-9 {
+            flex: 75%;
+        }
+
+        .col-10 {
+            flex: 83.33%;
+        }
+
+        .col-11 {
+            flex: 91.66%;
+        }
+
+        .col-12 {
+            flex: 100%;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        button {
+            img {
+                width: 100%;
+                border-radius: $corner-small;
+            }
+        }
+    }
+}

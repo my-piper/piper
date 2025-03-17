@@ -3,7 +3,7 @@
 @import "src/ui-kit/styles/reset";
 
 :host {
-    @include vertical-stack();
+    @include vertical-stack($gutter-large);
     display: block;
 }
 
@@ -29,6 +29,7 @@
         padding: $gutter-small;
         border-radius: $corner-small;
         font-size: .85em;
+        border: 2px solid transparent;
 
         &:hover {
             background-color: rgba($color: $primary-light-color, $alpha: .5);
@@ -36,6 +37,7 @@
 
         &.selected {
             background-color: rgba($color: $primary-light-color, $alpha: .65);
+            border-color: $primary-color;
         }
 
         .badge {
@@ -87,7 +89,6 @@
                     display: none;
                     align-items: center;
                     justify-content: center;
-                    backdrop-filter: blur(5px);
                     color: white;
                     padding: $gutter-small;
                 }
@@ -120,6 +121,8 @@
             article {
                 .title {
                     display: flex;
+                    backdrop-filter: blur(5px);
+                    background-color: rgba($color: #000000, $alpha: .5);
                 }
             }
 

@@ -8,6 +8,10 @@ export class ImageProxyPipe implements PipeTransform {
     src: string,
     defs: { width?: number; height?: number; format?: string } = {}
   ): string {
+    if (!src) {
+      return null;
+    }
+
     const { width, height, format } = assign({ offset: 0, scale: 0.15 }, defs);
     const chunks = ["/xyz"];
 
