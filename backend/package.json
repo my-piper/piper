@@ -7,11 +7,12 @@
   "scripts": {
     "start": "npm-run-all --parallel server worker periodic sockets chrome",
     "server": "node --import=tsx --experimental-vm-modules server.ts",
-    "worker": "node --import=tsx --experimental-vm-modules worker.ts",
+    "worker": "DEBUG=bullmq:* node --import=tsx --experimental-vm-modules worker.ts",
     "periodic": "node --import=tsx --experimental-vm-modules periodic.ts",
     "sockets": "node --import=tsx sockets.ts",
     "oauth": "node --import=tsx oauth.ts",
     "chrome": "node --import=tsx chrome.ts",
+    "metrics": "node --import=tsx metrics.ts",
     "cli": "node --import=tsx cli.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

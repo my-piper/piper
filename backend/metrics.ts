@@ -1,56 +1,43 @@
-import { Counter, Gauge, Registry } from "prom-client";
+import "core-kit/env";
+import "reflect-metadata";
 
-export const registry = new Registry();
-export const metrics = {
-  minions: {
-    faceSwap: {
-      timeouts: new Counter({
-        name: "minions_face_swap_timeouts",
-        help: "How many timeouts for face swap",
-        registers: [registry],
-      }),
-      completed: new Counter({
-        name: "minions_face_swap_completed",
-        help: "How many completed for face swap",
-        registers: [registry],
-      }),
-      failed: new Counter({
-        name: "minions_face_swap_failed",
-        help: "How many failed for face swap",
-        registers: [registry],
-      }),
-    },
-  },
-  queue: {
-    active: new Gauge({
-      name: "bull_active",
-      help: "Count of active jobs",
-      registers: [registry],
-      labelNames: ["queue"],
-    }),
-    waiting: new Gauge({
-      name: "bull_waiting",
-      help: "Count of waiting jobs",
-      registers: [registry],
-      labelNames: ["queue"],
-    }),
-    completed: new Gauge({
-      name: "bull_completed",
-      help: "Count of completed jobs",
-      registers: [registry],
-      labelNames: ["queue"],
-    }),
-    failed: new Gauge({
-      name: "bull_failed",
-      help: "Count of failed jobs",
-      registers: [registry],
-      labelNames: ["queue"],
-    }),
-    delayed: new Gauge({
-      name: "bull_delayed",
-      help: "Count of delayed jobs",
-      registers: [registry],
-      labelNames: ["queue"],
-    }),
-  },
-};
+import { queues } from "app/queue";
+import { createLogger } from "core-kit/services/logger";
+import express from "express";
+
+const logger = createLogger("metrics");
+
+const app = express();
+
+app.get("/queues", async (req, res) => {
+  try {
+    const metrics = await Promise.all([
+      queues.launches.run.metrics(),
+      queues.launches.outputs.set.metrics(),
+      queues.launches.errors.set.metrics(),
+      queues.nodes.metrics(),
+      queues.users.updateBalance.metrics(),
+      queues.pipelines.usages.metrics(),
+      queues.packages.checkUpdates.metrics(),
+      queues.packages.update.metrics(),
+    ]);
+    const metricsData = metrics.join("\n");
+    res.set("Content-Type", "text/plain");
+    res.send(metricsData);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+const PORT =
+  (() => {
+    const port = process.env["METRICS_PORT"];
+    if (!!port) {
+      return parseInt(port);
+    }
+    return 0;
+  })() || 80;
+
+app.listen(PORT, () => {
+  logger.debug("Server is running");
+});
