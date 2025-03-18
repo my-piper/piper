@@ -6,6 +6,8 @@ volumes:
   clickhouse-data:
   clickhouse-logs:
   seaweedfs-data:
+  nocodb-data:
+  postgres-data:
 
 services:
   mongo:
@@ -130,3 +132,35 @@ services:
     volumes:
       - seaweedfs-data:/data
       - ./seaweedfs/s3/config.json:/etc/weed/s3.json:ro
+
+  nocodb:
+    image: nocodb/nocodb:latest
+    environment:
+      NC_DB: "pg://host.docker.internal:5432?u=postgres&p=xyzXYZ&d=nocodb"
+      NC_PUBLIC_URL: http://localhost/nocodb
+      NC_AUTH_JWT_SECRET: xyzXYZ
+    volumes:
+      - nocodb-data:/usr/app/data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8085:8080"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: nocodb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: xyzXYZ
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure

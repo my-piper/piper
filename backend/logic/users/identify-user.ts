@@ -9,10 +9,7 @@ import { getToken } from "./auth";
 
 const MAX_ATTEMPTS = 5;
 
-export async function identify(
-  email: string,
-  username?: string
-): Promise<Authorization> {
+export async function identify(email: string): Promise<Authorization> {
   const now = new Date();
 
   let user: User;
@@ -33,15 +30,8 @@ export async function identify(
   }
 
   if (!user) {
-    let ids = [
-      (() => {
-        const [name] = email.split("@");
-        return name;
-      })(),
-    ];
-    if (!!username) {
-      ids.push(username);
-    }
+    const [username] = email.split("@");
+    let ids = [username];
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
       ids.push([username, sid(2)].join(""));
     }
@@ -57,6 +47,7 @@ export async function identify(
       });
       try {
         await mongo.users.insertOne(toPlain(user) as { _id: string });
+        break;
       } catch (err) {
         if (err?.code === 11000 && i < ids.length - 1) {
           continue;

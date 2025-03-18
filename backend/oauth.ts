@@ -119,8 +119,8 @@ app.get(
   "/yandex/callback",
   passport.authenticate("yandex", { session: false }),
   async (req, res) => {
-    const { email, username } = req["user"] as User;
-    res.status(200).send(redirect(await identify(email, username)));
+    const { email } = req["user"] as User;
+    res.status(200).send(redirect(await identify(email)));
   }
 );
 
