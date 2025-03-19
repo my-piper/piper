@@ -26,10 +26,13 @@ await streams.pipeline.metrics.outputs.connect();
 await streams.pipeline.metrics.finished.connect();
 await streams.pipeline.usage.connect();
 
+let EXIT_CODE = 0;
+
 const subscriber = redis.duplicate();
 await subscriber.connect();
 await subscriber.subscribe(RELOAD_WORKER_CHANNEL, () => {
   logger.info("Received signal to reboot");
+  EXIT_CODE = 123;
   const timeout = Math.round(Math.random() * 30) + 5;
   logger.info(`Exiting in ${timeout}s`);
   setTimeout(
@@ -73,5 +76,5 @@ async function shutdown() {
   ]).then(() => logger.info("Queues are closed"));
 
   logger.info("See you 😘");
-  process.exit(0);
+  process.exit(EXIT_CODE);
 }
