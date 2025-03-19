@@ -4,7 +4,6 @@ import "reflect-metadata";
 import express from "express";
 import http from "http";
 import io from "./app/io";
-import { SOCKETS_PORT } from "./consts/core";
 import { createLogger } from "./logger";
 
 const logger = createLogger("sockets");
@@ -32,7 +31,16 @@ app.get("/health", function (req, res) {
 const server = http.createServer(app);
 io.attach(server);
 
-server.listen(SOCKETS_PORT, () => {
+export const PORT =
+  (() => {
+    const port = process.env["SOCKETS_PORT"];
+    if (!!port) {
+      return parseInt(port);
+    }
+    return 0;
+  })() || 80;
+
+server.listen(PORT, () => {
   logger.debug("Sockets is running");
 });
 

@@ -1,9 +1,12 @@
 import "core-kit/env";
 
 import { Languages } from "core-kit/enums/languages";
+import path from "path";
 
 export const LOG_LEVEL = process.env["LOG_LEVEL"] || "debug";
 export const LOG_PRETTY = process.env["LOG_PRETTY"] === "yes";
+
+export const MODULES_PATH = path.join(process.cwd(), "..", "packages");
 
 type EnvMode = "test" | "development" | "production";
 export const NODE_ENV: EnvMode =
@@ -23,28 +26,6 @@ export const TMP_PATH = process.env["TMP_PATH"] || "../tmp";
 
 export const MONGO_URL = process.env["MONGO_URL"] || "mongodb://mongo:27017";
 export const BASE_URL = process.env["BASE_URL"] || "http://localhost";
-
-export const PAAS_AUTH = process.env["PAAS_AUTH"] || "login|password";
-export const AI_AUTH = process.env["AI_AUTH"] || "login|password";
-export const ASTICA_KEY = process.env["ASTICA_KEY"] || "xyzXYZ";
-
-export const SERVER_PORT =
-  (() => {
-    const port = process.env["SERVER_PORT"];
-    if (!!port) {
-      return parseInt(port);
-    }
-    return 0;
-  })() || 80;
-
-export const SOCKETS_PORT =
-  (() => {
-    const port = process.env["SOCKETS_PORT"];
-    if (!!port) {
-      return parseInt(port);
-    }
-    return 0;
-  })() || 80;
 
 export const STORAGE_ROOT = process.env["STORAGE_ROOT"] || "/app/storage";
 export const FRONTEND_ROOT = "../frontend/dist";

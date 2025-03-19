@@ -2,19 +2,16 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
-import { Node } from "src/models/node";
-import { Project } from "src/models/project";
+import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
 
 @Component({
-  selector: "app-edit-node-script",
-  templateUrl: "./edit-node-script.component.html",
-  styleUrls: ["./edit-node-script.component.scss"],
+  selector: "app-edit-pipeline-script",
+  templateUrl: "./edit-pipeline-script.component.html",
+  styleUrls: ["./edit-pipeline-script.component.scss"],
 })
-export class EditNodeScriptComponent implements OnInit {
-  project!: Project;
-  id!: string;
-  node!: Node;
+export class EditPipelineScriptComponent implements OnInit {
+  pipeline!: Pipeline;
 
   inputsGroup = this.fb.group({});
   form = this.fb.group({
@@ -28,24 +25,24 @@ export class EditNodeScriptComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project, node: { id, node } }) => {
-      [this.project, this.id, this.node] = [project, id, node];
+    this.route.data.subscribe(({ project: { pipeline } }) => {
+      this.pipeline = pipeline;
       this.build();
     });
     this.form.valueChanges.subscribe(() => this.save());
   }
 
   private build() {
-    const { script } = this.node;
+    const { script } = this.pipeline;
     this.form.patchValue({
       script,
     });
   }
 
   private save() {
-    const { pipeline } = this.project;
+    const { pipeline } = this;
     const { script } = this.form.getRawValue();
-    assign(this.node, { script });
+    assign(pipeline, { script });
     this.projectManager.update({ pipeline });
   }
 }

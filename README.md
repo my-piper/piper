@@ -32,7 +32,7 @@ Run backend
 cd backend
 npm run sockets
 npm run server
-npm run worker
+./worker.sh
 ```
 
 Run frontend
@@ -68,6 +68,38 @@ npm --prefix backend run cli set-variable -- --name XXX --value xyzXYZ
 
 ```bash
 npm --prefix backend run cli remove-variable -- --name XXX
+```
+
+# Modules
+
+## List
+
+```bash
+npm run cli modules
+```
+
+## Install package
+
+```bash
+npm run cli modules add @fal-ai/client ^1.2.3
+```
+
+## Remove package
+
+```bash
+npm run cli modules remove @fal-ai/client
+```
+
+## Update
+
+```bash
+npm run cli modules update
+```
+
+## Rebooting workers
+
+```bash
+npm run cli workers reboot
 ```
 
 # Debug

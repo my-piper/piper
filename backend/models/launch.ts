@@ -1,6 +1,6 @@
 import { Expose, Transform, Type } from "class-transformer";
 import assign from "lodash/assign";
-import { Pipeline } from "../models/pipeline";
+import { Pipeline, PipelineCosts } from "../models/pipeline";
 import { objectsMapTransformer } from "../transformers/map";
 import { primitiveMapTransformer } from "../transformers/primitive";
 import { PipelineIOType } from "../types/pipeline";
@@ -319,6 +319,10 @@ export class Launch {
   @Expose()
   @Transform(objectsMapTransformer(LaunchOutput))
   outputs!: Map<string, LaunchOutput>;
+
+  @Expose()
+  @Type(() => PipelineCosts)
+  costs: PipelineCosts;
 
   @Expose()
   @Type(() => String)

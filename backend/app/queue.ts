@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { minutesToMilliseconds } from "date-fns";
+import { minutesToMilliseconds, secondsToMilliseconds } from "date-fns";
 import { CheckPackageUpdatesJob } from "models/jobs/check-package-updates";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { RecordPipelineUsageJob } from "models/jobs/record-pipeline-usage-job";
@@ -21,18 +21,33 @@ export const queues = {
     update: new JobsQueue("update_package", UpdatePackageJob),
   },
   pipelines: {
-    usages: new JobsQueue("pipelines_usage", RecordPipelineUsageJob),
+    usages: new JobsQueue("pipelines_usage", RecordPipelineUsageJob, {
+      limiter: { max: 30, duration: secondsToMilliseconds(30) },
+      concurrency: 30,
+    }),
   },
   users: {
-    updateBalance: new JobsQueue("users_update_balance", UpdateUserBalanceJob),
+    updateBalance: new JobsQueue("users_update_balance", UpdateUserBalanceJob, {
+      limiter: { max: 30, duration: secondsToMilliseconds(30) },
+      concurrency: 30,
+    }),
   },
   launches: {
-    run: new JobsQueue("run_launch", RunLaunchJob),
+    run: new JobsQueue("run_launch", RunLaunchJob, {
+      limiter: { max: 30, duration: secondsToMilliseconds(30) },
+      concurrency: 30,
+    }),
     outputs: {
-      set: new JobsQueue("set_launch_output", SetLaunchOutputJob),
+      set: new JobsQueue("set_launch_output", SetLaunchOutputJob, {
+        limiter: { max: 30, duration: secondsToMilliseconds(30) },
+        concurrency: 30,
+      }),
     },
     errors: {
-      set: new JobsQueue("set_launch_errors", SetLaunchErrorsJob),
+      set: new JobsQueue("set_launch_errors", SetLaunchErrorsJob, {
+        limiter: { max: 30, duration: secondsToMilliseconds(30) },
+        concurrency: 30,
+      }),
     },
   },
 };

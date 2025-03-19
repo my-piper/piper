@@ -1,8 +1,8 @@
 import { DataError } from "core-kit/types/errors";
 import { toInstance, toPlain } from "core-kit/utils/models";
+import ajv from "../../app/ajv";
 import { api } from "../../app/api";
 import mongo from "../../app/mongo";
-import ajv from "../../lib/ajv";
 import { Project } from "../../models/project";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };

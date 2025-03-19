@@ -87,9 +87,15 @@
 							"type": "object",
 							"properties": {
 								"id": {
+									"title": "ID (deprecated)",
+									"type": "string",
+									"propertyOrder": 1
+								},
+								"_id": {
 									"title": "ID",
 									"type": "string",
-									"pattern": "^[a-z0-9_]{5,40}$"
+									"pattern": "^[a-z0-9_]{5,40}$",
+									"propertyOrder": 2
 								},
 								"title": {
 									"title": "Title",
@@ -97,7 +103,7 @@
 								}
 							},
 							"required": [
-								"id",
+								"_id",
 								"title"
 							],
 							"additionalProperties": false
@@ -1082,9 +1088,15 @@
 				"type": "object",
 				"properties": {
 					"id": {
+						"title": "ID (deprecated)",
+						"type": "string",
+						"propertyOrder": 1
+					},
+					"_id": {
 						"title": "ID",
 						"type": "string",
-						"pattern": "^[a-z0-9_]{5,40}$"
+						"pattern": "^[a-z0-9_]{5,40}$",
+						"propertyOrder": 2
 					},
 					"title": {
 						"title": "Title",
@@ -1092,7 +1104,7 @@
 					}
 				},
 				"required": [
-					"id",
+					"_id",
 					"title"
 				],
 				"additionalProperties": false
@@ -2103,6 +2115,9 @@
 				],
 				"additionalProperties": false
 			},
+			"script": {
+				"type": "string"
+			},
 			"start": {
 				"type": "object",
 				"properties": {
@@ -2447,9 +2462,15 @@
 							"type": "object",
 							"properties": {
 								"id": {
+									"title": "ID (deprecated)",
+									"type": "string",
+									"propertyOrder": 1
+								},
+								"_id": {
 									"title": "ID",
 									"type": "string",
-									"pattern": "^[a-z0-9_]{5,40}$"
+									"pattern": "^[a-z0-9_]{5,40}$",
+									"propertyOrder": 2
 								},
 								"title": {
 									"title": "Title",
@@ -2457,7 +2478,7 @@
 								}
 							},
 							"required": [
-								"id",
+								"_id",
 								"title"
 							],
 							"additionalProperties": false
@@ -3399,6 +3420,10 @@
 		"required": [
 			"name",
 			"version",
+			"start",
+			"inputs",
+			"outputs",
+			"flows",
 			"nodes"
 		],
 		"additionalProperties": false,
@@ -3918,6 +3943,9 @@
 						],
 						"additionalProperties": false
 					},
+					"script": {
+						"type": "string"
+					},
 					"start": {
 						"type": "object",
 						"properties": {
@@ -4262,9 +4290,15 @@
 									"type": "object",
 									"properties": {
 										"id": {
+											"title": "ID (deprecated)",
+											"type": "string",
+											"propertyOrder": 1
+										},
+										"_id": {
 											"title": "ID",
 											"type": "string",
-											"pattern": "^[a-z0-9_]{5,40}$"
+											"pattern": "^[a-z0-9_]{5,40}$",
+											"propertyOrder": 2
 										},
 										"title": {
 											"title": "Title",
@@ -4272,7 +4306,7 @@
 										}
 									},
 									"required": [
-										"id",
+										"_id",
 										"title"
 									],
 									"additionalProperties": false
@@ -5214,6 +5248,10 @@
 				"required": [
 					"name",
 					"version",
+					"start",
+					"inputs",
+					"outputs",
+					"flows",
 					"nodes"
 				],
 				"additionalProperties": false,

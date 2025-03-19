@@ -1,42 +1,37 @@
 import { HttpsAgent } from "agentkeepalive";
+import { artefact } from "app/storage";
+import { streams } from "app/stream";
 import axios from "axios";
 import { plainToInstance } from "class-transformer";
+import { SHARE_FOLDER } from "consts/chrome";
+import { MODULES_PATH, NODE_ENV } from "consts/core";
+import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
+import { redis } from "core-kit/services/redis/redis";
 import { DataError, FatalError, TimeoutError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { fileTypeFromBuffer } from "file-type";
 import { writeFile } from "fs/promises";
 import assign from "lodash-es/assign";
 import merge from "lodash-es/merge";
+import * as deploying from "logic/deploy/get-deploy";
+import { decrypt } from "logic/environment/crypt-environment";
+import * as launching from "logic/launches/launching";
+import { run } from "logic/launches/launching";
+import { Environment } from "models/environment";
+import { Launch } from "models/launch";
+import { LaunchRequest } from "models/launch-request";
 import { Node } from "models/node";
 import { createRequire } from "node:module";
 import { createContext as createVmContext } from "node:vm";
 import path from "path";
 import { Logger } from "pino";
-import { artefact } from "../../app/storage";
-import { streams } from "../../app/stream";
-import { SHARE_FOLDER } from "../../consts/chrome";
-import { NODE_ENV } from "../../consts/core";
-import {
-  GLOBAL_ENVIRONMENT_KEY,
-  USER_ENVIRONMENT_KEY,
-} from "../../consts/redis";
-import { redis } from "../../core-kit/services/redis/redis";
-import * as deploying from "../../logic/deploy/get-deploy";
-import { decrypt } from "../../logic/environment/crypt-environment";
-import * as launching from "../../logic/launches/launching";
-import { run } from "../../logic/launches/launching";
-import { Environment } from "../../models/environment";
-import { Launch } from "../../models/launch";
-import { LaunchRequest } from "../../models/launch-request";
-import { NextNode, RepeatNode } from "../../types/node";
-import { Primitive } from "../../types/primitive";
-import { withTempContext } from "../../utils/files";
-import { sid } from "../../utils/string";
-import { download } from "../../utils/web";
+import { NextNode, RepeatNode } from "types/node";
+import { Primitive } from "types/primitive";
+import { withTempContext } from "utils/files";
+import { sid } from "utils/string";
+import { download } from "utils/web";
 
-const packagesLoader = createRequire(
-  path.join(process.cwd(), "..", "packages", "node_modules")
-);
+const packagesLoader = createRequire(path.join(MODULES_PATH, "node_modules"));
 
 export async function createContext({
   logger,

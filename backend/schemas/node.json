@@ -35,16 +35,22 @@
       "type": "object",
       "properties": {
         "id": {
+          "title": "ID (deprecated)",
+          "type": "string",
+          "propertyOrder": 1
+        },
+        "_id": {
           "title": "ID",
           "type": "string",
-          "pattern": "^[a-z0-9_]{5,40}$"
+          "pattern": "^[a-z0-9_]{5,40}$",
+          "propertyOrder": 2
         },
         "title": {
           "title": "Title",
           "type": "string"
         }
       },
-      "required": ["id", "title"],
+      "required": ["_id", "title"],
       "additionalProperties": false
     },
     "package": {

@@ -2,13 +2,15 @@ import "core-kit/env";
 import "reflect-metadata";
 
 import { Command } from "commander";
+import { RELOAD_WORKER_CHANNEL } from "consts/signals";
+import { redis } from "core-kit/services/redis";
 import { toPlain } from "core-kit/utils/models";
 import { writeFile } from "fs/promises";
 import { ulid } from "ulid";
 import mongo from "./app/mongo";
-import { queues } from "./app/queue";
 import * as environment from "./cli/environment";
 import { loadPipelines } from "./cli/load-pipelines/logic";
+import * as modules from "./logic/modules";
 import * as packages from "./logic/node-packages";
 import { add } from "./logic/users/add-user";
 import { refillBalance } from "./logic/users/refill-balance";
@@ -39,13 +41,6 @@ commander.command("compile-schemas").action(async () => {
     JSON.stringify({ nodePackage, node, pipeline, user, project }, null, "\t")
   );
 
-  process.exit();
-});
-
-commander.command("obliterate").action(async () => {
-  console.log("Obliterate all queues!");
-  await queues.nodes.obliterate();
-  console.log("Done 😮");
   process.exit();
 });
 
@@ -131,6 +126,47 @@ commander.command("environment").action(async () => {
   console.log(toPlain(await environment.get()));
   process.exit();
 });
+
+{
+  const commands = new Command("modules").action(async () => {
+    console.log(toPlain(await modules.list()));
+    process.exit();
+  });
+
+  commands.command("remove <name>").action(async (name: string) => {
+    console.log(`Remove ${name}`);
+    await modules.remove(name);
+    process.exit();
+  });
+
+  commands
+    .command("add <name> <version>")
+    .action(async (name: string, version: string) => {
+      console.log(`Install ${name} ${version}`);
+      await modules.add(name, version);
+      process.exit();
+    });
+
+  commands.command("update").action(async ({ name }: { name: string }) => {
+    console.log("Update modules");
+    await modules.update();
+    process.exit();
+  });
+
+  commander.addCommand(commands);
+}
+
+{
+  const commands = new Command("workers");
+
+  commands.command("reboot").action(async (name: string) => {
+    console.log("Rebooting workers...");
+    await redis.publish(RELOAD_WORKER_CHANNEL, new Date().toISOString());
+    process.exit();
+  });
+
+  commander.addCommand(commands);
+}
 
 // TODO: remove soon
 commander

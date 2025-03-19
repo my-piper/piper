@@ -50,7 +50,7 @@ export async function readInstance<T>(
   return !!json ? toInstance(JSON.parse(json) as Object, type) : null;
 }
 
-export async function saveInstance(key: string, data: Object) {
+export async function saveInstance<T>(key: string, data: T) {
   await redis.setEx(key, LAUNCH_EXPIRED, JSON.stringify(toPlain(data)));
 }
 

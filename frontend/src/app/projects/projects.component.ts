@@ -18,6 +18,8 @@ name: New project
 version: 1
 start:
   nodes: []
+inputs: {}
+outputs: {}
 flows: {}
 nodes: {}`;
 

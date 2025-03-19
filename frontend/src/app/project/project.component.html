@@ -98,9 +98,9 @@
             class="badge"
             *ngIf="
               (project._id | pipelineCosts: null : project.revision | async)
-                ?.costs as costs
+                ?.total as total
             "
-            >{{ costs | currency: "USD" : "symbol" : "1.0-10" }}</span
+            >{{ total | currency: "USD" : "symbol" : "1.0-10" }}</span
           >
         </button>
       </ng-template>
@@ -164,6 +164,14 @@
                 routerLinkActive="active"
                 (click)="references.popover?.hide()"
                 >YAML</a
+              >
+            </li>
+            <li>
+              <a
+                [routerLink]="['script']"
+                routerLinkActive="active"
+                (click)="references.popover?.hide()"
+                >Script</a
               >
             </li>
             <li>

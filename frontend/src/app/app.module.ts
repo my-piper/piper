@@ -76,6 +76,7 @@ import { EditNodeYamlComponent } from "./edit-node-yaml/edit-node-yaml.component
 import { EditPipelineDesignComponent } from "./edit-pipeline-design/edit-pipeline-design.component";
 import { EditPipelineEnvironmentComponent } from "./edit-pipeline-environment/edit-pipeline-environment.component";
 import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipeline-readme.component";
+import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
 import { EditProjectComponent } from "./edit-project/edit-project.component";
 import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refills.component";
 import { ExpensesComponent } from "./expenses/expenses.component";
@@ -217,6 +218,7 @@ import { UsersComponent } from "./users/users.component";
     PipelineUsagesComponent,
     BalanceRefillsComponent,
     PlayViaApiComponent,
+    EditPipelineScriptComponent,
   ],
   imports: [
     BrowserModule,

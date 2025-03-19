@@ -26,13 +26,7 @@ import "./api/projects";
 import "./api/users";
 import "./api/utils";
 import { api } from "./app/api";
-import {
-  BASE_URL,
-  FRONTEND_ROOT,
-  LANGUAGES,
-  NODE_ENV,
-  SERVER_PORT,
-} from "./consts/core";
+import { BASE_URL, FRONTEND_ROOT, LANGUAGES, NODE_ENV } from "./consts/core";
 import { NO_CACHE_HEADERS } from "./consts/http";
 import { AppConfig } from "./models/app-config";
 import { handle } from "./utils/http";
@@ -91,6 +85,15 @@ if (NODE_ENV === "production") {
   );
 }
 
-api.listen(SERVER_PORT, () => {
+export const PORT =
+  (() => {
+    const port = process.env["SERVER_PORT"];
+    if (!!port) {
+      return parseInt(port);
+    }
+    return 0;
+  })() || 80;
+
+api.listen(PORT, () => {
   logger.debug("Server is running");
 });

@@ -153,6 +153,10 @@ export class Pipeline {
   category!: PipelineCategory;
 
   @Expose()
+  @Type(() => String)
+  script!: string;
+
+  @Expose()
   @Type(() => Start)
   start!: Start;
 
@@ -193,12 +197,21 @@ export class NodeCosts {
 
 export class PipelineCosts {
   @Expose()
+  @Type(() => Number)
+  pipeline!: number;
+
+  @Expose()
   @Type(() => NodeCosts)
   nodes!: NodeCosts[];
 
   @Expose()
   @Type(() => Number)
-  costs!: number;
+  total!: number;
+
+  update() {
+    this.total =
+      this.pipeline + this.nodes.reduce((costs, n) => costs + n.costs, 0);
+  }
 
   constructor(defs: Partial<PipelineCosts> = {}) {
     assign(this, defs);

@@ -1,4 +1,5 @@
 import { createLogger } from "core-kit/services/logger";
+import sentry from "core-kit/services/sentry";
 import { FatalError, TimeoutError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { differenceInSeconds } from "date-fns";
@@ -31,7 +32,6 @@ import { redis } from "../core-kit/services/redis/redis";
 import { PipelineEvent } from "../models/events";
 import { Launch } from "../models/launch";
 import { NodeStatus } from "../models/node";
-import sentry from "../sentry";
 import { NextNode, NodeInputs, NodeJobResult, RepeatNode } from "../types/node";
 import { PipelineEventType } from "../types/pipeline";
 import {
@@ -407,7 +407,7 @@ queues.nodes.process(
           }
           logger.info(`Filled ${filled} from ${total} in pipeline outputs`);
           if (filled >= total) {
-            const { scope } = launch;
+            const { scope, launchedBy } = launch;
             logger.info(`Remove launch from scope ${scope.id}`);
             await redis.lRem(scope.id, 0, launch._id);
 
@@ -418,6 +418,18 @@ queues.nodes.process(
               finishedAt: processedAt,
               fromStart,
             });
+
+            const { pipeline: costs } = launch.costs;
+            if (costs > 0) {
+              await queues.pipelines.usages.plan({
+                project: launch.project.title,
+                pipeline: launch.pipeline.name,
+                launch: launch._id,
+                launchedBy: launchedBy._id,
+                processedAt,
+                costs,
+              });
+            }
           }
         }
       }

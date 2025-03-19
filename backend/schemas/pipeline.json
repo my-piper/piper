@@ -48,6 +48,9 @@
     "category": {
       "$ref": "#/definitions/PipelineCategory"
     },
+    "script": {
+      "type": "string"
+    },
     "start": {
       "$ref": "#/definitions/Start"
     },
@@ -79,7 +82,15 @@
       }
     }
   },
-  "required": ["name", "version", "nodes"],
+  "required": [
+    "name",
+    "version",
+    "start",
+    "inputs",
+    "outputs",
+    "flows",
+    "nodes"
+  ],
   "additionalProperties": false,
   "definitions": {
     "Start": {

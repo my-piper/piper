@@ -55,9 +55,9 @@
   <ng-container *ngIf="!!request">
     <span
       class="badge"
-      *ngIf="(project._id | pipelineCosts: request | async)?.costs as costs"
+      *ngIf="(project._id | pipelineCosts: request | async)?.total as total"
       >{{
-        costs | countdown | async | currency: "USD" : "symbol" : "1.0-10"
+        total | countdown | async | currency: "USD" : "symbol" : "1.0-10"
       }}</span
     >
   </ng-container>

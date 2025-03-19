@@ -4,6 +4,7 @@ import { toPlain } from "core-kit/utils/models";
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
+import { getCosts } from "logic/pipelines/pipeline-costs";
 import path from "path";
 import "reflect-metadata";
 import sharp from "sharp";
@@ -148,6 +149,7 @@ export async function run({
     parent: parent || null,
     scope,
     options,
+    costs: await getCosts(pipeline, launchRequest, "pipeline"),
     comment,
     url: `${BASE_URL}/launches/${_id}`,
     inputs,

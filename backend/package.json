@@ -13,6 +13,7 @@
     "oauth": "node --import=tsx oauth.ts",
     "chrome": "node --import=tsx chrome.ts",
     "metrics": "node --import=tsx metrics.ts",
+    "modules": "node --import=tsx modules.ts",
     "cli": "node --import=tsx cli.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -35,6 +36,7 @@
     "bullmq": "^5.41.7",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "commander": "^13.1.0",
     "content-type": "^1.0.5",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

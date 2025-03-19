@@ -1,10 +1,17 @@
 import "core-kit/env";
 import "reflect-metadata";
 
+import { RELOAD_WORKER_CHANNEL } from "consts/signals";
 import { createLogger } from "core-kit/services/logger";
+import { redis } from "core-kit/services/redis";
 import "./app/io";
 import { queues } from "./app/queue";
 import { streams } from "./app/stream";
+
+const logger = createLogger("worker");
+logger.info("Start worker");
+
+import { secondsToMilliseconds } from "date-fns";
 import "./jobs/check-package-updates";
 import "./jobs/process-node";
 import "./jobs/record-pipeline-usage";
@@ -14,13 +21,24 @@ import "./jobs/set-launch-output";
 import "./jobs/update-package";
 import "./jobs/update-user-balance";
 
-const logger = createLogger("worker");
-logger.debug("Start worker");
-
 await streams.pipeline.messages.connect();
 await streams.pipeline.metrics.outputs.connect();
 await streams.pipeline.metrics.finished.connect();
 await streams.pipeline.usage.connect();
+
+const subscriber = redis.duplicate();
+await subscriber.connect();
+await subscriber.subscribe(RELOAD_WORKER_CHANNEL, () => {
+  logger.info("Received signal to reboot");
+  const timeout = Math.round(Math.random() * 30) + 5;
+  logger.info(`Exiting in ${timeout}s`);
+  setTimeout(
+    () => process.kill(process.pid, "SIGINT"),
+    secondsToMilliseconds(timeout)
+  );
+});
+
+logger.info("Worker is ready");
 
 process.on("SIGINT", async (signal) => {
   logger.info(`Our process ${process.pid} has been interrupted ${signal}`);
@@ -33,26 +51,26 @@ process.on("SIGTERM", async (signal) => {
 });
 
 let shutting = false;
+const GRACEFUL_SHUTDOWN_TIMEOUT = 120;
 
 async function shutdown() {
   if (shutting) {
     return;
   }
   shutting = true;
-  logger.debug("Graceful shutdown");
-  setTimeout(
-    () => {
-      logger.warn("Couldn't close all queues within 120s, exiting.");
-      process.exit(1);
-    },
-    2 * 60 * 1000
-  );
+  logger.debug(`Graceful shutdown in ${GRACEFUL_SHUTDOWN_TIMEOUT}s`);
+  setTimeout(() => {
+    logger.warn("Couldn't close queues, hardcore exiting");
+    process.exit(1);
+  }, secondsToMilliseconds(GRACEFUL_SHUTDOWN_TIMEOUT));
 
   await Promise.all([
     queues.nodes.close(),
     queues.launches.run.close(),
     queues.launches.outputs.set.close(),
-  ]).then(() => console.log("Queues are closed"));
+    queues.launches.errors.set.close(),
+    queues.users.updateBalance.close(),
+  ]).then(() => logger.info("Queues are closed"));
 
   logger.info("See you 😘");
   process.exit(0);

@@ -3,13 +3,13 @@ import { plainToInstance } from "class-transformer";
 import { toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import * as YAML from "yaml";
+import ajv from "../../app/ajv";
 import mongo from "../../app/mongo";
 import {
   PACKAGES_UPDATES,
   PACKAGES_UPDATES_TIMEOUT,
 } from "../../consts/packages";
 import { redis } from "../../core-kit/services/redis/redis";
-import ajv from "../../lib/ajv";
 import { createLogger } from "../../logger";
 import { NodePackage, NodePackageUpdates } from "../../models/node-package";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };

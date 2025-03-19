@@ -7,6 +7,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
+import sentry from "core-kit/services/sentry";
 import { DataError } from "core-kit/types/errors";
 import trimStart from "lodash/trimStart";
 import {
@@ -18,7 +19,6 @@ import {
   S3_SECRET_ACCESS_KEY,
 } from "../consts/s3";
 import { createLogger } from "../logger";
-import sentry from "../sentry";
 
 const logger = createLogger("s3");
 

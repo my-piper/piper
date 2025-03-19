@@ -1,5 +1,6 @@
 import { plainToClass } from "class-transformer";
 import { fileTypeFromBuffer } from "file-type";
+import { Pipeline } from "models/pipeline";
 import { PipelineIOType } from "types/pipeline";
 import * as storage from "../app/storage";
 import { NODE_INPUT, NODE_STATUS } from "../consts/redis";
@@ -36,10 +37,10 @@ export function convertInput(value: Primitive, type: PipelineIOType) {
 }
 
 export const convertInputs =
-  ({ node }: { node: Node }) =>
+  ({ node, pipeline }: { node?: Node; pipeline?: Pipeline }) =>
   (inputs: { [key: string]: Primitive } | Map<string, Primitive>) => {
     const converted: NodeInputs = {};
-    for (const [key, input] of node.inputs) {
+    for (const [key, input] of pipeline?.inputs || node?.inputs) {
       const value = inputs instanceof Map ? inputs.get(key) : inputs[key];
       if (value !== undefined && value !== null) {
         converted[key] = convertInput(value, input.type);
