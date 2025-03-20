@@ -21,3 +21,7 @@ oauth:
 .PHONY: metrics
 metrics:
 	npm run metrics
+
+.PHONY: sockets 
+sockets:
+	npm run sockets
