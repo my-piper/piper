@@ -28,13 +28,13 @@ COPY ./backend/package-lock.json ./backend/package-lock.json
 COPY ./backend/package.json ./backend/package.json
 COPY ./frontend/package-lock.json ./frontend/package-lock.json
 COPY ./frontend/package.json ./frontend/package.json
-COPY ./devops/docker/Makefile Makefile
 
 RUN npm --prefix ./backend ci \
     && npm --prefix ./frontend ci
 
 COPY ./backend ./backend
 COPY ./frontend ./frontend
+COPY ./devops/docker/Makefile ./backend/Makefile
 
 RUN npm --prefix ./frontend run build
 
