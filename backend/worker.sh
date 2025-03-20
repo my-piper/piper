@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -d "../packages" ]; then
+    echo "Creating packages directory"
+    mkdir -p ../packages
+fi
+
 while true
 do
     echo "Start worker"
