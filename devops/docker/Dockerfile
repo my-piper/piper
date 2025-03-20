@@ -14,6 +14,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     curl \
     gnupg \
+    make \
     && curl --location --silent https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
@@ -27,6 +28,7 @@ COPY ./backend/package-lock.json ./backend/package-lock.json
 COPY ./backend/package.json ./backend/package.json
 COPY ./frontend/package-lock.json ./frontend/package-lock.json
 COPY ./frontend/package.json ./frontend/package.json
+COPY ./devops/docker/Makefile Makefile
 
 RUN npm --prefix ./backend ci \
     && npm --prefix ./frontend ci
@@ -40,4 +42,4 @@ WORKDIR /app/backend
 
 VOLUME /var/packages
 
-ENTRYPOINT ["npm", "run"]
+ENTRYPOINT ["make"]
