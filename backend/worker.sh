@@ -1,3 +1,5 @@
+#!/bin/bash
+
 while true
 do
     echo "Start worker"
@@ -12,7 +14,7 @@ do
         echo "Worker failed"
         exit ${app_status}
     fi
-
+    
     echo "Reboot worker"
-
+    
 done

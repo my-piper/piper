@@ -4,7 +4,7 @@ server:
 
 .PHONY: worker
 worker:
-	npm run worker
+	./worker.sh
 
 .PHONY: chrome
 chrome:
