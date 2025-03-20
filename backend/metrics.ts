@@ -6,10 +6,11 @@ import { createLogger } from "core-kit/services/logger";
 import express from "express";
 
 const logger = createLogger("metrics");
+logger.debug("Start metrics");
 
 const app = express();
 
-app.get("/queues", async (req, res) => {
+app.get("/metrics", async (req, res) => {
   try {
     const metrics = await Promise.all([
       queues.launches.run.metrics(),

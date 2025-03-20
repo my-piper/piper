@@ -81,7 +81,16 @@ npm run cli modules
 ## Install package
 
 ```bash
-npm run cli modules add @fal-ai/client ^1.2.3
+npm run cli modules add @anthropic-ai/sdk 0.37.0
+npm run cli modules add @fal-ai/client 1.2.3
+npm run cli modules add @gradio/client 1.12.0
+npm run cli modules add @runware/sdk-js 1.1.37
+npm run cli modules add artworks github:My-Piper/Packages-ArtWorks
+npm run cli modules add file-type 20.4.0
+npm run cli modules add fluent-ffmpeg 2.1.3
+npm run cli modules add openai 4.85.4
+npm run cli modules add sharp 0.33.5
+npm run cli modules add together-ai 0.13.0
 ```
 
 ## Remove package
