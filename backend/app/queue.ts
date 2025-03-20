@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { minutesToMilliseconds, secondsToMilliseconds } from "date-fns";
+import { secondsToMilliseconds } from "date-fns";
 import { CheckPackageUpdatesJob } from "models/jobs/check-package-updates";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { RecordPipelineUsageJob } from "models/jobs/record-pipeline-usage-job";
@@ -13,7 +13,7 @@ import { JobsQueue } from "../core-kit/services/queues";
 
 export const queues = {
   nodes: new JobsQueue("process_nodes", ProcessNodeJob, {
-    limiter: { max: 30, duration: minutesToMilliseconds(5) },
+    limiter: { max: 30, duration: secondsToMilliseconds(5) },
     concurrency: 30,
   }),
   packages: {
