@@ -3,6 +3,10 @@ import sentry from "core-kit/services/sentry";
 import { FatalError, TimeoutError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { differenceInSeconds } from "date-fns";
+import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
+import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
+import { NodeExecution } from "enums/node-execution";
+import { plan } from "logic/nodes/plan-node";
 import { pathToFileURL } from "node:url";
 import { Module, SourceTextModule } from "node:vm";
 import path from "path";
@@ -52,7 +56,7 @@ import {
 } from "../utils/redis";
 import { createContext } from "./process-node/context";
 
-queues.nodes.process(
+const [handler, error] = [
   async (nodeJob, job) => {
     await redis.setEx(
       NODE_JOB(nodeJob.launch, nodeJob.node, job.id),
@@ -220,7 +224,29 @@ queues.nodes.process(
       if (typeof action !== "function") {
         throw new FatalError("Function `run()` is not implemented");
       }
-      results = await action({ inputs: converted, state });
+      results = await Promise.race([
+        action({ inputs: converted, state }),
+        new Promise<never>((_, reject) => {
+          const timeout = (() => {
+            switch (node.execution) {
+              case NodeExecution.rapid:
+                return secondsToMilliseconds(5);
+              case NodeExecution.deferred:
+                return minutesToMilliseconds(2);
+              case NodeExecution.protracted:
+                return minutesToMilliseconds(5);
+              case NodeExecution.regular:
+              default:
+                return secondsToMilliseconds(20);
+            }
+          })();
+          logger.debug(`Execute node script in ${timeout / 1000}s timeout`);
+          setTimeout(
+            () => reject(new FatalError("Execution timeout exceeded")),
+            timeout
+          );
+        }),
+      ]);
     } catch (e) {
       logger.error(e);
       logger.error("Error while processing");
@@ -247,15 +273,10 @@ queues.nodes.process(
       );
       notifyNode(nodeJob.node, "node_gonna_repeat");
 
-      await queues.nodes.plan(
-        {
-          launch: launch._id,
-          node: nodeJob.node,
-        },
-        {
-          delay: delay || 1000,
-        }
-      );
+      await plan(nodeJob.node, node, launch._id, {
+        delay: delay || 1000,
+      });
+
       return NodeJobResult.NODE_IS_GOING_TO_REPEAT;
     } else if (results instanceof NextNode) {
       const { outputs, behavior, reset, delay } = results;
@@ -333,14 +354,7 @@ queues.nodes.process(
           await release(NODE_PROCESSED_LOCK(launch._id, node));
 
           logger.debug(`Plan next node ${node}`);
-
-          await queues.nodes.plan(
-            {
-              launch: launch._id,
-              node,
-            },
-            { delay: delay || 1000 }
-          );
+          await plan(node, pipeline.nodes.get(node), launch._id, { delay });
         }
       }
 
@@ -523,5 +537,10 @@ queues.nodes.process(
         },
       });
     }
-  }
-);
+  },
+];
+
+queues.nodes.process.rapid.process(handler, error);
+queues.nodes.process.regular.process(handler, error);
+queues.nodes.process.deferred.process(handler, error);
+queues.nodes.process.protracted.process(handler, error);

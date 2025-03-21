@@ -60,6 +60,10 @@
     "arrange": {
       "$ref": "local://arrange.json"
     },
+    "execution": {
+      "type": "string",
+      "enum": ["rapid", "regular", "deferred", "protracted"]
+    },
     "script": {
       "type": "string"
     },

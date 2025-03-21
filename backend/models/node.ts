@@ -1,4 +1,5 @@
 import { Expose, Transform, Type } from "class-transformer";
+import { NodeExecution } from "enums/node-execution";
 import assign from "lodash/assign";
 import merge from "lodash/merge";
 import { PipelineIOType } from "types/pipeline";
@@ -245,6 +246,10 @@ export class Node {
   @Expose()
   @Type(() => String)
   source: string;
+
+  @Expose()
+  @Type(() => String)
+  execution!: NodeExecution;
 
   @Expose()
   @Type(() => String)

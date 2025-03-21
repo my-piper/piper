@@ -1,3 +1,4 @@
+import { plan } from "logic/nodes/plan-node";
 import { queues } from "../app/queue";
 import {
   LAUNCH,
@@ -73,14 +74,9 @@ queues.launches.run.process(async (runJob) => {
 
   logger.info("Pipeline can run");
 
+  const { pipeline } = launch;
   for (const node of launch.pipeline.start.nodes) {
-    await queues.nodes.plan(
-      {
-        launch: launch._id,
-        node,
-      },
-      { delay: 0 }
-    );
+    await plan(node, pipeline.nodes.get(node), launch._id);
   }
   return RunLaunchJobResult.RUN_LAUNCH;
 });

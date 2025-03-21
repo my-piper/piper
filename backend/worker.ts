@@ -68,7 +68,10 @@ async function shutdown() {
   }, secondsToMilliseconds(GRACEFUL_SHUTDOWN_TIMEOUT));
 
   await Promise.all([
-    queues.nodes.close(),
+    queues.nodes.process.rapid.close(),
+    queues.nodes.process.regular.close(),
+    queues.nodes.process.deferred.close(),
+    queues.nodes.process.protracted.close(),
     queues.launches.run.close(),
     queues.launches.outputs.set.close(),
     queues.launches.errors.set.close(),

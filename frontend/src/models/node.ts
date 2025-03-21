@@ -1,5 +1,6 @@
 import { Expose, Transform, Type } from "class-transformer";
 import assign from "lodash/assign";
+import { NodeExecution } from "src/enums/node-execution";
 import {
   primitiveArrayTransformer,
   primitiveTransformer,
@@ -245,6 +246,10 @@ export class Node {
   @Expose()
   @Type(() => String)
   source: string;
+
+  @Expose()
+  @Type(() => String)
+  execution!: NodeExecution;
 
   @Expose()
   @Type(() => String)

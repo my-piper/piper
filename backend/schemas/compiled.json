@@ -128,6 +128,15 @@
 							],
 							"additionalProperties": false
 						},
+						"execution": {
+							"type": "string",
+							"enum": [
+								"rapid",
+								"regular",
+								"deferred",
+								"protracted"
+							]
+						},
 						"script": {
 							"type": "string"
 						},
@@ -1128,6 +1137,15 @@
 					"y"
 				],
 				"additionalProperties": false
+			},
+			"execution": {
+				"type": "string",
+				"enum": [
+					"rapid",
+					"regular",
+					"deferred",
+					"protracted"
+				]
 			},
 			"script": {
 				"type": "string"
@@ -2502,6 +2520,15 @@
 								"y"
 							],
 							"additionalProperties": false
+						},
+						"execution": {
+							"type": "string",
+							"enum": [
+								"rapid",
+								"regular",
+								"deferred",
+								"protracted"
+							]
 						},
 						"script": {
 							"type": "string"
@@ -4330,6 +4357,15 @@
 										"y"
 									],
 									"additionalProperties": false
+								},
+								"execution": {
+									"type": "string",
+									"enum": [
+										"rapid",
+										"regular",
+										"deferred",
+										"protracted"
+									]
 								},
 								"script": {
 									"type": "string"
