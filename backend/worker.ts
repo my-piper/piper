@@ -51,7 +51,7 @@ const WORKERS: {
     queue: queues.launches.errors.set,
     loader: () => import("./jobs/set-launch-errors"),
   },
-  users_update_balance: {
+  /*users_update_balance: {
     queue: queues.users.updateBalance,
     loader: () => import("./jobs/update-user-balance"),
   },
@@ -66,7 +66,7 @@ const WORKERS: {
   packages_update: {
     queue: queues.packages.update,
     loader: () => import("./jobs/update-package"),
-  },
+  },*/
 };
 
 if (cluster.isPrimary) {
