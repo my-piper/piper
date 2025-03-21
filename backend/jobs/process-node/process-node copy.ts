@@ -10,10 +10,10 @@ import { plan } from "logic/nodes/plan-node";
 import { pathToFileURL } from "node:url";
 import { Module, SourceTextModule } from "node:vm";
 import path from "path";
-import io from "../app/io";
-import { queues } from "../app/queue";
-import { streams } from "../app/stream";
-import { BASE_URL } from "../consts/core";
+import io from "../../app/io";
+import { queues } from "../../app/queue";
+import { streams } from "../../app/stream";
+import { BASE_URL } from "../../consts/core";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,
@@ -31,19 +31,24 @@ import {
   NODE_STATUS,
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
-} from "../consts/redis";
-import { redis } from "../core-kit/services/redis/redis";
-import { PipelineEvent } from "../models/events";
-import { Launch } from "../models/launch";
-import { NodeStatus } from "../models/node";
-import { NextNode, NodeInputs, NodeJobResult, RepeatNode } from "../types/node";
-import { PipelineEventType } from "../types/pipeline";
+} from "../../consts/redis";
+import { redis } from "../../core-kit/services/redis/redis";
+import { PipelineEvent } from "../../models/events";
+import { Launch } from "../../models/launch";
+import { NodeStatus } from "../../models/node";
+import {
+  NextNode,
+  NodeInputs,
+  NodeJobResult,
+  RepeatNode,
+} from "../../types/node";
+import { PipelineEventType } from "../../types/pipeline";
 import {
   checkInputs,
   convertInputs,
   convertOutputs,
   getNodeInputs,
-} from "../utils/node";
+} from "../../utils/node";
 import {
   lock,
   locked,
@@ -53,8 +58,8 @@ import {
   saveInstance,
   saveObject,
   toRedisValue,
-} from "../utils/redis";
-import { createContext } from "./process-node/context";
+} from "../../utils/redis";
+import { createContext } from "./context";
 
 const [handler, error] = [
   async (nodeJob, job) => {
