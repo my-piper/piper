@@ -219,13 +219,16 @@ const [handler, error] = [
         }: {
           inputs: NodeInputs;
           state: object | null;
+          signal: AbortSignal;
         }) => Promise<NextNode | RepeatNode>;
       };
       if (typeof action !== "function") {
         throw new FatalError("Function `run()` is not implemented");
       }
+      const controller = new AbortController();
+      const { signal } = controller;
       results = await Promise.race([
-        action({ inputs: converted, state }),
+        action({ inputs: converted, state, signal }),
         new Promise<never>((_, reject) => {
           const timeout = (() => {
             switch (node.execution) {
@@ -241,10 +244,10 @@ const [handler, error] = [
             }
           })();
           logger.debug(`Execute node script in ${timeout / 1000}s timeout`);
-          setTimeout(
-            () => reject(new FatalError("Execution timeout exceeded")),
-            timeout
-          );
+          setTimeout(() => {
+            controller.abort();
+            reject(new FatalError("Execution timeout exceeded"));
+          }, timeout);
         }),
       ]);
     } catch (e) {
