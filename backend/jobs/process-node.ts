@@ -246,7 +246,9 @@ const [handler, error] = [
           logger.debug(`Execute node script in ${timeout / 1000}s timeout`);
           setTimeout(() => {
             controller.abort();
-            reject(new FatalError("Execution timeout exceeded"));
+            reject(
+              new FatalError(`Execution timeout ${timeout / 1000}s exceeded`)
+            );
           }, timeout);
         }),
       ]);
