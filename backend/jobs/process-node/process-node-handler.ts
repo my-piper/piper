@@ -436,7 +436,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
           const { pipeline: costs } = launch.costs;
           if (costs > 0) {
-            await queues.pipelines.usages.plan({
+            await queues.pipelines.usage.record.plan({
               project: launch.project.title,
               pipeline: launch.pipeline.name,
               launch: launch._id,
@@ -452,7 +452,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     const { costs } = results;
     if (costs > 0) {
       const { launchedBy } = launch;
-      await queues.pipelines.usages.plan({
+      await queues.pipelines.usage.record.plan({
         project: launch.project.title,
         pipeline: launch.pipeline.name,
         launch: launch._id,

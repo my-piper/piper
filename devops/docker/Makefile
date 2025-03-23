@@ -3,8 +3,44 @@ server:
 	npm run server
 
 .PHONY: worker
-worker:
-	./worker.sh
+process_rapid_nodes:
+	./worker.sh -i -w process_rapid_nodes -h
+
+.PHONY: worker
+process_regular_nodes:
+	./worker.sh -i -w process_regular_nodes -h
+
+.PHONY: worker
+process_deferred_nodes:
+	./worker.sh -i -w process_deferred_nodes -h
+
+.PHONY: worker
+process_protracted_nodes:
+	./worker.sh -i -w process_protracted_nodes -h
+
+.PHONY: worker
+run_launches:
+	./worker.sh -w run_launches -h
+
+.PHONY: worker
+set_launches_outputs:
+	./worker.sh -w set_launches_outputs -h
+
+.PHONY: worker
+set_launches_errors:
+	./worker.sh -w set_launches_errors -h
+
+.PHONY: worker
+update_users_balance:
+	./worker.sh -w update_users_balance -h
+
+.PHONY: worker
+record_pipelines_usage:
+	./worker.sh -w record_pipelines_usage -h
+
+.PHONY: worker
+update_packages:
+	./worker.sh -w update_packages -h
 
 .PHONY: chrome
 chrome:

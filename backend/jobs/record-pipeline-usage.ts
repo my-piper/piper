@@ -5,7 +5,7 @@ import { streams } from "../app/stream";
 
 const UPDATE_BALANCE_DELAY = 5000;
 
-queues.pipelines.usages.process(async (recordUsageJob) => {
+queues.pipelines.usage.record.process(async (recordUsageJob) => {
   const { project, pipeline, launch, launchedBy, node, processedAt, costs } =
     recordUsageJob;
   const logger = createLogger("record-pipeline-usage", { launch });

@@ -22,7 +22,7 @@ export const queues = {
       regular: new JobsQueue("process_regular_nodes", ProcessNodeJob, {
         limiter: { max: 200, duration: secondsToMilliseconds(15) },
         concurrency: 40,
-        timeout: secondsToMilliseconds(20),
+        timeout: secondsToMilliseconds(45),
       }),
       deferred: new JobsQueue("process_deferred_nodes", ProcessNodeJob, {
         limiter: { max: 400, duration: minutesToMilliseconds(2) },
@@ -41,10 +41,12 @@ export const queues = {
     update: new JobsQueue("update_package", UpdatePackageJob),
   },
   pipelines: {
-    usages: new JobsQueue("pipelines_usage", RecordPipelineUsageJob, {
-      limiter: { max: 30, duration: secondsToMilliseconds(30) },
-      concurrency: 30,
-    }),
+    usage: {
+      record: new JobsQueue("pipelines_usage", RecordPipelineUsageJob, {
+        limiter: { max: 30, duration: secondsToMilliseconds(30) },
+        concurrency: 30,
+      }),
+    },
   },
   users: {
     updateBalance: new JobsQueue("users_update_balance", UpdateUserBalanceJob, {

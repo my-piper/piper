@@ -1,25 +1,45 @@
 #!/bin/bash
 
-if [ ! -d "../packages" ]; then
-    echo "Creating packages directory"
-    mkdir -p ../packages
-fi
+install_packages=false
+
+# Parse -i flag
+while getopts "i" opt; do
+  case $opt in
+    i)
+      install_packages=true
+      ;;
+  esac
+done
 
 while true
 do
     echo "Start worker"
-    npm run cli modules update
-    npm i --prefix ../packages
-    npm run worker
+
+    if $install_packages; then
+      if [ ! -d "../packages" ]; then
+        echo "Creating packages directory"
+        mkdir -p ../packages
+      else
+        echo "Packages directory already exists"
+      fi
+
+      echo "Updating modules and install packages"
+      npm run cli modules update
+      npm i --prefix ../packages
+    else
+      echo "Skipping update packages"
+    fi
+
+    npm run worker -- "$@"
     
     app_status=$?
     echo "Exit status ${app_status}"
     
     if [ ${app_status} -ne 123 ]; then
-        echo "Worker failed"
+        echo "Worker stopped"
         exit ${app_status}
     fi
     
-    echo "Reboot worker"
+    echo "Rebooting worker"
     
 done

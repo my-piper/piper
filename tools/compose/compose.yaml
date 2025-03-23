@@ -146,7 +146,7 @@ services:
       restart_policy:
         condition: on-failure
     ports:
-      - "8085:8080"
+      - "8089:8080"
     depends_on:
       - postgres
 
