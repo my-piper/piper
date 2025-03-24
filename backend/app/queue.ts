@@ -56,7 +56,7 @@ export const queues = {
   },
   launches: {
     run: new JobsQueue("run_launch", RunLaunchJob, {
-      limiter: { max: 100, duration: secondsToMilliseconds(10) },
+      limiter: { max: 1000, duration: secondsToMilliseconds(10) },
       concurrency: 50,
     }),
     outputs: {
