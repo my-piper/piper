@@ -1,3 +1,4 @@
+import random from "lodash/random";
 import { kick } from "logic/launches";
 import { queues } from "../app/queue";
 import {
@@ -16,65 +17,62 @@ queues.launches.run.process(async (runJob) => {
     launch: runJob.launch,
   });
 
-  const launch = await readInstance(LAUNCH(runJob.launch), Launch);
-  if (!launch) {
-    logger.error("Launch is not found");
-    return RunLaunchJobResult.LAUNCH_NOT_FOUND;
-  }
+  logger.info("Check if pipeline can run");
 
   await redis.setEx(
-    LAUNCH_HEARTBEAT(launch._id),
+    LAUNCH_HEARTBEAT(runJob.launch),
     LAUNCH_HEARTBEAT_EXPIRED,
     new Date().toISOString()
   );
 
-  const { scope } = launch;
+  const { scope } = runJob;
+  const { maxConcurrent } = scope;
 
-  if (scope.maxConcurrent > 0) {
-    const SCOPE_KEY = scope.id;
+  logger.debug(`Max concurrent is ${maxConcurrent}`);
+  if (maxConcurrent > 0) {
+    const count = Math.ceil(maxConcurrent * 1.75);
+    logger.debug(`Retrieve ${count} launches from scope ${scope.id}`);
+    const queue = (await redis.lRange(scope.id, 0, count)) || [];
+    logger.debug(`Queue scope ${scope.id}: ${queue.join(" | ")}`);
 
-    logger.debug(`Check scope ${SCOPE_KEY}`);
-    const queue = (await redis.lRange(SCOPE_KEY, 0, -1)) || [];
-    if (!queue.includes(launch._id)) {
-      logger.debug(`Add launch to queue`);
-      await redis.rPush(SCOPE_KEY, launch._id);
-      queue.push(launch._id);
+    const multi = redis.multi();
+    queue.forEach((id) => multi.exists(LAUNCH_HEARTBEAT(id)));
+    const heartbeats = await multi.exec();
+    const dead = queue.filter((_, i) => heartbeats[i] === 0);
+    if (dead.length > 0) {
+      logger.debug(`Dead pipelines: ${dead.join(" | ")}`);
+      await Promise.all(dead.map((id) => redis.lRem(scope.id, 0, id)));
     }
 
-    logger.debug(`Queue scope ${SCOPE_KEY}: ${queue.join("|")}`);
+    const position = queue.indexOf(runJob.launch);
+    if (position !== -1) {
+      logger.debug(`Position in queue ${position}`);
 
-    let position = queue.indexOf(launch._id);
-    logger.debug(`Pipeline position ${position}`);
-
-    for (let i = 0; i < position; ) {
-      const l = queue[i];
-      if (!(await redis.exists(LAUNCH_HEARTBEAT(l)))) {
-        logger.debug(`Remove dead launch ${l} from queue`);
-        queue.splice(i, 1);
-        await redis.lRem(SCOPE_KEY, 0, l);
-      } else {
-        logger.debug(`Launch ${l} is live`);
-        i++;
+      if (position >= scope.maxConcurrent - dead.length) {
+        logger.debug("Continue wait in scope queue");
+        await queues.launches.run.plan(
+          { launch: runJob.launch, scope },
+          { delay: 5000 + random(1000, 3000) }
+        );
+        return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
       }
-    }
-
-    position = queue.indexOf(launch._id);
-    logger.debug(
-      `Pipeline live position ${position} in ${scope.maxConcurrent}`
-    );
-    if (position >= scope.maxConcurrent) {
+    } else {
       logger.debug("Waiting in scope queue");
       await queues.launches.run.plan(
-        {
-          launch: launch._id,
-        },
-        { delay: 5000 }
+        { launch: runJob.launch, scope },
+        { delay: 10000 }
       );
       return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
     }
   }
 
   logger.info("Pipeline can run");
+
+  const launch = await readInstance(LAUNCH(runJob.launch), Launch);
+  if (!launch) {
+    logger.error("Launch is not found");
+    return RunLaunchJobResult.LAUNCH_NOT_FOUND;
+  }
 
   await kick(launch);
   return RunLaunchJobResult.RUN_LAUNCH;

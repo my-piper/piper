@@ -11,5 +11,6 @@ api.delete(
       throw new NotFoundError();
     }
     await mongo.launchOutputs.deleteMany({ launch: _id });
+    return null;
   })
 );

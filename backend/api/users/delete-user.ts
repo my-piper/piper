@@ -13,6 +13,6 @@ api.delete(
       throw new NotFoundError();
     }
 
-    res.status(200).send();
+    return null;
   })
 );

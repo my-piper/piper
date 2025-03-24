@@ -174,7 +174,9 @@ export async function run({
   );
 
   if (scope?.activated) {
-    await queues.launches.run.plan({ launch: launch._id });
+    logger.debug(`Run pipeline in scope ${scope.id}`);
+    await redis.rPush(scope.id, launch._id);
+    await queues.launches.run.plan({ launch: launch._id, scope });
   } else {
     await kick(launch);
   }
