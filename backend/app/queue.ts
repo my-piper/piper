@@ -56,19 +56,19 @@ export const queues = {
   },
   launches: {
     run: new JobsQueue("run_launch", RunLaunchJob, {
-      limiter: { max: 30, duration: secondsToMilliseconds(30) },
-      concurrency: 30,
+      limiter: { max: 100, duration: secondsToMilliseconds(10) },
+      concurrency: 50,
     }),
     outputs: {
       set: new JobsQueue("set_launch_output", SetLaunchOutputJob, {
-        limiter: { max: 30, duration: secondsToMilliseconds(30) },
-        concurrency: 30,
+        limiter: { max: 100, duration: secondsToMilliseconds(10) },
+        concurrency: 50,
       }),
     },
     errors: {
       set: new JobsQueue("set_launch_errors", SetLaunchErrorsJob, {
-        limiter: { max: 30, duration: secondsToMilliseconds(30) },
-        concurrency: 30,
+        limiter: { max: 100, duration: secondsToMilliseconds(10) },
+        concurrency: 50,
       }),
     },
   },

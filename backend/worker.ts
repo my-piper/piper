@@ -186,8 +186,12 @@ program
   .option("-i, --reboot")
   .parse(process.argv);
 
-const options = program.opts();
-const workers = options["workers"] || Workers.keys();
+const options = program.opts<{
+  workers: string[];
+  reboot: boolean;
+  health: boolean;
+}>();
+const workers = options.workers || Workers.keys();
 
 const processing = new Map<string, Queue>();
 for (const id of workers) {
@@ -249,8 +253,7 @@ const shutdown = async () => {
   process.exit(EXIT_CODE);
 };
 
-const reboot = options["reboot"];
-if (reboot) {
+if (options.reboot) {
   logger.info("Reboot activated");
   const subscriber = redis.duplicate();
   await subscriber.connect();
