@@ -60,6 +60,8 @@ import {
 } from "../../utils/redis";
 import { createContext } from "./context";
 
+const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
+
 export default async (nodeJob: ProcessNodeJob, job: Job) => {
   await redis.setEx(
     NODE_JOB(nodeJob.launch, nodeJob.node, job.id),
@@ -123,12 +125,6 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     return NodeJobResult.LAUNCH_NOT_FOUND;
   }
 
-  await redis.setEx(
-    LAUNCH_HEARTBEAT(launch._id),
-    LAUNCH_HEARTBEAT_EXPIRED,
-    new Date().toISOString()
-  );
-
   const { pipeline } = launch;
   const node = pipeline.nodes.get(nodeJob.node);
   if (!node) {
@@ -181,6 +177,20 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     logger.debug("Node is processing now already");
     return NodeJobResult.NODE_IS_PROCESSING_NOW_ALREADY;
   }
+
+  const timers: { heartbeat: NodeJS.Timeout } = { heartbeat: null };
+  const heartbeat = async () => {
+    logger.debug("Launch heartbeat");
+    await redis.setEx(
+      LAUNCH_HEARTBEAT(launch._id),
+      LAUNCH_HEARTBEAT_EXPIRED,
+      new Date().toISOString()
+    );
+    timers.heartbeat = setTimeout(async () => {
+      await heartbeat();
+    }, HEARTBEAT_INTERVAL);
+  };
+  await heartbeat();
 
   logger.debug("Set processing lock");
   await lock(PROCESSING_LOCK, NODE_PROCESSING_TIMEOUT);
@@ -262,6 +272,9 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   } finally {
     logger.debug("Release processing lock");
     await release(PROCESSING_LOCK);
+
+    logger.debug("Clear heartbeat timer");
+    clearTimeout(timers.heartbeat);
   }
 
   if (results instanceof RepeatNode) {

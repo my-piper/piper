@@ -133,13 +133,13 @@ export const handle =
 
     try {
       const answer = await handler(injector)(req, res);
-      if (answer !== undefined) {
+      if (answer === null) {
+        logger.debug("No answer");
+        res.status(204).send();
+      } else if (answer !== undefined) {
         logger.debug("Send answer");
         res.set(NO_CACHE_HEADERS);
         !!answer ? res.status(200).send(answer) : res.status(204).send();
-      } else {
-        logger.debug("No answer");
-        res.status(204).send();
       }
     } catch (e) {
       console.error(e);
