@@ -30,8 +30,8 @@ export const queues = {
         timeout: minutesToMilliseconds(2),
       }),
       protracted: new JobsQueue("process_protracted_nodes", ProcessNodeJob, {
-        limiter: { max: 200, duration: minutesToMilliseconds(5) },
-        concurrency: 10,
+        limiter: { max: 200, duration: minutesToMilliseconds(3) },
+        concurrency: 30,
         timeout: minutesToMilliseconds(5),
       }),
     },

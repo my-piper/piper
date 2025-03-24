@@ -1,4 +1,4 @@
-import { plan } from "logic/nodes/plan-node";
+import { kick } from "logic/launches";
 import { queues } from "../app/queue";
 import {
   LAUNCH,
@@ -33,35 +33,37 @@ queues.launches.run.process(async (runJob) => {
   if (scope.maxConcurrent > 0) {
     const SCOPE_KEY = scope.id;
 
-    logger.info(`Check scope ${SCOPE_KEY}`);
+    logger.debug(`Check scope ${SCOPE_KEY}`);
     const queue = (await redis.lRange(SCOPE_KEY, 0, -1)) || [];
     if (!queue.includes(launch._id)) {
-      logger.info(`Add launch to queue`);
-      queue.push(launch._id);
+      logger.debug(`Add launch to queue`);
       await redis.rPush(SCOPE_KEY, launch._id);
+      queue.push(launch._id);
     }
 
-    logger.info(`Queue scope ${SCOPE_KEY} ${queue.join("|")}`);
+    logger.debug(`Queue scope ${SCOPE_KEY}: ${queue.join("|")}`);
 
     let position = queue.indexOf(launch._id);
-    logger.info(`Pipeline position ${position}`);
+    logger.debug(`Pipeline position ${position}`);
 
     for (let i = 0; i < position; ) {
       const l = queue[i];
       if (!(await redis.exists(LAUNCH_HEARTBEAT(l)))) {
-        logger.info(`Remove dead launch ${l} from queue`);
+        logger.debug(`Remove dead launch ${l} from queue`);
         queue.splice(i, 1);
         await redis.lRem(SCOPE_KEY, 0, l);
       } else {
-        logger.info(`Launch ${l} is live`);
+        logger.debug(`Launch ${l} is live`);
         i++;
       }
     }
 
     position = queue.indexOf(launch._id);
-    logger.info(`Pipeline live position ${position} in ${scope.maxConcurrent}`);
+    logger.debug(
+      `Pipeline live position ${position} in ${scope.maxConcurrent}`
+    );
     if (position >= scope.maxConcurrent) {
-      logger.info("Waiting in scope queue");
+      logger.debug("Waiting in scope queue");
       await queues.launches.run.plan(
         {
           launch: launch._id,
@@ -74,9 +76,6 @@ queues.launches.run.process(async (runJob) => {
 
   logger.info("Pipeline can run");
 
-  const { pipeline } = launch;
-  for (const node of launch.pipeline.start.nodes) {
-    await plan(node, pipeline.nodes.get(node), launch._id);
-  }
+  await kick(launch);
   return RunLaunchJobResult.RUN_LAUNCH;
 });

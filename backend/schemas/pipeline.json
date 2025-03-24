@@ -147,12 +147,16 @@
               "type": "string",
               "pattern": "^[a-z0-9_]{5,40}$"
             },
+            "activated": {
+              "title": "Activated",
+              "type": "boolean"
+            },
             "maxConcurrent": {
               "title": "Max concurrent",
               "type": "number"
             }
           },
-          "required": ["id", "maxConcurrent"],
+          "required": ["id", "activated", "maxConcurrent"],
           "additionalProperties": false
         }
       },

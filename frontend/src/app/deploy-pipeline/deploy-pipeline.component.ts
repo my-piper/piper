@@ -28,7 +28,6 @@ export class DeployPipelineComponent implements OnInit {
   project!: Project;
 
   slugControl = this.fb.control<string>(null);
-  apiKeyControl = this.fb.control<string>(null);
   form = this.fb.group({
     deploy: this.fb.control<object>(null),
   });
@@ -53,15 +52,16 @@ export class DeployPipelineComponent implements OnInit {
       title,
       pipeline: { deploy },
     } = this.project;
-    const slug =
-      getLabel(title, Languages.en).toLowerCase().replace(/\s/g, "-") + "-v1";
 
     this.form.patchValue({
       deploy: !!deploy
         ? toPlain(deploy)
         : {
-            slug,
+            slug:
+              getLabel(title, Languages.en).toLowerCase().replace(/\s/g, "-") +
+              "-v1",
             scope: {
+              activated: false,
               maxConcurrent: 1,
             },
           },

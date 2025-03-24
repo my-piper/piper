@@ -5,8 +5,8 @@ import { LaunchRequest } from "models/launch-request";
 import { Project } from "models/project";
 import { User } from "models/user";
 import { api } from "../../app/api";
-import * as deploying from "../../logic/deploy";
-import * as launching from "../../logic/launches";
+import * as deploys from "../../logic/deploy";
+import * as launches from "../../logic/launches";
 import { checkLogged, handle } from "../../utils/http";
 
 api.post(
@@ -20,7 +20,7 @@ api.post(
       launchRequest: deployLaunchRequest,
       environment,
       scope,
-    } = await deploying.get(slug);
+    } = await deploys.get(slug);
 
     const launchRequest = toInstance(
       merge(toPlain(deployLaunchRequest), body),
@@ -28,7 +28,7 @@ api.post(
     );
 
     const { comment } = body;
-    const { _id, url } = await launching.run({
+    const { _id, url } = await launches.run({
       launchedBy: (() => {
         const { _id } = currentUser;
         return new User({ _id });
@@ -42,7 +42,7 @@ api.post(
       environment,
       scope,
       options: new LaunchOptions({
-        notify: true,
+        notify: false,
       }),
       comment: comment || `API call from ${ip}`,
     });

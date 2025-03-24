@@ -7,7 +7,6 @@ import { NODE_ENV } from "./consts/core";
 import { createLogger } from "./logger";
 import { checkPackagesUpdates } from "./periodic/check-packages-updates";
 import { cleanLaunches } from "./periodic/clear-launches";
-import { clearShare } from "./periodic/clear-share";
 
 const logger = createLogger("periodic");
 
@@ -39,6 +38,5 @@ function schedule(task: () => Promise<void>, interval: number) {
   }, Math.random() * 30000);
 }
 
-schedule(clearShare, everyMin(1));
 schedule(cleanLaunches, everyMin(5));
 schedule(checkPackagesUpdates, everyMin(5));

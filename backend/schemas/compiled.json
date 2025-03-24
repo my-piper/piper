@@ -2168,13 +2168,19 @@
 								"type": "string",
 								"pattern": "^[a-z0-9_]{5,40}$"
 							},
+							"activated": {
+								"title": "Activated",
+								"type": "boolean"
+							},
 							"maxConcurrent": {
 								"title": "Max concurrent",
-								"type": "number"
+								"type": "number",
+								"pattern": "^(100|[2-9]|[1-9]\\d)$"
 							}
 						},
 						"required": [
 							"id",
+							"activated",
 							"maxConcurrent"
 						],
 						"additionalProperties": false
@@ -3514,13 +3520,19 @@
 								"type": "string",
 								"pattern": "^[a-z0-9_]{5,40}$"
 							},
+							"activated": {
+								"title": "Activated",
+								"type": "boolean"
+							},
 							"maxConcurrent": {
 								"title": "Max concurrent",
-								"type": "number"
+								"type": "number",
+								"pattern": "^(100|[2-9]|[1-9]\\d)$"
 							}
 						},
 						"required": [
 							"id",
+							"activated",
 							"maxConcurrent"
 						],
 						"additionalProperties": false
@@ -4005,13 +4017,19 @@
 										"type": "string",
 										"pattern": "^[a-z0-9_]{5,40}$"
 									},
+									"activated": {
+										"title": "Activated",
+										"type": "boolean"
+									},
 									"maxConcurrent": {
 										"title": "Max concurrent",
-										"type": "number"
+										"type": "number",
+										"pattern": "^(100|[2-9]|[1-9]\\d)$"
 									}
 								},
 								"required": [
 									"id",
+									"activated",
 									"maxConcurrent"
 								],
 								"additionalProperties": false
@@ -5351,13 +5369,19 @@
 										"type": "string",
 										"pattern": "^[a-z0-9_]{5,40}$"
 									},
+									"activated": {
+										"title": "Activated",
+										"type": "boolean"
+									},
 									"maxConcurrent": {
 										"title": "Max concurrent",
-										"type": "number"
+										"type": "number",
+										"pattern": "^(100|[2-9]|[1-9]\\d)$"
 									}
 								},
 								"required": [
 									"id",
+									"activated",
 									"maxConcurrent"
 								],
 								"additionalProperties": false

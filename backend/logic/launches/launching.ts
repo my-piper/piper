@@ -4,6 +4,7 @@ import { toPlain } from "core-kit/utils/models";
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
+import { plan } from "logic/nodes/plan-node";
 import { getCosts } from "logic/pipelines/pipeline-costs";
 import path from "path";
 import "reflect-metadata";
@@ -172,9 +173,20 @@ export async function run({
     JSON.stringify(toPlain(launch))
   );
 
-  await queues.launches.run.plan({ launch: launch._id });
+  if (scope?.activated) {
+    await queues.launches.run.plan({ launch: launch._id });
+  } else {
+    await kick(launch);
+  }
 
   return launch;
+}
+
+export async function kick(launch: Launch) {
+  const { pipeline } = launch;
+  for (const node of launch.pipeline.start.nodes) {
+    await plan(node, pipeline.nodes.get(node), launch._id);
+  }
 }
 
 export async function getPlain(id: string): Promise<Object> {

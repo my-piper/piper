@@ -7,10 +7,8 @@ import { run } from "../../logic/launches/launching";
 import { LaunchOptions } from "../../models/launch";
 import { LaunchRequest } from "../../models/launch-request";
 import { Project } from "../../models/project";
-import { RunScope } from "../../models/run-scope";
 import { User } from "../../models/user";
 import { checkLogged, handle, toModel } from "../../utils/http";
-import { sid } from "../../utils/string";
 
 api.post(
   "/api/projects/:_id/launch",
@@ -59,10 +57,6 @@ api.post(
       pipeline,
       launchRequest,
       environment,
-      scope: new RunScope({
-        id: sid(),
-        maxConcurrent: 1,
-      }),
       options: new LaunchOptions({
         notify: true,
       }),

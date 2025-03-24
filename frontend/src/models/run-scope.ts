@@ -8,6 +8,10 @@ export class RunScope {
   id: string;
 
   @Expose()
+  @Type(() => Boolean)
+  activated: boolean;
+
+  @Expose()
   @Type(() => Number)
   maxConcurrent: number;
 

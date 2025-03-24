@@ -9,10 +9,6 @@ export class DeployConfig {
   slug!: string;
 
   @Expose()
-  @Type(() => String)
-  apiKey!: string;
-
-  @Expose()
   @Type(() => RunScope)
   scope!: RunScope;
 
