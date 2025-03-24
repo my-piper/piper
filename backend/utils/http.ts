@@ -78,7 +78,7 @@ export const handle =
           );
           assign(injector, { currentUser: user });
         } catch (err) {
-          console.error(err);
+          logger.error(err);
           res.status(401).send("Wrong user token");
           return;
         }
@@ -98,8 +98,6 @@ export const handle =
             if (!hash) {
               throw new DataError("API hash is not found");
             }
-
-            console.log(hash);
 
             const matched = await bcrypt.compare(token, hash);
             if (!matched) {
@@ -124,7 +122,7 @@ export const handle =
           );
           assign(injector, { currentUser: user });
         } catch (err) {
-          console.error(err);
+          logger.error(err);
           res.status(401).send("Wrong API token");
           return;
         }
@@ -142,7 +140,7 @@ export const handle =
         !!answer ? res.status(200).send(answer) : res.status(204).send();
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
       if (e instanceof DataError) {
         const { details } = e;
         res
@@ -155,10 +153,10 @@ export const handle =
       } else if (e instanceof TooManyRequestsError) {
         res.status(429).send(e.message);
       } else if (e instanceof PenTestingError) {
-        console.error("Pen testing detected");
+        logger.error("Pen testing detected");
         res.status(200).redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
       } else {
-        console.error(e);
+        logger.error(e);
         res
           .status(500)
           .send("SERVICE_OFFLINE|Our service temporarily unavailable");

@@ -436,8 +436,11 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         logger.info(`Filled ${filled} from ${total} in pipeline outputs`);
         if (filled >= total) {
           const { scope, launchedBy } = launch;
-          logger.info(`Remove launch from scope ${scope.id}`);
-          await redis.lRem(scope.id, 0, launch._id);
+          if (!!scope) {
+            const { id } = scope;
+            logger.info(`Remove launch from scope ${id}`);
+            await redis.lRem(id, 0, launch._id);
+          }
 
           const fromStart = differenceInSeconds(processedAt, launchedAt);
 
