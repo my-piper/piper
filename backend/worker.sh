@@ -2,6 +2,9 @@
 
 install_packages=false
 
+set -e
+trap 'echo "Error occurred!"; exit 1' ERR
+
 # Parse -i flag
 while getopts "i" opt; do
   case $opt in
