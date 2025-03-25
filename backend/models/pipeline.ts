@@ -209,8 +209,10 @@ export class PipelineCosts {
   total!: number;
 
   update() {
-    this.total =
-      this.pipeline + this.nodes.reduce((costs, n) => costs + n.costs, 0);
+    this.total = this.pipeline;
+    if (!!this.nodes) {
+      this.total += this.nodes.reduce((costs, n) => costs + n.costs, 0);
+    }
   }
 
   constructor(defs: Partial<PipelineCosts> = {}) {

@@ -1,6 +1,7 @@
 import { createAdapter } from "@socket.io/redis-adapter";
 import { createLogger } from "core-kit/services/logger";
 import { REDIS_URL } from "core-kit/services/redis/consts";
+import sentry from "core-kit/services/sentry";
 import { toPlain } from "core-kit/utils/models";
 import { createClient } from "redis";
 import { Server } from "socket.io";
@@ -15,6 +16,7 @@ pubClient.on("error", (err: { code?: string; message: string }) => {
     err.code === "EHOSTUNREACH" ||
     err.code === "ENOTFOUND"
   ) {
+    sentry.captureException(err);
     process.kill(process.pid, "SIGINT");
   }
 });

@@ -111,6 +111,12 @@ npm run cli modules update
 npm run cli workers reboot
 ```
 
+## Remove launches with errors
+
+```js
+db.launches.deleteMany({ errors: { $exists: true, $not: { $size: 0 } } });
+```
+
 # Debug
 
 ## Read Kafka stream

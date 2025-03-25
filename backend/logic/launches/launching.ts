@@ -1,7 +1,6 @@
 import { plainToInstance } from "class-transformer";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
-import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
 import { plan } from "logic/nodes/plan-node";
@@ -43,7 +42,7 @@ import { withTempContext } from "../../utils/files";
 import { fromRedisValue, toRedisValue } from "../../utils/redis";
 import { sid } from "../../utils/string";
 import { getPoster } from "../../utils/video";
-import { downloadBinary, extFromMime } from "../../utils/web";
+import { downloadBinary } from "../../utils/web";
 
 const logger = createLogger("utils/launch");
 
@@ -110,20 +109,6 @@ export async function run({
           })
         );
 
-        switch (type) {
-          case "image":
-            const url = value as string;
-            if (url.startsWith("data")) {
-              const { typeFull, buffer } = dataUriToBuffer(url);
-
-              const fileName = [sid(), extFromMime(typeFull)].join(".");
-              value = await storage.artefact(Buffer.from(buffer), fileName);
-            }
-            break;
-          default:
-          //
-        }
-
         if (!!input.flows) {
           for (const [, flow] of input.flows) {
             const to = pipeline.nodes.get(flow.to).inputs.get(flow.input);
@@ -150,7 +135,7 @@ export async function run({
     parent: parent || null,
     scope,
     options,
-    costs: await getCosts(pipeline, launchRequest, "pipeline"),
+    costs: await getCosts(pipeline, launchRequest),
     comment,
     url: `${BASE_URL}/launches/${_id}`,
     inputs,

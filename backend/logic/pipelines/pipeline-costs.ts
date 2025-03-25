@@ -22,8 +22,7 @@ async function run(code: string, inputs: NodeInputs): Promise<number> {
 
 export async function getCosts(
   pipeline: Pipeline,
-  launchRequest: LaunchRequest,
-  mode: "full" | "pipeline" = "full"
+  launchRequest: LaunchRequest
 ): Promise<PipelineCosts> {
   const getNodeInputs = (id: string) => {
     let toLaunch = launchRequest.nodes.get(id);
@@ -52,15 +51,14 @@ export async function getCosts(
     }
   }
 
-  const costs = new PipelineCosts({ pipeline: 0, nodes: [] });
+  const costs = new PipelineCosts({ pipeline: 0 });
 
   if (!!pipeline.script) {
     const converted = convertInputs({ pipeline })(inputs);
     assign(costs, { pipeline: await run(pipeline.script, converted) });
-  }
-
-  if (mode === "full") {
+  } else {
     // calculate all nodes
+    const nodes = [];
     for (const [id, node] of pipeline.nodes) {
       if (!node.script) {
         continue;
@@ -85,13 +83,14 @@ export async function getCosts(
       }
 
       const converted = convertInputs({ node })(inputs);
-      costs.nodes.push(
+      nodes.push(
         new NodeCosts({
           node: node.title,
           costs: await run(node.script, converted),
         })
       );
     }
+    assign(costs, { nodes });
   }
 
   costs.update();
