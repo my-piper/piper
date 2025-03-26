@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { USER_API_TOKEN_KEY } from "consts/redis";
 import { Languages } from "core-kit/enums/languages";
 import { redis } from "core-kit/services/redis";
+import sentry from "core-kit/services/sentry";
 import {
   DataError,
   NotFoundError,
@@ -156,6 +157,7 @@ export const handle =
         logger.error("Pen testing detected");
         res.status(200).redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
       } else {
+        sentry.captureException(e);
         logger.error(e);
         res
           .status(500)
