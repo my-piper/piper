@@ -28,6 +28,8 @@
 		"label.login_or_email": "Nom d'utilisateur ou courriel",
 		"label.password": "Mot de passe",
 		"message.no_account": " Vous n'avez pas encore de compte ? {$START_LINK}Enregistrer{$CLOSE_LINK}",
-		"message.already_registered": " Vous êtes déjà inscrit ? connexion {$START_LINK}{$CLOSE_LINK}"
+		"message.already_registered": " Vous êtes déjà inscrit ? connexion {$START_LINK}{$CLOSE_LINK}",
+		"link.report_bug": " Signaler un bug {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.community": " Communauté {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
 	}
 }

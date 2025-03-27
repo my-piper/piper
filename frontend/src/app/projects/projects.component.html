@@ -18,7 +18,9 @@
 
 <div class="app-container">
   <header *ngIf="userRole.admin | can | async">
-    <button class="primary" (click)="create()">Create</button>
+    <button class="primary" i18n="@@action.create" (click)="create()">
+      Create
+    </button>
   </header>
 
   <table class="default">
@@ -26,8 +28,8 @@
       <th width="24px"></th>
       <th>Title</th>
       <th width="24px"></th>
-      <th width="150px">Created</th>
-      <th width="150px">Updated</th>
+      <th width="150px" i18n="@@action.created_at">Created</th>
+      <th width="150px" i18n="@@action.updated_at">Updated</th>
     </thead>
     <tbody>
       <tr *ngFor="let p of projects; let i = index">
@@ -41,7 +43,7 @@
                     icon="delete"
                     [size]="18"
                   ></app-icon>
-                  Delete
+                  <span i18n="@@action.delete">Delete</span>
                 </button>
               </li>
             </ul>

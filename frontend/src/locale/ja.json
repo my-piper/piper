@@ -28,6 +28,8 @@
 		"label.login_or_email": "ユーザー名またはメールアドレス",
 		"label.password": "パスワード",
 		"message.no_account": "まだアカウントをお持ちでないですか？ {$START_LINK}登録{$CLOSE_LINK}",
-		"message.already_registered": " 既に登録済みですか？ {$START_LINK}ログイン{$CLOSE_LINK}"
+		"message.already_registered": " 既に登録済みですか？ {$START_LINK}ログイン{$CLOSE_LINK}",
+		"link.report_bug": "バグを報告する{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}。",
+		"link.community": "コミュニティ {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}。"
 	}
 }

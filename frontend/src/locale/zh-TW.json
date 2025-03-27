@@ -28,6 +28,8 @@
 		"label.login_or_email": "使用者名稱或電子郵件",
 		"label.password": "密碼",
 		"message.no_account": "尚未註冊帳戶嗎？ {$START_LINK}註冊{$CLOSE_LINK}",
-		"message.already_registered": "已註冊？ {$START_LINK}登入{$CLOSE_LINK}"
+		"message.already_registered": "已註冊？ {$START_LINK}登入{$CLOSE_LINK}",
+		"link.report_bug": " 舉報錯誤 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.community": "社區 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
 	}
 }

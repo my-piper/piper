@@ -30,6 +30,8 @@
 		"label.login_or_email": "用户名或电子邮件",
 		"label.password": "密码",
 		"message.no_account": "还没有账户？{$START_LINK}注册{$CLOSE_LINK}。",
-		"message.already_registered": "已经注册？{$START_LINK}登录{$CLOSE_LINK}。"
+		"message.already_registered": "已经注册？{$START_LINK}登录{$CLOSE_LINK}。",
+		"link.report_bug": "报告错误 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.community": "社区 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
 	}
 }

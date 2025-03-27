@@ -29,6 +29,8 @@
 		"label.login_or_email": "Kullanıcı adı veya e-posta",
 		"label.password": "Şifre",
 		"message.no_account": " Henüz hesabınız yok mu? {$START_LINK}Register{$CLOSE_LINK}",
-		"message.already_registered": " Zaten kayıtlı mısınız? {$START_LINK}Login{$CLOSE_LINK}"
+		"message.already_registered": " Zaten kayıtlı mısınız? {$START_LINK}Login{$CLOSE_LINK}",
+		"link.report_bug": " Hata bildir {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.community": " Topluluk {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
 	}
 }

@@ -29,6 +29,8 @@
 		"label.login_or_email": "Nombre de usuario o correo electrónico",
 		"label.password": "Contraseña",
 		"message.no_account": " ¿Aún no tienes cuenta? {$START_LINK}Regístrese{$CLOSE_LINK}",
-		"message.already_registered": " ¿Ya se ha registrado? {$START_LINK}Iniciar sesión{$CLOSE_LINK}"
+		"message.already_registered": " ¿Ya se ha registrado? {$START_LINK}Iniciar sesión{$CLOSE_LINK}",
+		"link.report_bug": " Informar de un error {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.community": " Comunidad {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
 	}
 }

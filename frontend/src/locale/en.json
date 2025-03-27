@@ -1,6 +1,10 @@
 {
   "locale": "en",
   "translations": {
+    "label.rapid": " Rapid ",
+    "label.regular": "Regular",
+    "label.deferred": "Deferred",
+    "label.protracted": "Protracted",
     "message.uploading_image": "Uploading image",
     "action.save": " Save ",
     "link.node_packages": "Node packages",
@@ -9,6 +13,8 @@
     "link.launches": "Launches",
     "link.assets": "Assets",
     "link.users": "Users",
+    "link.report_bug": " Report a bug {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+    "link.community": " Community {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
     "action.generate_api_key": "Generate API key",
     "label.your_api_token": "Your API token",
     "label.how_to_call": "How to call",
@@ -20,6 +26,10 @@
     "action.run": "Run",
     "message.not_owner_pipeline": " You are not owner of this pipeline, but you can play with it in ",
     "link.open_playground": " Open playground {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+    "action.create": " Create ",
+    "action.created_at": "Created",
+    "action.updated_at": "Updated",
+    "action.delete": "Delete",
     "label.title": "Title",
     "label.visibility": "Visibility",
     "label.created": "Created",
@@ -36,7 +46,6 @@
     "label.send_password": "Send password to email",
     "action.register": " Register ",
     "message.already_registered": " Already registered? {$START_LINK}Login{$CLOSE_LINK}",
-    "action.create": "Create",
     "label.email": "Email",
     "label.created_at": "Created at"
   }

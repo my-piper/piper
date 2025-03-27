@@ -66,11 +66,9 @@
             font-weight: bold;
         }
 
-        button {
-            img {
-                width: 100%;
-                border-radius: $corner-small;
-            }
+        img {
+            width: 100%;
+            border-radius: $corner-small;
         }
     }
 }

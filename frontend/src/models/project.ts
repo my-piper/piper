@@ -14,6 +14,10 @@ export class Project {
   _id!: string;
 
   @Expose()
+  @Type(() => String)
+  slug!: string;
+
+  @Expose()
   @Type(() => Date)
   createdAt!: Date;
 
