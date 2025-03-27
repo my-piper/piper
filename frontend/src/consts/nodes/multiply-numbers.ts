@@ -6,10 +6,11 @@ export default plainToInstance(Node, {
   title: "Multiply 2 numbers",
   description: "Pure Java Script runtime handler",
   type: "script",
-  script: `(async () => {
+  script: `export async function run({ inputs }) {
+  const { NextNode } = DEFINITIONS;
   const { a, b } = inputs;
-  return next({outputs: { c: a * b }});
-})()`,
+  return NextNode.from({outputs: { c: a * b }});
+}`,
   arrange: {
     x: 200,
     y: 200,
