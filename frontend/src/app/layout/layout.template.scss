@@ -8,10 +8,10 @@
 header {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: $gutter-normal;
     justify-content: space-between;
     background-color: #252b56;
-    padding: 20px;
+    padding: $gutter-normal;
     gap: $gutter-normal;
 
     @include less-tablet() {
@@ -29,8 +29,22 @@ header {
         }
 
         .logo {
+            position: relative;
+
             img {
                 display: block;
+            }
+
+            .beta {
+                position: absolute;
+                top: -12px;
+                right: -8px;
+                color: white;
+                font-size: .65em;
+                padding: 2px;
+                line-height: 1em;
+                border: 1px solid white;
+                border-radius: $corner-small;
             }
         }
 
@@ -88,17 +102,22 @@ main {
 }
 
 footer {
+    margin-top: $gutter-normal;
     border-top: 1px solid $graphite-color-60;
-
 
     >div {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: $gutter-small;
+        padding: $gutter-normal;
+        gap: $gutter-small;
 
         small {
             color: $graphite-color-300;
+        }
+
+        @include less-tablet() {
+            flex-direction: column;
         }
 
         @include wider-tablet() {
