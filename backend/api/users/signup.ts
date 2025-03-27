@@ -1,9 +1,11 @@
 import bcrypt from "bcrypt";
 import { plainToInstance } from "class-transformer";
+import { INITIAL_USER_BALANCE } from "consts/billing";
 import { DataError } from "core-kit/types/errors";
 import { toPlain, validate } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import { getToken } from "logic/users/auth";
+import { refillBalance } from "logic/users/refill-balance";
 import { ulid } from "ulid";
 import { api } from "../../app/api";
 import mongo from "../../app/mongo";
@@ -39,6 +41,10 @@ api.post(
       }
 
       throw err;
+    }
+
+    if (INITIAL_USER_BALANCE > 0) {
+      await refillBalance(_id, INITIAL_USER_BALANCE);
     }
 
     return toPlain(new Authorization({ token: getToken(user), user }));
