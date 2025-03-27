@@ -6,6 +6,8 @@ import { list } from "./get-installed";
 
 export async function update() {
   const packageJson = await list();
-  const json = JSON.stringify(toPlain(packageJson), null, 2);
-  await writeFile(path.join(MODULES_PATH, "package.json"), json);
+  if (!!packageJson) {
+    const json = JSON.stringify(toPlain(packageJson), null, 2);
+    await writeFile(path.join(MODULES_PATH, "package.json"), json);
+  }
 }

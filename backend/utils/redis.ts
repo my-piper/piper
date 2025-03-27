@@ -1,6 +1,5 @@
 import { plainToInstance } from "class-transformer";
 import { toInstance, toPlain } from "core-kit/utils/models";
-import { LAUNCH_EXPIRED } from "../consts/redis";
 import { redis } from "../core-kit/services/redis/redis";
 import { Primitive } from "../types/primitive";
 
@@ -51,7 +50,7 @@ export async function readInstance<T>(
 }
 
 export async function saveInstance<T>(key: string, data: T) {
-  await redis.setEx(key, LAUNCH_EXPIRED, JSON.stringify(toPlain(data)));
+  await redis.set(key, JSON.stringify(toPlain(data)));
 }
 
 export async function readObject(key: string): Promise<object | null> {
@@ -60,7 +59,7 @@ export async function readObject(key: string): Promise<object | null> {
 }
 
 export async function saveObject(key: string, data: Object) {
-  await redis.setEx(key, LAUNCH_EXPIRED, JSON.stringify(data));
+  await redis.set(key, JSON.stringify(data));
 }
 
 export async function loadRange<T>(

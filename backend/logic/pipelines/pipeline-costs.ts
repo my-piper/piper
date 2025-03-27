@@ -1,3 +1,4 @@
+import { createLogger } from "core-kit/services/logger";
 import assign from "lodash/assign";
 import { SourceTextModule } from "node:vm";
 import { NodeInputs } from "types/node";
@@ -6,11 +7,12 @@ import { LaunchRequest, NodeToLaunch } from "../../models/launch-request";
 import { NodeCosts, Pipeline, PipelineCosts } from "../../models/pipeline";
 import { Primitive } from "../../types/primitive";
 
+const logger = createLogger("pipeline-costs");
+
 async function run(code: string, inputs: NodeInputs): Promise<number> {
   const script = new SourceTextModule(code);
   await script.link(() => null);
-
-  script.evaluate();
+  await script.evaluate();
   const { costs: action } = script.namespace as {
     costs: ({ inputs }: { inputs: NodeInputs }) => Promise<number>;
   };

@@ -4,6 +4,7 @@ import "reflect-metadata";
 import { Expose, Type } from "class-transformer";
 import { BILLING_URL } from "consts/billing";
 import { createLogger } from "core-kit/services/logger";
+import sentry from "core-kit/services/sentry";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import express from "express";
 import { readFile } from "fs/promises";
@@ -84,6 +85,18 @@ if (NODE_ENV === "production") {
     })
   );
 }
+
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught exception");
+  logger.error(error);
+  sentry.captureException(error);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("Unhandled rejection");
+  logger.error(reason);
+  sentry.captureException(reason);
+});
 
 export const PORT =
   (() => {

@@ -106,21 +106,17 @@ commander
   });
 
 commander
-  .command("set-variable")
-  .option("--name <name>")
-  .option("--value <value>")
-  .action(async ({ name, value }: { name: string; value: string }) => {
+  .command("set-variable <name> <value>")
+  .action(async (name: string, value: string) => {
+    console.log(`Set variable ${name} ${value}`);
     await environment.set(name, value);
     process.exit();
   });
 
-commander
-  .command("remove-variable")
-  .option("--name <name>")
-  .action(async ({ name }: { name: string }) => {
-    await environment.remove(name);
-    process.exit();
-  });
+commander.command("remove-variable <name>").action(async (name: string) => {
+  await environment.remove(name);
+  process.exit();
+});
 
 commander.command("environment").action(async () => {
   console.log(toPlain(await environment.get()));
