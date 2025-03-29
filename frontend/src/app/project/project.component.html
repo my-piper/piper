@@ -1,8 +1,8 @@
 <ng-template #errorTemplate>
   <div class="informer errors">
     <p>{{ error.message }}</p>
-    <ul *ngIf="error?.details as details">
-      <li *ngFor="let m of details">{{ m }}</li>
+    <ul>
+      <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
     <p>Your data were not saved!</p>
     <div class="stack horizontal justify-center">

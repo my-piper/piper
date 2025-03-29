@@ -3,7 +3,6 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnInit,
   Output,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
@@ -15,6 +14,8 @@ import { UserRole } from "src/models/user";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { Languages } from "src/ui-kit/enums/languages";
+import { getLabel } from "src/ui-kit/utils/i18n";
 import { toInstance } from "src/utils/models";
 
 @Component({
@@ -22,7 +23,7 @@ import { toInstance } from "src/utils/models";
   templateUrl: "./edit-project.component.html",
   styleUrls: ["./edit-project.component.scss"],
 })
-export class EditProjectComponent implements OnInit {
+export class EditProjectComponent {
   origin = location.origin;
   userRole = UserRole;
 
@@ -50,6 +51,7 @@ export class EditProjectComponent implements OnInit {
   );
   form = this.fb.group({
     visibility: this.visibilityControl,
+    slug: this.fb.control<string>(null),
   });
 
   constructor(
@@ -58,13 +60,13 @@ export class EditProjectComponent implements OnInit {
     private cd: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
-    this.form.valueChanges.subscribe(() => this.save());
-  }
-
   private build() {
-    const { visibility } = this.project;
-    this.form.patchValue({ visibility });
+    const { title, visibility, slug } = this.project;
+    this.form.patchValue({
+      visibility,
+      slug:
+        slug || getLabel(title, Languages.en).toLowerCase().replace(/\s/g, "-"),
+    });
   }
 
   save() {
@@ -76,8 +78,8 @@ export class EditProjectComponent implements OnInit {
     this.progress.saving = true;
     this.cd.detectChanges();
 
-    const { visibility } = this.form.getRawValue();
-    const request = new Project({ visibility });
+    const { visibility, slug } = this.form.getRawValue();
+    const request = new Project({ visibility, slug });
     this.http
       .post(`projects/${this.project._id}`, request)
       .pipe(

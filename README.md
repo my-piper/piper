@@ -26,6 +26,12 @@ Compile schemas
 make schemas
 ```
 
+Create Mongo indexes
+
+```bash
+npm run cli mongo create
+```
+
 Run backend
 
 ```bash

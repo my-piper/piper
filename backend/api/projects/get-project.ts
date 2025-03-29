@@ -11,7 +11,12 @@ api.get(
   handle(({ currentUser }) => async ({ params: { _id } }) => {
     checkLogged(currentUser);
 
-    const project = toModel(await mongo.projects.findOne({ _id }), Project);
+    const project = toModel(
+      await mongo.projects.findOne({
+        $or: [{ _id }, { slug: _id }],
+      }),
+      Project
+    );
 
     const { environment } = project;
     if (!!environment) {

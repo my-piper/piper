@@ -5,6 +5,7 @@
   display: block;
 }
 
-form {
+form,
+fieldset {
   @include vertical-stack();
 }

@@ -38,7 +38,9 @@ export class PlayWithProjectComponent {
   }
 
   go(project: Project) {
-    this.router.navigate(["..", project._id], { relativeTo: this.route });
+    this.router.navigate(["..", project.slug || project._id], {
+      relativeTo: this.route,
+    });
     this.instances.popopver?.hide();
   }
 

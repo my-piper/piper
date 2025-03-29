@@ -7,7 +7,7 @@
     },
     "slug": {
       "type": "string",
-      "pattern": "^[a-z0-9_]{5,40}$"
+      "pattern": "^[a-z0-9_\\-]{5,40}$"
     },
     "revision": {
       "type": "string"

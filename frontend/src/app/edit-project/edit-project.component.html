@@ -1,10 +1,8 @@
 <ng-template #errorTemplate>
   <div class="informer errors">
     <p>{{ error.message }}</p>
-    <ul *ngFor="let m of error?.details">
-      {{
-        m
-      }}
+    <ul>
+      <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
     <p>Your data were not saved!</p>
     <div class="stack horizontal justify-center">
@@ -45,10 +43,27 @@
         <span>Public</span>
       </label>
     </div>
+    <input
+      *ngIf="visibilityControl.value !== 'private'"
+      class="input-primary fluid"
+      type="text"
+      formControlName="slug"
+    />
   </fieldset>
+  <footer>
+    <button
+      class="primary"
+      type="button"
+      [class.busy]="progress.saving"
+      [disabled]="progress.saving"
+      (click)="save()"
+    >
+      Save
+    </button>
+  </footer>
 </form>
 
 <ng-container *ngIf="['shared', 'public'] | includes: visibilityControl.value">
   <p>Link to share:</p>
-  <pre>{{ origin }}/play/{{ project._id }}</pre>
+  <pre>{{ origin }}/play/{{ project.slug || project._id }}</pre>
 </ng-container>

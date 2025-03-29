@@ -44,12 +44,42 @@ commander.command("compile-schemas").action(async () => {
   process.exit();
 });
 
-commander.command("created-indexes").action(async () => {
-  console.log("Create indexes in mongo");
-  await mongo.users.createIndexes([{ key: { email: 1 }, unique: true }]);
-  console.log("Done 😮");
-  process.exit();
-});
+{
+  const commands = new Command("mongo").action(async () => {
+    console.log(toPlain(await modules.list()));
+    process.exit();
+  });
+  commands.command("create").action(async () => {
+    console.log("Create indexes in mongo");
+    try {
+      await mongo.users.createIndexes([{ key: { email: 1 }, unique: true }]);
+      await mongo.projects.createIndex(
+        { slug: 1 },
+        { unique: true, partialFilterExpression: { slug: { $exists: true } } }
+      );
+    } catch (e) {
+      if (e.code === 11000) {
+        // skip
+      } else {
+        throw e;
+      }
+    }
+
+    console.log("Done 😮");
+    process.exit();
+  });
+
+  commands.command("state").action(async () => {
+    console.log("Indexes in mongo");
+    console.log(await mongo.users.indexes());
+    console.log(await mongo.projects.indexes());
+
+    console.log("Done 😮");
+    process.exit();
+  });
+
+  commander.addCommand(commands);
+}
 
 commander
   .command("refill-balance")
