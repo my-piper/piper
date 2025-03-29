@@ -38,7 +38,10 @@
 
 <div class="app-container">
   <header>
-    <a class="primary" [routerLink]="['add']" i18n="@@action.create">Create</a>
+    <a class="primary with-icon" [routerLink]="['add']" i18n="@@action.create">
+      <app-icon class="icon left" icon="add"></app-icon>
+      Create
+    </a>
   </header>
 
   <table class="default">

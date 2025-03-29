@@ -18,7 +18,15 @@
 
 <div class="app-container">
   <header *ngIf="userRole.admin | can | async">
-    <button class="primary" i18n="@@action.create" (click)="create()">
+    <button
+      class="primary with-icon"
+      [routerLink]="['add']"
+      i18n="@@action.create"
+      [class.busy]="progress.creating"
+      [disabled]="progress.creating"
+      (click)="create()"
+    >
+      <app-icon class="icon left" icon="add"></app-icon>
       Create
     </button>
   </header>

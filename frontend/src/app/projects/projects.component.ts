@@ -38,7 +38,7 @@ export class ProjectsComponent implements OnInit {
   userRole = UserRole;
 
   error!: Error;
-  progress = { loading: false, deleting: false };
+  progress = { loading: false, creating: false, deleting: false };
 
   references: { popover: PopoverComponent } = { popover: null };
 
@@ -90,6 +90,9 @@ export class ProjectsComponent implements OnInit {
   }
 
   create() {
+    this.progress.creating = true;
+    this.cd.detectChanges();
+
     const request = new Project({
       title: "Test project",
       pipeline: plainToInstance(Pipeline, YAML.parse(TEST_PIPELINE)),
@@ -100,7 +103,7 @@ export class ProjectsComponent implements OnInit {
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
-          this.progress.deleting = false;
+          this.progress.creating = false;
           this.references?.popover?.hide();
           this.cd.detectChanges();
         }),

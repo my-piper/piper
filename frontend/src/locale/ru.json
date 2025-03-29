@@ -32,6 +32,9 @@
 		"message.no_account": " Еще нет аккаунта? {$START_LINK}Регистрация{$CLOSE_LINK}",
 		"message.already_registered": " Уже зарегистрированы? {$START_LINK}Войти{$CLOSE_LINK}",
 		"link.report_bug": " Сообщить об ошибке {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"link.community": " Сообщество {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
+		"link.community": " Сообщество {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Расходы",
+		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Выход из системы",
+		"label.refill_balance": "Баланс пополнения:"
 	}
 }

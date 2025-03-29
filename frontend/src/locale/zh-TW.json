@@ -30,6 +30,9 @@
 		"message.no_account": "尚未註冊帳戶嗎？ {$START_LINK}註冊{$CLOSE_LINK}",
 		"message.already_registered": "已註冊？ {$START_LINK}登入{$CLOSE_LINK}",
 		"link.report_bug": " 舉報錯誤 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"link.community": "社區 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
+		"link.community": "社區 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 費用",
+		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 登出",
+		"label.refill_balance": "補充餘額:"
 	}
 }

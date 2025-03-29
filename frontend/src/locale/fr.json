@@ -30,6 +30,9 @@
 		"message.no_account": " Vous n'avez pas encore de compte ? {$START_LINK}Enregistrer{$CLOSE_LINK}",
 		"message.already_registered": " Vous êtes déjà inscrit ? connexion {$START_LINK}{$CLOSE_LINK}",
 		"link.report_bug": " Signaler un bug {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"link.community": " Communauté {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
+		"link.community": " Communauté {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Dépenses",
+		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Déconnexion",
+		"label.refill_balance": "Solde de recharge :"
 	}
 }

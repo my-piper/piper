@@ -30,6 +30,9 @@
 		"message.no_account": "まだアカウントをお持ちでないですか？ {$START_LINK}登録{$CLOSE_LINK}",
 		"message.already_registered": " 既に登録済みですか？ {$START_LINK}ログイン{$CLOSE_LINK}",
 		"link.report_bug": "バグを報告する{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}。",
-		"link.community": "コミュニティ {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}。"
+		"link.community": "コミュニティ {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}。",
+		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 費用",
+		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} ログアウト",
+		"label.refill_balance": "補充バランス："
 	}
 }

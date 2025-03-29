@@ -30,6 +30,9 @@
 		"message.no_account": "अभी तक खाता नहीं है? {$START_LINK}रजिस्टर करें{$CLOSE_LINK}",
 		"message.already_registered": "क्या आप पहले से रजिस्टर्ड हैं? {$START_LINK}लॉगिन करें{$CLOSE_LINK}",
 		"link.report_bug": "समस्या की रिपोर्ट करें {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"link.community": " समुदाय {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
+		"link.community": " समुदाय {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} खर्चे",
+		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} लॉगआउट",
+		"label.refill_balance": "बैलेंस रिफिल करें:"
 	}
 }

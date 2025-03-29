@@ -30,6 +30,9 @@
 		"message.no_account": " 아직 계정이 없으신가요? {$START_LINK}등록{$CLOSE_LINK}",
 		"message.already_registered": " 이미 등록하셨나요? {$START_LINK}로그인{$CLOSE_LINK}",
 		"link.report_bug": " 버그 신고 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"link.community": " 커뮤니티 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
+		"link.community": " 커뮤니티 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 비용",
+		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 로그아웃",
+		"label.refill_balance": "잔액 리필:"
 	}
 }

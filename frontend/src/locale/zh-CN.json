@@ -32,6 +32,9 @@
 		"message.no_account": "还没有账户？{$START_LINK}注册{$CLOSE_LINK}。",
 		"message.already_registered": "已经注册？{$START_LINK}登录{$CLOSE_LINK}。",
 		"link.report_bug": "报告错误 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"link.community": "社区 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}"
+		"link.community": "社区 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Expenses",
+		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 注销",
+		"label.refill_balance": "补充余额："
 	}
 }
