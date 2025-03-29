@@ -4,6 +4,7 @@ import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { toPairs } from "lodash";
 import { delay, finalize, map } from "rxjs";
+import { AppError } from "src/models/errors";
 import { Launch } from "src/models/launch";
 import { LaunchRequest } from "src/models/launch-request";
 import { Project } from "src/models/project";
@@ -21,6 +22,7 @@ import { toPlain } from "src/utils/models";
 })
 export class ProjectPlaygroundComponent {
   progress = { launching: false };
+  error!: AppError;
 
   project!: Project;
   request!: LaunchRequest;
@@ -129,8 +131,9 @@ export class ProjectPlaygroundComponent {
         }),
         map((json) => plainToInstance(Launch, json as Object))
       )
-      .subscribe((launch) =>
-        this.signals.emit(new PipelineLaunchedSignal(launch))
-      );
+      .subscribe({
+        next: (launch) => this.signals.emit(new PipelineLaunchedSignal(launch)),
+        error: (err) => (this.error = err),
+      });
   }
 }

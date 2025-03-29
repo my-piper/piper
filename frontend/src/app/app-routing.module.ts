@@ -457,7 +457,6 @@ const routes: Routes = [
     AppModule,
     RouterModule.forRoot(routes, {
       paramsInheritanceStrategy: "always",
-      scrollPositionRestoration: "top",
     }),
   ],
   bootstrap: [AppComponent],

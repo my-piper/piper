@@ -64,7 +64,7 @@
           </button>
         </td>
         <td i18n-title="@@label.title" title="Title">
-          <a [routerLink]="[p._id]">
+          <a [routerLink]="[p._id]" [state]="{ scroll: 'top' }">
             {{ p.title | i18n }}
           </a>
         </td>

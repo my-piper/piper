@@ -4,15 +4,16 @@ import { Launch, LaunchOptions } from "models/launch";
 import { LaunchRequest } from "models/launch-request";
 import { Project } from "models/project";
 import { User } from "models/user";
+import { checkBalance, checkLogged, handle } from "utils/http";
 import { api } from "../../app/api";
 import * as deploys from "../../logic/deploy";
 import * as launches from "../../logic/launches";
-import { checkLogged, handle } from "../../utils/http";
 
 api.post(
   "/api/:slug/launch",
   handle(({ currentUser }) => async ({ params: { slug }, body, ip }) => {
     checkLogged(currentUser);
+    checkBalance(currentUser);
 
     const {
       project,

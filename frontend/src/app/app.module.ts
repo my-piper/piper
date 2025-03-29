@@ -1,6 +1,6 @@
 import { APP_BASE_HREF, DOCUMENT } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
-import { NgModule } from "@angular/core";
+import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
@@ -57,6 +57,7 @@ import { SplitPipe } from "src/pipes/split";
 import { ValuesPipe } from "src/pipes/values";
 import { YamlPipe } from "src/pipes/yaml";
 import { appConfigFactory } from "src/providers/app-config";
+import { ScrollTopListener } from "src/providers/scroll-top.listener";
 import { baseHrefFactory } from "src/ui-kit/providers/base-href";
 import {
   CURRENT_LANGUAGE,
@@ -247,6 +248,12 @@ import { UsersComponent } from "./users/users.component";
       provide: CURRENT_LANGUAGE,
       useFactory: currentLangFactory,
       deps: [APP_BASE_HREF],
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => () => {},
+      deps: [ScrollTopListener],
+      multi: true,
     },
   ],
 })

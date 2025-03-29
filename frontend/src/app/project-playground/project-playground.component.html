@@ -1,3 +1,21 @@
+<ng-template #errorTemplate>
+  <div class="informer errors">
+    <p>{{ error.message }}</p>
+    <ul *ngIf="error?.details as details">
+      <li *ngFor="let m of details">{{ m }}</li>
+    </ul>
+    <div class="stack horizontal justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
+<app-informer
+  *ngIf="!!error"
+  [contentTemplate]="errorTemplate"
+  (ok)="error = null"
+></app-informer>
+
 <ng-container [formGroup]="form">
   <div class="inputs" formGroupName="inputs">
     <div

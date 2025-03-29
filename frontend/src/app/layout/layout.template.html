@@ -9,6 +9,7 @@
       <li *ngIf="userRole.admin | can | async">
         <a
           [routerLink]="['packages']"
+          [state]="{scroll: 'top'}"
           routerLinkActive="active"
           i18n="@@link.node_packages"
           >Node packages</a
@@ -17,6 +18,7 @@
       <li>
         <a
           [routerLink]="['projects']"
+          [state]="{scroll: 'top'}"
           routerLinkActive="active"
           i18n="@@link.pipelines"
           >Pipelines</a
@@ -25,6 +27,7 @@
       <li>
         <a
           [routerLink]="['play']"
+          [state]="{scroll: 'top'}"
           routerLinkActive="active"
           i18n="@@link.playground"
           >Playground</a
@@ -33,6 +36,7 @@
       <li>
         <a
           [routerLink]="['launches']"
+          [state]="{scroll: 'top'}"
           routerLinkActive="active"
           i18n="@@link.launches"
           >Launches</a
@@ -41,6 +45,7 @@
       <li>
         <a
           [routerLink]="['assets']"
+          [state]="{scroll: 'top'}"
           routerLinkActive="active"
           i18n="@@link.assets"
           >Assets</a
@@ -49,6 +54,7 @@
       <li *ngIf="userRole.admin | can | async">
         <a
           [routerLink]="['users']"
+          [state]="{scroll: 'top'}"
           routerLinkActive="active"
           i18n="@@link.users"
           >Users</a

@@ -186,6 +186,13 @@ export function checkRoles(user: User, roles: UserRole | UserRole[]) {
   );
 }
 
+export function checkBalance(user: User) {
+  checkLogged(user);
+  if (user.balance.remaining || 0 < 0) {
+    throw new DataError("Please, charge you balance");
+  }
+}
+
 export function toModels<T>(arr: Object[], model: new () => T): T[] {
   return arr.map((o) => toInstance(o, model));
 }

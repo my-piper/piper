@@ -14,6 +14,9 @@ export class SelectPlaygroundPageComponent {
   ) {}
 
   go(project: Project) {
-    this.router.navigate([project._id], { relativeTo: this.route });
+    this.router.navigate([project._id], {
+      relativeTo: this.route,
+      state: { scroll: "top" },
+    });
   }
 }
