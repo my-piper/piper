@@ -5,6 +5,7 @@ import { RELOAD_WORKER_CHANNEL } from "consts/signals";
 import { createLogger } from "core-kit/services/logger";
 import { JobsQueue } from "core-kit/services/queue";
 import { redis } from "core-kit/services/redis";
+import sentry from "core-kit/services/sentry";
 import { FatalError } from "core-kit/types/errors";
 import { secondsToMilliseconds } from "date-fns";
 import express from "express";
@@ -265,6 +266,18 @@ if (options.reboot) {
     setTimeout(() => shutdown(), secondsToMilliseconds(timeout));
   });
 }
+
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught exception");
+  logger.error(error);
+  sentry.captureException(error);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("Unhandled rejection");
+  logger.error(reason);
+  sentry.captureException(reason);
+});
 
 process.on("SIGINT", async (signal) => {
   logger.info(`Our process ${process.pid} has been interrupted ${signal}`);

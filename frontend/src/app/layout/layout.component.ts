@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { AppConfig } from "src/models/app-config";
 import { UserRole } from "src/models/user";
 
 @Component({
@@ -10,5 +10,5 @@ import { UserRole } from "src/models/user";
 export class AppLayoutComponent {
   userRole = UserRole;
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(public appConfig: AppConfig) {}
 }

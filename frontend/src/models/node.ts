@@ -57,10 +57,6 @@ export class NodeCategory {
 export class NodeCatalog {
   @Expose()
   @Type(() => String)
-  id: string;
-
-  @Expose()
-  @Type(() => String)
   _id: string;
 
   @Expose()

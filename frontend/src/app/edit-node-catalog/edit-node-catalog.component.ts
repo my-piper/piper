@@ -10,6 +10,8 @@ import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { Languages } from "src/ui-kit/enums/languages";
+import { getLabel } from "src/ui-kit/utils/i18n";
 import { toInstance, toPlain } from "src/utils/models";
 
 @Component({
@@ -61,7 +63,9 @@ export class EditNodeCatalogComponent implements OnInit {
 
   create() {
     const catalog = new NodeCatalog({
-      id: this.node.title.toLowerCase().replace(/\s/g, "_"),
+      _id: getLabel(this.node.title, Languages.en)
+        .toLowerCase()
+        .replace(/\s/g, "_"),
       version: 1,
       package: "some_package",
     });

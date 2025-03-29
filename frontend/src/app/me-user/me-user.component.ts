@@ -1,6 +1,7 @@
 import {
   Component,
   ComponentFactoryResolver,
+  Inject,
   Injector,
   OnInit,
 } from "@angular/core";
@@ -9,7 +10,9 @@ import { Router } from "@angular/router";
 import { AppConfig } from "src/models/app-config";
 import { HttpService } from "src/services/http.service";
 import { MeManager } from "src/services/me.service";
+import { Languages } from "src/ui-kit/enums/languages";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
+import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 import { ModalService } from "../../ui-kit/modal/modal.service";
 import { NsfwDisclaimer } from "../nsfw-disclaimer/nsfw-disclaimer.component";
 
@@ -29,6 +32,7 @@ export class MeUserComponent implements OnInit {
   });
 
   constructor(
+    @Inject(CURRENT_LANGUAGE) public language: Languages,
     public me: MeManager,
     public config: AppConfig,
     private fb: FormBuilder,

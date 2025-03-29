@@ -12,6 +12,7 @@ import { LaunchComponent } from "src/app/launch/launch.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
 import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
+import { AnonymousGuard } from "src/guards/anonymous.guard";
 import { ShouldCheckReadmeGuard } from "src/guards/pipeline-readme";
 import { SigninNeededGuard } from "src/guards/signin.guard";
 import { AssetsFilterResolver } from "src/resolvers/assets-filter";
@@ -121,10 +122,12 @@ const routes: Routes = [
   },
   {
     path: "login",
+    canActivate: [AnonymousGuard],
     component: LoginComponent,
   },
   {
     path: "signup",
+    canActivate: [AnonymousGuard],
     component: SigupComponent,
   },
   {

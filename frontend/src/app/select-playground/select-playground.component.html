@@ -18,15 +18,15 @@
 </button>
 
 <form [formGroup]="form" class="categories">
-  <label
+  <button
     *ngFor="let c of categories"
-    [class.selected]="categoryControl.value === c._id"
+    formControlName="category"
+    [appSelectable]="{ value: c._id }"
   >
-    <input type="radio" [value]="c._id" formControlName="category" />
     <app-icon [icon]="c.icon"></app-icon>
     {{ c.title | i18n }}
     <span class="badge">{{ c.projects }}</span>
-  </label>
+  </button>
 </form>
 
 <div class="projects cards" [class.busy-block]="progress.loading.projects">

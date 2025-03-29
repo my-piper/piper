@@ -34,11 +34,6 @@
     "category": {
       "type": "object",
       "properties": {
-        "id": {
-          "title": "ID (deprecated)",
-          "type": "string",
-          "propertyOrder": 1
-        },
         "_id": {
           "title": "ID",
           "type": "string",
@@ -286,11 +281,6 @@
       "title": "Catalog",
       "type": "object",
       "properties": {
-        "id": {
-          "title": "ID (deprecated)",
-          "type": "string",
-          "propertyOrder": 1
-        },
         "_id": {
           "title": "ID",
           "type": "string",
@@ -306,11 +296,6 @@
         "category": {
           "type": "object",
           "properties": {
-            "id": {
-              "title": "ID (deprecated)",
-              "type": "string",
-              "propertyOrder": 1
-            },
             "_id": {
               "title": "ID",
               "type": "string",
@@ -337,7 +322,7 @@
           "pattern": "^[a-z0-9_]{3,40}$"
         }
       },
-      "required": ["_id", "id", "version", "category", "package"],
+      "required": ["_id", "version", "category", "package"],
       "additionalProperties": false
     },
     "Environment": {

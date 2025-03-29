@@ -86,11 +86,6 @@
 						"category": {
 							"type": "object",
 							"properties": {
-								"id": {
-									"title": "ID (deprecated)",
-									"type": "string",
-									"propertyOrder": 1
-								},
 								"_id": {
 									"title": "ID",
 									"type": "string",
@@ -202,11 +197,6 @@
 							"title": "Catalog",
 							"type": "object",
 							"properties": {
-								"id": {
-									"title": "ID (deprecated)",
-									"type": "string",
-									"propertyOrder": 1
-								},
 								"_id": {
 									"title": "ID",
 									"type": "string",
@@ -222,11 +212,6 @@
 								"category": {
 									"type": "object",
 									"properties": {
-										"id": {
-											"title": "ID (deprecated)",
-											"type": "string",
-											"propertyOrder": 1
-										},
 										"_id": {
 											"title": "ID",
 											"type": "string",
@@ -258,7 +243,6 @@
 							},
 							"required": [
 								"_id",
-								"id",
 								"version",
 								"category",
 								"package"
@@ -936,11 +920,6 @@
 							"title": "Catalog",
 							"type": "object",
 							"properties": {
-								"id": {
-									"title": "ID (deprecated)",
-									"type": "string",
-									"propertyOrder": 1
-								},
 								"_id": {
 									"title": "ID",
 									"type": "string",
@@ -956,11 +935,6 @@
 								"category": {
 									"type": "object",
 									"properties": {
-										"id": {
-											"title": "ID (deprecated)",
-											"type": "string",
-											"propertyOrder": 1
-										},
 										"_id": {
 											"title": "ID",
 											"type": "string",
@@ -992,7 +966,6 @@
 							},
 							"required": [
 								"_id",
-								"id",
 								"version",
 								"category",
 								"package"
@@ -1096,11 +1069,6 @@
 			"category": {
 				"type": "object",
 				"properties": {
-					"id": {
-						"title": "ID (deprecated)",
-						"type": "string",
-						"propertyOrder": 1
-					},
 					"_id": {
 						"title": "ID",
 						"type": "string",
@@ -1212,11 +1180,6 @@
 				"title": "Catalog",
 				"type": "object",
 				"properties": {
-					"id": {
-						"title": "ID (deprecated)",
-						"type": "string",
-						"propertyOrder": 1
-					},
 					"_id": {
 						"title": "ID",
 						"type": "string",
@@ -1232,11 +1195,6 @@
 					"category": {
 						"type": "object",
 						"properties": {
-							"id": {
-								"title": "ID (deprecated)",
-								"type": "string",
-								"propertyOrder": 1
-							},
 							"_id": {
 								"title": "ID",
 								"type": "string",
@@ -1268,7 +1226,6 @@
 				},
 				"required": [
 					"_id",
-					"id",
 					"version",
 					"category",
 					"package"
@@ -1946,11 +1903,6 @@
 				"title": "Catalog",
 				"type": "object",
 				"properties": {
-					"id": {
-						"title": "ID (deprecated)",
-						"type": "string",
-						"propertyOrder": 1
-					},
 					"_id": {
 						"title": "ID",
 						"type": "string",
@@ -1966,11 +1918,6 @@
 					"category": {
 						"type": "object",
 						"properties": {
-							"id": {
-								"title": "ID (deprecated)",
-								"type": "string",
-								"propertyOrder": 1
-							},
 							"_id": {
 								"title": "ID",
 								"type": "string",
@@ -2002,7 +1949,6 @@
 				},
 				"required": [
 					"_id",
-					"id",
 					"version",
 					"category",
 					"package"
@@ -2174,8 +2120,7 @@
 							},
 							"maxConcurrent": {
 								"title": "Max concurrent",
-								"type": "number",
-								"pattern": "^(100|[2-9]|[1-9]\\d)$"
+								"type": "number"
 							}
 						},
 						"required": [
@@ -2485,11 +2430,6 @@
 						"category": {
 							"type": "object",
 							"properties": {
-								"id": {
-									"title": "ID (deprecated)",
-									"type": "string",
-									"propertyOrder": 1
-								},
 								"_id": {
 									"title": "ID",
 									"type": "string",
@@ -2601,11 +2541,6 @@
 							"title": "Catalog",
 							"type": "object",
 							"properties": {
-								"id": {
-									"title": "ID (deprecated)",
-									"type": "string",
-									"propertyOrder": 1
-								},
 								"_id": {
 									"title": "ID",
 									"type": "string",
@@ -2621,11 +2556,6 @@
 								"category": {
 									"type": "object",
 									"properties": {
-										"id": {
-											"title": "ID (deprecated)",
-											"type": "string",
-											"propertyOrder": 1
-										},
 										"_id": {
 											"title": "ID",
 											"type": "string",
@@ -2657,7 +2587,6 @@
 							},
 							"required": [
 								"_id",
-								"id",
 								"version",
 								"category",
 								"package"
@@ -3335,11 +3264,6 @@
 							"title": "Catalog",
 							"type": "object",
 							"properties": {
-								"id": {
-									"title": "ID (deprecated)",
-									"type": "string",
-									"propertyOrder": 1
-								},
 								"_id": {
 									"title": "ID",
 									"type": "string",
@@ -3355,11 +3279,6 @@
 								"category": {
 									"type": "object",
 									"properties": {
-										"id": {
-											"title": "ID (deprecated)",
-											"type": "string",
-											"propertyOrder": 1
-										},
 										"_id": {
 											"title": "ID",
 											"type": "string",
@@ -3391,7 +3310,6 @@
 							},
 							"required": [
 								"_id",
-								"id",
 								"version",
 								"category",
 								"package"
@@ -3526,8 +3444,7 @@
 							},
 							"maxConcurrent": {
 								"title": "Max concurrent",
-								"type": "number",
-								"pattern": "^(100|[2-9]|[1-9]\\d)$"
+								"type": "number"
 							}
 						},
 						"required": [
@@ -3831,7 +3748,7 @@
 			"_id": {
 				"type": "string",
 				"title": "Login",
-				"pattern": "^[a-z0-9-_]{3,10}$",
+				"pattern": "^[a-z0-9\\-\\_\\.]{3,15}$",
 				"propertyOrder": 1
 			},
 			"password": {
@@ -3870,6 +3787,10 @@
 		"properties": {
 			"_id": {
 				"type": "string"
+			},
+			"slug": {
+				"type": "string",
+				"pattern": "^[a-z0-9_]{5,40}$"
 			},
 			"revision": {
 				"type": "string"
@@ -4023,8 +3944,7 @@
 									},
 									"maxConcurrent": {
 										"title": "Max concurrent",
-										"type": "number",
-										"pattern": "^(100|[2-9]|[1-9]\\d)$"
+										"type": "number"
 									}
 								},
 								"required": [
@@ -4334,11 +4254,6 @@
 								"category": {
 									"type": "object",
 									"properties": {
-										"id": {
-											"title": "ID (deprecated)",
-											"type": "string",
-											"propertyOrder": 1
-										},
 										"_id": {
 											"title": "ID",
 											"type": "string",
@@ -4450,11 +4365,6 @@
 									"title": "Catalog",
 									"type": "object",
 									"properties": {
-										"id": {
-											"title": "ID (deprecated)",
-											"type": "string",
-											"propertyOrder": 1
-										},
 										"_id": {
 											"title": "ID",
 											"type": "string",
@@ -4470,11 +4380,6 @@
 										"category": {
 											"type": "object",
 											"properties": {
-												"id": {
-													"title": "ID (deprecated)",
-													"type": "string",
-													"propertyOrder": 1
-												},
 												"_id": {
 													"title": "ID",
 													"type": "string",
@@ -4506,7 +4411,6 @@
 									},
 									"required": [
 										"_id",
-										"id",
 										"version",
 										"category",
 										"package"
@@ -5184,11 +5088,6 @@
 									"title": "Catalog",
 									"type": "object",
 									"properties": {
-										"id": {
-											"title": "ID (deprecated)",
-											"type": "string",
-											"propertyOrder": 1
-										},
 										"_id": {
 											"title": "ID",
 											"type": "string",
@@ -5204,11 +5103,6 @@
 										"category": {
 											"type": "object",
 											"properties": {
-												"id": {
-													"title": "ID (deprecated)",
-													"type": "string",
-													"propertyOrder": 1
-												},
 												"_id": {
 													"title": "ID",
 													"type": "string",
@@ -5240,7 +5134,6 @@
 									},
 									"required": [
 										"_id",
-										"id",
 										"version",
 										"category",
 										"package"
@@ -5375,8 +5268,7 @@
 									},
 									"maxConcurrent": {
 										"title": "Max concurrent",
-										"type": "number",
-										"pattern": "^(100|[2-9]|[1-9]\\d)$"
+										"type": "number"
 									}
 								},
 								"required": [

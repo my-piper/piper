@@ -18,7 +18,7 @@
     flex-wrap: wrap;
     gap: $gutter-normal;
 
-    label {
+    button {
         @include reset-button();
         position: relative;
         display: flex;

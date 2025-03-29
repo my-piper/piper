@@ -27,7 +27,13 @@ import "./api/projects";
 import "./api/users";
 import "./api/utils";
 import { api } from "./app/api";
-import { BASE_URL, FRONTEND_ROOT, LANGUAGES, NODE_ENV } from "./consts/core";
+import {
+  BASE_URL,
+  FRONTEND_ROOT,
+  LANGUAGES,
+  NODE_ENV,
+  SITE_URL,
+} from "./consts/core";
 import { NO_CACHE_HEADERS } from "./consts/http";
 import { AppConfig } from "./models/app-config";
 import { handle } from "./utils/http";
@@ -58,6 +64,7 @@ if (NODE_ENV === "production") {
               url: BILLING_URL,
             },
             baseUrl: BASE_URL,
+            siteUrl: SITE_URL,
           },
         },
         Prerender
