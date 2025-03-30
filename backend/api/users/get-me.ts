@@ -1,6 +1,6 @@
+import api from "app/api";
 import { toPlain } from "core-kit/utils/models";
-import { api } from "../../app/api";
-import { checkLogged, handle } from "../../utils/http";
+import { checkLogged, handle } from "utils/http";
 
 api.get(
   "/api/me",

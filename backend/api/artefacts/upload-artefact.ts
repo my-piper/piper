@@ -1,12 +1,12 @@
+import api from "app/api";
 import { DataError } from "core-kit/types/errors";
 import { toInstance, validate } from "core-kit/utils/models";
 import { Request, Response } from "express";
 import multer, { memoryStorage } from "multer";
 import "reflect-metadata";
 import sharp from "sharp";
-import { api } from "../../app/api";
+import { handle } from "utils/http";
 import * as storage from "../../app/storage";
-import { handle } from "../../utils/http";
 import { sid } from "../../utils/string";
 import { extFromMime } from "../../utils/web";
 import { UploadArtefactRequest } from "./model/upload-artefact-request";

@@ -1,9 +1,9 @@
+import api from "app/api";
 import { toInstance, toPlain, validate } from "core-kit/utils/models";
 import sql from "sql-bricks";
-import { api } from "../../app/api";
+import { handle, toModels } from "utils/http";
 import clickhouse from "../../app/clickhouse";
 import { PipelineMessage } from "../../models/pipeline-message";
-import { handle, toModels } from "../../utils/http";
 import { PipelineMessagesFilter } from "./models/messages-filter";
 
 api.get(

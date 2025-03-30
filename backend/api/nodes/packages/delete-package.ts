@@ -1,7 +1,7 @@
+import api from "app/api";
 import { NotFoundError } from "core-kit/types/errors";
-import { api } from "../../../app/api";
-import mongo from "../../../app/mongo";
-import { checkLogged, handle } from "../../../utils/http";
+import mongo from "../app/mongo";
+import { checkLogged, handle } from "../utils/http";
 
 api.delete(
   "/api/nodes/packages/:_id",

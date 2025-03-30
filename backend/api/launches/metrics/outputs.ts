@@ -1,7 +1,7 @@
-import { api } from "../../../app/api";
+import api from "app/api";
 import clickhouse from "../../../app/clickhouse";
 import { PipelineOutputMetric } from "../../../models/pipeline-output-metric";
-import { handle, toModels } from "../../../utils/http";
+import { handle, toModels } from "../utils/http";
 
 api.get(
   "/api/launches/:launch/metrics/outputs",

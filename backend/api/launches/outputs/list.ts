@@ -1,7 +1,7 @@
+import api from "app/api";
 import { UserRole } from "models/user";
-import { api } from "../../../app/api";
-import mongo from "../../../app/mongo";
-import { checkLogged, checkRoles, handle } from "../../../utils/http";
+import mongo from "../app/mongo";
+import { checkLogged, checkRoles, handle } from "../utils/http";
 
 const PAGE_SIZE = 20;
 

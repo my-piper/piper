@@ -1,7 +1,7 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import { toInstance, validate } from "core-kit/utils/models";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
-import { checkAdmin, handle } from "../../utils/http";
+import { checkAdmin, handle } from "utils/http";
 import { UsersFilter } from "./models/users-filter";
 
 api.get(

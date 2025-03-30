@@ -1,3 +1,4 @@
+import mongo from "app/mongo";
 import { plainToInstance } from "class-transformer";
 import { toPlain } from "core-kit/utils/models";
 import { constants } from "fs";
@@ -6,7 +7,6 @@ import assign from "lodash/assign";
 import merge from "lodash/merge";
 import path from "path";
 import * as YAML from "yaml";
-import mongo from "../../app/mongo";
 import { LaunchRequest } from "../../models/launch-request";
 import { Pipeline } from "../../models/pipeline";
 import { Project } from "../../models/project";

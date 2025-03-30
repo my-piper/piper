@@ -1,9 +1,9 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import { toInstance, toPlain, validate } from "core-kit/utils/models";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
+import { checkLogged, handle } from "utils/http";
 import { Batch } from "../../models/batch";
 import { User } from "../../models/user";
-import { checkLogged, handle } from "../../utils/http";
 import { sid } from "../../utils/string";
 import { AddBatchRequest } from "./models/add-batch-request";
 

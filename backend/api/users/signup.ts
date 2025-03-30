@@ -1,3 +1,5 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import bcrypt from "bcrypt";
 import { plainToInstance } from "class-transformer";
 import { INITIAL_USER_BALANCE } from "consts/billing";
@@ -7,10 +9,8 @@ import assign from "lodash/assign";
 import { getToken } from "logic/users/auth";
 import { refillBalance } from "logic/users/refill-balance";
 import { ulid } from "ulid";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
+import { handle } from "utils/http";
 import { User } from "../../models/user";
-import { handle } from "../../utils/http";
 import { Authorization } from "./models/authorization";
 import { SignupRequest } from "./models/signup-request";
 

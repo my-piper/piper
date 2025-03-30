@@ -1,9 +1,9 @@
+import api from "app/api";
 import { plainToInstance } from "class-transformer";
 import { validate } from "core-kit/utils/models";
 import sql from "sql-bricks-sqlite";
-import { api } from "../../app/api";
+import { checkLogged, handle } from "utils/http";
 import clickhouse from "../../app/clickhouse";
-import { checkLogged, handle } from "../../utils/http";
 import { PipelineUsagesFilter } from "./models";
 
 const PAGE_LIMIT = 20;

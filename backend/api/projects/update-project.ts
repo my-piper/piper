@@ -1,12 +1,12 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import { DataError } from "core-kit/types/errors";
 import { toInstance, toPlain } from "core-kit/utils/models";
+import { checkAdmin, checkLogged, handle, toModel } from "utils/http";
 import ajv from "../../app/ajv";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
 import { Project } from "../../models/project";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { checkAdmin, checkLogged, handle, toModel } from "../../utils/http";
 
 api.post(
   "/api/projects/:_id",

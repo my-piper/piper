@@ -1,6 +1,6 @@
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
-import { handle } from "../../utils/http";
+import api from "app/api";
+import mongo from "app/mongo";
+import { handle } from "utils/http";
 
 api.get(
   "/api/nodes",

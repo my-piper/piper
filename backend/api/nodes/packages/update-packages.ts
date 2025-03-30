@@ -1,8 +1,8 @@
+import api from "app/api";
 import { toPlain } from "core-kit/utils/models";
-import { api } from "../../../app/api";
 import { planUpdatePackages } from "../../../logic/node-packages";
 import { getPackagesUpdateState } from "../../../logic/node-packages/packages-update-state";
-import { checkAdmin, handle } from "../../../utils/http";
+import { checkAdmin, handle } from "../utils/http";
 
 api.get(
   "/api/nodes/update-packages",

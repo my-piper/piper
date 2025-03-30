@@ -1,8 +1,8 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import { toInstance, validate } from "core-kit/utils/models";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
+import { checkLogged, checkRoles, handle } from "utils/http";
 import { UserRole } from "../../models/user";
-import { checkLogged, checkRoles, handle } from "../../utils/http";
 import { AssetsFilter } from "./models/assets-filter";
 
 api.get(

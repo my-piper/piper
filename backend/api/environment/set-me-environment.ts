@@ -1,5 +1,6 @@
+import api from "app/api";
 import { toInstance, toPlain, validate } from "core-kit/utils/models";
-import { api } from "../../app/api";
+import { checkLogged, handle } from "utils/http";
 import {
   USER_ENVIRONMENT_EXPIRED,
   USER_ENVIRONMENT_KEY,
@@ -9,7 +10,6 @@ import { encrypt } from "../../logic/environment/crypt-environment";
 import { merge } from "../../logic/environment/merge-environment";
 import { Environment } from "../../models/environment";
 import { Primitive } from "../../types/primitive";
-import { checkLogged, handle } from "../../utils/http";
 
 api.put(
   "/api/me/environment",

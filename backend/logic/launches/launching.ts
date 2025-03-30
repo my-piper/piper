@@ -1,3 +1,4 @@
+import mongo from "app/mongo";
 import { plainToInstance } from "class-transformer";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
@@ -9,7 +10,6 @@ import path from "path";
 import "reflect-metadata";
 import sharp from "sharp";
 import { ulid } from "ulid";
-import mongo from "../../app/mongo";
 import { queues } from "../../app/queue";
 import * as storage from "../../app/storage";
 import { BASE_URL } from "../../consts/core";

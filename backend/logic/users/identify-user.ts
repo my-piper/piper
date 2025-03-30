@@ -1,10 +1,10 @@
 import { Authorization } from "api/users/models/authorization";
+import mongo from "app/mongo";
 import { INITIAL_USER_BALANCE } from "consts/billing";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { toModel, toPlain } from "core-kit/utils/models";
 import { ulid } from "ulid";
 import { sid } from "utils/string";
-import mongo from "../../app/mongo";
 import { User } from "../../models/user";
 import { getToken } from "./auth";
 import { refillBalance } from "./refill-balance";

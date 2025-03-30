@@ -1,8 +1,8 @@
+import mongo from "app/mongo";
 import { toPlain, validate } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import { ulid } from "ulid";
 import { notify } from "../../app/io";
-import mongo from "../../app/mongo";
 import { createLogger } from "../../logger";
 import { PackageUpdatedEvent } from "../../models/events";
 import { NodePackage } from "../../models/node-package";

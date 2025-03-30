@@ -1,11 +1,11 @@
+import api from "app/api";
 import { DataError } from "core-kit/types/errors";
 import { toInstance } from "core-kit/utils/models";
-import { api } from "../../../app/api";
 import { LAUNCH } from "../../../consts/redis";
 import { redis } from "../../../core-kit/services/redis/redis";
 import { Launch } from "../../../models/launch";
-import { handle } from "../../../utils/http";
 import { getNodeInputs } from "../../../utils/node";
+import { handle } from "../utils/http";
 
 api.get(
   "/api/launches/:launch/:node/inputs",

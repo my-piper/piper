@@ -1,12 +1,12 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import bcrypt from "bcrypt";
 import { plainToInstance } from "class-transformer";
 import { DataError, NotFoundError } from "core-kit/types/errors";
 import { toPlain, validate } from "core-kit/utils/models";
 import { getToken } from "logic/users/auth";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
+import { handle, toModel } from "utils/http";
 import { User } from "../../models/user";
-import { handle, toModel } from "../../utils/http";
 import { Authorization } from "./models/authorization";
 import { UserCredentials } from "./models/user-credentials";
 

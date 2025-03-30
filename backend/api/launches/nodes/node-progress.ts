@@ -1,7 +1,7 @@
-import { api } from "../../../app/api";
+import api from "app/api";
 import { NODE_PROGRESS } from "../../../consts/redis";
 import { redis } from "../../../core-kit/services/redis/redis";
-import { handle } from "../../../utils/http";
+import { handle } from "../utils/http";
 
 api.get(
   "/api/launches/:launch/:node/progress",

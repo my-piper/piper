@@ -1,6 +1,6 @@
-import { api } from "../../app/api";
+import api from "app/api";
+import { checkLogged, handle } from "utils/http";
 import clickhouse from "../../app/clickhouse";
-import { checkLogged, handle } from "../../utils/http";
 
 api.get(
   "/api/pipelines/usage",

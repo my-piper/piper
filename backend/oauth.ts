@@ -1,10 +1,11 @@
-import "core-kit/env";
+import env from "core-kit/env";
 import "reflect-metadata";
 
 import { Authorization } from "api/users/models/authorization";
 import { Expose, Type } from "class-transformer";
 import { BASE_URL } from "consts/core";
 import { createLogger } from "core-kit/services/logger";
+import app from "core-kit/services/server";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import cors from "cors";
 import express from "express";
@@ -15,7 +16,6 @@ import { Strategy as YandexStrategy } from "passport-yandex";
 
 const logger = createLogger("oauth");
 
-const app = express();
 app.use(cors({ credentials: true }));
 app.use(express.json());
 app.use(passport.initialize());
@@ -39,8 +39,8 @@ function redirect(authorization: Authorization) {
 
 // Google
 
-const GOOGLE_CLIENT_ID = process.env["GOOGLE_CLIENT_ID"] || "xyzYYZ";
-const GOOGLE_CLIENT_SECRET = process.env["GOOGLE_CLIENT_SECRET"] || "xyzYYZ";
+const GOOGLE_CLIENT_ID = env["GOOGLE_CLIENT_ID"] || "xyzYYZ";
+const GOOGLE_CLIENT_SECRET = env["GOOGLE_CLIENT_SECRET"] || "xyzYYZ";
 
 type User = {
   username: string;
@@ -94,8 +94,8 @@ app.get(
 
 // Yandex
 
-const YANDEX_CLIENT_ID = process.env["YANDEX_CLIENT_ID"] || "xyzYYZ";
-const YANDEX_CLIENT_SECRET = process.env["YANDEX_CLIENT_SECRET"] || "xyzYYZ";
+const YANDEX_CLIENT_ID = env["YANDEX_CLIENT_ID"] || "xyzYYZ";
+const YANDEX_CLIENT_SECRET = env["YANDEX_CLIENT_SECRET"] || "xyzYYZ";
 
 passport.use(
   new YandexStrategy(
@@ -126,7 +126,7 @@ app.get(
 
 const PORT =
   (() => {
-    const port = process.env["OAUTH_PORT"];
+    const port = env["OAUTH_PORT"];
     if (!!port) {
       return parseInt(port);
     }

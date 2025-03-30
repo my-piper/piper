@@ -1,4 +1,4 @@
-import { api } from "app/api";
+import api from "app/api";
 import mongo from "app/mongo";
 import { checkLogged, handle } from "utils/http";
 

@@ -1,8 +1,8 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import assign from "lodash/assign";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
+import { checkLogged, handle } from "utils/http";
 import * as launching from "../../logic/launches/launching";
-import { checkLogged, handle } from "../../utils/http";
 
 api.get(
   "/api/launches/:_id",

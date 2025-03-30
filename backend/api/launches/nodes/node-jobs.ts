@@ -1,6 +1,6 @@
+import api from "app/api";
 import orderBy from "lodash/orderBy";
-import { api } from "../../../app/api";
-import { handle } from "../../../utils/http";
+import { handle } from "../utils/http";
 
 api.get(
   "/api/launches/:launch/nodes/:node/jobs",

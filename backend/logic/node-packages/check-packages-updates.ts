@@ -1,11 +1,11 @@
+import mongo from "app/mongo";
 import { DataError } from "core-kit/types/errors";
-import mongo from "../../app/mongo";
+import { toModels } from "utils/http";
 import { queues } from "../../app/queue";
 import { PACKAGES_UPDATES } from "../../consts/packages";
 import { redis } from "../../core-kit/services/redis/redis";
 import { createLogger } from "../../logger";
 import { NodePackage } from "../../models/node-package";
-import { toModels } from "../../utils/http";
 
 const logger = createLogger("plan-check-packages-updates");
 

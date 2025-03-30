@@ -1,13 +1,13 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import bcrypt from "bcrypt";
 import { DataError } from "core-kit/types/errors";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
+import { checkAdmin, handle } from "utils/http";
 import ajv from "../../app/ajv";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { checkAdmin, handle } from "../../utils/http";
 
 api.patch(
   "/api/users/:_id",

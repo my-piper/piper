@@ -1,11 +1,11 @@
+import api from "app/api";
 import { toInstance, toPlain } from "core-kit/utils/models";
-import { api } from "../../app/api";
+import { checkAdmin, handle } from "utils/http";
 import { HIDDEN_STRING } from "../../consts/core";
 import { GLOBAL_ENVIRONMENT_KEY } from "../../consts/redis";
 import { redis } from "../../core-kit/services/redis/redis";
 import { Environment } from "../../models/environment";
 import { Primitive } from "../../types/primitive";
-import { checkAdmin, handle } from "../../utils/http";
 
 api.get(
   "/api/environment",

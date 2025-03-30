@@ -1,10 +1,10 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import { toPlain } from "core-kit/utils/models";
 import { Primitive } from "types/primitive";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
+import { checkLogged, handle, toModel } from "utils/http";
 import { HIDDEN_STRING } from "../../consts/core";
 import { Project } from "../../models/project";
-import { checkLogged, handle, toModel } from "../../utils/http";
 
 api.get(
   "/api/projects/:_id",

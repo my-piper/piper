@@ -1,11 +1,11 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import { mapTo, toModels, toPlain } from "core-kit/utils/models";
 import { ProjectVisibility } from "enums/project-visibility";
 import assign from "lodash/assign";
 import "reflect-metadata";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
+import { checkAdmin, handle } from "utils/http";
 import { Project } from "../../models/project";
-import { checkAdmin, handle } from "../../utils/http";
 
 api.post(
   "/api/projects/organize",

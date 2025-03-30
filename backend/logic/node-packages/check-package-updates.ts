@@ -1,10 +1,11 @@
+import mongo from "app/mongo";
 import axios from "axios";
 import { plainToInstance } from "class-transformer";
 import { toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
+import { toModel } from "utils/http";
 import * as YAML from "yaml";
 import ajv from "../../app/ajv";
-import mongo from "../../app/mongo";
 import {
   PACKAGES_UPDATES,
   PACKAGES_UPDATES_TIMEOUT,
@@ -13,7 +14,6 @@ import { redis } from "../../core-kit/services/redis/redis";
 import { createLogger } from "../../logger";
 import { NodePackage, NodePackageUpdates } from "../../models/node-package";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { toModel } from "../../utils/http";
 
 export async function checkUpdates(_id: string) {
   const logger = createLogger("check-package-updates", {

@@ -1,14 +1,14 @@
+import api from "app/api";
+import mongo from "app/mongo";
 import { plainToInstance } from "class-transformer";
 import { DataError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { ulid } from "ulid";
+import { checkLogged, handle } from "utils/http";
 import ajv from "../../app/ajv";
-import { api } from "../../app/api";
-import mongo from "../../app/mongo";
 import { Project } from "../../models/project";
 import { User } from "../../models/user";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { checkLogged, handle } from "../../utils/http";
 import { sid } from "../../utils/string";
 
 api.post(
