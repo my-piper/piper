@@ -32,6 +32,10 @@
 		"link.community": " Comunidade {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Despesas",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Sair",
-		"label.refill_balance": "Saldo de recarga:"
+		"label.refill_balance": "Saldo de recarga:",
+		"label.api_parameters": "Parâmetros",
+		"label.title": "Título",
+		"label.type": "Tipo de imagem",
+		"label.default": "Padrão"
 	}
 }

@@ -31,4 +31,59 @@
     }}/api/launches/[LAUNCH_ID]/state' \
 --header 'api-token: [YOUR_API_KEY_HERE]']]></pre
   >
+
+  <h2 i18n="@@label.api_parameters">Parameters</h2>
+
+  <ng-container
+    *ngFor="
+      let i of project.pipeline.inputs | keyvalue | orderBy: ['value.order']
+    "
+  >
+    <h3>{{ i.key }}<sup *ngIf="i.value.required">*</sup></h3>
+    <table>
+      <tbody>
+        <tr>
+          <td i18n="@@label.title">Title</td>
+          <td>
+            {{ i.value.title | i18n }}
+          </td>
+        </tr>
+        <tr>
+          <td i18n="@@label.type">Type</td>
+          <td>
+            <b>
+              {{ i.value.type }}
+            </b>
+          </td>
+        </tr>
+        <tr>
+          <td i18n="@@label.default">Default</td>
+          <td>
+            <code *ngIf="i.value.default as default">{{ default }}</code>
+          </td>
+        </tr>
+        <tr *ngIf="i.value.enum as enum">
+          <td i18n="@@label.enum">Enum</td>
+          <td>
+            <table>
+              <tbody>
+                <tr *ngFor="let o of enum">
+                  <ng-container *ngIf="o | split: '|' as x">
+                    <td>
+                      {{ x[0] }}
+                    </td>
+                    <td>
+                      <ng-container *ngIf="x[1] as label">
+                        {{ label | i18n }}
+                      </ng-container>
+                    </td>
+                  </ng-container>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
 </ng-container>

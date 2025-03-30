@@ -33,6 +33,10 @@
 		"link.community": " Gemeinschaft {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Ausgaben",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Abmelden",
-		"label.refill_balance": "Guthaben auffüllen:"
+		"label.refill_balance": "Guthaben auffüllen:",
+		"label.api_parameters": "Parameter",
+		"label.title": "Titel",
+		"label.type": "Typ",
+		"label.default": "Standard"
 	}
 }

@@ -34,6 +34,10 @@
 		"link.community": " Topluluk {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Giderler",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Oturum Kapatma",
-		"label.refill_balance": "Doldurma bakiyesi:"
+		"label.refill_balance": "Doldurma bakiyesi:",
+		"label.api_parameters": "Parametreler",
+		"label.title": "Başlık",
+		"label.type": "Tip",
+		"label.default": "Varsayılan"
 	}
 }

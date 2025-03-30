@@ -30,8 +30,7 @@
           *ngIf="i.value.icon as icon"
           [icon]="icon"
         ></app-icon>
-        <span>{{ i.value.title | i18n }}</span>
-        <sup *ngIf="i.value.required">&ast;</sup>
+        {{ i.value.title | i18n }}<sup *ngIf="i.value.required">&ast;</sup>
 
         <ng-template #inputDescriptionPopover>
           <div [innerHTML]="i.value.description | markdown | async"></div>

@@ -33,6 +33,10 @@
 		"link.community": " Communauté {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Dépenses",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Déconnexion",
-		"label.refill_balance": "Solde de recharge :"
+		"label.refill_balance": "Solde de recharge :",
+		"label.api_parameters": "Paramètres",
+		"label.title": "Titre de l'application",
+		"label.type": "Type d'application",
+		"label.default": "Défaut"
 	}
 }

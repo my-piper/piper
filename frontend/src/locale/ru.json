@@ -35,6 +35,11 @@
 		"link.community": " Сообщество {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Расходы",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Выход из системы",
-		"label.refill_balance": "Баланс пополнения:"
+		"label.refill_balance": "Баланс пополнения:",
+		"label.api_parameters": "Параметры",
+		"label.title": "Заголовок",
+		"label.type": "Тип",
+		"label.default": "По умолчанию",
+		"label.enum": "Перечисление"
 	}
 }

@@ -9,3 +9,35 @@
 textarea {
     width: 100%;
 }
+
+h3 sup {
+    color: red;
+    padding-left: $gutter-tiny;
+}
+
+table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+    background: white;
+    font-size: .85em;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+
+    &:nth-child(1) {
+        width: 15%;
+        vertical-align: top;
+    }
+}
+
+code {
+    max-width: 30px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

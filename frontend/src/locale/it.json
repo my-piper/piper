@@ -33,6 +33,10 @@
 		"link.community": " Comunità {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Spese",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Disconnessione",
-		"label.refill_balance": "Saldo di ricarica:"
+		"label.refill_balance": "Saldo di ricarica:",
+		"label.api_parameters": "I parametri",
+		"label.title": "Titolo",
+		"label.type": "Tipo",
+		"label.default": "Predefinito"
 	}
 }

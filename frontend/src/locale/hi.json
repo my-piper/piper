@@ -33,6 +33,11 @@
 		"link.community": " समुदाय {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} खर्चे",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} लॉगआउट",
-		"label.refill_balance": "बैलेंस रिफिल करें:"
+		"label.refill_balance": "बैलेंस रिफिल करें:",
+		"label.api_parameters": "पैरामीटर",
+		"label.title": "शीर्षक",
+		"label.type": "टाइप करें",
+		"label.default": "डिफ़ॉल्ट",
+		"label.enum": "सूची"
 	}
 }

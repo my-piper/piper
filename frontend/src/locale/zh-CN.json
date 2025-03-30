@@ -35,6 +35,11 @@
 		"link.community": "社区 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Expenses",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 注销",
-		"label.refill_balance": "补充余额："
+		"label.refill_balance": "补充余额：",
+		"label.api_parameters": "参数",
+		"label.title": "标题",
+		"label.type": "类型",
+		"label.default": "默认值",
+		"label.enum": "枚举"
 	}
 }

@@ -33,6 +33,10 @@
 		"link.community": "社區 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 費用",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 登出",
-		"label.refill_balance": "補充餘額:"
+		"label.refill_balance": "補充餘額:",
+		"label.api_parameters": "參數",
+		"label.title": "標題",
+		"label.type": "類型",
+		"label.default": "默認"
 	}
 }

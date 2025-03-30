@@ -21,9 +21,6 @@
         padding: 35px $gutter-normal $gutter-normal $gutter-normal;
 
         label {
-            @include horizontal-stack($gutter-tiny);
-            display: flex;
-            align-items: center;
             position: absolute;
             font-weight: bold;
             top: -$gutter-small;
@@ -34,7 +31,7 @@
 
             sup {
                 color: red;
-                align-self: flex-start;
+                padding-left: $gutter-tiny;
             }
         }
     }

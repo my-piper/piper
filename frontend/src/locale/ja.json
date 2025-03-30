@@ -33,6 +33,11 @@
 		"link.community": "コミュニティ {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}。",
 		"link.expenses": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 費用",
 		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} ログアウト",
-		"label.refill_balance": "補充バランス："
+		"label.refill_balance": "補充バランス：",
+		"label.api_parameters": "パラメータ",
+		"label.title": "タイトル",
+		"label.type": "タイプ",
+		"label.default": "デフォルト",
+		"label.enum": "列挙"
 	}
 }
