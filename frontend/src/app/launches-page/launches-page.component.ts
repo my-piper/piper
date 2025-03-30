@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { LaunchesFilter } from "src/models/launch";
 import { LaunchOutputsComponent } from "../launch-outputs/launch-outputs.component";
 
@@ -13,9 +13,16 @@ export class LaunchesPageComponent {
 
   filter!: LaunchesFilter;
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.route.data.subscribe(async ({ filter }) => (this.filter = filter));
+  }
+
+  back() {
+    this.router.navigate(["./"], { relativeTo: this.route });
   }
 }

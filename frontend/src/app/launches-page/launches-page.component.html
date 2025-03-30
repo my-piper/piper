@@ -1,6 +1,14 @@
 <div class="modal" [class.hidden]="!modal">
   <header>
-    <a class="primary" [routerLink]="['./']">Close</a>
+    <a
+      class="primary with-icon"
+      [hotKey]="'escape'"
+      (hotKeyPressed)="back()"
+      [routerLink]="['./']"
+    >
+      <app-icon class="icon right" icon="close"></app-icon>
+      <span class="badge">ESC</span>
+    </a>
   </header>
   <div class="content filled">
     <router-outlet

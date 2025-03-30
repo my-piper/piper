@@ -1,6 +1,14 @@
 <div class="modal" [class.hidden]="!modal">
   <header>
-    <a class="primary" [routerLink]="['./']">Close</a>
+    <a
+      class="primary with-icon"
+      [hotKey]="'escape'"
+      (hotKeyPressed)="back()"
+      [routerLink]="['./']"
+    >
+      <app-icon class="icon right" icon="close"></app-icon>
+      <span class="badge">ESC</span>
+    </a>
   </header>
   <div class="content filled">
     <router-outlet
@@ -60,7 +68,10 @@
 
 <div class="app-container">
   <header class="horizontal stack">
-    <a class="primary" [routerLink]="['add']">Create</a>
+    <a class="primary with-icon" [routerLink]="['add']" i18n="@@action.create">
+      <app-icon class="icon left" icon="add"></app-icon>
+      Create
+    </a>
     <a class="secondary" [routerLink]="['import']">Import</a>
 
     <ng-container [ngSwitch]="state?.status">

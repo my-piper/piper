@@ -22,7 +22,7 @@
 		"label.choose_login": "Elija un inicio de sesión",
 		"label.send_password": "Enviar contraseña al correo electrónico",
 		"action.register": " Regístrese en",
-		"action.create": "Crear",
+		"action.create": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Crear",
 		"label.email": "Correo electrónico",
 		"label.created_at": "Creado en",
 		"label.login": "Inicio de sesión",

@@ -225,4 +225,8 @@ export class NodePackagesComponent extends UntilDestroyed {
         error: (err) => (this.error = err),
       });
   }
+
+  back() {
+    this.router.navigate(["./"], { relativeTo: this.route });
+  }
 }

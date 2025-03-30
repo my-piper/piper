@@ -21,7 +21,7 @@
 		"label.choose_login": "Escolha um login",
 		"label.send_password": "Enviar senha para o e-mail",
 		"action.register": " Registrar",
-		"action.create": "Criar",
+		"action.create": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Criar",
 		"label.email": "E-mail",
 		"label.created_at": "Criado em",
 		"label.login_or_email": "Nome de usuário ou e-mail",

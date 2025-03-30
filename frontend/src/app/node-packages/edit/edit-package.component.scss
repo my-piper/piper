@@ -3,9 +3,18 @@
 
 :host {
   display: block;
+  width: 100%;
+  @include vertical-stack();
+
+  @include wider-tablet() {
+    width: 500px;
+  }
+}
+
+h1 {
+  margin: 0;
 }
 
 form {
   @include vertical-stack();
-  min-width: 500px;
 }

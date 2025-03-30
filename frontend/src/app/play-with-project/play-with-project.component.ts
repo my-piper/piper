@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Project } from "src/models/project";
 import { PipelineLaunchedSignal } from "src/models/signals/launch";
@@ -44,10 +44,7 @@ export class PlayWithProjectComponent {
     this.instances.popopver?.hide();
   }
 
-  @HostListener("window:keydown", ["$event"])
-  close(event: KeyboardEvent): void {
-    if (event.key === "Escape") {
-      this.router.navigate(["./"], { relativeTo: this.route });
-    }
+  back() {
+    this.router.navigate(["./"], { relativeTo: this.route });
   }
 }

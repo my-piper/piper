@@ -21,7 +21,7 @@
 		"label.choose_login": "एक लॉगिन चुनें",
 		"label.send_password": "ईमेल पर पासवर्ड भेजें",
 		"action.register": "रजिस्टर",
-		"action.create": "बनाना",
+		"action.create": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} बनाना",
 		"label.email": "ईमेल",
 		"label.created_at": "निर्मित किया गया",
 		"label.login": "लॉगिन",

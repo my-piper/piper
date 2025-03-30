@@ -23,7 +23,7 @@
 		"label.choose_login": "选择登录",
 		"label.send_password": "发送密码到电子邮件",
 		"action.register": "注册",
-		"action.create": "创建",
+		"action.create": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 创建",
 		"label.email": "电子邮件",
 		"label.created_at": "创建于",
 		"label.login": "登录",

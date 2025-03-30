@@ -21,7 +21,7 @@
 		"label.choose_login": "選擇登錄",
 		"label.send_password": "發送密碼到郵件",
 		"action.register": "Register",
-		"action.create": "創建",
+		"action.create": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 創建",
 		"label.email": "電子郵件",
 		"label.created_at": "建立於",
 		"label.login": "登錄",

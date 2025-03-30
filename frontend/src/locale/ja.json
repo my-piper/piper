@@ -21,7 +21,7 @@
 		"label.choose_login": "ログイン",
 		"label.send_password": "パスワードをメールで送信",
 		"action.register": "登録",
-		"action.create": "作成",
+		"action.create": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 作成",
 		"label.email": "電子メール",
 		"label.created_at": "制作は",
 		"label.login": "ログイン",
