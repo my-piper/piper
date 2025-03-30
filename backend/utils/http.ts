@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { USER_API_TOKEN_KEY } from "consts/redis";
+import { ALL_LANGUAGES } from "core-kit/consts/locale";
 import { Languages } from "core-kit/enums/languages";
 import { redis } from "core-kit/services/redis";
 import sentry from "core-kit/services/sentry";
@@ -15,7 +16,7 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import assign from "lodash/assign";
 import mongo from "../app/mongo";
-import { DEFAULT_LANG, JWT_SECRET, LANGUAGES } from "../consts/core";
+import { DEFAULT_LANG, JWT_SECRET } from "../consts/core";
 import { NO_CACHE_HEADERS } from "../consts/http";
 import { createLogger } from "../logger";
 import { User, UserRole } from "../models/user";
@@ -23,7 +24,11 @@ import { Injector } from "../types/injector";
 
 const USER_TOKEN_HEADER = "user-token";
 const API_TOKEN_HEADER = "api-token";
-const LANGUAGE_HEADER = "accept-language";
+
+const LANGUAGE_QUERY_PARAM = "language";
+const LANGUAGE_COOKIE = "language";
+const LANGUAGE_HEADER = "language";
+const ACCEPT_LANGUAGE_HEADER = "accept-language";
 
 const logger = createLogger("process-node");
 
@@ -44,11 +49,32 @@ export const handle =
 
     {
       const language = (() => {
-        const header = req.headers[LANGUAGE_HEADER]?.split(",")[0] as Languages;
-        if (!!header && LANGUAGES.includes(header)) {
-          return header;
+        const param = req.query[LANGUAGE_QUERY_PARAM];
+        if (!!param) {
+          return param as string;
         }
-        return null;
+
+        {
+          const header = req.headers[LANGUAGE_HEADER] as Languages;
+          if (!!header && ALL_LANGUAGES.includes(header)) {
+            return header;
+          }
+        }
+
+        const cookie = req.cookies[LANGUAGE_COOKIE];
+        if (!!cookie && ALL_LANGUAGES.includes(cookie)) {
+          return cookie;
+        }
+
+        {
+          const header = req.headers[ACCEPT_LANGUAGE_HEADER]?.split(
+            ","
+          )[0] as Languages;
+          if (!!header && ALL_LANGUAGES.includes(header)) {
+            return header;
+          }
+          return null;
+        }
       })();
       if (!!language) {
         assign(injector, { language });
