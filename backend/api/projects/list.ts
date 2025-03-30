@@ -49,7 +49,7 @@ api.get(
           },
         }
       )
-      .sort(sort === "order" ? { order: -1 } : { cursor: -1 })
+      .sort(sort === "order" ? { order: 1 } : { cursor: -1 })
       .limit(PAGE_SIZE)
       .toArray();
   })
