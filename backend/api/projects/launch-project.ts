@@ -8,12 +8,11 @@ import { LaunchOptions } from "../../models/launch";
 import { LaunchRequest } from "../../models/launch-request";
 import { Project } from "../../models/project";
 import { User } from "../../models/user";
-import { checkBalance, checkLogged, handle, toModel } from "../../utils/http";
+import { checkBalance, handle, toModel } from "../../utils/http";
 
 api.post(
   "/api/projects/:_id/launch",
   handle(({ currentUser }) => async ({ params: { _id }, body }) => {
-    checkLogged(currentUser);
     checkBalance(currentUser);
 
     const project = toModel(

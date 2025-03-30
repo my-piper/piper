@@ -21,7 +21,7 @@
       <ul>
         <li>
           <a
-            href="{{ url }}/add_5usd?language={{ language }}&t={{
+            href="{{ url }}/add_5usd?language={{ language | lowercase }}&t={{
               config.authorization.token
             }}"
             >5$</a
@@ -29,7 +29,7 @@
         </li>
         <li>
           <a
-            href="{{ url }}/add_10usd?language={{ language }}&t={{
+            href="{{ url }}/add_10usd?language={{ language | lowercase }}&t={{
               config.authorization.token
             }}"
             >10$</a
@@ -37,7 +37,7 @@
         </li>
         <li>
           <a
-            href="{{ url }}/add_20usd?language={{ language }}&t={{
+            href="{{ url }}/add_20usd?language={{ language | lowercase }}&t={{
               config.authorization.token
             }}"
             >20$</a
@@ -45,7 +45,7 @@
         </li>
         <li>
           <a
-            href="{{ url }}/add_40usd?language={{ language }}&t={{
+            href="{{ url }}/add_40usd?language={{ language | lowercase }}&t={{
               config.authorization.token
             }}"
             >40$</a

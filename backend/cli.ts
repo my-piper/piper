@@ -82,10 +82,8 @@ commander.command("compile-schemas").action(async () => {
 }
 
 commander
-  .command("refill-balance")
-  .option("--user <user>", "User")
-  .option("--amount <amount>", "Amount", parseInt, 0)
-  .action(async ({ user, amount }: { user: string; amount: number }) => {
+  .command("refill <user> <amount>")
+  .action(async (user: string, amount: number) => {
     console.log(`Refill balance for ${user} ${amount}`);
     await refillBalance(user, amount);
     console.log("Done 😮");

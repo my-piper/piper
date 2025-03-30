@@ -188,7 +188,8 @@ export function checkRoles(user: User, roles: UserRole | UserRole[]) {
 
 export function checkBalance(user: User) {
   checkLogged(user);
-  if (user.balance.remaining || 0 < 0) {
+  const remaining = user.balance?.remaining || 0;
+  if (remaining < 0) {
     throw new DataError("Please, charge you balance");
   }
 }
