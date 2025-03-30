@@ -1,10 +1,10 @@
 import api from "app/api";
+import mongo from "app/mongo";
 import { toInstance, toPlain, validate } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import { ulid } from "ulid";
+import { checkAdmin, handle } from "utils/http";
 import { NodePackage } from "../../../models/node-package";
-import mongo from "../app/mongo";
-import { checkAdmin, handle } from "../utils/http";
 
 api.post(
   "/api/nodes/packages",

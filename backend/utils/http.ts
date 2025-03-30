@@ -1,3 +1,4 @@
+import mongo from "app/mongo";
 import bcrypt from "bcrypt";
 import { USER_API_TOKEN_KEY } from "consts/redis";
 import { ALL_LANGUAGES } from "core-kit/consts/locale";
@@ -15,7 +16,6 @@ import { toInstance, toPlain } from "core-kit/utils/models";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import assign from "lodash/assign";
-import mongo from "../app/mongo";
 import { DEFAULT_LANG, JWT_SECRET } from "../consts/core";
 import { NO_CACHE_HEADERS } from "../consts/http";
 import { createLogger } from "../logger";

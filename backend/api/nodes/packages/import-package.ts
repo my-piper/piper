@@ -1,9 +1,9 @@
 import api from "app/api";
 import { toInstance } from "core-kit/utils/models";
+import { checkLogged, handle } from "utils/http";
 import * as YAML from "yaml";
 import { uploadPackage } from "../../../logic/node-packages";
 import { NodePackage } from "../../../models/node-package";
-import { checkLogged, handle } from "../utils/http";
 
 api.post(
   "/api/nodes/import-package",

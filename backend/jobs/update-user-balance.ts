@@ -1,12 +1,12 @@
+import mongo from "app/mongo";
 import { toPlain } from "core-kit/utils/models";
+import { toModels } from "utils/http";
 import clickhouse from "../app/clickhouse";
 import io from "../app/io";
-import mongo from "../app/mongo";
 import { queues } from "../app/queue";
 import { createLogger } from "../logger";
 import { BalanceUpdatedEvent } from "../models/events";
 import { User, UserBalance } from "../models/user";
-import { toModels } from "../utils/http";
 
 queues.users.updateBalance.process(async ({ user }) => {
   const logger = createLogger("update-user-balance", {

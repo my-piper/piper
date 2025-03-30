@@ -2,9 +2,9 @@ import api from "app/api";
 import { toPlain } from "core-kit/utils/models";
 import { addYears } from "date-fns";
 import { Response } from "express";
+import { handle, toModels } from "utils/http";
 import clickhouse from "../../../app/clickhouse";
 import { PipelineFinishedMetric } from "../../../models/pipeline-finished-metric";
-import { handle, toModels } from "../utils/http";
 
 api.get(
   "/api/launches/:launch/metrics/finished",
