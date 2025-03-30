@@ -46,11 +46,12 @@ api.post(
       );
     }
 
-    const { visibility, slug } = request;
+    const { visibility, slug, order } = request;
 
     const update = new Project({
       visibility,
       slug,
+      order,
       updatedBy: (() => {
         const { _id } = currentUser;
         return new User({ _id });

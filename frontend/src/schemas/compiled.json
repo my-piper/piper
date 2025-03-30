@@ -5620,6 +5620,9 @@
 			},
 			"cursor": {
 				"type": "string"
+			},
+			"order": {
+				"type": "number"
 			}
 		},
 		"required": [

@@ -43,12 +43,15 @@
         <span>Public</span>
       </label>
     </div>
-    <input
-      *ngIf="visibilityControl.value !== 'private'"
-      class="input-primary fluid"
-      type="text"
-      formControlName="slug"
-    />
+    <ng-container *ngIf="visibilityControl.value !== 'private'">
+      <input class="input-primary fluid" type="text" formControlName="slug" />
+      <input
+        class="input-primary fluid"
+        type="number"
+        formControlName="order"
+        placeholder="Order"
+      />
+    </ng-container>
   </fieldset>
   <footer>
     <button

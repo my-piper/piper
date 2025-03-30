@@ -91,7 +91,7 @@
         by {{ l.launchedBy?.name }} |
       </span>
 
-      {{ l.launchedAt | formatDistance }} ago
+      {{ l.launchedAt | timePassed }}
     </footer>
   </div>
 </div>

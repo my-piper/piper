@@ -21,6 +21,12 @@ export class ProjectsFilter {
   @Type(() => String)
   cursor: string;
 
+  @IsOptional()
+  @IsEnum(["cursor", "order"])
+  @Expose()
+  @Type(() => String)
+  sort?: "cursor" | "order";
+
   constructor(defs: Partial<ProjectsFilter> = {}) {
     assign(this, defs);
   }

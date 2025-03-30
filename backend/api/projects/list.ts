@@ -15,7 +15,7 @@ api.get(
     const filter = toInstance(query, ProjectsFilter);
     await validate(filter);
 
-    const { visibility, category, cursor } = filter;
+    const { visibility, category, cursor, sort } = filter;
 
     return await mongo.projects
       .find(
@@ -45,10 +45,11 @@ api.get(
             "pipeline.thumbnail": 1,
             "pipeline.description": 1,
             cursor: 1,
+            order: 1,
           },
         }
       )
-      .sort({ cursor: -1 })
+      .sort(sort === "order" ? { order: -1 } : { cursor: -1 })
       .limit(PAGE_SIZE)
       .toArray();
   })

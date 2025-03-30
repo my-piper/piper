@@ -33,7 +33,6 @@ import { CanPipe } from "src/pipes/can";
 import { CurvePipe } from "src/pipes/curve";
 import { DurationPipe } from "src/pipes/duration";
 import { FirstPipe } from "src/pipes/first";
-import { FormatDistancePipe } from "src/pipes/format-distance";
 import { GroupListPipe } from "src/pipes/group-list";
 import { GroupNodesPipe } from "src/pipes/group-nodes";
 import { ImageProxyPipe } from "src/pipes/image-proxy";
@@ -63,6 +62,10 @@ import {
   CURRENT_LANGUAGE,
   currentLangFactory,
 } from "src/ui-kit/providers/current-language";
+import {
+  DATE_LOCALE,
+  dateLocaleFactory,
+} from "src/ui-kit/providers/date-locale";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { AppComponent } from "./app.component";
 import { AssetsPageComponent } from "./assets-page/assets-page.component";
@@ -176,7 +179,6 @@ import { UsersComponent } from "./users/users.component";
     FirstPipe,
     ValuesPipe,
     LaunchOutputsComponent,
-    FormatDistancePipe,
     SelectGeneratedComponent,
     InpaintComponent,
     DrawMaskComponent,
@@ -249,6 +251,12 @@ import { UsersComponent } from "./users/users.component";
       useFactory: currentLangFactory,
       deps: [APP_BASE_HREF],
     },
+    {
+      provide: DATE_LOCALE,
+      useFactory: dateLocaleFactory,
+      deps: [CURRENT_LANGUAGE],
+    },
+
     {
       provide: APP_INITIALIZER,
       useFactory: () => () => {},

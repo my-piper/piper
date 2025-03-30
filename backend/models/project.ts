@@ -69,6 +69,10 @@ export class Project {
   @Type(() => String)
   cursor: string;
 
+  @Expose()
+  @Type(() => Number)
+  order: number;
+
   constructor(defs: Partial<Project> = {}) {
     assign(this, defs);
   }

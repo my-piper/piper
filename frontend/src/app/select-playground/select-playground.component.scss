@@ -76,7 +76,9 @@
 
             button {
                 @include reset-button();
-                display: block;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 width: 100%;
 
                 .title {
@@ -87,10 +89,16 @@
                     bottom: 0;
                     left: 0;
                     display: none;
-                    align-items: center;
-                    justify-content: center;
                     color: white;
                     padding: $gutter-small;
+                }
+
+                .no-thumbnail {
+                    display: block;
+
+                    ::ng-deep svg {
+                        stroke: $graphite-color-200;
+                    }
                 }
 
                 img,
@@ -120,7 +128,7 @@
         .card {
             article {
                 .title {
-                    display: flex;
+                    display: block;
                     backdrop-filter: blur(5px);
                     background-color: rgba($color: #000000, $alpha: .5);
                 }

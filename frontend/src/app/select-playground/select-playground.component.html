@@ -32,13 +32,29 @@
 <div class="projects cards" [class.busy-block]="progress.loading.projects">
   <div class="card" *ngFor="let p of projects">
     <header>
-      <h2>{{ p.title | i18n }}</h2>
+      <h2>
+        {{ p.title | i18n }}
+        <ng-container *ngIf="userRole.admin | can | async">
+          {{ p.order }}
+        </ng-container>
+      </h2>
     </header>
     <article>
       <button (click)="selected.emit(p)">
         <div class="title">{{ p.title | i18n }}</div>
 
-        <ng-container *ngIf="p.pipeline.thumbnail as thumbnail">
+        <ng-template #noThumbnailTemplate>
+          <app-icon
+            class="no-thumbnail"
+            icon="image"
+            [stroke]="1.5"
+            [size]="64"
+          ></app-icon>
+        </ng-template>
+
+        <ng-container
+          *ngIf="p.pipeline.thumbnail as thumbnail; else noThumbnailTemplate"
+        >
           <ng-container [ngSwitch]="thumbnail | fileType">
             <video
               *ngSwitchCase="'video'"

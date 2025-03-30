@@ -52,6 +52,7 @@ export class EditProjectComponent {
   form = this.fb.group({
     visibility: this.visibilityControl,
     slug: this.fb.control<string>(null),
+    order: this.fb.control<number>(0),
   });
 
   constructor(
@@ -61,11 +62,12 @@ export class EditProjectComponent {
   ) {}
 
   private build() {
-    const { title, visibility, slug } = this.project;
+    const { title, visibility, slug, order } = this.project;
     this.form.patchValue({
       visibility,
       slug:
         slug || getLabel(title, Languages.en).toLowerCase().replace(/\s/g, "-"),
+      order,
     });
   }
 
@@ -78,8 +80,8 @@ export class EditProjectComponent {
     this.progress.saving = true;
     this.cd.detectChanges();
 
-    const { visibility, slug } = this.form.getRawValue();
-    const request = new Project({ visibility, slug });
+    const { visibility, slug, order } = this.form.getRawValue();
+    const request = new Project({ visibility, slug, order });
     this.http
       .post(`projects/${this.project._id}`, request)
       .pipe(

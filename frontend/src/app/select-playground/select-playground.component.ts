@@ -97,7 +97,10 @@ export class SelectPlaygroundComponent {
     this.cd.detectChanges();
 
     const filter = mapTo(this.form.getRawValue(), ProjectsFilter);
-    assign(filter, { visibility: ProjectVisibility.public });
+    assign(filter, {
+      sort: "order",
+      visibility: ProjectVisibility.public,
+    });
 
     this.http
       .get("projects", valuable(toPlain(filter)))

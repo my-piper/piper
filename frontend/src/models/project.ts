@@ -112,6 +112,10 @@ export class ProjectsFilter {
   @Type(() => String)
   cursor?: string;
 
+  @Expose()
+  @Type(() => String)
+  sort?: "cursor" | "order";
+
   constructor(defs: Partial<ProjectsFilter> = {}) {
     assign(this, defs);
   }
