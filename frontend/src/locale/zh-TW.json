@@ -37,6 +37,7 @@
 		"label.api_parameters": "參數",
 		"label.title": "標題",
 		"label.type": "類型",
-		"label.default": "默認"
+		"label.default": "默認",
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 重設"
 	}
 }

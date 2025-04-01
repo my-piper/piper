@@ -11,10 +11,8 @@ import { delay, finalize, map } from "rxjs";
 import { ProjectVisibility } from "src/enums/project-visibility";
 import { PipelineCategory } from "src/models/pipeline-category";
 import { Project, ProjectsFilter } from "src/models/project";
-import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { valuable } from "src/utils/assign";
 import { mapTo, toPlain } from "src/utils/models";
 
@@ -24,21 +22,16 @@ import { mapTo, toPlain } from "src/utils/models";
   styleUrls: ["./select-playground.component.scss"],
 })
 export class SelectPlaygroundComponent {
-  userRole = UserRole;
-
   error!: Error;
   progress = {
     loading: {
       categories: false,
       projects: false,
     },
-    organizing: false,
   };
 
   categories: PipelineCategory[] = [];
   projects: Project[] = [];
-
-  references: { popover: PopoverComponent } = { popover: null };
 
   @Output()
   selected = new EventEmitter<Project>();
@@ -119,28 +112,6 @@ export class SelectPlaygroundComponent {
           this.projects = projects;
           this.cd.detectChanges();
         },
-        error: (err) => (this.error = err),
-      });
-  }
-
-  organize() {
-    this.progress.organizing = true;
-    this.cd.detectChanges();
-
-    this.http
-      .post("projects/organize")
-      .pipe(
-        delay(UI_DELAY),
-        finalize(() => {
-          this.progress.organizing = false;
-          this.cd.detectChanges();
-
-          this.references.popover?.hide();
-          this.loadCategories();
-        })
-      )
-      .subscribe({
-        next: () => this.load(),
         error: (err) => (this.error = err),
       });
   }

@@ -1,22 +1,3 @@
-<ng-template #toolsPopover>
-  <ul class="context-menu" [class.busy]="progress.organizing">
-    <li>
-      <button [disabled]="progress.organizing" (click)="organize()">
-        Organize
-      </button>
-    </li>
-  </ul>
-</ng-template>
-
-<button
-  *ngIf="userRole.admin | can | async"
-  class="tools button circle"
-  [appPopover]="{ content: toolsPopover }"
-  (attached)="references.popover = $event"
->
-  <app-icon class="icon" icon="menu"></app-icon>
-</button>
-
 <form [formGroup]="form" class="categories">
   <button
     *ngFor="let c of categories"

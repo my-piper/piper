@@ -255,7 +255,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
           "blue",
           "yellow",
           "black",
-          "white",
           "cyan",
           "magenta",
           "lime",

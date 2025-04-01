@@ -7,6 +7,12 @@
     @include vertical-stack();
 }
 
+.tools {
+    position: fixed;
+    top: $gutter-normal;
+    right: $gutter-normal;
+}
+
 h1 {
     line-height: 1.25em;
     margin: 0;

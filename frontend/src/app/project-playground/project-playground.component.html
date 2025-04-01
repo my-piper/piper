@@ -62,20 +62,41 @@
   </div>
 </ng-container>
 
-<button
-  class="primary fluid"
-  [class.busy]="progress.launching"
-  [disabled]="!form.valid || progress.launching"
-  (click)="launch()"
->
-  <ng-container i18n="@@action.run">Run</ng-container>
-  <ng-container *ngIf="!!request">
-    <span
-      class="badge"
-      *ngIf="(project._id | pipelineCosts: request | async)?.total as total"
-      >{{
-        total | countdown | async | currency: "USD" : "symbol" : "1.0-10"
-      }}</span
-    >
-  </ng-container>
-</button>
+<footer class="horizontal stack space-between">
+  <button
+    class="primary fluid"
+    [class.busy]="progress.launching"
+    [disabled]="!form.valid || progress.launching"
+    (click)="launch()"
+  >
+    <ng-container i18n="@@action.run">Run</ng-container>
+    <ng-container *ngIf="!!request">
+      <span
+        class="badge"
+        *ngIf="(project._id | pipelineCosts: request | async)?.total as total"
+        >{{
+          total | countdown | async | currency: "USD" : "symbol" : "1.0-10"
+        }}</span
+      >
+    </ng-container>
+  </button>
+
+  <ng-template #toolsPopover>
+    <ul class="context-menu">
+      <li>
+        <button (click)="reset()" i18n="@@action.reset">
+          <app-icon class="icon" icon="close"></app-icon>
+          Reset
+        </button>
+      </li>
+    </ul>
+  </ng-template>
+
+  <button
+    class="primary with-icon only-icon"
+    [appPopover]="{ content: toolsPopover }"
+    (attached)="references.popover = $event"
+  >
+    <app-icon class="icon" icon="menu"></app-icon>
+  </button>
+</footer>

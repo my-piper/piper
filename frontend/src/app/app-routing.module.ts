@@ -64,7 +64,7 @@ import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.compo
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
-import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground.component";
+import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
 import { EditUserComponent } from "./users/edit/edit-user.component";

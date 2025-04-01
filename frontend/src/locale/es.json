@@ -38,6 +38,7 @@
 		"label.api_parameters": "Parámetros",
 		"label.title": "Título",
 		"label.type": "Escriba a",
-		"label.default": "Por defecto"
+		"label.default": "Por defecto",
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Restablecer"
 	}
 }

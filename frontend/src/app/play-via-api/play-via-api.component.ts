@@ -42,7 +42,9 @@ export class PlayViaApiComponent {
     const inputs = new Map<string, Primitive>();
     const { pipeline, launchRequest } = this.project;
     for (const [key, value] of pipeline.inputs) {
-      inputs.set(key, launchRequest.inputs.get(key) || value.default);
+      if (value.required) {
+        inputs.set(key, launchRequest.inputs.get(key) || value.default);
+      }
     }
     this.launchRequest = toPlain(new LaunchRequest({ inputs }));
     this.cd.detectChanges();

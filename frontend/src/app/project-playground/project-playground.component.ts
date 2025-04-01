@@ -13,6 +13,7 @@ import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toPlain } from "src/utils/models";
 
 @Component({
@@ -32,6 +33,8 @@ export class ProjectPlaygroundComponent {
   form = this.fb.group({
     inputs: this.inputsGroup,
   });
+
+  references: { popover: PopoverComponent } = { popover: null };
 
   constructor(
     private fb: FormBuilder,
@@ -135,5 +138,33 @@ export class ProjectPlaygroundComponent {
         next: (launch) => this.signals.emit(new PipelineLaunchedSignal(launch)),
         error: (err) => (this.error = err),
       });
+  }
+
+  reset() {
+    localStorage.removeItem(this.project._id);
+    const { pipeline, launchRequest } = this.project;
+    const state: { [key: string]: Primitive } = {};
+    if (!!pipeline.inputs) {
+      for (const [k, input] of pipeline.inputs) {
+        const value = launchRequest.inputs?.get(k) || input.default;
+        if (value !== undefined) {
+          switch (input.type) {
+            case "boolean":
+              state[k] = !!value;
+              break;
+            case "integer":
+            case "float":
+            case "string":
+            default:
+              state[k] = value;
+          }
+        } else {
+          state[k] = null;
+        }
+      }
+    }
+
+    this.inputsGroup.setValue(state);
+    this.references.popover?.hide();
   }
 }

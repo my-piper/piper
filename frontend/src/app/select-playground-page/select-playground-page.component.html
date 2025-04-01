@@ -1,0 +1,27 @@
+<ng-template #toolsPopover>
+  <ul class="context-menu" [class.busy]="progress.organizing">
+    <li>
+      <button [disabled]="progress.organizing" (click)="organize()">
+        Organize
+      </button>
+    </li>
+  </ul>
+</ng-template>
+
+<button
+  *ngIf="userRole.admin | can | async"
+  class="tools button circle"
+  [appPopover]="{ content: toolsPopover }"
+  (attached)="references.popover = $event"
+>
+  <app-icon class="icon" icon="menu"></app-icon>
+</button>
+
+<header class="stack horizontal">
+  <a class="circle" [routerLink]="['..']">
+    <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
+  </a>
+  <h1 i18n="@@label.select_pipeline">Select pipeline</h1>
+</header>
+
+<app-select-playground (selected)="go($event)"></app-select-playground>

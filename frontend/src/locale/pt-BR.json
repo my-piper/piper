@@ -36,6 +36,7 @@
 		"label.api_parameters": "Parâmetros",
 		"label.title": "Título",
 		"label.type": "Tipo de imagem",
-		"label.default": "Padrão"
+		"label.default": "Padrão",
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Redefinir"
 	}
 }

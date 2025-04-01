@@ -112,7 +112,7 @@ import { PlayWithProjectComponent } from "./play-with-project/play-with-project.
 import { PlaygroundComponent } from "./playground/playground.component";
 import { ProjectPlaygroundComponent } from "./project-playground/project-playground.component";
 import { SelectGeneratedComponent } from "./select-generated/select-generated.component";
-import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground.component";
+import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { SelectPlaygroundComponent } from "./select-playground/select-playground.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";

@@ -38,6 +38,7 @@
 		"label.api_parameters": "Parametreler",
 		"label.title": "Başlık",
 		"label.type": "Tip",
-		"label.default": "Varsayılan"
+		"label.default": "Varsayılan",
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Sıfırla"
 	}
 }

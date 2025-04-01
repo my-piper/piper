@@ -40,6 +40,7 @@
     "label.title": "Заголовок",
     "label.type": "Тип",
     "label.default": "По умолчанию",
-    "label.enum": "Перечисление"
+    "label.enum": "Перечисление",
+    "action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Сбросить"
   }
 }

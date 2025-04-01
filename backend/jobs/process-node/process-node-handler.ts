@@ -299,6 +299,9 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     return NodeJobResult.NODE_IS_GOING_TO_REPEAT;
   } else if (results instanceof NextNode) {
     const { outputs, behavior, reset, delay } = results;
+    if (!outputs) {
+      throw new FatalError("Outputs are not defined");
+    }
     const converted = await convertOutputs({ launch, node: nodeJob.node })(
       outputs,
       node.outputs

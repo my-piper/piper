@@ -37,6 +37,7 @@
 		"label.api_parameters": "Parameter",
 		"label.title": "Titel",
 		"label.type": "Typ",
-		"label.default": "Standard"
+		"label.default": "Standard",
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Zurücksetzen"
 	}
 }
