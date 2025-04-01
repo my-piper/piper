@@ -6,7 +6,7 @@ import { Observable, of } from "rxjs";
 import { Languages } from "src/ui-kit/enums/languages";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 
-const SPLIT_REGEX = /---\s*(\w+)\s*---\n/g;
+const SPLIT_REGEX = /---\s*(\w+)\s*---\s*\n/g;
 
 function i18n(text: string, language: Languages): string {
   const chunks = text.split(SPLIT_REGEX);
