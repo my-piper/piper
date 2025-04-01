@@ -8,7 +8,7 @@ export class GroupNodesPipe implements PipeTransform {
       [key: string]: { category: NodeCategory; nodes: Node[] };
     } = {};
     for (const node of nodes) {
-      const id = node.category?.id || "custom";
+      const id = node.category?._id || "custom";
       if (!categories[id]) {
         categories[id] = { category: node.category, nodes: [] };
       }

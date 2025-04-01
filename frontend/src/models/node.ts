@@ -39,10 +39,6 @@ export class NodeCategory {
 
   @Expose()
   @Type(() => String)
-  id!: string;
-
-  @Expose()
-  @Type(() => String)
   title: string;
 
   @Expose()
