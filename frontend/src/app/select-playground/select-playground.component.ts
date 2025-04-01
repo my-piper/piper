@@ -11,6 +11,7 @@ import { delay, finalize, map } from "rxjs";
 import { ProjectVisibility } from "src/enums/project-visibility";
 import { PipelineCategory } from "src/models/pipeline-category";
 import { Project, ProjectsFilter } from "src/models/project";
+import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { valuable } from "src/utils/assign";
@@ -22,6 +23,8 @@ import { mapTo, toPlain } from "src/utils/models";
   styleUrls: ["./select-playground.component.scss"],
 })
 export class SelectPlaygroundComponent {
+  userRole = UserRole;
+
   error!: Error;
   progress = {
     loading: {
