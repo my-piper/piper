@@ -65,6 +65,17 @@
     }
 
     .card {
+        .order {
+            position: absolute;
+            top: -$gutter-small;
+            left: -$gutter-small;
+            background: white;
+            line-height: 1em;
+            padding: $gutter-tiny;
+            font-size: .75em;
+            border-radius: $corner-small;
+        }
+
         article {
             padding: 0;
 

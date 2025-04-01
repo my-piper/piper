@@ -12,13 +12,11 @@
 
 <div class="projects cards" [class.busy-block]="progress.loading.projects">
   <div class="card" *ngFor="let p of projects">
+    <div class="order" *ngIf="userRole.admin | can | async">
+      {{ p.order }}
+    </div>
     <header>
-      <h2>
-        {{ p.title | i18n }}
-        <ng-container *ngIf="userRole.admin | can | async">
-          {{ p.order }}
-        </ng-container>
-      </h2>
+      <h2>{{ p.title | i18n }}</h2>
     </header>
     <article>
       <button (click)="selected.emit(p)">
