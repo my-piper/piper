@@ -11,12 +11,12 @@ import express from "express";
 import { readFile } from "fs/promises";
 import assign from "lodash/assign";
 import path from "path";
+
 import "reflect-metadata";
 import "./api/artefacts";
 import "./api/assets";
 import "./api/balance-refills";
 import "./api/batches";
-import "./api/deploys";
 import "./api/dms";
 import "./api/environment";
 import "./api/launches";
@@ -27,6 +27,9 @@ import "./api/pipelines";
 import "./api/projects";
 import "./api/users";
 import "./api/utils";
+
+import "./api/deploys";
+
 import {
   BASE_URL,
   FRONTEND_ROOT,

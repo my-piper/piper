@@ -3,9 +3,9 @@ import { ActivatedRoute } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
 import { AppConfig } from "src/models/app-config";
 import { Authorization } from "src/models/authorisation";
+import { Deploy } from "src/models/deploy";
 import { AppError } from "src/models/errors";
 import { LaunchRequest } from "src/models/launch-request";
-import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/ui-kit/consts";
@@ -20,7 +20,7 @@ export class PlayViaApiComponent {
   progress = { generating: false };
   error!: AppError;
 
-  project!: Project;
+  deploy!: Deploy;
   launchRequest!: object;
   authorization!: Authorization;
 
@@ -32,15 +32,15 @@ export class PlayViaApiComponent {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project }) => {
-      this.project = project;
+    this.route.data.subscribe(({ deploy }) => {
+      this.deploy = deploy;
       this.build();
     });
   }
 
   private build() {
     const inputs = new Map<string, Primitive>();
-    const { pipeline, launchRequest } = this.project;
+    const { pipeline, launchRequest } = this.deploy;
     for (const [key, value] of pipeline.inputs) {
       if (value.required) {
         inputs.set(key, launchRequest.inputs.get(key) || value.default);

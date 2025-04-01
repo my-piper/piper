@@ -16,6 +16,7 @@ import { AnonymousGuard } from "src/guards/anonymous.guard";
 import { ShouldCheckReadmeGuard } from "src/guards/pipeline-readme";
 import { SigninNeededGuard } from "src/guards/signin.guard";
 import { AssetsFilterResolver } from "src/resolvers/assets-filter";
+import { DeployResolver } from "src/resolvers/deploy";
 import { LaunchResolver } from "src/resolvers/launch";
 import { LaunchMessagesFilterResolver } from "src/resolvers/launch-messages-filter";
 import {
@@ -92,7 +93,10 @@ const routes: Routes = [
             component: PipelineReadmeComponent,
           },
           {
-            path: "api",
+            path: "api/:slug",
+            resolve: {
+              deploy: DeployResolver,
+            },
             component: PlayViaApiComponent,
           },
           {

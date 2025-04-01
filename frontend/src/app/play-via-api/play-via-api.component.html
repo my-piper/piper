@@ -12,7 +12,7 @@
   <textarea class="input-primary" rows="3" readonly>{{ token }}</textarea>
 </ng-container>
 
-<ng-container *ngIf="project.deploy as deploy">
+<ng-container>
   <h2 i18n="@@label.how_to_call">How to call</h2>
   <pre>
 <![CDATA[curl --location --request POST '{{ config.baseUrl }}/api/{{
@@ -36,7 +36,7 @@
 
   <ng-container
     *ngFor="
-      let i of project.pipeline.inputs | keyvalue | orderBy: ['value.order']
+      let i of deploy.pipeline.inputs | keyvalue | orderBy: ['value.order']
     "
   >
     <h3>{{ i.key }}<sup *ngIf="i.value.required">*</sup></h3>

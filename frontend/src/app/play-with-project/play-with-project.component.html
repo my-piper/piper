@@ -53,9 +53,12 @@
       >
     </li>
     <li>|</li>
-    <ng-container *ngIf="!!project.deploy">
+    <ng-container *ngIf="project.deploy as deploy">
       <li>
-        <a [routerLink]="['api']" routerLinkActive="active" i18n="@@link.api"
+        <a
+          [routerLink]="['api', deploy.slug]"
+          routerLinkActive="active"
+          i18n="@@link.api"
           >API</a
         >
       </li>
