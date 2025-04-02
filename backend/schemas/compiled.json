@@ -54,6 +54,9 @@
 					"$schema": "http://json-schema.org/draft-07/schema#",
 					"type": "object",
 					"title": "Node",
+					"options": {
+						"disable_collapse": true
+					},
 					"properties": {
 						"_id": {
 							"type": "string",
@@ -286,6 +289,9 @@
 						"inputs": {
 							"title": "Inputs",
 							"type": "object",
+							"options": {
+								"disable_collapse": true
+							},
 							"additionalProperties": {
 								"type": "object",
 								"options": {
@@ -426,6 +432,9 @@
 						"outputs": {
 							"title": "Outputs",
 							"type": "object",
+							"options": {
+								"disable_collapse": true
+							},
 							"additionalProperties": {
 								"type": "object",
 								"options": {
@@ -483,6 +492,9 @@
 						"Inputs": {
 							"title": "Inputs",
 							"type": "object",
+							"options": {
+								"disable_collapse": true
+							},
 							"additionalProperties": {
 								"type": "object",
 								"options": {
@@ -623,6 +635,9 @@
 						"Outputs": {
 							"title": "Outputs",
 							"type": "object",
+							"options": {
+								"disable_collapse": true
+							},
 							"additionalProperties": {
 								"type": "object",
 								"options": {
@@ -1037,6 +1052,9 @@
 		"$schema": "http://json-schema.org/draft-07/schema#",
 		"type": "object",
 		"title": "Node",
+		"options": {
+			"disable_collapse": true
+		},
 		"properties": {
 			"_id": {
 				"type": "string",
@@ -1269,6 +1287,9 @@
 			"inputs": {
 				"title": "Inputs",
 				"type": "object",
+				"options": {
+					"disable_collapse": true
+				},
 				"additionalProperties": {
 					"type": "object",
 					"options": {
@@ -1409,6 +1430,9 @@
 			"outputs": {
 				"title": "Outputs",
 				"type": "object",
+				"options": {
+					"disable_collapse": true
+				},
 				"additionalProperties": {
 					"type": "object",
 					"options": {
@@ -1466,6 +1490,9 @@
 			"Inputs": {
 				"title": "Inputs",
 				"type": "object",
+				"options": {
+					"disable_collapse": true
+				},
 				"additionalProperties": {
 					"type": "object",
 					"options": {
@@ -1606,6 +1633,9 @@
 			"Outputs": {
 				"title": "Outputs",
 				"type": "object",
+				"options": {
+					"disable_collapse": true
+				},
 				"additionalProperties": {
 					"type": "object",
 					"options": {
@@ -2398,6 +2428,9 @@
 					"$schema": "http://json-schema.org/draft-07/schema#",
 					"type": "object",
 					"title": "Node",
+					"options": {
+						"disable_collapse": true
+					},
 					"properties": {
 						"_id": {
 							"type": "string",
@@ -2630,6 +2663,9 @@
 						"inputs": {
 							"title": "Inputs",
 							"type": "object",
+							"options": {
+								"disable_collapse": true
+							},
 							"additionalProperties": {
 								"type": "object",
 								"options": {
@@ -2770,6 +2806,9 @@
 						"outputs": {
 							"title": "Outputs",
 							"type": "object",
+							"options": {
+								"disable_collapse": true
+							},
 							"additionalProperties": {
 								"type": "object",
 								"options": {
@@ -2827,6 +2866,9 @@
 						"Inputs": {
 							"title": "Inputs",
 							"type": "object",
+							"options": {
+								"disable_collapse": true
+							},
 							"additionalProperties": {
 								"type": "object",
 								"options": {
@@ -2967,6 +3009,9 @@
 						"Outputs": {
 							"title": "Outputs",
 							"type": "object",
+							"options": {
+								"disable_collapse": true
+							},
 							"additionalProperties": {
 								"type": "object",
 								"options": {
@@ -4222,6 +4267,9 @@
 							"$schema": "http://json-schema.org/draft-07/schema#",
 							"type": "object",
 							"title": "Node",
+							"options": {
+								"disable_collapse": true
+							},
 							"properties": {
 								"_id": {
 									"type": "string",
@@ -4454,6 +4502,9 @@
 								"inputs": {
 									"title": "Inputs",
 									"type": "object",
+									"options": {
+										"disable_collapse": true
+									},
 									"additionalProperties": {
 										"type": "object",
 										"options": {
@@ -4594,6 +4645,9 @@
 								"outputs": {
 									"title": "Outputs",
 									"type": "object",
+									"options": {
+										"disable_collapse": true
+									},
 									"additionalProperties": {
 										"type": "object",
 										"options": {
@@ -4651,6 +4705,9 @@
 								"Inputs": {
 									"title": "Inputs",
 									"type": "object",
+									"options": {
+										"disable_collapse": true
+									},
 									"additionalProperties": {
 										"type": "object",
 										"options": {
@@ -4791,6 +4848,9 @@
 								"Outputs": {
 									"title": "Outputs",
 									"type": "object",
+									"options": {
+										"disable_collapse": true
+									},
 									"additionalProperties": {
 										"type": "object",
 										"options": {

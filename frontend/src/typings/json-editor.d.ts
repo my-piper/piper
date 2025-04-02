@@ -16,7 +16,7 @@ declare module "@json-editor/json-editor" {
     };
     validate(): any[];
     destroy(): void;
-    on(event: string, callback: () => void): void;
+    on(event: string, callback: (...args: any) => void): void;
   }
   export { JSONEditor };
 }

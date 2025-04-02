@@ -53,8 +53,7 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
     if (!this.editor) {
       this.editor = new JSONEditor(this.hostRef.nativeElement, {
         display_required_only: true,
-        //disable_collapse: true,
-        collapsed: true,
+        //collapsed: true,
         disable_edit_json: true,
         disable_array_delete_all_rows: true,
         disable_array_delete_last_row: true,
@@ -65,6 +64,10 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
         for (const path of this.disable) {
           this.editor.getEditor(path).disable();
         }
+      });
+      this.editor.on("add", ({ path }: { path: string }) => {
+        // bug for JSON editor with collapsed: true
+        this.editor.getEditor(path).enable();
       });
       this.editor.on("change", () => {
         const errors = this.editor.validate();
