@@ -94,7 +94,7 @@
 
   <button
     class="primary with-icon only-icon"
-    [appPopover]="{ content: toolsPopover }"
+    [appPopover]="{ content: toolsPopover, trigger: 'click' }"
     (attached)="references.popover = $event"
   >
     <app-icon class="icon" icon="menu"></app-icon>
