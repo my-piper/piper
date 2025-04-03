@@ -21,7 +21,7 @@
               Open pipeline
             </a>
           </li>
-          <li *ngIf="userRole.admin | can: p.createdBy | async | not">
+          <li *ngIf="userRole.admin | can: l.createdBy | async | not">
             <button (click)="remove(i, l)">
               <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
               Delete
