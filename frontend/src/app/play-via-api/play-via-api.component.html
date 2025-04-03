@@ -56,12 +56,21 @@
             </b>
           </td>
         </tr>
-        <tr>
-          <td i18n="@@label.default">Default</td>
-          <td>
-            <code *ngIf="i.value.default as default">{{ default }}</code>
-          </td>
-        </tr>
+        <ng-container *ngIf="i.value.default !== undefined">
+          <tr>
+            <td i18n="@@label.default">Default</td>
+            <td>
+              <ng-container [ngSwitch]="i.value.type">
+                <ng-container *ngSwitchCase="boolean">
+                  <code>{{ i.value.default ? "true" : "false" }}</code>
+                </ng-container>
+                <ng-container *ngSwitchDefault="">
+                  {{ i.value.default }}
+                </ng-container>
+              </ng-container>
+            </td>
+          </tr>
+        </ng-container>
         <tr *ngIf="i.value.enum as enum">
           <td i18n="@@label.enum">Enum</td>
           <td>
