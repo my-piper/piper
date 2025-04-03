@@ -35,8 +35,9 @@ export class ProjectCommentsComponent {
 
   references: { popover: PopoverComponent } = { popover: null };
 
+  messageControl = this.fb.control<string>(null, [Validators.required]);
   form = this.fb.group({
-    message: this.fb.control<string>(null, [Validators.required]),
+    message: this.messageControl,
   });
 
   constructor(
@@ -110,6 +111,7 @@ export class ProjectCommentsComponent {
       )
       .subscribe({
         next: (comment) => {
+          this.messageControl.setValue(null);
           this.comments.unshift(comment);
           this.cd.detectChanges();
         },
