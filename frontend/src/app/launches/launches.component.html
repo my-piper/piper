@@ -2,10 +2,10 @@
   class="cards launches"
   [class.busy-block]="launches.length <= 0 && progress.loading"
 >
-  <div class="card" *ngFor="let l of launches">
+  <div class="card" *ngFor="let l of launches; let i = index">
     <header>
       <ng-template #actionsTemplate>
-        <ul class="context-menu" [class.busy]="progress.removing[l._id]">
+        <ul class="context-menu" [class.busy]="progress.removing[i]">
           <li>
             <a
               class="link"
@@ -21,8 +21,8 @@
               Open pipeline
             </a>
           </li>
-          <li>
-            <button (click)="remove(l)">
+          <li *ngIf="userRole.admin | can: p.createdBy | async | not">
+            <button (click)="remove(i, l)">
               <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
               Delete
             </button>

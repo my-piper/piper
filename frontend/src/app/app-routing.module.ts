@@ -65,6 +65,7 @@ import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.compo
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
+import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
@@ -98,6 +99,10 @@ const routes: Routes = [
               deploy: DeployResolver,
             },
             component: PlayViaApiComponent,
+          },
+          {
+            path: "comments",
+            component: ProjectCommentsComponent,
           },
           {
             path: "batches",

@@ -53,6 +53,15 @@
       >
     </li>
     <li>|</li>
+    <li>
+      <a [routerLink]="['comments']" routerLinkActive="active">
+        <ng-container i18n="@@link.comments">Comments</ng-container>
+        <div *ngIf="summary?.comments as comments" class="badge">
+          {{ comments }}
+        </div>
+      </a>
+    </li>
+    <li>|</li>
     <ng-container *ngIf="project.deploy as deploy">
       <li>
         <a

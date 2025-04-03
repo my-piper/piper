@@ -39,6 +39,9 @@
 		"label.type": "タイプ",
 		"label.default": "デフォルト",
 		"label.enum": "列挙",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Reset"
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Reset",
+		"link.comments": "コメント",
+		"action.add_comment": "コメントを追加",
+		"message.markdown_available": "マークダウン構文が使えます。"
 	}
 }

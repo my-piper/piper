@@ -110,6 +110,7 @@ import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.compo
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
+import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectPlaygroundComponent } from "./project-playground/project-playground.component";
 import { SelectGeneratedComponent } from "./select-generated/select-generated.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
@@ -222,6 +223,7 @@ import { UsersComponent } from "./users/users.component";
     BalanceRefillsComponent,
     PlayViaApiComponent,
     EditPipelineScriptComponent,
+    ProjectCommentsComponent,
   ],
   imports: [
     BrowserModule,

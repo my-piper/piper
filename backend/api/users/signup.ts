@@ -23,7 +23,6 @@ api.post(
     const { email, login: _id, password } = request;
 
     const now = new Date();
-
     const user = new User({
       _id,
       email,

@@ -38,6 +38,9 @@
 		"label.title": "제목",
 		"label.type": "유형",
 		"label.default": "기본값",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Reset"
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Reset",
+		"link.comments": "댓글",
+		"action.add_comment": " 댓글 추가",
+		"message.markdown_available": "마크다운 구문을 사용할 수 있습니다."
 	}
 }

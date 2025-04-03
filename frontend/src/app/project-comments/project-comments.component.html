@@ -1,0 +1,82 @@
+<ng-template #errorTemplate>
+  <div class="informer errors">
+    <p>{{ error.message }}</p>
+    <ul>
+      <li *ngFor="let m of error?.details">{{ m }}</li>
+    </ul>
+    <div class="stack horizontal justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
+<app-informer
+  *ngIf="!!error"
+  [contentTemplate]="errorTemplate"
+  (ok)="error = null"
+></app-informer>
+
+<form [formGroup]="form">
+  <header>
+    <p i18n="@@message.markdown_available">You can use markdown syntax.</p>
+  </header>
+  <fieldset [disabled]="progress.adding">
+    <textarea
+      formControlName="message"
+      class="input-primary fluid"
+      [class.error]="form | invalidField: 'message'"
+      rows="5"
+    ></textarea>
+  </fieldset>
+  <footer>
+    <button
+      class="primary"
+      type="button"
+      i18n="@@action.add_comment"
+      [class.busy]="progress.adding"
+      [disabled]="progress.adding"
+      (click)="addComment()"
+    >
+      Add comment
+    </button>
+  </footer>
+</form>
+
+<div
+  class="cards"
+  [class.busy-block]="comments.length <= 0 && progress.loading"
+>
+  <div class="card" *ngFor="let c of comments; let i = index">
+    <header class="horizontal stack justify-end">
+      <ng-template #actionsTemplate>
+        <ul class="context-menu" [class.busy]="progress.removing[i]">
+          <li>
+            <button (click)="remove(i, c)">
+              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
+              Delete
+            </button>
+          </li>
+        </ul>
+      </ng-template>
+      <button
+        class="actions"
+        [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+        (attached)="references.popover = $event"
+      >
+        <app-icon class="icon" icon="menu"></app-icon>
+      </button>
+      <div>{{ c.createdAt | date: "short" }}</div>
+    </header>
+    <article [innerHTML]="c.message | markdown | async"></article>
+    <footer class="horizontal stack justify-between">
+      <div class="created-by">{{ c.createdBy._id }}</div>
+      <div>{{ c.createdAt | timePassed }}</div>
+    </footer>
+  </div>
+</div>
+
+<div
+  *ngIf="chunk.length > 0 && !progress.loading"
+  [inViewport]
+  (visible)="loadMore()"
+></div>

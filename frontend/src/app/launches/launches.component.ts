@@ -7,12 +7,13 @@ import { AppConfig } from "src/models/app-config";
 import { SetLaunchErrorsEvent, SetLaunchOutputEvent } from "src/models/events";
 import { Launch, LaunchesFilter } from "src/models/launch";
 import { PipelineLaunchedSignal } from "src/models/signals/launch";
+import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
-import { toPlain } from "src/utils/models";
+import { mapTo, toPlain } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
 @Component({
@@ -21,10 +22,12 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   styleUrls: ["./launches.component.scss"],
 })
 export class LaunchesComponent extends UntilDestroyed {
+  userRole = UserRole;
+
   private _filter!: LaunchesFilter;
 
-  progress: { removing: { [key: string]: boolean }; loading: boolean } = {
-    removing: {},
+  progress = {
+    removing: {} as { [key: number]: boolean },
     loading: false,
   };
   error: Error;
@@ -116,8 +119,9 @@ export class LaunchesComponent extends UntilDestroyed {
     this.progress.loading = true;
     this.cd.detectChanges();
 
+    const filter = mapTo({ ...this.filter, cursor }, LaunchesFilter);
     this.http
-      .get("launches", toPlain({ ...this.filter, cursor }))
+      .get("launches", toPlain(filter))
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
@@ -143,8 +147,8 @@ export class LaunchesComponent extends UntilDestroyed {
     }
   }
 
-  remove(launch: Launch) {
-    this.progress.removing[launch._id] = true;
+  remove(index: number, launch: Launch) {
+    this.progress.removing[index] = true;
     this.cd.detectChanges();
 
     this.http
@@ -152,17 +156,14 @@ export class LaunchesComponent extends UntilDestroyed {
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
-          this.progress.removing[launch._id] = false;
+          this.progress.removing[index] = false;
           this.cd.detectChanges();
         })
       )
       .subscribe({
         next: () => {
-          const index = this.launches.indexOf(launch);
-          if (index !== -1) {
-            this.launches.splice(index, 1);
-            this.cd.detectChanges();
-          }
+          this.launches.splice(index, 1);
+          this.cd.detectChanges();
         },
         error: (err) => (this.error = err.error),
       });

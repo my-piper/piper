@@ -39,6 +39,9 @@
 		"label.title": "Başlık",
 		"label.type": "Tip",
 		"label.default": "Varsayılan",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Sıfırla"
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Sıfırla",
+		"link.comments": "Yorumlar",
+		"action.add_comment": " Yorum ekle",
+		"message.markdown_available": "Markdown sözdizimini kullanabilirsiniz."
 	}
 }

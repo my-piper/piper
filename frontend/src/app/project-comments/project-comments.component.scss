@@ -1,0 +1,43 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+    display: block;
+    @include vertical-stack();
+}
+
+form {
+    @include vertical-stack($gutter-small);
+}
+
+.cards {
+    min-height: 100px;
+
+    .card {
+        header {
+            padding: $gutter-small;
+            font-size: .85em;
+            margin: 0;
+        }
+
+        article {
+            ::ng-deep {
+                @include vertical-stack($gutter-small);
+
+                p {
+                    margin: 0;
+                }
+            }
+        }
+
+        footer {
+            text-align: right;
+            color: $graphite-color-100;
+            font-size: .85em;
+
+            .created-by {
+                font-weight: bold;
+            }
+        }
+    }
+}

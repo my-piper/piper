@@ -41,6 +41,9 @@
 		"label.type": "类型",
 		"label.default": "默认值",
 		"label.enum": "枚举",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 重置"
+		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 重置",
+		"link.comments": "评论",
+		"action.add_comment": "添加评论",
+		"message.markdown_available": "您可以使用标记符语法。"
 	}
 }

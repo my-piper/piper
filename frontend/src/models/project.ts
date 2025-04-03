@@ -120,3 +120,41 @@ export class ProjectsFilter {
     assign(this, defs);
   }
 }
+
+export class ProjectComment {
+  @Expose()
+  @Type(() => String)
+  _id!: string;
+
+  @Expose()
+  @Type(() => String)
+  project!: string;
+
+  @Expose()
+  @Type(() => Date)
+  createdAt!: Date;
+
+  @Expose()
+  @Type(() => User)
+  createdBy!: User;
+
+  @Expose()
+  @Type(() => String)
+  message: string;
+}
+
+export class ProjectCommentsFilter {
+  @Expose()
+  @Type(() => String)
+  cursor?: string;
+
+  constructor(defs: Partial<ProjectCommentsFilter> = {}) {
+    assign(this, defs);
+  }
+}
+
+export class ProjectSummary {
+  @Expose()
+  @Type(() => Number)
+  comments?: number;
+}
