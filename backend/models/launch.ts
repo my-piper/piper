@@ -1,5 +1,6 @@
 import { Expose, Transform, Type } from "class-transformer";
 import assign from "lodash/assign";
+import { objectTransformer } from "transformers/object";
 import { Pipeline, PipelineCosts } from "../models/pipeline";
 import { objectsMapTransformer } from "../transformers/map";
 import { primitiveMapTransformer } from "../transformers/primitive";
@@ -73,7 +74,7 @@ export class StringData extends OutputData {
 
 export class JsonData extends OutputData {
   @Expose()
-  @Type(() => Object)
+  @Transform(objectTransformer)
   value: object;
 
   constructor(defs: Partial<JsonData> = {}) {

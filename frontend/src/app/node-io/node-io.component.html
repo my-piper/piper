@@ -19,6 +19,9 @@
     <ng-container *ngSwitchCase="'string'">
       {{ value }}
     </ng-container>
+    <ng-container *ngSwitchCase="'string[]'">
+      {{ value }}
+    </ng-container>
     <a *ngSwitchCase="'image'" [href]="value" target="_blank">
       <img [imageSize]="value" [src]="value" />
     </a>

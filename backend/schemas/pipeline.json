@@ -228,6 +228,7 @@
             "integer",
             "float",
             "string",
+            "string[]",
             "image",
             "image[]",
             "video",

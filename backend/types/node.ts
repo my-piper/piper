@@ -53,6 +53,9 @@ export class NextNode {
   @Type(() => String)
   behavior: "normal" | "loop" = "normal";
 
+  @Type(() => String)
+  kicks: [];
+
   @Transform(mapTransformer<Primitive | Buffer>)
   outputs: NodeOutputs;
 

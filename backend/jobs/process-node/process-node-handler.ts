@@ -11,6 +11,7 @@ import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { pathToFileURL } from "node:url";
 import { Module, SourceTextModule } from "node:vm";
 import path from "path";
+import { Primitive } from "types/primitive";
 import io from "../../app/io";
 import { queues } from "../../app/queue";
 import { streams } from "../../app/stream";
@@ -298,24 +299,24 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     return NodeJobResult.NODE_IS_GOING_TO_REPEAT;
   } else if (results instanceof NextNode) {
-    const { outputs, behavior, reset, delay } = results;
-    if (!outputs) {
-      throw new FatalError("Outputs are not defined");
-    }
-    const converted = await convertOutputs({ launch, node: nodeJob.node })(
-      outputs,
-      node.outputs
-    );
-
-    logger.debug("Converted outputs", converted);
-
-    await redis.setEx(
-      NODE_OUTPUTS(launch._id, nodeJob.node),
-      LAUNCH_EXPIRED,
-      JSON.stringify(converted)
-    );
+    const { outputs, kicks, behavior, reset, delay } = results;
 
     logger.debug(`Node behavior is ${behavior}`);
+
+    let converted: { [key: string]: Primitive } = {};
+    if (!!outputs) {
+      converted = await convertOutputs({ launch, node: nodeJob.node })(
+        outputs,
+        node.outputs
+      );
+      logger.debug("Converted outputs", converted);
+
+      await redis.setEx(
+        NODE_OUTPUTS(launch._id, nodeJob.node),
+        LAUNCH_EXPIRED,
+        JSON.stringify(converted)
+      );
+    }
 
     if (behavior === "normal") {
       logger.debug("Set processed lock");
@@ -351,7 +352,6 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
               .get(flow.from)
               .outputs.get(flow.output);
 
-            const input = pipeline.nodes.get(flow.to).inputs.get(flow.input);
             await redis.setEx(
               NODE_INPUT(launch._id, flow.to, flow.input),
               LAUNCH_EXPIRED,
@@ -377,6 +377,12 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
         logger.debug(`Plan next node ${node}`);
         await plan(node, pipeline.nodes.get(node), launch._id, { delay });
+      }
+    }
+
+    if (!!kicks) {
+      for (const kick of kicks) {
+        await plan(kick, pipeline.nodes.get(kick), launch._id, { delay });
       }
     }
 

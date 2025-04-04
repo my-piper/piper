@@ -9,6 +9,9 @@
     <span *ngSwitchCase="'string'" class="string-value" [title]="value">
       {{ value || io.default }}
     </span>
+    <span *ngSwitchCase="'string[]'" class="string-value" [title]="value">
+      {{ value || io.default }}
+    </span>
     <div *ngSwitchCase="'image'">
       <img *ngIf="!!value" [src]="value | proxyImage: { height: 30 }" />
     </div>

@@ -85,7 +85,9 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  valueControl = this.fb.control<Primitive | null>(null);
+  valueControl = this.fb.control<boolean | number | string | string[] | null>(
+    null
+  );
   form = this.fb.group({
     value: this.valueControl,
   });
@@ -99,19 +101,43 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
 
   ngOnInit() {
     this.valueControl.valueChanges.subscribe((value) => {
-      this.onChange(value);
+      this.onChange(
+        (() => {
+          switch (this.type) {
+            case "boolean":
+              return !!value;
+            case "string[]":
+              const values = value as string[];
+              if (values.length <= 0) {
+                return null;
+              }
+              return values.join("|");
+            default:
+              return value;
+          }
+        })()
+      );
       this.cd.detectChanges();
     });
   }
 
   writeValue(value: Primitive): void {
-    switch (this.type) {
-      case "boolean":
-        this.valueControl.setValue(!!value, { emitEvent: false });
-        break;
-      default:
-        this.valueControl.setValue(value, { emitEvent: false });
-    }
+    this.valueControl.setValue(
+      (() => {
+        switch (this.type) {
+          case "boolean":
+            return !!value;
+          case "string[]":
+            if (!value) {
+              return null;
+            }
+            return (value as string).split("|");
+          default:
+            return value;
+        }
+      })(),
+      { emitEvent: false }
+    );
     this.cd.detectChanges();
   }
 

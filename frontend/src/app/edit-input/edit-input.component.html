@@ -184,6 +184,24 @@
     </div>
   </ng-container>
 
+  <ng-container *ngSwitchCase="'string[]'">
+    <container *ngFor="let g of enum | nsfw | groupList">
+      <label>{{ g.name }}</label>
+      <div class="switcher">
+        <ng-container *ngFor="let o of g.options">
+          <label
+            *ngIf="o | split: '|' as x"
+            class="option"
+            formControlName="value"
+            [appSelectable]="{ value: x[0], mode: 'multiple' }"
+          >
+            {{ x[1] ? (x[1] | i18n) : x[0] }}
+          </label>
+        </ng-container>
+      </div>
+    </container>
+  </ng-container>
+
   <ng-container *ngSwitchDefault>
     <ng-container *ngIf="enum?.length > 0; else textInputTemplate">
       <ng-container *ngIf="freeform; else selectTemplate">

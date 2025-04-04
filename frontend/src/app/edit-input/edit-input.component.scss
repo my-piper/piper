@@ -49,6 +49,12 @@ textarea {
   margin-bottom: $gutter-normal;
 }
 
+.option {
+  &.selected {
+    background-color: red;
+  }
+}
+
 .container {
   position: relative;
   cursor: pointer;

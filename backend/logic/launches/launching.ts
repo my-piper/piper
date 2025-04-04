@@ -241,6 +241,11 @@ export async function getIOData(
       return new StringData({
         value: value as string,
       });
+    case "string[]":
+      const values = (value as string).split("|");
+      return new StringData({
+        value: values.join(", "),
+      });
     case "json":
       return new JsonData({
         value: JSON.parse(value as string),
