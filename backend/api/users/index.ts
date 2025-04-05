@@ -1,7 +1,6 @@
 import "./add-user";
 import "./delete-user";
 import "./generate-api-token";
-import "./get-me";
 import "./get-user";
 import "./list";
 import "./login";

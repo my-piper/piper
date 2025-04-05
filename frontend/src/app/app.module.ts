@@ -70,6 +70,7 @@ import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { AppComponent } from "./app.component";
 import { AssetsPageComponent } from "./assets-page/assets-page.component";
 import { BatchesComponent } from "./batches/batches.component";
+import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { DrawMaskComponent } from "./draw-mask/draw-mask.component";
 import { EditNodeCatalogComponent } from "./edit-node-catalog/edit-node-catalog.component";
 import { EditNodeDesignComponent } from "./edit-node-design/edit-node-design.component";
@@ -224,6 +225,7 @@ import { UsersComponent } from "./users/users.component";
     PlayViaApiComponent,
     EditPipelineScriptComponent,
     ProjectCommentsComponent,
+    ChangePasswordComponent,
   ],
   imports: [
     BrowserModule,

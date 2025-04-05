@@ -20,6 +20,7 @@ import "./api/batches";
 import "./api/dms";
 import "./api/environment";
 import "./api/launches";
+import "./api/me";
 import "./api/messages";
 import "./api/nodes";
 import "./api/pipeline-usages";

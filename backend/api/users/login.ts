@@ -36,6 +36,10 @@ api.post(
       throw e;
     }
 
+    if (!user.password) {
+      throw new DataError("You need to reset your password");
+    }
+
     const matched = await bcrypt.compare(password, user.password);
     if (!matched) {
       throw new DataError("Email or password is incorrect");

@@ -55,6 +55,14 @@
     </div>
 
     <ul class="context-menu">
+      <li>
+        <button (click)="changePassword()">
+          <app-icon class="icon left" [icon]="'password'"></app-icon>
+          <ng-container i18n="@@action.change_password">
+            Change password
+          </ng-container>
+        </button>
+      </li>
       <ng-container *ngIf="!!config.billing.url">
         <li>
           <a

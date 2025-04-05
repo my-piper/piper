@@ -24,7 +24,16 @@ api.get(
             : {}),
           ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
         },
-        { projection: { createdAt: 1, name: 1, email: 1, roles: 1 } }
+        {
+          projection: {
+            createdAt: 1,
+            name: 1,
+            email: 1,
+            provider: 1,
+            balance: 1,
+            roles: 1,
+          },
+        }
       )
       .sort({ createdAt: -1 })
       .toArray();

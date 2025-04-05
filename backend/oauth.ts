@@ -88,7 +88,7 @@ app.get(
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     const { email } = req["user"] as User;
-    res.status(200).send(redirect(await identify(email)));
+    res.status(200).send(redirect(await identify(email, "google")));
   }
 );
 
@@ -120,7 +120,7 @@ app.get(
   passport.authenticate("yandex", { session: false }),
   async (req, res) => {
     const { email } = req["user"] as User;
-    res.status(200).send(redirect(await identify(email)));
+    res.status(200).send(redirect(await identify(email, "yandex")));
   }
 );
 

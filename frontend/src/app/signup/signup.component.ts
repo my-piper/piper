@@ -67,7 +67,7 @@ export class SigupComponent implements OnInit {
       if (!!email) {
         const [login] = email.split("@");
         if (!!login) {
-          this.loginControl.setValue(login);
+          this.loginControl.setValue(login.slice(0, 14));
         }
       }
     });

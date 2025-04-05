@@ -41,11 +41,10 @@ header {
                 right: -8px;
                 color: white;
                 font-size: .55em;
-                padding: 2px 3px;
+                padding: 3px 5px;
                 line-height: 1em;
-                border: 1px solid white;
                 border-radius: $corner-small;
-                background-color: black;
+                background: linear-gradient(135deg, #6e00ff, #b500f9);
             }
         }
 

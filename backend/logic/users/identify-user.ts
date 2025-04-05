@@ -8,10 +8,14 @@ import { sid } from "utils/string";
 import { User } from "../../models/user";
 import { getToken } from "./auth";
 import { refillBalance } from "./refill-balance";
+import { OAuthProvider } from "./types";
 
 const MAX_ATTEMPTS = 5;
 
-export async function identify(email: string): Promise<Authorization> {
+export async function identify(
+  email: string,
+  provider: OAuthProvider
+): Promise<Authorization> {
   const now = new Date();
 
   let user: User;
@@ -45,6 +49,7 @@ export async function identify(email: string): Promise<Authorization> {
         _id,
         email,
         createdAt: now,
+        provider,
         cursor: ulid(),
       });
       try {

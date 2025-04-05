@@ -14,6 +14,7 @@ import { Languages } from "src/ui-kit/enums/languages";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 import { ModalService } from "../../ui-kit/modal/modal.service";
+import { ChangePasswordComponent } from "../change-password/change-password.component";
 import { NsfwDisclaimer } from "../nsfw-disclaimer/nsfw-disclaimer.component";
 
 @Component({
@@ -57,6 +58,17 @@ export class MeUserComponent implements OnInit {
       allow
         ? localStorage.setItem("nsfw", "allow")
         : localStorage.removeItem("nsfw");
+    });
+  }
+
+  changePassword() {
+    this.references.popover?.hide();
+    const component = this.cfr
+      .resolveComponentFactory(ChangePasswordComponent)
+      .create(this.injector);
+    component.instance.changed.subscribe(() => this.modal.close());
+    this.modal.open(component, {
+      title: "Change password",
     });
   }
 

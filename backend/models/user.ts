@@ -1,5 +1,6 @@
 import { Expose, Type } from "class-transformer";
 import assign from "lodash/assign";
+import { OAuthProvider } from "logic/users/types";
 import "reflect-metadata";
 
 export class UserBalance {
@@ -52,6 +53,10 @@ export class User {
   @Expose()
   @Type(() => UserBalance)
   balance!: UserBalance;
+
+  @Expose()
+  @Type(() => String)
+  provider!: OAuthProvider;
 
   @Expose()
   @Type(() => String)

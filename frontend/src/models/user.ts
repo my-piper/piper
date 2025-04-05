@@ -45,6 +45,10 @@ export class User {
   roles!: UserRole[];
 
   @Expose()
+  @Type(() => String)
+  provider: "yandex" | "google";
+
+  @Expose()
   @Type(() => UserBalance)
   balance!: UserBalance;
 

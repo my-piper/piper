@@ -50,7 +50,8 @@
       <th i18n="@@label.login">Login</th>
       <th i18n="@@label.email">Email</th>
       <th i18n="@@label.created_at" width="120px">Created at</th>
-      <th width="24px"></th>
+      <th i18n="@@label.balance" width="100px">Balance</th>
+      <th width="48px"></th>
     </thead>
     <tbody>
       <tr *ngFor="let u of users; let i = index">
@@ -83,16 +84,35 @@
           </a>
         </td>
         <td title="Email" i18n-title="@@label.email">
-          <small>{{ u.email }}</small>
+          {{ u.email }}
         </td>
         <td title="Created at" i18n-title="@@label.created_at">
-          <small>{{ u.createdAt | date }}</small>
+          {{ u.createdAt | date }}
+        </td>
+        <td
+          title="Balance"
+          i18n-title="@@label.balance"
+          style="text-align: right"
+        >
+          <ng-container *ngIf="u.balance?.remaining as remaining">
+            {{ remaining | currency: "USD" : "symbol" : "1.3-3" }}
+          </ng-container>
         </td>
         <td>
           <div class="stack horizontal tiny align-center">
             <app-icon
               *ngIf="u.roles | includes: userRole.admin"
               [icon]="'admin'"
+              [size]="20"
+            ></app-icon>
+            <app-icon
+              *ngIf="u.provider === 'yandex'"
+              [icon]="'yandex'"
+              [size]="20"
+            ></app-icon>
+            <app-icon
+              *ngIf="u.provider === 'google'"
+              [icon]="'google'"
               [size]="20"
             ></app-icon>
           </div>
