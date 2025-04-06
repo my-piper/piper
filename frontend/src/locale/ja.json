@@ -42,6 +42,15 @@
 		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Reset",
 		"link.comments": "コメント",
 		"action.add_comment": "コメントを追加",
-		"message.markdown_available": "マークダウン構文が使えます。"
+		"message.markdown_available": "あなたは{$START_LINK}マークダウン{$CLOSE_LINK}を使用できます",
+		"action.change_password": "パスワード変更",
+		"message.your_can_restore_password": "また、{$START_LINK}パスワードの復元{$CLOSE_LINK}もできます。",
+		"message.not_owner_pipeline": "あなたはこのパイプラインの所有者ではありませんが、このパイプラインで遊ぶことができます。",
+		"link.open_playground": "オープンプレイグラウンド{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}。",
+		"label.change_password": "パスワード変更",
+		"label.confirm_password": "パスワードの確認",
+		"label.created": "作成",
+		"message.no_launches_found": "起動が見つかりません。{$START_BOLD_TEXT}実行{$CLOSE_BOLD_TEXT}ボタンを押してください。",
+		"message.coming_soon": "近日公開"
 	}
 }

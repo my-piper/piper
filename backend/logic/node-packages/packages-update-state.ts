@@ -1,4 +1,4 @@
-import { queues } from "../../app/queue";
+import { queues } from "../../app/queues";
 import { PACKAGES_UPDATES } from "../../consts/packages";
 import {
   NodePackageUpdates,

@@ -11,7 +11,7 @@
 <button
   *ngIf="userRole.admin | can | async"
   class="tools button circle"
-  [appPopover]="{ content: toolsPopover }"
+  [appPopover]="{ content: toolsPopover, trigger: 'click' }"
   (attached)="references.popover = $event"
 >
   <app-icon class="icon" icon="menu"></app-icon>

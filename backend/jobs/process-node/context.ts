@@ -1,12 +1,12 @@
 import { HttpsAgent } from "agentkeepalive";
 import { artefact } from "app/storage";
-import { streams } from "app/stream";
+import { streams } from "app/streams";
 import axios from "axios";
 import { plainToInstance } from "class-transformer";
 import { SHARE_FOLDER } from "consts/chrome";
 import { MODULES_PATH, NODE_ENV } from "consts/core";
 import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
-import { redis } from "core-kit/services/redis/redis";
+import redis from "core-kit/services/redis";
 import { DataError, FatalError, TimeoutError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { fileTypeFromBuffer } from "file-type";

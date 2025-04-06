@@ -41,6 +41,15 @@
 		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Réinitialisation",
 		"link.comments": "Commentaires",
 		"action.add_comment": " Ajouter un commentaire",
-		"message.markdown_available": "Vous pouvez utiliser la syntaxe markdown."
+		"message.markdown_available": " Vous pouvez utiliser {$START_LINK}markdown{$CLOSE_LINK}",
+		"action.change_password": " Changer le mot de passe",
+		"message.your_can_restore_password": " Vous pouvez également {$START_LINK} restaurer le mot de passe{$CLOSE_LINK}",
+		"message.not_owner_pipeline": " Vous n'êtes pas propriétaire de ce pipeline, mais vous pouvez jouer avec dans",
+		"link.open_playground": " Terrain de jeu ouvert {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"label.change_password": "Changer le mot de passe",
+		"label.confirm_password": "Confirmer le mot de passe",
+		"label.created": "Créé",
+		"message.no_launches_found": " Lancements non trouvés. Veuillez appuyer sur le bouton {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT}.",
+		"message.coming_soon": "Prochainement..."
 	}
 }

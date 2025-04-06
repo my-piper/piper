@@ -1,4 +1,4 @@
-import { createLogger } from "../logger";
+import { createLogger } from "core-kit/services/logger";
 import { planCheckUpdates } from "../logic/node-packages";
 
 const logger = createLogger("check-packages-updates");

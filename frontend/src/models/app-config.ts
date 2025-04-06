@@ -28,6 +28,10 @@ export class AppConfig {
   @Type(() => String)
   siteUrl?: string;
 
+  @Expose()
+  @Type(() => String)
+  appFooter?: string;
+
   authorization$ = new BehaviorSubject<Authorization | null>(
     (() => {
       const json = localStorage.getItem(AUTHORIZATION_KEY);

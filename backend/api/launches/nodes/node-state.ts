@@ -1,7 +1,7 @@
 import api from "app/api";
 import { handle } from "utils/http";
 import { NODE_STATE } from "../../../consts/redis";
-import { redis } from "../../../core-kit/services/redis/redis";
+import redis from "../../../core-kit/services/redis";
 
 api.get(
   "/api/launches/:launch/nodes/:node/state",

@@ -3,7 +3,8 @@ import bcrypt from "bcrypt";
 import { USER_API_TOKEN_KEY } from "consts/redis";
 import { ALL_LANGUAGES } from "core-kit/consts/locale";
 import { Languages } from "core-kit/enums/languages";
-import { redis } from "core-kit/services/redis";
+import { createLogger } from "core-kit/services/logger";
+import redis from "core-kit/services/redis";
 import sentry from "core-kit/services/sentry";
 import {
   DataError,
@@ -16,10 +17,9 @@ import { toInstance, toPlain } from "core-kit/utils/models";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import assign from "lodash/assign";
+import { User, UserRole } from "models/user";
 import { DEFAULT_LANG, JWT_SECRET } from "../consts/core";
 import { NO_CACHE_HEADERS } from "../consts/http";
-import { createLogger } from "../logger";
-import { User, UserRole } from "../models/user";
 import { Injector } from "../types/injector";
 
 const USER_TOKEN_HEADER = "user-token";

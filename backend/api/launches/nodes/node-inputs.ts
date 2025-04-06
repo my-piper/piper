@@ -3,7 +3,7 @@ import { DataError } from "core-kit/types/errors";
 import { toInstance } from "core-kit/utils/models";
 import { handle } from "utils/http";
 import { LAUNCH } from "../../../consts/redis";
-import { redis } from "../../../core-kit/services/redis/redis";
+import redis from "../../../core-kit/services/redis";
 import { Launch } from "../../../models/launch";
 import { getNodeInputs } from "../../../utils/node";
 

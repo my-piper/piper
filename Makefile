@@ -18,7 +18,7 @@ install:
 	npm --prefix ./translator install
 
 schemas:
-	npm run --prefix ./backend cli compile-schemas
+	npm run --prefix ./backend cli compile schemas
 	npm run --prefix ./frontend sync-schemas
 
 build_local:

@@ -1,7 +1,7 @@
 import { Expose, Transform, Type } from "class-transformer";
 import assign from "lodash/assign";
+import { Pipeline, PipelineCosts } from "models/pipeline";
 import { objectTransformer } from "transformers/object";
-import { Pipeline, PipelineCosts } from "../models/pipeline";
 import { objectsMapTransformer } from "../transformers/map";
 import { primitiveMapTransformer } from "../transformers/primitive";
 import { PipelineIOType } from "../types/pipeline";

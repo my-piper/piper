@@ -1,10 +1,10 @@
+import { createLogger } from "core-kit/services/logger";
 import { toPlain } from "core-kit/utils/models";
 import { Partitioners } from "kafkajs";
-import { createLogger } from "../logger";
-import { PipelineFinishedMetric } from "../models/pipeline-finished-metric";
-import { PipelineMessage } from "../models/pipeline-message";
-import { PipelineOutputMetric } from "../models/pipeline-output-metric";
-import { PipelineUsage } from "../models/pipeline-usage";
+import { PipelineFinishedMetric } from "models/pipeline-finished-metric";
+import { PipelineMessage } from "models/pipeline-message";
+import { PipelineOutputMetric } from "models/pipeline-output-metric";
+import { PipelineUsage } from "models/pipeline-usage";
 import kafka from "./kafka";
 
 const logger = createLogger("stream");

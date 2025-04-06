@@ -1,7 +1,7 @@
-import { queues } from "../../app/queue";
+import { createLogger } from "core-kit/services/logger";
+import redis from "core-kit/services/redis";
+import { queues } from "../../app/queues";
 import { PACKAGES_UPDATES } from "../../consts/packages";
-import { redis } from "../../core-kit/services/redis/redis";
-import { createLogger } from "../../logger";
 import { NodePackageUpdates } from "../../models/node-package";
 import { loadRange } from "../../utils/redis";
 

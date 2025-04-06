@@ -53,7 +53,7 @@ Open `http://localhost/`
 Add admin user
 
 ```bash
-npm --prefix backend run cli add-user -- --id admin --email admin@yourdomain.com --role admin --password xyzXYZ
+npm --prefix backend run cli users add admin admin@piper.my xyzXYZ admin
 ```
 
 # How to
@@ -61,19 +61,19 @@ npm --prefix backend run cli add-user -- --id admin --email admin@yourdomain.com
 ## Get environment
 
 ```bash
-npm --prefix backend run cli environment
+npm --prefix backend run cli env
 ```
 
 ## Set variable
 
 ```bash
-npm --prefix backend run cli set-variable -- --name XXX --value xyzXYZ
+npm --prefix backend run cli env set -- --name XXX --value xyzXYZ
 ```
 
 ## Remove variable
 
 ```bash
-npm --prefix backend run cli remove-variable -- --name XXX
+npm --prefix backend run cli env remove -- --name XXX
 ```
 
 # Modules
@@ -84,7 +84,7 @@ npm --prefix backend run cli remove-variable -- --name XXX
 npm run cli modules
 ```
 
-## Install package
+## Install module
 
 ```bash
 npm run cli modules add @anthropic-ai/sdk 0.37.0
@@ -99,7 +99,7 @@ npm run cli modules add sharp 0.33.5
 npm run cli modules add together-ai 0.13.0
 ```
 
-## Remove package
+## Remove module
 
 ```bash
 npm run cli modules remove @fal-ai/client

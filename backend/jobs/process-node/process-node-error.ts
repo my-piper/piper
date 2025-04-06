@@ -1,11 +1,12 @@
+import { notify } from "core-kit/services/io";
 import { createLogger } from "core-kit/services/logger";
 import { Job } from "core-kit/services/queue";
+import redis from "core-kit/services/redis";
 import sentry from "core-kit/services/sentry";
 import { FatalError, TimeoutError } from "core-kit/types/errors";
-import { toPlain } from "core-kit/utils/models";
+import { mapTo } from "core-kit/utils/models";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
-import io from "../../app/io";
-import { queues } from "../../app/queue";
+import { queues } from "../../app/queues";
 import { BASE_URL } from "../../consts/core";
 import {
   LAUNCH,
@@ -13,7 +14,6 @@ import {
   NODE_STATUS,
   PIPELINE_ERRORS,
 } from "../../consts/redis";
-import { redis } from "../../core-kit/services/redis/redis";
 import { PipelineEvent } from "../../models/events";
 import { Launch } from "../../models/launch";
 import { NodeStatus } from "../../models/node";
@@ -33,14 +33,16 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
   }
 
   const notifyNode = (node: string, event: PipelineEventType) => {
-    io.to(launch._id).emit(
+    notify(
+      launch._id,
       event,
-      toPlain(
-        new PipelineEvent({
+      mapTo(
+        {
           launch: launch._id,
           node,
           event,
-        })
+        },
+        PipelineEvent
       )
     );
   };

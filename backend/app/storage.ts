@@ -1,12 +1,12 @@
 import { format } from "date-fns";
 import { fileTypeFromBuffer } from "file-type";
 import "reflect-metadata";
+import { sid } from "utils/string";
 import {
   ARTEFACTS_BUCKET_NAME,
   ASSETS_BUCKET_NAME,
   LAUNCHES_BUCKET_NAME,
 } from "../consts/storage";
-import { sid } from "../utils/string";
 import * as s3 from "./s3";
 
 async function upload(

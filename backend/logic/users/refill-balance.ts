@@ -1,10 +1,14 @@
 import { toPlain } from "core-kit/utils/models";
 import { ulid } from "ulid";
 import clickhouse from "../../app/clickhouse";
-import { queues } from "../../app/queue";
+import { queues } from "../../app/queues";
 import { BalanceRefill } from "../../models/balance-refill";
 
-export async function refillBalance(user: string, amount: number) {
+export async function refillBalance(
+  user: string,
+  amount: number,
+  { url }: { url?: string } = {}
+) {
   await clickhouse.insert({
     table: "user_balance_refills",
     values: [
@@ -13,6 +17,7 @@ export async function refillBalance(user: string, amount: number) {
           user,
           refilledAt: new Date(),
           amount,
+          url,
           cursor: ulid(),
         })
       ),

@@ -5,21 +5,7 @@ import * as marked from "marked";
 import { Observable, of } from "rxjs";
 import { Languages } from "src/ui-kit/enums/languages";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
-
-const SPLIT_REGEX = /---\s*(\w+)\s*---\s*\n/g;
-
-function i18n(text: string, language: Languages): string {
-  const chunks = text.split(SPLIT_REGEX);
-  const en = chunks[0];
-
-  const languages: { [key: string]: string } = {};
-  for (let i = 1; i < chunks.length; i += 2) {
-    const [l, c] = [chunks[i], chunks[i + 1]];
-    languages[l] = c;
-  }
-
-  return languages[language as string] || en;
-}
+import { getLabel } from "src/ui-kit/utils/i18n";
 
 @Pipe({ name: "markdown" })
 export class MarkdownPipe implements PipeTransform {
@@ -29,19 +15,29 @@ export class MarkdownPipe implements PipeTransform {
     private sanitizer: DomSanitizer
   ) {}
 
-  transform(markdown: string): Observable<SafeHtml> {
-    return new Observable<SafeHtml>((subscriber) => {
+  transform(
+    markdown: string,
+    { safe }: { safe: boolean } = { safe: true }
+  ): Observable<SafeHtml> {
+    return new Observable<string | SafeHtml>((subscriber) => {
       const content = (() => {
-        if (/^https\:\/\//.test(markdown)) {
+        if (/^http\:\/\//.test(markdown)) {
           const url = markdown;
           return this.http.get<string>(url, { responseType: "text" as "json" });
         }
         return of(markdown);
       })();
       content.subscribe((content) => {
-        const parsed = marked.parse(i18n(content, this.language)) as string;
-        const safe = this.sanitizer.bypassSecurityTrustHtml(parsed);
-        subscriber.next(safe);
+        const parsed = marked.parse(
+          getLabel(content, this.language, { mode: "multiline" })
+        ) as string;
+        if (safe) {
+          const safe = this.sanitizer.bypassSecurityTrustHtml(parsed);
+          subscriber.next(safe);
+        } else {
+          subscriber.next(parsed);
+        }
+
         subscriber.complete();
       });
     });

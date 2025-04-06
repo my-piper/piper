@@ -11,6 +11,7 @@ import express from "express";
 import { readFile } from "fs/promises";
 import assign from "lodash/assign";
 import path from "path";
+import { parseURL } from "ufo";
 
 import "reflect-metadata";
 import "./api/artefacts";
@@ -32,6 +33,7 @@ import "./api/utils";
 import "./api/deploys";
 
 import {
+  APP_FOOTER,
   BASE_URL,
   FRONTEND_ROOT,
   LANGUAGES,
@@ -57,9 +59,22 @@ export class Prerender {
 if (NODE_ENV === "production") {
   api.use(express.static(FRONTEND_ROOT));
   api.get(
-    `/:lang(${LANGUAGES.join("|")})/**`,
-    handle(() => async ({ params: { lang } }, res) => {
-      const index = path.join(process.cwd(), FRONTEND_ROOT, lang, "index.html");
+    `/:language(${LANGUAGES.join("|")})/**`,
+    handle(() => async ({ originalUrl, params: { language } }, res) => {
+      res.set(NO_CACHE_HEADERS);
+      const slug = language.toLowerCase();
+      if (language !== slug) {
+        const { pathname, search } = parseURL(originalUrl);
+        const redirect = pathname.toLocaleLowerCase() + (search || "");
+        return res.redirect(301, redirect);
+      }
+
+      const index = path.join(
+        process.cwd(),
+        FRONTEND_ROOT,
+        language,
+        "index.html"
+      );
       let output = await readFile(index, "utf-8");
       const prerender = toInstance(
         {
@@ -69,6 +84,7 @@ if (NODE_ENV === "production") {
             },
             baseUrl: BASE_URL,
             siteUrl: SITE_URL,
+            appFooter: APP_FOOTER,
           },
         },
         Prerender
@@ -77,7 +93,6 @@ if (NODE_ENV === "production") {
         "PRERENDER = {};",
         `PRERENDER = ${JSON.stringify(toPlain(prerender))}`
       );
-      res.set(NO_CACHE_HEADERS);
       res.send(output);
     })
   );

@@ -1,10 +1,10 @@
 import api from "app/api";
 import mongo from "app/mongo";
+import redis from "core-kit/services/redis";
 import { toPlain } from "core-kit/utils/models";
 import "reflect-metadata";
 import { checkAdmin, handle, toModel } from "utils/http";
 import { DEPLOY, DEPLOY_EXPIRED } from "../../consts/redis";
-import { redis } from "../../core-kit/services/redis/redis";
 import { Deploy } from "../../models/deploy";
 import { Project } from "../../models/project";
 

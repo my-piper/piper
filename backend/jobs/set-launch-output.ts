@@ -1,17 +1,17 @@
 import mongo from "app/mongo";
-import { toPlain } from "core-kit/utils/models";
+import { notify } from "core-kit/services/io";
+import { createLogger } from "core-kit/services/logger";
+import redis from "core-kit/services/redis";
+import { mapTo, toPlain } from "core-kit/utils/models";
+import { SetLaunchOutputEvent } from "models/events";
+import { Launch, LaunchOutput } from "models/launch";
+import { User } from "models/user";
 import { ulid } from "ulid";
-import io from "../app/io";
-import { queues } from "../app/queue";
+import { fromRedisValue, readInstance } from "utils/redis";
+import { sid } from "utils/string";
+import { queues } from "../app/queues";
 import { LAUNCH, PIPELINE_OUTPUT } from "../consts/redis";
-import { redis } from "../core-kit/services/redis/redis";
-import { createLogger } from "../logger";
 import { getIOData } from "../logic/launches/launching";
-import { SetLaunchOutputEvent } from "../models/events";
-import { Launch, LaunchOutput } from "../models/launch";
-import { User } from "../models/user";
-import { fromRedisValue, readInstance } from "../utils/redis";
-import { sid } from "../utils/string";
 
 queues.launches.outputs.set.process(async (setOutputJob) => {
   const logger = createLogger("fill-launch-output", {
@@ -83,13 +83,15 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
     },
   ]);
 
-  const event = toPlain(
-    new SetLaunchOutputEvent({
+  const event = mapTo(
+    {
       launch: launch._id,
       id: setOutputJob.output,
       output,
-    })
+    },
+    SetLaunchOutputEvent
   );
-  io.to("launch_outputs").emit("set_output", event);
-  io.to(launch._id).emit("set_output", event);
+  if (!!launchedBy) {
+    notify(launchedBy._id, "set_output", event);
+  }
 });

@@ -1,7 +1,7 @@
 import "core-kit/env";
 import "reflect-metadata";
 
-import { queues } from "app/queue";
+import { queues } from "app/queues";
 import { createLogger } from "core-kit/services/logger";
 import express from "express";
 

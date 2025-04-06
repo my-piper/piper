@@ -40,6 +40,15 @@
 		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Redefinir",
 		"link.comments": "Comentários",
 		"action.add_comment": " Adicionar comentário",
-		"message.markdown_available": "Você pode usar a sintaxe markdown."
+		"message.markdown_available": " Você pode usar {$START_LINK}markdown{$CLOSE_LINK}",
+		"action.change_password": " Alterar senha",
+		"message.your_can_restore_password": " Você também pode {$START_LINK}restaurar a senha{$CLOSE_LINK}",
+		"message.not_owner_pipeline": " Você não é proprietário desse pipeline, mas pode brincar com ele em",
+		"link.open_playground": " Abra o playground {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"label.change_password": "Alterar senha",
+		"label.confirm_password": "Confirmar senha",
+		"label.created": "Criado",
+		"message.no_launches_found": " Lançamentos não encontrados. Por favor, pressione o botão {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT}.",
+		"message.coming_soon": "Em breve..."
 	}
 }

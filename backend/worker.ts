@@ -4,14 +4,14 @@ import { Command } from "commander";
 import { RELOAD_WORKER_CHANNEL } from "consts/signals";
 import { createLogger } from "core-kit/services/logger";
 import { JobsQueue } from "core-kit/services/queue";
-import { redis } from "core-kit/services/redis";
+import redis from "core-kit/services/redis";
 import sentry from "core-kit/services/sentry";
 import { FatalError } from "core-kit/types/errors";
 import { secondsToMilliseconds } from "date-fns";
 import express from "express";
 import { Server } from "http";
-import { queues } from "./app/queue";
-import { streams } from "./app/stream";
+import { queues } from "./app/queues";
+import { streams } from "./app/streams";
 
 type Queue = {
   queue: JobsQueue<unknown>;

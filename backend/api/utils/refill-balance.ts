@@ -38,6 +38,7 @@ api.post(
         product: { amount },
       },
       user: { email },
+      url,
     } = request;
 
     const user = toModel(
@@ -45,7 +46,7 @@ api.post(
       User
     );
 
-    await refillBalance(user._id, amount);
+    await refillBalance(user._id, amount, { url });
     return null;
   })
 );

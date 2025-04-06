@@ -44,6 +44,15 @@
 		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Сбросить",
 		"link.comments": "Комментарии",
 		"action.add_comment": " Добавить комментарий",
-		"message.markdown_available": "Можно использовать синтаксис markdown."
+		"message.markdown_available": " Вы можете использовать {$START_LINK}markdown{$CLOSE_LINK}",
+		"action.change_password": " Изменить пароль",
+		"message.your_can_restore_password": " Вы также можете {$START_LINK}восстановить пароль{$CLOSE_LINK}",
+		"message.not_owner_pipeline": " Вы не являетесь владельцем этого конвейера, но вы можете его",
+		"link.open_playground": "Запустить {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"label.change_password": "Изменить пароль",
+		"label.confirm_password": "Подтвердить пароль",
+		"label.created": "Создано",
+		"message.no_launches_found": " Результаты не найдены. Пожалуйста, {$START_BOLD_TEXT}запустите{$CLOSE_BOLD_TEXT} конвейер хотя бы 1 раз.",
+		"message.coming_soon": "Скоро..."
 	}
 }

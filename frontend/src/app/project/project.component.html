@@ -50,10 +50,9 @@
   <header>
     <p>
       <ng-container i18n="@@message.not_owner_pipeline">
-        You are not owner of this pipeline, but you can play with it in
-      </ng-container>
-
-      <a
+        You are not owner of this pipeline, but you can play with it
+        in</ng-container
+      >&nbsp;<a
         class="primary with-icon"
         [routerLink]="['/', 'play', project._id]"
         routerLinkActive="active"
@@ -117,17 +116,7 @@
       >Design</a
     >
     <ul class="menu">
-      <li>
-        <a [routerLink]="['environment']" routerLinkActive="active"
-          >Environment</a
-        >
-      </li>
-      <li>|</li>
-      <li>
-        <a [routerLink]="['launches']" routerLinkActive="active">Launches</a>
-      </li>
-      <li>|</li>
-      <li>
+      <li *ngIf="(project.pipeline.outputs | keyvalue | length) > 0">
         <a
           class="with-icon"
           [routerLink]="['/', 'play', project._id]"
@@ -137,6 +126,16 @@
           Playground
           <app-icon class="icon right" [size]="18" icon="open-link"></app-icon>
         </a>
+      </li>
+      <li>|</li>
+      <li>
+        <a [routerLink]="['environment']" routerLinkActive="active"
+          >Environment</a
+        >
+      </li>
+      <li>|</li>
+      <li>
+        <a [routerLink]="['launches']" routerLinkActive="active">Launches</a>
       </li>
       <li>|</li>
       <li>

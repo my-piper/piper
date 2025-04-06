@@ -44,6 +44,15 @@
 		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 重置",
 		"link.comments": "评论",
 		"action.add_comment": "添加评论",
-		"message.markdown_available": "您可以使用标记符语法。"
+		"message.markdown_available": "您可以使用{$START_LINK}markdown{$CLOSE_LINK}",
+		"action.change_password": "更改密码",
+		"message.your_can_restore_password": "您还可以 {$START_LINK} 恢复密码{$CLOSE_LINK}。",
+		"message.not_owner_pipeline": "您不是该管道的所有者，但您可以在",
+		"link.open_playground": "打开游乐场 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"label.change_password": "更改密码",
+		"label.confirm_password": "确认密码",
+		"label.created": "创建",
+		"message.no_launches_found": "未找到启动程序。请按 {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT} 按钮。",
+		"message.coming_soon": "即将推出..."
 	}
 }

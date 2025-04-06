@@ -1,26 +1,14 @@
 import env from "core-kit/env";
 
+import axios from "axios";
 import { Languages } from "core-kit/enums/languages";
 import path from "path";
-
-export const LOG_LEVEL = env["LOG_LEVEL"] || "debug";
-export const LOG_PRETTY = env["LOG_PRETTY"] === "yes";
 
 export const MODULES_PATH = path.join(process.cwd(), "..", "packages");
 
 type EnvMode = "test" | "development" | "production";
 export const NODE_ENV: EnvMode = <EnvMode>env["NODE_ENV"] || "production";
 
-export const BULL_REDIS_HOST = env["BULL_REDIS_HOST"] || "redis";
-export const BULL_REDIS_PORT =
-  (() => {
-    const port = env["BULL_REDIS_PORT"];
-    if (!!port) {
-      return parseInt(port);
-    }
-    return 0;
-  })() || 6379;
-export const BULL_REDIS_PASSWORD = env["BULL_REDIS_PASSWORD"] || "";
 export const TMP_PATH = env["TMP_PATH"] || "../tmp";
 
 export const MONGO_URL = env["MONGO_URL"] || "mongodb://mongo:27017";
@@ -47,6 +35,19 @@ export const CLAUDE_API_KEY = env["CLAUDE_API_KEY"] || "xyzXYZ";
 export const HIDDEN_STRING = "[hidden]";
 export const MASTER_KEY = env["MASTER_KEY"] || "xyzXYZ";
 export const SITE_URL = env["SITE_URL"] || "/";
+
+export const APP_FOOTER =
+  (await (async () => {
+    const footer = env["APP_FOOTER"];
+    if (!!footer) {
+      if (/^http/.test(footer)) {
+        const { data } = await axios(footer);
+        return data;
+      }
+      return footer;
+    }
+    return null;
+  })()) || "<div>Pipelines builder 2025</div>";
 
 export const LANGUAGES = [
   Languages.en,

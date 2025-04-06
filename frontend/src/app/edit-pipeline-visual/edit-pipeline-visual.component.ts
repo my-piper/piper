@@ -380,8 +380,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
     const { x, y } = node.node.arrange;
 
+    let id = input.id;
+    if (this.pipeline.inputs.has(id)) {
+      id = `${id}_${sid(2)}`;
+    }
+
     this.pipeline.inputs.set(
-      input.id,
+      id,
       new PipelineInput({
         title,
         description,
@@ -429,8 +434,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
     const { x, y } = node.node.arrange;
 
+    let id = output.id;
+    if (this.pipeline.outputs.has(id)) {
+      id = `${id}_${sid(2)}`;
+    }
+
     this.pipeline.outputs.set(
-      output.id,
+      id,
       new PipelineOutput({
         title,
         type,

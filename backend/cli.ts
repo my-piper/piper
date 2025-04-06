@@ -3,7 +3,7 @@ import "reflect-metadata";
 
 import { Command } from "commander";
 import { RELOAD_WORKER_CHANNEL } from "consts/signals";
-import { redis } from "core-kit/services/redis";
+import redis from "core-kit/services/redis";
 import { toPlain } from "core-kit/utils/models";
 import { writeFile } from "fs/promises";
 import { ulid } from "ulid";
@@ -26,29 +26,33 @@ const commander = new Command();
 
 commander.version("1.0.0").description("Piper CLI");
 
-commander.command("compile-schemas").action(async () => {
-  console.log("Compile schemas");
-  const [nodePackage, node, pipeline, user, project] = [
-    await loadSchema(NODE_PACKAGE_SCHEMA),
-    await loadSchema(NODE_SCHEMA),
-    await loadSchema(PIPELINE_SCHEMA),
-    await loadSchema(USER_SCHEMA),
-    await loadSchema(PROJECT_SCHEMA),
-  ];
-
-  await writeFile(
-    "schemas/compiled.json",
-    JSON.stringify({ nodePackage, node, pipeline, user, project }, null, "\t")
-  );
-
-  process.exit();
-});
-
 {
-  const commands = new Command("mongo").action(async () => {
-    console.log(toPlain(await modules.list()));
+  const commands = new Command("schemas");
+
+  commands.command("compile").action(async () => {
+    console.log("Compile schemas");
+    const [nodePackage, node, pipeline, user, project] = [
+      await loadSchema(NODE_PACKAGE_SCHEMA),
+      await loadSchema(NODE_SCHEMA),
+      await loadSchema(PIPELINE_SCHEMA),
+      await loadSchema(USER_SCHEMA),
+      await loadSchema(PROJECT_SCHEMA),
+    ];
+
+    await writeFile(
+      "schemas/compiled.json",
+      JSON.stringify({ nodePackage, node, pipeline, user, project }, null, "\t")
+    );
+
     process.exit();
   });
+
+  commander.addCommand(commands);
+}
+
+{
+  const commands = new Command("mongo");
+
   commands.command("create").action(async () => {
     console.log("Create indexes in mongo");
     try {
@@ -81,75 +85,77 @@ commander.command("compile-schemas").action(async () => {
   commander.addCommand(commands);
 }
 
-commander
-  .command("refill <user> <amount>")
-  .action(async (user: string, amount: number) => {
-    console.log(`Refill balance for ${user} ${amount}`);
-    await refillBalance(user, amount);
-    console.log("Done 😮");
-    process.exit();
-  });
+{
+  const commands = new Command("users");
 
-commander
-  .command("add-user")
-  .option("--id <id>")
-  .option("--email <email>")
-  .option("--role <role>")
-  .option("--password <password>")
-  .action(
-    async ({
-      id: _id,
-      email,
-      password,
-      role,
-    }: {
-      id: string;
-      email: string;
-      password: string;
-      role: UserRole;
-    }) => {
-      console.log(`Add user ${_id}`);
-      await add({ _id, email, password, roles: [role] });
-      console.log("Done");
+  commands
+    .command("add <id> <email> <password> <role>")
+    .action(
+      async (id: string, email: string, password: string, role: UserRole) => {
+        console.log(`Add user ${id}`);
+        await add({ _id: id, email, password, roles: [role] });
+        console.log("Done");
+        process.exit();
+      }
+    );
+
+  commands
+    .command("refill <user> <amount>")
+    .action(async (user: string, amount: number) => {
+      console.log(`Refill balance for ${user} ${amount}`);
+      await refillBalance(user, amount, {
+        url: "https://en.wikipedia.org/wiki/Command-line_interface",
+      });
+      console.log("Done 😮");
       process.exit();
-    }
-  );
+    });
 
-commander.command("plan-check-packages-updates").action(async () => {
-  await packages.planCheckUpdates();
-  process.exit();
-});
+  commander.addCommand(commands);
+}
 
-commander.command("plan-update-packages").action(async () => {
-  await packages.planUpdatePackages();
-  process.exit();
-});
+{
+  const commands = new Command("packages");
 
-commander
-  .command("check-package-updates")
-  .option("--id <id>")
-  .action(async ({ id }: { id: string }) => {
+  commands.command("check-updates <id>").action(async (id: string) => {
     await packages.checkUpdates(id);
     process.exit();
   });
 
-commander
-  .command("set-variable <name> <value>")
-  .action(async (name: string, value: string) => {
-    console.log(`Set variable ${name} ${value}`);
-    await environment.set(name, value);
+  commands.command("plan-check-updates").action(async () => {
+    await packages.planCheckUpdates();
     process.exit();
   });
 
-commander.command("remove-variable <name>").action(async (name: string) => {
-  await environment.remove(name);
-  process.exit();
-});
+  commands.command("plan-update").action(async () => {
+    await packages.planUpdatePackages();
+    process.exit();
+  });
 
-commander.command("environment").action(async () => {
-  console.log(toPlain(await environment.get()));
-  process.exit();
-});
+  commander.addCommand(commands);
+}
+
+{
+  const commands = new Command("env").action(async () => {
+    console.log(toPlain(await environment.get()));
+    process.exit();
+  });
+
+  commands
+    .command("set <name> <value>")
+    .action(async (name: string, value: string) => {
+      console.log(`Set variable ${name} ${value}`);
+      await environment.set(name, value);
+      process.exit();
+    });
+
+  commands.command("remove <name>").action(async (name: string) => {
+    console.log(`Remove variable ${name}`);
+    await environment.remove(name);
+    process.exit();
+  });
+
+  commander.addCommand(commands);
+}
 
 {
   const commands = new Command("modules").action(async () => {
@@ -215,9 +221,15 @@ commander
     process.exit();
   });
 
-commander.command("load-pipelines").action(async () => {
-  await loadPipelines();
-  process.exit();
-});
+{
+  const commands = new Command("pipelines");
+
+  commands.command("load").action(async () => {
+    await loadPipelines();
+    process.exit();
+  });
+
+  commander.addCommand(commands);
+}
 
 commander.parse(process.argv);

@@ -6,13 +6,19 @@
 
 <table class="default" [class.busy]="progress.loading">
   <thead>
-    <th>Refilled at</th>
+    <th width="150px">Refilled at</th>
     <th width="50px">Amount</th>
+    <th>Invoice</th>
   </thead>
   <tbody>
     <tr *ngFor="let r of refills">
       <td>{{ r.refilledAt | date: "short" }}</td>
       <td style="text-align: right">{{ r.amount | currency: "USD" }}</td>
+      <td>
+        <a target="_blank" [href]="r.url">
+          {{ r.url }}
+        </a>
+      </td>
     </tr>
   </tbody>
 </table>

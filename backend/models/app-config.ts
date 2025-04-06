@@ -24,6 +24,10 @@ export class AppConfig {
   @Type(() => String)
   siteUrl?: string;
 
+  @Expose()
+  @Type(() => String)
+  appFooter?: string;
+
   constructor(defs: Partial<AppConfig> = {}) {
     assign(this, defs);
   }

@@ -82,32 +82,5 @@
 </main>
 
 <footer>
-  <div>
-    <small>Pipelines builder 2025</small>
-    <ul class="menu">
-      <li>
-        <a
-          class="with-icon"
-          target="_blank"
-          href="https://github.com/My-Piper/Piper/issues/new?template=bug_report.md"
-          i18n="@@link.report_bug"
-        >
-          Report a bug
-          <app-icon class="icon right" [size]="16" icon="open-link"></app-icon>
-        </a>
-      </li>
-      <li>|</li>
-      <li>
-        <a
-          class="with-icon"
-          target="_blank"
-          href="https://github.com/My-Piper/Piper/discussions/"
-          i18n="@@link.community"
-        >
-          Community
-          <app-icon class="icon right" [size]="16" icon="open-link"></app-icon>
-        </a>
-      </li>
-    </ul>
-  </div>
+  <div [innerHTML]="appConfig.appFooter | i18n: { mode: 'multiline' }"></div>
 </footer>

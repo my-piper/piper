@@ -18,7 +18,12 @@
 
 <form [formGroup]="form">
   <header>
-    <p i18n="@@message.markdown_available">You can use markdown syntax.</p>
+    <p i18n="@@message.markdown_available">
+      You can use
+      <a target="_blank" href="https://www.markdownguide.org/basic-syntax/">
+        markdown ↗
+      </a>
+    </p>
   </header>
   <fieldset [disabled]="progress.adding">
     <textarea
@@ -67,7 +72,9 @@
       </button>
       <div>{{ c.createdAt | date: "short" }}</div>
     </header>
-    <article [innerHTML]="c.message | markdown | async"></article>
+    <article
+      [innerHTML]="c.message | markdown: { safe: false } | async"
+    ></article>
     <footer class="horizontal stack justify-between">
       <div class="created-by">{{ c.createdBy._id }}</div>
       <div>{{ c.createdAt | timePassed }}</div>

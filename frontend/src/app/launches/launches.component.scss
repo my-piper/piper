@@ -8,7 +8,23 @@
 
 :host-context(.project-playground) {
     .launches {
-        grid-template-columns: repeat(3, 1fr);
+
+        @include wider-desktop() {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        @include for-desktop() {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @include for-tablet() {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @include for-mobile() {
+            grid-template-columns: 1fr;
+        }
+
     }
 }
 

@@ -1,6 +1,8 @@
 import mongo from "app/mongo";
 import axios from "axios";
 import { plainToInstance } from "class-transformer";
+import { createLogger } from "core-kit/services/logger";
+import redis from "core-kit/services/redis";
 import { toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import { toModel } from "utils/http";
@@ -10,8 +12,6 @@ import {
   PACKAGES_UPDATES,
   PACKAGES_UPDATES_TIMEOUT,
 } from "../../consts/packages";
-import { redis } from "../../core-kit/services/redis/redis";
-import { createLogger } from "../../logger";
 import { NodePackage, NodePackageUpdates } from "../../models/node-package";
 import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
 

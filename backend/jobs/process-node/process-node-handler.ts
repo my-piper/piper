@@ -1,7 +1,9 @@
+import { notify } from "core-kit/services/io";
 import { createLogger } from "core-kit/services/logger";
 import { Job } from "core-kit/services/queue";
+import redis from "core-kit/services/redis";
 import { FatalError } from "core-kit/types/errors";
-import { toPlain } from "core-kit/utils/models";
+import { mapTo } from "core-kit/utils/models";
 import { differenceInSeconds } from "date-fns";
 import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
@@ -12,9 +14,8 @@ import { pathToFileURL } from "node:url";
 import { Module, SourceTextModule } from "node:vm";
 import path from "path";
 import { Primitive } from "types/primitive";
-import io from "../../app/io";
-import { queues } from "../../app/queue";
-import { streams } from "../../app/stream";
+import { queues } from "../../app/queues";
+import { streams } from "../../app/streams";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,
@@ -32,7 +33,6 @@ import {
   NODE_STATUS,
   PIPELINE_OUTPUT,
 } from "../../consts/redis";
-import { redis } from "../../core-kit/services/redis/redis";
 import { PipelineEvent } from "../../models/events";
 import { Launch } from "../../models/launch";
 import { NodeStatus } from "../../models/node";
@@ -78,14 +78,16 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   const notifyNode = (node: string, event: PipelineEventType) => {
     if (launch.options?.notify) {
       logger.info(`Notify ${event}`);
-      io.to(launch._id).emit(
+      notify(
+        launch._id,
         event,
-        toPlain(
-          new PipelineEvent({
+        mapTo(
+          {
             launch: launch._id,
             node,
             event,
-          })
+          },
+          PipelineEvent
         )
       );
     }
@@ -93,13 +95,15 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   const notifyPipeline = (event: PipelineEventType) => {
     if (launch.options?.notify) {
-      io.to(launch._id).emit(
+      notify(
+        launch._id,
         event,
-        toPlain(
-          new PipelineEvent({
+        mapTo(
+          {
             launch: launch._id,
             event,
-          })
+          },
+          PipelineEvent
         )
       );
     }

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnDestroy } from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { merge } from "lodash";
 import last from "lodash/last";
@@ -10,18 +10,19 @@ import { PipelineLaunchedSignal } from "src/models/signals/launch";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
+import { MeManager } from "src/services/me.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { mapTo, toPlain } from "src/utils/models";
-import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
 @Component({
   selector: "app-launches",
   templateUrl: "./launches.component.html",
   styleUrls: ["./launches.component.scss"],
 })
-export class LaunchesComponent extends UntilDestroyed {
+export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
   userRole = UserRole;
 
   private _filter!: LaunchesFilter;
@@ -48,15 +49,15 @@ export class LaunchesComponent extends UntilDestroyed {
   chunk: Launch[] = [];
   launches: Launch[] = [];
 
-  subscriptions: { outputs: () => void; errors: () => void } = {
-    outputs: null,
-    errors: null,
+  subscriptions: { user: () => void } = {
+    user: null,
   };
 
   constructor(
     public config: AppConfig,
     private http: HttpService,
     private live: LiveService,
+    private me: MeManager,
     private signals: SignalsService,
     private cd: ChangeDetectorRef
   ) {
@@ -76,7 +77,7 @@ export class LaunchesComponent extends UntilDestroyed {
   }
 
   private listen() {
-    this.subscriptions.outputs = this.live.subscribe("launch_outputs");
+    this.subscriptions.user = this.live.subscribe(this.me.user._id);
     this.live.socket
       .fromEvent<Object>("set_output")
       .pipe(
@@ -92,7 +93,6 @@ export class LaunchesComponent extends UntilDestroyed {
           }
         }
       });
-    this.subscriptions.errors = this.live.subscribe("launch_errors");
     this.live.socket
       .fromEvent<Object>("set_errors")
       .pipe(
@@ -111,8 +111,7 @@ export class LaunchesComponent extends UntilDestroyed {
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.subscriptions.outputs?.();
-    this.subscriptions.errors?.();
+    this.subscriptions.user?.();
   }
 
   private load(cursor?: string) {

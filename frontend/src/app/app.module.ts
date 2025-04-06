@@ -41,7 +41,6 @@ import { PipelineInputPipe } from "src/pipes/input";
 import { IsPipe } from "src/pipes/is";
 import { PlainPipe } from "src/pipes/map-to-plain";
 import { MarkdownPipe } from "src/pipes/markdown";
-import { MockArrayPipe } from "src/pipes/mock-array.pipe";
 import { InputIndexOfPipe, NodePipe, OutputIndexOfPipe } from "src/pipes/node";
 import { NotPipe } from "src/pipes/not";
 import { NsfwPipe } from "src/pipes/nsfw";
@@ -176,7 +175,6 @@ import { UsersComponent } from "./users/users.component";
     SelectPlaygroundPageComponent,
     ImageFallbackDirective,
     FeedSkeletonComponent,
-    MockArrayPipe,
     GetPercentPipe,
     FirstPipe,
     ValuesPipe,

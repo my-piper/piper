@@ -1,6 +1,6 @@
 import mongo from "app/mongo";
+import { createLogger } from "core-kit/services/logger";
 import subDays from "date-fns/subDays";
-import { createLogger } from "../logger";
 
 const MAX_STORE_LAUNCH_DAYS = (() => {
   const value = process.env["MAX_STORE_LAUNCH_DAYS"];

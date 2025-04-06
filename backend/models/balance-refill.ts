@@ -18,6 +18,10 @@ export class BalanceRefill {
 
   @Expose()
   @Type(() => String)
+  url: string;
+
+  @Expose()
+  @Type(() => String)
   cursor: string;
 
   constructor(defs: Partial<BalanceRefill> = {}) {

@@ -41,6 +41,15 @@
 		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Zurücksetzen",
 		"link.comments": "Kommentare",
 		"action.add_comment": " Kommentar hinzufügen",
-		"message.markdown_available": "Sie können die Markdown-Syntax verwenden."
+		"message.markdown_available": " Sie können {$START_LINK}markdown{$CLOSE_LINK} verwenden",
+		"action.change_password": " Passwort ändern",
+		"message.your_can_restore_password": " Sie können auch {$START_LINK}Passwort wiederherstellen{$CLOSE_LINK}",
+		"message.not_owner_pipeline": " Sie sind nicht Eigentümer dieser Pipeline, aber Sie können mit ihr spielen in",
+		"link.open_playground": " Spielplatz öffnen {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"label.change_password": "Passwort ändern",
+		"label.confirm_password": "Passwort bestätigen",
+		"label.created": "Erstellt",
+		"message.no_launches_found": " Starts nicht gefunden. Bitte drücken Sie die Taste {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT}.",
+		"message.coming_soon": "Demnächst verfügbar..."
 	}
 }

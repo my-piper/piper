@@ -41,6 +41,15 @@
 		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Ripristino",
 		"link.comments": "Commenti",
 		"action.add_comment": " Aggiungi commento",
-		"message.markdown_available": "È possibile utilizzare la sintassi markdown."
+		"message.markdown_available": " Si può usare {$START_LINK}markdown{$CLOSE_LINK}",
+		"action.change_password": " Cambia password",
+		"message.your_can_restore_password": " È anche possibile {$START_LINK}ripristinare la password{$CLOSE_LINK}",
+		"message.not_owner_pipeline": " L'utente non è proprietario di questa pipeline, ma può giocare con essa in",
+		"link.open_playground": " Parco giochi aperto {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"label.change_password": "Cambia password",
+		"label.confirm_password": "Conferma la password",
+		"label.created": "Creato",
+		"message.no_launches_found": " Lanci non trovati. Premere il pulsante {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT}.",
+		"message.coming_soon": "Prossimamente..."
 	}
 }

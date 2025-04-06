@@ -10,7 +10,20 @@
   </button>
 </form>
 
-<div class="projects cards" [class.busy-block]="progress.loading.projects">
+<ng-template #noDataTemplate>
+  <ng-template #emptyTemplate>
+    <p i18n="@@message.nothing_found">Nothing found.</p>
+  </ng-template>
+  <ng-container *ngIf="progress.loading; else emptyTemplate">
+    <app-skeleton type="cards" [cols]="3"></app-skeleton>
+  </ng-container>
+</ng-template>
+
+<div
+  *ngIf="projects.length > 0; else noDataTemplate"
+  class="projects cards"
+  [class.busy-block]="progress.loading.projects"
+>
   <div class="card" *ngFor="let p of projects">
     <div class="order" *ngIf="userRole.admin | can | async">
       {{ p.order }}

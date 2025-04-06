@@ -12,21 +12,54 @@
     gap: $gutter-big;
     padding: $gutter-normal;
     box-sizing: border-box;
+
+    @include for-tablet() {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    @include for-mobile() {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "header"
+            "project"
+            "launches";
+    }
 }
 
 header {
     grid-area: header;
 
-    h1 {
-        margin: 0;
-        line-height: 1em;
+    display: grid;
+    grid-template-columns: max-content auto max-content;
+    grid-template-areas: "actions title me";
+    align-items: flex-start;
+    gap: $gutter-big;
+
+    @include for-mobile() {
+        grid-template-columns: 1fr;
+        grid-template-areas: "actions me" "title title";
     }
 
+    .actions {
+        grid-area: actions;
+    }
+
+    .title {
+        grid-area: title;
+
+        h1 {
+            margin: 0;
+            line-height: 1em;
+        }
+    }
+
+    .me {
+        grid-area: me;
+    }
 }
 
 .project {
     grid-area: project;
-
 }
 
 .launches {

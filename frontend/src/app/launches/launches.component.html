@@ -1,4 +1,16 @@
+<ng-template #noDataTemplate>
+  <ng-template #emptyTemplate>
+    <p i18n="@@message.no_launches_found">
+      Launches not found. Please, press <b>RUN</b> button.
+    </p>
+  </ng-template>
+  <ng-container *ngIf="progress.loading; else emptyTemplate">
+    <app-skeleton type="cards" [cols]="3"></app-skeleton>
+  </ng-container>
+</ng-template>
+
 <div
+  *ngIf="launches.length > 0; else noDataTemplate"
   class="cards launches"
   [class.busy-block]="launches.length <= 0 && progress.loading"
 >
@@ -11,6 +23,7 @@
               class="link"
               [href]="'/launches/' + l._id"
               target="_blank"
+              i18n="@@link.open_pipeline"
               (click)="references.popover?.hide()"
             >
               <app-icon
@@ -22,7 +35,7 @@
             </a>
           </li>
           <li *ngIf="userRole.admin | can: l.launchedBy | async">
-            <button (click)="remove(i, l)">
+            <button i18n="@@link.delete" (click)="remove(i, l)">
               <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
               Delete
             </button>

@@ -1,6 +1,5 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Socket } from "ngx-socket-io";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
 import { UI } from "src/consts/ui";
 import { Launch } from "src/models/launch";
@@ -12,27 +11,18 @@ import { Project } from "src/models/project";
   templateUrl: "./launch.component.html",
   styleUrls: ["./launch.component.scss"],
 })
-export class LaunchComponent implements OnInit, OnDestroy {
+export class LaunchComponent implements OnInit {
   ui = UI;
   hostname = document.location.hostname;
-
-  _launch!: Launch;
 
   project!: Project;
   pipeline!: Pipeline;
   modal!: NodeStateComponent;
 
-  set launch(launch: Launch) {
-    this._launch = launch;
-    this.socket.emit("join_room", launch._id);
-  }
-
-  get launch() {
-    return this._launch;
-  }
+  @Input()
+  launch!: Launch;
 
   constructor(
-    private socket: Socket,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -45,10 +35,6 @@ export class LaunchComponent implements OnInit, OnDestroy {
         launch.pipeline,
       ];
     });
-  }
-
-  ngOnDestroy(): void {
-    this.socket.emit("leave_room", this.launch._id);
   }
 
   nodeState(node: string) {

@@ -2,30 +2,28 @@
   <app-select-playground (selected)="go($event)"></app-select-playground>
 </ng-template>
 
-<header class="stack horizontal justify-between">
-  <div class="stack horizontal">
+<header>
+  <div class="actions horizontal stack">
     <a class="circle" [routerLink]="['../..']">
       <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
     </a>
-    <div class="stack horizontal">
-      <button
-        class="circle"
-        [appPopover]="{ content: projectsTemplate, trigger: 'click' }"
-        (attached)="instances.popopver = $event"
-      >
-        <app-icon class="icon" [icon]="'menu'"></app-icon>
-      </button>
-      <div>
-        <h1>
-          {{ project.title | i18n }}
-        </h1>
-        <small *ngIf="project.pipeline.description as description">{{
-          description | i18n
-        }}</small>
-      </div>
-    </div>
+    <button
+      class="circle"
+      [appPopover]="{ content: projectsTemplate, trigger: 'click' }"
+      (attached)="instances.popopver = $event"
+    >
+      <app-icon class="icon" [icon]="'menu'"></app-icon>
+    </button>
   </div>
-  <app-me-user></app-me-user>
+  <div class="title">
+    <h1>
+      {{ project.title | i18n }}
+    </h1>
+    <small *ngIf="project.pipeline.description as description">{{
+      description | i18n
+    }}</small>
+  </div>
+  <app-me-user class="me"></app-me-user>
 </header>
 
 <div class="project">

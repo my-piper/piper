@@ -1,9 +1,9 @@
 import mongo from "app/mongo";
+import { notify } from "core-kit/services/io";
+import { createLogger } from "core-kit/services/logger";
 import { toPlain, validate } from "core-kit/utils/models";
 import assign from "lodash/assign";
 import { ulid } from "ulid";
-import { notify } from "../../app/io";
-import { createLogger } from "../../logger";
 import { PackageUpdatedEvent } from "../../models/events";
 import { NodePackage } from "../../models/node-package";
 

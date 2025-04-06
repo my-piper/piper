@@ -12,7 +12,6 @@
 <ng-template #loadingTemplate>
   <div *ngIf="progress.loading; else noDataTemplate">
     <!--<app-feed-skeleton></app-feed-skeleton>-->
-    <p>Loading...</p>
   </div>
 </ng-template>
 
@@ -20,7 +19,7 @@
   <li class="upload" [class.busy-block]="progress.uploading">
     <input type="file" (change)="upload($event)" />
     <button>
-      <app-icon icon="upload" [size]="24" [color]="'#252b56'"></app-icon>
+      <app-icon icon="upload" [size]="32"></app-icon>
     </button>
   </li>
   <ng-container *ngIf="assets.length > 0; else loadingTemplate">

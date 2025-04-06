@@ -16,8 +16,7 @@ export class ShouldCheckReadmeGuard implements CanActivate {
     state: RouterStateSnapshot
   ): boolean | UrlTree {
     const { id } = route.params;
-
-    const key = `checked-readme-${id}`;
+    const key = `readme-${id}`;
     const checked = localStorage.getItem(key);
     if (!checked) {
       localStorage.setItem(key, "x");

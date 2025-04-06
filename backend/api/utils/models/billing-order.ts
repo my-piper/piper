@@ -1,5 +1,10 @@
 import { Expose, Type } from "class-transformer";
-import { IsEmail, IsNotEmpty, ValidateNested } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  ValidateNested,
+} from "class-validator";
 
 export class Customer {
   @IsNotEmpty()
@@ -36,4 +41,9 @@ export class BillingOrder {
   @Expose()
   @Type(() => Customer)
   user: Customer;
+
+  @IsOptional()
+  @Expose()
+  @Type(() => String)
+  url: string;
 }

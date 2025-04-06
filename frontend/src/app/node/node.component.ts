@@ -1,12 +1,11 @@
 import {
   ChangeDetectorRef,
   Component,
-  ElementRef,
   EventEmitter,
   HostBinding,
   Input,
+  OnDestroy,
   Output,
-  Renderer2,
 } from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
@@ -21,6 +20,7 @@ import {
   NodeStatus,
 } from "src/models/node";
 import { HttpService } from "src/services/http.service";
+import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
@@ -29,7 +29,7 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   templateUrl: "./node.component.html",
   styleUrls: ["./node.component.scss"],
 })
-export class NodeComponent {
+export class NodeComponent implements OnDestroy {
   private _launch!: Launch;
 
   references: { popover?: PopoverComponent } = { popover: null };
@@ -71,9 +71,7 @@ export class NodeComponent {
   inputs!: NodeInputs;
 
   outputs!: NodeOutputs;
-
   status!: NodeStatus;
-
   progress!: NodeProgress;
 
   @Output()
@@ -114,18 +112,24 @@ export class NodeComponent {
   @Output()
   output = new EventEmitter<string>();
 
+  subscriptions: { launch: () => void } = {
+    launch: null,
+  };
+
   constructor(
     private socket: Socket,
     private http: HttpService,
-    private renderer: Renderer2,
-    private hostRef: ElementRef,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private live: LiveService
   ) {}
 
+  ngOnDestroy(): void {
+    this.subscriptions.launch?.();
+  }
+
   private listen() {
-    this.socket.on("reconnect", () => {
-      this.load();
-    });
+    this.subscriptions.launch = this.live.subscribe(this._launch._id);
+    this.socket.on("reconnect", () => this.load());
 
     console.log("Listen node events", this.id);
     this.socket.fromEvent<Object>("node_running").subscribe((data) => {

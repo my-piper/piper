@@ -1,8 +1,8 @@
 import { DataError } from "core-kit/types/errors";
 import "reflect-metadata";
 import sharp from "sharp";
-import { fit } from "../utils/image";
-import { getSize } from "../utils/video";
+import { fit } from "utils/image";
+import { getSize } from "utils/video";
 
 export async function getMetadata(
   mimeType: string,

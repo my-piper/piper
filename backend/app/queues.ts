@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { JobsQueue } from "core-kit/services/queue";
 import { minutesToMilliseconds, secondsToMilliseconds } from "date-fns";
 import { CheckPackageUpdatesJob } from "models/jobs/check-package-updates";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
@@ -9,7 +10,6 @@ import { SetLaunchOutputJob } from "models/jobs/set-launch-output-job";
 import { UpdatePackageJob } from "models/jobs/update-package";
 import { UpdateUserBalanceJob } from "models/jobs/update-user-balance-job";
 import { RunLaunchJob } from "models/run-launch";
-import { JobsQueue } from "../core-kit/services/queue";
 
 export const queues = {
   nodes: {

@@ -1,6 +1,6 @@
 import { Expose, plainToInstance, Transform, Type } from "class-transformer";
+import { NodeProgress } from "models/node";
 import { mapTransformer, objectTransformer } from "transformers/object";
-import { NodeProgress } from "../models/node";
 import { Primitive } from "./primitive";
 
 export type InputOptions = {

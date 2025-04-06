@@ -164,7 +164,8 @@ export class ProjectPlaygroundComponent {
       }
     }
 
-    this.inputsGroup.setValue(state);
+    this.inputsGroup.setValue(state, { emitEvent: false });
+    this.fillRequest();
     this.references.popover?.hide();
   }
 }

@@ -1,6 +1,7 @@
 export const BASE_URL = "base_url";
 import { Expose, plainToInstance, Type } from "class-transformer";
 import { AppConfig } from "src/models/app-config";
+import { toInstance } from "src/utils/models";
 
 export class Prerender {
   @Expose()
@@ -9,35 +10,34 @@ export class Prerender {
 }
 
 declare var PRERENDER: Prerender;
-
-const APP_CONFIG_KEY = "app-config";
+const PRERENDER_KEY = "prerender";
 
 export function appConfigFactory(): AppConfig {
-  return plainToInstance(
-    AppConfig,
-    (() => {
-      const config = PRERENDER.config;
-      if (!!config) {
-        localStorage.setItem(APP_CONFIG_KEY, JSON.stringify(config));
-        return config;
-      }
-      return null;
-    })() ||
+  const prerender = (() => {
+    const json =
+      PRERENDER ||
       (() => {
-        const config = localStorage.getItem(APP_CONFIG_KEY);
-        if (!!config) {
-          try {
-            return JSON.parse(config);
-          } catch (e) {
-            console.error(e);
-          }
+        const json = localStorage.getItem(PRERENDER_KEY);
+        if (!!json) {
+          return JSON.parse(json);
         }
         return null;
-      })() || {
-        billing: {
-          url: "https://google.com",
-        },
-        baseUrl: location.origin,
-      }
+      })();
+    if (!!json) {
+      return toInstance(json, Prerender);
+    }
+
+    return null;
+  })();
+
+  return plainToInstance(
+    AppConfig,
+    prerender?.config || {
+      billing: {
+        url: "https://google.com",
+      },
+      baseUrl: location.origin,
+      appFooter: "<div>Pipelines builder 2025</div>",
+    }
   );
 }

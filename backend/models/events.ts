@@ -17,7 +17,7 @@ export class PipelineEvent {
   @Type(() => String)
   event: PipelineEventType;
 
-  constructor(defs: Partial<PipelineEvent>) {
+  constructor(defs: Partial<PipelineEvent> = {}) {
     assign(this, defs);
   }
 }
@@ -35,7 +35,7 @@ export class SetLaunchOutputEvent {
   @Type(() => LaunchOutput)
   output: LaunchOutput;
 
-  constructor(defs: Partial<SetLaunchOutputEvent>) {
+  constructor(defs: Partial<SetLaunchOutputEvent> = {}) {
     assign(this, defs);
   }
 }

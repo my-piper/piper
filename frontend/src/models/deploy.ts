@@ -1,6 +1,6 @@
 import { Expose, Type } from "class-transformer";
 import assign from "lodash/assign";
-import { Pipeline } from "../models/pipeline";
+import { Pipeline } from "src/models/pipeline";
 import { Environment } from "./environment";
 import { LaunchRequest } from "./launch-request";
 import { RunScope } from "./run-scope";

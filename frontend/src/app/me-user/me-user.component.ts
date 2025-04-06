@@ -68,7 +68,7 @@ export class MeUserComponent implements OnInit {
       .create(this.injector);
     component.instance.changed.subscribe(() => this.modal.close());
     this.modal.open(component, {
-      title: "Change password",
+      title: $localize`:@@label.change_password:Change password`,
     });
   }
 

@@ -1,5 +1,7 @@
 import mongo from "app/mongo";
 import { plainToInstance } from "class-transformer";
+import { createLogger } from "core-kit/services/logger";
+import redis from "core-kit/services/redis";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
 import { fileTypeFromBuffer } from "file-type";
@@ -10,7 +12,7 @@ import path from "path";
 import "reflect-metadata";
 import sharp from "sharp";
 import { ulid } from "ulid";
-import { queues } from "../../app/queue";
+import { queues } from "../../app/queues";
 import * as storage from "../../app/storage";
 import { BASE_URL } from "../../consts/core";
 import {
@@ -20,8 +22,6 @@ import {
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
 } from "../../consts/redis";
-import { redis } from "../../core-kit/services/redis/redis";
-import { createLogger } from "../../logger";
 import {
   BooleanData,
   FloatData,

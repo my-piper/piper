@@ -1,29 +1,37 @@
 import mongo from "app/mongo";
+import { LAUNCH, PIPELINE_ERRORS } from "consts/redis";
+import { notify } from "core-kit/services/io";
+import { createLogger } from "core-kit/services/logger";
+import redis from "core-kit/services/redis/redis";
 import { toPlain } from "core-kit/utils/models";
-import io from "../app/io";
-import { queues } from "../app/queue";
-import { PIPELINE_ERRORS } from "../consts/redis";
-import { redis } from "../core-kit/services/redis/redis";
-import { createLogger } from "../logger";
-import { SetLaunchErrorsEvent } from "../models/events";
+import { SetLaunchErrorsEvent } from "models/events";
+import { Launch } from "models/launch";
+import { readInstance } from "utils/redis";
+import { queues } from "../app/queues";
 
 queues.launches.errors.set.process(async (setErrorsJob) => {
   const logger = createLogger("set-launch-errors", {
     launch: setErrorsJob.launch,
   });
 
-  const { launch } = setErrorsJob;
+  const launch = await readInstance(LAUNCH(setErrorsJob.launch), Launch);
+  if (!launch) {
+    logger.error("Launch is not found");
+    return;
+  }
 
   logger.info(`Set errors for launch ${launch}`);
-  const errors = (await redis.lRange(PIPELINE_ERRORS(launch), 0, -1)) || [];
+  const errors = (await redis.lRange(PIPELINE_ERRORS(launch._id), 0, -1)) || [];
   await mongo.launches.updateOne({ _id: launch }, { $set: { errors } });
 
   const event = toPlain(
     new SetLaunchErrorsEvent({
-      launch: launch,
+      launch: launch._id,
       errors,
     })
   );
-  io.to("launch_errors").emit("set_errors", event);
-  io.to(launch).emit("set_errors", event);
+  const { launchedBy } = launch;
+  if (!!launchedBy) {
+    notify(launchedBy._id, "set_errors", event);
+  }
 });

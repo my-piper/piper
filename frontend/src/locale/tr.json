@@ -42,6 +42,15 @@
 		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Sıfırla",
 		"link.comments": "Yorumlar",
 		"action.add_comment": " Yorum ekle",
-		"message.markdown_available": "Markdown sözdizimini kullanabilirsiniz."
+		"message.markdown_available": " Kullanabilirsiniz {$START_LINK}markdown{$CLOSE_LINK}",
+		"action.change_password": " Şifre değiştir",
+		"message.your_can_restore_password": " Ayrıca {$START_LINK}şifreyi geri yükleyebilirsiniz{$CLOSE_LINK}",
+		"message.not_owner_pipeline": " Bu boru hattının sahibi değilsiniz, ancak onunla",
+		"link.open_playground": " Açık oyun alanı {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"label.change_password": "Şifre değiştir",
+		"label.confirm_password": "Şifreyi onayla",
+		"label.created": "Oluşturuldu",
+		"message.no_launches_found": " Başlatmalar bulunamadı. Lütfen {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT} düğmesine basın.",
+		"message.coming_soon": "Çok yakında..."
 	}
 }

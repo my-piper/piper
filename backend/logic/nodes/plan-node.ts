@@ -1,4 +1,4 @@
-import { queues } from "app/queue";
+import { queues } from "app/queues";
 import { JobsOptions } from "core-kit/services/queue";
 import { NodeExecution } from "enums/node-execution";
 import { Node } from "models/node";

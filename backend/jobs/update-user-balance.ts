@@ -1,12 +1,11 @@
 import mongo from "app/mongo";
+import { notify } from "core-kit/services/io";
+import { createLogger } from "core-kit/services/logger";
 import { toPlain } from "core-kit/utils/models";
+import { User, UserBalance } from "models/user";
 import { toModels } from "utils/http";
 import clickhouse from "../app/clickhouse";
-import io from "../app/io";
-import { queues } from "../app/queue";
-import { createLogger } from "../logger";
-import { BalanceUpdatedEvent } from "../models/events";
-import { User, UserBalance } from "../models/user";
+import { queues } from "../app/queues";
 
 queues.users.updateBalance.process(async ({ user }) => {
   const logger = createLogger("update-user-balance", {
@@ -34,9 +33,5 @@ select
     }
   );
   logger.info("User balance has been updated");
-
-  io.to(user).emit(
-    "user_balance_updated",
-    toPlain(new BalanceUpdatedEvent({ user }))
-  );
+  notify(user, "user_balance_updated");
 });
