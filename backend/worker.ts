@@ -95,11 +95,18 @@ const Workers = new Map<string, Worker>([
     },
   ],
   [
-    "set_launches_outputs",
+    "set_launches_io",
     {
       queues: new Map([
         [
-          "run_launches",
+          "set_launch_inputs",
+          {
+            queue: queues.launches.inputs.set,
+            loader: () => import("./jobs/set-launch-inputs"),
+          },
+        ],
+        [
+          "set_launch_output",
           {
             queue: queues.launches.outputs.set,
             loader: () => import("./jobs/set-launch-output"),

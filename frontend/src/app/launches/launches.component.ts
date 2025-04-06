@@ -1,10 +1,14 @@
 import { ChangeDetectorRef, Component, Input, OnDestroy } from "@angular/core";
 import { plainToInstance } from "class-transformer";
-import { merge } from "lodash";
+import { assign, merge } from "lodash";
 import last from "lodash/last";
 import { delay, finalize, map, takeUntil } from "rxjs";
 import { AppConfig } from "src/models/app-config";
-import { SetLaunchErrorsEvent, SetLaunchOutputEvent } from "src/models/events";
+import {
+  SetLaunchErrorsEvent,
+  SetLaunchInputsEvent,
+  SetLaunchOutputEvent,
+} from "src/models/events";
 import { Launch, LaunchesFilter } from "src/models/launch";
 import { PipelineLaunchedSignal } from "src/models/signals/launch";
 import { UserRole } from "src/models/user";
@@ -78,6 +82,20 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
 
   private listen() {
     this.subscriptions.user = this.live.subscribe(this.me.user._id);
+    this.live.socket
+      .fromEvent<Object>("set_inputs")
+      .pipe(
+        takeUntil(this.destroyed$),
+        map((json) => plainToInstance(SetLaunchInputsEvent, json))
+      )
+      .subscribe(({ launch, inputs }) => {
+        for (const l of this.launches) {
+          if (l._id === launch) {
+            assign(l, { inputs });
+            this.cd.detectChanges();
+          }
+        }
+      });
     this.live.socket
       .fromEvent<Object>("set_output")
       .pipe(

@@ -23,8 +23,8 @@ run_launches:
 	./worker.sh -w run_launches -h
 
 .PHONY: worker
-set_launches_outputs:
-	./worker.sh -w set_launches_outputs -h
+set_launches_io:
+	./worker.sh -w set_launches_io -h
 
 .PHONY: worker
 set_launches_errors:

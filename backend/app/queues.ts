@@ -6,6 +6,7 @@ import { CheckPackageUpdatesJob } from "models/jobs/check-package-updates";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { RecordPipelineUsageJob } from "models/jobs/record-pipeline-usage-job";
 import { SetLaunchErrorsJob } from "models/jobs/set-launch-errors-job";
+import { SetLaunchInputsJob } from "models/jobs/set-launch-inputs-job";
 import { SetLaunchOutputJob } from "models/jobs/set-launch-output-job";
 import { UpdatePackageJob } from "models/jobs/update-package";
 import { UpdateUserBalanceJob } from "models/jobs/update-user-balance-job";
@@ -59,6 +60,12 @@ export const queues = {
       limiter: { max: 1000, duration: secondsToMilliseconds(10) },
       concurrency: 30,
     }),
+    inputs: {
+      set: new JobsQueue("set_launch_inputs", SetLaunchInputsJob, {
+        limiter: { max: 100, duration: secondsToMilliseconds(10) },
+        concurrency: 50,
+      }),
+    },
     outputs: {
       set: new JobsQueue("set_launch_output", SetLaunchOutputJob, {
         limiter: { max: 100, duration: secondsToMilliseconds(10) },

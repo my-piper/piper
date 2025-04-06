@@ -30,7 +30,6 @@ import {
   IntegerData,
   JsonData,
   Launch,
-  LaunchInput,
   LaunchOutput,
   LaunchState,
   StringData,
@@ -92,23 +91,11 @@ export async function run({
     }
   }
 
-  const inputs = new Map<string, LaunchInput>();
   // set nodes inputs from request pipeline inputs
   if (!!pipeline.inputs) {
     for (const [id, input] of pipeline.inputs) {
       let value = launchRequest.inputs?.get(id) || input.default;
       if (value !== undefined) {
-        const { type, title, order } = input;
-        inputs.set(
-          id,
-          new LaunchInput({
-            title,
-            type,
-            order,
-            data: await getIOData(_id, "inputs", id, type, value),
-          })
-        );
-
         if (!!input.flows) {
           for (const [, flow] of input.flows) {
             const to = pipeline.nodes.get(flow.to).inputs.get(flow.input);
@@ -138,7 +125,6 @@ export async function run({
     costs: await getCosts(pipeline, launchRequest),
     comment,
     url: `${BASE_URL}/launches/${_id}`,
-    inputs,
     outputs,
     cursor: ulid(),
   });
@@ -164,6 +150,10 @@ export async function run({
     await queues.launches.run.plan({ launch: launch._id, scope });
   } else {
     await kick(launch);
+  }
+
+  if (!!pipeline.inputs) {
+    queues.launches.inputs.set.plan({ launch: _id }, { delay: 2000 });
   }
 
   return launch;

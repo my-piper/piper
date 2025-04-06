@@ -14,7 +14,7 @@ import { LAUNCH, PIPELINE_OUTPUT } from "../consts/redis";
 import { getIOData } from "../logic/launches/launching";
 
 queues.launches.outputs.set.process(async (setOutputJob) => {
-  const logger = createLogger("fill-launch-output", {
+  const logger = createLogger("set-launch-output", {
     launch: setOutputJob.launch,
   });
 
@@ -83,15 +83,15 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
     },
   ]);
 
-  const event = mapTo(
-    {
-      launch: launch._id,
-      id: setOutputJob.output,
-      output,
-    },
-    SetLaunchOutputEvent
-  );
   if (!!launchedBy) {
+    const event = mapTo(
+      {
+        launch: launch._id,
+        id: setOutputJob.output,
+        output,
+      },
+      SetLaunchOutputEvent
+    );
     notify(launchedBy._id, "set_output", event);
   }
 });
