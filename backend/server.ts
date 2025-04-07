@@ -57,9 +57,18 @@ export class Prerender {
 }
 
 if (NODE_ENV === "production") {
-  api.use(express.static(FRONTEND_ROOT));
+  const STATIC_FILE_EXT =
+    /\.(js|css|png|jpg|jpeg|gif|svg|woff2?|ttf|eot|ico|webp|webm|mp3|mp4|wav|txt|html|json|md)$/;
+
+  api.use((req, res, next) => {
+    if (STATIC_FILE_EXT.test(req.path)) {
+      return express.static(FRONTEND_ROOT)(req, res, next);
+    }
+    next();
+  });
+
   api.get(
-    `/:language(${LANGUAGES.join("|")})/**`,
+    `/:language(${LANGUAGES.join("|")})/*`,
     handle(() => async ({ originalUrl, params: { language } }, res) => {
       res.set(NO_CACHE_HEADERS);
       const slug = language.toLowerCase();
