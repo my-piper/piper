@@ -76,7 +76,8 @@
     </article>
     <footer>
       <ng-template #inputsPopover>
-        <ul class="inputs">
+        <ng-template #emptyInputs>Inputs are not filled yet.</ng-template>
+        <ul *ngIf="!!l.inputs; else emptyInputs" class="inputs">
           <li *ngFor="let i of l.inputs | keyvalue | orderBy: ['value.order']">
             <b>{{ i.value.title | i18n }}:</b>
             <div class="value" [ngSwitch]="i.value.type">
@@ -90,11 +91,7 @@
           </li>
         </ul>
       </ng-template>
-      <button
-        class="transparent"
-        *ngIf="!!l.inputs"
-        [appPopover]="{ content: inputsPopover }"
-      >
+      <button class="transparent" [appPopover]="{ content: inputsPopover }">
         <app-icon icon="info"></app-icon>
       </button>
       <span

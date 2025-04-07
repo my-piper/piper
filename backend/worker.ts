@@ -112,13 +112,6 @@ const Workers = new Map<string, Worker>([
             loader: () => import("./jobs/set-launch-output"),
           },
         ],
-      ]),
-    },
-  ],
-  [
-    "set_launches_errors",
-    {
-      queues: new Map([
         [
           "set_launches_errors",
           {
