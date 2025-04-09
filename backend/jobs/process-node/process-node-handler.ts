@@ -493,6 +493,6 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     return NodeJobResult.NODE_PROCESSED;
   } else {
-    throw new Error("Wrong handler results");
+    throw new Error(`Wrong handler results ${results}`);
   }
 };

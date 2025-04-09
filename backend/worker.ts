@@ -250,7 +250,9 @@ const shutdown = async () => {
       });
     });
   }
-  logger.info(`Worker stopped! See ya on the flip side! 😉😘`);
+  logger.info(
+    `Worker stopped with code ${EXIT_CODE}! See you on the flip side! 😉😘`
+  );
   process.exit(EXIT_CODE);
 };
 

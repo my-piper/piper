@@ -2,9 +2,6 @@
 
 install_packages=false
 
-set -e
-trap 'echo "Error occurred!"; exit 1' ERR
-
 # Parse -i flag
 while getopts "i" opt; do
   case $opt in
@@ -28,7 +25,16 @@ do
 
       echo "Updating modules and install packages"
       npm run cli modules update
+      app_status=$?
+      if [ $app_status -ne 0 ]; then
+        echo "Can't update modules"
+        exit $app_status
+      fi
       npm i --prefix ../packages
+      if [ $app_status -ne 0 ]; then
+        echo "Can't install modules"
+        exit $app_status
+      fi
     else
       echo "Skipping update packages"
     fi

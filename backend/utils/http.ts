@@ -18,7 +18,7 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import assign from "lodash/assign";
 import { User, UserRole } from "models/user";
-import { DEFAULT_LANG, JWT_SECRET } from "../consts/core";
+import { DEFAULT_LANG, JWT_SECRET, NODE_ENV } from "../consts/core";
 import { NO_CACHE_HEADERS } from "../consts/http";
 import { Injector } from "../types/injector";
 
@@ -215,7 +215,7 @@ export function checkRoles(user: User, roles: UserRole | UserRole[]) {
 export function checkBalance(user: User) {
   checkLogged(user);
   const remaining = user.balance?.remaining || 0;
-  if (remaining < 0) {
+  if (NODE_ENV === "production" && remaining < 0) {
     throw new DataError("Please, charge you balance");
   }
 }

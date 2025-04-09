@@ -12,3 +12,6 @@
 /keys/
 
 .DS_Store
+
+packages/package.json
+packages/package-lock.json
