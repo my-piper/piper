@@ -56,7 +56,7 @@ export class Prerender {
   }
 }
 
-if (NODE_ENV === "production") {
+if (NODE_ENV !== "test") {
   const STATIC_FILE_EXT =
     /\.(js|css|png|jpg|jpeg|gif|svg|woff2?|ttf|eot|ico|webp|webm|mp3|mp4|wav|txt|html|json|md)$/;
 

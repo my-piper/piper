@@ -2,13 +2,14 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "start",
-      "path": "frontend",
+      "label": "Frontend",
+      "type": "shell",
+      "command": "npm run backend",
       "problemMatcher": [],
-      "label": "npm: start - frontend",
-      "detail": "ng serve --no-live-reload --host 0.0.0.0 --disable-host-check"
-      //   "isBackground": true
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }
