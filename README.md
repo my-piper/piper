@@ -52,6 +52,22 @@ Detailed specifications are coming ⏳ soon...
 
 Meanwhile, you can explore the Docker Swarm [configuration](https://github.com/my-piper/piper-swarm) to get started!
 
+Here's your improved version:
+
+# Why Piper?
+
+- **Open and Flexible YAML Specification**  
+  Define and manage pipelines transparently with an open YAML-based specification.
+
+- **Runtime JavaScript Customization**  
+  Dynamically create and modify custom nodes using JavaScript at runtime for unmatched flexibility.
+
+- **Easy Import and Export of Pipelines**  
+  Seamlessly import and export pipelines for convenient reuse and collaboration.
+
+- **Reusable Node Packages**  
+  Share and distribute custom nodes effortlessly with built-in package management.
+
 # Development
 
 ## 🛠️ Prerequisites
