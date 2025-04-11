@@ -100,14 +100,15 @@ services:
     depends_on:
       - kafka
     ports:
-      - "8089:8080"
+      - "8088:8080"
     environment:
       - DYNAMIC_CONFIG_ENABLED=true
       - KAFKA_CLUSTERS_0_NAME=kafka-local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
 
   gpt4free:
-    image: hlohaus789/g4f:latest-slim
+    image: hlohaus789/g4f:latest
+    platform: linux/amd64
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:1337:1337"

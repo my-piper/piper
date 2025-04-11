@@ -15,6 +15,7 @@ export default plainToInstance(Node, {
     x: 200,
     y: 200,
   },
+  source: "node",
   inputs: {
     a: {
       title: "Number A",

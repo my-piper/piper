@@ -37,7 +37,6 @@ import {
   BASE_URL,
   FRONTEND_ROOT,
   LANGUAGES,
-  NODE_ENV,
   SITE_URL,
 } from "./consts/core";
 import { NO_CACHE_HEADERS } from "./consts/http";
@@ -56,70 +55,68 @@ export class Prerender {
   }
 }
 
-if (NODE_ENV !== "test") {
-  const STATIC_FILE_EXT =
-    /\.(js|css|png|jpg|jpeg|gif|svg|woff2?|ttf|eot|ico|webp|webm|mp3|mp4|wav|txt|html|json|md)$/;
+const STATIC_FILE_EXT =
+  /\.(js|css|png|jpg|jpeg|gif|svg|woff2?|ttf|eot|ico|webp|webm|mp3|mp4|wav|txt|html|json|md)$/;
 
-  api.use((req, res, next) => {
-    if (STATIC_FILE_EXT.test(req.path)) {
-      return express.static(FRONTEND_ROOT)(req, res, next);
+api.use((req, res, next) => {
+  if (STATIC_FILE_EXT.test(req.path)) {
+    return express.static(FRONTEND_ROOT, { etag: false })(req, res, next);
+  }
+  next();
+});
+
+api.get(
+  `/:language(${LANGUAGES.join("|")})/*`,
+  handle(() => async ({ originalUrl, params: { language } }, res) => {
+    res.set(NO_CACHE_HEADERS);
+    const slug = language.toLowerCase();
+    if (language !== slug) {
+      const { pathname, search } = parseURL(originalUrl);
+      const redirect = pathname.toLocaleLowerCase() + (search || "");
+      return res.redirect(301, redirect);
     }
-    next();
-  });
 
-  api.get(
-    `/:language(${LANGUAGES.join("|")})/*`,
-    handle(() => async ({ originalUrl, params: { language } }, res) => {
-      res.set(NO_CACHE_HEADERS);
-      const slug = language.toLowerCase();
-      if (language !== slug) {
-        const { pathname, search } = parseURL(originalUrl);
-        const redirect = pathname.toLocaleLowerCase() + (search || "");
-        return res.redirect(301, redirect);
-      }
-
-      const index = path.join(
-        process.cwd(),
-        FRONTEND_ROOT,
-        language,
-        "index.html"
-      );
-      let output = await readFile(index, "utf-8");
-      const prerender = toInstance(
-        {
-          config: {
-            billing: {
-              url: BILLING_URL,
-            },
-            baseUrl: BASE_URL,
-            siteUrl: SITE_URL,
-            appFooter: APP_FOOTER,
+    const index = path.join(
+      process.cwd(),
+      FRONTEND_ROOT,
+      language,
+      "index.html"
+    );
+    let output = await readFile(index, "utf-8");
+    const prerender = toInstance(
+      {
+        config: {
+          billing: {
+            url: BILLING_URL,
           },
+          baseUrl: BASE_URL,
+          siteUrl: SITE_URL,
+          appFooter: APP_FOOTER,
         },
-        Prerender
-      );
-      output = output.replace(
-        "PRERENDER = {};",
-        `PRERENDER = ${JSON.stringify(toPlain(prerender))}`
-      );
-      res.send(output);
-    })
-  );
-  api.get(
-    "/",
-    handle(({ language }) => async (req, res) => {
-      res.set(NO_CACHE_HEADERS);
-      res.redirect(`/${language}/`);
-    })
-  );
-  api.get(
-    "*",
-    handle(({ language }) => async ({ originalUrl }, res) => {
-      res.set(NO_CACHE_HEADERS);
-      res.redirect(`/${language}${originalUrl}`);
-    })
-  );
-}
+      },
+      Prerender
+    );
+    output = output.replace(
+      "PRERENDER = {};",
+      `PRERENDER = ${JSON.stringify(toPlain(prerender))}`
+    );
+    res.send(output);
+  })
+);
+api.get(
+  "/",
+  handle(({ language }) => async (req, res) => {
+    res.set(NO_CACHE_HEADERS);
+    res.redirect(`/${language}/`);
+  })
+);
+api.get(
+  "*",
+  handle(({ language }) => async ({ originalUrl }, res) => {
+    res.set(NO_CACHE_HEADERS);
+    res.redirect(`/${language}${originalUrl}`);
+  })
+);
 
 process.on("uncaughtException", (error) => {
   logger.error("Uncaught exception");
