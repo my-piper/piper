@@ -80,16 +80,22 @@ Compile schemas
 make schemas
 ```
 
-Copy `~/backend/.env.template` to `~/backend/.env`
+Prepare environment
 
 ```bash
-cp ~/backend/.env.template ~/backend/.env
+cp backend/.env.template backend/.env
 ```
 
 Create Mongo indexes
 
 ```bash
 npm run cli mongo create
+```
+
+Add admin user
+
+```bash
+npm --prefix backend run cli users add admin admin@piper.my xyzXYZ admin
 ```
 
 Run socket server
@@ -120,13 +126,9 @@ cd frontend
 npm start
 ```
 
-Add admin user
-
-```bash
-npm --prefix backend run cli users add admin admin@piper.my xyzXYZ admin
-```
-
 Open `http://localhost/`
+
+Read first tutorial how run create & run first pipeline!
 
 # CLI
 
