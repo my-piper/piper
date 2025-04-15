@@ -1,10 +1,10 @@
-import puppeteer from "puppeteer";
 import {
   CHROME_HEADLESS,
   CHROME_REMOTE_POST,
   CHROME_USER_DIR,
-} from "./consts/chrome";
-import { createLogger } from "./logger";
+} from "consts/chrome";
+import { createLogger } from "core-kit/services/logger";
+import puppeteer from "puppeteer";
 
 const logger = createLogger("server");
 
