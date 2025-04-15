@@ -54,7 +54,7 @@
         in</ng-container
       >&nbsp;<a
         class="primary with-icon"
-        [routerLink]="['/', 'play', project._id]"
+        [routerLink]="['/', 'play', project.slug || project._id]"
         routerLinkActive="active"
         i18n="@@link.open_playground"
       >
@@ -119,7 +119,7 @@
       <li *ngIf="(project.pipeline.outputs | keyvalue | length) > 0">
         <a
           class="with-icon"
-          [routerLink]="['/', 'play', project._id]"
+          [routerLink]="['/', 'play', project.slug || project._id]"
           target="_blank"
           routerLinkActive="active"
         >
