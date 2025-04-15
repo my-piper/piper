@@ -214,7 +214,7 @@
         />
         <datalist [id]="id">
           <ng-container *ngFor="let g of enum | nsfw | groupList">
-            <optgroup [value]="g.name">
+            <optgroup [value]="g.name | i18n">
               <ng-container *ngFor="let o of g.options">
                 <option *ngIf="o | split: '|' as x" [value]="x[0]">
                   {{ x[1] ? (x[1] | i18n) : x[0] }}
@@ -242,7 +242,7 @@
           </ng-template>
           <ng-container *ngFor="let g of enum | nsfw | groupList">
             <ng-container *ngIf="g.name; else withoutGroupTemplate">
-              <optgroup [label]="g.name">
+              <optgroup [label]="g.name | i18n">
                 <ng-container
                   *ngTemplateOutlet="
                     optionsTemplate;
