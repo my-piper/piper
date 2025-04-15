@@ -1,3 +1,5 @@
+import { queues } from "app/queues";
+import { BASE_URL } from "consts/core";
 import { notify } from "core-kit/services/io";
 import { createLogger } from "core-kit/services/logger";
 import { Job } from "core-kit/services/queue";
@@ -6,8 +8,6 @@ import sentry from "core-kit/services/sentry";
 import { FatalError, TimeoutError } from "core-kit/types/errors";
 import { mapTo } from "core-kit/utils/models";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
-import { queues } from "../../app/queues";
-import { BASE_URL } from "../../consts/core";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,

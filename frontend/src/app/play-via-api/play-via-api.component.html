@@ -18,7 +18,7 @@
 <![CDATA[curl --location --request POST '{{ config.baseUrl }}/api/{{
       deploy.slug
     }}/launch' \
---header 'content-Type: application/json' \
+--header 'content-type: application/json' \
 --header 'api-token: [YOUR_API_KEY_HERE]' \
 --data '{{ launchRequest | json }}']]></pre
   >

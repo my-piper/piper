@@ -1,11 +1,11 @@
 import api from "app/api";
 import mongo from "app/mongo";
+import * as storage from "app/storage";
 import { toInstance, toPlain, validate } from "core-kit/utils/models";
 import { Request } from "express";
 import "reflect-metadata";
 import { ulid } from "ulid";
 import { checkLogged, handle } from "utils/http";
-import * as storage from "../../app/storage";
 import { Asset } from "../../models/assets";
 import { User } from "../../models/user";
 import { getMetadata } from "../../utils/metadata";

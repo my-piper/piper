@@ -1,3 +1,6 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
 :host {
   display: block;
 }
@@ -21,6 +24,23 @@
   position: relative;
   overflow: scroll;
   height: 600px;
+
+  .locked {
+    position: absolute;
+    top: -$gutter-small;
+    right: -$gutter-small;
+    z-index: 1;
+    background: white;
+    border-radius: 50%;
+    padding: 1px;
+    display: flex;
+
+    .icon,
+    .icon ::ng-deep svg {
+      display: block;
+      stroke: $graphite-color-100;
+    }
+  }
 
   .input,
   .output {

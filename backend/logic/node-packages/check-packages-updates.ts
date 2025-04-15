@@ -1,9 +1,9 @@
 import mongo from "app/mongo";
+import { queues } from "app/queues";
 import { createLogger } from "core-kit/services/logger";
 import redis from "core-kit/services/redis";
 import { DataError } from "core-kit/types/errors";
 import { toModels } from "utils/http";
-import { queues } from "../../app/queues";
 import { PACKAGES_UPDATES } from "../../consts/packages";
 import { NodePackage } from "../../models/node-package";
 

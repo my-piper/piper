@@ -1,8 +1,8 @@
 import api from "app/api";
+import { HIDDEN_STRING } from "consts/core";
 import redis from "core-kit/services/redis";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import { checkLogged, handle } from "utils/http";
-import { HIDDEN_STRING } from "../../consts/core";
 import { USER_ENVIRONMENT_KEY } from "../../consts/redis";
 import { Environment } from "../../models/environment";
 import { Primitive } from "../../types/primitive";

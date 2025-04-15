@@ -1,7 +1,7 @@
+import { queues } from "app/queues";
 import { toPlain } from "core-kit/utils/models";
 import { ulid } from "ulid";
 import clickhouse from "../../app/clickhouse";
-import { queues } from "../../app/queues";
 import { BalanceRefill } from "../../models/balance-refill";
 
 export async function refillBalance(

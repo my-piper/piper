@@ -1,4 +1,4 @@
-import { HIDDEN_STRING } from "../../consts/core";
+import { HIDDEN_STRING } from "consts/core";
 import { Environment } from "../../models/environment";
 import { Primitive } from "../../types/primitive";
 

@@ -1,3 +1,4 @@
+import { queues } from "app/queues";
 import { notify } from "core-kit/services/io";
 import { createLogger } from "core-kit/services/logger";
 import { Job } from "core-kit/services/queue";
@@ -14,7 +15,6 @@ import { pathToFileURL } from "node:url";
 import { Module, SourceTextModule } from "node:vm";
 import path from "path";
 import { Primitive } from "types/primitive";
-import { queues } from "../../app/queues";
 import { streams } from "../../app/streams";
 import {
   LAUNCH,

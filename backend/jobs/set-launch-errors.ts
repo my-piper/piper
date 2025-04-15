@@ -20,7 +20,7 @@ queues.launches.errors.set.process(async (setErrorsJob) => {
     return;
   }
 
-  logger.info(`Set errors for launch ${launch}`);
+  logger.info(`Set errors for launch ${launch._id}`);
   const errors = (await redis.lRange(PIPELINE_ERRORS(launch._id), 0, -1)) || [];
   await mongo.launches.updateOne({ _id: launch }, { $set: { errors } });
 

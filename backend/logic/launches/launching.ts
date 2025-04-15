@@ -1,9 +1,13 @@
 import mongo from "app/mongo";
+import { queues } from "app/queues";
+import * as storage from "app/storage";
 import { plainToInstance } from "class-transformer";
+import { BASE_URL } from "consts/core";
 import { createLogger } from "core-kit/services/logger";
 import redis from "core-kit/services/redis";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { toPlain } from "core-kit/utils/models";
+import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
 import { plan } from "logic/nodes/plan-node";
@@ -12,9 +16,7 @@ import path from "path";
 import "reflect-metadata";
 import sharp from "sharp";
 import { ulid } from "ulid";
-import { queues } from "../../app/queues";
-import * as storage from "../../app/storage";
-import { BASE_URL } from "../../consts/core";
+import { downloadBinary, extFromMime } from "utils/web";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,
@@ -41,7 +43,6 @@ import { withTempContext } from "../../utils/files";
 import { fromRedisValue, toRedisValue } from "../../utils/redis";
 import { sid } from "../../utils/string";
 import { getPoster } from "../../utils/video";
-import { downloadBinary } from "../../utils/web";
 
 const logger = createLogger("utils/launch");
 
@@ -93,6 +94,31 @@ export async function run({
 
   // set nodes inputs from request pipeline inputs
   if (!!pipeline.inputs) {
+    // convert launch requests inputs
+    for (const [id, { type }] of pipeline.inputs) {
+      const { inputs } = launchRequest;
+      if (inputs.has(id)) {
+        const value = inputs.get(id);
+        switch (type) {
+          case "image":
+          case "video":
+            const url = value as string;
+            if (url?.startsWith("data")) {
+              const { typeFull, buffer } = dataUriToBuffer(url);
+              const fileName = [sid(), extFromMime(typeFull)].join(".");
+              inputs.set(
+                id,
+                await storage.artefact(Buffer.from(buffer), fileName)
+              );
+            }
+            break;
+          default:
+          //
+        }
+      }
+    }
+
+    // set inputs for nodes
     for (const [id, input] of pipeline.inputs) {
       let value = launchRequest.inputs?.get(id) || input.default;
       if (value !== undefined) {

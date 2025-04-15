@@ -1,9 +1,9 @@
 import api from "app/api";
 import mongo from "app/mongo";
+import { HIDDEN_STRING } from "consts/core";
 import { toPlain } from "core-kit/utils/models";
 import { Primitive } from "types/primitive";
 import { checkLogged, handle, toModel } from "utils/http";
-import { HIDDEN_STRING } from "../../consts/core";
 import { Project } from "../../models/project";
 
 api.get(

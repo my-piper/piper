@@ -1,4 +1,5 @@
 import api from "app/api";
+import * as storage from "app/storage";
 import { DataError } from "core-kit/types/errors";
 import { toInstance, validate } from "core-kit/utils/models";
 import { Request, Response } from "express";
@@ -6,7 +7,6 @@ import multer, { memoryStorage } from "multer";
 import "reflect-metadata";
 import sharp from "sharp";
 import { handle } from "utils/http";
-import * as storage from "../../app/storage";
 import { sid } from "../../utils/string";
 import { extFromMime } from "../../utils/web";
 import { UploadArtefactRequest } from "./model/upload-artefact-request";
