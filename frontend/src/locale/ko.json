@@ -50,6 +50,8 @@
 		"label.confirm_password": "비밀번호 확인",
 		"label.created": "생성됨",
 		"message.no_launches_found": "시작점을 찾을 수 없습니다. {$START_BOLD_TEXT}실행{$CLOSE_BOLD_TEXT} 버튼을 누르십시오.",
-		"message.coming_soon": "곧 출시 예정..."
+		"message.coming_soon": "곧 출시 예정...",
+		"label.academy": "아카데미",
+		"message.piper_api_academy": " Piper API에 대한 자세한 내용은 {$START_LINK}아카데미{$CLOSE_LINK}에서 확인하시기 바랍니다"
 	}
 }

@@ -53,6 +53,8 @@
 		"label.confirm_password": "确认密码",
 		"label.created": "创建",
 		"message.no_launches_found": "未找到启动程序。请按 {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT} 按钮。",
-		"message.coming_soon": "即将推出..."
+		"message.coming_soon": "即将推出...",
+		"label.academy": "学院",
+		"message.piper_api_academy": "请在我们的 {$START_LINK}Academy{$CLOSE_LINK} 中查看有关 Piper API 的更多详情。"
 	}
 }

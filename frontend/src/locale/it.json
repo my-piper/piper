@@ -50,6 +50,8 @@
 		"label.confirm_password": "Conferma la password",
 		"label.created": "Creato",
 		"message.no_launches_found": " Lanci non trovati. Premere il pulsante {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT}.",
-		"message.coming_soon": "Prossimamente..."
+		"message.coming_soon": "Prossimamente...",
+		"label.academy": "Accademia",
+		"message.piper_api_academy": " Per maggiori dettagli su Piper API, consultare la nostra {$START_LINK}Academy{$CLOSE_LINK}"
 	}
 }

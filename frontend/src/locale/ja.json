@@ -51,6 +51,8 @@
 		"label.confirm_password": "パスワードの確認",
 		"label.created": "作成",
 		"message.no_launches_found": "起動が見つかりません。{$START_BOLD_TEXT}実行{$CLOSE_BOLD_TEXT}ボタンを押してください。",
-		"message.coming_soon": "近日公開"
+		"message.coming_soon": "近日公開",
+		"label.academy": "アカデミー",
+		"message.piper_api_academy": "パイパーAPIの詳細は{$START_LINK}アカデミー{$CLOSE_LINK}をご覧ください。"
 	}
 }

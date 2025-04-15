@@ -49,6 +49,8 @@
 		"label.confirm_password": "Confirmar senha",
 		"label.created": "Criado",
 		"message.no_launches_found": " Lançamentos não encontrados. Por favor, pressione o botão {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT}.",
-		"message.coming_soon": "Em breve..."
+		"message.coming_soon": "Em breve...",
+		"label.academy": "Academia",
+		"message.piper_api_academy": " Confira mais detalhes sobre a Piper API em nossa {$START_LINK}Academy{$CLOSE_LINK}"
 	}
 }

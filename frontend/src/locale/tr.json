@@ -51,6 +51,8 @@
 		"label.confirm_password": "Şifreyi onayla",
 		"label.created": "Oluşturuldu",
 		"message.no_launches_found": " Başlatmalar bulunamadı. Lütfen {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT} düğmesine basın.",
-		"message.coming_soon": "Çok yakında..."
+		"message.coming_soon": "Çok yakında...",
+		"label.academy": "Akademi",
+		"message.piper_api_academy": " Lütfen {$START_LINK}Academy{$CLOSE_LINK} sayfamızdan Piper API hakkında daha fazla ayrıntıya göz atın"
 	}
 }

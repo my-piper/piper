@@ -36,6 +36,8 @@
     "label.type": "Type",
     "label.default": "Default",
     "label.enum": "Enum",
+    "label.academy": "Academy",
+    "message.piper_api_academy": " Please, check more details about Piper API in our {$START_LINK}Academy{$CLOSE_LINK}",
     "message.confirm_generate_api_key": "Previously generated key will be invalid",
     "link.readme": "README",
     "link.comments": "Comments",

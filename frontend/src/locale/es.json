@@ -51,6 +51,8 @@
 		"label.confirm_password": "Confirmar contraseña",
 		"label.created": "Creado",
 		"message.no_launches_found": " No se han encontrado las imágenes. Por favor, pulse el botón {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT}.",
-		"message.coming_soon": "Próximamente..."
+		"message.coming_soon": "Próximamente...",
+		"label.academy": "Academia",
+		"message.piper_api_academy": " Por favor, consulte más detalles sobre Piper API en nuestra {$START_LINK}Academy{$CLOSE_LINK}"
 	}
 }

@@ -51,6 +51,8 @@
 		"label.confirm_password": "पासवर्ड की पुष्टि करें",
 		"label.created": "बनाया गया",
 		"message.no_launches_found": "लॉन्च नहीं मिला। कृपया, {$START_BOLD_TEXT}चलाएं{$CLOSE_BOLD_TEXT} बटन दबाएं।",
-		"message.coming_soon": "जल्द आ रहा है..."
+		"message.coming_soon": "जल्द आ रहा है...",
+		"label.academy": "अकादमी",
+		"message.piper_api_academy": "कृपया, हमारे {$START_LINK}एकेडेमी{$CLOSE_LINK} में पाइपर एपीआई के बारे में अधिक जानकारी देखें"
 	}
 }

@@ -50,6 +50,8 @@
 		"label.confirm_password": "Passwort bestätigen",
 		"label.created": "Erstellt",
 		"message.no_launches_found": " Starts nicht gefunden. Bitte drücken Sie die Taste {$START_BOLD_TEXT}RUN{$CLOSE_BOLD_TEXT}.",
-		"message.coming_soon": "Demnächst verfügbar..."
+		"message.coming_soon": "Demnächst verfügbar...",
+		"label.academy": "Akademie",
+		"message.piper_api_academy": " Bitte lesen Sie weitere Details über Piper API in unserer {$START_LINK}Academy{$CLOSE_LINK}"
 	}
 }
