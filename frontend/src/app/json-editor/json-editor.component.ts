@@ -31,6 +31,9 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
   disabled = false;
 
   @Input()
+  features: "collapse"[] = ["collapse"];
+
+  @Input()
   disable: string[] = [];
 
   @Input()
@@ -54,6 +57,7 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
       this.editor = new JSONEditor(this.hostRef.nativeElement, {
         display_required_only: true,
         //collapsed: true,
+        disable_collapse: !this.features.includes("collapse"),
         disable_edit_json: true,
         disable_array_delete_all_rows: true,
         disable_array_delete_last_row: true,

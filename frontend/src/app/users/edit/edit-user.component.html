@@ -27,6 +27,7 @@
     <app-json-editor
       [schema]="schemas.user"
       [disable]="!!user ? ['root._id'] : []"
+      [features]="[]"
       formControlName="user"
     ></app-json-editor>
   </fieldset>
@@ -36,6 +37,7 @@
       [class.busy]="progress.saving"
       [disabled]="!form.valid || progress.saving"
       type="submit"
+      i18n="@@action.save"
     >
       Save
     </button>

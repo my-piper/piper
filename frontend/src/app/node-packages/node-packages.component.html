@@ -25,7 +25,7 @@
 ></app-informer>
 
 <ng-template #noUpdatesTemplates>
-  <p>Package has no updates.</p>
+  <p i18n="@@message.no_updates_for_package">Package has no updates.</p>
 </ng-template>
 
 <ng-template #readmePopover>
@@ -37,12 +37,13 @@
         [disabled]="progress.updating"
         [class.busy]="progress.updating"
         (click)="update()"
+        i18n="@@action.update"
       >
         Update
       </button>
     </header>
     <ng-template #noUpdatesTemplate>
-      <p>Please, check update.</p>
+      <p i18n="@@label.check_updates">Please, check update.</p>
     </ng-template>
     <ul *ngIf="state?.updates.length; else noUpdatesTemplate">
       <li *ngFor="let update of state.updates">
@@ -54,7 +55,9 @@
           <ng-container
             *ngIf="update.updated as updated; else noUpdatesTemplates"
           >
-            <p class="new">New version {{ updated.version }}:</p>
+            <p class="new" i18n="@@message.new_version">
+              New version {{ updated.version }}:
+            </p>
             <div
               class="notes"
               [innerHTML]="updated.readme | markdown | async"
@@ -68,18 +71,24 @@
 
 <div class="app-container">
   <header class="horizontal stack">
-    <a class="primary with-icon" [routerLink]="['add']" i18n="@@action.create">
+    <a class="primary with-icon" [routerLink]="['add']">
       <app-icon class="icon left" icon="add"></app-icon>
-      Create
+      <ng-container i18n="@@action.create">Create</ng-container>
     </a>
-    <a class="secondary" [routerLink]="['import']">Import</a>
+    <a class="secondary" [routerLink]="['import']" i18n="@@link.import">
+      Import
+    </a>
 
     <ng-container [ngSwitch]="state?.status">
       <ng-container *ngSwitchCase="'checking'">
-        <button class="secondary busy" disabled>Checking</button>
+        <button class="secondary busy" disabled i18n="@@label.checking">
+          Checking
+        </button>
       </ng-container>
       <ng-container *ngSwitchCase="'updating'">
-        <button class="secondary busy" disabled>Updating</button>
+        <button class="secondary busy" disabled i18n="@@label.updating">
+          Updating
+        </button>
       </ng-container>
       <ng-container *ngSwitchDefault>
         <button
@@ -90,7 +99,9 @@
           (attached)="references.popover = $event"
           (click)="checkUpdates()"
         >
-          Check updates
+          <ng-container i18n="@@action.check_updates">
+            Check updates
+          </ng-container>
           <span
             class="badge"
             *ngIf="state?.updates || [] | packagesForUpdate as updates"
@@ -106,15 +117,12 @@
     </ng-container>
   </header>
 
-  <table
-    class="default"
-    [class.busy]="progress.loading.packages || progress.deleting"
-  >
+  <table class="default">
     <thead>
       <th width="24px"></th>
-      <th width="256px">Title</th>
-      <th width="64px">Version</th>
-      <th>Description</th>
+      <th width="256px" i18n="@@label.title">Title</th>
+      <th width="64px" i18n="@@label.version">Version</th>
+      <th i18n="@@label.description">Description</th>
     </thead>
     <tbody>
       <tr *ngFor="let p of packages; let i = index">
@@ -128,8 +136,8 @@
                     icon="edit"
                     [size]="18"
                   ></app-icon>
-                  Edit</a
-                >
+                  <ng-container i18n="@@action.edit">Edit</ng-container>
+                </a>
               </li>
               <li>
                 <button (click)="remove(i, p)">
@@ -138,7 +146,7 @@
                     icon="delete"
                     [size]="18"
                   ></app-icon>
-                  Delete
+                  <ng-container i18n="@@action.delete">Delete</ng-container>
                 </button>
               </li>
             </ul>
@@ -148,12 +156,7 @@
             [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
             (attached)="references.popover = $event"
           >
-            <app-icon
-              class="icon"
-              [size]="16"
-              [stroke]="3"
-              icon="menu"
-            ></app-icon>
+            <app-icon class="icon" icon="menu"></app-icon>
           </button>
         </td>
         <td>
@@ -163,7 +166,7 @@
         </td>
         <td class="version">
           <ng-template #releaseNotedPopover>
-            <h1>Release notes:</h1>
+            <h1 i18n="@@label.release_notes">Release notes:</h1>
             <div [innerHTML]="p.readme | markdown | async"></div>
           </ng-template>
           <div class="stack horizontal small align-center">
@@ -180,6 +183,9 @@
         <td>
           {{ p.description }}
         </td>
+      </tr>
+      <tr class="loading" *ngIf="progress.loading.packages">
+        <td colspan="4"></td>
       </tr>
     </tbody>
   </table>

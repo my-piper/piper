@@ -7,14 +7,14 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
         >
-          Usages
+          <ng-container i18n="@@link.usages">Usages</ng-container>
           <span class="badge">{{ user.balance.used | currency: "USD" }}</span>
         </a>
       </li>
       <li>|</li>
       <li>
         <a [routerLink]="['refills']" routerLinkActive="active">
-          Refills
+          <ng-container i18n="@@link.refills">Refills</ng-container>
           <span class="badge">{{
             user.balance.available | currency: "USD"
           }}</span>

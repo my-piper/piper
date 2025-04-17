@@ -23,7 +23,6 @@
               class="link"
               [href]="'/launches/' + l._id"
               target="_blank"
-              i18n="@@link.open_pipeline"
               (click)="references.popover?.hide()"
             >
               <app-icon
@@ -31,13 +30,15 @@
                 icon="open-link"
                 [size]="18"
               ></app-icon>
-              Open pipeline
+              <ng-container i18n="@@link.open_pipeline">
+                Open pipeline
+              </ng-container>
             </a>
           </li>
           <li *ngIf="userRole.admin | can: l.launchedBy | async">
-            <button i18n="@@link.delete" (click)="remove(i, l)">
+            <button (click)="remove(i, l)">
               <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
-              Delete
+              <ng-container i18n="@@action.delete">Delete</ng-container>
             </button>
           </li>
         </ul>

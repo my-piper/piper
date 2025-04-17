@@ -6,23 +6,31 @@
 
 <table class="default" [class.busy]="progress.loading">
   <thead>
-    <th width="150px">Processed at</th>
-    <th>Pipeline</th>
-    <th>Node</th>
-    <th width="100px">Launch</th>
-    <th width="50px">Cost</th>
+    <th width="150px" i18n="@@label.processed_at">Processed at</th>
+    <th i18n="@@label.pipeline">Pipeline</th>
+    <th i18n="@@label.node">Node</th>
+    <th i18n="@@label.launch" width="100px">Launch</th>
+    <th i18n="@@label.cost" width="50px">Cost</th>
   </thead>
   <tbody>
     <tr *ngFor="let u of usages">
-      <td>{{ u.processedAt | date: "short" }}</td>
-      <td>{{ u.pipeline | i18n }}</td>
-      <td>{{ u.node | i18n }}</td>
-      <td>
+      <td title="Processed at" i18n-title="@@label.processed_at">
+        {{ u.processedAt | date: "short" }}
+      </td>
+      <td title="Pipeline" i18n-title="@@label.pipeline">
+        {{ u.pipeline | i18n }}
+      </td>
+      <td title="Node" i18n-title="@@label.node">
+        {{ u.node | i18n }}
+      </td>
+      <td title="Launch" i18n-title="@@label.launch">
         <a target="_blank" [routerLink]="['/launches', u.launch]">
           {{ u.launch }}
         </a>
       </td>
-      <td style="text-align: right">{{ u.costs | currency: "USD" }}</td>
+      <td title="Cost" i18n-title="@@label.cost" style="text-align: right">
+        {{ u.costs | currency: "USD" }}
+      </td>
     </tr>
   </tbody>
 </table>

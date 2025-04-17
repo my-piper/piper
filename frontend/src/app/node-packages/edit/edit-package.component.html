@@ -4,6 +4,7 @@
     <app-json-editor
       [schema]="schemas.nodePackage"
       [disable]="!!nodePackage ? ['root._id'] : []"
+      [features]="[]"
       formControlName="nodePackage"
     ></app-json-editor>
   </fieldset>
@@ -13,6 +14,7 @@
       [class.busy]="progress.saving"
       [disabled]="form.invalid || progress.saving"
       (click)="save()"
+      i18n="@@action.save"
     >
       Save
     </button>

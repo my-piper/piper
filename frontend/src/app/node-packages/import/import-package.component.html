@@ -1,4 +1,4 @@
-<h1>Put package YAML</h1>
+<h1 i18n="@@label.put_package_yaml">Put package YAML</h1>
 <form [formGroup]="form">
   <fieldset>
     <ngx-monaco-editor
@@ -17,6 +17,7 @@
       [class.busy]="progress.importing"
       [disabled]="form.invalid || progress.importing"
       (click)="import()"
+      i18n="@@action.import"
     >
       Import
     </button>
