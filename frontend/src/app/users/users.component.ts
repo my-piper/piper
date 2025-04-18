@@ -84,7 +84,8 @@ export class UsersComponent {
       )
       .subscribe({
         next: (users) => {
-          this.users = users;
+          this.chunk = users;
+          this.users.push(...users);
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),

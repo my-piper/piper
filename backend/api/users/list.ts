@@ -32,10 +32,12 @@ api.get(
             provider: 1,
             balance: 1,
             roles: 1,
+            cursor: 1,
           },
         }
       )
       .sort({ createdAt: -1 })
+      .limit(30)
       .toArray();
   })
 );

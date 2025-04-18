@@ -4,7 +4,7 @@
   (ok)="error = null"
 ></app-informer>
 
-<table class="default" [class.busy]="progress.loading">
+<table class="default">
   <thead>
     <th width="150px" i18n="@@label.processed_at">Processed at</th>
     <th i18n="@@label.pipeline">Pipeline</th>
@@ -31,6 +31,9 @@
       <td title="Cost" i18n-title="@@label.cost" style="text-align: right">
         {{ u.costs | currency: "USD" }}
       </td>
+    </tr>
+    <tr class="loading" *ngIf="progress.loading">
+      <td colspan="5"></td>
     </tr>
   </tbody>
 </table>
