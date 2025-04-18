@@ -36,7 +36,7 @@ api.get(
           },
         }
       )
-      .sort({ createdAt: -1 })
+      .sort({ cursor: -1 })
       .limit(30)
       .toArray();
   })

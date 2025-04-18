@@ -213,7 +213,7 @@ commander
       console.log(_id);
       await mongo.nodePackages.updateOne({ _id }, { $set: { cursor: ulid() } });
     }
-    const users = await mongo.users.find().toArray();
+    const users = await mongo.users.find().sort({ createdAt: -1 }).toArray();
     for (const { _id } of users) {
       console.log(_id);
       await mongo.users.updateOne({ _id }, { $set: { cursor: ulid() } });
