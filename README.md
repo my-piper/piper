@@ -120,7 +120,7 @@ Run socket server
 cd backend
 npm run sockets
 npm run server
-./worker.sh
+./worker.sh -i
 ```
 
 Run backend
