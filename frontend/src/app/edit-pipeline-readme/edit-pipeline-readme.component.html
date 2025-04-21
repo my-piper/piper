@@ -11,14 +11,14 @@
 </div>
 
 <form [formGroup]="form">
-  <fieldset>
+  <div class="editor">
     <ngx-monaco-editor
+      class="monaco"
       formControlName="readme"
       [options]="{ wordWrap: 'off', theme: 'vs-dark', language: 'markdown' }"
-      style="height: 300px"
     >
     </ngx-monaco-editor>
-  </fieldset>
+  </div>
   <footer class="stack horizontal">
     <a class="secondary" [routerLink]="['view']">View</a>
     <button

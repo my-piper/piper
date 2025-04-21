@@ -1,60 +1,53 @@
 <ng-template #pipelineTab>
-  <ng-container [formGroup]="form">
+  <div class="editor" [formGroup]="form">
     <ngx-monaco-editor
+      class="monaco"
       formControlName="pipeline"
-      [options]="{
-        wordWrap: 'wordWrapColumn',
-        wordWrapColumn: 300,
-        wordBreak: 'keepAll',
-        theme: 'vs-dark',
-        language: 'yaml',
-      }"
-      style="height: 500px"
+      [options]="{ language: 'yaml' }"
+      style="height: 100%"
     >
     </ngx-monaco-editor>
-  </ng-container>
+  </div>
 </ng-template>
 
 <ng-template #launchRequestTab>
-  <ng-container [formGroup]="form">
+  <div class="editor" [formGroup]="form">
     <ngx-monaco-editor
-      [formGroup]="form"
+      class="monaco"
       formControlName="launchRequest"
-      [options]="{ wordWrap: 'off', theme: 'vs-dark', language: 'json' }"
-      style="height: 300px"
+      [options]="{ language: 'json' }"
     >
     </ngx-monaco-editor>
-  </ng-container>
+  </div>
 </ng-template>
 
 <ng-template #environmentTab>
-  <ng-container [formGroup]="form">
+  <div class="editor" [formGroup]="form">
     <ngx-monaco-editor
-      [formGroup]="form"
+      class="monaco"
       formControlName="environment"
       [options]="{ wordWrap: 'off', theme: 'vs-dark', language: 'json' }"
-      style="height: 300px"
     >
     </ngx-monaco-editor>
-  </ng-container>
+  </div>
 </ng-template>
 
 <form>
-  <fieldset>
-    <app-tabs
-      [tabs]="[
-        { title: 'Pipeline', content: pipelineTab },
-        { title: 'Launch request', content: launchRequestTab },
-        { title: 'Environment', content: environmentTab },
-      ]"
-    ></app-tabs>
-  </fieldset>
+  <app-tabs
+    class="tabs"
+    [tabs]="[
+      { title: 'Pipeline', content: pipelineTab },
+      { title: 'Launch request', content: launchRequestTab },
+      { title: 'Environment', content: environmentTab },
+    ]"
+  ></app-tabs>
   <footer>
     <button
       submitButton
       class="primary"
       [disabled]="form.invalid"
       (click)="save()"
+      i18n="@@action.save"
     >
       Save
     </button>

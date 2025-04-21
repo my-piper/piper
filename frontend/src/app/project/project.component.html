@@ -213,10 +213,12 @@
 </header>
 
 <ng-template #noneModalTemplate>
-  <router-outlet
-    (activate)="child = $event"
-    (deactivate)="child = null"
-  ></router-outlet>
+  <div class="child">
+    <router-outlet
+      (activate)="child = $event"
+      (deactivate)="child = null"
+    ></router-outlet>
+  </div>
 </ng-template>
 
 <ng-container

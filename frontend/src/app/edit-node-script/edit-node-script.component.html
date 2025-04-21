@@ -32,12 +32,12 @@
       </label>
     </div>
   </fieldset>
-  <fieldset>
+  <div class="editor">
     <ngx-monaco-editor
+      class="monaco"
       formControlName="script"
       [options]="{ language: 'javascript', minimap: { enabled: false } }"
-      style="height: 600px"
     >
     </ngx-monaco-editor>
-  </fieldset>
+  </div>
 </form>

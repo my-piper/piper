@@ -2,9 +2,25 @@
 @import "src/ui-kit/styles/mixins";
 
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 form {
-  @include vertical-stack();
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $gutter-normal;
+
+  .editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .monaco {
+      flex: 1;
+      min-height: 400px;
+    }
+  }
 }

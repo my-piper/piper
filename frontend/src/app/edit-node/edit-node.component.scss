@@ -2,11 +2,21 @@
 @import "src/ui-kit/styles/mixins";
 
 :host {
-  @include vertical-stack();
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-normal;
+  flex: 1;
 }
 
 h1 {
   margin: 0;
   line-height: 1em;
+}
+
+.child {
+  flex: 1;
+
+  ::ng-deep>* {
+    height: 100%;
+  }
 }

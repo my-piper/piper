@@ -1,9 +1,9 @@
 <form [formGroup]="form">
-  <fieldset>
+  <fieldset class="editor">
     <ngx-monaco-editor
+      class="monaco"
       formControlName="node"
       [options]="{ language: 'yaml', minimap: { enabled: false } }"
-      style="height: 600px"
     >
     </ngx-monaco-editor>
   </fieldset>
