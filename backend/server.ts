@@ -39,7 +39,7 @@ import {
   LANGUAGES,
   SITE_URL,
 } from "./consts/core";
-import { NO_CACHE_HEADERS } from "./consts/http";
+import { NO_CACHE_HEADERS, SCP_HEADERS } from "./consts/http";
 import { AppConfig } from "./models/app-config";
 import { handle } from "./utils/http";
 
@@ -60,6 +60,7 @@ const STATIC_FILE_EXT =
 
 api.use((req, res, next) => {
   if (STATIC_FILE_EXT.test(req.path)) {
+    res.set(SCP_HEADERS);
     return express.static(FRONTEND_ROOT, { etag: false })(req, res, next);
   }
   next();
@@ -69,6 +70,7 @@ api.get(
   `/:language(${LANGUAGES.join("|")})/*`,
   handle(() => async ({ originalUrl, params: { language } }, res) => {
     res.set(NO_CACHE_HEADERS);
+    res.set(SCP_HEADERS);
     const slug = language.toLowerCase();
     if (language !== slug) {
       const { pathname, search } = parseURL(originalUrl);
