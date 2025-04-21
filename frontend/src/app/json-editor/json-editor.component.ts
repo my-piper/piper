@@ -4,12 +4,16 @@ import {
   forwardRef,
   HostBinding,
   HostListener,
+  Inject,
   Input,
   OnDestroy,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { JSONEditor } from "@json-editor/json-editor";
 import { isEqual } from "lodash";
+import { Languages } from "src/ui-kit/enums/languages";
+import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
+import { getLabel } from "src/ui-kit/utils/i18n";
 
 @Component({
   selector: "app-json-editor",
@@ -50,7 +54,10 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
   @HostListener("blur")
   onBlur = () => this.onTouched();
 
-  constructor(private hostRef: ElementRef) {}
+  constructor(
+    @Inject(CURRENT_LANGUAGE) private language: Languages,
+    private hostRef: ElementRef
+  ) {}
 
   writeValue(value: object) {
     if (!this.editor) {
@@ -63,6 +70,10 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
         disable_array_delete_last_row: true,
         schema: this.schema,
         startval: value,
+        template: {
+          compile: (template: string) => () =>
+            getLabel(template, this.language),
+        },
       });
       this.editor.on("ready", () => {
         for (const path of this.disable) {

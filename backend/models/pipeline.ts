@@ -134,6 +134,10 @@ export class Pipeline {
 
   @Expose()
   @Type(() => String)
+  tags!: string[];
+
+  @Expose()
+  @Type(() => String)
   readme!: string;
 
   @Expose()

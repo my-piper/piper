@@ -1,34 +1,40 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "title": "Pipeline",
+  "headerTemplate": "en=Pipeline;ru=Конвейер",
+  "options": {
+    "disable_collapse": true
+  },
   "properties": {
     "name": {
       "type": "string",
-      "title": "Name",
+      "headerTemplate": "en=Name;ru=Название",
       "propertyOrder": 1
     },
     "description": {
       "type": "string",
-      "title": "Description",
+      "headerTemplate": "en=Description;ru=Описание",
       "format": "textarea",
       "propertyOrder": 2
     },
-    "readme": {
-      "type": "string",
-      "title": "README",
-      "format": "textarea"
+    "tags": {
+      "headerTemplate": "en=Tags;ru=Теги",
+      "type": "array",
+      "propertyOrder": 3,
+      "items": {
+        "type": "string"
+      }
     },
     "version": {
       "type": "number",
-      "title": "Version",
+      "headerTemplate": "en=Version;ru=Версия",
       "format": "number",
-      "propertyOrder": 3
+      "propertyOrder": 4
     },
     "url": {
       "type": "string",
       "title": "URL",
-      "propertyOrder": 4,
+      "propertyOrder": 5,
       "options": {
         "inputAttributes": {
           "placeholder": "URL for auto updates"
@@ -37,16 +43,23 @@
     },
     "checkUpdates": {
       "type": "boolean",
-      "title": "Check updates",
-      "propertyOrder": 5
+      "headerTemplate": "en=Check updates;ru=Проверять обновления",
+      "propertyOrder": 6
     },
     "thumbnail": {
       "type": "string",
-      "title": "Thumbnail",
-      "propertyOrder": 6
+      "headerTemplate": "en=Thumbnail;ru=Эмблема",
+      "propertyOrder": 7
     },
     "category": {
+      "propertyOrder": 8,
+      "headerTemplate": "en=Category;ru=Категория",
       "$ref": "#/definitions/PipelineCategory"
+    },
+    "readme": {
+      "type": "string",
+      "title": "README",
+      "format": "textarea"
     },
     "script": {
       "type": "string"
@@ -109,6 +122,9 @@
     "PipelineCategory": {
       "title": "Category",
       "type": "object",
+      "options": {
+        "disable_collapse": true
+      },
       "properties": {
         "_id": {
           "title": "ID",

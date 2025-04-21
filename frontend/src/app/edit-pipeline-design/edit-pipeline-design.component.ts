@@ -21,6 +21,7 @@ export class EditPipelineDesignComponent implements OnInit {
     const {
       name,
       description,
+      tags,
       version,
       url,
       checkUpdates,
@@ -33,6 +34,7 @@ export class EditPipelineDesignComponent implements OnInit {
         properties: {
           name,
           description,
+          tags,
           version,
           url,
           checkUpdates,
@@ -72,6 +74,7 @@ export class EditPipelineDesignComponent implements OnInit {
     const {
       name,
       description,
+      tags,
       version,
       url,
       checkUpdates,
@@ -82,6 +85,7 @@ export class EditPipelineDesignComponent implements OnInit {
       pipeline: shrink({
         name,
         description,
+        tags,
         version,
         url,
         checkUpdates,
@@ -95,6 +99,7 @@ export class EditPipelineDesignComponent implements OnInit {
     const {
       name,
       description,
+      tags,
       version,
       url,
       checkUpdates,
@@ -114,6 +119,7 @@ export class EditPipelineDesignComponent implements OnInit {
     assign(pipeline, {
       name,
       description,
+      tags,
       version,
       url,
       checkUpdates,
