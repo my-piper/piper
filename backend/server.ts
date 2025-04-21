@@ -14,7 +14,6 @@ import assign from "lodash/assign";
 import path from "path";
 import { parseURL } from "ufo";
 
-import "reflect-metadata";
 import "./api/artefacts";
 import "./api/assets";
 import "./api/balance-refills";
