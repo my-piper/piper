@@ -6,17 +6,20 @@ DROP TABLE IF EXISTS pipeline_metrics_finished;
 CREATE TABLE pipeline_metrics_finished (
     launch String,
     finishedAt DateTime,
-    fromStart UInt16
-) ENGINE = MergeTree 
-PARTITION BY toYYYYMM(finishedAt)
-ORDER BY finishedAt 
-SETTINGS index_granularity = 8192;
-
+    fromStart UInt16,
+    pipelineName String,
+    durationSecs UInt16,
+    errorsCount UInt8
+) ENGINE = MergeTree PARTITION BY toYYYYMM(finishedAt)
+ORDER BY finishedAt SETTINGS index_granularity = 8192;
 -- consumer
 CREATE TABLE pipeline_metrics_finished_consumer (
     launch String,
     finishedAt DateTime,
-    fromStart UInt16
+    fromStart UInt16,
+    pipelineName String,
+    durationSecs UInt16,
+    errorsCount UInt8
 ) ENGINE = Kafka(
     'kafka:9092',
     'pipeline.metrics.finished',
