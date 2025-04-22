@@ -41,12 +41,12 @@ Turn your AI workflows into fully functional APIs with just a few clicks. Seamle
 - Scalable Infrastructure 🔥🔥🔥
 - Rate limits, etc.
 
-# Resources
+## Resources
 
 - 📚 [Academy](https://huggingface.co/spaces/PiperMy/Academy)
 - 👥 [Community Forum](https://github.com/my-piper/piper/discussions)
 
-# Self-hosted deploy
+## Self-hosted deploy
 
 Detailed specifications are coming ⏳ soon...
 
@@ -54,7 +54,7 @@ Meanwhile, you can explore the Docker Swarm [configuration](https://github.com/m
 
 Here's your improved version:
 
-# Why Piper?
+## Why Piper?
 
 - **Open and Flexible YAML Specification**  
   Define and manage pipelines transparently with an open YAML-based specification.
@@ -68,139 +68,163 @@ Here's your improved version:
 - **Reusable Node Packages**  
   Share and distribute custom nodes effortlessly with built-in package management.
 
-# Development
+## Development
 
-## 🛠️ Prerequisites
+### 🛠️ Prerequisites
 
 - Docker Desktop 🐳
 - Node.js 22
 - VS code or alternative IDE
 
-## To do
+### Setup
 
-Clone repo with ❗️ sub-modules
+#### Clone repo with ❗️ sub-modules
 
-```bash
+```shell
 git clone --recurse-submodules git@github.com:my-piper/piper.git
 ```
 
-Run services
+#### Install libs
 
-```bash
+```shell
+make install
+```
+
+#### Run docker services
+
+```shell
 make up
 ```
 
-Compile schemas
+#### Prepare configs
 
-```bash
-make schemas
-```
-
-Prepare environment
-
-```bash
+```shell
 cp backend/.env.template backend/.env
 ```
 
-Create Mongo indexes
+### Apply migrations
 
-```bash
-npm run cli mongo create
-```
+- clickhouse - from `misc/clickhouse` path
 
-Add admin user
+### Start services
 
-```bash
-npm --prefix backend run cli users add admin admin@piper.my xyzXYZ admin
-```
+You can start services to develop from VS Code or from terminal.
 
-Run socket server
+#### VS Code
 
-```bash
+Select and start "-- all --" debug configuration.
+![VSCode debug](./assets/vscode-debug.webp)
+
+#### From terminal
+
+##### Run socket server
+
+```shell
 cd backend
 npm run sockets
 npm run server
 ./worker.sh -i
 ```
 
-Run backend
+##### Run backend
 
-```bash
-npm run server
+```shell
+cd backend && npm run server
 ```
 
-Run workers
+##### Run workers
 
-```bash
-./worker.sh
+```shell
+cd backend && ./worker.sh
 ```
 
-Run frontend
+##### Run frontend
 
-```bash
-cd frontend
-npm start
+```shell
+cd frontend && npm start
 ```
+
+#### After start services
 
 Open `http://localhost/`
 
 Read first tutorial how run create & run first pipeline!
 
-# CLI
+### Useful scripts
 
-## Get environment
+#### Compile schemas
 
-```bash
+```shell
+make schemas
+```
+
+#### Create Mongo indexes
+
+```shell
+cd backend && npm run cli mongo create
+```
+
+#### Add admin user
+
+```shell
+npm --prefix backend run cli users add admin admin@piper.my admin admin
+```
+
+## CLI
+
+### Get environment
+
+```shell
 npm --prefix backend run cli env
 ```
 
-## Set variable
+### Set variable
 
-```bash
+```shell
 npm --prefix backend run cli env set -- --name XXX --value xyzXYZ
 ```
 
-## Remove variable
+### Remove variable
 
-```bash
+```shell
 npm --prefix backend run cli env remove -- --name XXX
 ```
 
-# Modules
+## Modules
 
-## List
+### List
 
-```bash
+```shell
 npm run cli modules
 ```
 
-## Install module
+### Install module
 
-```bash
+```shell
 npm run cli modules add openai 4.85.4
 ```
 
-## Remove module
+### Remove module
 
-```bash
+```shell
 npm run cli modules remove openai
 ```
 
-## Update
+### Update
 
-```bash
+```shell
 npm run cli modules update
 ```
 
-## Reboot workers
+### Reboot workers
 
-```bash
+```shell
 npm run cli workers reboot
 ```
 
-# How to
+## How to
 
-## Remove launches with errors
+### Remove launches with errors
 
 ```js
 db.launches.deleteMany({ errors: { $exists: true, $not: { $size: 0 } } });

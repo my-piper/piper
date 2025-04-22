@@ -1,7 +1,4 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
@@ -9,56 +6,61 @@
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}/backend",
-      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["--loader", "ts-node/esm"],
-      "args": ["${workspaceFolder}/backend/server.ts"]
+      "program": "${workspaceFolder}/backend/server.ts",
+      "runtimeExecutable": "tsx",
+      "runtimeArgs": ["--experimental-vm-modules"],
+      "outputCapture": "std",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
     },
     {
       "name": "worker",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}/backend",
-      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["--loader", "ts-node/esm"],
-      "args": ["${workspaceFolder}/backend/worker.ts"]
+      "program": "${workspaceFolder}/backend/worker.ts",
+      "runtimeExecutable": "tsx",
+      "runtimeArgs": ["--experimental-vm-modules"],
+      "outputCapture": "std",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
     },
     {
       "name": "periodic",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}/backend",
-      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["--loader", "ts-node/esm"],
-      "args": ["${workspaceFolder}/backend/periodic.ts"]
+      "program": "${workspaceFolder}/backend/periodic.ts",
+      "runtimeExecutable": "tsx",
+      "runtimeArgs": ["--experimental-vm-modules"],
+      "outputCapture": "std",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
     },
     {
       "name": "sockets",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}/backend",
-      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["--loader", "ts-node/esm"],
-      "args": ["${workspaceFolder}/backend/sockets.ts"]
+      "program": "${workspaceFolder}/backend/sockets.ts",
+      "runtimeExecutable": "tsx",
+      "runtimeArgs": ["--experimental-vm-modules"],
+      "outputCapture": "std",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
     },
     {
       "name": "cli",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}/backend",
-      "env": { "TS_NODE_PROJECT": "${workspaceRoot}/backend/tsconfig.json" },
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["--loader", "ts-node/esm"],
-      "args": ["${workspaceFolder}/backend/cli.ts"]
+      "program": "${workspaceFolder}/backend/cli.ts",
+      "runtimeExecutable": "tsx",
+      "runtimeArgs": ["--experimental-vm-modules"],
+      "outputCapture": "std",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
     },
     {
       "name": "frontend",
       "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:4200",
+      "url": "http://localhost",
       "preLaunchTask": "npm: start - frontend",
       "webRoot": "${workspaceFolder}/frontend"
     }

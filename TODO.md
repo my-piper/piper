@@ -1,6 +1,6 @@
 # To do
 
-# Features
+## Features
 
 - [ ] password reset
 - [ ] batch pipeline launching
