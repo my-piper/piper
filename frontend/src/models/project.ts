@@ -110,6 +110,10 @@ export class ProjectsFilter {
 
   @Expose()
   @Type(() => String)
+  tags?: string[];
+
+  @Expose()
+  @Type(() => String)
   cursor?: string;
 
   @Expose()

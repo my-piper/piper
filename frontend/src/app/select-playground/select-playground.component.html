@@ -1,13 +1,25 @@
-<form [formGroup]="form" class="categories">
-  <button
-    *ngFor="let c of categories"
-    formControlName="category"
-    [appSelectable]="{ value: c._id }"
-  >
-    <app-icon [icon]="c.icon"></app-icon>
-    {{ c.title | i18n }}
-    <span class="badge">{{ c.projects }}</span>
-  </button>
+<form [formGroup]="form">
+  <fieldset class="categories">
+    <button
+      *ngFor="let c of categories"
+      formControlName="category"
+      [appSelectable]="{ value: c._id }"
+    >
+      <app-icon [icon]="c.icon"></app-icon>
+      {{ c.title | i18n }}
+      <span class="badge">{{ c.projects }}</span>
+    </button>
+  </fieldset>
+
+  <fieldset class="tags">
+    <button
+      *ngFor="let t of allTags"
+      formControlName="tags"
+      [appSelectable]="{ value: t, mode: 'multiple' }"
+    >
+      #{{ t }}
+    </button>
+  </fieldset>
 </form>
 
 <ng-template #noDataTemplate>

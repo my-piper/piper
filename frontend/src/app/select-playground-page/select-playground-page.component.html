@@ -24,4 +24,7 @@
   <h1 i18n="@@label.select_pipeline">Select pipeline</h1>
 </header>
 
-<app-select-playground (selected)="go($event)"></app-select-playground>
+<app-select-playground
+  [tags]="tags"
+  (selected)="go($event)"
+></app-select-playground>

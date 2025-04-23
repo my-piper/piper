@@ -34,6 +34,7 @@ import { NodePackageResolver } from "src/resolvers/node-package";
 import { PipelineInputFromProjectResolver } from "src/resolvers/pipeline";
 import { ProjectResolver } from "src/resolvers/project";
 import { ProjectMessagesFilterResolver } from "src/resolvers/project-messages-filter";
+import { TagsResolver } from "src/resolvers/tags";
 import { UserResolver } from "src/resolvers/user";
 import { AssetsPageComponent } from "./assets-page/assets-page.component";
 import { BatchesComponent } from "./batches/batches.component";
@@ -80,6 +81,9 @@ const routes: Routes = [
       {
         path: "",
         pathMatch: "full",
+        resolve: {
+          tags: TagsResolver,
+        },
         component: SelectPlaygroundPageComponent,
       },
       {

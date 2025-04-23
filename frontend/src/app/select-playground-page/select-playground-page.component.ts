@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { delay, finalize } from "rxjs";
 import { Project } from "src/models/project";
@@ -12,13 +12,15 @@ import { PopoverComponent } from "src/ui-kit/popover/popover.component";
   templateUrl: "./select-playground-page.component.html",
   styleUrls: ["./select-playground-page.component.scss"],
 })
-export class SelectPlaygroundPageComponent {
+export class SelectPlaygroundPageComponent implements OnInit {
   userRole = UserRole;
 
   error!: Error;
   progress = {
     organizing: false,
   };
+
+  tags: string[] = [];
 
   references: { popover: PopoverComponent } = { popover: null };
 
@@ -28,6 +30,12 @@ export class SelectPlaygroundPageComponent {
     private http: HttpService,
     private cd: ChangeDetectorRef
   ) {}
+
+  ngOnInit() {
+    this.route.data.subscribe(({ tags }) => {
+      this.tags = tags;
+    });
+  }
 
   organize() {
     this.progress.organizing = true;

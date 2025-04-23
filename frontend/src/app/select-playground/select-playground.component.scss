@@ -3,8 +3,15 @@
 @import "src/ui-kit/styles/reset";
 
 :host {
-    @include vertical-stack($gutter-large);
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: $gutter-normal;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: $gutter-normal;
 }
 
 .categories {
@@ -42,6 +49,25 @@
 
         input {
             display: none;
+        }
+    }
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $gutter-normal;
+
+    button {
+        @include reset-button();
+        background: $primary-light-color;
+        padding: $gutter-tiny $gutter-small;
+        border-radius: $corner-large;
+        font-size: 0.85em;
+
+        &.selected {
+            background: $primary-color;
+            color: white;
         }
     }
 }

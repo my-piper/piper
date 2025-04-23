@@ -1,6 +1,7 @@
 import { createLogger } from "core-kit/services/logger";
-import { toPlain } from "core-kit/utils/models";
+import { mapTo, toPlain } from "core-kit/utils/models";
 import { Partitioners } from "kafkajs";
+import { PipelineErrorRecord } from "models/pipeline-error-record";
 import { PipelineFinishedMetric } from "models/pipeline-finished-metric";
 import { PipelineMessage } from "models/pipeline-message";
 import { PipelineOutputMetric } from "models/pipeline-output-metric";
@@ -16,7 +17,7 @@ class Stream<T extends Object> {
 
   constructor(
     private topic: string,
-    private model: new (defs: Partial<T>) => T
+    private model: new () => T
   ) {}
 
   async connect() {
@@ -24,7 +25,7 @@ class Stream<T extends Object> {
   }
 
   async send(message: Partial<T>) {
-    const plain = toPlain(new this.model(message));
+    const plain = toPlain(mapTo(message, this.model));
     try {
       await this.producer.send({
         topic: this.topic,
@@ -44,6 +45,7 @@ export const streams = {
   pipeline: {
     messages: new Stream("pipeline.messages", PipelineMessage),
     usage: new Stream("pipeline.usages", PipelineUsage),
+    errors: new Stream("pipeline.errors", PipelineErrorRecord),
     metrics: {
       outputs: new Stream("pipeline.metrics.outputs", PipelineOutputMetric),
       finished: new Stream("pipeline.metrics.finished", PipelineFinishedMetric),

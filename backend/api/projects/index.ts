@@ -1,5 +1,6 @@
 import "./categories";
 import "./organize-projects";
+import "./tags";
 
 import "./get-project";
 import "./get-project-summary";

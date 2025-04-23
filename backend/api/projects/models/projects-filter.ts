@@ -1,7 +1,8 @@
-import { Expose, Type } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 import { IsEnum, IsOptional, Matches } from "class-validator";
 import { ProjectVisibility } from "enums/project-visibility";
 import assign from "lodash/assign";
+import { arrayTransformer } from "transformers/array";
 
 export class ProjectsFilter {
   @IsOptional()
@@ -14,6 +15,11 @@ export class ProjectsFilter {
   @Expose()
   @Type(() => String)
   category: string;
+
+  @IsOptional()
+  @Expose()
+  @Transform(arrayTransformer<string>())
+  tags: string[];
 
   @IsOptional()
   @Matches(/^[A-Za-z0-9]{26}$/)

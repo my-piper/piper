@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   Output,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
@@ -29,19 +30,28 @@ export class SelectPlaygroundComponent {
   progress = {
     loading: {
       categories: false,
+      tags: false,
       projects: false,
     },
   };
 
   categories: PipelineCategory[] = [];
+  allTags: string[] = [];
   projects: Project[] = [];
 
   @Output()
   selected = new EventEmitter<Project>();
 
+  @Input()
+  set tags(tags: string[]) {
+    this.tagsControl.setValue(tags);
+  }
+
   categoryControl = this.fb.control<string>(null);
+  tagsControl = this.fb.control<string[]>([]);
   form = this.fb.group({
     category: this.categoryControl,
+    tags: this.tagsControl,
   });
 
   constructor(
@@ -58,6 +68,7 @@ export class SelectPlaygroundComponent {
 
   private async load() {
     this.loadCategories();
+    this.loadTags();
     this.loadProjects();
   }
 
@@ -82,6 +93,29 @@ export class SelectPlaygroundComponent {
       .subscribe({
         next: (categories) => {
           this.categories = categories;
+          this.cd.detectChanges();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
+
+  private async loadTags() {
+    this.progress.loading.tags = true;
+    this.cd.detectChanges();
+
+    this.http
+      .get("projects/tags")
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.loading.tags = false;
+          this.cd.detectChanges();
+        }),
+        map((arr) => arr as string[])
+      )
+      .subscribe({
+        next: (tags) => {
+          this.allTags = tags;
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),

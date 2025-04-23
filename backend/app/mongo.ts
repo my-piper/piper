@@ -18,6 +18,7 @@ export default {
   projectCategories: db.collection<Object & { _id: string }>(
     "projectCategories"
   ),
+  projectTags: db.collection<Object & { _id: string }>("projectTags"),
   projectComments: db.collection<Object & { _id: string }>("projectComments"),
   buckets: db.collection<Object & { _id: string }>("buckets"),
   assets: db.collection<Object & { _id: string }>("assets"),

@@ -14,6 +14,10 @@ export const dateTransformer =
   }) => {
     switch (type) {
       case TransformationType.PLAIN_TO_CLASS: {
+        if (value instanceof Date) {
+          return value;
+        }
+
         const source = value as string | null;
         if (!!source) {
           if (dateFormat === "unixtime") {
