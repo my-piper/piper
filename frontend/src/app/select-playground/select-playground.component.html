@@ -1,5 +1,5 @@
 <form [formGroup]="form">
-  <fieldset class="categories">
+  <fieldset *ngIf="categories.length > 0" class="categories">
     <button
       *ngFor="let c of categories"
       formControlName="category"
@@ -11,7 +11,7 @@
     </button>
   </fieldset>
 
-  <fieldset class="tags">
+  <fieldset *ngIf="allTags.length > 0" class="tags">
     <button
       *ngFor="let t of allTags"
       formControlName="tags"
