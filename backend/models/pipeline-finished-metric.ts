@@ -9,20 +9,12 @@ export class PipelineFinishedMetric {
   launch: string;
 
   @Expose()
-  @Type(() => String)
-  pipelineName: string;
-
-  @Expose()
   @Transform(dateTransformer())
   finishedAt: Date;
 
   @Expose()
   @Type(() => Number)
-  durationSecs: number;
-
-  @Expose()
-  @Type(() => Number)
-  errorsCount: number;
+  fromStart: number;
 
   constructor(defs: Partial<PipelineFinishedMetric> = {}) {
     merge(this, defs);

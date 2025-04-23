@@ -454,14 +454,12 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
             await redis.lRem(scope.id, 0, launch._id);
           }
 
-          const durationSecs = differenceInSeconds(processedAt, launchedAt);
+          const fromStart = differenceInSeconds(processedAt, launchedAt);
 
           streams.pipeline.metrics.finished.send({
             launch: launch._id,
-            pipelineName: launch.pipeline.name,
             finishedAt: processedAt,
-            errorsCount: launch.errors?.length || 0,
-            durationSecs,
+            fromStart,
           });
 
           const { pipeline: costs } = launch.costs;

@@ -23,7 +23,7 @@ import {
 
 const USER_TOKEN_HEADER = "user-token";
 
-type BodyType = string | object | object[];
+type BodyType = string | Object | Object[];
 
 interface HttpOptions {
   headers?: { [key: string]: string };
@@ -55,7 +55,7 @@ export class HttpService {
         if (status == 400) {
           const err =
             typeof error === "object"
-              ? plainToInstance(DataError, error as object)
+              ? plainToInstance(DataError, error as Object)
               : new DataError(error);
           return err;
         } else if (status == 401) {
