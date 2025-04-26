@@ -17,7 +17,9 @@
 
 <ng-template #selectAssetTemplate let-type="type">
   <div [formGroup]="form" class="select-asset">
-    <p>Just press <span>Ctrl+V</span> to upload image</p>
+    <p i18n="@@message.upload_image">
+      Just press <span>Ctrl+V</span> to upload image
+    </p>
     <textarea
       #inputRef
       [class.uploading]="progress.uploading"
@@ -42,8 +44,8 @@
 
     <app-tabs
       [tabs]="[
-        { title: 'Generated', content: generatedTab },
-        { title: 'Assets', content: assetsTab },
+        { title: i18n.generated, content: generatedTab },
+        { title: i18n.assets, content: assetsTab },
       ]"
     >
     </app-tabs>
@@ -57,7 +59,8 @@
         <app-draw-mask
           [image]="id"
           [mask]="e.params.get('mask')"
-          [inputsForm]="inputsForm"
+          [type]="e.params.get('type') || 'grayscale'"
+          [inputs]="inputs"
           (changed)="cd.detectChanges()"
         ></app-draw-mask>
       </ng-container>
@@ -137,19 +140,21 @@
       (dragleave)="leaveDragZone($event)"
       (drop)="dropped($event)"
       [appModal]="{
-        title: 'Select image',
+        title: i18n.selectImage,
         content: selectImageAssetModal,
       }"
     >
-      <div class="drag-zone">Drop here...</div>
+      <div class="drag-zone" i18n="@@label.drop_here">Drop here...</div>
       <ng-container *ngFor="let e of extensions">
         <ng-container [ngSwitch]="e.id">
           <ng-container *ngSwitchCase="'draw-mask'">
-            <img
-              class="mask"
-              *ngIf="inputsForm.get(e.params.get('mask'))?.value as mask"
-              [src]="mask | proxyImage: { width: 500 }"
-            />
+            <ng-container *ngIf="!!valueControl.value">
+              <img
+                class="mask"
+                *ngIf="inputs.get(e.params.get('mask'))?.value as mask"
+                [src]="mask | proxyImage: { width: 500 }"
+              />
+            </ng-container>
           </ng-container>
         </ng-container>
       </ng-container>
@@ -179,7 +184,7 @@
         content: selectVideoAssetModal,
       }"
     >
-      <div class="drag-zone">Drop here...</div>
+      <div class="drag-zone" i18n="@@label.drop_here">Drop here...</div>
       <video [src]="valueControl.value" muted autoplay [volume]="0"></video>
     </div>
   </ng-container>

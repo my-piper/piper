@@ -10,7 +10,9 @@
 
 <div class="stack vertical normal align-stretch" [formGroup]="form">
   <div class="stack horizontal justify-between">
-    <button class="primary" (click)="clear()">Clear</button>
+    <button class="primary" (click)="clear()" i18n="@@action.clear">
+      Clear
+    </button>
     <button
       class="primary"
       (click)="save()"

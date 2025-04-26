@@ -79,6 +79,12 @@
 		"label.refilled_at": "Rempli à",
 		"label.amount": "Montant",
 		"label.invoice": "Facture",
-		"link.open_pipeline": " Pipeline ouvert"
+		"link.open_pipeline": " Pipeline ouvert",
+		"label.drop_here": "Déposez ici...",
+		"action.draw_mask": " Masque de dessin\n",
+		"label.draw_mask": "Masque de dessin",
+		"message.upload_image": " Il suffit d'appuyer sur {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} pour télécharger l'image",
+		"label.select_image": "Sélectionner une image",
+		"action.clear": " Clair"
 	}
 }

@@ -1,16 +1,18 @@
 <ng-template #inpaintModal>
   <app-inpaint
     [image]="{
-      source: inputsForm.get(image).value,
-      mask: inputsForm.get(mask).value,
+      source: inputs.get(image).value,
+      mask: inputs.get(mask).value,
     }"
+    [type]="type"
     (saved)="save($event)"
   ></app-inpaint>
 </ng-template>
 
 <button
   class="primary small"
-  [appModal]="{ title: 'Draw mask', content: inpaintModal }"
+  [appModal]="{ title: i18n.drawMask, content: inpaintModal }"
+  i18n="@@action.draw_mask"
 >
   Draw mask
 </button>

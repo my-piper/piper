@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import assign from "lodash/assign";
 import { Project } from "src/models/project";
 import { ProjectManager } from "src/services/project.manager";
@@ -22,6 +22,7 @@ export class EditPipelineReadmeComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private route: ActivatedRoute,
+    private router: Router,
     private fb: FormBuilder
   ) {}
 
@@ -30,6 +31,10 @@ export class EditPipelineReadmeComponent implements OnInit {
       this.project = project;
       this.build();
     });
+  }
+
+  back() {
+    this.router.navigate(["./"], { relativeTo: this.route });
   }
 
   private build() {

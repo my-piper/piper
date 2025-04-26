@@ -82,6 +82,12 @@
 		"label.refilled_at": "दोबारा भरा गया",
 		"label.amount": "राशि",
 		"label.invoice": "चालान",
-		"link.open_pipeline": "खुला पाइपलाइन"
+		"link.open_pipeline": "खुला पाइपलाइन",
+		"label.drop_here": "यहाँ छोड़ें...",
+		"action.draw_mask": "मास्क बनाएं",
+		"label.draw_mask": "मुखौटा बनाएं",
+		"message.upload_image": "केवल छू दबाएं {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} छवि अपलोड करने के लिए",
+		"label.select_image": "छवि का चयन करें",
+		"action.clear": "साफ"
 	}
 }

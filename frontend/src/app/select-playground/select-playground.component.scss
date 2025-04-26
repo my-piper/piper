@@ -56,7 +56,7 @@ form {
 .tags {
     display: flex;
     flex-wrap: wrap;
-    gap: $gutter-normal;
+    gap: $gutter-small;
 
     button {
         @include reset-button();

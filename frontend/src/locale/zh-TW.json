@@ -80,6 +80,12 @@
 		"label.cost": "成本",
 		"label.amount": "金額",
 		"label.invoice": "發票",
-		"link.open_pipeline": "開放管道"
+		"link.open_pipeline": "開放管道",
+		"label.drop_here": "在這裡放下...",
+		"action.draw_mask": "繪製遮罩",
+		"label.draw_mask": "繪製遮罩",
+		"message.upload_image": "只需按{$START_TAG_SPAN}Ctrl + V{$CLOSE_TAG_SPAN}上傳圖片",
+		"label.select_image": "選擇圖片",
+		"action.clear": "清除"
 	}
 }

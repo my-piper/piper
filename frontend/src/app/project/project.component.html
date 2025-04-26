@@ -212,27 +212,9 @@
   </div>
 </header>
 
-<ng-template #noneModalTemplate>
-  <div class="child">
-    <router-outlet
-      (activate)="child = $event"
-      (deactivate)="child = null"
-    ></router-outlet>
-  </div>
-</ng-template>
-
-<ng-container
-  *ngIf="child | is: pipelineReadmeComponent; else noneModalTemplate"
->
-  <div class="modal">
-    <header>
-      <a class="primary" [routerLink]="['./']">Close</a>
-    </header>
-    <div class="content filled">
-      <router-outlet
-        (activate)="child = $event"
-        (deactivate)="child = null"
-      ></router-outlet>
-    </div>
-  </div>
-</ng-container>
+<div class="child">
+  <router-outlet
+    (activate)="child = $event"
+    (deactivate)="child = null"
+  ></router-outlet>
+</div>

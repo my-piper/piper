@@ -81,6 +81,12 @@
 		"label.refilled_at": "다음에서 리필",
 		"label.amount": "금액",
 		"label.invoice": "인보이스",
-		"link.open_pipeline": " 오픈 파이프라인"
+		"link.open_pipeline": " 오픈 파이프라인",
+		"label.drop_here": "여기 드롭...",
+		"action.draw_mask": " 마스크 그리기\n",
+		"label.draw_mask": "마스크 그리기",
+		"message.upload_image": "이미지를 업로드하려면 {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN}를 누르세요",
+		"label.select_image": "이미지 선택",
+		"action.clear": " Clear"
 	}
 }

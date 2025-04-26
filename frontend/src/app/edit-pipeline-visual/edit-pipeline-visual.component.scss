@@ -144,6 +144,10 @@
         stroke-width: 2;
         fill: transparent;
 
+        &:hover {
+          stroke: green;
+        }
+
         &.flow:hover {
           stroke: green;
           cursor:

@@ -37,6 +37,12 @@ import { ModalService } from "../../ui-kit/modal/modal.service";
   ],
 })
 export class EditInputComponent implements OnInit, ControlValueAccessor {
+  i18n = {
+    generated: $localize`:@@label.generated:Generated`,
+    assets: $localize`:@@label.assets:Assets`,
+    selectImage: $localize`:@@label.select_image:Select image`,
+  };
+
   error!: Error;
   progress: { uploading: boolean } = { uploading: false };
 
@@ -76,7 +82,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
   extensions: Extension[];
 
   @Input()
-  inputsForm: FormGroup;
+  inputs: FormGroup;
 
   @ViewChild("inputRef")
   set inputRef(inputRef: ElementRef<HTMLElement>) {

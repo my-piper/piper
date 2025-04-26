@@ -14,6 +14,10 @@ import { ModalService } from "../../ui-kit/modal/modal.service";
   styleUrls: ["./draw-mask.component.scss"],
 })
 export class DrawMaskComponent {
+  i18n = {
+    drawMask: $localize`:@@label.draw_mask:Draw mask`,
+  };
+
   @Input()
   image: string;
 
@@ -21,7 +25,10 @@ export class DrawMaskComponent {
   mask: string;
 
   @Input()
-  inputsForm: FormGroup;
+  type: "grayscale" | "transparent" = "grayscale";
+
+  @Input()
+  inputs: FormGroup;
 
   @Output()
   changed = new EventEmitter();
@@ -32,7 +39,7 @@ export class DrawMaskComponent {
   ) {}
 
   save(mask: string) {
-    this.inputsForm.patchValue({ [this.mask]: mask });
+    this.inputs.patchValue({ [this.mask]: mask });
     this.modal.close();
     this.changed.emit();
   }

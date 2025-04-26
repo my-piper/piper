@@ -110,6 +110,10 @@ export class EditPipelineVisualComponent implements OnDestroy {
     });
   }
 
+  back() {
+    this.router.navigate(["./"], { relativeTo: this.route });
+  }
+
   ngOnDestroy() {
     this.unsubscribe();
   }
@@ -296,6 +300,10 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   removeCurrentNode() {
+    if (!confirm($localize`:@@message.confirm:Please, confirm?`)) {
+      return;
+    }
+
     if (this.modal instanceof EditNodeComponent) {
       const {
         node: { id: node },

@@ -84,6 +84,12 @@
     "label.refilled_at": "Дата пополнения",
     "label.amount": "Сумма",
     "label.invoice": "Счет-фактура",
-    "link.open_pipeline": " Открыть"
+    "link.open_pipeline": " Открыть",
+    "label.drop_here": "Загляните сюда...",
+    "action.draw_mask": " Нарисовать маску",
+    "label.draw_mask": "Маска для рисования",
+    "message.upload_image": " Просто нажмите {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN}, чтобы загрузить изображение",
+    "label.select_image": "Выберите изображение",
+    "action.clear": " Очистить"
   }
 }

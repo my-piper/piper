@@ -82,6 +82,12 @@
 		"label.refilled_at": "リフィル",
 		"label.amount": "金額",
 		"label.invoice": "インボイス",
-		"link.open_pipeline": "オープンパイプライン"
+		"link.open_pipeline": "オープンパイプライン",
+		"label.drop_here": "ここにドロップ...",
+		"action.draw_mask": "マスクを描く\n",
+		"label.draw_mask": "マスクを描く",
+		"message.upload_image": "画像をアップロードするには、{$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN}を押すだけです。",
+		"label.select_image": "画像を選択",
+		"action.clear": "クリア"
 	}
 }

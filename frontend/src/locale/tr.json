@@ -82,6 +82,12 @@
 		"label.refilled_at": "Doldurulmuş",
 		"label.amount": "Miktar",
 		"label.invoice": "Fatura",
-		"link.open_pipeline": " Açık boru hattı"
+		"link.open_pipeline": " Açık boru hattı",
+		"label.drop_here": "Buraya bırakın...",
+		"action.draw_mask": " Maske çizin\n",
+		"label.draw_mask": "Maske çiz",
+		"message.upload_image": " Resim yüklemek için {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} tuşlarına basmanız yeterli",
+		"label.select_image": "Görüntü seçin",
+		"action.clear": " Temizle"
 	}
 }

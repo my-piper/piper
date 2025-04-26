@@ -84,6 +84,12 @@
 		"label.refilled_at": "在",
 		"label.amount": "数量",
 		"label.invoice": "发票",
-		"link.open_pipeline": "开放管道"
+		"link.open_pipeline": "开放管道",
+		"label.drop_here": "点击此处...",
+		"action.draw_mask": "绘制面具\n",
+		"label.draw_mask": "绘制面具",
+		"message.upload_image": "只需按 {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} 即可上传图片",
+		"label.select_image": "选择图片",
+		"action.clear": "清除"
 	}
 }

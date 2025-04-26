@@ -79,6 +79,12 @@
 		"label.refilled_at": "Nachgefüllt bei",
 		"label.amount": "Betrag",
 		"label.invoice": "Rechnung",
-		"link.open_pipeline": " Pipeline öffnen"
+		"link.open_pipeline": " Pipeline öffnen",
+		"label.drop_here": "Hier fallen lassen...",
+		"action.draw_mask": " Maske zeichnen\n",
+		"label.draw_mask": "Maske zeichnen",
+		"message.upload_image": " Drücken Sie einfach {$START_TAG_SPAN}Strg+V{$CLOSE_TAG_SPAN}, um ein Bild hochzuladen",
+		"label.select_image": "Bild auswählen",
+		"action.clear": " Klar"
 	}
 }

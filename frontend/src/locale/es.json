@@ -82,6 +82,12 @@
 		"label.refilled_at": "Recargado en",
 		"label.amount": "Cantidad",
 		"label.invoice": "Factura",
-		"link.open_pipeline": " Canal abierto"
+		"link.open_pipeline": " Canal abierto",
+		"label.drop_here": "Suelta aquí...",
+		"action.draw_mask": " Dibujar máscara\n",
+		"label.draw_mask": "Dibujar máscara",
+		"message.upload_image": " Sólo tiene que pulsar {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} para cargar la imagen",
+		"label.select_image": "Seleccionar imagen",
+		"action.clear": " Claro"
 	}
 }

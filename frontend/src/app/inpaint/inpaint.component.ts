@@ -58,6 +58,9 @@ export class InpaintComponent implements OnDestroy {
     [this.source, this.mask] = [source, mask];
   }
 
+  @Input()
+  type: "grayscale" | "transparent" = "grayscale";
+
   images: HTMLImageElement[] = [];
 
   loaded({ target }: { target: HTMLImageElement }) {
@@ -192,7 +195,9 @@ export class InpaintComponent implements OnDestroy {
       canvas.toBlob((blob) => {
         let file = new File([blob], "mask.png", { type: "image/png" });
         let formData = new FormData();
-        formData.append("grayscale", "x");
+        if (this.type === "grayscale") {
+          formData.append("grayscale", "x");
+        }
         formData.append("file", file);
         this.http
           .post("artefacts?", formData)
