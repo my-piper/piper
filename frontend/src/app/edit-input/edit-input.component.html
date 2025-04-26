@@ -57,6 +57,7 @@
     <ng-container [ngSwitch]="e.id">
       <ng-container *ngSwitchCase="'draw-mask'">
         <app-draw-mask
+          *ngIf="!!valueControl.value"
           [image]="id"
           [mask]="e.params.get('mask')"
           [type]="e.params.get('type') || 'grayscale'"
