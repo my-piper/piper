@@ -112,6 +112,7 @@ import { PlayWithProjectComponent } from "./play-with-project/play-with-project.
 import { PlaygroundComponent } from "./playground/playground.component";
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectPlaygroundComponent } from "./project-playground/project-playground.component";
+import { ImportProjectComponent } from "./projects/import/import-project.component";
 import { SelectGeneratedComponent } from "./select-generated/select-generated.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { SelectPlaygroundComponent } from "./select-playground/select-playground.component";
@@ -206,6 +207,7 @@ import { UsersComponent } from "./users/users.component";
     YamlPipe,
     NodePackagesComponent,
     ImportPackageComponent,
+    ImportProjectComponent,
     PackagesForUpdateCountPipe,
     PackagesUpdateErrorsCountPipe,
     EditPipelineDesignComponent,

@@ -12,6 +12,7 @@ import { UI, UI_DELAY } from "src/ui-kit/consts";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
+import { ImportProjectComponent } from "./import/import-project.component";
 
 const TEST_PIPELINE = `
 name: New project
@@ -37,10 +38,26 @@ export class ProjectsComponent implements OnInit {
   ui = UI;
   userRole = UserRole;
 
+  private _modal!: ImportProjectComponent;
+
   error!: Error;
   progress = { loading: false, creating: false, deleting: false };
 
   references: { popover: PopoverComponent } = { popover: null };
+
+  set modal(modal: ImportProjectComponent) {
+    this._modal = modal;
+    if (!!modal) {
+      modal.imported.subscribe((project) => {
+        this.projects.unshift(project);
+        this.cd.detectChanges();
+      });
+    }
+  }
+
+  get modal() {
+    return this._modal;
+  }
 
   chunk: Project[] = [];
   projects: Project[] = [];
@@ -74,6 +91,9 @@ export class ProjectsComponent implements OnInit {
       )
       .subscribe({
         next: (projects) => {
+          if (!cursor) {
+            this.projects = [];
+          }
           this.chunk = projects;
           this.projects.push(...projects);
           this.cd.detectChanges();
@@ -138,5 +158,9 @@ export class ProjectsComponent implements OnInit {
         },
         error: (err) => (this.error = err),
       });
+  }
+
+  back() {
+    this.router.navigate(["./"], { relativeTo: this.route });
   }
 }

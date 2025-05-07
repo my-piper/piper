@@ -9,12 +9,13 @@ import { writeFile } from "fs/promises";
 import { ulid } from "ulid";
 import mongo from "./app/mongo";
 import * as environment from "./cli/environment";
-import { loadPipelines } from "./cli/load-pipelines/logic";
+import * as pipelines from "./cli/pipelines";
 import * as modules from "./logic/modules";
 import * as packages from "./logic/node-packages";
 import { add } from "./logic/users/add-user";
 import { refillBalance } from "./logic/users/refill-balance";
 import { UserRole } from "./models/user";
+import LAUNCH_REQUEST_SCHEMA from "./schemas/launch-request.json" with { type: "json" };
 import NODE_PACKAGE_SCHEMA from "./schemas/node-package.json" with { type: "json" };
 import NODE_SCHEMA from "./schemas/node.json" with { type: "json" };
 import PIPELINE_SCHEMA from "./schemas/pipeline.json" with { type: "json" };
@@ -31,17 +32,22 @@ commander.version("1.0.0").description("Piper CLI");
 
   commands.command("compile").action(async () => {
     console.log("Compile schemas");
-    const [nodePackage, node, pipeline, user, project] = [
+    const [nodePackage, node, pipeline, user, project, launchRequest] = [
       await loadSchema(NODE_PACKAGE_SCHEMA),
       await loadSchema(NODE_SCHEMA),
       await loadSchema(PIPELINE_SCHEMA),
       await loadSchema(USER_SCHEMA),
       await loadSchema(PROJECT_SCHEMA),
+      await loadSchema(LAUNCH_REQUEST_SCHEMA),
     ];
 
     await writeFile(
       "schemas/compiled.json",
-      JSON.stringify({ nodePackage, node, pipeline, user, project }, null, "\t")
+      JSON.stringify(
+        { nodePackage, node, pipeline, user, project, launchRequest },
+        null,
+        "\t"
+      )
     );
 
     process.exit();
@@ -128,6 +134,11 @@ commander.version("1.0.0").description("Piper CLI");
 
   commands.command("plan-update").action(async () => {
     await packages.planUpdatePackages();
+    process.exit();
+  });
+
+  commands.command("import <url>").action(async (url: string) => {
+    await packages.importPackage(url);
     process.exit();
   });
 
@@ -224,10 +235,12 @@ commander
 {
   const commands = new Command("pipelines");
 
-  commands.command("load").action(async () => {
-    await loadPipelines();
-    process.exit();
-  });
+  commands
+    .command("import <user> <url>")
+    .action(async (user: string, url: string) => {
+      await pipelines._import(user, url);
+      process.exit();
+    });
 
   commander.addCommand(commands);
 }

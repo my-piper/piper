@@ -56,6 +56,7 @@ api.get(
             updatedBy: 1,
             "pipeline.thumbnail": 1,
             "pipeline.description": 1,
+            "pipeline.version": 1,
             cursor: 1,
             order: 1,
           },

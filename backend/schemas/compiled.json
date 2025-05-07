@@ -5731,5 +5731,58 @@
 			"visibility"
 		],
 		"additionalProperties": false
+	},
+	"launchRequest": {
+		"type": "object",
+		"properties": {
+			"nodes": {
+				"type": "object",
+				"additionalProperties": {
+					"type": "object",
+					"properties": {
+						"inputs": {
+							"type": "object",
+							"additionalProperties": {
+								"anyOf": [
+									{
+										"type": "boolean"
+									},
+									{
+										"type": "number"
+									},
+									{
+										"type": "string"
+									}
+								]
+							}
+						}
+					},
+					"required": [
+						"inputs"
+					]
+				}
+			},
+			"inputs": {
+				"type": "object",
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"type": "boolean"
+						},
+						{
+							"type": "number"
+						},
+						{
+							"type": "string"
+						}
+					]
+				}
+			}
+		},
+		"required": [
+			"nodes",
+			"inputs"
+		],
+		"additionalProperties": false
 	}
 }

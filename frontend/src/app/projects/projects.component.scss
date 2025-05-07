@@ -5,7 +5,14 @@
 }
 
 .app-container {
-  @include vertical-stack();
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-normal;
+}
+
+.version {
+  display: flex;
+  justify-content: right;
 }
 
 .created,

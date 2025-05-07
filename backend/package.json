@@ -14,7 +14,7 @@
     "chrome": "node --import=tsx chrome.ts",
     "metrics": "node --import=tsx metrics.ts",
     "modules": "node --import=tsx modules.ts",
-    "cli": "node --import=tsx cli.ts",
+    "cli": "node --import=tsx --experimental-vm-modules cli.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

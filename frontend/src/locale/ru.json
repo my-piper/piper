@@ -69,7 +69,7 @@
     "action.edit": "Редактировать",
     "label.release_notes": "Примечания к выпуску:",
     "action.import": " Импорт",
-    "label.put_package_yaml": "Поместите пакет YAML",
+    "label.put_yaml_or_url": "Поместите YAML или URL",
     "label.updated": "Обновлено",
     "label.balance": "Баланс",
     "action.copy": " Копировать\n",

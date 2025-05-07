@@ -1,19 +1,15 @@
+import ajv from "app/ajv";
 import mongo from "app/mongo";
 import axios from "axios";
-import { plainToInstance } from "class-transformer";
+import { PACKAGES_UPDATES, PACKAGES_UPDATES_TIMEOUT } from "consts/packages";
 import { createLogger } from "core-kit/services/logger";
 import redis from "core-kit/services/redis";
-import { toPlain } from "core-kit/utils/models";
+import { toInstance, toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
+import { NodePackage, NodePackageUpdates } from "models/node-package";
+import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { toModel } from "utils/http";
 import * as YAML from "yaml";
-import ajv from "../../app/ajv";
-import {
-  PACKAGES_UPDATES,
-  PACKAGES_UPDATES_TIMEOUT,
-} from "../../consts/packages";
-import { NodePackage, NodePackageUpdates } from "../../models/node-package";
-import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
 
 export async function checkUpdates(_id: string) {
   const logger = createLogger("check-package-updates", {
@@ -41,10 +37,10 @@ export async function checkUpdates(_id: string) {
           Pragma: "no-cache",
         },
       });
-      const json = YAML.parse(yaml);
+      const json = YAML.parse(yaml) as object;
       const validate = ajv.compile(SCHEMAS.nodePackage);
       if (validate(json)) {
-        const updated = plainToInstance(NodePackage, json);
+        const updated = toInstance(json, NodePackage);
         logger.info("Schema valid for package");
         if (updated.version > nodePackage.version) {
           logger.info("Package has new version");

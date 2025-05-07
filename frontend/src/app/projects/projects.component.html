@@ -1,3 +1,23 @@
+<div class="modal" [class.hidden]="!modal">
+  <header>
+    <a
+      class="primary with-icon"
+      [hotKey]="'escape'"
+      (hotKeyPressed)="back()"
+      [routerLink]="['./']"
+    >
+      <app-icon class="icon right" icon="close"></app-icon>
+      <span class="badge">ESC</span>
+    </a>
+  </header>
+  <div class="content filled">
+    <router-outlet
+      (activate)="modal = $event"
+      (deactivate)="modal = null"
+    ></router-outlet>
+  </div>
+</div>
+
 <ng-template #errorTemplate>
   <div class="informer errors">
     <p>{{ error.message }}</p>
@@ -17,18 +37,20 @@
 ></app-informer>
 
 <div class="app-container">
-  <header *ngIf="userRole.admin | can | async">
+  <header class="horizontal stack" *ngIf="userRole.admin | can | async">
     <button
       class="primary with-icon"
       [routerLink]="['add']"
-      i18n="@@action.create"
       [class.busy]="progress.creating"
       [disabled]="progress.creating"
       (click)="create()"
     >
       <app-icon class="icon left" icon="add"></app-icon>
-      Create
+      <ng-container i18n="@@action.create">Create</ng-container>
     </button>
+    <a class="secondary" [routerLink]="['import']" i18n="@@link.import">
+      Import
+    </a>
   </header>
 
   <table class="default">
@@ -36,6 +58,7 @@
       <th width="24px"></th>
       <th i18n="@@label.title">Title</th>
       <th width="24px"></th>
+      <th width="24px" i18n="@@label.ver">Ver.</th>
       <th width="150px" i18n="@@label.created">Created</th>
       <th width="150px" i18n="@@label.updated">Updated</th>
     </thead>
@@ -81,6 +104,9 @@
             icon="share"
             [color]="ui.color.primary"
           ></app-icon>
+        </td>
+        <td class="version">
+          {{ p.pipeline.version }}
         </td>
         <td class="created" i18n-title="@@label.created" title="Created">
           <div>{{ p.createdBy?._id }}</div>

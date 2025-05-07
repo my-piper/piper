@@ -11,6 +11,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { EditPackageComponent } from "./edit/edit-package.component";
+import { ImportPackageComponent } from "./import/import-package.component";
 
 @Component({
   selector: "app-node-packages",
@@ -18,7 +19,7 @@ import { EditPackageComponent } from "./edit/edit-package.component";
   styleUrls: ["./node-packages.component.scss"],
 })
 export class NodePackagesComponent extends UntilDestroyed {
-  private _modal!: EditPackageComponent;
+  private _modal!: EditPackageComponent | ImportPackageComponent;
 
   error!: Error;
   progress = {
@@ -31,24 +32,30 @@ export class NodePackagesComponent extends UntilDestroyed {
   state: NodePackageUpdatesState;
   references: { popover: PopoverComponent } = { popover: null };
 
-  set modal(modal: EditPackageComponent) {
+  set modal(modal: EditPackageComponent | ImportPackageComponent) {
     this._modal = modal;
     if (!!modal) {
-      modal.added.subscribe((nodePackage) =>
-        this.packages.unshift(nodePackage)
-      );
-      modal.saved.subscribe((nodePackage) => {
-        const index = this.packages.findIndex((u) => u._id === nodePackage._id);
-        debugger;
-        if (index !== -1) {
-          assign(this.packages[index], nodePackage);
-          this.cd.detectChanges();
-        }
-      });
+      if (modal instanceof EditPackageComponent) {
+        modal.added.subscribe((nodePackage) =>
+          this.packages.unshift(nodePackage)
+        );
+        modal.saved.subscribe((nodePackage) => {
+          const index = this.packages.findIndex(
+            (u) => u._id === nodePackage._id
+          );
+          debugger;
+          if (index !== -1) {
+            assign(this.packages[index], nodePackage);
+            this.cd.detectChanges();
+          }
+        });
 
-      merge(modal.added, modal.saved).subscribe(() =>
-        this.router.navigate(["./"], { relativeTo: this.route })
-      );
+        merge(modal.added, modal.saved).subscribe(() =>
+          this.router.navigate(["./"], { relativeTo: this.route })
+        );
+      } else if (modal instanceof ImportPackageComponent) {
+        modal.imported.subscribe(() => this.load());
+      }
     }
   }
 

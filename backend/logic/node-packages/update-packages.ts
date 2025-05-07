@@ -13,7 +13,10 @@ export async function planUpdatePackages() {
   for (const p of packages) {
     if (!!p.updated) {
       logger.info(`Plan update package ${p.current._id}`);
-      await queues.packages.update.plan({ nodePackage: p.updated }, 5000);
+      await queues.packages.update.plan(
+        { nodePackage: p.updated },
+        { delay: 5000 }
+      );
     }
   }
   await redis.del(PACKAGES_UPDATES);

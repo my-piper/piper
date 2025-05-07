@@ -38,9 +38,9 @@
 
 <div class="app-container">
   <header>
-    <a class="primary with-icon" [routerLink]="['add']" i18n="@@action.create">
+    <a class="primary with-icon" [routerLink]="['add']">
       <app-icon class="icon left" icon="add"></app-icon>
-      Create
+      <ng-container i18n="@@action.create">Create</ng-container>
     </a>
   </header>
 

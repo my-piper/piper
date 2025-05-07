@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { RouterModule, Routes, UrlSegment } from "@angular/router";
 import { AddNodeComponent } from "src/app/add-node/add-node.component";
 import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
@@ -67,11 +67,31 @@ import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
+import { ImportProjectComponent } from "./projects/import/import-project.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
 import { EditUserComponent } from "./users/edit/edit-user.component";
 import { UsersComponent } from "./users/users.component";
+
+export function projectIdMatcher(
+  segments: UrlSegment[]
+): { consumed: UrlSegment[]; posParams: { [key: string]: UrlSegment } } | null {
+  if (
+    segments.length >= 2 &&
+    segments[0].path === "projects" &&
+    segments[1].path !== "import"
+  ) {
+    return {
+      consumed: segments.slice(0, 2),
+      posParams: {
+        id: segments[1],
+      },
+    };
+  }
+
+  return null;
+}
 
 const routes: Routes = [
   {
@@ -144,7 +164,7 @@ const routes: Routes = [
     component: SigupComponent,
   },
   {
-    path: "projects/:id",
+    matcher: projectIdMatcher,
     component: ProjectComponent,
     canActivate: [SigninNeededGuard],
     resolve: {
@@ -326,6 +346,12 @@ const routes: Routes = [
         path: "projects",
         component: ProjectsComponent,
         canActivate: [SigninNeededGuard],
+        children: [
+          {
+            path: "import",
+            component: ImportProjectComponent,
+          },
+        ],
       },
       {
         path: "assets",

@@ -181,13 +181,13 @@ npm --prefix backend run cli env
 ### Set variable
 
 ```shell
-npm --prefix backend run cli env set -- --name XXX --value xyzXYZ
+npm --prefix backend run cli env set XXX xyzXYZ
 ```
 
 ### Remove variable
 
 ```shell
-npm --prefix backend run cli env remove -- --name XXX
+npm --prefix backend run cli env remove XXX
 ```
 
 ## Modules

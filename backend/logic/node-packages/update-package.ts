@@ -1,11 +1,26 @@
 import mongo from "app/mongo";
+import axios from "axios";
 import { notify } from "core-kit/services/io";
 import { createLogger } from "core-kit/services/logger";
-import { toPlain, validate } from "core-kit/utils/models";
+import { toInstance, toPlain, validate } from "core-kit/utils/models";
 import assign from "lodash/assign";
+import { PackageUpdatedEvent } from "models/events";
+import { NodePackage } from "models/node-package";
 import { ulid } from "ulid";
-import { PackageUpdatedEvent } from "../../models/events";
-import { NodePackage } from "../../models/node-package";
+import * as YAML from "yaml";
+
+export async function importPackage(source: string) {
+  let yaml = source;
+  if (/^http/.test(source)) {
+    const { data } = await axios(source);
+    yaml = data;
+  }
+
+  const json = YAML.parse(yaml);
+  const nodePackage = toInstance(json, NodePackage);
+
+  await uploadPackage(nodePackage);
+}
 
 export async function uploadPackage(nodePackage: NodePackage) {
   await validate(nodePackage);
