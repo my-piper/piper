@@ -50,14 +50,21 @@ export class MeUserComponent implements OnInit {
         const component = this.cfr
           .resolveComponentFactory(NsfwDisclaimer)
           .create(this.injector);
-        component.instance.ok.subscribe(() => this.modal.close());
+        component.instance.agree.subscribe(() => {
+          localStorage.setItem("nsfw", "allow");
+          this.modal.close();
+        });
         this.modal.open(component, {
           title: "Content disclaimer",
+          closed: (reason) => {
+            if (reason === "user") {
+              this.nsfwControl.setValue(false, { emitEvent: false });
+            }
+          },
         });
+      } else {
+        localStorage.removeItem("nsfw");
       }
-      allow
-        ? localStorage.setItem("nsfw", "allow")
-        : localStorage.removeItem("nsfw");
     });
   }
 

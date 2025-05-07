@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, Inject, Output } from "@angular/core";
+import { Languages } from "src/ui-kit/enums/languages";
+import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 
 @Component({
   selector: "app-nsfw-disclaimer",
@@ -6,6 +8,10 @@ import { Component, EventEmitter, Output } from "@angular/core";
   styleUrls: ["./nsfw-disclaimer.component.scss"],
 })
 export class NsfwDisclaimer {
+  languages = Languages;
+
   @Output()
-  ok = new EventEmitter<void>();
+  agree = new EventEmitter<void>();
+
+  constructor(@Inject(CURRENT_LANGUAGE) public language: Languages) {}
 }

@@ -3,10 +3,10 @@ import bcrypt from "bcrypt";
 import { DataError } from "core-kit/types/errors";
 import { toInstance, toPlain } from "core-kit/utils/models";
 import assign from "lodash/assign";
+import { User } from "models/user";
+import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { ulid } from "ulid";
 import ajv from "../../app/ajv";
-import { User } from "../../models/user";
-import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
 
 export async function add(data: Partial<User>): Promise<User> {
   const user = toInstance(data, User);
