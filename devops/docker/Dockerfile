@@ -36,8 +36,7 @@ COPY ./backend ./backend
 COPY ./frontend ./frontend
 COPY ./devops/docker/Makefile ./backend/Makefile
 
-RUN make schemas \
-  && npm --prefix ./frontend run build
+RUN npm --prefix ./frontend run build
 
 WORKDIR /app/backend
 
