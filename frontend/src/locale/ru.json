@@ -97,6 +97,7 @@
     "link.deploy": "Публикация",
     "link.script": " Скрипт",
     "link.messages": " Сообщения",
-    "link.more": "Подробнее"
+    "link.more": "Подробнее",
+    "link.scheme": " Схема"
   }
 }

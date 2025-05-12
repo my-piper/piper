@@ -52,6 +52,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
   mode: "default" | "flow" = "default";
   subscriptions: Subscription[] = [];
 
+  readonly = true;
+
   set modal(
     modal: EditNodeComponent | EditPipelineInputComponent | AddNodeComponent
   ) {
@@ -101,12 +103,16 @@ export class EditPipelineVisualComponent implements OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project }) => {
+    this.route.data.subscribe(({ project, readonly }) => {
       [this.project, this.pipeline, this.launchRequest] = [
         project,
         project.pipeline,
         project.launchRequest,
       ];
+
+      if (typeof readonly !== "undefined") {
+        this.readonly = readonly;
+      }
     });
   }
 

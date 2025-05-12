@@ -74,6 +74,7 @@
     "message.piper_api_academy": " Please, check more details about Piper API in our {$START_LINK}Academy{$CLOSE_LINK}",
     "message.confirm_generate_api_key": "Previously generated key will be invalid",
     "link.readme": "README",
+    "link.scheme": " Scheme ",
     "link.comments": "Comments",
     "link.api": "API",
     "link.batches": "Batches",

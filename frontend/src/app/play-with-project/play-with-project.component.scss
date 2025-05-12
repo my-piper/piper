@@ -13,11 +13,7 @@
     padding: $gutter-normal;
     box-sizing: border-box;
 
-    @include for-tablet() {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    @include for-mobile() {
+    @include less-tablet() {
         grid-template-columns: 1fr;
         grid-template-areas:
             "header"
@@ -64,6 +60,7 @@ header {
 
 .launches {
     grid-area: launches;
+    overflow: hidden;
 
     .menu {
         margin-bottom: $gutter-big;

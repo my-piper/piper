@@ -118,6 +118,10 @@ const routes: Routes = [
             component: PipelineReadmeComponent,
           },
           {
+            path: "scheme",
+            component: EditPipelineVisualComponent,
+          },
+          {
             path: "api/:slug",
             resolve: {
               deploy: DeployResolver,
@@ -289,6 +293,9 @@ const routes: Routes = [
       {
         path: "",
         component: EditPipelineVisualComponent,
+        data: {
+          readonly: false,
+        },
         children: [
           {
             path: "add-node",

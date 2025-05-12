@@ -7,13 +7,15 @@
 
 ## i18n
 
-- [ ] i18 for expenses
+- [x] i18 for expenses
 
 ## UI/UX
 
-- [ ] mobile support for expenses
+- [x] mobile support for expenses
 
 ## Legacy
 
 - [ ] cursor in assets
 - [ ] cursor in generated assets
+- [ ] move `transformers` to `core-kit`
+- [ ] move `Primitive` to `core-kit`

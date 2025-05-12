@@ -34,7 +34,7 @@
 
 <div autoHeight #nodesRef class="nodes area">
   <div
-    *ngIf="userRole.admin | can: project.createdBy | async"
+    *ngIf="!readonly && (userRole.admin | can: project.createdBy | async)"
     class="actions stack horizontal"
   >
     <a class="primary with-icon small" routerLink="add-node">
@@ -45,7 +45,9 @@
   <div class="pane">
     <div
       class="input"
-      [class.disabled]="userRole.admin | can: project.createdBy | async | not"
+      [class.disabled]="
+        readonly || (userRole.admin | can: project.createdBy | async | not)
+      "
       *ngFor="let input of pipeline.inputs | keyvalue"
       [appDragMove]="{
         dug: dugRef,
@@ -68,7 +70,9 @@
 
     <div
       class="output"
-      [class.disabled]="userRole.admin | can: project.createdBy | async | not"
+      [class.disabled]="
+        readonly || (userRole.admin | can: project.createdBy | async | not)
+      "
       *ngFor="let output of pipeline.outputs | keyvalue"
       [appDragMove]="{
         dug: dugRef,
@@ -88,7 +92,9 @@
 
     <div
       class="node"
-      [class.readonly]="userRole.admin | can: project.createdBy | async | not"
+      [class.readonly]="
+        readonly || (userRole.admin | can: project.createdBy | async | not)
+      "
       *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
       [appDragMove]="{
         dug: dugRef,
@@ -155,6 +161,9 @@
       <path
         class="flow"
         *ngFor="let f of pipeline.flows | keyvalue"
+        [class.disabled]="
+          readonly || (userRole.admin | can: project.createdBy | async | not)
+        "
         (click)="removeFlow(f.key)"
         stroke-dasharray="2"
         [attr.stroke]="f.value.color || 'silver'"
@@ -190,6 +199,9 @@
         <path
           class="flow"
           *ngFor="let f of i.value.flows | keyvalue"
+          [class.disabled]="
+            readonly || (userRole.admin | can: project.createdBy | async | not)
+          "
           (click)="removeInputFlow(i.key, f.key)"
           stroke-dasharray="2"
           [attr.stroke]="'silver'"
@@ -215,6 +227,9 @@
         <path
           class="flow"
           *ngFor="let f of o.value.flows | keyvalue"
+          [class.disabled]="
+            readonly || (userRole.admin | can: project.createdBy | async | not)
+          "
           (click)="removeOutputFlow(o.key, f.key)"
           stroke-dasharray="2"
           [attr.stroke]="'silver'"
@@ -237,6 +252,9 @@
         <path
           class="flow"
           *ngIf="!!o.value.from"
+          [class.disabled]="
+            readonly || (userRole.admin | can: project.createdBy | async | not)
+          "
           (click)="removeOutput(o.key)"
           stroke-dasharray="2"
           [attr.stroke]="'silver'"
