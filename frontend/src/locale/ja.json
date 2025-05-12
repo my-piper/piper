@@ -97,6 +97,7 @@
 		"link.messages": "メッセージ",
 		"link.assets": "資産",
 		"link.more": "もっと見る",
-		"link.scheme": "スキーム"
+		"link.scheme": "スキーム",
+		"action.i_agree": "同意する\n"
 	}
 }

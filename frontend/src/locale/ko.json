@@ -96,6 +96,7 @@
 		"link.messages": " 메시지",
 		"link.assets": "자산",
 		"link.more": "자세히 보기",
-		"link.scheme": " Scheme"
+		"link.scheme": " Scheme",
+		"action.i_agree": " 동의함\n"
 	}
 }

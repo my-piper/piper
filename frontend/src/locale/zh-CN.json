@@ -99,6 +99,7 @@
 		"link.messages": "信息",
 		"link.assets": "资产",
 		"link.more": "更多内容",
-		"link.scheme": "计划"
+		"link.scheme": "计划",
+		"action.i_agree": "我同意\n"
 	}
 }

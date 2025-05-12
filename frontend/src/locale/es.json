@@ -97,6 +97,7 @@
 		"link.messages": " Mensajes",
 		"link.assets": "Activos",
 		"link.more": "Más",
-		"link.scheme": " Esquema"
+		"link.scheme": " Esquema",
+		"action.i_agree": " Estoy de acuerdo\n"
 	}
 }

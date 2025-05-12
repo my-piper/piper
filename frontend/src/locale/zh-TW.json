@@ -95,6 +95,7 @@
 		"link.messages": "消息",
 		"link.assets": "資產",
 		"link.more": "更多",
-		"link.scheme": "Scheme"
+		"link.scheme": "Scheme",
+		"action.i_agree": "我同意"
 	}
 }

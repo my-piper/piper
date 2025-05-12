@@ -94,6 +94,7 @@
 		"link.messages": " Nachrichten",
 		"link.assets": "Vermögenswerte",
 		"link.more": "Mehr",
-		"link.scheme": " Schema"
+		"link.scheme": " Schema",
+		"action.i_agree": " Ich stimme zu\n"
 	}
 }

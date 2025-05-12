@@ -55,7 +55,7 @@ export class MeUserComponent implements OnInit {
           this.modal.close();
         });
         this.modal.open(component, {
-          title: "Content disclaimer",
+          title: $localize`:@@label.nsfw_disclaimer:NSFW disclaimer`,
           closed: (reason) => {
             if (reason === "user") {
               this.nsfwControl.setValue(false, { emitEvent: false });
