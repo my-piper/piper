@@ -1,4 +1,4 @@
-import { Languages } from "core-kit/enums/languages";
+import { Languages } from "core-kit/packages/locale";
 import { User } from "models/user";
 
 export type Injector = {

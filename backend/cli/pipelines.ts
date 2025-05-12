@@ -1,6 +1,6 @@
 import mongo from "app/mongo";
+import { toInstance } from "core-kit/packages/transform";
 import { NotFoundError } from "core-kit/types/errors";
-import { toInstance } from "core-kit/utils/models";
 import { importPipeline } from "logic/pipelines";
 import { User } from "models/user";
 

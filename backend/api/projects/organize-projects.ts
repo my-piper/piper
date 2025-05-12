@@ -1,12 +1,11 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { allLabels } from "core-kit/utils/i18n";
-import { mapTo, toModels, toPlain } from "core-kit/utils/models";
+import { allLabels } from "core-kit/packages/i18n";
+import { mapTo, toModels, toPlain } from "core-kit/packages/transform";
 import { ProjectVisibility } from "enums/project-visibility";
 import assign from "lodash/assign";
-import "reflect-metadata";
+import { Project } from "models/project";
 import { checkAdmin, handle } from "utils/http";
-import { Project } from "../../models/project";
 import { ProjectTag } from "./models/project-tag";
 
 api.post(

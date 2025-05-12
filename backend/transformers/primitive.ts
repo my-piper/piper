@@ -1,5 +1,5 @@
-import { TransformationType } from "class-transformer";
-import { Primitive } from "../types/primitive";
+import { TransformationType } from "core-kit/packages/transform";
+import { Primitive } from "types/primitive";
 
 export function primitiveMapTransformer({
   value,

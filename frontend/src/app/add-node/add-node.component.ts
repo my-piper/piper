@@ -5,13 +5,13 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { plainToInstance } from "class-transformer";
 import { delay, finalize, map } from "rxjs";
 import { BUILT_IN_NODES } from "src/consts/nodes";
 import { Node } from "src/models/node";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
+import { toInstance } from "src/utils/models";
 
 @Component({
   selector: "app-add-node",
@@ -52,7 +52,7 @@ export class AddNodeComponent implements OnInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as Object[]).map((e) => plainToInstance(Node, e)))
+        map((arr) => (arr as Object[]).map((e) => toInstance(e, Node)))
       )
       .subscribe({
         next: (nodes) => {

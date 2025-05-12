@@ -1,9 +1,8 @@
 import api from "app/api";
-import { plainToInstance } from "class-transformer";
-import { validate } from "core-kit/utils/models";
+import clickhouse from "app/clickhouse";
+import { toInstance, validate } from "core-kit/packages/transform";
 import sql from "sql-bricks-sqlite";
 import { checkLogged, handle } from "utils/http";
-import clickhouse from "../../app/clickhouse";
 import { PipelineUsagesFilter } from "./models";
 
 const PAGE_LIMIT = 20;
@@ -13,7 +12,7 @@ api.get(
   handle(({ currentUser }) => async ({ query }) => {
     checkLogged(currentUser);
 
-    const filter = plainToInstance(PipelineUsagesFilter, query);
+    const filter = toInstance(query, PipelineUsagesFilter);
     await validate(filter);
 
     const { cursor } = filter;

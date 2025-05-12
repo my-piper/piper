@@ -1,5 +1,9 @@
-import { Expose, Type } from "class-transformer";
-import { IsOptional, ValidateNested } from "class-validator";
+import {
+  Expose,
+  IsOptional,
+  Type,
+  ValidateNested,
+} from "core-kit/packages/transform";
 import { Delta } from "jsondiffpatch";
 
 export class PatchProject {

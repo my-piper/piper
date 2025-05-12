@@ -1,5 +1,5 @@
 import api from "app/api";
-import { toPlain } from "core-kit/utils/models";
+import { toPlain } from "core-kit/packages/transform";
 import { importPipeline } from "logic/pipelines";
 import { checkLogged, handle } from "utils/http";
 

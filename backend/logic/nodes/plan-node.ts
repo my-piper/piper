@@ -1,5 +1,5 @@
 import { queues } from "app/queues";
-import { JobsOptions } from "core-kit/services/queue";
+import { JobsOptions } from "core-kit/packages/queue";
 import { NodeExecution } from "enums/node-execution";
 import { Node } from "models/node";
 

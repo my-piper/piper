@@ -87,6 +87,13 @@
     "label.draw_mask": "Maschera di disegno",
     "message.upload_image": " Basta premere {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} per caricare l'immagine",
     "label.select_image": "Selezionare l'immagine",
-    "action.clear": " Libero"
+    "action.clear": " Libero",
+    "link.pipeline": " La pipeline",
+    "link.environment": " Ambiente",
+    "link.deploy": " Distribuire",
+    "link.script": " Script",
+    "link.messages": " Messaggi",
+    "link.assets": "Attività",
+    "link.more": "Di più"
   }
 }

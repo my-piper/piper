@@ -1,7 +1,6 @@
-import { Expose, Transform, Type } from "class-transformer";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/lodash";
-import "reflect-metadata";
-import { dateTransformer } from "../transformers/date";
+import { dateTransformer } from "transformers/date";
 
 export class PipelineMessage {
   @Expose()

@@ -1,7 +1,7 @@
-import { REDIS_SECRET_KEY } from "../../consts/redis";
-import { Environment } from "../../models/environment";
-import { Primitive } from "../../types/primitive";
-import * as crypto from "../../utils/crypto";
+import { REDIS_SECRET_KEY } from "consts/redis";
+import { Environment } from "models/environment";
+import { Primitive } from "types/primitive";
+import * as crypto from "utils/crypto";
 
 export function encrypt(environment: Environment) {
   const { variables } = environment;

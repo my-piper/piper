@@ -1,12 +1,11 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { plainToInstance } from "class-transformer";
 import { MASTER_KEY } from "consts/core";
+import { toInstance, validate } from "core-kit/packages/transform";
 import { PenTestingError } from "core-kit/types/errors";
-import { validate } from "core-kit/utils/models";
+import { refillBalance } from "logic/users/refill-balance";
+import { User } from "models/user";
 import { handle, toModel } from "utils/http";
-import { refillBalance } from "../../logic/users/refill-balance";
-import { User } from "../../models/user";
 import { BillingOrder } from "./models/billing-order";
 
 /* 
@@ -30,7 +29,7 @@ api.post(
       throw new PenTestingError();
     }
 
-    const request = plainToInstance(BillingOrder, body);
+    const request = toInstance(body, BillingOrder);
     await validate(request);
 
     const {

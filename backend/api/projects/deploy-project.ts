@@ -1,12 +1,12 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import redis from "core-kit/services/redis";
-import { toPlain } from "core-kit/utils/models";
+import { DEPLOY, DEPLOY_EXPIRED } from "consts/redis";
+import redis from "core-kit/packages/redis";
+import { toPlain } from "core-kit/packages/transform";
+import { Deploy } from "models/deploy";
+import { Project } from "models/project";
 import "reflect-metadata";
 import { checkAdmin, handle, toModel } from "utils/http";
-import { DEPLOY, DEPLOY_EXPIRED } from "../../consts/redis";
-import { Deploy } from "../../models/deploy";
-import { Project } from "../../models/project";
 
 api.post(
   "/api/projects/:_id/deploy",

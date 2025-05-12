@@ -1,4 +1,4 @@
-import { createLogger } from "core-kit/services/logger";
+import { createLogger } from "core-kit/packages/logger";
 import { MongoClient } from "mongodb";
 import { MONGO_URL } from "../consts/core";
 

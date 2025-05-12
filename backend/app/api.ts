@@ -1,3 +1,3 @@
-import api from "core-kit/services/server";
+import api from "core-kit/packages/server";
 
 export default api;

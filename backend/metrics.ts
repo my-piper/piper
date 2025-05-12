@@ -2,7 +2,7 @@ import "core-kit/env";
 import "reflect-metadata";
 
 import { queues } from "app/queues";
-import { createLogger } from "core-kit/services/logger";
+import { createLogger } from "core-kit/packages/logger";
 import express from "express";
 
 const logger = createLogger("metrics");

@@ -1,7 +1,10 @@
-import { Expose, Type } from "class-transformer";
-import { IsNotEmpty, MinLength } from "class-validator";
+import {
+  Expose,
+  IsNotEmpty,
+  MinLength,
+  Type,
+} from "core-kit/packages/transform";
 import assign from "lodash/assign";
-import "reflect-metadata";
 import { Deploy } from "./deploy";
 import { Environment } from "./environment";
 import { LaunchRequest } from "./launch-request";

@@ -2,9 +2,9 @@ import { Expose, Transform } from "class-transformer";
 import { IsNotEmpty } from "class-validator";
 import assign from "lodash/assign";
 import merge from "lodash/merge";
-import { objectsMapTransformer } from "../transformers/map";
-import { primitiveMapTransformer } from "../transformers/primitive";
-import { PrimitiveMap } from "../types/primitive";
+import { objectsMapTransformer } from "transformers/map";
+import { primitiveMapTransformer } from "transformers/primitive";
+import { PrimitiveMap } from "types/primitive";
 
 export class NodeToLaunch {
   @Expose()

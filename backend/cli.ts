@@ -3,8 +3,8 @@ import "reflect-metadata";
 
 import { Command } from "commander";
 import { RELOAD_WORKER_CHANNEL } from "consts/signals";
-import redis from "core-kit/services/redis";
-import { toPlain } from "core-kit/utils/models";
+import redis from "core-kit/packages/redis";
+import { toPlain } from "core-kit/packages/transform";
 import { writeFile } from "fs/promises";
 import { ulid } from "ulid";
 import mongo from "./app/mongo";

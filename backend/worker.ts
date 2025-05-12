@@ -2,10 +2,10 @@ import "reflect-metadata";
 
 import { Command } from "commander";
 import { RELOAD_WORKER_CHANNEL } from "consts/signals";
-import { createLogger } from "core-kit/services/logger";
-import { JobsQueue } from "core-kit/services/queue";
-import redis from "core-kit/services/redis";
-import sentry from "core-kit/services/sentry";
+import { createLogger } from "core-kit/packages/logger";
+import { JobsQueue } from "core-kit/packages/queue";
+import redis from "core-kit/packages/redis";
+import sentry from "core-kit/packages/sentry";
 import { FatalError } from "core-kit/types/errors";
 import { secondsToMilliseconds } from "date-fns";
 import express from "express";

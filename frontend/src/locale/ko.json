@@ -87,6 +87,14 @@
     "label.draw_mask": "마스크 그리기",
     "message.upload_image": "이미지를 업로드하려면 {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN}를 누르세요",
     "label.select_image": "이미지 선택",
-    "action.clear": " Clear"
+    "action.clear": " Clear",
+    "link.pipeline": " 파이프라인",
+    "link.design": "디자인",
+    "link.environment": " 환경",
+    "link.deploy": " 배포",
+    "link.script": " 스크립트",
+    "link.messages": " 메시지",
+    "link.assets": "자산",
+    "link.more": "자세히 보기"
   }
 }

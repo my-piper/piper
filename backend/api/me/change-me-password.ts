@@ -1,7 +1,7 @@
 import api from "app/api";
 import mongo from "app/mongo";
 import bcrypt from "bcrypt";
-import { mapTo, toPlain, validate } from "core-kit/utils/models";
+import { mapTo, toPlain, validate } from "core-kit/packages/transform";
 import { User } from "models/user";
 import { checkLogged, handle } from "utils/http";
 import { ChangePasswordRequest } from "./models/change-password-request";

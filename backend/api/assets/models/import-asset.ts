@@ -1,5 +1,10 @@
-import { Expose, Type } from "class-transformer";
-import { IsOptional, IsUrl, Matches } from "class-validator";
+import {
+  Expose,
+  IsOptional,
+  IsUrl,
+  Matches,
+  Type,
+} from "core-kit/packages/transform";
 
 export class ImportAsset {
   @IsUrl()

@@ -1,7 +1,6 @@
 import env from "core-kit/env";
 
 import axios from "axios";
-import { Languages } from "core-kit/enums/languages";
 import path from "path";
 
 export const MODULES_PATH = path.join(process.cwd(), "..", "packages");
@@ -48,20 +47,3 @@ export const APP_FOOTER =
     }
     return null;
   })()) || "<div>Pipelines builder 2025</div>";
-
-export const LANGUAGES = [
-  Languages.en,
-  Languages.ru,
-  Languages.de,
-  Languages.es,
-  Languages.ptBR,
-  Languages.fr,
-  Languages.ja,
-  Languages.ko,
-  Languages.zhCN,
-  Languages.zhTW,
-  Languages.hi,
-  Languages.tr,
-  Languages.it,
-];
-export const DEFAULT_LANG = Languages.en;

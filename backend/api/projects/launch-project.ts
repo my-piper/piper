@@ -1,14 +1,13 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { plainToInstance } from "class-transformer";
-import { toPlain } from "core-kit/utils/models";
+import { toInstance, toPlain } from "core-kit/packages/transform";
 import merge from "lodash/merge";
+import { run } from "logic/launches/launching";
+import { LaunchOptions } from "models/launch";
+import { LaunchRequest } from "models/launch-request";
+import { Project } from "models/project";
+import { User } from "models/user";
 import { checkBalance, handle, toModel } from "utils/http";
-import { run } from "../../logic/launches/launching";
-import { LaunchOptions } from "../../models/launch";
-import { LaunchRequest } from "../../models/launch-request";
-import { Project } from "../../models/project";
-import { User } from "../../models/user";
 
 api.post(
   "/api/projects/:_id/launch",
@@ -40,9 +39,9 @@ api.post(
       environment,
     } = project;
 
-    const launchRequest = plainToInstance(
-      LaunchRequest,
-      merge(toPlain(projectLaunchRequest), body)
+    const launchRequest = toInstance(
+      merge(toPlain(projectLaunchRequest), body),
+      LaunchRequest
     );
 
     const launch = await run({

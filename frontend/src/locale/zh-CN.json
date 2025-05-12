@@ -90,6 +90,14 @@
     "label.draw_mask": "绘制面具",
     "message.upload_image": "只需按 {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} 即可上传图片",
     "label.select_image": "选择图片",
-    "action.clear": "清除"
+    "action.clear": "清除",
+    "link.pipeline": "管道",
+    "link.design": "设计",
+    "link.environment": "环境",
+    "link.deploy": "部署",
+    "link.script": "脚本",
+    "link.messages": "信息",
+    "link.assets": "资产",
+    "link.more": "更多内容"
   }
 }

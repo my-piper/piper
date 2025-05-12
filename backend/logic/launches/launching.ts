@@ -1,29 +1,23 @@
 import mongo from "app/mongo";
 import { queues } from "app/queues";
 import * as storage from "app/storage";
-import { plainToInstance } from "class-transformer";
 import { BASE_URL } from "consts/core";
-import { createLogger } from "core-kit/services/logger";
-import redis from "core-kit/services/redis";
-import { FatalError, NotFoundError } from "core-kit/types/errors";
-import { toPlain } from "core-kit/utils/models";
-import { dataUriToBuffer } from "data-uri-to-buffer";
-import { fileTypeFromBuffer } from "file-type";
-import fs from "fs/promises";
-import { plan } from "logic/nodes/plan-node";
-import { getCosts } from "logic/pipelines/pipeline-costs";
-import path from "path";
-import "reflect-metadata";
-import sharp from "sharp";
-import { ulid } from "ulid";
-import { downloadBinary, extFromMime } from "utils/web";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,
   NODE_INPUT,
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
-} from "../../consts/redis";
+} from "consts/redis";
+import { createLogger } from "core-kit/packages/logger";
+import redis from "core-kit/packages/redis";
+import { toInstance, toPlain } from "core-kit/packages/transform";
+import { FatalError, NotFoundError } from "core-kit/types/errors";
+import { dataUriToBuffer } from "data-uri-to-buffer";
+import { fileTypeFromBuffer } from "file-type";
+import fs from "fs/promises";
+import { plan } from "logic/nodes/plan-node";
+import { getCosts } from "logic/pipelines/pipeline-costs";
 import {
   BooleanData,
   FloatData,
@@ -36,13 +30,17 @@ import {
   LaunchState,
   StringData,
   VideoData,
-} from "../../models/launch";
-import { PipelineIOType } from "../../types/pipeline";
-import { Primitive } from "../../types/primitive";
-import { withTempContext } from "../../utils/files";
-import { fromRedisValue, toRedisValue } from "../../utils/redis";
-import { sid } from "../../utils/string";
-import { getPoster } from "../../utils/video";
+} from "models/launch";
+import path from "path";
+import sharp from "sharp";
+import { PipelineIOType } from "types/pipeline";
+import { Primitive } from "types/primitive";
+import { ulid } from "ulid";
+import { withTempContext } from "utils/files";
+import { fromRedisValue, toRedisValue } from "utils/redis";
+import { sid } from "utils/string";
+import { getPoster } from "utils/video";
+import { downloadBinary, extFromMime } from "utils/web";
 
 const logger = createLogger("utils/launch");
 
@@ -201,7 +199,7 @@ export async function getPlain(id: string): Promise<Object> {
 }
 
 export async function get(id: string): Promise<Launch> {
-  return plainToInstance(Launch, getPlain(id));
+  return toInstance(getPlain(id), Launch);
 }
 
 export async function state(id: string): Promise<LaunchState> {

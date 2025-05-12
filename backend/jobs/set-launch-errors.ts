@@ -1,13 +1,13 @@
 import mongo from "app/mongo";
+import { queues } from "app/queues";
 import { LAUNCH, PIPELINE_ERRORS } from "consts/redis";
-import { notify } from "core-kit/services/io";
-import { createLogger } from "core-kit/services/logger";
-import redis from "core-kit/services/redis/redis";
-import { toPlain } from "core-kit/utils/models";
+import { notify } from "core-kit/packages/io";
+import { createLogger } from "core-kit/packages/logger";
+import redis from "core-kit/packages/redis/redis";
+import { toPlain } from "core-kit/packages/transform";
 import { SetLaunchErrorsEvent } from "models/events";
 import { Launch } from "models/launch";
 import { readInstance } from "utils/redis";
-import { queues } from "../app/queues";
 
 queues.launches.errors.set.process(async (setErrorsJob) => {
   const logger = createLogger("set-launch-errors", {

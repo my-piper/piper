@@ -1,8 +1,8 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { toPlain } from "core-kit/utils/models";
+import { toPlain } from "core-kit/packages/transform";
+import { ProjectSummary } from "models/project";
 import { checkLogged, handle, toModel } from "utils/http";
-import { ProjectSummary } from "../../models/project";
 
 api.get(
   "/api/projects/:_id/summary",

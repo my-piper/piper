@@ -1,13 +1,13 @@
 import api from "app/api";
-import { toInstance, toPlain } from "core-kit/utils/models";
+import { toInstance, toPlain } from "core-kit/packages/transform";
 import merge from "lodash/merge";
+import * as deploys from "logic/deploy";
+import * as launches from "logic/launches";
 import { Launch, LaunchOptions } from "models/launch";
 import { LaunchRequest } from "models/launch-request";
 import { Project } from "models/project";
 import { User } from "models/user";
 import { checkBalance, checkLogged, handle } from "utils/http";
-import * as deploys from "../../logic/deploy";
-import * as launches from "../../logic/launches";
 
 api.post(
   "/api/:slug/launch",

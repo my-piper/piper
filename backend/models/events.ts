@@ -1,8 +1,7 @@
-import { Expose, Transform, Type } from "class-transformer";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
-import "reflect-metadata";
 import { objectsMapTransformer } from "transformers/map";
-import { PipelineEventType } from "../types/pipeline";
+import { PipelineEventType } from "types/pipeline";
 import { LaunchInput, LaunchOutput } from "./launch";
 
 export class PipelineEvent {

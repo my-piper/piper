@@ -1,6 +1,6 @@
 import api from "app/api";
+import * as deploys from "logic/deploy";
 import { checkLogged, handle } from "utils/http";
-import * as deploys from "../../logic/deploy";
 
 api.get(
   "/api/:slug",

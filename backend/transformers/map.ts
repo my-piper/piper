@@ -1,5 +1,8 @@
-import { TransformationType } from "class-transformer";
-import { toInstance, toPlain } from "core-kit/utils/models";
+import {
+  toInstance,
+  toPlain,
+  TransformationType,
+} from "core-kit/packages/transform";
 
 export const objectsMapTransformer =
   <T>(model: new () => T) =>

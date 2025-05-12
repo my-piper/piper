@@ -90,6 +90,13 @@
     "label.draw_mask": "Маска для рисования",
     "message.upload_image": " Просто нажмите {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN}, чтобы загрузить изображение",
     "label.select_image": "Выберите изображение",
-    "action.clear": " Очистить"
+    "action.clear": " Очистить",
+    "link.pipeline": " Конвейер",
+    "link.design": "Дизайн",
+    "link.environment": " Окружение",
+    "link.deploy": "Публикация",
+    "link.script": " Скрипт",
+    "link.messages": " Сообщения",
+    "link.more": "Подробнее"
   }
 }

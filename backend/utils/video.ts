@@ -1,4 +1,4 @@
-import { createLogger } from "core-kit/services/logger";
+import { createLogger } from "core-kit/packages/logger";
 import { DataError } from "core-kit/types/errors";
 import ffmpeg from "fluent-ffmpeg";
 import { PassThrough } from "stream";

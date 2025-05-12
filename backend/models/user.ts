@@ -1,7 +1,6 @@
-import { Expose, Type } from "class-transformer";
+import { Expose, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { OAuthProvider } from "logic/users/types";
-import "reflect-metadata";
 
 export class UserBalance {
   @Expose()

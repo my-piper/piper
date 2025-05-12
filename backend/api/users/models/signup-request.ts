@@ -1,5 +1,4 @@
-import { Expose, Type } from "class-transformer";
-import { IsEmail, Matches } from "class-validator";
+import { Expose, IsEmail, Matches, Type } from "core-kit/packages/transform";
 
 export class SignupRequest {
   @IsEmail()

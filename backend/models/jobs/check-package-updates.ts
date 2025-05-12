@@ -1,6 +1,5 @@
-import { Expose, Type } from "class-transformer";
+import { Expose, Type } from "core-kit/packages/transform";
 import merge from "lodash/merge";
-import "reflect-metadata";
 
 export class CheckPackageUpdatesJob {
   @Expose()

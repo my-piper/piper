@@ -88,6 +88,14 @@
     "label.draw_mask": "マスクを描く",
     "message.upload_image": "画像をアップロードするには、{$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN}を押すだけです。",
     "label.select_image": "画像を選択",
-    "action.clear": "クリア"
+    "action.clear": "クリア",
+    "link.pipeline": "パイプライン",
+    "link.design": "デザイン",
+    "link.environment": "環境",
+    "link.deploy": "デプロイ",
+    "link.script": "スクリプト",
+    "link.messages": "メッセージ",
+    "link.assets": "資産",
+    "link.more": "もっと見る"
   }
 }

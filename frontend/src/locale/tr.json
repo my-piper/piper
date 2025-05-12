@@ -88,6 +88,14 @@
     "label.draw_mask": "Maske çiz",
     "message.upload_image": " Resim yüklemek için {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} tuşlarına basmanız yeterli",
     "label.select_image": "Görüntü seçin",
-    "action.clear": " Temizle"
+    "action.clear": " Temizle",
+    "link.pipeline": " Boru Hattı",
+    "link.design": "Tasarım",
+    "link.environment": " Çevre",
+    "link.deploy": " Dağıtmak",
+    "link.script": " Senaryo",
+    "link.messages": " Mesajlar",
+    "link.assets": "Varlıklar",
+    "link.more": "Daha fazla"
   }
 }

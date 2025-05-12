@@ -1,14 +1,14 @@
-import { Expose, Transform, Type } from "class-transformer";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import { NodeExecution } from "enums/node-execution";
 import assign from "lodash/assign";
 import merge from "lodash/merge";
-import { PipelineIOType } from "types/pipeline";
-import { objectsMapTransformer } from "../transformers/map";
+import { objectsMapTransformer } from "transformers/map";
 import {
   primitiveArrayTransformer,
   primitiveTransformer,
-} from "../transformers/primitive";
-import { Primitive } from "../types/primitive";
+} from "transformers/primitive";
+import { PipelineIOType } from "types/pipeline";
+import { Primitive } from "types/primitive";
 import { Arrange } from "./arrange";
 import { Extension } from "./extension";
 

@@ -1,7 +1,7 @@
 import api from "app/api";
-import { toPlain } from "core-kit/utils/models";
+import { toPlain } from "core-kit/packages/transform";
+import { add } from "logic/users/add-user";
 import { checkAdmin, handle } from "utils/http";
-import { add } from "../../logic/users/add-user";
 
 api.post(
   "/api/users",

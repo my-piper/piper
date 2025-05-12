@@ -1,16 +1,16 @@
-import { createLogger } from "core-kit/services/logger";
-import redis from "core-kit/services/redis";
-import random from "lodash/random";
-import { kick } from "logic/launches";
-import { Launch } from "models/launch";
-import { readInstance } from "utils/redis";
-import { queues } from "../app/queues";
+import { queues } from "app/queues";
 import {
   LAUNCH,
   LAUNCH_HEARTBEAT,
   LAUNCH_HEARTBEAT_EXPIRED,
-} from "../consts/redis";
-import { RunLaunchJobResult } from "../types/launch";
+} from "consts/redis";
+import { createLogger } from "core-kit/packages/logger";
+import redis from "core-kit/packages/redis";
+import random from "lodash/random";
+import { kick } from "logic/launches";
+import { Launch } from "models/launch";
+import { RunLaunchJobResult } from "types/launch";
+import { readInstance } from "utils/redis";
 
 queues.launches.run.process(async (runJob) => {
   const logger = createLogger("run-launch", {

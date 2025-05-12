@@ -3,7 +3,7 @@ import {
   CHROME_REMOTE_POST,
   CHROME_USER_DIR,
 } from "consts/chrome";
-import { createLogger } from "core-kit/services/logger";
+import { createLogger } from "core-kit/packages/logger";
 import puppeteer from "puppeteer";
 
 const logger = createLogger("server");

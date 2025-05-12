@@ -1,6 +1,6 @@
 import { HttpsAgent } from "agentkeepalive";
 import axios from "axios";
-import { createLogger } from "core-kit/services/logger";
+import { createLogger } from "core-kit/packages/logger";
 
 const CONTENT_TYPE_HEADER = "content-type";
 

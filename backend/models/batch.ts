@@ -1,4 +1,4 @@
-import { Expose, Type } from "class-transformer";
+import { Expose, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { Project } from "./project";
 import { User } from "./user";

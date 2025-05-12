@@ -1,21 +1,20 @@
+import ajv from "app/ajv";
 import api from "app/api";
 import mongo from "app/mongo";
-import { plainToInstance } from "class-transformer";
+import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { DataError, NotFoundError } from "core-kit/types/errors";
-import { toInstance, toPlain, validate } from "core-kit/utils/models";
 import { patch } from "jsondiffpatch";
 import assign from "lodash/assign";
+import { decrypt, encrypt } from "logic/environment/crypt-environment";
+import { Environment } from "models/environment";
+import { LaunchRequest, NodeToLaunch } from "models/launch-request";
+import { Pipeline } from "models/pipeline";
+import { Project } from "models/project";
+import { User } from "models/user";
+import SCHEMAS from "schemas/compiled.json" with { type: "json" };
+import { Primitive } from "types/primitive";
 import { checkAdmin, checkLogged, handle, toModel } from "utils/http";
-import ajv from "../../app/ajv";
-import { decrypt, encrypt } from "../../logic/environment/crypt-environment";
-import { Environment } from "../../models/environment";
-import { LaunchRequest, NodeToLaunch } from "../../models/launch-request";
-import { Pipeline } from "../../models/pipeline";
-import { Project } from "../../models/project";
-import { User } from "../../models/user";
-import SCHEMAS from "../../schemas/compiled.json" with { type: "json" };
-import { Primitive } from "../../types/primitive";
-import { sid } from "../../utils/string";
+import { sid } from "utils/string";
 import { PatchProject } from "./models/update-project";
 
 api.patch(
@@ -109,7 +108,7 @@ api.patch(
       );
       patch(forPatch, request.launchRequest);
 
-      const patched = plainToInstance(LaunchRequest, forPatch);
+      const patched = toInstance(forPatch, LaunchRequest);
       await validate(patched);
 
       assign(update, { launchRequest: patched });
@@ -131,7 +130,7 @@ api.patch(
       );
       patch(forPatch, request.environment);
 
-      const patched = plainToInstance(Environment, forPatch);
+      const patched = toInstance(forPatch, Environment);
       await validate(patched);
 
       encrypt(patched);

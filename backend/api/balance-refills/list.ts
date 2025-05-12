@@ -1,5 +1,5 @@
 import api from "app/api";
-import { toInstance, validate } from "core-kit/utils/models";
+import { toInstance, validate } from "core-kit/packages/transform";
 import sql from "sql-bricks-sqlite";
 import { checkLogged, handle } from "utils/http";
 import clickhouse from "../../app/clickhouse";

@@ -1,5 +1,5 @@
 import mongo from "app/mongo";
-import { createLogger } from "core-kit/services/logger";
+import { createLogger } from "core-kit/packages/logger";
 import subDays from "date-fns/subDays";
 
 const MAX_STORE_LAUNCH_DAYS = (() => {

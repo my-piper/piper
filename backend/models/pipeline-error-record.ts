@@ -1,5 +1,5 @@
-import { Expose, Transform, Type } from "class-transformer";
-import { dateTransformer } from "../transformers/date";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
+import { dateTransformer } from "transformers/date";
 
 export class PipelineErrorRecord {
   @Expose()

@@ -1,5 +1,4 @@
-import { Expose, Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { Expose, IsOptional, Type } from "core-kit/packages/transform";
 
 export class UploadArtefactRequest {
   @IsOptional()

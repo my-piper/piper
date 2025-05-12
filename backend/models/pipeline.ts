@@ -1,16 +1,15 @@
-import { Expose, Transform, Type } from "class-transformer";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { Arrange } from "models/arrange";
 import { InputFlow } from "models/input-flow";
 import { NodeFlow } from "models/node-flow";
-import "reflect-metadata";
 import { objectsMapTransformer } from "transformers/map";
 import {
   primitiveArrayTransformer,
   primitiveTransformer,
-} from "../transformers/primitive";
-import { PipelineIOType } from "../types/pipeline";
-import { Primitive } from "../types/primitive";
+} from "transformers/primitive";
+import { PipelineIOType } from "types/pipeline";
+import { Primitive } from "types/primitive";
 import { DeployConfig } from "./deploy-config";
 import { Extension } from "./extension";
 import { Node } from "./node";

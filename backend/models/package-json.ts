@@ -1,4 +1,4 @@
-import { Expose, Transform, Type } from "class-transformer";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { primitiveMapTransformer } from "transformers/primitive";
 

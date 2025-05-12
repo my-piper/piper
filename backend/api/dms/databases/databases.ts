@@ -1,9 +1,8 @@
 import api from "app/api";
-import { toInstance, toPlain } from "core-kit/utils/models";
+import nocodb from "app/nocodb";
+import { toInstance, toPlain } from "core-kit/packages/transform";
 import { Request } from "express";
-import "reflect-metadata";
 import { handle } from "utils/http";
-import nocodb from "../../../app/nocodb";
 import { DatabaseList } from "./models/database";
 
 api.get(

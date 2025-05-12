@@ -1,7 +1,6 @@
-import { plainToInstance } from "class-transformer";
-import redis from "core-kit/services/redis";
-import { toInstance, toPlain } from "core-kit/utils/models";
-import { Primitive } from "../types/primitive";
+import redis from "core-kit/packages/redis";
+import { toInstance, toPlain } from "core-kit/packages/transform";
+import { Primitive } from "types/primitive";
 
 export function toRedisValue(type: string, value: Primitive): string {
   switch (type) {
@@ -67,7 +66,7 @@ export async function loadRange<T>(
   type: new () => T
 ): Promise<T[]> {
   return ((await redis.lRange(key, 0, -1)) || []).map((json) =>
-    plainToInstance(type, JSON.parse(json))
+    toInstance(JSON.parse(json), type)
   );
 }
 

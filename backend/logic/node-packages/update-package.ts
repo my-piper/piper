@@ -1,8 +1,8 @@
 import mongo from "app/mongo";
 import axios from "axios";
-import { notify } from "core-kit/services/io";
-import { createLogger } from "core-kit/services/logger";
-import { toInstance, toPlain, validate } from "core-kit/utils/models";
+import { notify } from "core-kit/packages/io";
+import { createLogger } from "core-kit/packages/logger";
+import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { PackageUpdatedEvent } from "models/events";
 import { NodePackage } from "models/node-package";

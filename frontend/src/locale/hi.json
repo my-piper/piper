@@ -88,6 +88,14 @@
     "label.draw_mask": "मुखौटा बनाएं",
     "message.upload_image": "केवल छू दबाएं {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} छवि अपलोड करने के लिए",
     "label.select_image": "छवि का चयन करें",
-    "action.clear": "साफ"
+    "action.clear": "साफ",
+    "link.pipeline": "पाइपलाइन",
+    "link.design": "डिज़ाइन",
+    "link.environment": "वातावरण",
+    "link.deploy": " डिप्लॉय ",
+    "link.script": "स्क्रिप्ट",
+    "link.messages": "संदेश",
+    "link.assets": "संपत्ति",
+    "link.more": "अधिक"
   }
 }

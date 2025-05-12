@@ -1,10 +1,11 @@
-import { Expose, Type } from "class-transformer";
 import {
+  Expose,
   IsEmail,
   IsNotEmpty,
   IsOptional,
+  Type,
   ValidateNested,
-} from "class-validator";
+} from "core-kit/packages/transform";
 
 export class Customer {
   @IsNotEmpty()

@@ -86,6 +86,14 @@
     "label.draw_mask": "繪製遮罩",
     "message.upload_image": "只需按{$START_TAG_SPAN}Ctrl + V{$CLOSE_TAG_SPAN}上傳圖片",
     "label.select_image": "選擇圖片",
-    "action.clear": "清除"
+    "action.clear": "清除",
+    "link.pipeline": "管道",
+    "link.design": "設計",
+    "link.environment": "環境",
+    "link.deploy": "部署",
+    "link.script": "腳本",
+    "link.messages": "消息",
+    "link.assets": "資產",
+    "link.more": "更多"
   }
 }

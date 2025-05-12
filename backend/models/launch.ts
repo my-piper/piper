@@ -1,11 +1,11 @@
-import { Expose, Transform, Type } from "class-transformer";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { Pipeline, PipelineCosts } from "models/pipeline";
+import { objectsMapTransformer } from "transformers/map";
 import { objectTransformer } from "transformers/object";
-import { objectsMapTransformer } from "../transformers/map";
-import { primitiveMapTransformer } from "../transformers/primitive";
-import { PipelineIOType } from "../types/pipeline";
-import { PrimitiveMap } from "../types/primitive";
+import { primitiveMapTransformer } from "transformers/primitive";
+import { PipelineIOType } from "types/pipeline";
+import { PrimitiveMap } from "types/primitive";
 import { Environment } from "./environment";
 import { LaunchRequest } from "./launch-request";
 import { Project } from "./project";

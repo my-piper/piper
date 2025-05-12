@@ -1,9 +1,9 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { toInstance, toPlain, validate } from "core-kit/utils/models";
+import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import assign from "lodash/assign";
+import { Node } from "models/node";
 import { checkLogged, handle } from "utils/http";
-import { Node } from "../../models/node";
 
 api.post(
   "/api/nodes",

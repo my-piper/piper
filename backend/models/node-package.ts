@@ -1,6 +1,6 @@
-import { Expose, Transform, Type } from "class-transformer";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
-import { objectsMapTransformer } from "../transformers/map";
+import { objectsMapTransformer } from "transformers/map";
 import { Node } from "./node";
 
 export class NodePackage {

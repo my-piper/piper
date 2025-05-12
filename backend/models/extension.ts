@@ -1,4 +1,4 @@
-import { Expose, Transform, Type } from "class-transformer";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import { primitiveMapTransformer } from "transformers/primitive";
 import { Primitive } from "types/primitive";
 

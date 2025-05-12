@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import { fileTypeFromBuffer } from "file-type";
-import "reflect-metadata";
 import { sid } from "utils/string";
 import {
   ARTEFACTS_BUCKET_NAME,

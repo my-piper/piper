@@ -1,5 +1,5 @@
-import { createLogger } from "core-kit/services/logger";
-import { mapTo, toPlain } from "core-kit/utils/models";
+import { createLogger } from "core-kit/packages/logger";
+import { mapTo, toPlain } from "core-kit/packages/transform";
 import { Partitioners } from "kafkajs";
 import { PipelineErrorRecord } from "models/pipeline-error-record";
 import { PipelineFinishedMetric } from "models/pipeline-finished-metric";

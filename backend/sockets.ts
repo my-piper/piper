@@ -1,10 +1,10 @@
 import "core-kit/env";
 import "reflect-metadata";
 
-import { createLogger } from "core-kit/services/logger";
+import { createLogger } from "core-kit/packages/logger";
 import express from "express";
 import http from "http";
-import io from "./core-kit/services/io";
+import io from "./core-kit/packages/io";
 
 const logger = createLogger("sockets");
 

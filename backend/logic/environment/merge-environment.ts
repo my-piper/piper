@@ -1,6 +1,6 @@
 import { HIDDEN_STRING } from "consts/core";
-import { Environment } from "../../models/environment";
-import { Primitive } from "../../types/primitive";
+import { Environment } from "models/environment";
+import { Primitive } from "types/primitive";
 
 export function merge(to: Environment, from: Environment) {
   for (const [k, v] of from.variables || new Map<string, Primitive>()) {

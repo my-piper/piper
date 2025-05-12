@@ -1,13 +1,12 @@
-import "core-kit/env";
+import env from "core-kit/env";
 import "reflect-metadata";
 
 import api from "app/api";
 
-import { Expose, Type } from "class-transformer";
 import { BILLING_URL } from "consts/billing";
-import { createLogger } from "core-kit/services/logger";
-import sentry from "core-kit/services/sentry";
-import { toInstance, toPlain } from "core-kit/utils/models";
+import { createLogger } from "core-kit/packages/logger";
+import sentry from "core-kit/packages/sentry";
+import { Expose, toInstance, toPlain, Type } from "core-kit/packages/transform";
 import express from "express";
 import { readFile } from "fs/promises";
 import assign from "lodash/assign";
@@ -32,13 +31,8 @@ import "./api/utils";
 
 import "./api/deploys";
 
-import {
-  APP_FOOTER,
-  BASE_URL,
-  FRONTEND_ROOT,
-  LANGUAGES,
-  SITE_URL,
-} from "./consts/core";
+import { ALL_LANGUAGES } from "core-kit/packages/locale";
+import { APP_FOOTER, BASE_URL, FRONTEND_ROOT, SITE_URL } from "./consts/core";
 import { NO_CACHE_HEADERS, SCP_HEADERS } from "./consts/http";
 import { AppConfig } from "./models/app-config";
 import { handle } from "./utils/http";
@@ -67,7 +61,7 @@ api.use((req, res, next) => {
 });
 
 api.get(
-  `/:language(${LANGUAGES.join("|")})/*`,
+  `/:language(${ALL_LANGUAGES.join("|")})/*`,
   handle(() => async ({ originalUrl, params: { language } }, res) => {
     res.set(NO_CACHE_HEADERS);
     res.set(SCP_HEADERS);
@@ -134,7 +128,7 @@ process.on("unhandledRejection", (reason, promise) => {
 
 export const PORT =
   (() => {
-    const port = process.env["SERVER_PORT"];
+    const port = env["SERVER_PORT"];
     if (!!port) {
       return parseInt(port);
     }

@@ -85,6 +85,13 @@
     "label.draw_mask": "Desenhar máscara",
     "message.upload_image": " Basta pressionar {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} para carregar a imagem",
     "label.select_image": "Selecionar imagem",
-    "action.clear": " Limpar"
+    "action.clear": " Limpar",
+    "link.pipeline": " Pipeline",
+    "link.environment": " Ambiente",
+    "link.deploy": " Implementar",
+    "link.script": " Script",
+    "link.messages": " Mensagens",
+    "link.assets": "Ativos",
+    "link.more": "Mais informações"
   }
 }

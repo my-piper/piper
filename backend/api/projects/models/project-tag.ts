@@ -1,5 +1,5 @@
-import { Expose, Type } from "class-transformer";
-import { Languages } from "core-kit/enums/languages";
+import { Languages } from "core-kit/packages/locale";
+import { Expose, Type } from "core-kit/packages/transform";
 
 export class ProjectTag {
   @Expose()

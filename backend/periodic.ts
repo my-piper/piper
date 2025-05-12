@@ -2,8 +2,8 @@ import "core-kit/env";
 import "reflect-metadata";
 
 import bottleneck from "bottleneck";
-import { createLogger } from "core-kit/services/logger";
-import sentry from "core-kit/services/sentry";
+import { createLogger } from "core-kit/packages/logger";
+import sentry from "core-kit/packages/sentry";
 import { NODE_ENV } from "./consts/core";
 import { checkPackagesUpdates } from "./periodic/check-packages-updates";
 import { cleanLaunches } from "./periodic/clear-launches";

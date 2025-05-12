@@ -88,6 +88,14 @@
     "label.draw_mask": "Dibujar máscara",
     "message.upload_image": " Sólo tiene que pulsar {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} para cargar la imagen",
     "label.select_image": "Seleccionar imagen",
-    "action.clear": " Claro"
+    "action.clear": " Claro",
+    "link.pipeline": " Tubería",
+    "link.design": "Diseño",
+    "link.environment": " Entorno",
+    "link.deploy": " Despliegue",
+    "link.script": " Guión",
+    "link.messages": " Mensajes",
+    "link.assets": "Activos",
+    "link.more": "Más"
   }
 }

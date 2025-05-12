@@ -6,7 +6,6 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { plainToInstance } from "class-transformer";
 import first from "lodash/first";
 import { delay, finalize, map } from "rxjs";
 import { Asset, AssetsFilter } from "src/models/assets";
@@ -14,7 +13,7 @@ import { AssetImportedSignal } from "src/models/signals/asset";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/ui-kit/consts";
-import { toPlain } from "src/utils/models";
+import { toInstance, toPlain } from "src/utils/models";
 
 @Component({
   selector: "app-assets",
@@ -82,9 +81,7 @@ export class AssetsComponent implements OnInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) =>
-          (arr as Object[]).map((plain) => plainToInstance(Asset, plain))
-        )
+        map((arr) => (arr as Object[]).map((plain) => toInstance(plain, Asset)))
       )
       .subscribe({
         next: (assets) => {
@@ -112,7 +109,7 @@ export class AssetsComponent implements OnInit {
           this.progress.uploading = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Asset, json as Object))
+        map((json) => toInstance(json as Object, Asset))
       )
       .subscribe({
         next: (asset) => {

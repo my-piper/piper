@@ -1,7 +1,7 @@
-import { createLogger } from "core-kit/services/logger";
+import { queues } from "app/queues";
+import { streams } from "app/streams";
+import { createLogger } from "core-kit/packages/logger";
 import { ulid } from "ulid";
-import { queues } from "../app/queues";
-import { streams } from "../app/streams";
 
 const UPDATE_BALANCE_DELAY = 5000;
 

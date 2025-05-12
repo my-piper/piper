@@ -1,5 +1,5 @@
 import { JWT_EXPIRES, JWT_SECRET } from "consts/core";
-import { toPlain } from "core-kit/utils/models";
+import { toPlain } from "core-kit/packages/transform";
 import jwt from "jsonwebtoken";
 import { User } from "models/user";
 

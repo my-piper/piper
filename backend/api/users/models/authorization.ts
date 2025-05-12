@@ -1,6 +1,6 @@
-import { Expose, Type } from "class-transformer";
+import { Expose, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
-import { User } from "../../../models/user";
+import { User } from "models/user";
 
 export class Authorization {
   @Expose()

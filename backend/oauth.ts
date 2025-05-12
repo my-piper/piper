@@ -2,11 +2,10 @@ import env from "core-kit/env";
 import "reflect-metadata";
 
 import { Authorization } from "api/users/models/authorization";
-import { Expose, Type } from "class-transformer";
 import { BASE_URL } from "consts/core";
-import { createLogger } from "core-kit/services/logger";
-import app from "core-kit/services/server";
-import { toInstance, toPlain } from "core-kit/utils/models";
+import { createLogger } from "core-kit/packages/logger";
+import app from "core-kit/packages/server";
+import { Expose, toInstance, toPlain, Type } from "core-kit/packages/transform";
 import cors from "cors";
 import express from "express";
 import { identify } from "logic/users/identify-user";

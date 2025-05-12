@@ -82,6 +82,7 @@
         [routerLink]="['./']"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLinkActive="active"
+        i18n="@@link.pipeline"
       >
         Pipeline
       </a>
@@ -112,7 +113,11 @@
         <app-icon icon="stop" color="white" [size]="20"></app-icon>
       </a>
     </div>
-    <a class="primary" [routerLink]="['design']" routerLinkActive="active"
+    <a
+      class="primary"
+      [routerLink]="['design']"
+      routerLinkActive="active"
+      i18n="@@link.design"
       >Design</a
     >
     <ul class="menu">
@@ -123,19 +128,29 @@
           target="_blank"
           routerLinkActive="active"
         >
-          Playground
+          <ng-container i18n="@@link.playground">Playground</ng-container>
           <app-icon class="icon right" [size]="18" icon="open-link"></app-icon>
         </a>
       </li>
       <li>|</li>
       <li>
-        <a [routerLink]="['environment']" routerLinkActive="active"
-          >Environment</a
+        <a
+          [routerLink]="['environment']"
+          routerLinkActive="active"
+          i18n="@@link.environment"
         >
+          Environment
+        </a>
       </li>
       <li>|</li>
       <li>
-        <a [routerLink]="['launches']" routerLinkActive="active">Launches</a>
+        <a
+          [routerLink]="['launches']"
+          routerLinkActive="active"
+          i18n="@@link.launches"
+        >
+          Launches
+        </a>
       </li>
       <li>|</li>
       <li>
@@ -146,48 +161,59 @@
                 [routerLink]="['readme/edit']"
                 routerLinkActive="active"
                 (click)="references.popover?.hide()"
-                >README</a
+                i18n="@@link.readme"
               >
+                README
+              </a>
             </li>
             <li>
               <a
                 [routerLink]="['deploy']"
                 routerLinkActive="active"
                 (click)="references.popover?.hide()"
-                >Deploy</a
+                i18n="@@link.deploy"
               >
+                Deploy
+              </a>
             </li>
             <li>
               <a
                 [routerLink]="['yaml']"
                 routerLinkActive="active"
                 (click)="references.popover?.hide()"
-                >YAML</a
               >
+                YAML
+              </a>
             </li>
             <li>
               <a
                 [routerLink]="['script']"
                 routerLinkActive="active"
                 (click)="references.popover?.hide()"
-                >Script</a
+                i18n="@@link.script"
               >
+                Script
+              </a>
             </li>
             <li>
               <a
                 [routerLink]="['messages']"
                 routerLinkActive="active"
                 (click)="references.popover?.hide()"
-                >Messages</a
+                i18n="@@link.messages"
               >
+                Messages
+              </a>
             </li>
             <li>
               <a
                 [routerLink]="['assets']"
                 routerLinkActive="active"
                 (click)="references.popover?.hide()"
-                >Assets</a
+                i18n="@@link.assets"
               >
+                Assets
+              </a>
             </li>
           </ul>
         </ng-template>
@@ -196,7 +222,7 @@
           [appPopover]="{ behavior: 'dropdown', content: linksMenu }"
           (attached)="references.popover = $event"
         >
-          More
+          <ng-container i18n="@@link.more">More</ng-container>
           <app-icon class="icon right" icon="chevron-down"></app-icon>
         </button>
       </li>

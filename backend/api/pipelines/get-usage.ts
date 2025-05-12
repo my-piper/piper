@@ -1,6 +1,6 @@
 import api from "app/api";
+import clickhouse from "app/clickhouse";
 import { checkLogged, handle } from "utils/http";
-import clickhouse from "../../app/clickhouse";
 
 api.get(
   "/api/pipelines/usage",

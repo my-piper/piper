@@ -1,6 +1,6 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { toInstance, validate } from "core-kit/utils/models";
+import { toInstance, validate } from "core-kit/packages/transform";
 import { ProjectCommentsFilter } from "models/project";
 import { checkLogged, handle } from "utils/http";
 

@@ -1,28 +1,27 @@
 import api from "app/api";
 import mongo from "app/mongo";
 import bcrypt from "bcrypt";
-import { plainToInstance } from "class-transformer";
 import { INITIAL_USER_BALANCE } from "consts/billing";
-import { sendEmail } from "core-kit/services/mailer";
-import { handlebars, markdown } from "core-kit/services/templates";
+import { getLabel } from "core-kit/packages/i18n";
+import { sendEmail } from "core-kit/packages/mailer";
+import { handlebars, markdown } from "core-kit/packages/templates";
+import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
-import { getLabel } from "core-kit/utils/i18n";
-import { toPlain, validate } from "core-kit/utils/models";
 import { readFile } from "fs/promises";
 import assign from "lodash/assign";
 import { getToken } from "logic/users/auth";
 import { refillBalance } from "logic/users/refill-balance";
+import { User } from "models/user";
 import { ulid } from "ulid";
 import { handle } from "utils/http";
 import { sid } from "utils/string";
-import { User } from "../../models/user";
 import { Authorization } from "./models/authorization";
 import { SignupRequest } from "./models/signup-request";
 
 api.post(
   "/api/signup",
   handle(({ language }) => async ({ body }) => {
-    const request = plainToInstance(SignupRequest, body as Object);
+    const request = toInstance(body as Object, SignupRequest);
     await validate(request);
 
     const { email, login: _id } = request;

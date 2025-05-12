@@ -1,6 +1,4 @@
-import "reflect-metadata";
-
-import { JobsQueue } from "core-kit/services/queue";
+import { JobsQueue } from "core-kit/packages/queue";
 import { minutesToMilliseconds, secondsToMilliseconds } from "date-fns";
 import { CheckPackageUpdatesJob } from "models/jobs/check-package-updates";
 import { ProcessNodeJob } from "models/jobs/process-node-job";

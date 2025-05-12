@@ -1,5 +1,5 @@
 import { MODULES_PATH } from "consts/core";
-import { toPlain } from "core-kit/utils/models";
+import { toPlain } from "core-kit/packages/transform";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { list } from "./get-installed";

@@ -1,4 +1,4 @@
-import { TransformationType } from "class-transformer";
+import { TransformationType } from "core-kit/packages/transform";
 import { format, fromUnixTime, getUnixTime, isValid, parse } from "date-fns";
 
 const DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

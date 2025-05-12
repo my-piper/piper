@@ -1,4 +1,4 @@
-import { TransformationType } from "class-transformer";
+import { TransformationType } from "core-kit/packages/transform";
 
 export const arrayTransformer =
   <T>() =>

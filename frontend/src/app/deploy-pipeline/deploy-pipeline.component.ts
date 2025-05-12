@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
 import { delay, finalize } from "rxjs";
 import { Pipeline } from "src/models/pipeline";
@@ -12,7 +11,7 @@ import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { Languages } from "src/ui-kit/enums/languages";
 import { getLabel } from "src/ui-kit/utils/i18n";
-import { toPlain } from "src/utils/models";
+import { toInstance, toPlain } from "src/utils/models";
 
 @Component({
   selector: "app-deploy-pipeline",
@@ -70,7 +69,7 @@ export class DeployPipelineComponent implements OnInit {
 
   save() {
     const { pipeline } = this.project;
-    const { deploy } = plainToInstance(Pipeline, this.form.getRawValue());
+    const { deploy } = toInstance(this.form.getRawValue(), Pipeline);
     assign(pipeline, { deploy });
     this.projectManager.update({ pipeline });
   }

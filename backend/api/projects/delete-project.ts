@@ -1,7 +1,7 @@
 import api from "app/api";
 import mongo from "app/mongo";
+import { Project } from "models/project";
 import { checkAdmin, checkLogged, handle, toModel } from "utils/http";
-import { Project } from "../../models/project";
 
 api.delete(
   "/api/projects/:_id",

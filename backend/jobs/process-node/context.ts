@@ -2,13 +2,12 @@ import { HttpsAgent } from "agentkeepalive";
 import { artefact } from "app/storage";
 import { streams } from "app/streams";
 import axios from "axios";
-import { plainToInstance } from "class-transformer";
 import { SHARE_FOLDER } from "consts/chrome";
 import { MODULES_PATH, NODE_ENV } from "consts/core";
 import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
-import redis from "core-kit/services/redis";
+import redis from "core-kit/packages/redis";
+import { toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError, FatalError, TimeoutError } from "core-kit/types/errors";
-import { toPlain } from "core-kit/utils/models";
 import { fileTypeFromBuffer } from "file-type";
 import { writeFile } from "fs/promises";
 import assign from "lodash-es/assign";
@@ -77,9 +76,9 @@ export async function createContext({
           scope,
         } = await deploying.get(slug);
 
-        const launchRequest = plainToInstance(
-          LaunchRequest,
-          merge(toPlain(deployLaunchRequest), request)
+        const launchRequest = toInstance(
+          merge(toPlain(deployLaunchRequest), request),
+          LaunchRequest
         );
         const { _id, url } = await run({
           pipeline,
@@ -130,7 +129,7 @@ export async function createContext({
         {
           const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
           if (!!json) {
-            const global = plainToInstance(Environment, JSON.parse(json));
+            const global = toInstance(JSON.parse(json), Environment);
             if (!!global) {
               assign(environment, { global });
             }
@@ -142,7 +141,7 @@ export async function createContext({
           const { launchedBy } = launch;
           const json = await redis.get(USER_ENVIRONMENT_KEY(launchedBy._id));
           if (!!json) {
-            const user = plainToInstance(Environment, JSON.parse(json));
+            const user = toInstance(JSON.parse(json), Environment);
             if (!!user) {
               assign(environment, { user });
             }

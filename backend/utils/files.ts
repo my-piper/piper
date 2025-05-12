@@ -1,6 +1,6 @@
+import { TMP_PATH } from "consts/core";
 import fs from "fs/promises";
 import path from "path";
-import { TMP_PATH } from "../consts/core";
 import { sid } from "./string";
 
 export async function withTempContext(action: (tmpFolder: string) => void) {

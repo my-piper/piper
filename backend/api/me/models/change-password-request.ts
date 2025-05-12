@@ -1,5 +1,9 @@
-import { Expose, Type } from "class-transformer";
-import { MaxLength, MinLength } from "class-validator";
+import {
+  Expose,
+  MaxLength,
+  MinLength,
+  Type,
+} from "core-kit/packages/transform";
 
 export class ChangePasswordRequest {
   @MinLength(6)

@@ -1,5 +1,4 @@
-import { Expose, Type } from "class-transformer";
-import { Length } from "class-validator";
+import { Expose, Length, Type } from "core-kit/packages/transform";
 
 export class AddBatchRequest {
   @Length(5, 20)
