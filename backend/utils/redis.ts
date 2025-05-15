@@ -2,7 +2,12 @@ import redis from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { Primitive } from "types/primitive";
 
-export function toRedisValue(type: string, value: Primitive): string {
+const NULL_VALUE = "<!null!>";
+
+export function toRedisValue(type: string, value: Primitive | null): string {
+  if (value === null) {
+    return NULL_VALUE;
+  }
   switch (type) {
     case "boolean":
       return <boolean>value ? "1" : "";
@@ -20,7 +25,10 @@ export function toRedisValue(type: string, value: Primitive): string {
   }
 }
 
-export function fromRedisValue(type: string, value: string): Primitive {
+export function fromRedisValue(type: string, value: string): Primitive | null {
+  if (value === NULL_VALUE) {
+    return null;
+  }
   switch (type) {
     case "boolean":
       return !!value;

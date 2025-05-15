@@ -113,62 +113,68 @@ export const convertOutputs =
     const results: { [key: string]: Primitive } = {};
     for (const [key, output] of config) {
       const value = outputs.get(key);
-      if (value !== undefined && value !== null) {
-        switch (output.type) {
-          case "boolean":
-            results[key] = value as boolean;
-            break;
-          case "integer":
-          case "float":
-            results[key] = value as number;
-            break;
-          case "string":
-            results[key] = value as string;
-            break;
-          case "string[]":
-            results[key] = (value as string[]).join("|");
-            break;
-          case "json":
-            results[key] = JSON.stringify(value, null, "    ");
-            break;
-          case "video":
-          case "image": {
-            if (typeof value === "object") {
-              const buffer = value as Buffer;
-              const fileName = [launch._id, node, key, sid(2)].join("_");
-              const { ext } = await fileTypeFromBuffer(buffer);
-              results[key] = await storage.artefact(
-                buffer,
-                `${fileName}.${ext}`
-              );
-            } else if (typeof value === "string") {
-              results[key] = value;
-            } else {
-              throw new Error(`Can't convert image`);
-            }
-            break;
-          }
-          case "image[]": {
-            const urls = [];
-            let index = 0;
-            type expect = Buffer | string;
-            for (const image of value as expect[]) {
-              if (typeof image === "object") {
-                const buffer = image as Buffer;
-                const fileName = [launch._id, node, key, index++].join("_");
+      if (value !== undefined) {
+        if (value !== null) {
+          switch (output.type) {
+            case "boolean":
+              results[key] = value as boolean;
+              break;
+            case "integer":
+            case "float":
+              results[key] = value as number;
+              break;
+            case "string":
+              results[key] = value as string;
+              break;
+            case "string[]":
+              results[key] = (value as string[]).join("|");
+              break;
+            case "json":
+              results[key] = JSON.stringify(value, null, "    ");
+              break;
+            case "video":
+            case "image": {
+              if (typeof value === "object") {
+                const buffer = value as Buffer;
+                const fileName = [launch._id, node, key, sid(2)].join("_");
                 const { ext } = await fileTypeFromBuffer(buffer);
-                urls.push(await storage.artefact(buffer, `${fileName}.${ext}`));
-              } else if (typeof image === "string") {
-                urls.push(image);
+                results[key] = await storage.artefact(
+                  buffer,
+                  `${fileName}.${ext}`
+                );
+              } else if (typeof value === "string") {
+                results[key] = value;
               } else {
                 throw new Error(`Can't convert image`);
               }
+              break;
             }
-            results[key] = urls.join("|");
-            break;
+            case "image[]": {
+              const urls = [];
+              let index = 0;
+              type expect = Buffer | string;
+              for (const image of value as expect[]) {
+                if (typeof image === "object") {
+                  const buffer = image as Buffer;
+                  const fileName = [launch._id, node, key, index++].join("_");
+                  const { ext } = await fileTypeFromBuffer(buffer);
+                  urls.push(
+                    await storage.artefact(buffer, `${fileName}.${ext}`)
+                  );
+                } else if (typeof image === "string") {
+                  urls.push(image);
+                } else {
+                  throw new Error(`Can't convert image`);
+                }
+              }
+              results[key] = urls.join("|");
+              break;
+            }
+            default:
+              throw new Error(`Wrong output type ${output.type}`);
           }
-          default:
-            throw new Error(`Wrong output type ${output.type}`);
+        } else {
+          results[key] = null;
         }
       }
     }
