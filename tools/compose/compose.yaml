@@ -9,6 +9,13 @@ volumes:
   nocodb-data:
   postgres-data:
 
+x-clickhouse-migration-base: &clickhouse-migration-base
+  image: migrate/migrate:v4.18.3
+  profiles:
+    - tools
+  volumes:
+    - ../../migrations/clickhouse:/migrations
+
 services:
   mongo:
     image: mongo:8.0
@@ -165,3 +172,19 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+
+  clickhouse-migrate:
+    <<: *clickhouse-migration-base
+    command:
+      - "-path=/migrations"
+      - "-database=clickhouse://clickhouse:9000/default?x-multi-statement=true&x-migrations-table-engine=MergeTree"
+      - "up"
+
+  clickhouse-migration-add:
+    <<: *clickhouse-migration-base
+    command:
+      - "create"
+      - "-ext=sql"
+      - "-dir=/migrations"
+      - "-seq"
+      - "${MIGRATION_NAME:-new_migration}"
