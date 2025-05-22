@@ -30,7 +30,7 @@ export const CLICKHOUSE_NATIVE_URL =
   env["CLICKHOUSE_NATIVE_URL"] || "clickhouse:9000"; // for migrations
 export const CLICKHOUSE_USER = env["CLICKHOUSE_USER"] || null;
 export const CLICKHOUSE_PASSWORD = env["CLICKHOUSE_PASSWORD"] || null;
-export const CLICKHOUSE_DB = env["CLICKHOUSE_DB"] || "default";
+export const CLICKHOUSE_DB = env["CLICKHOUSE_DB"] || "piper";
 
 export const CLAUDE_API_KEY = env["CLAUDE_API_KEY"] || "xyzXYZ";
 
