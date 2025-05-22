@@ -11,13 +11,16 @@ import {
   MONGO_URL,
 } from "consts/core";
 import "core-kit/env";
+import { createLogger } from "core-kit/packages/logger";
+
+const logger = createLogger("migration");
 
 export const migrationCommands = new Command("migrations");
 
 const clickhouseMigrations = migrationCommands.command("clickhouse");
 
 clickhouseMigrations.command("apply").action(async () => {
-  console.log("Running Clickhouse migrations");
+  logger.info("Running Clickhouse migrations");
 
   const databaseParams = [
     `database=${CLICKHOUSE_DB}`,
@@ -42,20 +45,21 @@ clickhouseMigrations.command("apply").action(async () => {
 
   exec(execCommand.join(" "), (error: any, stdout: string, stderr: string) => {
     if (error) {
-      console.error(`Error: ${error.message}`);
+      logger.error(`Error: ${error.message}`);
       process.exit(1);
     }
     if (stderr) {
-      console.error(`${stderr}`);
+      logger.info(stderr?.trim());
     }
-    console.log(`${stdout}`);
-    console.log("Clickhouse migrations applied successfully");
+    logger.info(stdout?.trim());
+    logger.info("Clickhouse migrations applied successfully");
+
     process.exit();
   });
 });
 
 clickhouseMigrations.command("add <name>").action(async (name: string) => {
-  console.log("Add Clickhouse migration");
+  logger.info("Add Clickhouse migration");
 
   const execCommand = [
     "migrate",
@@ -68,14 +72,16 @@ clickhouseMigrations.command("add <name>").action(async (name: string) => {
 
   exec(execCommand.join(" "), (error: any, stdout: string, stderr: string) => {
     if (error) {
-      console.error(`Error: ${error.message}`);
+      logger.error(`Error: ${error.message}`);
       process.exit(1);
     }
     if (stderr) {
-      console.error(`${stderr}`);
+      logger.info(stderr?.trim());
     }
-    console.log(`${stdout}`);
-    console.log("Clickhouse migration added successfully");
+
+    logger.info(stdout?.trim());
+    logger.info("Clickhouse migration added successfully");
+
     process.exit();
   });
 });
@@ -83,17 +89,7 @@ clickhouseMigrations.command("add <name>").action(async (name: string) => {
 const mongoMigrations = migrationCommands.command("mongo");
 
 mongoMigrations.command("apply").action(async () => {
-  console.log("Running Mongo migrations");
-
-  const databaseParams = [`database=${MONGO_URL}`];
-
-  if (CLICKHOUSE_USER) {
-    databaseParams.push(`username=${CLICKHOUSE_USER}`);
-  }
-
-  if (CLICKHOUSE_PASSWORD) {
-    databaseParams.push(`password=${CLICKHOUSE_PASSWORD}`);
-  }
+  logger.info("Running Mongo migrations");
 
   const execCommand = [
     "migrate",
@@ -104,20 +100,21 @@ mongoMigrations.command("apply").action(async () => {
 
   exec(execCommand.join(" "), (error: any, stdout: string, stderr: string) => {
     if (error) {
-      console.error(`Error: ${error.message}`);
+      logger.error(`Error: ${error.message}`);
       process.exit(1);
     }
     if (stderr) {
-      console.error(`${stderr}`);
+      logger.info(stderr?.trim());
     }
-    console.log(`${stdout}`);
-    console.log("Mongo migrations applied successfully");
+    logger.info(stdout?.trim());
+    logger.info("Mongo migrations applied successfully");
+
     process.exit();
   });
 });
 
 mongoMigrations.command("add <name>").action(async (name: string) => {
-  console.log("Add Mongo migration");
+  logger.info("Add Mongo migration");
 
   const execCommand = [
     "migrate",
@@ -130,14 +127,16 @@ mongoMigrations.command("add <name>").action(async (name: string) => {
 
   exec(execCommand.join(" "), (error: any, stdout: string, stderr: string) => {
     if (error) {
-      console.error(`Error: ${error.message}`);
+      logger.error(`Error: ${error.message}`);
       process.exit(1);
     }
     if (stderr) {
-      console.error(`${stderr}`);
+      logger.info(stderr?.trim());
     }
-    console.log(`${stdout}`);
-    console.log("Mongo migration added successfully");
+
+    logger.info(stdout?.trim());
+    logger.info("Mongo migration added successfully");
+
     process.exit();
   });
 });
