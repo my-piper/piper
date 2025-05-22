@@ -20,7 +20,9 @@ export const migrationCommands = new Command("migrations");
 const clickhouseMigrations = migrationCommands.command("clickhouse");
 
 clickhouseMigrations.command("apply").action(async () => {
-  logger.info("Running Clickhouse migrations");
+  logger.info(
+    `Running Clickhouse migrations [address: ${CLICKHOUSE_NATIVE_URL}, db: ${CLICKHOUSE_DB}]`
+  );
 
   const databaseParams = [
     `database=${CLICKHOUSE_DB}`,
@@ -89,7 +91,9 @@ clickhouseMigrations.command("add <name>").action(async (name: string) => {
 const mongoMigrations = migrationCommands.command("mongo");
 
 mongoMigrations.command("apply").action(async () => {
-  logger.info("Running Mongo migrations");
+  logger.info(
+    `Running Mongo migrations [address: ${MONGO_URL}, db: ${MONGO_DB}]`
+  );
 
   const execCommand = [
     "migrate",
