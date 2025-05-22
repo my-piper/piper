@@ -80,7 +80,10 @@ export async function createContext({
           merge(toPlain(deployLaunchRequest), request),
           LaunchRequest
         );
+
+        const { launchedBy } = launch;
         const { _id, url } = await run({
+          launchedBy,
           pipeline,
           launchRequest,
           environment,
