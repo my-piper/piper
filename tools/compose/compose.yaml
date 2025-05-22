@@ -9,12 +9,20 @@ volumes:
   nocodb-data:
   postgres-data:
 
-x-clickhouse-migration-base: &clickhouse-migration-base
+x-migration-base: &migration-base
   image: migrate/migrate:v4.18.3
   profiles:
     - tools
+
+x-clickhouse-migration-base: &clickhouse-migration-base
+  <<: *migration-base
   volumes:
     - ../../migrations/clickhouse:/migrations
+
+x-mongo-migration-base: &mongo-migration-base
+  <<: *migration-base
+  volumes:
+    - ../../migrations/mongo:/migrations
 
 services:
   mongo:
@@ -185,6 +193,22 @@ services:
     command:
       - "create"
       - "-ext=sql"
+      - "-dir=/migrations"
+      - "-seq"
+      - "${MIGRATION_NAME:-new_migration}"
+
+  mongo-migrate:
+    <<: *mongo-migration-base
+    command:
+      - "-path=/migrations"
+      - "-database=mongodb://mongo:27017/piper"
+      - "up"
+
+  mongo-migration-add:
+    <<: *mongo-migration-base
+    command:
+      - "create"
+      - "-ext=json"
       - "-dir=/migrations"
       - "-seq"
       - "${MIGRATION_NAME:-new_migration}"

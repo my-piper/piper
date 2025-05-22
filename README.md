@@ -96,13 +96,18 @@ make install
 make up
 ```
 
+#### Apply migrations
+
+```shell
+make mongo-migrate
+make clickhouse-migrate
+```
+
 #### Prepare configs
 
 ```shell
 cp backend/.env.template backend/.env
 ```
-
-### Apply migrations
 
 - clickhouse - from `misc/clickhouse` path
 
@@ -156,12 +161,6 @@ Read first tutorial how run create & run first pipeline!
 
 ```shell
 make schemas
-```
-
-#### Create Mongo indexes
-
-```shell
-cd backend && npm run cli mongo create
 ```
 
 #### Add admin user

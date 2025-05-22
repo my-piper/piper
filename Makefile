@@ -29,6 +29,7 @@ down:
 stop:
 	docker compose ${COMPOSE_ARGS} stop
 
+# -- clickhouse --
 clickhouse-migration-add:
 	@read -p "enter migration name (e.g. add_new_column): " migration_name; \
 	if [ -z "$$migration_name" ]; then \
@@ -45,4 +46,22 @@ clickhouse-migrate:
 		up \
 		clickhouse-migrate \
 		--exit-code-from clickhouse-migrate
+
+# -- mongo --
+mongo-migration-add:
+	@read -p "enter migration name (e.g. add_new_column): " migration_name; \
+	if [ -z "$$migration_name" ]; then \
+		echo "Migration name is required!"; \
+		exit 1; \
+	fi; \
+	MIGRATION_NAME="$$migration_name" docker compose ${COMPOSE_ARGS} \
+		up \
+		mongo-migration-add \
+		--exit-code-from mongo-migration-add 
+ 
+mongo-migrate:
+	docker compose ${COMPOSE_ARGS} \
+		up \
+		mongo-migrate \
+		--exit-code-from mongo-migrate
  
