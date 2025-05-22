@@ -57,41 +57,6 @@ commander.version("1.0.0").description("Piper CLI");
 }
 
 {
-  const commands = new Command("mongo");
-
-  commands.command("create").action(async () => {
-    console.log("Create indexes in mongo");
-    try {
-      await mongo.users.createIndexes([{ key: { email: 1 }, unique: true }]);
-      await mongo.projects.createIndex(
-        { slug: 1 },
-        { unique: true, partialFilterExpression: { slug: { $exists: true } } }
-      );
-    } catch (e) {
-      if (e.code === 11000) {
-        // skip
-      } else {
-        throw e;
-      }
-    }
-
-    console.log("Done 😮");
-    process.exit();
-  });
-
-  commands.command("state").action(async () => {
-    console.log("Indexes in mongo");
-    console.log(await mongo.users.indexes());
-    console.log(await mongo.projects.indexes());
-
-    console.log("Done 😮");
-    process.exit();
-  });
-
-  commander.addCommand(commands);
-}
-
-{
   const commands = new Command("users");
 
   commands
