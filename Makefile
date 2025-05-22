@@ -36,16 +36,10 @@ clickhouse-migration-add:
 		echo "Migration name is required!"; \
 		exit 1; \
 	fi; \
-	MIGRATION_NAME="$$migration_name" docker compose ${COMPOSE_ARGS} \
-		up \
-		clickhouse-migration-add \
-		--exit-code-from clickhouse-migration-add 
+	npm run --prefix ./backend cli migrations clickhouse add $$migration_name 
  
 clickhouse-migrate:
-	docker compose ${COMPOSE_ARGS} \
-		up \
-		clickhouse-migrate \
-		--exit-code-from clickhouse-migrate
+	npm run --prefix ./backend cli migrations clickhouse apply
 
 # -- mongo --
 mongo-migration-add:
@@ -54,14 +48,7 @@ mongo-migration-add:
 		echo "Migration name is required!"; \
 		exit 1; \
 	fi; \
-	MIGRATION_NAME="$$migration_name" docker compose ${COMPOSE_ARGS} \
-		up \
-		mongo-migration-add \
-		--exit-code-from mongo-migration-add 
+	npm run --prefix ./backend cli migrations mongo add $$migration_name 
  
 mongo-migrate:
-	docker compose ${COMPOSE_ARGS} \
-		up \
-		mongo-migrate \
-		--exit-code-from mongo-migrate
- 
+	npm run --prefix ./backend cli migrations mongo apply

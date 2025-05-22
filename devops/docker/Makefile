@@ -61,3 +61,11 @@ metrics:
 .PHONY: sockets 
 sockets:
 	npm run sockets
+
+.PHONY: clickhouse-migrate 
+clickhouse-migrate:
+	npm run cli migrations clickhouse apply
+
+.PHONY: mongo-migrate 
+mongo-migrate:
+	npm run cli migrations mongo apply

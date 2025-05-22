@@ -33,6 +33,7 @@ RUN npm --prefix ./backend ci \
 
 COPY ./backend ./backend
 COPY ./frontend ./frontend
+COPY ./migrations ./migrations
 COPY ./devops/docker/Makefile ./backend/Makefile
 
 RUN npm --prefix ./frontend run build

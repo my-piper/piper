@@ -75,6 +75,7 @@ Here's your improved version:
 - Docker Desktop 🐳
 - Node.js 22
 - VS code or alternative IDE
+- [golang-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 
 ### Setup
 
@@ -96,20 +97,18 @@ make install
 make up
 ```
 
-#### Apply migrations
-
-```shell
-make mongo-migrate
-make clickhouse-migrate
-```
-
 #### Prepare configs
 
 ```shell
 cp backend/.env.template backend/.env
 ```
 
-- clickhouse - from `misc/clickhouse` path
+#### Apply migrations
+
+```shell
+make mongo-migrate
+make clickhouse-migrate
+```
 
 ### Start services
 

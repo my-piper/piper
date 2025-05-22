@@ -1,11 +1,11 @@
 import { createLogger } from "core-kit/packages/logger";
 import { MongoClient } from "mongodb";
-import { MONGO_URL } from "../consts/core";
+import { MONGO_DB, MONGO_URL } from "../consts/core";
 
 const logger = createLogger("mongo");
 
 const mongo = new MongoClient(MONGO_URL);
-const db = mongo.db("piper");
+const db = mongo.db(MONGO_DB);
 
 logger.debug("Connect to mongo");
 mongo.connect();

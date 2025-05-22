@@ -9,21 +9,6 @@ volumes:
   nocodb-data:
   postgres-data:
 
-x-migration-base: &migration-base
-  image: migrate/migrate:v4.18.3
-  profiles:
-    - tools
-
-x-clickhouse-migration-base: &clickhouse-migration-base
-  <<: *migration-base
-  volumes:
-    - ../../migrations/clickhouse:/migrations
-
-x-mongo-migration-base: &mongo-migration-base
-  <<: *migration-base
-  volumes:
-    - ../../migrations/mongo:/migrations
-
 services:
   mongo:
     image: mongo:8.0
@@ -77,6 +62,8 @@ services:
     ports:
       - "8123:8123"
       - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: piper
     volumes:
       - clickhouse-data:/var/lib/clickhouse
       - clickhouse-logs:/val/log/clickhouse-server
@@ -180,35 +167,3 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
-
-  clickhouse-migrate:
-    <<: *clickhouse-migration-base
-    command:
-      - "-path=/migrations"
-      - "-database=clickhouse://clickhouse:9000/default?x-multi-statement=true&x-migrations-table-engine=MergeTree"
-      - "up"
-
-  clickhouse-migration-add:
-    <<: *clickhouse-migration-base
-    command:
-      - "create"
-      - "-ext=sql"
-      - "-dir=/migrations"
-      - "-seq"
-      - "${MIGRATION_NAME:-new_migration}"
-
-  mongo-migrate:
-    <<: *mongo-migration-base
-    command:
-      - "-path=/migrations"
-      - "-database=mongodb://mongo:27017/piper"
-      - "up"
-
-  mongo-migration-add:
-    <<: *mongo-migration-base
-    command:
-      - "create"
-      - "-ext=json"
-      - "-dir=/migrations"
-      - "-seq"
-      - "${MIGRATION_NAME:-new_migration}"

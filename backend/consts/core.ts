@@ -11,6 +11,7 @@ export const NODE_ENV: EnvMode = <EnvMode>env["NODE_ENV"] || "production";
 export const TMP_PATH = env["TMP_PATH"] || "../tmp";
 
 export const MONGO_URL = env["MONGO_URL"] || "mongodb://mongo:27017";
+export const MONGO_DB = env["MONGO_DB"] || "piper";
 export const BASE_URL = env["BASE_URL"] || "http://localhost";
 
 export const STORAGE_ROOT = env["STORAGE_ROOT"] || "/app/storage";
@@ -25,6 +26,8 @@ export const KAFKA_APP = "piper-app";
 export const KAFKA_BROKERS = [env["KAFKA_BROKER"] || "kafka:9092"];
 
 export const CLICKHOUSE_URL = env["CLICKHOUSE_URL"] || "http://clickhouse:8123";
+export const CLICKHOUSE_NATIVE_URL =
+  env["CLICKHOUSE_NATIVE_URL"] || "clickhouse:9000"; // for migrations
 export const CLICKHOUSE_USER = env["CLICKHOUSE_USER"] || null;
 export const CLICKHOUSE_PASSWORD = env["CLICKHOUSE_PASSWORD"] || null;
 export const CLICKHOUSE_DB = env["CLICKHOUSE_DB"] || "default";
