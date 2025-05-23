@@ -1,7 +1,5 @@
-import "reflect-metadata";
-
+import cli, { Command } from "app/cli";
 import { exec } from "child_process";
-import { Command } from "commander";
 import {
   CLICKHOUSE_DB,
   CLICKHOUSE_NATIVE_URL,
@@ -12,135 +10,105 @@ import {
 } from "consts/core";
 import "core-kit/env";
 import { createLogger } from "core-kit/packages/logger";
+import qs from "qs";
+import { promisify } from "util";
+const run = promisify(exec);
 
 const logger = createLogger("migration");
 
-export const migrationCommands = new Command("migrations");
+async function runInShell(cmd: string[]) {
+  try {
+    const { stdout, stderr } = await run(cmd.join(" "));
+    const err = stderr?.trim();
+    if (!!err) {
+      logger.info(err);
+    }
 
-const clickhouseMigrations = migrationCommands.command("clickhouse");
-
-clickhouseMigrations.command("apply").action(async () => {
-  logger.info(
-    `Running Clickhouse migrations [address: ${CLICKHOUSE_NATIVE_URL}, db: ${CLICKHOUSE_DB}]`
-  );
-
-  const databaseParams = [
-    `database=${CLICKHOUSE_DB}`,
-    "x-multi-statement=true",
-    "x-migrations-table-engine=MergeTree",
-  ];
-
-  if (CLICKHOUSE_USER) {
-    databaseParams.push(`username=${CLICKHOUSE_USER}`);
+    const out = stdout?.trim();
+    if (!!out) {
+      logger.info(out);
+    }
+  } catch (error: any) {
+    logger.error(error);
+    process.exit(1);
   }
+}
 
-  if (CLICKHOUSE_PASSWORD) {
-    databaseParams.push(`password=${CLICKHOUSE_PASSWORD}`);
-  }
+export const migrations = new Command("migrations");
 
-  const execCommand = [
-    "migrate",
-    "-path=../migrations/clickhouse",
-    `-database="clickhouse://${CLICKHOUSE_NATIVE_URL}?${databaseParams.join("&")}"`,
-    "up",
-  ];
+{
+  const commands = migrations.command("clickhouse");
 
-  exec(execCommand.join(" "), (error: any, stdout: string, stderr: string) => {
-    if (error) {
-      logger.error(`Error: ${error.message}`);
-      process.exit(1);
-    }
-    if (stderr) {
-      logger.info(stderr?.trim());
-    }
-    logger.info(stdout?.trim());
-    logger.info("Clickhouse migrations applied successfully");
+  commands.command("apply").action(async () => {
+    logger.info(
+      `Apply ClickHouse migrations to ${CLICKHOUSE_NATIVE_URL}/${CLICKHOUSE_DB}]`
+    );
 
+    const connection = qs.stringify({
+      database: CLICKHOUSE_DB,
+      "x-multi-statement": true,
+      "x-migrations-table-engine": "MergeTree",
+      ...(CLICKHOUSE_USER && { username: CLICKHOUSE_USER }),
+      ...(CLICKHOUSE_PASSWORD && { password: CLICKHOUSE_PASSWORD }),
+    });
+    const database = `clickhouse://${CLICKHOUSE_NATIVE_URL}?${connection}`;
+
+    await runInShell([
+      "migrate",
+      "-path=../migrations/clickhouse",
+      `-database="${database}"`,
+      "up",
+    ]);
+    logger.info("✅ Done");
     process.exit();
   });
-});
 
-clickhouseMigrations.command("add <name>").action(async (name: string) => {
-  logger.info("Add Clickhouse migration");
+  commands.command("add <name>").action(async (name: string) => {
+    logger.info("Add Clickhouse migration");
 
-  const execCommand = [
-    "migrate",
-    "create",
-    "-ext=sql",
-    "-dir=../migrations/clickhouse",
-    "-seq",
-    name,
-  ];
-
-  exec(execCommand.join(" "), (error: any, stdout: string, stderr: string) => {
-    if (error) {
-      logger.error(`Error: ${error.message}`);
-      process.exit(1);
-    }
-    if (stderr) {
-      logger.info(stderr?.trim());
-    }
-
-    logger.info(stdout?.trim());
-    logger.info("Clickhouse migration added successfully");
-
+    await runInShell([
+      "migrate",
+      "create",
+      "-ext=sql",
+      "-dir=../migrations/clickhouse",
+      "-seq",
+      name,
+    ]);
+    logger.info("✅ Done");
     process.exit();
   });
-});
+}
 
-const mongoMigrations = migrationCommands.command("mongo");
+{
+  const commands = migrations.command("mongo");
 
-mongoMigrations.command("apply").action(async () => {
-  logger.info(
-    `Running Mongo migrations [address: ${MONGO_URL}, db: ${MONGO_DB}]`
-  );
+  commands.command("apply").action(async () => {
+    logger.info(`Apply Mongo migrations to ${MONGO_URL}/${MONGO_DB}]`);
 
-  const execCommand = [
-    "migrate",
-    "-path=../migrations/mongo",
-    `-database=${MONGO_URL}/${MONGO_DB}`,
-    "up",
-  ];
-
-  exec(execCommand.join(" "), (error: any, stdout: string, stderr: string) => {
-    if (error) {
-      logger.error(`Error: ${error.message}`);
-      process.exit(1);
-    }
-    if (stderr) {
-      logger.info(stderr?.trim());
-    }
-    logger.info(stdout?.trim());
-    logger.info("Mongo migrations applied successfully");
-
+    await runInShell([
+      "migrate",
+      "-path=../migrations/mongo",
+      `-database=${MONGO_URL}/${MONGO_DB}`,
+      "up",
+    ]);
+    logger.info("✅ Done");
     process.exit();
   });
-});
 
-mongoMigrations.command("add <name>").action(async (name: string) => {
-  logger.info("Add Mongo migration");
+  commands.command("add <name>").action(async (name: string) => {
+    logger.info("Add Mongo migration");
 
-  const execCommand = [
-    "migrate",
-    "create",
-    "-ext=json",
-    "-dir=../migrations/mongo",
-    "-seq",
-    name,
-  ];
-
-  exec(execCommand.join(" "), (error: any, stdout: string, stderr: string) => {
-    if (error) {
-      logger.error(`Error: ${error.message}`);
-      process.exit(1);
-    }
-    if (stderr) {
-      logger.info(stderr?.trim());
-    }
-
-    logger.info(stdout?.trim());
-    logger.info("Mongo migration added successfully");
-
+    await runInShell([
+      "migrate",
+      "create",
+      "-ext=json",
+      "-dir=../migrations/mongo",
+      "-seq",
+      name,
+    ]);
+    logger.info("✅ Done");
     process.exit();
   });
-});
+}
+
+cli.addCommand(migrations);
