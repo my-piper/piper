@@ -30,7 +30,7 @@ stop:
 	docker compose ${COMPOSE_ARGS} stop
 
 # -- clickhouse --
-clickhouse-migration-add:
+clickhouse-migrate-add:
 	@read -p "enter migration name (e.g. add_new_column): " migration_name; \
 	if [ -z "$$migration_name" ]; then \
 		echo "Migration name is required!"; \
@@ -42,7 +42,7 @@ clickhouse-migrate:
 	npm run --prefix ./backend cli migrations clickhouse apply
 
 # -- mongo --
-mongo-migration-add:
+mongo-migrate-add:
 	@read -p "enter migration name (e.g. add_new_column): " migration_name; \
 	if [ -z "$$migration_name" ]; then \
 		echo "Migration name is required!"; \
