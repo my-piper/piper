@@ -1,9 +1,9 @@
+import "core-kit/env";
 import "reflect-metadata";
 
 import { migrationCommands } from "cli/migrations";
 import { Command } from "commander";
 import { RELOAD_WORKER_CHANNEL } from "consts/signals";
-import "core-kit/env";
 import redis from "core-kit/packages/redis";
 import { toPlain } from "core-kit/packages/transform";
 import { writeFile } from "fs/promises";
