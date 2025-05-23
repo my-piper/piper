@@ -1,0 +1,16 @@
+[
+  {
+    "createIndexes": "projects",
+    "indexes": [
+      {
+        "name": "slug_asc",
+        "key": {
+          "slug": 1
+        },
+        "background": true,
+        "unique": true,
+        "partialFilterExpression": { "slug": { "$exists": true } }
+      }
+    ]
+  }
+]

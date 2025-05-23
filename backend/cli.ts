@@ -1,6 +1,7 @@
 import "core-kit/env";
 import "reflect-metadata";
 
+import { migrationCommands } from "cli/migrations";
 import { Command } from "commander";
 import { RELOAD_WORKER_CHANNEL } from "consts/signals";
 import redis from "core-kit/packages/redis";
@@ -50,41 +51,6 @@ commander.version("1.0.0").description("Piper CLI");
       )
     );
 
-    process.exit();
-  });
-
-  commander.addCommand(commands);
-}
-
-{
-  const commands = new Command("mongo");
-
-  commands.command("create").action(async () => {
-    console.log("Create indexes in mongo");
-    try {
-      await mongo.users.createIndexes([{ key: { email: 1 }, unique: true }]);
-      await mongo.projects.createIndex(
-        { slug: 1 },
-        { unique: true, partialFilterExpression: { slug: { $exists: true } } }
-      );
-    } catch (e) {
-      if (e.code === 11000) {
-        // skip
-      } else {
-        throw e;
-      }
-    }
-
-    console.log("Done 😮");
-    process.exit();
-  });
-
-  commands.command("state").action(async () => {
-    console.log("Indexes in mongo");
-    console.log(await mongo.users.indexes());
-    console.log(await mongo.projects.indexes());
-
-    console.log("Done 😮");
     process.exit();
   });
 
@@ -244,5 +210,7 @@ commander
 
   commander.addCommand(commands);
 }
+
+commander.addCommand(migrationCommands);
 
 commander.parse(process.argv);

@@ -1,0 +1,15 @@
+[
+  {
+    "createIndexes": "users",
+    "indexes": [
+      {
+        "name": "email_asc",
+        "key": {
+          "email": 1
+        },
+        "background": true,
+        "unique": true
+      }
+    ]
+  }
+]
