@@ -40,8 +40,7 @@ jobs:
         with:
           context: .
           file: devops/docker/Dockerfile
-          # push: ${{ github.ref == 'refs/heads/main' }}
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:_buildcache

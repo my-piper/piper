@@ -2,7 +2,7 @@
 export
 
 export COMPOSE_PROJECT_NAME=piper
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
+# export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 COMPOSE_ARGS=-f tools/compose/compose.yaml
 
