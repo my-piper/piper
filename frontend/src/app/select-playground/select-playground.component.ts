@@ -43,15 +43,15 @@ export class SelectPlaygroundComponent {
   selected = new EventEmitter<Project>();
 
   @Input()
-  set tags(tags: string[]) {
-    this.tagsControl.setValue(tags);
+  set tag(tag: string) {
+    this.tagControl.setValue(tag);
   }
 
   categoryControl = this.fb.control<string>(null);
-  tagsControl = this.fb.control<string[]>([]);
+  tagControl = this.fb.control<string>(null);
   form = this.fb.group({
     category: this.categoryControl,
-    tags: this.tagsControl,
+    tag: this.tagControl,
   });
 
   constructor(

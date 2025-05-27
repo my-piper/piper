@@ -20,7 +20,7 @@ export class SelectPlaygroundPageComponent implements OnInit {
     organizing: false,
   };
 
-  tags: string[] = [];
+  tag!: string;
 
   references: { popover: PopoverComponent } = { popover: null };
 
@@ -32,9 +32,7 @@ export class SelectPlaygroundPageComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ tags }) => {
-      this.tags = tags;
-    });
+    this.route.data.subscribe(({ tag }) => (this.tag = tag));
   }
 
   organize() {

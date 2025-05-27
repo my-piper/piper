@@ -110,7 +110,7 @@ export class ProjectsFilter {
 
   @Expose()
   @Type(() => String)
-  tags?: string[];
+  tag?: string;
 
   @Expose()
   @Type(() => String)

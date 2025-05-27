@@ -3,7 +3,7 @@
     <button
       *ngFor="let c of categories"
       formControlName="category"
-      [appSelectable]="{ value: c._id }"
+      [appSelectable]="{ value: c._id, group: 'category' }"
     >
       <app-icon [icon]="c.icon"></app-icon>
       {{ c.title | i18n }}
@@ -14,8 +14,8 @@
   <fieldset *ngIf="allTags.length > 0" class="tags">
     <button
       *ngFor="let t of allTags"
-      formControlName="tags"
-      [appSelectable]="{ value: t, mode: 'multiple' }"
+      formControlName="tag"
+      [appSelectable]="{ value: t, group: 'tags' }"
     >
       #{{ t }}
     </button>
@@ -26,7 +26,7 @@
   <ng-template #emptyTemplate>
     <p i18n="@@message.nothing_found">Nothing found.</p>
   </ng-template>
-  <ng-container *ngIf="progress.loading; else emptyTemplate">
+  <ng-container *ngIf="progress.loading.projects; else emptyTemplate">
     <app-skeleton type="cards" [cols]="3"></app-skeleton>
   </ng-container>
 </ng-template>

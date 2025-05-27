@@ -15,7 +15,7 @@ api.get(
     const filter = toInstance(query, ProjectsFilter);
     await validate(filter);
 
-    const { visibility, category, tags, cursor, sort } = filter;
+    const { visibility, category, tag, cursor, sort } = filter;
 
     return await mongo.projects
       .find(
@@ -23,11 +23,11 @@ api.get(
           ...(!!visibility ? { visibility } : {}),
           ...(!!category ? { "category._id": category } : {}),
           ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
-          ...(tags?.length > 0
+          ...(!!tag
             ? await (async () => {
                 const ids = await mongo.projectTags
                   .aggregate([
-                    { $match: { tag: { $in: tags } } },
+                    { $match: { tag } },
                     { $group: { _id: "$project" } },
                     { $project: { project: "$_id", _id: 0 } },
                   ])

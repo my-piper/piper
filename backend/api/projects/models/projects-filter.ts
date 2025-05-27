@@ -3,12 +3,10 @@ import {
   IsEnum,
   IsOptional,
   Matches,
-  Transform,
   Type,
 } from "core-kit/packages/transform";
 import { ProjectVisibility } from "enums/project-visibility";
 import assign from "lodash/assign";
-import { arrayTransformer } from "transformers/array";
 
 export class ProjectsFilter {
   @IsOptional()
@@ -24,8 +22,8 @@ export class ProjectsFilter {
 
   @IsOptional()
   @Expose()
-  @Transform(arrayTransformer<string>())
-  tags: string[];
+  @Type(() => String)
+  tag: string;
 
   @IsOptional()
   @Matches(/^[A-Za-z0-9]{26}$/)

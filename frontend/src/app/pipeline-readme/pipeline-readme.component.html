@@ -1,8 +1,6 @@
 <ul class="tags" *ngIf="project.pipeline.tags as tags">
   <li *ngFor="let t of tags">
-    <a *ngIf="t | i18n as tag" [routerLink]="['../..', { tags: tag }]"
-      >#{{ tag }}</a
-    >
+    <a *ngIf="t | i18n as tag" [routerLink]="['../..', { tag }]">#{{ tag }}</a>
   </li>
 </ul>
 
