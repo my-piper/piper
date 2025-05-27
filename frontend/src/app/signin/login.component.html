@@ -65,12 +65,23 @@
       </footer>
     </form>
 
-    <div class="stack vertical align-center">
+    <div
+      *ngIf="config.ui.features | includes: 'signup'"
+      class="stack vertical align-center"
+    >
       <div class="stack horizontal small align-center">
-        <a class="button circle light" href="/oauth/google">
+        <a
+          *ngIf="config.ui.features | includes: 'google_auth'"
+          class="button circle light"
+          href="/oauth/google"
+        >
           <app-icon class="icon" icon="google"></app-icon>
         </a>
-        <a class="button circle light" href="/oauth/yandex">
+        <a
+          *ngIf="config.ui.features | includes: 'yandex_auth'"
+          class="button circle light"
+          href="/oauth/yandex"
+        >
           <app-icon class="icon" icon="yandex"></app-icon>
         </a>
       </div>

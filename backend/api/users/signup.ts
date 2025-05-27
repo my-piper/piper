@@ -2,6 +2,7 @@ import api from "app/api";
 import mongo from "app/mongo";
 import bcrypt from "bcrypt";
 import { INITIAL_USER_BALANCE } from "consts/billing";
+import { ALLOW_SIGNUP } from "consts/ui";
 import { getLabel } from "core-kit/packages/i18n";
 import { sendEmail } from "core-kit/packages/mailer";
 import { handlebars, markdown } from "core-kit/packages/templates";
@@ -21,6 +22,10 @@ import { SignupRequest } from "./models/signup-request";
 api.post(
   "/api/signup",
   handle(({ language }) => async ({ body }) => {
+    if (!ALLOW_SIGNUP) {
+      throw new DataError("Signup has been disabled");
+    }
+
     const request = toInstance(body as Object, SignupRequest);
     await validate(request);
 

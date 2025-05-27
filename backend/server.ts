@@ -31,8 +31,9 @@ import "./api/utils";
 
 import "./api/deploys";
 
+import { ALLOW_SIGNUP, APP_FOOTER, GOOGLE_AUTH, YANDEX_AUTH } from "consts/ui";
 import { ALL_LANGUAGES } from "core-kit/packages/locale";
-import { APP_FOOTER, BASE_URL, FRONTEND_ROOT, SITE_URL } from "./consts/core";
+import { BASE_URL, FRONTEND_ROOT, SITE_URL } from "./consts/core";
 import { NO_CACHE_HEADERS, SCP_HEADERS } from "./consts/http";
 import { AppConfig } from "./models/app-config";
 import { handle } from "./utils/http";
@@ -85,9 +86,16 @@ api.get(
           billing: {
             url: BILLING_URL,
           },
+          ui: {
+            features: [
+              ...(ALLOW_SIGNUP ? "signup" : []),
+              ...(GOOGLE_AUTH ? "google_auth" : []),
+              ...(YANDEX_AUTH ? "yandex_auth" : []),
+            ],
+            appFooter: APP_FOOTER,
+          },
           baseUrl: BASE_URL,
           siteUrl: SITE_URL,
-          appFooter: APP_FOOTER,
         },
       },
       Prerender

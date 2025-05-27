@@ -36,9 +36,9 @@ export class LoginComponent implements OnInit {
   });
 
   constructor(
+    public config: AppConfig,
     private fb: FormBuilder,
     private http: HttpService,
-    private config: AppConfig,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {}

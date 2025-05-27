@@ -36,6 +36,9 @@ export function appConfigFactory(): AppConfig {
       billing: {
         url: "https://google.com",
       },
+      ui: {
+        features: ["signup", "google_auth", "yandex_auth"],
+      },
       baseUrl: location.origin,
       appFooter: "<div>Pipelines builder 2025</div>",
     }

@@ -1,6 +1,4 @@
 import env from "core-kit/env";
-
-import axios from "axios";
 import path from "path";
 
 export const MODULES_PATH = path.join(process.cwd(), "..", "packages");
@@ -37,16 +35,3 @@ export const CLAUDE_API_KEY = env["CLAUDE_API_KEY"] || "xyzXYZ";
 export const HIDDEN_STRING = "[hidden]";
 export const MASTER_KEY = env["MASTER_KEY"] || "xyzXYZ";
 export const SITE_URL = env["SITE_URL"] || "/";
-
-export const APP_FOOTER =
-  (await (async () => {
-    const footer = env["APP_FOOTER"];
-    if (!!footer) {
-      if (/^http/.test(footer)) {
-        const { data } = await axios(footer);
-        return data;
-      }
-      return footer;
-    }
-    return null;
-  })()) || "<div>Pipelines builder 2025</div>";

@@ -5,6 +5,20 @@ import { AUTHORIZATION_KEY } from "src/consts/core";
 import { toPlain } from "src/utils/models";
 import { Authorization } from "./authorisation";
 
+export class UiConfig {
+  @Expose()
+  @Type(() => String)
+  features?: ("signup" | "google_auth" | "yandex_auth")[];
+
+  @Expose()
+  @Type(() => String)
+  appFooter?: string;
+
+  constructor(defs: Partial<UiConfig> = {}) {
+    assign(this, defs);
+  }
+}
+
 export class BillingConfig {
   @Expose()
   @Type(() => String)
@@ -21,16 +35,16 @@ export class AppConfig {
   billing?: BillingConfig;
 
   @Expose()
+  @Type(() => BillingConfig)
+  ui?: UiConfig;
+
+  @Expose()
   @Type(() => String)
   baseUrl?: string;
 
   @Expose()
   @Type(() => String)
   siteUrl?: string;
-
-  @Expose()
-  @Type(() => String)
-  appFooter?: string;
 
   authorization$ = new BehaviorSubject<Authorization | null>(
     (() => {
