@@ -6,14 +6,17 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 import first from "lodash/first";
-import { delay, finalize, map } from "rxjs";
+import { debounceTime, delay, finalize, map } from "rxjs";
 import { Asset, AssetsFilter } from "src/models/assets";
 import { AssetImportedSignal } from "src/models/signals/asset";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/ui-kit/consts";
-import { toInstance, toPlain } from "src/utils/models";
+import { PopoverComponent } from "src/ui-kit/popover/popover.component";
+import { valuable } from "src/utils/assign";
+import { mapTo, toInstance, toPlain } from "src/utils/models";
 
 @Component({
   selector: "app-assets",
@@ -46,14 +49,23 @@ export class AssetsComponent implements OnInit {
     return this._filter;
   }
 
+  folders: string[] = [];
   assets: Asset[] = [];
+  references: { popover: PopoverComponent } = { popover: null };
 
   @Output()
   selected = new EventEmitter<Asset>();
 
+  folderNameControl = this.fb.control<string>(null);
+  folderControl = this.fb.control<string>(null);
+  form = this.fb.group({
+    folder: this.folderControl,
+  });
+
   constructor(
     private http: HttpService,
     private signals: SignalsService,
+    private fb: FormBuilder,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -66,15 +78,64 @@ export class AssetsComponent implements OnInit {
       }
     });
 
-    this.load();
+    this.form.valueChanges
+      .pipe(debounceTime(1000))
+      .subscribe(() => this.loadAssets());
+
+    this.loadFolders();
+    this.loadAssets();
   }
 
-  private load() {
+  filterFolder(folder: string) {
+    this.form.patchValue({ folder }, { emitEvent: false });
+    this.loadAssets();
+
+    this.references.popover?.hide();
+  }
+
+  clearFilter() {
+    this.form.patchValue({ folder: null }, { emitEvent: false });
+    this.loadAssets();
+  }
+
+  private loadFolders() {
+    const filter = mapTo(
+      {
+        ...this.filter,
+        ...this.form.getRawValue(),
+      },
+      AssetsFilter
+    );
+
+    this.http
+      .get("assets/folders", valuable(toPlain(filter)))
+      .pipe(
+        delay(UI_DELAY),
+        map((arr) => arr as string[])
+      )
+      .subscribe({
+        next: (folders) => {
+          this.folders = folders;
+          this.cd.detectChanges();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
+
+  private loadAssets() {
     this.progress.loading = true;
     this.cd.detectChanges();
 
+    const filter = mapTo(
+      {
+        ...this.filter,
+        ...this.form.getRawValue(),
+      },
+      AssetsFilter
+    );
+
     this.http
-      .get("assets", toPlain(this.filter))
+      .get("assets", valuable(toPlain(filter)))
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
@@ -99,6 +160,10 @@ export class AssetsComponent implements OnInit {
     const t = target as HTMLInputElement;
     const file = first(t.files);
     let formData = new FormData();
+    const { folder } = this.form.getRawValue();
+    if (!!folder) {
+      formData.append("folder", folder);
+    }
     formData.append("file", file);
 
     this.http

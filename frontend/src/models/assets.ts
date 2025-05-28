@@ -13,6 +13,10 @@ export class AssetsFilter {
 
   @Expose()
   @Type(() => String)
+  folder?: string;
+
+  @Expose()
+  @Type(() => String)
   type?: string;
 
   constructor(defs: Partial<AssetsFilter> = {}) {
@@ -32,6 +36,10 @@ export class Asset {
   @Expose()
   @Type(() => User)
   createdBy!: User;
+
+  @Expose()
+  @Type(() => String)
+  folder!: string;
 
   @Expose()
   @Type(() => String)

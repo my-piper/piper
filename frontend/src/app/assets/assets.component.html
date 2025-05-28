@@ -15,7 +15,38 @@
   </div>
 </ng-template>
 
-<ul class="assets">
+<ng-template #foldersPopover>
+  <div class="folders">
+    <a
+      class="default"
+      *ngFor="let folder of folders"
+      (click)="filterFolder(folder)"
+    >
+      {{ folder }}
+    </a>
+  </div>
+</ng-template>
+
+<form [formGroup]="form">
+  <fieldset class="stack horizontal small align-center">
+    <button
+      class="circle"
+      type="button"
+      [disabled]="folders.length <= 0"
+      [appPopover]="{ content: foldersPopover, trigger: 'click' }"
+      (attached)="references.popover = $event"
+    >
+      <app-icon class="icon" icon="menu"></app-icon>
+    </button>
+    <input
+      class="input-primary"
+      formControlName="folder"
+      placeholder="Folder name"
+    />
+  </fieldset>
+</form>
+
+<ul class="assets" [class.busy-block]="progress.loading">
   <li class="upload" [class.busy-block]="progress.uploading">
     <input type="file" (change)="upload($event)" />
     <button>
@@ -24,6 +55,12 @@
   </li>
   <ng-container *ngIf="assets.length > 0; else loadingTemplate">
     <li *ngFor="let asset of assets">
+      <a
+        class="folder"
+        *ngIf="asset.folder as folder"
+        (click)="filterFolder(folder)"
+        >{{ folder }}</a
+      >
       <div class="actions">
         <button
           class="circle small faded"

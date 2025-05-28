@@ -27,7 +27,13 @@ export function valuable<T extends Record<string, any>>(object: T): Partial<T> {
   const dst: Partial<T> = {};
   for (const [k, v] of Object.entries(object)) {
     if (v !== undefined && v !== null) {
-      dst[k as keyof T] = v;
+      if (typeof v === "string") {
+        if (v.length > 0) {
+          dst[k as keyof T] = v as any;
+        }
+      } else {
+        dst[k as keyof T] = v;
+      }
     }
   }
   return dst;

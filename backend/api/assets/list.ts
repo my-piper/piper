@@ -13,7 +13,7 @@ api.get(
     const filter = toInstance(query, AssetsFilter);
     await validate(filter);
 
-    const { type, project } = filter;
+    const { folder, type, project } = filter;
 
     return await mongo.assets
       .find({
@@ -22,6 +22,7 @@ api.get(
             ? {}
             : { "createdBy._id": currentUser._id };
         })(),
+        ...(() => (!!folder ? { folder } : {}))(),
         ...(() => (!!type ? { type } : {}))(),
         ...(() => (!!project ? { "project._id": project } : {}))(),
       })

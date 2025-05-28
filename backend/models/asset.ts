@@ -27,6 +27,10 @@ export class Asset {
 
   @Expose()
   @Type(() => String)
+  folder!: string;
+
+  @Expose()
+  @Type(() => String)
   type!: string;
 
   @Expose()

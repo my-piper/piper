@@ -13,45 +13,38 @@ async function upload(
   fileName: string | null = null,
   bucket: string | null = null
 ): Promise<string> {
-  const createdAt = new Date();
-  const [y, m, d] = [
-    format(createdAt, "yyyy"),
-    format(createdAt, "MM"),
-    format(createdAt, "dd"),
-  ];
+  return s3.upload(fileName, data, bucket);
+}
 
-  const key = [[y, m, d].join("-"), fileName].join("_");
-  return s3.upload(key, data, bucket);
+async function getKey(data: Buffer, fileName: string | null = null) {
+  return !!fileName
+    ? (() => {
+        const createdAt = new Date();
+        const [y, m, d] = [
+          format(createdAt, "yyyy"),
+          format(createdAt, "MM"),
+          format(createdAt, "dd"),
+        ];
+        return [[y, m, d].join("-"), fileName].join("_");
+      })()
+    : await (async () => {
+        const { ext } = await fileTypeFromBuffer(data);
+        return `${sid()}.${ext}`;
+      })();
 }
 
 export async function artefact(
   data: Buffer,
   fileName: string | null = null
 ): Promise<string> {
-  return upload(
-    data,
-    fileName ||
-      (await (async () => {
-        const { ext } = await fileTypeFromBuffer(data);
-        return `${sid()}.${ext}`;
-      })()),
-    ARTEFACTS_BUCKET_NAME
-  );
+  return upload(data, await getKey(data, fileName), ARTEFACTS_BUCKET_NAME);
 }
 
 export async function output(
   data: Buffer,
   fileName: string | null = null
 ): Promise<string> {
-  return upload(
-    data,
-    fileName ||
-      (await (async () => {
-        const { ext } = await fileTypeFromBuffer(data);
-        return `${sid()}.${ext}`;
-      })()),
-    LAUNCHES_BUCKET_NAME
-  );
+  return upload(data, await getKey(data, fileName), LAUNCHES_BUCKET_NAME);
 }
 
 export async function asset(

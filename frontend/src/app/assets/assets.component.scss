@@ -3,6 +3,7 @@
 
 :host {
   display: block;
+  @include vertical-stack();
 }
 
 :host-context(.ui-modal) {
@@ -12,7 +13,9 @@
     li {
       padding: 0;
       height: 80px;
+      position: relative;
 
+      .folder,
       .actions {
         display: none;
       }
@@ -37,6 +40,13 @@
   }
 }
 
+.folders {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 200px;
+  gap: $gutter-normal;
+}
+
 .assets {
   display: flex;
   gap: $gutter-small;
@@ -54,6 +64,18 @@
     border-radius: 5px;
     padding: $gutter-small;
     height: 160px;
+
+    .folder {
+      position: absolute;
+      bottom: $gutter-normal;
+      left: $gutter-normal;
+      font-size: .75em;
+      color: $primary-dark-color;
+      padding: $gutter-tiny;
+      background: rgba(white, .75);
+      border-radius: $gutter-tiny;
+      line-height: 1em;
+    }
 
     .actions {
       @include horizontal-stack($gutter-tiny);

@@ -8,6 +8,12 @@ import {
 import assign from "lodash/assign";
 
 export class AssetsFilter {
+  @Matches(/^[a-z0-9\-]{5,30}$/)
+  @IsOptional()
+  @Expose()
+  @Type(() => String)
+  folder?: string;
+
   @IsEnum(["image", "video"])
   @IsOptional()
   @Expose()

@@ -3,7 +3,7 @@ import mongo from "app/mongo";
 import * as storage from "app/storage";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { Request } from "express";
-import { Asset } from "models/assets";
+import { Asset } from "models/asset";
 import { User } from "models/user";
 import "reflect-metadata";
 import { ulid } from "ulid";

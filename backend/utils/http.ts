@@ -201,9 +201,13 @@ export function checkLogged(user: User | undefined) {
   }
 }
 
+export function isAdmin(user: User) {
+  return user.roles?.includes(UserRole.admin);
+}
+
 export function checkAdmin(user: User) {
   checkLogged(user);
-  if (!user.roles?.includes(UserRole.admin)) {
+  if (!isAdmin(user)) {
     throw new DataError("You aren't admin");
   }
 }
