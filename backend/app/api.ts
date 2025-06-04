@@ -5,7 +5,7 @@ api.options("*", (req: Request, res: Response) => {
   res.set({
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "content-type, api-token",
     "Access-Control-Allow-Credentials": "true",
   });
   res.status(204).send();
