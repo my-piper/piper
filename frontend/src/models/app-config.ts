@@ -35,7 +35,7 @@ export class AppConfig {
   billing?: BillingConfig;
 
   @Expose()
-  @Type(() => BillingConfig)
+  @Type(() => UiConfig)
   ui?: UiConfig;
 
   @Expose()
