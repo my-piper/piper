@@ -88,9 +88,9 @@ api.get(
           },
           ui: {
             features: [
-              ...(ALLOW_SIGNUP ? "signup" : []),
-              ...(GOOGLE_AUTH ? "google_auth" : []),
-              ...(YANDEX_AUTH ? "yandex_auth" : []),
+              ...(ALLOW_SIGNUP ? ["signup"] : []),
+              ...(GOOGLE_AUTH ? ["google_auth"] : []),
+              ...(YANDEX_AUTH ? ["yandex_auth"] : []),
             ],
             appFooter: APP_FOOTER,
           },
