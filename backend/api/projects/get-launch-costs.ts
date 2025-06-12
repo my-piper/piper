@@ -39,6 +39,6 @@ api.post(
       })(),
       LaunchRequest
     );
-    return await getCosts(pipeline, launchRequest);
+    return toPlain(await getCosts(pipeline, launchRequest));
   })
 );

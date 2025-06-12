@@ -6,21 +6,25 @@ import {
   Output,
 } from "@angular/core";
 import { delay, finalize, map } from "rxjs";
-import { BUILT_IN_NODES } from "src/consts/nodes";
 import { Node } from "src/models/node";
+import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance } from "src/utils/models";
 
 @Component({
-  selector: "app-add-node",
-  templateUrl: "./add-node.component.html",
-  styleUrls: ["./add-node.component.scss"],
+  selector: "app-select-node",
+  templateUrl: "./select-node.component.html",
+  styleUrls: ["./select-node.component.scss"],
 })
-export class AddNodeComponent implements OnInit {
-  builtInNodes = BUILT_IN_NODES;
-  progress = { loading: false };
+export class SelectNodeComponent implements OnInit {
+  userRole = UserRole;
+
+  progress: { loading: boolean; selecting: { [key: string]: boolean } } = {
+    loading: false,
+    selecting: {},
+  };
   error: Error;
 
   nodes: Node[] = [];
@@ -37,8 +41,6 @@ export class AddNodeComponent implements OnInit {
   ngOnInit() {
     this.load();
   }
-
-  addNode() {}
 
   private load() {
     this.progress.loading = true;
@@ -59,12 +61,28 @@ export class AddNodeComponent implements OnInit {
           this.nodes = nodes;
           this.cd.detectChanges();
         },
-        error: (err) => (this.error = err.error),
+        error: (err) => (this.error = err),
       });
   }
 
-  select(node: Node) {
-    this.selected.emit(node);
+  select({ _id }: Node) {
+    this.progress.selecting[_id] = true;
+    this.cd.detectChanges();
+
+    this.http
+      .get(`nodes/${_id}`)
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.selecting[_id] = false;
+          this.cd.detectChanges();
+        }),
+        map((obj) => toInstance(obj as object, Node))
+      )
+      .subscribe({
+        next: (node) => this.selected.emit(node),
+        error: (err) => (this.error = err),
+      });
   }
 
   remove(node: Node) {

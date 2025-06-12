@@ -26,7 +26,7 @@
       "propertyOrder": 5,
       "items": {
         "type": "string",
-        "enum": ["admin"]
+        "enum": ["admin", "engineer"]
       }
     }
   },

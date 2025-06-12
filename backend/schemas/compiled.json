@@ -138,6 +138,9 @@
 						"script": {
 							"type": "string"
 						},
+						"sign": {
+							"type": "string"
+						},
 						"costs": {
 							"type": "string"
 						},
@@ -147,6 +150,9 @@
 								"node",
 								"catalog"
 							]
+						},
+						"locked": {
+							"type": "boolean"
 						},
 						"environment": {
 							"title": "Environment",
@@ -1136,6 +1142,9 @@
 			"script": {
 				"type": "string"
 			},
+			"sign": {
+				"type": "string"
+			},
 			"costs": {
 				"type": "string"
 			},
@@ -1145,6 +1154,9 @@
 					"node",
 					"catalog"
 				]
+			},
+			"locked": {
+				"type": "boolean"
 			},
 			"environment": {
 				"title": "Environment",
@@ -2529,6 +2541,9 @@
 						"script": {
 							"type": "string"
 						},
+						"sign": {
+							"type": "string"
+						},
 						"costs": {
 							"type": "string"
 						},
@@ -2538,6 +2553,9 @@
 								"node",
 								"catalog"
 							]
+						},
+						"locked": {
+							"type": "boolean"
 						},
 						"environment": {
 							"title": "Environment",
@@ -3836,7 +3854,8 @@
 				"items": {
 					"type": "string",
 					"enum": [
-						"admin"
+						"admin",
+						"engineer"
 					]
 				}
 			}
@@ -4389,6 +4408,9 @@
 								"script": {
 									"type": "string"
 								},
+								"sign": {
+									"type": "string"
+								},
 								"costs": {
 									"type": "string"
 								},
@@ -4398,6 +4420,9 @@
 										"node",
 										"catalog"
 									]
+								},
+								"locked": {
+									"type": "boolean"
 								},
 								"environment": {
 									"title": "Environment",

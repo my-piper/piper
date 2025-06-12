@@ -6,7 +6,6 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { SocketIoModule } from "ngx-socket-io";
-import { AddNodeComponent } from "src/app/add-node/add-node.component";
 import { AssetsComponent } from "src/app/assets/assets.component";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
 import { EditInputComponent } from "src/app/edit-input/edit-input.component";
@@ -22,6 +21,7 @@ import { PipelineInputComponent } from "src/app/pipeline-input/pipeline-input.co
 import { PipelineOutputComponent } from "src/app/pipeline-output/pipeline-output.component";
 import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
+import { SelectNodeComponent } from "src/app/select-node/select-node.component";
 import { AutoHeightDirective } from "src/directives/auto-height";
 import { DragMoveDirective } from "src/directives/drag-move.directive";
 import { ImageFallbackDirective } from "src/directives/image-fall-back.directive";
@@ -140,7 +140,7 @@ import { UsersComponent } from "./users/users.component";
     AssetsComponent,
     OutputIndexOfPipe,
     InputIndexOfPipe,
-    AddNodeComponent,
+    SelectNodeComponent,
     EditNodeComponent,
     IsPipe,
     NodeStateComponent,

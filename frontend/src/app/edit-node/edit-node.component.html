@@ -18,7 +18,7 @@
 </form>
 
 <ng-template #unlockTemplate>
-  <div *ngIf="userRole.admin | can | async" class="tip info">
+  <div *ngIf="userRole.engineer | can | async" class="tip info">
     The node is fully up-to-date with catalog.<br />
     <a class="default" [submitButton] (click)="unlock()"> Unlock </a>
     if you want to change input & output parameters, source code, etc.<br />
@@ -27,7 +27,7 @@
 </ng-template>
 
 <header>
-  <ul *ngIf="node.source === 'node'; else unlockTemplate" class="menu">
+  <ul *ngIf="!node.locked; else unlockTemplate" class="menu">
     <li>
       <a
         [routerLink]="['./']"

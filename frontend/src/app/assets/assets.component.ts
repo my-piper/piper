@@ -11,6 +11,7 @@ import first from "lodash/first";
 import { debounceTime, delay, finalize, map } from "rxjs";
 import { Asset, AssetsFilter } from "src/models/assets";
 import { AssetImportedSignal } from "src/models/signals/asset";
+import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/ui-kit/consts";
@@ -24,6 +25,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
   styleUrls: ["./assets.component.scss"],
 })
 export class AssetsComponent implements OnInit {
+  userRole = UserRole;
   hostname = document.location.hostname;
 
   private _filter!: AssetsFilter;

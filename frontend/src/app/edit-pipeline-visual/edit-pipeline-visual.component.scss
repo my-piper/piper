@@ -19,6 +19,16 @@
   }
 }
 
+::ng-deep .popover .costs-details {
+  &::ng-deep {
+    font-size: .75em;
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
 
 .nodes {
   position: relative;
@@ -94,6 +104,28 @@
     &.readonly {
       .actions {
         display: none;
+      }
+    }
+
+    .costs {
+      position: absolute;
+      right: 0;
+      bottom: -18px;
+      display: flex;
+      align-items: center;
+      color: $graphite-color-100;
+
+      .icon {
+        margin-right: $gutter-tiny;
+        cursor: pointer;
+
+        &::ng-deep svg {
+          stroke: $graphite-color-100;
+        }
+      }
+
+      span {
+        font-size: .65em;
       }
     }
 

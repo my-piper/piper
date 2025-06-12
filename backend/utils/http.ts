@@ -205,9 +205,20 @@ export function isAdmin(user: User) {
   return user.roles?.includes(UserRole.admin);
 }
 
+export function isEngineer(user: User) {
+  return isAdmin(user) || user.roles?.includes(UserRole.engineer);
+}
+
 export function checkAdmin(user: User) {
   checkLogged(user);
   if (!isAdmin(user)) {
+    throw new DataError("You aren't admin");
+  }
+}
+
+export function checkEngineer(user: User) {
+  checkLogged(user);
+  if (!isEngineer(user)) {
     throw new DataError("You aren't admin");
   }
 }

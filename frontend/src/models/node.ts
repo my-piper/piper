@@ -249,6 +249,14 @@ export class Node {
 
   @Expose()
   @Type(() => String)
+  sign!: string;
+
+  @Expose()
+  @Type(() => Boolean)
+  locked: boolean;
+
+  @Expose()
+  @Type(() => String)
   costs!: string;
 
   @Expose()

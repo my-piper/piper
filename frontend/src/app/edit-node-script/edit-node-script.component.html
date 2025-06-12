@@ -1,3 +1,9 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
 <form [formGroup]="form">
   <fieldset>
     <div class="switcher">
@@ -40,4 +46,15 @@
     >
     </ngx-monaco-editor>
   </div>
+  <footer>
+    <button
+      class="primary-button"
+      type="button"
+      [disabled]="progress.saving"
+      [class.busy]="progress.saving"
+      (click)="save()"
+    >
+      Save
+    </button>
+  </footer>
 </form>

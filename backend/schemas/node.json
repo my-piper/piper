@@ -65,12 +65,18 @@
     "script": {
       "type": "string"
     },
+    "sign": {
+      "type": "string"
+    },
     "costs": {
       "type": "string"
     },
     "source": {
       "type": "string",
       "enum": ["node", "catalog"]
+    },
+    "locked": {
+      "type": "boolean"
     },
     "environment": {
       "$ref": "#/definitions/Environment"

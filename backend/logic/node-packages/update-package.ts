@@ -4,6 +4,7 @@ import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import assign from "lodash/assign";
+import { generateSign } from "logic/nodes/sign-node";
 import { PackageUpdatedEvent } from "models/events";
 import { NodePackage } from "models/node-package";
 import { ulid } from "ulid";
@@ -35,6 +36,7 @@ export async function uploadPackage(nodePackage: NodePackage) {
   const bulk = [];
   for (const [_id, node] of nodes) {
     logger.info(`Update node ${_id}`);
+    assign(node, { locked: true, sign: generateSign(node.script) });
     bulk.push({
       updateOne: {
         filter: { _id },

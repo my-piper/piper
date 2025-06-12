@@ -1,4 +1,5 @@
 import { createLogger } from "core-kit/packages/logger";
+import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
 import { NodeCosts, Pipeline, PipelineCosts } from "models/pipeline";
@@ -60,7 +61,7 @@ export async function getCosts(
     assign(costs, { pipeline: await run(pipeline.script, converted) });
   } else {
     // calculate all nodes
-    const nodes = [];
+    const nodes = new Map<string, NodeCosts>();
     for (const [id, node] of pipeline.nodes) {
       if (!node.script) {
         continue;
@@ -85,10 +86,22 @@ export async function getCosts(
       }
 
       const converted = convertInputs({ node })(inputs);
-      nodes.push(
+      nodes.set(
+        id,
         new NodeCosts({
           node: node.title,
-          costs: await run(node.script, converted),
+          ...(await (async () => {
+            const costs = await run(node.script, converted);
+            if (typeof costs === "number") {
+              return { costs };
+            }
+
+            if (!("costs" in costs)) {
+              throw new DataError("Costs function should have [costs] field");
+            }
+
+            return costs;
+          })()),
         })
       );
     }

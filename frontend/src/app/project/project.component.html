@@ -28,7 +28,7 @@
     ></app-edit-project>
   </ng-template>
   <button
-    *ngIf="userRole.admin | can: project.createdBy | async"
+    *ngIf="userRole.admin | can | async"
     class="circle"
     [appPopover]="{
       trigger: 'click',
@@ -61,9 +61,15 @@
         Open playground
         <app-icon class="icon right" [size]="18" icon="open-link"></app-icon>
       </a>
-      <!--
-      or you can <button class="primary">Clone</button> to ability for edit.
-      -->
+      or
+      <button
+        class="primary"
+        [disabled]="progress.cloning"
+        [class.busy]="progress.cloning"
+        (click)="clone()"
+      >
+        Clone
+      </button>
     </p>
   </header>
 </ng-template>
@@ -100,8 +106,9 @@
               (project._id | pipelineCosts: null : project.revision | async)
                 ?.total as total
             "
-            >{{ total | currency: "USD" : "symbol" : "1.0-10" }}</span
           >
+            {{ total | currency: "USD" : "symbol" : "1.0-10" }}
+          </span>
         </button>
       </ng-template>
 
@@ -166,7 +173,7 @@
                 README
               </a>
             </li>
-            <li>
+            <li *ngIf="userRole.engineer | can | async">
               <a
                 [routerLink]="['deploy']"
                 routerLinkActive="active"
@@ -185,7 +192,7 @@
                 YAML
               </a>
             </li>
-            <li>
+            <li *ngIf="userRole.engineer | can | async">
               <a
                 [routerLink]="['script']"
                 routerLinkActive="active"

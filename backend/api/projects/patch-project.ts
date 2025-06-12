@@ -6,6 +6,7 @@ import { DataError, NotFoundError } from "core-kit/types/errors";
 import { patch } from "jsondiffpatch";
 import assign from "lodash/assign";
 import { decrypt, encrypt } from "logic/environment/crypt-environment";
+import { generateSign } from "logic/nodes/sign-node";
 import { Environment } from "models/environment";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
 import { Pipeline } from "models/pipeline";
@@ -91,6 +92,14 @@ api.patch(
 
       const patched = toInstance(forPatch, Pipeline);
       const { name: title, thumbnail } = patched;
+
+      for (const [id, node] of patched.nodes) {
+        const sign = generateSign(node.script);
+        if (sign !== node.sign) {
+          throw new DataError(`Wrong sign for ${id} node`);
+        }
+      }
+
       assign(update, {
         title,
         thumbnail,

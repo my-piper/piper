@@ -27,7 +27,7 @@ import { ProjectManager } from "src/services/project.manager";
 import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
 import { sid } from "src/ui-kit/utils/string";
-import { AddNodeComponent } from "../add-node/add-node.component";
+import { SelectNodeComponent } from "../select-node/select-node.component";
 
 function tieUp({ x, y }: Point): Point {
   return { x: Math.round(x / 10) * 10, y: Math.round(y / 10) * 10 };
@@ -47,7 +47,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   private _modal!:
     | EditNodeComponent
     | EditPipelineInputComponent
-    | AddNodeComponent;
+    | SelectNodeComponent;
 
   mode: "default" | "flow" = "default";
   subscriptions: Subscription[] = [];
@@ -55,13 +55,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
   readonly = true;
 
   set modal(
-    modal: EditNodeComponent | EditPipelineInputComponent | AddNodeComponent
+    modal: EditNodeComponent | EditPipelineInputComponent | SelectNodeComponent
   ) {
     this._modal = modal;
     this.unsubscribe();
     if (!!modal) {
       if (modal instanceof EditNodeComponent) {
-      } else if (modal instanceof AddNodeComponent) {
+      } else if (modal instanceof SelectNodeComponent) {
         this.subscriptions.push(
           modal.selected.subscribe((node) => {
             this.addNode(node);
@@ -173,12 +173,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   addNode(node: Node) {
     const id = `${node._id}_${sid()}`;
-    delete node.catalog;
     this.pipeline.nodes.set(id, node);
-    if (this.pipeline.nodes.size > 0) {
+    if (this.pipeline.nodes.size <= 0) {
       this.pipeline.start.nodes.push(id);
     }
-    assign(node.arrange, { x: random(100, 400), y: random(100, 300) });
+    assign(node.arrange, { x: random(100, 400), y: random(100, 200) });
     this.save();
   }
 

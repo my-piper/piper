@@ -26,6 +26,7 @@ export class UserBalance {
 
 export enum UserRole {
   admin = "admin",
+  engineer = "engineer",
 }
 
 export class User {

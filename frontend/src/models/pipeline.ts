@@ -201,6 +201,10 @@ export class NodeCosts {
   @Type(() => Number)
   costs!: number;
 
+  @Expose()
+  @Type(() => String)
+  details!: string;
+
   constructor(defs: Partial<NodeCosts> = {}) {
     assign(this, defs);
   }

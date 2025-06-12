@@ -14,7 +14,7 @@ import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
-import { toPlain } from "src/utils/models";
+import { toInstance, toPlain } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { PipelineReadmeComponent } from "../pipeline-readme/pipeline-readme.component";
 
@@ -28,7 +28,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   launchComponent = LaunchComponent;
   pipelineReadmeComponent = PipelineReadmeComponent;
 
-  progress = { launching: false };
+  progress = { launching: false, cloning: false };
   error: Error;
 
   pipeline!: Pipeline;
@@ -95,5 +95,26 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
 
   updated(project: Project) {
     assign(this.project, project);
+  }
+
+  clone() {
+    this.progress.cloning = true;
+    this.cd.detectChanges();
+
+    const request = new LaunchProject();
+
+    this.http
+      .post(`projects/${this.project._id}/clone`)
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.cloning = false;
+          this.cd.detectChanges();
+        }),
+        map((json) => toInstance(json as object, Project))
+      )
+      .subscribe((launch) => {
+        this.router.navigate(["/projects", launch._id]);
+      });
   }
 }

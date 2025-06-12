@@ -103,8 +103,31 @@
       (moving)="nodeMoving(node.value, $event)"
       (moved)="nodeMoved(node.value, $event)"
     >
-      <div *ngIf="node.value.source !== 'node'" class="locked">
+      <div *ngIf="node.value.locked" class="locked">
         <app-icon class="icon" icon="lock" [size]="16"></app-icon>
+      </div>
+      <div
+        class="costs"
+        *ngIf="
+          (project._id | pipelineCosts: null : project.revision | async)?.nodes[
+            node.key
+          ] as costs
+        "
+      >
+        <ng-template #detailsTemplate>
+          <div
+            class="costs-details"
+            [innerHTML]="costs.details | markdown | async"
+          ></div>
+        </ng-template>
+        <app-icon
+          *ngIf="!!costs.details"
+          class="icon"
+          icon="info"
+          [size]="16"
+          [appPopover]="{ content: detailsTemplate, trigger: 'click' }"
+        ></app-icon>
+        <span>{{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}</span>
       </div>
       <div class="actions stack horizontal tiny">
         <button class="circle small drag" #dugRef>

@@ -27,7 +27,7 @@
   </div>
 </ng-template>
 
-<form [formGroup]="form">
+<form *ngIf="userRole.admin | can | async" [formGroup]="form">
   <fieldset class="stack horizontal small align-center">
     <button
       class="circle"

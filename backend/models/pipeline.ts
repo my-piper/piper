@@ -193,6 +193,10 @@ export class NodeCosts {
   @Type(() => Number)
   costs!: number;
 
+  @Expose()
+  @Type(() => String)
+  details!: string;
+
   constructor(defs: Partial<NodeCosts> = {}) {
     assign(this, defs);
   }
@@ -204,8 +208,8 @@ export class PipelineCosts {
   pipeline!: number;
 
   @Expose()
-  @Type(() => NodeCosts)
-  nodes!: NodeCosts[];
+  @Transform(objectsMapTransformer(NodeCosts))
+  nodes!: Map<string, NodeCosts>;
 
   @Expose()
   @Type(() => Number)
@@ -214,7 +218,10 @@ export class PipelineCosts {
   update() {
     this.total = this.pipeline;
     if (!!this.nodes) {
-      this.total += this.nodes.reduce((costs, n) => costs + n.costs, 0);
+      this.total += [...this.nodes.values()].reduce(
+        (costs, n) => costs + n.costs,
+        0
+      );
     }
   }
 

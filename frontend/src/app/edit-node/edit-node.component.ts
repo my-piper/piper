@@ -6,6 +6,7 @@ import { UI } from "src/consts/ui";
 import { Node } from "src/models/node";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
+import { MeManager } from "src/services/me.service";
 import { ProjectManager } from "src/services/project.manager";
 
 @Component({
@@ -27,6 +28,7 @@ export class EditNodeComponent {
 
   constructor(
     private projectManager: ProjectManager,
+    private me: MeManager,
     private fb: FormBuilder,
     private route: ActivatedRoute
   ) {}
@@ -65,17 +67,20 @@ export class EditNodeComponent {
   }
 
   unlock() {
-    const { environment } = this.node;
-    if (!!environment) {
-      for (const [k, v] of environment) {
-        if (v.scope === "global") {
-          assign(v, { scope: "user" });
+    if (!this.me.user.roles.includes(UserRole.admin)) {
+      const { environment } = this.node;
+      if (!!environment) {
+        for (const [k, v] of environment) {
+          if (v.scope === "global") {
+            assign(v, { scope: "user" });
+          }
         }
       }
     }
+
     delete this.node._id;
     delete this.node.costs;
-    assign(this.node, { source: "node" });
+    assign(this.node, { locked: false, source: "node" });
 
     const { pipeline } = this.project;
     this.projectManager.update({ pipeline });

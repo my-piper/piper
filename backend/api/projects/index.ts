@@ -7,6 +7,7 @@ import "./get-project-summary";
 import "./list";
 
 import "./add-project";
+import "./clone-project";
 import "./delete-project";
 import "./deploy-project";
 import "./patch-project";

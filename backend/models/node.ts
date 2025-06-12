@@ -240,12 +240,20 @@ export class Node {
   source: string;
 
   @Expose()
+  @Type(() => Boolean)
+  locked: boolean;
+
+  @Expose()
   @Type(() => String)
   execution!: NodeExecution;
 
   @Expose()
   @Type(() => String)
   script: string;
+
+  @Expose()
+  @Type(() => String)
+  sign: string;
 
   @Expose()
   @Type(() => Arrange)

@@ -157,12 +157,14 @@ export class HttpService {
   }
 
   getRequestOptions(
-    { params, headers }: HttpOptions = {},
+    { params, headers, responseType }: HttpOptions = {},
     data?: string | FormData | Object
   ) {
     const options = {
       // withCredentials: true,
-      observe: "response" as "body",
+      observe: "response" as const,
+      // TODO: think better
+      responseType: responseType as "json",
       headers: {
         ...headers,
         ...(() =>

@@ -11,6 +11,9 @@ api.get(
     const nodePackage = await mongo.nodePackages.findOne({ _id });
     delete nodePackage["cursor"];
     const nodes = await mongo.nodes.find({ package: _id }).toArray();
+    for (const node of nodes) {
+      delete node["sign"];
+    }
 
     return { ...nodePackage, nodes: keyBy(nodes, "_id") };
   })

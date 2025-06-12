@@ -1,11 +1,15 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
+import { delay, finalize, map } from "rxjs";
 import { NodeExecution } from "src/enums/node-execution";
+import { AppError } from "src/models/errors";
 import { Node } from "src/models/node";
 import { Project } from "src/models/project";
+import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
+import { UI_DELAY } from "src/ui-kit/consts";
 
 @Component({
   selector: "app-edit-node-script",
@@ -14,6 +18,9 @@ import { ProjectManager } from "src/services/project.manager";
 })
 export class EditNodeScriptComponent implements OnInit {
   nodeExecution = NodeExecution;
+
+  progress = { saving: false };
+  error!: AppError;
 
   project!: Project;
   id!: string;
@@ -27,8 +34,10 @@ export class EditNodeScriptComponent implements OnInit {
 
   constructor(
     private projectManager: ProjectManager,
+    private http: HttpService,
     private fb: FormBuilder,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -36,7 +45,6 @@ export class EditNodeScriptComponent implements OnInit {
       [this.project, this.id, this.node] = [project, id, node];
       this.build();
     });
-    this.form.valueChanges.subscribe(() => this.save());
   }
 
   private build() {
@@ -47,10 +55,28 @@ export class EditNodeScriptComponent implements OnInit {
     });
   }
 
-  private save() {
-    const { pipeline } = this.project;
+  save() {
+    this.progress.saving = true;
+    this.cd.detectChanges();
+
     const { execution, script } = this.form.getRawValue();
-    assign(this.node, { execution, script });
-    this.projectManager.update({ pipeline });
+    this.http
+      .post("nodes/get-sign", script, { responseType: "text" })
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.saving = false;
+          this.cd.detectChanges();
+        }),
+        map((sign) => sign as string)
+      )
+      .subscribe({
+        next: (sign) => {
+          const { pipeline } = this.project;
+          assign(this.node, { execution, script, sign });
+          this.projectManager.update({ pipeline });
+        },
+        error: (err) => (this.error = err),
+      });
   }
 }

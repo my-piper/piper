@@ -37,7 +37,7 @@
 ></app-informer>
 
 <div class="app-container">
-  <header class="horizontal stack" *ngIf="userRole.admin | can | async">
+  <header class="horizontal stack">
     <button
       class="primary with-icon"
       [routerLink]="['add']"
@@ -48,7 +48,12 @@
       <app-icon class="icon left" icon="add"></app-icon>
       <ng-container i18n="@@action.create">Create</ng-container>
     </button>
-    <a class="secondary" [routerLink]="['import']" i18n="@@link.import">
+    <a
+      *ngIf="userRole.admin | can | async"
+      class="secondary"
+      [routerLink]="['import']"
+      i18n="@@link.import"
+    >
       Import
     </a>
   </header>

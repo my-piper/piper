@@ -1,6 +1,5 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes, UrlSegment } from "@angular/router";
-import { AddNodeComponent } from "src/app/add-node/add-node.component";
 import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
@@ -12,6 +11,7 @@ import { LaunchComponent } from "src/app/launch/launch.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
 import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
+import { SelectNodeComponent } from "src/app/select-node/select-node.component";
 import { AnonymousGuard } from "src/guards/anonymous.guard";
 import { ShouldCheckReadmeGuard } from "src/guards/pipeline-readme";
 import { SigninNeededGuard } from "src/guards/signin.guard";
@@ -299,7 +299,7 @@ const routes: Routes = [
         children: [
           {
             path: "add-node",
-            component: AddNodeComponent,
+            component: SelectNodeComponent,
           },
           {
             path: "nodes/:id",
