@@ -2,14 +2,11 @@ import { HttpsAgent } from "agentkeepalive";
 import { artefact } from "app/storage";
 import { streams } from "app/streams";
 import axios from "axios";
-import { SHARE_FOLDER } from "consts/chrome";
 import { MODULES_PATH, NODE_ENV } from "consts/core";
 import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError, FatalError, TimeoutError } from "core-kit/types/errors";
-import { fileTypeFromBuffer } from "file-type";
-import { writeFile } from "fs/promises";
 import assign from "lodash-es/assign";
 import merge from "lodash-es/merge";
 import * as deploying from "logic/deploy/get-deploy";
@@ -27,7 +24,6 @@ import { Logger } from "pino";
 import { NextNode, RepeatNode } from "types/node";
 import { Primitive } from "types/primitive";
 import { withTempContext } from "utils/files";
-import { sid } from "utils/string";
 import { download } from "utils/web";
 
 const packagesLoader = createRequire(path.join(MODULES_PATH, "node_modules"));
@@ -106,17 +102,6 @@ export async function createContext({
       },
     },
     artefact: (data: Buffer) => artefact(data),
-    share: async (url: string) => {
-      const { data } = await download(url);
-      const fileType = await fileTypeFromBuffer(data);
-      if (!fileType) {
-        throw new DataError(`Can't detect file type for ${url}`);
-      }
-      const { ext } = fileType;
-      const filePath = path.join(SHARE_FOLDER, [sid(), ext].join("."));
-      await writeFile(filePath, data);
-      return filePath;
-    },
     env: await (async () => {
       const env = new Environment({
         variables: new Map<string, Primitive>(),
