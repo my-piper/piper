@@ -44,7 +44,7 @@ update_packages:
 
 .PHONY: chrome
 chrome:
-	npm run chrome
+	npm run chrome & socat TCP-LISTEN:9322,fork TCP:0.0.0.0:9222
 
 .PHONY: periodic
 periodic:
