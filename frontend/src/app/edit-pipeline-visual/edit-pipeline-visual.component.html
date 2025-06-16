@@ -106,29 +106,30 @@
       <div *ngIf="node.value.locked" class="locked">
         <app-icon class="icon" icon="lock" [size]="16"></app-icon>
       </div>
-      <div
-        class="costs"
+      <ng-container
         *ngIf="
-          (project._id | pipelineCosts: null : project.revision | async)?.nodes[
-            node.key
-          ] as costs
+          (project._id | pipelineCosts: null : project.revision | async)
+            ?.nodes?.[node.key] as costs
         "
       >
-        <ng-template #detailsTemplate>
-          <div
-            class="costs-details"
-            [innerHTML]="costs.details | markdown | async"
-          ></div>
-        </ng-template>
-        <app-icon
-          *ngIf="!!costs.details"
-          class="icon"
-          icon="info"
-          [size]="16"
-          [appPopover]="{ content: detailsTemplate, trigger: 'click' }"
-        ></app-icon>
-        <span>{{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}</span>
-      </div>
+        <div *ngIf="costs.costs > 0" class="costs">
+          <ng-template #detailsTemplate>
+            <div
+              class="costs-details"
+              [innerHTML]="costs.details | markdown | async"
+            ></div>
+          </ng-template>
+          <app-icon
+            *ngIf="!!costs.details"
+            class="icon"
+            icon="info"
+            [size]="16"
+            [appPopover]="{ content: detailsTemplate, trigger: 'click' }"
+          ></app-icon>
+          <span>{{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}</span>
+        </div>
+      </ng-container>
+
       <div class="actions stack horizontal tiny">
         <button class="circle small drag" #dugRef>
           <app-icon class="icon" icon="drag" [size]="18"></app-icon>

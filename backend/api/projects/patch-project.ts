@@ -14,7 +14,13 @@ import { Project } from "models/project";
 import { User } from "models/user";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
-import { checkAdmin, checkLogged, handle, toModel } from "utils/http";
+import {
+  checkAdmin,
+  checkLogged,
+  handle,
+  isEngineer,
+  toModel,
+} from "utils/http";
 import { sid } from "utils/string";
 import { PatchProject } from "./models/update-project";
 
@@ -96,7 +102,11 @@ api.patch(
       for (const [id, node] of patched.nodes) {
         const sign = generateSign(node.script);
         if (sign !== node.sign) {
-          throw new DataError(`Wrong sign for ${id} node`);
+          if (isEngineer(currentUser)) {
+            assign(node, { sign });
+          } else {
+            throw new DataError(`Wrong sign for ${id} node`);
+          }
         }
       }
 
