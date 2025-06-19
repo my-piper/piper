@@ -1,20 +1,28 @@
+import ajv from "app/ajv";
 import mongo from "app/mongo";
 import axios from "axios";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
-import { toInstance, toPlain, validate } from "core-kit/packages/transform";
+import { toInstance, toPlain } from "core-kit/packages/transform";
+import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { generateSign } from "logic/nodes/sign-node";
 import { PackageUpdatedEvent } from "models/events";
 import { NodePackage } from "models/node-package";
+import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { ulid } from "ulid";
 import * as YAML from "yaml";
 
 export async function importPackage(source: string) {
+  const logger = createLogger("import-package");
+
   let yaml = source;
   if (/^http/.test(source)) {
+    logger.info(`Import from URL ${source}`);
     const { data } = await axios(source);
     yaml = data;
+  } else {
+    logger.info("Import from YAML");
   }
 
   const json = YAML.parse(yaml);
@@ -24,7 +32,14 @@ export async function importPackage(source: string) {
 }
 
 export async function uploadPackage(nodePackage: NodePackage) {
-  await validate(nodePackage);
+  const validate = ajv.compile(SCHEMAS.nodePackage);
+  if (!validate(nodePackage)) {
+    const { errors } = validate;
+    throw new DataError(
+      "Node package schema invalid",
+      errors.map((e) => `${e.propertyName || e.instancePath}: ${e.message}`)
+    );
+  }
 
   const { _id, nodes } = nodePackage;
   const logger = createLogger("update-package", {

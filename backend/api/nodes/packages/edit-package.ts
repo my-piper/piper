@@ -1,7 +1,10 @@
+import ajv from "app/ajv";
 import api from "app/api";
 import mongo from "app/mongo";
-import { toInstance, toPlain, validate } from "core-kit/packages/transform";
+import { toInstance, toPlain } from "core-kit/packages/transform";
+import { DataError } from "core-kit/types/errors";
 import { NodePackage } from "models/node-package";
+import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { checkAdmin, handle } from "utils/http";
 
 api.post(
@@ -10,10 +13,16 @@ api.post(
     checkAdmin(currentUser);
 
     const nodePackage = toInstance(body, NodePackage);
-    await validate(nodePackage);
+    const validate = ajv.compile(SCHEMAS.nodePackage);
+    if (!validate(nodePackage)) {
+      const { errors } = validate;
+      throw new DataError(
+        "Node package schema invalid",
+        errors.map((e) => `${e.propertyName || e.instancePath}: ${e.message}`)
+      );
+    }
 
     await mongo.nodePackages.updateOne({ _id }, { $set: toPlain(nodePackage) });
-
     return null;
   })
 );

@@ -30,6 +30,9 @@ export async function planCheckUpdates() {
       continue;
     }
     logger.info(`Plan package ${_id} to check update`);
-    await queues.packages.checkUpdates.plan({ nodePackage: _id }, 2000);
+    await queues.packages.checkUpdates.plan(
+      { nodePackage: _id },
+      { delay: 2000 }
+    );
   }
 }

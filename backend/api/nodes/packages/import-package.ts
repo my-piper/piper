@@ -4,10 +4,10 @@ import { checkLogged, handle } from "utils/http";
 
 api.post(
   "/api/nodes/packages/import",
-  handle(({ currentUser }) => async ({ body }) => {
+  handle(({ currentUser }) => async ({ body: { yaml } }) => {
     checkLogged(currentUser);
 
-    await importPackage(body.yaml);
+    await importPackage(yaml);
 
     return null;
   })
