@@ -33,36 +33,40 @@ queues.launches.run.process(async (runJob) => {
     const count = Math.ceil(maxConcurrent * 1.75);
     logger.debug(`Retrieve ${count} launches from scope ${scope.id}`);
     const queue = (await redis.lRange(scope.id, 0, count)) || [];
-    logger.debug(`Queue scope ${scope.id}: ${queue.join(" | ")}`);
+    if (queue.length > 0) {
+      logger.debug(`Queue scope ${scope.id}: ${queue.join(" | ")}`);
 
-    const multi = redis.multi();
-    queue.forEach((id) => multi.exists(LAUNCH_HEARTBEAT(id)));
-    const heartbeats = await multi.exec();
-    const dead = queue.filter((_, i) => heartbeats[i] === 0);
-    if (dead.length > 0) {
-      logger.debug(`Dead pipelines: ${dead.join(" | ")}`);
-      await Promise.all(dead.map((id) => redis.lRem(scope.id, 0, id)));
-    }
+      const multi = redis.multi();
+      queue.forEach((id) => multi.exists(LAUNCH_HEARTBEAT(id)));
+      const heartbeats = await multi.exec();
+      const dead = queue.filter((_, i) => heartbeats[i] === 0);
+      if (dead.length > 0) {
+        logger.debug(`Dead pipelines: ${dead.join(" | ")}`);
+        await Promise.all(dead.map((id) => redis.lRem(scope.id, 0, id)));
+      }
 
-    const position = queue.indexOf(runJob.launch);
-    if (position !== -1) {
-      logger.debug(`Position in queue ${position}`);
+      const position = queue.indexOf(runJob.launch);
+      if (position !== -1) {
+        logger.debug(`Position in queue ${position}`);
 
-      if (position >= scope.maxConcurrent - dead.length) {
-        logger.debug("Continue wait in scope queue");
+        if (position >= scope.maxConcurrent - dead.length) {
+          logger.debug("Continue wait in scope queue");
+          await queues.launches.run.plan(
+            { launch: runJob.launch, scope },
+            { delay: 5000 + random(1000, 3000) }
+          );
+          return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
+        }
+      } else {
+        logger.debug("Waiting in scope queue");
         await queues.launches.run.plan(
           { launch: runJob.launch, scope },
-          { delay: 5000 + random(1000, 3000) }
+          { delay: 10000 }
         );
         return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
       }
     } else {
-      logger.debug("Waiting in scope queue");
-      await queues.launches.run.plan(
-        { launch: runJob.launch, scope },
-        { delay: 10000 }
-      );
-      return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
+      logger.debug(`Queue scope ${scope.id} is empty`);
     }
   }
 
