@@ -1,6 +1,6 @@
 .PHONY: server
 server:
-	npm run server
+	./server.sh -i
 
 .PHONY: worker
 process_rapid_nodes:
