@@ -1,17 +1,40 @@
-import { createLogger } from "core-kit/packages/logger";
+import { MODULES_PATH } from "consts/core";
+import { MODULES_FOLDER } from "consts/modules";
 import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
 import { NodeCosts, Pipeline, PipelineCosts } from "models/pipeline";
-import { SourceTextModule } from "node:vm";
+import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
+import {
+  createContext as createVmContext,
+  Module,
+  SourceTextModule,
+} from "node:vm";
+import path from "path";
 import { NodeInputs } from "types/node";
 import { Primitive } from "types/primitive";
 import { convertInputs } from "utils/node";
 
-const logger = createLogger("pipeline-costs");
+const packagesLoader = createRequire(path.join(MODULES_PATH, "node_modules"));
 
 async function run(code: string, inputs: NodeInputs): Promise<number> {
-  const script = new SourceTextModule(code);
+  const script = new SourceTextModule(code, {
+    context: await createVmContext({
+      require: (modulePath: string) => {
+        const fullPath = packagesLoader.resolve(modulePath);
+        // TODO: think how to flush cache
+        // delete packagesLoader.cache[fullPath];
+        return packagesLoader(modulePath);
+      },
+    }),
+    importModuleDynamically: async (specifier: string): Promise<Module> => {
+      const modulePath = pathToFileURL(
+        path.join(MODULES_FOLDER, specifier)
+      ).href;
+      return import(modulePath);
+    },
+  });
   await script.link(() => null);
   await script.evaluate();
   const { costs: action } = script.namespace as {
@@ -20,7 +43,12 @@ async function run(code: string, inputs: NodeInputs): Promise<number> {
   if (typeof action !== "function") {
     return 0;
   }
-  return (await action({ inputs })) as number;
+  try {
+    return (await action({ inputs })) as number;
+  } catch (err) {
+    console.log(err);
+    return 0;
+  }
 }
 
 export async function getCosts(

@@ -1,5 +1,6 @@
 import { queues } from "app/queues";
 import { streams } from "app/streams";
+import { MODULES_FOLDER } from "consts/modules";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import { Job } from "core-kit/packages/queue";
@@ -210,12 +211,6 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   logger.debug("Run node script");
 
-  const MODULES_FOLDER = path.join(
-    process.cwd(),
-    "..",
-    "packages",
-    "node_modules"
-  );
   const script = new SourceTextModule(node.script, {
     context: await createContext({ launch, node, logger }),
     importModuleDynamically: async (specifier: string): Promise<Module> => {
@@ -229,7 +224,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   let results: RepeatNode | NextNode | null = null;
   try {
-    script.evaluate();
+    await script.evaluate();
     const { run: action } = script.namespace as {
       run: ({
         inputs,
