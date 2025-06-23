@@ -29,7 +29,7 @@
         </a>
       </td>
       <td title="Cost" i18n-title="@@label.cost" style="text-align: right">
-        {{ u.costs | currency: "USD" }}
+        {{ u.costs | currency: "USD" : "symbol" : "1.0-10" }}
       </td>
     </tr>
     <tr class="loading" *ngIf="progress.loading">
