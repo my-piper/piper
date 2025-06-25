@@ -216,7 +216,7 @@ export class NodePackagesComponent extends UntilDestroyed {
     this.cd.detectChanges();
 
     this.http
-      .delete(`nodes/packages/${_id}`)
+      .delete(`node-packages/${_id}`)
       .pipe(
         delay(UI_DELAY),
         finalize(() => {

@@ -8,6 +8,7 @@ import {
   NODE_INPUT,
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
+  PIPELINE_OUTPUT_DATA,
 } from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
 import redis from "core-kit/packages/redis";
@@ -26,8 +27,10 @@ import {
   IntegerData,
   JsonData,
   Launch,
+  LaunchData,
   LaunchOutput,
   LaunchState,
+  OUTPUT_TYPES,
   StringData,
   VideoData,
 } from "models/launch";
@@ -208,6 +211,7 @@ export async function state(id: string): Promise<LaunchState> {
   const { launchedAt, pipeline } = launch;
 
   const outputs = new Map<string, Primitive>();
+
   if (!!pipeline.outputs) {
     for (const [key, output] of pipeline.outputs) {
       const value = await redis.get(PIPELINE_OUTPUT(launch._id, key));
@@ -229,6 +233,27 @@ export async function state(id: string): Promise<LaunchState> {
 
   const errors = (await redis.lRange(PIPELINE_ERRORS(id), 0, -1)) || [];
   return new LaunchState({ launchedAt, errors, outputs });
+}
+
+export async function data(id: string): Promise<LaunchData> {
+  const launch = await get(id);
+
+  const { launchedAt, pipeline } = launch;
+
+  const outputs = new Map<string, LaunchOutput>();
+
+  if (!!pipeline.outputs) {
+    for (const [key, output] of pipeline.outputs) {
+      const value = await redis.get(PIPELINE_OUTPUT_DATA(launch._id, key));
+      if (value !== null) {
+        const json = JSON.parse(value);
+        outputs.set(key, toInstance(json, OUTPUT_TYPES[json["type"]]));
+      }
+    }
+  }
+
+  const errors = (await redis.lRange(PIPELINE_ERRORS(id), 0, -1)) || [];
+  return new LaunchData({ launchedAt, errors, outputs });
 }
 
 export async function getIOData(

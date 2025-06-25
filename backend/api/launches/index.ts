@@ -2,6 +2,7 @@ import "./outputs";
 
 import "./delete-launch";
 import "./get-launch";
+import "./launch-data";
 import "./launch-state";
 import "./list";
 

@@ -1,7 +1,10 @@
 import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { Pipeline, PipelineCosts } from "models/pipeline";
-import { objectsMapTransformer } from "transformers/map";
+import {
+  multipleMapTransformer,
+  objectsMapTransformer,
+} from "transformers/map";
 import { objectTransformer } from "transformers/object";
 import { primitiveMapTransformer } from "transformers/primitive";
 import { PipelineIOType } from "types/pipeline";
@@ -147,6 +150,17 @@ export class VideoData extends OutputData {
     assign(this, defs);
   }
 }
+
+export const OUTPUT_TYPES = {
+  boolean: BooleanData,
+  integer: IntegerData,
+  float: FloatData,
+  string: StringData,
+  json: JsonData,
+  image: ImageData,
+  "image[]": ImagesData,
+  video: VideoData,
+};
 
 export class LaunchInput {
   @Expose()
@@ -347,7 +361,29 @@ export class LaunchState {
   @Transform(primitiveMapTransformer)
   outputs!: PrimitiveMap;
 
+  @Expose()
+  @Transform(multipleMapTransformer<OutputData>("type", OUTPUT_TYPES))
+  results!: Map<string, OutputData>;
+
   constructor(defs: Partial<LaunchState> = {}) {
+    assign(this, defs);
+  }
+}
+
+export class LaunchData {
+  @Expose()
+  @Type(() => Date)
+  launchedAt: Date;
+
+  @Expose()
+  @Type(() => String)
+  errors!: string[];
+
+  @Expose()
+  @Transform(multipleMapTransformer<OutputData>("type", OUTPUT_TYPES))
+  outputs!: Map<string, OutputData>;
+
+  constructor(defs: Partial<LaunchData> = {}) {
     assign(this, defs);
   }
 }

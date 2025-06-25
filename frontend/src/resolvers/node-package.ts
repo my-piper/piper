@@ -13,7 +13,7 @@ export class NodePackageResolver implements Resolve<NodePackage> {
     const { package: id } = route.params;
 
     return this.http
-      .get(`nodes/packages/${id}`)
+      .get(`node-packages/${id}`)
       .pipe(map((json) => plainToInstance(NodePackage, json)));
   }
 }

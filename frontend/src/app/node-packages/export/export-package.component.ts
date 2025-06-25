@@ -45,7 +45,7 @@ export class ExportPackageComponent implements OnInit {
     this.cd.detectChanges();
 
     this.http
-      .get(`nodes/packages/${this.nodePackage._id}/export`)
+      .get(`node-packages/${this.nodePackage._id}/export`)
       .pipe(
         delay(UI_DELAY),
         finalize(() => {

@@ -4,7 +4,7 @@ import keyBy from "lodash/keyBy";
 import { checkAdmin, handle } from "utils/http";
 
 api.get(
-  "/api/nodes/packages/:_id/export",
+  "/api/node-packages/:_id/export",
   handle(({ currentUser }) => async ({ params: { _id } }) => {
     checkAdmin(currentUser);
 

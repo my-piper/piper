@@ -4,7 +4,7 @@ import { NotFoundError } from "core-kit/types/errors";
 import { checkLogged, handle } from "utils/http";
 
 api.delete(
-  "/api/nodes/packages/:_id",
+  "/api/node-packages/:_id",
   handle(({ currentUser }) => async ({ params: { _id } }) => {
     checkLogged(currentUser);
 

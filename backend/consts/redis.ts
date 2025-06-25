@@ -47,6 +47,9 @@ export const NODE_OUTPUTS = (launch: string, node: string) =>
 export const PIPELINE_OUTPUT = (launch: string, output: string) =>
   `launch:${launch}:outputs:${output}`;
 
+export const PIPELINE_OUTPUT_DATA = (launch: string, output: string) =>
+  `launch:${launch}:outputs:${output}:data`;
+
 export const PIPELINE_ERRORS = (launch: string) => `launch:${launch}:errors`;
 
 export const NODE_STATE = (launch: string, node: string) =>

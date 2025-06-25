@@ -8,7 +8,7 @@ import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { checkAdmin, handle } from "utils/http";
 
 api.post(
-  "/api/nodes/packages/:_id",
+  "/api/node-packages/:_id",
   handle(({ currentUser }) => async ({ params: { _id }, body }) => {
     checkAdmin(currentUser);
 

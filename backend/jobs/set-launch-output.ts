@@ -1,13 +1,18 @@
 import mongo from "app/mongo";
 import { queues } from "app/queues";
-import { LAUNCH, PIPELINE_OUTPUT } from "consts/redis";
+import {
+  LAUNCH,
+  LAUNCH_EXPIRED,
+  PIPELINE_OUTPUT,
+  PIPELINE_OUTPUT_DATA,
+} from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import redis from "core-kit/packages/redis";
 import { mapTo, toPlain } from "core-kit/packages/transform";
 import { getIOData } from "logic/launches/launching";
 import { SetLaunchOutputEvent } from "models/events";
-import { Launch, LaunchOutput } from "models/launch";
+import { Launch, LaunchOutput, OUTPUT_TYPES } from "models/launch";
 import { User } from "models/user";
 import { ulid } from "ulid";
 import { fromRedisValue, readInstance } from "utils/redis";
@@ -27,16 +32,39 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
     return;
   }
 
-  const json = await redis.get(
+  const value = await redis.get(
     PIPELINE_OUTPUT(launch._id, setOutputJob.output)
   );
-  if (json == null) {
+  if (value == null) {
     logger.error("Output has no value");
     return;
   }
 
   const { type, title } = launch.pipeline.outputs.get(setOutputJob.output);
   const { launchedBy } = launch;
+
+  const data = await getIOData(
+    launch._id,
+    "outputs",
+    setOutputJob.output,
+    type,
+    fromRedisValue(type, value)
+  );
+  await redis.setEx(
+    PIPELINE_OUTPUT_DATA(launch._id, setOutputJob.output),
+    LAUNCH_EXPIRED,
+    JSON.stringify(
+      (() => {
+        const plain = toPlain(data);
+        for (const type of Object.keys(OUTPUT_TYPES)) {
+          if (data instanceof OUTPUT_TYPES[type]) {
+            plain["type"] = type;
+          }
+        }
+        return plain;
+      })()
+    )
+  );
 
   const output = new LaunchOutput({
     _id: sid(),
@@ -50,18 +78,11 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
       : null,
     type,
     title,
-    data: await getIOData(
-      launch._id,
-      "outputs",
-      setOutputJob.output,
-      type,
-      fromRedisValue(type, json)
-    ),
+    data,
     cursor: ulid(),
   });
 
   const plain = toPlain(output);
-
   await mongo.launchOutputs.insertOne(plain as { _id: string });
   await mongo.launches.updateOne({ _id: launch._id }, [
     {

@@ -70,8 +70,8 @@ export class EditPackageComponent implements OnInit {
     this.http
       .post(
         !!this.nodePackage
-          ? `nodes/packages/${this.nodePackage._id}`
-          : "nodes/packages",
+          ? `node-packages/${this.nodePackage._id}`
+          : "node-packages",
         toPlain(nodePackage)
       )
       .pipe(
