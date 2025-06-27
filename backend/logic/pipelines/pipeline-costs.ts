@@ -1,5 +1,6 @@
 import { MODULES_PATH } from "consts/core";
 import { MODULES_FOLDER } from "consts/modules";
+import { createLogger } from "core-kit/packages/logger";
 import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
@@ -18,33 +19,35 @@ import { convertInputs } from "utils/node";
 
 const packagesLoader = createRequire(path.join(MODULES_PATH, "node_modules"));
 
-async function run(code: string, inputs: NodeInputs): Promise<number> {
-  const script = new SourceTextModule(code, {
-    context: await createVmContext({
-      require: (modulePath: string) => {
-        const fullPath = packagesLoader.resolve(modulePath);
-        // TODO: think how to flush cache
-        // delete packagesLoader.cache[fullPath];
-        return packagesLoader(modulePath);
-      },
-    }),
-    importModuleDynamically: async (specifier: string): Promise<Module> => {
-      const modulePath = pathToFileURL(
-        path.join(MODULES_FOLDER, specifier)
-      ).href;
-      return import(modulePath);
-    },
-  });
-  await script.link(() => null);
-  await script.evaluate();
-  const { costs: action } = script.namespace as {
-    costs: ({ inputs }: { inputs: NodeInputs }) => Promise<number>;
-  };
-  if (typeof action !== "function") {
-    return 0;
-  }
+const logger = createLogger("pipeline_costs");
+
+async function run(code: string, inputs: NodeInputs): Promise<number | object> {
   try {
-    return (await action({ inputs })) as number;
+    const script = new SourceTextModule(code, {
+      context: await createVmContext({
+        require: (modulePath: string) => {
+          const fullPath = packagesLoader.resolve(modulePath);
+          // TODO: think how to flush cache
+          // delete packagesLoader.cache[fullPath];
+          return packagesLoader(modulePath);
+        },
+      }),
+      importModuleDynamically: async (specifier: string): Promise<Module> => {
+        const modulePath = pathToFileURL(
+          path.join(MODULES_FOLDER, specifier)
+        ).href;
+        return import(modulePath);
+      },
+    });
+    await script.link(() => null);
+    await script.evaluate();
+    const { costs: action } = script.namespace as {
+      costs: ({ inputs }: { inputs: NodeInputs }) => Promise<number>;
+    };
+    if (typeof action !== "function") {
+      return 0;
+    }
+    return await action({ inputs });
   } catch (err) {
     console.log(err);
     return 0;

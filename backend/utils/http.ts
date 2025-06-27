@@ -32,6 +32,7 @@ const LANGUAGE_QUERY_PARAM = "language";
 const LANGUAGE_COOKIE = "language";
 const LANGUAGE_HEADER = "language";
 const ACCEPT_LANGUAGE_HEADER = "accept-language";
+export const IP_ADDRESS_HEADER = "cf-connecting-ip";
 
 const logger = createLogger("process-node");
 
@@ -45,6 +46,7 @@ export type ApiHandler = (
 export const handle =
   (handler: ApiHandler) => async (req: Request, res: Response) => {
     const injector: Injector = {
+      ip: (req.headers[IP_ADDRESS_HEADER] as string) || req.ip,
       language: DEFAULT_LANGUAGE,
     };
 

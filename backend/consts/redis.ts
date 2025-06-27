@@ -76,3 +76,7 @@ export const USER_ENVIRONMENT_EXPIRED = 30 * SECONDS_IN_DAY;
 
 export const USER_API_TOKEN_KEY = (id: string) => `user:${id}:api-token`;
 export const USER_API_TOKEN_EXPIRED = 180 * SECONDS_IN_DAY;
+
+export const USER_INITIAL_BALANCE_LOCK = (ip: string) =>
+  `user:${ip}:initial-balance`;
+export const USER_INITIAL_BALANCE_LOCK_EXPIRED = SECONDS_IN_DAY;

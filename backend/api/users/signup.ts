@@ -2,6 +2,10 @@ import api from "app/api";
 import mongo from "app/mongo";
 import bcrypt from "bcrypt";
 import { INITIAL_USER_BALANCE } from "consts/billing";
+import {
+  USER_INITIAL_BALANCE_LOCK,
+  USER_INITIAL_BALANCE_LOCK_EXPIRED,
+} from "consts/redis";
 import { ALLOW_SIGNUP } from "consts/ui";
 import { getLabel } from "core-kit/packages/i18n";
 import { sendEmail } from "core-kit/packages/mailer";
@@ -15,13 +19,14 @@ import { refillBalance } from "logic/users/refill-balance";
 import { User } from "models/user";
 import { ulid } from "ulid";
 import { handle } from "utils/http";
+import { lock, locked } from "utils/redis";
 import { sid } from "utils/string";
 import { Authorization } from "./models/authorization";
 import { SignupRequest } from "./models/signup-request";
 
 api.post(
   "/api/signup",
-  handle(({ language }) => async ({ body }) => {
+  handle(({ language, ip }) => async ({ body }) => {
     if (!ALLOW_SIGNUP) {
       throw new DataError("Signup has been disabled");
     }
@@ -77,7 +82,12 @@ api.post(
     await Promise.all(actions.map((action) => action()));
 
     if (INITIAL_USER_BALANCE > 0) {
-      await refillBalance(_id, INITIAL_USER_BALANCE);
+      const refillKey = USER_INITIAL_BALANCE_LOCK(ip);
+      const refilled = await locked(refillKey);
+      if (!refilled) {
+        await refillBalance(_id, INITIAL_USER_BALANCE);
+        await lock(refillKey, USER_INITIAL_BALANCE_LOCK_EXPIRED);
+      }
     }
 
     return toPlain(new Authorization({ token: getToken(user), user }));
