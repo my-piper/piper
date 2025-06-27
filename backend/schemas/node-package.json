@@ -54,6 +54,6 @@
       }
     }
   },
-  "required": ["_id", "version", "title", "description", "readme"],
+  "required": ["_id", "version", "title", "description"],
   "additionalProperties": false
 }

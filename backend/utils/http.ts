@@ -235,7 +235,7 @@ export function checkRoles(user: User, roles: UserRole | UserRole[]) {
 export function checkBalance(user: User) {
   checkLogged(user);
   const remaining = user.balance?.remaining || 0;
-  if (NODE_ENV === "production" && remaining < 0) {
+  if (NODE_ENV === "production" && remaining <= 0) {
     throw new DataError("Please, charge you balance");
   }
 }

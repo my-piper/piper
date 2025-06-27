@@ -1049,8 +1049,7 @@
 			"_id",
 			"version",
 			"title",
-			"description",
-			"readme"
+			"description"
 		],
 		"additionalProperties": false
 	},

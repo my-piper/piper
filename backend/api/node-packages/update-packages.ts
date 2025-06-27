@@ -1,15 +1,15 @@
 import api from "app/api";
 import { toPlain } from "core-kit/packages/transform";
-import { planCheckUpdates } from "logic/node-packages";
+import { planUpdatePackages } from "logic/node-packages";
 import { getPackagesUpdateState } from "logic/node-packages/packages-update-state";
 import { checkAdmin, handle } from "utils/http";
 
 api.get(
-  "/api/nodes/check-packages-updates",
+  "/api/node-packages/update",
   handle(({ currentUser }) => async () => {
     checkAdmin(currentUser);
 
-    await planCheckUpdates();
+    await planUpdatePackages();
     return toPlain(await getPackagesUpdateState());
   })
 );

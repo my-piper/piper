@@ -81,6 +81,6 @@
   <router-outlet></router-outlet>
 </main>
 
-<footer>
-  <div [innerHTML]="appConfig.ui.appFooter | i18n: { mode: 'multiline' }"></div>
+<footer *ngIf="appConfig.ui.appFooter as footer">
+  <div [innerHTML]="footer | i18n: { mode: 'multiline' }"></div>
 </footer>

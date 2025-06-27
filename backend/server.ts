@@ -22,6 +22,7 @@ import "./api/environment";
 import "./api/launches";
 import "./api/me";
 import "./api/messages";
+import "./api/node-packages";
 import "./api/nodes";
 import "./api/pipeline-usages";
 import "./api/pipelines";

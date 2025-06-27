@@ -7,7 +7,7 @@ import { ulid } from "ulid";
 import { checkAdmin, handle } from "utils/http";
 
 api.post(
-  "/api/nodes/packages",
+  "/api/node-packages",
   handle(({ currentUser }) => async ({ body }) => {
     checkAdmin(currentUser);
 
