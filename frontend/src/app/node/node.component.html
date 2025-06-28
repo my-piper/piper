@@ -15,6 +15,12 @@
     <div *ngSwitchCase="'image'">
       <img *ngIf="!!value" [src]="value | proxyImage: { height: 30 }" />
     </div>
+    <div *ngSwitchCase="'archive'">
+      <app-icon class="icon" icon="archive" [size]="16"></app-icon>
+    </div>
+    <div *ngSwitchCase="'audio'">
+      <app-icon class="icon" icon="audio" [size]="16"></app-icon>
+    </div>
     <div *ngSwitchCase="'video'">
       <video *ngIf="!!value" autoplay muted [volume]="0" [src]="value"></video>
     </div>

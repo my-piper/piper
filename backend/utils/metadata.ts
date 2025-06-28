@@ -9,9 +9,9 @@ export async function getMetadata(
 ): Promise<{
   type: string;
   format: string;
-  width: number;
-  height: number;
   data: Buffer;
+  width?: number;
+  height?: number;
 }> {
   const [type, format] = mimeType.split("/");
   switch (mimeType) {
@@ -30,6 +30,11 @@ export async function getMetadata(
         height,
         data: await fitted.toBuffer(),
       };
+    }
+    case "audio/mp3":
+    case "audio/aac":
+    case "application/zip": {
+      return { type: "archive", format: "zip", data: buffer };
     }
     case "video/mp4": {
       const { width, height } = await getSize(buffer);

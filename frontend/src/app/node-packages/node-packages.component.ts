@@ -132,7 +132,7 @@ export class NodePackagesComponent extends UntilDestroyed {
     this.cd.detectChanges();
 
     this.http
-      .get("node-packages/updates-state")
+      .get("node-packages/updates/state")
       .pipe(
         delay(UI_DELAY),
         map((plain) => plainToInstance(NodePackageUpdatesState, plain)),
@@ -165,7 +165,7 @@ export class NodePackagesComponent extends UntilDestroyed {
     this.cd.detectChanges();
 
     this.http
-      .get("node-packages/check-updates")
+      .post("node-packages/updates/check")
       .pipe(
         delay(UI_DELAY),
         map((plain) => plainToInstance(NodePackageUpdatesState, plain)),
@@ -190,7 +190,7 @@ export class NodePackagesComponent extends UntilDestroyed {
     this.cd.detectChanges();
 
     this.http
-      .get("node-packages/update")
+      .post("node-packages/updates/apply")
       .pipe(
         delay(UI_DELAY),
         map((plain) => plainToInstance(NodePackageUpdatesState, plain)),

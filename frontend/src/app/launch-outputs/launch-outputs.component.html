@@ -63,6 +63,15 @@
             />
           </button>
         </ng-container>
+        <ng-container *ngSwitchCase="'audio'">
+          <button
+            #buttonRef
+            [class.active]="active?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            <app-icon icon="audio"></app-icon>
+          </button>
+        </ng-container>
         <ng-container *ngSwitchCase="'video'">
           <button
             #buttonRef
@@ -131,6 +140,9 @@
           [class.vertical]="data.height > data.width"
           [style.aspect-ratio]="data.width + '/' + data.height"
         />
+      </ng-container>
+      <ng-container *ngSwitchCase="'audio'">
+        <video controls [src]="data.url"></video>
       </ng-container>
       <ng-container *ngSwitchCase="'video'">
         <video

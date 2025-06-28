@@ -168,6 +168,57 @@
     </div>
   </ng-container>
 
+  <ng-container *ngSwitchCase="'archive'">
+    <ng-template #selectArchiveAssetModal>
+      <ng-container
+        *ngTemplateOutlet="selectAssetTemplate; context: { type: 'archive' }"
+      ></ng-container>
+    </ng-template>
+    <div class="stack horizontal align-center">
+      <button
+        class="primary with-icon only-icon"
+        type="button"
+        [appModal]="{
+          title: 'Select archive',
+          content: selectArchiveAssetModal,
+        }"
+      >
+        <app-icon class="icon" icon="add"></app-icon>
+      </button>
+      <a
+        *ngIf="valueControl.value as href"
+        class="primary with-icon"
+        target="_blank"
+        [href]="href"
+        i18n="@@link.download"
+      >
+        <app-icon class="icon left" icon="download"></app-icon>
+        Download
+      </a>
+    </div>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'audio'">
+    <ng-template #selectAudioAssetModal>
+      <ng-container
+        *ngTemplateOutlet="selectAssetTemplate; context: { type: 'audio' }"
+      ></ng-container>
+    </ng-template>
+    <div class="stack horizontal align-center">
+      <button
+        class="primary with-icon only-icon"
+        type="button"
+        [appModal]="{
+          title: 'Select audio',
+          content: selectAudioAssetModal,
+        }"
+      >
+        <app-icon class="icon" icon="add"></app-icon>
+      </button>
+      <audio [src]="valueControl.value" controls></audio>
+    </div>
+  </ng-container>
+
   <ng-container *ngSwitchCase="'video'">
     <ng-template #selectVideoAssetModal>
       <ng-container

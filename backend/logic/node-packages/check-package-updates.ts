@@ -61,6 +61,7 @@ export async function checkUpdates(_id: string) {
     logger.warn("Package has no URL for updates");
     assign(updates, { errors: "Packages has no URL for updates" });
   }
+
   await redis.rPush(PACKAGES_UPDATES, JSON.stringify(toPlain(updates)));
   await redis.expire(PACKAGES_UPDATES, PACKAGES_UPDATES_TIMEOUT);
 }

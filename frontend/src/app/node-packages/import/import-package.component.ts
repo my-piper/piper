@@ -41,7 +41,7 @@ export class ImportPackageComponent {
 
     const { yaml } = this.form.getRawValue();
     this.http
-      .post("node-packages/import", { yaml })
+      .post("node-packages/import-package", { yaml })
       .pipe(
         delay(UI_DELAY),
         finalize(() => {

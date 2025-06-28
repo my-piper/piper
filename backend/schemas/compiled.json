@@ -319,6 +319,8 @@
 											"string[]",
 											"image",
 											"image[]",
+											"archive",
+											"audio",
 											"video",
 											"json"
 										]
@@ -462,6 +464,8 @@
 											"string[]",
 											"image",
 											"image[]",
+											"archive",
+											"audio",
 											"video",
 											"json"
 										]
@@ -522,6 +526,8 @@
 											"string[]",
 											"image",
 											"image[]",
+											"archive",
+											"audio",
 											"video",
 											"json"
 										]
@@ -665,6 +671,8 @@
 											"string[]",
 											"image",
 											"image[]",
+											"archive",
+											"audio",
 											"video",
 											"json"
 										]
@@ -766,6 +774,8 @@
 										"string[]",
 										"image",
 										"image[]",
+										"archive",
+										"audio",
 										"video",
 										"json"
 									]
@@ -914,6 +924,8 @@
 										"string[]",
 										"image",
 										"image[]",
+										"archive",
+										"audio",
 										"video",
 										"json"
 									]
@@ -1322,6 +1334,8 @@
 								"string[]",
 								"image",
 								"image[]",
+								"archive",
+								"audio",
 								"video",
 								"json"
 							]
@@ -1465,6 +1479,8 @@
 								"string[]",
 								"image",
 								"image[]",
+								"archive",
+								"audio",
 								"video",
 								"json"
 							]
@@ -1525,6 +1541,8 @@
 								"string[]",
 								"image",
 								"image[]",
+								"archive",
+								"audio",
 								"video",
 								"json"
 							]
@@ -1668,6 +1686,8 @@
 								"string[]",
 								"image",
 								"image[]",
+								"archive",
+								"audio",
 								"video",
 								"json"
 							]
@@ -1769,6 +1789,8 @@
 							"string[]",
 							"image",
 							"image[]",
+							"archive",
+							"audio",
 							"video",
 							"json"
 						]
@@ -1917,6 +1939,8 @@
 							"string[]",
 							"image",
 							"image[]",
+							"archive",
+							"audio",
 							"video",
 							"json"
 						]
@@ -2212,6 +2236,8 @@
 								"string[]",
 								"image",
 								"image[]",
+								"archive",
+								"audio",
 								"video",
 								"json"
 							]
@@ -2380,6 +2406,8 @@
 								"string",
 								"image",
 								"image[]",
+								"archive",
+								"audio",
 								"video",
 								"json"
 							]
@@ -2721,6 +2749,8 @@
 											"string[]",
 											"image",
 											"image[]",
+											"archive",
+											"audio",
 											"video",
 											"json"
 										]
@@ -2864,6 +2894,8 @@
 											"string[]",
 											"image",
 											"image[]",
+											"archive",
+											"audio",
 											"video",
 											"json"
 										]
@@ -2924,6 +2956,8 @@
 											"string[]",
 											"image",
 											"image[]",
+											"archive",
+											"audio",
 											"video",
 											"json"
 										]
@@ -3067,6 +3101,8 @@
 											"string[]",
 											"image",
 											"image[]",
+											"archive",
+											"audio",
 											"video",
 											"json"
 										]
@@ -3168,6 +3204,8 @@
 										"string[]",
 										"image",
 										"image[]",
+										"archive",
+										"audio",
 										"video",
 										"json"
 									]
@@ -3316,6 +3354,8 @@
 										"string[]",
 										"image",
 										"image[]",
+										"archive",
+										"audio",
 										"video",
 										"json"
 									]
@@ -3625,6 +3665,8 @@
 							"string[]",
 							"image",
 							"image[]",
+							"archive",
+							"audio",
 							"video",
 							"json"
 						]
@@ -3790,6 +3832,8 @@
 							"string",
 							"image",
 							"image[]",
+							"archive",
+							"audio",
 							"video",
 							"json"
 						]
@@ -4079,6 +4123,8 @@
 										"string[]",
 										"image",
 										"image[]",
+										"archive",
+										"audio",
 										"video",
 										"json"
 									]
@@ -4247,6 +4293,8 @@
 										"string",
 										"image",
 										"image[]",
+										"archive",
+										"audio",
 										"video",
 										"json"
 									]
@@ -4588,6 +4636,8 @@
 													"string[]",
 													"image",
 													"image[]",
+													"archive",
+													"audio",
 													"video",
 													"json"
 												]
@@ -4731,6 +4781,8 @@
 													"string[]",
 													"image",
 													"image[]",
+													"archive",
+													"audio",
 													"video",
 													"json"
 												]
@@ -4791,6 +4843,8 @@
 													"string[]",
 													"image",
 													"image[]",
+													"archive",
+													"audio",
 													"video",
 													"json"
 												]
@@ -4934,6 +4988,8 @@
 													"string[]",
 													"image",
 													"image[]",
+													"archive",
+													"audio",
 													"video",
 													"json"
 												]
@@ -5035,6 +5091,8 @@
 												"string[]",
 												"image",
 												"image[]",
+												"archive",
+												"audio",
 												"video",
 												"json"
 											]
@@ -5183,6 +5241,8 @@
 												"string[]",
 												"image",
 												"image[]",
+												"archive",
+												"audio",
 												"video",
 												"json"
 											]
@@ -5492,6 +5552,8 @@
 									"string[]",
 									"image",
 									"image[]",
+									"archive",
+									"audio",
 									"video",
 									"json"
 								]
@@ -5657,6 +5719,8 @@
 									"string",
 									"image",
 									"image[]",
+									"archive",
+									"audio",
 									"video",
 									"json"
 								]

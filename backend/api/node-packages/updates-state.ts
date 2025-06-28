@@ -4,7 +4,7 @@ import { getPackagesUpdateState } from "logic/node-packages/packages-update-stat
 import { checkAdmin, handle } from "utils/http";
 
 api.get(
-  "/api/node-packages/updates-state",
+  "/api/node-packages/updates/state",
   handle(({ currentUser }) => async () => {
     checkAdmin(currentUser);
 

@@ -4,8 +4,8 @@ import { planUpdatePackages } from "logic/node-packages";
 import { getPackagesUpdateState } from "logic/node-packages/packages-update-state";
 import { checkAdmin, handle } from "utils/http";
 
-api.get(
-  "/api/node-packages/update",
+api.post(
+  "/api/node-packages/updates/apply",
   handle(({ currentUser }) => async () => {
     checkAdmin(currentUser);
 

@@ -17,7 +17,6 @@ api.post(
     const { _id } = currentUser;
 
     const user = new User({ _id });
-    console.log(toPlain(user));
     const token = jwt.sign(toPlain(user), JWT_SECRET);
 
     await redis.setEx(

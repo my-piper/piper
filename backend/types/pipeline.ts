@@ -17,5 +17,7 @@ export type PipelineIOType =
   | "json"
   | "image"
   | "image[]"
+  | "archive"
+  | "audio"
   | "video"
   | "video[]";

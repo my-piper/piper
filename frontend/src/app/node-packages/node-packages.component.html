@@ -59,8 +59,9 @@
               New version {{ updated.version }}:
             </p>
             <div
+              *ngIf="updated.readme as readme"
               class="notes"
-              [innerHTML]="updated.readme | markdown | async"
+              [innerHTML]="readme | markdown | async"
             ></div>
           </ng-container>
         </ng-template>

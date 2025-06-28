@@ -25,6 +25,8 @@ export function convertInput(value: Primitive, type: PipelineIOType) {
     case "json":
       return JSON.parse(value as string);
     case "image":
+    case "archive":
+    case "audio":
     case "video":
       return value as string;
     case "string[]":
@@ -132,8 +134,10 @@ export const convertOutputs =
             case "json":
               results[key] = JSON.stringify(value, null, "    ");
               break;
-            case "video":
-            case "image": {
+            case "image":
+            case "archive":
+            case "audio":
+            case "video": {
               if (typeof value === "object") {
                 const buffer = value as Buffer;
                 const fileName = [launch._id, node, key, sid(2)].join("_");
@@ -145,7 +149,7 @@ export const convertOutputs =
               } else if (typeof value === "string") {
                 results[key] = value;
               } else {
-                throw new Error(`Can't convert image`);
+                throw new Error(`Can't convert binary`);
               }
               break;
             }

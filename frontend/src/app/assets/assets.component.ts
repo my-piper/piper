@@ -14,7 +14,7 @@ import { AssetImportedSignal } from "src/models/signals/asset";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI, UI_DELAY } from "src/ui-kit/consts";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { valuable } from "src/utils/assign";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
@@ -27,6 +27,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
 export class AssetsComponent implements OnInit {
   userRole = UserRole;
   hostname = document.location.hostname;
+  ui = UI;
 
   private _filter!: AssetsFilter;
 
@@ -185,9 +186,7 @@ export class AssetsComponent implements OnInit {
 
           this.selected.emit(asset);
         },
-        error: (err) => {
-          console.log(err);
-        },
+        error: (err) => (this.error = err),
       });
   }
 

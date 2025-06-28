@@ -15,6 +15,8 @@ export function toRedisValue(type: string, value: Primitive | null): string {
     case "float":
     case "image":
     case "image[]":
+    case "archive":
+    case "audio":
     case "video":
     case "json":
     case "string":
@@ -38,6 +40,8 @@ export function fromRedisValue(type: string, value: string): Primitive | null {
       return parseFloat(value);
     case "image":
     case "image[]":
+    case "archive":
+    case "audio":
     case "video":
     case "json":
     case "string":

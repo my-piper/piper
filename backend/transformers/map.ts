@@ -10,12 +10,16 @@ export const objectsMapTransformer =
     value,
     type,
   }: {
-    value: { [key: string]: Object } | Map<string, T>;
+    value: { [key: string]: Object | Map<string, T> } | Map<string, T>;
     type: TransformationType;
   }) => {
     switch (type) {
       case TransformationType.PLAIN_TO_CLASS: {
         if (value === null || value === undefined) {
+          return value;
+        }
+
+        if (value instanceof Map) {
           return value;
         }
         const map = new Map<string, T>();
@@ -54,6 +58,10 @@ export const multipleMapTransformer =
         if (value === null || value === undefined) {
           return value;
         }
+        if (value instanceof Map) {
+          return value;
+        }
+
         const map = new Map<string, T>();
         const entries = Object.entries(value as { [key: string]: Object });
         for (const [key, val] of entries) {

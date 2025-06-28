@@ -119,8 +119,20 @@
 
           &[data-type="image"],
           &[data-type="video"],
+          &[data-type="archive"],
+          &[data-type="audio"],
           &[data-type="image[]"] {
             b {
+              display: none;
+            }
+          }
+        }
+
+        &:not(.filled) {
+
+          &[data-type="archive"],
+          &[data-type="audio"] {
+            .icon {
               display: none;
             }
           }

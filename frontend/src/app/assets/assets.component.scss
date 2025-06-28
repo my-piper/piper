@@ -1,5 +1,6 @@
 @import "src/ui-kit/styles/variables";
 @import "src/ui-kit/styles/mixins";
+@import "src/ui-kit/styles/reset";
 
 :host {
   display: block;
@@ -28,6 +29,12 @@
 
         &:hover {
           border-color: $accent-color;
+        }
+      }
+
+      .audio {
+        button {
+          display: block;
         }
       }
 
@@ -107,13 +114,13 @@
 
       input {
         position: absolute;
+        cursor: pointer;
         top: 0;
         right: 0;
         bottom: 0;
         left: 0;
         z-index: 5;
         opacity: 0;
-        cursor: pointer;
       }
     }
 
@@ -122,6 +129,23 @@
       display: block;
       border-radius: 5px;
       height: 100%;
+    }
+
+    .archive {
+      @include reset-button();
+      padding: $gutter-small;
+    }
+
+    .audio {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: $gutter-normal;
+      gap: $gutter-small;
+
+      button {
+        display: none;
+      }
     }
   }
 }

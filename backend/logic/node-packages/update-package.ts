@@ -46,6 +46,10 @@ export async function uploadPackage(nodePackage: NodePackage) {
     package: _id,
   });
 
+  if (nodes.size <= 0) {
+    throw new DataError("Package has no nodes");
+  }
+
   logger.info("Update nodes");
 
   const bulk = [];

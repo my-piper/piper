@@ -1,9 +1,20 @@
-<!--
-<pre *ngIf="mode == 'default'">
-<![CDATA[curl -X POST -F "file=@image.jpg" https://{{ hostname }}/api/assets
-]]></pre
->
--->
+<ng-template #errorTemplate>
+  <div class="informer errors">
+    <p>{{ error.message }}</p>
+    <ul>
+      <li *ngFor="let m of error?.details">{{ m }}</li>
+    </ul>
+    <div class="stack horizontal justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
+<app-informer
+  *ngIf="!!error"
+  [contentTemplate]="errorTemplate"
+  (ok)="error = null"
+></app-informer>
 
 <ng-template #noDataTemplate>
   <!--<p>No assets found.</p>-->
@@ -91,6 +102,22 @@
           [style.aspect-ratio]="asset.width + '/' + asset.height"
           (click)="select(asset)"
         />
+        <ng-container *ngSwitchCase="'archive'">
+          <button class="archive" (click)="select(asset)">
+            <app-icon
+              icon="archive"
+              [size]="64"
+              [stroke]="1"
+              [color]="ui.color.graphite100"
+            ></app-icon>
+          </button>
+        </ng-container>
+        <div class="audio" *ngSwitchCase="'audio'">
+          <button class="circle small" type="button" (click)="select(asset)">
+            <app-icon class="icon" icon="add-circle"></app-icon>
+          </button>
+          <audio controls [src]="asset.url"></audio>
+        </div>
         <video
           *ngSwitchCase="'video'"
           muted
