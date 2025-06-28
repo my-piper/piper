@@ -52,8 +52,6 @@ api.get(
       ])
       .toArray();
 
-    console.log(aggregated);
-
     return aggregated?.folders || [];
   })
 );

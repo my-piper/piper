@@ -46,8 +46,6 @@ api.post(
 
     const { mimetype: mimeType, buffer } = file;
 
-    console.log(file);
-
     const { type, format, width, height, data } = await getMetadata(
       mimeType,
       buffer

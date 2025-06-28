@@ -14,11 +14,11 @@ export class AssetsFilter {
   @Type(() => String)
   folder?: string;
 
-  @IsEnum(["image", "video"])
+  @IsEnum(["image", "archive", "audio", "video"])
   @IsOptional()
   @Expose()
   @Type(() => String)
-  type?: "image" | "video";
+  type?: "image" | "archive" | "audio" | "video";
 
   @Matches(/^[a-z0-9\-]{5,30}$/)
   @IsOptional()
