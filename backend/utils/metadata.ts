@@ -31,8 +31,12 @@ export async function getMetadata(
         data: await fitted.toBuffer(),
       };
     }
-    case "audio/mp3":
-    case "audio/aac":
+    case "audio/mp3": {
+      return { type: "audio", format: "mp3", data: buffer };
+    }
+    case "audio/aac": {
+      return { type: "audio", format: "aac", data: buffer };
+    }
     case "application/zip": {
       return { type: "archive", format: "zip", data: buffer };
     }
