@@ -7,7 +7,7 @@ import { PackageUpdatedEvent } from "src/models/events";
 import { NodePackage, NodePackageUpdatesState } from "src/models/node-package";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI, UI_DELAY } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { EditPackageComponent } from "./edit/edit-package.component";
@@ -19,6 +19,8 @@ import { ImportPackageComponent } from "./import/import-package.component";
   styleUrls: ["./node-packages.component.scss"],
 })
 export class NodePackagesComponent extends UntilDestroyed {
+  ui = UI;
+
   private _modal!: EditPackageComponent | ImportPackageComponent;
 
   error!: Error;
@@ -43,7 +45,6 @@ export class NodePackagesComponent extends UntilDestroyed {
           const index = this.packages.findIndex(
             (u) => u._id === nodePackage._id
           );
-          debugger;
           if (index !== -1) {
             assign(this.packages[index], nodePackage);
             this.cd.detectChanges();

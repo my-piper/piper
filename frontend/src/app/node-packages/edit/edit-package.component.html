@@ -2,7 +2,7 @@
 <form [formGroup]="form">
   <fieldset>
     <app-json-editor
-      [schema]="schemas.nodePackage"
+      [schema]="schema"
       [disable]="!!nodePackage ? ['root._id'] : []"
       [features]="[]"
       formControlName="nodePackage"

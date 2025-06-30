@@ -31,12 +31,8 @@ api.patch(
       assign(update, { password: await bcrypt.hash(password, 10) });
     }
 
-    await mongo.users.updateOne(
-      { _id },
-      {
-        $set: toPlain(update),
-      }
-    );
-    return toPlain(update);
+    const plain = toPlain(update);
+    await mongo.users.updateOne({ _id }, { $set: plain });
+    return plain;
   })
 );

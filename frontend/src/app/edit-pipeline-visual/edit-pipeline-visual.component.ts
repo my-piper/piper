@@ -206,7 +206,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
     const exists = !!this.pipeline.outputs.get(id);
     const key = !exists ? id : `${id}_${sid()}`;
-    debugger;
     this.pipeline.outputs.set(key, output);
     this.save();
     this.cd.detectChanges();

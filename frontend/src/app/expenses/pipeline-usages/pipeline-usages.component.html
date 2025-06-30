@@ -24,7 +24,11 @@
         {{ u.node | i18n }}
       </td>
       <td title="Launch" i18n-title="@@label.launch">
-        <a target="_blank" [routerLink]="['/launches', u.launch]">
+        <a
+          class="default"
+          target="_blank"
+          [routerLink]="['/launches', u.launch]"
+        >
           {{ u.launch }}
         </a>
       </td>

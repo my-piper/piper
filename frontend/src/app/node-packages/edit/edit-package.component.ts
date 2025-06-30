@@ -24,6 +24,12 @@ import { toPlain } from "src/utils/models";
 export class EditPackageComponent implements OnInit {
   schemas = SCHEMAS;
 
+  schema = (() => {
+    const schema = SCHEMAS.nodePackage;
+    delete schema.properties.nodes;
+    return schema;
+  })();
+
   progress = { saving: false };
   error!: AppError;
 

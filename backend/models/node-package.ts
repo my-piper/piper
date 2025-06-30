@@ -33,6 +33,10 @@ export class NodePackage {
   readme: string;
 
   @Expose()
+  @Type(() => Boolean)
+  public: boolean;
+
+  @Expose()
   @Transform(objectsMapTransformer(Node))
   nodes: Map<string, Node>;
 

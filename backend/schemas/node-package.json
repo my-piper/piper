@@ -47,6 +47,11 @@
       "format": "textarea",
       "propertyOrder": 7
     },
+    "public": {
+      "type": "boolean",
+      "title": "Public",
+      "propertyOrder": 8
+    },
     "nodes": {
       "type": "object",
       "additionalProperties": {

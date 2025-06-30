@@ -99,7 +99,11 @@
           </button>
         </td>
         <td i18n-title="@@label.title" title="Title">
-          <a [routerLink]="[p.slug || p._id]" [state]="{ scroll: 'top' }">
+          <a
+            class="default"
+            [routerLink]="[p.slug || p._id]"
+            [state]="{ scroll: 'top' }"
+          >
             {{ p.title | i18n }}
           </a>
         </td>

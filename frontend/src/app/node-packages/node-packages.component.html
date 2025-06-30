@@ -122,6 +122,7 @@
     <thead>
       <th width="24px"></th>
       <th width="256px" i18n="@@label.title">Title</th>
+      <th width="24px"></th>
       <th width="64px" i18n="@@label.version">Version</th>
       <th i18n="@@label.description">Description</th>
     </thead>
@@ -161,8 +162,23 @@
           </button>
         </td>
         <td>
-          <a [routerLink]="[p._id, 'export']">
+          <a class="default" [routerLink]="[p._id, 'export']">
             {{ p.title | i18n }}
+          </a>
+        </td>
+        <td i18n-title="@@label.visibility" title="Visibility">
+          <a
+            class="circle small"
+            *ngIf="p.public"
+            target="_blank"
+            href="/api/node-packages/{{ p._id }}/export"
+          >
+            <app-icon
+              class="icon"
+              icon="share"
+              [color]="ui.color.primary"
+              size="18"
+            ></app-icon>
           </a>
         </td>
         <td class="version">

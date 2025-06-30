@@ -30,6 +30,10 @@ export class NodePackage {
   @Type(() => String)
   readme: string;
 
+  @Expose()
+  @Type(() => Boolean)
+  public: boolean;
+
   constructor(defs: Partial<NodePackage>) {
     assign(this, defs);
   }

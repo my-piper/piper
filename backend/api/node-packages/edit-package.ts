@@ -22,7 +22,8 @@ api.post(
       );
     }
 
-    await mongo.nodePackages.updateOne({ _id }, { $set: toPlain(nodePackage) });
-    return null;
+    const plain = toPlain(nodePackage);
+    await mongo.nodePackages.updateOne({ _id }, { $set: plain });
+    return plain;
   })
 );
