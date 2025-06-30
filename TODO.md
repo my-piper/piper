@@ -17,6 +17,7 @@
 
 - [ ] `process.env` to `env`
 - [ ] cursor in assets
+- [ ] write pipeline/node validator
 - [ ] cursor in generated assets
 - [ ] move `transformers` to `core-kit`
 - [ ] move `Primitive` to `core-kit`

@@ -5,7 +5,6 @@ import { AppError } from "src/models/errors";
 import { NodePackage } from "src/models/node-package";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
-import * as YAML from "yaml";
 
 @Component({
   selector: "app-export-package",
@@ -17,7 +16,7 @@ export class ExportPackageComponent implements OnInit {
   error!: AppError;
 
   nodePackage!: NodePackage;
-  json: Object;
+  yaml: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -33,11 +32,7 @@ export class ExportPackageComponent implements OnInit {
   }
 
   copy() {
-    navigator.clipboard.writeText(
-      YAML.stringify(this.json, {
-        lineWidth: 0,
-      })
-    );
+    navigator.clipboard.writeText(this.yaml);
   }
 
   load() {
@@ -45,7 +40,11 @@ export class ExportPackageComponent implements OnInit {
     this.cd.detectChanges();
 
     this.http
-      .get(`node-packages/${this.nodePackage._id}/export`)
+      .get(
+        `node-packages/${this.nodePackage._id}/export`,
+        {},
+        { responseType: "text" }
+      )
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
@@ -54,7 +53,7 @@ export class ExportPackageComponent implements OnInit {
         })
       )
       .subscribe({
-        next: (json) => (this.json = json),
+        next: (yaml) => (this.yaml = yaml as string),
         error: (err) => (this.error = err),
       });
   }
