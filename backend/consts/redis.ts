@@ -6,7 +6,7 @@ const KEY_SEPARATOR = ":";
 
 export const REDIS_SECRET_KEY = process.env["REDIS_SECRET_KEY"] || "xyzXYZ";
 
-export const DEPLOY_EXPIRED = SECONDS_IN_DAY * 31;
+export const DEPLOY_EXPIRED = SECONDS_IN_DAY * 180;
 export const LAUNCH_EXPIRED =
   (() => {
     const value = process.env["LAUNCH_EXPIRED"];
