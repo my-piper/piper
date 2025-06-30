@@ -1,4 +1,4 @@
-import "core-kit/env";
+import env from "core-kit/env";
 import "reflect-metadata";
 
 import { queues } from "app/queues";
@@ -35,7 +35,7 @@ app.get("/metrics", async (req, res) => {
 
 const PORT =
   (() => {
-    const port = process.env["METRICS_PORT"];
+    const port = env["METRICS_PORT"];
     if (!!port) {
       return parseInt(port);
     }

@@ -3,6 +3,7 @@ import { toInstance, toPlain } from "core-kit/packages/transform";
 import merge from "lodash/merge";
 import * as deploys from "logic/deploy";
 import * as launches from "logic/launches";
+import { checkRateLimits } from "logic/users/check-rate-limits";
 import { Launch, LaunchOptions } from "models/launch";
 import { LaunchRequest } from "models/launch-request";
 import { Project } from "models/project";
@@ -22,6 +23,8 @@ api.post(
       environment,
       scope,
     } = await deploys.get(slug);
+
+    await checkRateLimits(currentUser);
 
     const launchRequest = toInstance(
       merge(toPlain(deployLaunchRequest), body),

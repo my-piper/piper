@@ -15,6 +15,7 @@
 
 ## Legacy
 
+- [ ] `process.env` to `env`
 - [ ] cursor in assets
 - [ ] cursor in generated assets
 - [ ] move `transformers` to `core-kit`
