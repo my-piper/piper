@@ -32,9 +32,12 @@ export async function importPackage(source: string) {
 }
 
 export async function uploadPackage(nodePackage: NodePackage) {
+  const logger = createLogger("update-package");
+
   const validate = ajv.compile(SCHEMAS.nodePackage);
   if (!validate(nodePackage)) {
     const { errors } = validate;
+    logger.error(JSON.stringify(errors));
     throw new DataError(
       "Node package schema invalid",
       errors.map((e) => `${e.propertyName || e.instancePath}: ${e.message}`)
@@ -42,9 +45,6 @@ export async function uploadPackage(nodePackage: NodePackage) {
   }
 
   const { _id, nodes } = nodePackage;
-  const logger = createLogger("update-package", {
-    package: _id,
-  });
 
   if (nodes.size <= 0) {
     throw new DataError("Package has no nodes");
