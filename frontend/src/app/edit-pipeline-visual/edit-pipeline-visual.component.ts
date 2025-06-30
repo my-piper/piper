@@ -174,7 +174,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   addNode(node: Node) {
     const id = `${node._id}_${sid()}`;
     this.pipeline.nodes.set(id, node);
-    if (this.pipeline.nodes.size <= 0) {
+    if (this.pipeline.start.nodes.length <= 0) {
       this.pipeline.start.nodes.push(id);
     }
     assign(node.arrange, { x: random(100, 400), y: random(100, 200) });
