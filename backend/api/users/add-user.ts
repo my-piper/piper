@@ -1,6 +1,6 @@
 import api from "app/api";
 import { toPlain } from "core-kit/packages/transform";
-import { add } from "logic/users/add-user";
+import { add } from "packages/users/add-user";
 import { checkAdmin, handle } from "utils/http";
 
 api.post(

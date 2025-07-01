@@ -11,10 +11,10 @@ import { differenceInSeconds } from "date-fns";
 import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
 import { NodeExecution } from "enums/node-execution";
-import { plan } from "logic/nodes/plan-node";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { pathToFileURL } from "node:url";
 import { Module, SourceTextModule } from "node:vm";
+import { plan } from "packages/nodes/plan-node";
 import path from "path";
 import { Primitive } from "types/primitive";
 import {

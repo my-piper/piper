@@ -1,7 +1,7 @@
 import cli, { Command } from "app/cli";
 import { createLogger } from "core-kit/packages/logger";
 import { toPlain } from "core-kit/packages/transform";
-import * as modules from "logic/modules";
+import * as modules from "packages/modules";
 
 const logger = createLogger("modules");
 

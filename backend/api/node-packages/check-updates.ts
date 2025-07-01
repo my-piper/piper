@@ -1,8 +1,8 @@
 import api from "app/api";
 import { createLogger } from "core-kit/packages/logger";
 import { toPlain } from "core-kit/packages/transform";
-import { planCheckUpdates } from "logic/node-packages";
-import { getPackagesUpdateState } from "logic/node-packages/packages-update-state";
+import { planCheckUpdates } from "packages/node-packages";
+import { getPackagesUpdateState } from "packages/node-packages/packages-update-state";
 import { checkAdmin, handle } from "utils/http";
 
 const logger = createLogger("check-updates");

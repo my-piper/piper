@@ -2,9 +2,9 @@ import api from "app/api";
 import { USER_ENVIRONMENT_EXPIRED, USER_ENVIRONMENT_KEY } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
-import { encrypt } from "logic/environment/crypt-environment";
-import { merge } from "logic/environment/merge-environment";
 import { Environment } from "models/environment";
+import { encrypt } from "packages/environment/crypt-environment";
+import { merge } from "packages/environment/merge-environment";
 import { Primitive } from "types/primitive";
 import { checkLogged, handle } from "utils/http";
 

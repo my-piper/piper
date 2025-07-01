@@ -1,5 +1,5 @@
 import api from "app/api";
-import * as deploys from "logic/deploy";
+import * as deploys from "packages/deploy";
 import { checkLogged, handle } from "utils/http";
 
 api.get(

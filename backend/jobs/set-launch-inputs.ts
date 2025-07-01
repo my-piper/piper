@@ -4,9 +4,9 @@ import { LAUNCH } from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import { toPlain } from "core-kit/packages/transform";
-import { getIOData } from "logic/launches";
 import { SetLaunchInputsEvent } from "models/events";
 import { Launch, LaunchInput } from "models/launch";
+import { getIOData } from "packages/launches";
 import { readInstance } from "utils/redis";
 
 queues.launches.inputs.set.process(async (setInputsJob) => {

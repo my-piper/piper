@@ -1,5 +1,5 @@
 import api from "app/api";
-import { generateSign } from "logic/nodes/sign-node";
+import { generateSign } from "packages/nodes/sign-node";
 import { checkEngineer, handle } from "utils/http";
 
 api.post(

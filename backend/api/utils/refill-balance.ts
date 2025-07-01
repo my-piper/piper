@@ -3,8 +3,8 @@ import mongo from "app/mongo";
 import { MASTER_KEY } from "consts/core";
 import { toInstance, validate } from "core-kit/packages/transform";
 import { PenTestingError } from "core-kit/types/errors";
-import { refillBalance } from "logic/users/refill-balance";
 import { User } from "models/user";
+import { refillBalance } from "packages/users/refill-balance";
 import { handle, toModel } from "utils/http";
 import { BillingOrder } from "./models/billing-order";
 

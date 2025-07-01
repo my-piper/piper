@@ -2,11 +2,11 @@ import api from "app/api";
 import mongo from "app/mongo";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import merge from "lodash/merge";
-import { run } from "logic/launches/launching";
 import { LaunchOptions } from "models/launch";
 import { LaunchRequest } from "models/launch-request";
 import { Project } from "models/project";
 import { User } from "models/user";
+import { run } from "packages/launches/launching";
 import { checkBalance, handle, toModel } from "utils/http";
 
 api.post(

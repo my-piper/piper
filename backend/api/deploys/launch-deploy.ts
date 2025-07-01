@@ -1,13 +1,13 @@
 import api from "app/api";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import merge from "lodash/merge";
-import * as deploys from "logic/deploy";
-import * as launches from "logic/launches";
-import { checkRateLimits } from "logic/users/check-rate-limits";
 import { Launch, LaunchOptions } from "models/launch";
 import { LaunchRequest } from "models/launch-request";
 import { Project } from "models/project";
 import { User } from "models/user";
+import * as deploys from "packages/deploy";
+import * as launches from "packages/launches";
+import { checkRateLimits } from "packages/users/check-rate-limits";
 import { checkBalance, checkLogged, handle } from "utils/http";
 
 api.post(

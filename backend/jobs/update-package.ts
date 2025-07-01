@@ -1,5 +1,5 @@
 import { queues } from "app/queues";
-import * as packages from "logic/node-packages";
+import * as packages from "packages/node-packages";
 
 queues.packages.update.process(({ nodePackage }) =>
   packages.uploadPackage(nodePackage)

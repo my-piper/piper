@@ -1,6 +1,6 @@
 import api from "app/api";
 import { toPlain } from "core-kit/packages/transform";
-import { getPackagesUpdateState } from "logic/node-packages/packages-update-state";
+import { getPackagesUpdateState } from "packages/node-packages/packages-update-state";
 import { checkAdmin, handle } from "utils/http";
 
 api.get(

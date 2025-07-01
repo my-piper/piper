@@ -17,8 +17,6 @@ import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
-import { plan } from "logic/nodes/plan-node";
-import { getCosts } from "logic/pipelines/pipeline-costs";
 import {
   BooleanData,
   FloatData,
@@ -34,6 +32,8 @@ import {
   StringData,
   VideoData,
 } from "models/launch";
+import { plan } from "packages/nodes/plan-node";
+import { getCosts } from "packages/pipelines/pipeline-costs";
 import path from "path";
 import sharp from "sharp";
 import { PipelineIOType } from "types/pipeline";

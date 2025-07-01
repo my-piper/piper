@@ -1,6 +1,6 @@
 import cli, { Command } from "app/cli";
 import { createLogger } from "core-kit/packages/logger";
-import * as packages from "logic/node-packages";
+import * as packages from "packages/node-packages";
 
 const logger = createLogger("packages");
 

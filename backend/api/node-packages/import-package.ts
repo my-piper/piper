@@ -1,5 +1,5 @@
 import api from "app/api";
-import { importPackage } from "logic/node-packages";
+import { importPackage } from "packages/node-packages";
 import { checkLogged, handle } from "utils/http";
 
 api.post(

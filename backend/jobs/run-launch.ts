@@ -7,8 +7,8 @@ import {
 import { createLogger } from "core-kit/packages/logger";
 import redis from "core-kit/packages/redis";
 import random from "lodash/random";
-import { kick } from "logic/launches";
 import { Launch } from "models/launch";
+import { kick } from "packages/launches";
 import { RunLaunchJobResult } from "types/launch";
 import { readInstance } from "utils/redis";
 

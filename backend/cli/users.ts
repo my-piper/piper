@@ -1,8 +1,8 @@
 import cli, { Command } from "app/cli";
 import { createLogger } from "core-kit/packages/logger";
-import { add } from "logic/users/add-user";
-import { refillBalance } from "logic/users/refill-balance";
 import { UserRole } from "models/user";
+import { add } from "packages/users/add-user";
+import { refillBalance } from "packages/users/refill-balance";
 
 const logger = createLogger("users");
 

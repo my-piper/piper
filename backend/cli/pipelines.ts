@@ -3,8 +3,8 @@ import mongo from "app/mongo";
 import { createLogger } from "core-kit/packages/logger";
 import { toInstance } from "core-kit/packages/transform";
 import { NotFoundError } from "core-kit/types/errors";
-import { importPipeline } from "logic/pipelines";
 import { User } from "models/user";
+import { importPipeline } from "packages/pipelines";
 
 const logger = createLogger("pipelines");
 

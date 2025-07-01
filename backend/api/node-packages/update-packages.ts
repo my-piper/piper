@@ -1,7 +1,7 @@
 import api from "app/api";
 import { toPlain } from "core-kit/packages/transform";
-import { planUpdatePackages } from "logic/node-packages";
-import { getPackagesUpdateState } from "logic/node-packages/packages-update-state";
+import { planUpdatePackages } from "packages/node-packages";
+import { getPackagesUpdateState } from "packages/node-packages/packages-update-state";
 import { checkAdmin, handle } from "utils/http";
 
 api.post(
