@@ -10,6 +10,7 @@ import {
 import { createLogger } from "core-kit/packages/logger";
 import sentry from "core-kit/packages/sentry";
 import { DataError } from "core-kit/types/errors";
+import { fileTypeFromBuffer } from "file-type";
 import trimStart from "lodash/trimStart";
 import {
   S3_ACCESS_KEY_ID,
@@ -52,6 +53,7 @@ export async function upload(
 ): Promise<string> {
   logger.debug(`Upload file ${key}`);
   try {
+    const { mime } = await fileTypeFromBuffer(data);
     const target = bucket || S3_DEFAULT_BUCKET_NAME;
     const {
       $metadata: { httpStatusCode },
@@ -61,6 +63,7 @@ export async function upload(
         Key: getKey(key),
         Body: data,
         ACL: "public-read",
+        ContentType: mime,
       })
     );
     logger.debug(`Server returned ${httpStatusCode}`);
