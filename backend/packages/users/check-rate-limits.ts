@@ -36,7 +36,7 @@ const RATE_LIMITS_KEY = (user: string) => {
 };
 export async function checkRateLimits({ _id, balance }: User) {
   if (MIN_BALANCE > 0) {
-    if (balance?.available || 0 < MIN_BALANCE) {
+    if ((balance?.available || 0) < MIN_BALANCE) {
       const windowKey = RATE_LIMITS_KEY(_id);
       const requests = await increment(windowKey);
       if (requests === 1) {
