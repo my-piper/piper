@@ -1,5 +1,5 @@
 import cli, { Command } from "app/cli";
-import { GLOBAL_ENVIRONMENT_KEY } from "consts/redis";
+import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
@@ -10,18 +10,22 @@ import { Primitive } from "types/primitive";
 
 const logger = createLogger("environment");
 
-const commands = new Command("env").action(async () => {
-  const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
-  const environment = !!json
-    ? toInstance(JSON.parse(json), Environment)
-    : new Environment({
-        variables: new Map<string, Primitive>(),
-      });
+const commands = new Command("env")
+  .argument("[user]")
+  .action(async (user?: string) => {
+    const json = await redis.get(
+      !!user ? USER_ENVIRONMENT_KEY(user) : GLOBAL_ENVIRONMENT_KEY
+    );
+    const environment = !!json
+      ? toInstance(JSON.parse(json), Environment)
+      : new Environment({
+          variables: new Map<string, Primitive>(),
+        });
 
-  decrypt(environment);
-  logger.info(toPlain(environment));
-  process.exit();
-});
+    decrypt(environment);
+    logger.info(toPlain(environment));
+    process.exit();
+  });
 
 commands
   .command("set <name> <value>")
