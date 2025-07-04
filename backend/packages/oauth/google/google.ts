@@ -15,7 +15,7 @@ passport.use(
     {
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET,
-      callbackURL: [BASE_URL, "/oauth/google/callback"].join("/"),
+      callbackURL: [BASE_URL, "oauth/google/callback"].join("/"),
     },
     (accessToken: string, refreshToken: string, profile: object, done) => {
       const {
