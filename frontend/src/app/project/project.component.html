@@ -128,6 +128,15 @@
       >Design</a
     >
     <ul class="menu">
+      <li>
+        <a
+          [routerLink]="['node-updates']"
+          routerLinkActive="active"
+          i18n="@@link.updates"
+          >Updates</a
+        >
+      </li>
+      <li>|</li>
       <li *ngIf="(project.pipeline.outputs | keyvalue | length) > 0">
         <a
           class="with-icon"

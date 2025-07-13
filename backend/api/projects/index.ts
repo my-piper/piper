@@ -13,8 +13,8 @@ import "./deploy-project";
 import "./patch-project";
 import "./update-project";
 
+import "./check-node-updates";
 import "./get-launch-costs";
-
 import "./launch-project";
 
 import "./comments";

@@ -41,6 +41,8 @@
     "greyscale",
     "loras",
     "nocodb",
+    "Partitioner",
+    "Partitioners",
     "replenishments"
   ]
 }

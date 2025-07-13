@@ -1,6 +1,7 @@
 import { Expose, Transform, Type } from "class-transformer";
 import assign from "lodash/assign";
 import { NodeExecution } from "src/enums/node-execution";
+import { objectTransformer } from "src/transformers/object";
 import {
   primitiveArrayTransformer,
   primitiveTransformer,
@@ -349,4 +350,24 @@ export class NodeStatus {
   @Expose()
   @Type(() => String)
   error!: string;
+}
+
+export class NodeToUpdate {
+  @Expose()
+  @Transform(objectTransformer)
+  current: object;
+
+  @Expose()
+  @Transform(objectTransformer)
+  changes: object;
+
+  @Expose()
+  @Type(() => Node)
+  updated: Node;
+}
+
+export class PipelineNodeUpdates {
+  @Expose()
+  @Type(() => NodeToUpdate)
+  updates: Map<string, NodeToUpdate>;
 }

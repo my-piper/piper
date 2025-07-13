@@ -1,6 +1,6 @@
-import clickhouse from "app/clickhouse";
 import mongo from "app/mongo";
 import { queues } from "app/queues";
+import clickhouse from "core-kit/packages/clickhouse";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import { toPlain } from "core-kit/packages/transform";

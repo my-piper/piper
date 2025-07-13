@@ -1,8 +1,8 @@
 import api from "app/api";
+import clickhouse from "core-kit/packages/clickhouse";
 import { toInstance, validate } from "core-kit/packages/transform";
 import sql from "sql-bricks-sqlite";
 import { checkLogged, handle } from "utils/http";
-import clickhouse from "../../app/clickhouse";
 import { BalanceRefillsFilter } from "./models";
 
 const PAGE_LIMIT = 20;

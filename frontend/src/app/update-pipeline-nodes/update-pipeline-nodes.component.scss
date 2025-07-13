@@ -1,0 +1,21 @@
+@import "src/ui-kit/styles/variables";
+
+:host {
+  display: block;
+}
+
+.nodes {
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-normal;
+
+  &>div {
+    display: flex;
+    flex-direction: column;
+    gap: $gutter-small;
+
+    &.updated {
+      opacity: .5;
+    }
+  }
+}

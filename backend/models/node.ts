@@ -3,6 +3,7 @@ import { NodeExecution } from "enums/node-execution";
 import assign from "lodash/assign";
 import merge from "lodash/merge";
 import { objectsMapTransformer } from "transformers/map";
+import { objectTransformer } from "transformers/object";
 import {
   primitiveArrayTransformer,
   primitiveTransformer,
@@ -292,4 +293,24 @@ export class NodeStatus {
   constructor(defs: Partial<NodeStatus> = {}) {
     merge(this, defs);
   }
+}
+
+export class NodeToUpdate {
+  @Expose()
+  @Transform(objectTransformer)
+  current: object;
+
+  @Expose()
+  @Transform(objectTransformer)
+  changes: object;
+
+  @Expose()
+  @Type(() => Node)
+  updated: Node;
+}
+
+export class PipelineNodeUpdates {
+  @Expose()
+  @Transform(objectsMapTransformer(NodeToUpdate))
+  updates: Map<string, NodeToUpdate>;
 }

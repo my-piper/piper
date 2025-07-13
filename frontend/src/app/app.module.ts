@@ -39,7 +39,7 @@ import { ImageProxyPipe } from "src/pipes/image-proxy";
 import { IncludesPipe } from "src/pipes/includes";
 import { PipelineInputPipe } from "src/pipes/input";
 import { IsPipe } from "src/pipes/is";
-import { PlainPipe } from "src/pipes/map-to-plain";
+import { MapToPlainPipe } from "src/pipes/map-to-plain";
 import { MarkdownPipe } from "src/pipes/markdown";
 import { InputIndexOfPipe, NodePipe, OutputIndexOfPipe } from "src/pipes/node";
 import { NotPipe } from "src/pipes/not";
@@ -49,6 +49,7 @@ import { PipelineOutputPipe } from "src/pipes/output";
 import { GetPercentPipe } from "src/pipes/percents";
 import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { PipelineFinishedMetricPipe } from "src/pipes/pipeline-finished-metric";
+import { PlainPipe } from "src/pipes/plain";
 import { ShiftPipe } from "src/pipes/shift";
 import { SlicePipe } from "src/pipes/slice";
 import { SplitPipe } from "src/pipes/split";
@@ -118,6 +119,7 @@ import { SelectPlaygroundPageComponent } from "./select-playground-page/select-p
 import { SelectPlaygroundComponent } from "./select-playground/select-playground.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
+import { UpdatePipelineNodesComponent } from "./update-pipeline-nodes/update-pipeline-nodes.component";
 import { EditUserComponent } from "./users/edit/edit-user.component";
 import { UsersComponent } from "./users/users.component";
 
@@ -135,6 +137,7 @@ import { UsersComponent } from "./users/users.component";
     CurvePipe,
     NodePipe,
     ShiftPipe,
+    MapToPlainPipe,
     PlainPipe,
     IncludesPipe,
     AssetsComponent,
@@ -226,6 +229,7 @@ import { UsersComponent } from "./users/users.component";
     EditPipelineScriptComponent,
     ProjectCommentsComponent,
     ChangePasswordComponent,
+    UpdatePipelineNodesComponent,
   ],
   imports: [
     BrowserModule,

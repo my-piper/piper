@@ -1,8 +1,8 @@
 import { Pipe, PipeTransform } from "@angular/core";
 import { Primitive } from "src/types/primitive";
 
-@Pipe({ name: "plain", pure: false })
-export class PlainPipe implements PipeTransform {
+@Pipe({ name: "mapToPlain", pure: false })
+export class MapToPlainPipe implements PipeTransform {
   transform(map: Map<string, Primitive> | null): { [key: string]: Primitive } {
     if (!map) {
       return null;

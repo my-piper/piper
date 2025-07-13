@@ -59,7 +59,5 @@ api.post(
     delete plain["pipeline"];
     delete plain["launchRequest"];
     return plain;
-
-    return plain;
   })
 );

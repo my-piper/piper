@@ -1,5 +1,9 @@
-import { Expose, Transform, Type } from "core-kit/packages/transform";
-import { dateTransformer } from "transformers/date";
+import {
+  dateTransformer,
+  Expose,
+  Transform,
+  Type,
+} from "core-kit/packages/transform";
 
 export class JobOptions {
   @Expose({ name: "attempts" })

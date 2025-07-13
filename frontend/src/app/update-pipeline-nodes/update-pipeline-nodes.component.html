@@ -1,0 +1,44 @@
+<ng-template #noDataTemplate>
+  <ng-container *ngIf="progress.loading; else noUpdatesTemplate">
+    <app-skeleton type="cards" [cols]="2"></app-skeleton>
+  </ng-container>
+</ng-template>
+
+<ng-template #noUpdatesTemplate>
+  <p>No updates in nodes from catalog.</p>
+</ng-template>
+
+<ng-container *ngIf="nodeUpdates?.updates | keyvalue as updates">
+  <div class="nodes" *ngIf="updates.length > 0; else noDataTemplate">
+    <div *ngFor="let node of updates" [class.updated]="state.updated[node.key]">
+      <h1>{{ node.key }}</h1>
+      <ngx-monaco-diff-editor
+        class="monaco"
+        [originalModel]="{
+          language: 'yaml',
+          code: node.value.current | yaml,
+        }"
+        [modifiedModel]="{
+          language: 'yaml',
+          code: node.value.changes | yaml,
+        }"
+        [options]="{
+          readOnly: true,
+          renderSideBySide: true,
+          minimap: { enabled: false },
+        }"
+      >
+      </ngx-monaco-diff-editor>
+      <div>
+        <button
+          class="primary"
+          [disabled]="state.updated[node.key]"
+          i18n="@@action.update"
+          (click)="update(node.key, node.value.updated)"
+        >
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

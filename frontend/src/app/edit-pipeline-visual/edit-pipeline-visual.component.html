@@ -142,7 +142,7 @@
         [id]="node.key"
         [node]="node.value"
         [start]="pipeline.start.nodes | includes: node.key"
-        [inputs]="launchRequest.nodes.get(node.key)?.inputs | plain"
+        [inputs]="launchRequest.nodes.get(node.key)?.inputs | mapToPlain"
         (output)="startFlow(node.key, $event)"
         (input)="!!flow ? addFlow(node.key, $event) : null"
         (takeOutInput)="takeOutPipelineInput($event)"

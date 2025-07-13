@@ -71,6 +71,7 @@ import { ImportProjectComponent } from "./projects/import/import-project.compone
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
+import { UpdatePipelineNodesComponent } from "./update-pipeline-nodes/update-pipeline-nodes.component";
 import { EditUserComponent } from "./users/edit/edit-user.component";
 import { UsersComponent } from "./users/users.component";
 
@@ -227,6 +228,10 @@ const routes: Routes = [
           environment: MeEnvironmentResolver,
         },
         component: EditPipelineEnvironmentComponent,
+      },
+      {
+        path: "node-updates",
+        component: UpdatePipelineNodesComponent,
       },
       {
         path: "messages",

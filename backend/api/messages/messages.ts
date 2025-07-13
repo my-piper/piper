@@ -1,5 +1,5 @@
 import api from "app/api";
-import clickhouse from "app/clickhouse";
+import clickhouse from "core-kit/packages/clickhouse";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { PipelineMessage } from "models/pipeline-message";
 import sql from "sql-bricks";

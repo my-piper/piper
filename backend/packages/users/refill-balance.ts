@@ -1,5 +1,5 @@
-import clickhouse from "app/clickhouse";
 import { queues } from "app/queues";
+import clickhouse from "core-kit/packages/clickhouse";
 import { toPlain } from "core-kit/packages/transform";
 import { BalanceRefill } from "models/balance-refill";
 import { ulid } from "ulid";

@@ -1,6 +1,10 @@
-import { Expose, Transform, Type } from "core-kit/packages/transform";
+import {
+  dateTransformer,
+  Expose,
+  Transform,
+  Type,
+} from "core-kit/packages/transform";
 import assign from "lodash/assign";
-import { dateTransformer } from "transformers/date";
 import { BullJob } from "./bull-job";
 
 export class NodeJob {

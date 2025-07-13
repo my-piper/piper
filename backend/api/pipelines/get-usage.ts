@@ -1,5 +1,5 @@
 import api from "app/api";
-import clickhouse from "app/clickhouse";
+import clickhouse from "core-kit/packages/clickhouse";
 import { checkLogged, handle } from "utils/http";
 
 api.get(

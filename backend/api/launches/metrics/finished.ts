@@ -1,5 +1,5 @@
 import api from "app/api";
-import clickhouse from "app/clickhouse";
+import clickhouse from "core-kit/packages/clickhouse";
 import { toPlain } from "core-kit/packages/transform";
 import { addYears } from "date-fns";
 import { Response } from "express";

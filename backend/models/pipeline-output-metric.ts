@@ -1,6 +1,10 @@
-import { Expose, Transform, Type } from "core-kit/packages/transform";
+import {
+  dateTransformer,
+  Expose,
+  Transform,
+  Type,
+} from "core-kit/packages/transform";
 import merge from "lodash/merge";
-import { dateTransformer } from "transformers/date";
 
 export class PipelineOutputMetric {
   @Expose()

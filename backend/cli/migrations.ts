@@ -1,14 +1,13 @@
 import cli, { Command } from "app/cli";
 import { exec } from "child_process";
+import { MONGO_DB, MONGO_URL } from "consts/core";
+import "core-kit/env";
 import {
   CLICKHOUSE_DB,
   CLICKHOUSE_NATIVE_URL,
   CLICKHOUSE_PASSWORD,
   CLICKHOUSE_USER,
-  MONGO_DB,
-  MONGO_URL,
-} from "consts/core";
-import "core-kit/env";
+} from "core-kit/packages/clickhouse/consts";
 import { createLogger } from "core-kit/packages/logger";
 import qs from "qs";
 import { promisify } from "util";
