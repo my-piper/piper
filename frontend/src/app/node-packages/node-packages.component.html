@@ -182,14 +182,13 @@
           </a>
         </td>
         <td class="version">
-          <ng-template #releaseNotedPopover>
-            <h1 i18n="@@label.release_notes">Release notes:</h1>
+          <ng-template #releaseNotesPopover>
             <div [innerHTML]="p.readme | markdown | async"></div>
           </ng-template>
           <div class="stack horizontal small align-center">
             <span>{{ p.version }}</span>
             <button
-              [appPopover]="{ content: releaseNotedPopover }"
+              [appPopover]="{ content: releaseNotesPopover }"
               class="circle small"
               [disabled]="!p.readme"
             >

@@ -128,26 +128,19 @@
       >Design</a
     >
     <ul class="menu">
-      <li>
-        <a
-          [routerLink]="['node-updates']"
-          routerLinkActive="active"
-          i18n="@@link.updates"
-        >
-          Updates
-          <ng-container
-            *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
-          >
-            <span
-              *ngIf="(nodeUpdates?.updates | keyvalue)?.length as nodes"
-              class="badge"
-            >
+      <ng-container
+        *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
+      >
+        <li *ngIf="(nodeUpdates?.updates | keyvalue)?.length as nodes">
+          <a [routerLink]="['node-updates']" routerLinkActive="active">
+            <ng-container i18n="@@link.updates">Updates</ng-container>
+            <span class="badge">
               {{ nodes }}
             </span>
-          </ng-container>
-        </a>
-      </li>
-      <li>|</li>
+          </a>
+        </li>
+        <li>|</li>
+      </ng-container>
       <ng-container *ngIf="(project.pipeline.outputs | keyvalue | length) > 0">
         <li>
           <a
