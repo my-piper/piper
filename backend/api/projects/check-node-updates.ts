@@ -45,17 +45,21 @@ api.get(
               const plain = toPlain(node);
               delete plain["title"];
               delete plain["arrange"];
+              delete plain["source"];
+              delete plain["locked"];
               return plain;
             })(),
             changes: (() => {
               const plain = toPlain(updated);
               delete plain["title"];
               delete plain["arrange"];
+              delete plain["source"];
+              delete plain["locked"];
               return plain;
             })(),
             updated: (() => {
-              const { title, arrange } = node;
-              assign(updated, { title, arrange });
+              const { title, arrange, source, locked } = node;
+              assign(updated, { title, arrange, source, locked });
               return updated;
             })(),
           },
