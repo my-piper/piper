@@ -134,7 +134,7 @@
         <li *ngIf="(nodeUpdates?.updates | keyvalue)?.length as nodes">
           <a [routerLink]="['node-updates']" routerLinkActive="active">
             <ng-container i18n="@@link.updates">Updates</ng-container>
-            <span class="badge">
+            <span class="badge success">
               {{ nodes }}
             </span>
           </a>

@@ -9,8 +9,23 @@
 </ng-template>
 
 <ng-container *ngIf="nodeUpdates?.updates | keyvalue as updates">
-  <div class="nodes" *ngIf="updates.length > 0; else noDataTemplate">
-    <header>
+  <ng-container *ngIf="updates.length > 0; else noDataTemplate">
+    <ul>
+      <li *ngFor="let node of updates">
+        <app-icon
+          [icon]="state.updated[node.key] ? 'checked' : 'unchecked'"
+          [color]="ui.color.primary"
+          [size]="24"
+        ></app-icon>
+        <a
+          (click)="select(node.key)"
+          [class.active]="state.active == node.key"
+          >{{ node.key }}</a
+        >
+      </li>
+    </ul>
+
+    <div>
       <button
         class="primary"
         [disabled]="state.updated.all"
@@ -19,25 +34,21 @@
       >
         Update all
       </button>
-    </header>
-    <div *ngFor="let node of updates">
-      <div class="overlay" *ngIf="state.updated[node.key]">
-        <app-icon
-          icon="checked"
-          [color]="ui.color.success"
-          [size]="32"
-        ></app-icon>
-      </div>
-      <h1>{{ node.key }}</h1>
+    </div>
+
+    <div
+      class="compare"
+      *ngIf="nodeUpdates?.updates.get(state.active) as active"
+    >
       <ngx-monaco-diff-editor
         class="monaco"
         [originalModel]="{
           language: 'yaml',
-          code: node.value.current | yaml,
+          code: active.current | yaml,
         }"
         [modifiedModel]="{
           language: 'yaml',
-          code: node.value.changes | yaml,
+          code: active.changes | yaml,
         }"
         [options]="{
           readOnly: true,
@@ -48,14 +59,14 @@
       </ngx-monaco-diff-editor>
       <footer>
         <button
-          class="primary small"
-          [disabled]="state.updated[node.key]"
+          class="primary"
+          [disabled]="state.updated[state.active]"
           i18n="@@action.update"
-          (click)="update(node.key, node.value.updated)"
+          (click)="update()"
         >
           Update
         </button>
       </footer>
     </div>
-  </div>
+  </ng-container>
 </ng-container>

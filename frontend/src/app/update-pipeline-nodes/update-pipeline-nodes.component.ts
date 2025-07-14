@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
-import { Node, PipelineNodeUpdates } from "src/models/node";
+import { PipelineNodeUpdates } from "src/models/node";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
@@ -22,7 +22,11 @@ export class UpdatePipelineNodesComponent implements OnInit {
 
   state: {
     updated: { all: boolean; [key: string]: boolean };
-  } = { updated: { all: false } };
+    active: string | null;
+  } = {
+    updated: { all: false },
+    active: null,
+  };
 
   project!: Project;
 
@@ -60,9 +64,12 @@ export class UpdatePipelineNodesComponent implements OnInit {
       .subscribe((updates) => (this.nodeUpdates = updates));
   }
 
-  update(id: string, node: Node) {
+  update() {
+    const { active: id } = this.state;
     const { pipeline } = this.project;
-    pipeline.nodes.set(id, node);
+
+    const node = this.nodeUpdates.updates.get(id);
+    pipeline.nodes.set(id, node.updated);
 
     this.projectManager.update(this.project);
 
@@ -80,6 +87,11 @@ export class UpdatePipelineNodesComponent implements OnInit {
     this.projectManager.update(this.project);
 
     this.state.updated.all = true;
+    this.cd.detectChanges();
+  }
+
+  select(node: string) {
+    this.state.active = node;
     this.cd.detectChanges();
   }
 }

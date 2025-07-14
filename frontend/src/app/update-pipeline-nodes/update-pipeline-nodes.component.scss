@@ -1,34 +1,41 @@
 @import "src/ui-kit/styles/variables";
 
 :host {
-  display: block;
-}
-
-.nodes {
   display: flex;
   flex-direction: column;
   gap: $gutter-normal;
+}
 
-  &>div {
+ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $gutter-normal;
+  margin: 0;
+  padding: 0;
+
+  li {
     display: flex;
-    flex-direction: column;
-    gap: $gutter-small;
-    position: relative;
+    align-items: center;
+    gap: $gutter-tiny;
 
-    .overlay {
-      position: absolute;
-      z-index: 10;
-      margin: -$gutter-small;
-      border-radius: $corner-base;
-      padding: $gutter-normal;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      background: rgba($color: black, $alpha: .15);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+    a {
+      border-bottom: 2px solid transparent;
+
+      &.active {
+        border-color: $primary-text-color;
+      }
     }
   }
+}
+
+.compare {
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-small;
+  position: relative;
+}
+
+.monaco {
+  min-height: 400px;
 }
