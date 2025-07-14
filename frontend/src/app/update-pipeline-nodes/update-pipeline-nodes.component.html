@@ -10,7 +10,24 @@
 
 <ng-container *ngIf="nodeUpdates?.updates | keyvalue as updates">
   <div class="nodes" *ngIf="updates.length > 0; else noDataTemplate">
-    <div *ngFor="let node of updates" [class.updated]="state.updated[node.key]">
+    <header>
+      <button
+        class="primary"
+        [disabled]="state.updated.all"
+        i18n="@@action.update_all"
+        (click)="updateAll()"
+      >
+        Update all
+      </button>
+    </header>
+    <div *ngFor="let node of updates">
+      <div class="overlay" *ngIf="state.updated[node.key]">
+        <app-icon
+          icon="checked"
+          [color]="ui.color.success"
+          [size]="32"
+        ></app-icon>
+      </div>
       <h1>{{ node.key }}</h1>
       <ngx-monaco-diff-editor
         class="monaco"
@@ -29,16 +46,16 @@
         }"
       >
       </ngx-monaco-diff-editor>
-      <div>
+      <footer>
         <button
-          class="primary"
+          class="primary small"
           [disabled]="state.updated[node.key]"
           i18n="@@action.update"
           (click)="update(node.key, node.value.updated)"
         >
           Update
         </button>
-      </div>
+      </footer>
     </div>
   </div>
 </ng-container>

@@ -49,6 +49,7 @@ import { PipelineOutputPipe } from "src/pipes/output";
 import { GetPercentPipe } from "src/pipes/percents";
 import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { PipelineFinishedMetricPipe } from "src/pipes/pipeline-finished-metric";
+import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { PlainPipe } from "src/pipes/plain";
 import { ShiftPipe } from "src/pipes/shift";
 import { SlicePipe } from "src/pipes/slice";
@@ -221,6 +222,7 @@ import { UsersComponent } from "./users/users.component";
     EditPipelineReadmeComponent,
     PipelineReadmeComponent,
     PipelineCostsPipe,
+    PipelineNodeUpdatesPipe,
     MeUserComponent,
     ExpensesComponent,
     PipelineUsagesComponent,

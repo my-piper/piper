@@ -133,22 +133,39 @@
           [routerLink]="['node-updates']"
           routerLinkActive="active"
           i18n="@@link.updates"
-          >Updates</a
         >
-      </li>
-      <li>|</li>
-      <li *ngIf="(project.pipeline.outputs | keyvalue | length) > 0">
-        <a
-          class="with-icon"
-          [routerLink]="['/', 'play', project.slug || project._id]"
-          target="_blank"
-          routerLinkActive="active"
-        >
-          <ng-container i18n="@@link.playground">Playground</ng-container>
-          <app-icon class="icon right" [size]="18" icon="open-link"></app-icon>
+          Updates
+          <ng-container
+            *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
+          >
+            <span
+              *ngIf="(nodeUpdates?.updates | keyvalue)?.length as nodes"
+              class="badge"
+            >
+              {{ nodes }}
+            </span>
+          </ng-container>
         </a>
       </li>
       <li>|</li>
+      <ng-container *ngIf="(project.pipeline.outputs | keyvalue | length) > 0">
+        <li>
+          <a
+            class="with-icon"
+            [routerLink]="['/', 'play', project.slug || project._id]"
+            target="_blank"
+            routerLinkActive="active"
+          >
+            <ng-container i18n="@@link.playground">Playground</ng-container>
+            <app-icon
+              class="icon right"
+              [size]="18"
+              icon="open-link"
+            ></app-icon>
+          </a>
+        </li>
+        <li>|</li>
+      </ng-container>
       <li>
         <a
           [routerLink]="['environment']"

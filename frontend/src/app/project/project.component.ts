@@ -52,6 +52,10 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   }
 
   ngOnInit() {
+    this.route.data.subscribe(({ project }) => {
+      [this.project, this.pipeline] = [project, project.pipeline];
+    });
+
     this.projectManager.error
       .pipe(takeUntil(this.destroyed$))
       .subscribe((error) => (this.error = error));
@@ -61,9 +65,6 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
         takeUntil(this.destroyed$)
       )
       .subscribe(() => this.cd.detectChanges());
-    this.route.data.subscribe(({ project }) => {
-      [this.project, this.pipeline] = [project, project.pipeline];
-    });
   }
 
   override ngOnDestroy() {

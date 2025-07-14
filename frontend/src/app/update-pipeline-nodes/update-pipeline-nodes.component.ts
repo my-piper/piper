@@ -6,7 +6,7 @@ import { Node, PipelineNodeUpdates } from "src/models/node";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI, UI_DELAY } from "src/ui-kit/consts";
 import { toInstance } from "src/utils/models";
 
 @Component({
@@ -15,12 +15,14 @@ import { toInstance } from "src/utils/models";
   styleUrls: ["./update-pipeline-nodes.component.scss"],
 })
 export class UpdatePipelineNodesComponent implements OnInit {
+  ui = UI;
+
   error!: Error;
   progress = { loading: false };
 
   state: {
-    updated: { [key: string]: boolean };
-  } = { updated: {} };
+    updated: { all: boolean; [key: string]: boolean };
+  } = { updated: { all: false } };
 
   project!: Project;
 
@@ -65,6 +67,19 @@ export class UpdatePipelineNodesComponent implements OnInit {
     this.projectManager.update(this.project);
 
     this.state.updated[id] = true;
+    this.cd.detectChanges();
+  }
+
+  updateAll() {
+    const { pipeline } = this.project;
+    for (const [id, node] of this.nodeUpdates.updates) {
+      pipeline.nodes.set(id, node.updated);
+      this.state.updated[id] = true;
+    }
+
+    this.projectManager.update(this.project);
+
+    this.state.updated.all = true;
     this.cd.detectChanges();
   }
 }
