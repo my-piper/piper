@@ -39,7 +39,13 @@
   <app-icon class="icon" icon="play" [size]="20" [color]="'#5d6f80'"></app-icon>
 </div>
 
-<div class="node" [class.done]="status?.state === 'done'">
+<div
+  class="node"
+  [style.backgroundImage]="
+    !!node.thumbnail ? 'url(' + node.thumbnail + ')' : null
+  "
+  [class.done]="status?.state === 'done'"
+>
   <h2>{{ node.title | i18n }}</h2>
   <div class="io">
     <ul class="inputs">
