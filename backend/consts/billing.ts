@@ -20,3 +20,12 @@ export const MIN_BALANCE_FOR_TRACK =
     }
     return null;
   })() || 0;
+
+export const UNIT_COST =
+  (() => {
+    const value = process.env["UNIT_COST"];
+    if (!!value) {
+      return parseFloat(value);
+    }
+    return null;
+  })() || 1;

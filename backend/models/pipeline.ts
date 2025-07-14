@@ -1,3 +1,4 @@
+import { UNIT_COST } from "consts/billing";
 import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { Arrange } from "models/arrange";
@@ -215,6 +216,17 @@ export class PipelineCosts {
   @Type(() => Number)
   total!: number;
 
+  convert() {
+    this.pipeline *= UNIT_COST;
+    if (!!this.nodes) {
+      for (const [id, node] of this.nodes) {
+        node.costs *= UNIT_COST;
+      }
+    }
+
+    return this;
+  }
+
   update() {
     this.total = this.pipeline;
     if (!!this.nodes) {
@@ -223,6 +235,7 @@ export class PipelineCosts {
         0
       );
     }
+    return this;
   }
 
   constructor(defs: Partial<PipelineCosts> = {}) {

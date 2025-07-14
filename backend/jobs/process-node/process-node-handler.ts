@@ -1,5 +1,6 @@
 import { queues } from "app/queues";
 import { streams } from "app/streams";
+import { UNIT_COST } from "consts/billing";
 import { MODULES_FOLDER } from "consts/modules";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
@@ -482,7 +483,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         launchedBy: launchedBy._id,
         node: node.title,
         processedAt,
-        costs,
+        costs: costs * UNIT_COST,
       });
     }
 

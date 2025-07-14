@@ -3,22 +3,41 @@
 @import "src/ui-kit/styles/reset";
 
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100px;
+  gap: $gutter-normal;
+}
+
+h2 {
+  margin: 0;
 }
 
 .nodes {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   min-height: 100px;
+  padding: $gutter-normal 0;
 
   article {
+    display: flex;
+
     >button {
       @include reset-button();
       width: 100%;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      flex: 1;
+      gap: $gutter-small;
+
+      h3 {
+        flex: 1;
+        text-align: center;
+      }
+
+      img {
+        max-width: 60px;
+      }
     }
   }
 }

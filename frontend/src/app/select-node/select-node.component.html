@@ -60,13 +60,15 @@
         </header>
         <article>
           <button (click)="select(node)">
+            <img *ngIf="node.thumbnail as thumbnail" [src]="thumbnail" />
             <h3>
               {{ node.title | i18n }}
-              <!--<sup>{{ node.version }}</sup>-->
             </h3>
-            <!--<small>{{ node.description | i18n }}</small>-->
           </button>
         </article>
+        <footer *ngIf="userRole.admin | can | async">
+          version: {{ node.version }}
+        </footer>
       </div>
     </div>
   </div>

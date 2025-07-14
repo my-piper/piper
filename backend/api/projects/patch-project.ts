@@ -18,6 +18,7 @@ import {
   checkAdmin,
   checkLogged,
   handle,
+  isAdmin,
   isEngineer,
   toModel,
 } from "utils/http";
@@ -98,6 +99,10 @@ api.patch(
 
       const patched = toInstance(forPatch, Pipeline);
       const { name: title, thumbnail } = patched;
+
+      if (!!patched.script && !isAdmin(currentUser)) {
+        throw new DataError("You can't edit pipeline script");
+      }
 
       for (const [id, node] of patched.nodes) {
         const sign = generateSign(node.script);

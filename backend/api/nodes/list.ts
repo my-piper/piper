@@ -13,6 +13,8 @@ api.get(
             _id: 1,
             title: 1,
             category: 1,
+            thumbnail: 1,
+            version: 1,
           },
         }
       )

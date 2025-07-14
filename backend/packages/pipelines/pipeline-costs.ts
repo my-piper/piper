@@ -1,6 +1,7 @@
 import { MODULES_PATH } from "consts/core";
 import { MODULES_FOLDER } from "consts/modules";
 import { createLogger } from "core-kit/packages/logger";
+import { mapTo } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
@@ -42,7 +43,7 @@ async function run(code: string, inputs: NodeInputs): Promise<number | object> {
     await script.link(() => null);
     await script.evaluate();
     const { costs: action } = script.namespace as {
-      costs: ({ inputs }: { inputs: NodeInputs }) => Promise<number>;
+      costs: ({ inputs }: { inputs: NodeInputs }) => Promise<number | object>;
     };
     if (typeof action !== "function") {
       return 0;
@@ -89,7 +90,9 @@ export async function getCosts(
 
   if (!!pipeline.script) {
     const converted = convertInputs({ pipeline })(inputs);
-    assign(costs, { pipeline: await run(pipeline.script, converted) });
+    assign(costs, {
+      pipeline: (await run(pipeline.script, converted)) as number,
+    });
   } else {
     // calculate all nodes
     const nodes = new Map<string, NodeCosts>();
@@ -124,14 +127,14 @@ export async function getCosts(
           ...(await (async () => {
             const costs = await run(node.script, converted);
             if (typeof costs === "number") {
-              return { costs };
+              return { costs: costs as number };
             }
 
             if (!("costs" in costs)) {
               throw new DataError("Costs function should have [costs] field");
             }
 
-            return costs;
+            return mapTo(costs as object, NodeCosts);
           })()),
         })
       );
@@ -139,6 +142,7 @@ export async function getCosts(
     assign(costs, { nodes });
   }
 
-  costs.update();
+  costs.convert().update();
+
   return costs;
 }
