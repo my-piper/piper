@@ -36,7 +36,9 @@ h2 {
       }
 
       img {
+        display: block;
         max-width: 60px;
+        aspect-ratio: 1/1;
       }
     }
   }

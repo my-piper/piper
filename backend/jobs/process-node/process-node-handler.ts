@@ -7,7 +7,7 @@ import { createLogger } from "core-kit/packages/logger";
 import { Job } from "core-kit/packages/queue";
 import redis from "core-kit/packages/redis";
 import { mapTo } from "core-kit/packages/transform";
-import { FatalError } from "core-kit/types/errors";
+import { DataError, FatalError } from "core-kit/types/errors";
 import { differenceInSeconds } from "date-fns";
 import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
@@ -261,7 +261,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         setTimeout(() => {
           controller.abort();
           reject(
-            new FatalError(`Execution timeout ${timeout / 1000}s exceeded`)
+            new DataError(`Execution timeout ${timeout / 1000}s exceeded`)
           );
         }, timeout);
       }),
