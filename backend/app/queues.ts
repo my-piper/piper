@@ -14,12 +14,12 @@ export const queues = {
   nodes: {
     process: {
       rapid: new JobsQueue("process_rapid_nodes", ProcessNodeJob, {
-        limiter: { max: 100, duration: secondsToMilliseconds(5) },
+        limiter: { max: 1000, duration: secondsToMilliseconds(5) },
         concurrency: 50,
         timeout: secondsToMilliseconds(5),
       }),
       regular: new JobsQueue("process_regular_nodes", ProcessNodeJob, {
-        limiter: { max: 200, duration: secondsToMilliseconds(15) },
+        limiter: { max: 1000, duration: secondsToMilliseconds(5) },
         concurrency: 40,
         timeout: secondsToMilliseconds(45),
       }),
