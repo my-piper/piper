@@ -9,8 +9,8 @@ const logger = createLogger("debug-server");
 
 const server = express();
 
-server.post("/debug/heap-snapshot", (req, res) => {
-  logger.info("heap snapshot requested");
+server.post("/debug/pprof/heap", (req, res) => {
+  logger.info("Heap snapshot requested");
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const filename = `heap-snapshot-${timestamp}.heapsnapshot`;
@@ -19,9 +19,9 @@ server.post("/debug/heap-snapshot", (req, res) => {
 
   const snapshotPath = v8.writeHeapSnapshot(filepath);
 
-  logger.info(`heap snapshot written to: ${snapshotPath}`);
+  logger.info(`Heap snapshot written to: ${snapshotPath}`);
 
-  res.status(200).send(`heap snapshot written to: ${snapshotPath}`);
+  res.status(200).send(`Heap snapshot written to: ${snapshotPath}`);
 });
 
 export default server;
