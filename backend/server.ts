@@ -2,8 +2,10 @@ import env from "core-kit/env";
 import "reflect-metadata";
 
 import api from "app/api";
+import debugServer from "debug/server";
 
 import { BILLING_URL } from "consts/billing";
+import { DEBUG, DEBUG_SERVER_PORT } from "consts/core";
 import { createLogger } from "core-kit/packages/logger";
 import sentry from "core-kit/packages/sentry";
 import { Expose, toInstance, toPlain, Type } from "core-kit/packages/transform";
@@ -145,5 +147,13 @@ export const PORT =
   })() || 80;
 
 api.listen(PORT, () => {
-  logger.debug("Server is running");
+  logger.info(`Server is running on port ${PORT}`);
 });
+
+if (DEBUG) {
+  logger.info("Debug server is enabled");
+
+  debugServer.listen(DEBUG_SERVER_PORT, () => {
+    logger.info(`Debug server is running on port ${DEBUG_SERVER_PORT}`);
+  });
+}
