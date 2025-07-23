@@ -2,6 +2,7 @@ import "reflect-metadata";
 
 import cli from "app/cli";
 
+import "cli/debug";
 import "cli/environment";
 import "cli/migrations";
 import "cli/modules";
