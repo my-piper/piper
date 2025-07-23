@@ -220,6 +220,14 @@ npm run cli modules update
 npm run cli workers reboot
 ```
 
+## Debug
+
+### Make heap snapshot
+
+```shell
+npm run cli debug server
+```
+
 ## How to
 
 ### Remove launches with errors
