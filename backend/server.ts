@@ -31,9 +31,11 @@ import "./api/users";
 import "./api/utils";
 
 import "./api/deploys";
+import "./packages/debug";
 
 import { ALLOW_SIGNUP, APP_FOOTER, GOOGLE_AUTH, YANDEX_AUTH } from "consts/ui";
 import { ALL_LANGUAGES } from "core-kit/packages/locale";
+import { writeFile } from "fs/promises";
 import { BASE_URL, FRONTEND_ROOT, SITE_URL } from "./consts/core";
 import { NO_CACHE_HEADERS, SCP_HEADERS } from "./consts/http";
 import { AppConfig } from "./models/app-config";
@@ -147,3 +149,5 @@ export const PORT =
 api.listen(PORT, () => {
   logger.debug("Server is running");
 });
+
+await writeFile("server.pid", `${process.pid}`);
