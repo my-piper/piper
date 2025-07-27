@@ -2,11 +2,11 @@
 **/.angular
 **/.idea
 **/.env
-**/.pid
 **/dist
 **/cache
 **/tmp
 **/storage
+**/*.pid
 
 *.safetensors
 

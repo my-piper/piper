@@ -13,7 +13,6 @@ import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import { ImportProjectComponent } from "./import/import-project.component";
-
 const TEST_PIPELINE = `
 name: New project
 version: 1

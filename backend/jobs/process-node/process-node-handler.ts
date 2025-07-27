@@ -1,7 +1,6 @@
 import { queues } from "app/queues";
 import { streams } from "app/streams";
 import { UNIT_COST } from "consts/billing";
-import { MODULES_FOLDER } from "consts/modules";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import { Job } from "core-kit/packages/queue";
@@ -13,10 +12,9 @@ import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
 import { NodeExecution } from "enums/node-execution";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
-import { pathToFileURL } from "node:url";
-import { Module, SourceTextModule } from "node:vm";
+import { SourceTextModule } from "node:vm";
 import { plan } from "packages/nodes/plan-node";
-import path from "path";
+import { importModule } from "packages/vm/utils";
 import { Primitive } from "types/primitive";
 import {
   LAUNCH,
@@ -214,12 +212,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   const script = new SourceTextModule(node.script, {
     context: await createContext({ launch, node, logger }),
-    importModuleDynamically: async (specifier: string): Promise<Module> => {
-      const modulePath = pathToFileURL(
-        path.join(MODULES_FOLDER, specifier)
-      ).href;
-      return import(modulePath);
-    },
+    importModuleDynamically: importModule,
   });
   await script.link(() => null);
 

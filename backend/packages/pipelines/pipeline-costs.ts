@@ -1,44 +1,33 @@
-import { MODULES_PATH } from "consts/core";
-import { MODULES_FOLDER } from "consts/modules";
 import { createLogger } from "core-kit/packages/logger";
 import { mapTo } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
 import { NodeCosts, Pipeline, PipelineCosts } from "models/pipeline";
-import { createRequire } from "node:module";
-import { pathToFileURL } from "node:url";
 import {
+  Context,
   createContext as createVmContext,
-  Module,
   SourceTextModule,
 } from "node:vm";
-import path from "path";
+import { importModule, requireModule } from "packages/vm/utils";
 import { NodeInputs } from "types/node";
 import { Primitive } from "types/primitive";
 import { convertInputs } from "utils/node";
 
-const packagesLoader = createRequire(path.join(MODULES_PATH, "node_modules"));
-
 const logger = createLogger("pipeline_costs");
 
 async function run(code: string, inputs: NodeInputs): Promise<number | object> {
+  let script: SourceTextModule;
+  let context: Context;
   try {
-    const script = new SourceTextModule(code, {
-      context: await createVmContext({
-        require: (modulePath: string) => {
-          const fullPath = packagesLoader.resolve(modulePath);
-          // TODO: think how to flush cache
-          // delete packagesLoader.cache[fullPath];
-          return packagesLoader(modulePath);
-        },
-      }),
-      importModuleDynamically: async (specifier: string): Promise<Module> => {
-        const modulePath = pathToFileURL(
-          path.join(MODULES_FOLDER, specifier)
-        ).href;
-        return import(modulePath);
-      },
+    logger.debug("Create VM context");
+    context = createVmContext({
+      require: requireModule,
+    });
+    logger.debug("Create module");
+    script = new SourceTextModule(code, {
+      context,
+      importModuleDynamically: importModule,
     });
     await script.link(() => null);
     await script.evaluate();
@@ -52,6 +41,9 @@ async function run(code: string, inputs: NodeInputs): Promise<number | object> {
   } catch (err) {
     console.log(err);
     return 0;
+  } finally {
+    logger.debug("Clear resource");
+    [context, script] = [null, null];
   }
 }
 

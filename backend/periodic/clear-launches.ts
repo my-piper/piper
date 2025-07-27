@@ -14,7 +14,10 @@ const logger = createLogger("clear-launches");
 
 export async function cleanLaunches() {
   logger.info("Clear launches");
-  mongo.launches.deleteMany({
+  await mongo.launches.deleteMany({
     launchedAt: { $lt: subDays(new Date(), MAX_STORE_LAUNCH_DAYS) },
+  });
+  await mongo.launchOutputs.deleteMany({
+    filledAt: { $lt: subDays(new Date(), MAX_STORE_LAUNCH_DAYS) },
   });
 }

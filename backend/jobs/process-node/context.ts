@@ -2,7 +2,7 @@ import { HttpsAgent } from "agentkeepalive";
 import { artefact } from "app/storage";
 import { streams } from "app/streams";
 import axios from "axios";
-import { MODULES_PATH, NODE_ENV } from "consts/core";
+import { NODE_ENV } from "consts/core";
 import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
@@ -13,20 +13,17 @@ import { Environment } from "models/environment";
 import { Launch } from "models/launch";
 import { LaunchRequest } from "models/launch-request";
 import { Node } from "models/node";
-import { createRequire } from "node:module";
 import { createContext as createVmContext } from "node:vm";
 import * as deploying from "packages/deploy/get-deploy";
 import { decrypt } from "packages/environment/crypt-environment";
 import * as launching from "packages/launches/launching";
 import { run } from "packages/launches/launching";
-import path from "path";
+import { requireModule } from "packages/vm/utils";
 import { Logger } from "pino";
 import { NextNode, RepeatNode } from "types/node";
 import { Primitive } from "types/primitive";
 import { withTempContext } from "utils/files";
 import { download } from "utils/web";
-
-const packagesLoader = createRequire(path.join(MODULES_PATH, "node_modules"));
 
 export async function createContext({
   logger,
@@ -183,11 +180,6 @@ export async function createContext({
         freeSocketTimeout: 30000,
       }),
     }),
-    require: (modulePath: string) => {
-      const fullPath = packagesLoader.resolve(modulePath);
-      // TODO: think how to flush cache
-      // delete packagesLoader.cache[fullPath];
-      return packagesLoader(modulePath);
-    },
+    require: requireModule,
   });
 }

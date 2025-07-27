@@ -4,7 +4,6 @@
     <ul>
       <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
-    <p>Your data were not saved!</p>
     <div class="stack horizontal justify-center">
       <button class="primary" (click)="error = null">Ok</button>
     </div>
@@ -16,6 +15,8 @@
   [contentTemplate]="errorTemplate"
   (ok)="error = null"
 ></app-informer>
+
+{{ error }}
 
 <div class="stack horizontal">
   <a class="circle" [routerLink]="['..']">

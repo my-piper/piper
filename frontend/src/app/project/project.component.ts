@@ -87,10 +87,13 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
         }),
         map((json) => plainToInstance(Launch, json as Object))
       )
-      .subscribe((launch) => {
-        this.router.navigate(["./launches", launch._id], {
-          relativeTo: this.route,
-        });
+      .subscribe({
+        next: (launch) => {
+          this.router.navigate(["./launches", launch._id], {
+            relativeTo: this.route,
+          });
+        },
+        error: (err) => (this.error = err),
       });
   }
 
