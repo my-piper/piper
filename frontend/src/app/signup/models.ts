@@ -14,6 +14,10 @@ export class SignupRequest {
   @Type(() => String)
   password!: string;
 
+  @Expose()
+  @Type(() => String)
+  captcha!: string;
+
   constructor(defs: Partial<SignupRequest> = {}) {
     assign(this, defs);
   }

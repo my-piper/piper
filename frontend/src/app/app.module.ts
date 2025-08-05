@@ -4,6 +4,7 @@ import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
+import { NgHcaptchaModule } from "ng-hcaptcha";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { SocketIoModule } from "ngx-socket-io";
 import { AssetsComponent } from "src/app/assets/assets.component";
@@ -244,6 +245,7 @@ import { UsersComponent } from "./users/users.component";
     }),
     HttpClientModule,
     UiKitModule,
+    NgHcaptchaModule.forRoot(),
   ],
   providers: [
     {

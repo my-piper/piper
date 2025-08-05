@@ -29,10 +29,28 @@ export class BillingConfig {
   }
 }
 
+export class CaptchaConfig {
+  @Expose()
+  @Type(() => Boolean)
+  required?: boolean;
+
+  @Expose()
+  @Type(() => String)
+  key?: string;
+
+  constructor(defs: Partial<CaptchaConfig> = {}) {
+    assign(this, defs);
+  }
+}
+
 export class AppConfig {
   @Expose()
   @Type(() => BillingConfig)
   billing?: BillingConfig;
+
+  @Expose()
+  @Type(() => CaptchaConfig)
+  captcha?: CaptchaConfig;
 
   @Expose()
   @Type(() => UiConfig)

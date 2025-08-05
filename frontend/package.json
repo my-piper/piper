@@ -35,6 +35,7 @@
     "marked": "^14.1.2",
     "monaco-editor": "^0.44.0",
     "nanoid": "^5.0.7",
+    "ng-hcaptcha": "^2.6.0",
     "ngx-monaco-editor-v2": "^17.0.1",
     "ngx-socket-io": "^4.6.1",
     "reflect-metadata": "^0.2.2",

@@ -1,13 +1,16 @@
 import api from "app/api";
 import mongo from "app/mongo";
+import axios from "axios";
 import bcrypt from "bcrypt";
 import { INITIAL_USER_BALANCE } from "consts/billing";
+import { CAPTCHA_REQUIRED, CAPTCHA_SECRET } from "consts/captcha";
 import {
   USER_INITIAL_BALANCE_LOCK,
   USER_INITIAL_BALANCE_LOCK_EXPIRED,
 } from "consts/redis";
 import { ALLOW_SIGNUP } from "consts/ui";
 import { getLabel } from "core-kit/packages/i18n";
+import { createLogger } from "core-kit/packages/logger";
 import { sendEmail } from "core-kit/packages/mailer";
 import { handlebars, markdown } from "core-kit/packages/templates";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
@@ -24,6 +27,8 @@ import { sid } from "utils/string";
 import { Authorization } from "./models/authorization";
 import { SignupRequest } from "./models/signup-request";
 
+const logger = createLogger("signup");
+
 api.post(
   "/api/signup",
   handle(({ language, ip }) => async ({ body }) => {
@@ -34,7 +39,33 @@ api.post(
     const request = toInstance(body as Object, SignupRequest);
     await validate(request);
 
-    const { email, login: _id } = request;
+    const { email, login: _id, captcha } = request;
+
+    if (CAPTCHA_REQUIRED) {
+      let success = false;
+      try {
+        const { data: response } = await axios({
+          method: "POST",
+          url: "https://hcaptcha.com/siteverify",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          data: new URLSearchParams({
+            response: captcha,
+            secret: CAPTCHA_SECRET,
+            remoteip: ip,
+          }),
+        });
+        logger.debug(JSON.stringify(response));
+        success = response.success;
+      } catch (e) {
+        logger.error(e);
+        throw new DataError("Can't check captcha");
+      }
+      if (!success) {
+        throw new DataError("Wrong captcha");
+      }
+    }
 
     const now = new Date();
     const user = new User({

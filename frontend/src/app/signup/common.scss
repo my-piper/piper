@@ -68,6 +68,9 @@
     }
 
     form {
+        display: flex;
+        flex-direction: column;
+        gap: $gutter-normal;
 
         &.disabled {
             opacity: .35;

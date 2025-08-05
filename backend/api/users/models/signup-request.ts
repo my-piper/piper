@@ -1,4 +1,10 @@
-import { Expose, IsEmail, Matches, Type } from "core-kit/packages/transform";
+import {
+  Expose,
+  IsEmail,
+  IsOptional,
+  Matches,
+  Type,
+} from "core-kit/packages/transform";
 
 export class SignupRequest {
   @IsEmail()
@@ -14,4 +20,9 @@ export class SignupRequest {
   @Expose()
   @Type(() => String)
   password!: string;
+
+  @Expose()
+  @IsOptional()
+  @Type(() => String)
+  captcha!: string;
 }

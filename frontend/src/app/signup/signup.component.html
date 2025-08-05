@@ -65,6 +65,12 @@
           type="password"
         />
       </fieldset>
+      <fieldset>
+        <ng-hcaptcha
+          [siteKey]="config.captcha.key"
+          formControlName="captcha"
+        ></ng-hcaptcha>
+      </fieldset>
       <footer>
         <button
           class="primary fluid"

@@ -33,6 +33,7 @@ import "./api/utils";
 import "./api/deploys";
 import "./packages/debug";
 
+import { CAPTCHA_REQUIRED, CAPTCHA_SITE_KEY } from "consts/captcha";
 import { ALLOW_SIGNUP, APP_FOOTER, GOOGLE_AUTH, YANDEX_AUTH } from "consts/ui";
 import { ALL_LANGUAGES } from "core-kit/packages/locale";
 import { writeFile } from "fs/promises";
@@ -88,6 +89,10 @@ api.get(
         config: {
           billing: {
             url: BILLING_URL,
+          },
+          captcha: {
+            required: CAPTCHA_REQUIRED,
+            key: CAPTCHA_SITE_KEY,
           },
           ui: {
             features: [

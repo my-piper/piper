@@ -42,12 +42,13 @@ export class SigupComponent implements OnInit {
     login: this.loginControl,
     sendPassword: this.sendPasswordControl,
     password: this.passwordControl,
+    captcha: [null],
   });
 
   constructor(
     private fb: FormBuilder,
     private http: HttpService,
-    private config: AppConfig,
+    public config: AppConfig,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {}
