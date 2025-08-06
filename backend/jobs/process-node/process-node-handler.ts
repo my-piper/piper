@@ -1,6 +1,6 @@
 import { queues } from "app/queues";
 import { streams } from "app/streams";
-import { UNIT_COST } from "consts/billing";
+import { BILLING_ACTIVE, UNIT_COST } from "consts/billing";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import { Job } from "core-kit/packages/queue";
@@ -451,33 +451,35 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
             fromStart,
           });
 
-          const { pipeline: costs } = launch.costs;
-          if (costs > 0) {
+          const { costs } = launch;
+          if (costs?.pipeline > 0) {
             await queues.pipelines.usage.record.plan({
               project: launch.project.title,
               pipeline: launch.pipeline.name,
               launch: launch._id,
               launchedBy: launchedBy._id,
               processedAt,
-              costs,
+              costs: costs.pipeline,
             });
           }
         }
       }
     }
 
-    const { costs } = results;
-    if (costs > 0) {
-      const { launchedBy } = launch;
-      await queues.pipelines.usage.record.plan({
-        project: launch.project.title,
-        pipeline: launch.pipeline.name,
-        launch: launch._id,
-        launchedBy: launchedBy._id,
-        node: node.title,
-        processedAt,
-        costs: costs * UNIT_COST,
-      });
+    if (BILLING_ACTIVE) {
+      const { costs } = results;
+      if (costs > 0) {
+        const { launchedBy } = launch;
+        await queues.pipelines.usage.record.plan({
+          project: launch.project.title,
+          pipeline: launch.pipeline.name,
+          launch: launch._id,
+          launchedBy: launchedBy._id,
+          node: node.title,
+          processedAt,
+          costs: costs * UNIT_COST,
+        });
+      }
     }
 
     return NodeJobResult.NODE_PROCESSED;

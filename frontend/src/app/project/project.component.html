@@ -101,15 +101,17 @@
           (click)="launch()"
         >
           <app-icon class="icon" icon="play" [size]="20"></app-icon>
-          <span
-            class="badge"
-            *ngIf="
-              (project._id | pipelineCosts: null : project.revision | async)
-                ?.total as total
-            "
-          >
-            {{ total | currency: "USD" : "symbol" : "1.0-10" }}
-          </span>
+          <ng-container *ngIf="config.billing.active">
+            <span
+              class="badge"
+              *ngIf="
+                (project._id | pipelineCosts: null : project.revision | async)
+                  ?.total as total
+              "
+            >
+              {{ total | currency: "USD" : "symbol" : "1.0-10" }}
+            </span>
+          </ng-container>
         </button>
       </ng-template>
 

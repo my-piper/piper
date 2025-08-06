@@ -35,6 +35,7 @@ export function appConfigFactory(): AppConfig {
     AppConfig,
     prerender?.config || {
       billing: {
+        active: ENV_MODE == "development",
         url: "https://google.com",
       },
       captcha:

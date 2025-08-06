@@ -3,7 +3,7 @@ import "reflect-metadata";
 
 import api from "app/api";
 
-import { BILLING_URL } from "consts/billing";
+import { BILLING_ACTIVE, BILLING_URL } from "consts/billing";
 import { createLogger } from "core-kit/packages/logger";
 import sentry from "core-kit/packages/sentry";
 import { Expose, toInstance, toPlain, Type } from "core-kit/packages/transform";
@@ -88,6 +88,7 @@ api.get(
       {
         config: {
           billing: {
+            active: BILLING_ACTIVE,
             url: BILLING_URL,
           },
           captcha: {

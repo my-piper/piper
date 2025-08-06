@@ -1,6 +1,7 @@
 import mongo from "app/mongo";
 import { queues } from "app/queues";
 import * as storage from "app/storage";
+import { BILLING_ACTIVE } from "consts/billing";
 import { BASE_URL } from "consts/core";
 import {
   LAUNCH,
@@ -137,6 +138,8 @@ export async function run({
     }
   }
 
+  const costs = BILLING_ACTIVE ? await getCosts(pipeline, launchRequest) : null;
+
   const now = new Date();
   const launch = new Launch({
     _id,
@@ -149,7 +152,7 @@ export async function run({
     parent: parent || null,
     scope,
     options,
-    costs: await getCosts(pipeline, launchRequest),
+    costs,
     comment,
     url: `${BASE_URL}/launches/${_id}`,
     outputs,

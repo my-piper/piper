@@ -1,4 +1,5 @@
 import api from "app/api";
+import { BILLING_ACTIVE } from "consts/billing";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import merge from "lodash/merge";
 import { Launch, LaunchOptions } from "models/launch";
@@ -24,7 +25,9 @@ api.post(
       scope,
     } = await deploys.get(slug);
 
-    await checkRateLimits(currentUser);
+    if (BILLING_ACTIVE) {
+      await checkRateLimits(currentUser);
+    }
 
     const launchRequest = toInstance(
       merge(toPlain(deployLaunchRequest), body),
