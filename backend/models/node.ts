@@ -204,6 +204,14 @@ export class NodeOutput {
 
   @Expose()
   @Type(() => String)
+  format!: string;
+
+  @Expose()
+  @Type(() => String)
+  language!: string;
+
+  @Expose()
+  @Type(() => String)
   schema!: string;
 }
 
@@ -235,6 +243,10 @@ export class Node {
   @Expose()
   @Type(() => String)
   thumbnail!: string;
+
+  @Expose()
+  @Type(() => String)
+  tags!: string[];
 
   @Expose()
   @Type(() => String)

@@ -91,6 +91,15 @@
 							"title": "Thumbnail",
 							"propertyOrder": 5
 						},
+						"tags": {
+							"title": "Tags",
+							"headerTemplate": "en=Tags;ru=Теги",
+							"type": "array",
+							"propertyOrder": 6,
+							"items": {
+								"type": "string"
+							}
+						},
 						"category": {
 							"type": "object",
 							"properties": {
@@ -456,7 +465,18 @@
 								"properties": {
 									"order": {
 										"title": "Order",
-										"type": "number"
+										"type": "number",
+										"propertyOrder": 1
+									},
+									"title": {
+										"title": "Title",
+										"type": "string",
+										"propertyOrder": 2
+									},
+									"required": {
+										"title": "Required",
+										"type": "boolean",
+										"propertyOrder": 3
 									},
 									"type": {
 										"title": "Type",
@@ -473,19 +493,30 @@
 											"audio",
 											"video",
 											"json"
-										]
+										],
+										"propertyOrder": 4
 									},
-									"title": {
-										"title": "Title",
-										"type": "string"
+									"format": {
+										"title": "Format",
+										"type": "string",
+										"enum": [
+											"code"
+										],
+										"propertyOrder": 5
+									},
+									"language": {
+										"title": "Language",
+										"type": "string",
+										"enum": [
+											"yaml",
+											"json"
+										],
+										"propertyOrder": 6
 									},
 									"schema": {
 										"title": "Schema",
-										"type": "string"
-									},
-									"required": {
-										"title": "Required",
-										"type": "boolean"
+										"type": "string",
+										"propertyOrder": 7
 									}
 								},
 								"required": [
@@ -663,7 +694,18 @@
 								"properties": {
 									"order": {
 										"title": "Order",
-										"type": "number"
+										"type": "number",
+										"propertyOrder": 1
+									},
+									"title": {
+										"title": "Title",
+										"type": "string",
+										"propertyOrder": 2
+									},
+									"required": {
+										"title": "Required",
+										"type": "boolean",
+										"propertyOrder": 3
 									},
 									"type": {
 										"title": "Type",
@@ -680,19 +722,30 @@
 											"audio",
 											"video",
 											"json"
-										]
+										],
+										"propertyOrder": 4
 									},
-									"title": {
-										"title": "Title",
-										"type": "string"
+									"format": {
+										"title": "Format",
+										"type": "string",
+										"enum": [
+											"code"
+										],
+										"propertyOrder": 5
+									},
+									"language": {
+										"title": "Language",
+										"type": "string",
+										"enum": [
+											"yaml",
+											"json"
+										],
+										"propertyOrder": 6
 									},
 									"schema": {
 										"title": "Schema",
-										"type": "string"
-									},
-									"required": {
-										"title": "Required",
-										"type": "boolean"
+										"type": "string",
+										"propertyOrder": 7
 									}
 								},
 								"required": [
@@ -916,7 +969,18 @@
 							"properties": {
 								"order": {
 									"title": "Order",
-									"type": "number"
+									"type": "number",
+									"propertyOrder": 1
+								},
+								"title": {
+									"title": "Title",
+									"type": "string",
+									"propertyOrder": 2
+								},
+								"required": {
+									"title": "Required",
+									"type": "boolean",
+									"propertyOrder": 3
 								},
 								"type": {
 									"title": "Type",
@@ -933,19 +997,30 @@
 										"audio",
 										"video",
 										"json"
-									]
+									],
+									"propertyOrder": 4
 								},
-								"title": {
-									"title": "Title",
-									"type": "string"
+								"format": {
+									"title": "Format",
+									"type": "string",
+									"enum": [
+										"code"
+									],
+									"propertyOrder": 5
+								},
+								"language": {
+									"title": "Language",
+									"type": "string",
+									"enum": [
+										"yaml",
+										"json"
+									],
+									"propertyOrder": 6
 								},
 								"schema": {
 									"title": "Schema",
-									"type": "string"
-								},
-								"required": {
-									"title": "Required",
-									"type": "boolean"
+									"type": "string",
+									"propertyOrder": 7
 								}
 							},
 							"required": [
@@ -1105,6 +1180,15 @@
 				"type": "string",
 				"title": "Thumbnail",
 				"propertyOrder": 5
+			},
+			"tags": {
+				"title": "Tags",
+				"headerTemplate": "en=Tags;ru=Теги",
+				"type": "array",
+				"propertyOrder": 6,
+				"items": {
+					"type": "string"
+				}
 			},
 			"category": {
 				"type": "object",
@@ -1471,7 +1555,18 @@
 					"properties": {
 						"order": {
 							"title": "Order",
-							"type": "number"
+							"type": "number",
+							"propertyOrder": 1
+						},
+						"title": {
+							"title": "Title",
+							"type": "string",
+							"propertyOrder": 2
+						},
+						"required": {
+							"title": "Required",
+							"type": "boolean",
+							"propertyOrder": 3
 						},
 						"type": {
 							"title": "Type",
@@ -1488,19 +1583,30 @@
 								"audio",
 								"video",
 								"json"
-							]
+							],
+							"propertyOrder": 4
 						},
-						"title": {
-							"title": "Title",
-							"type": "string"
+						"format": {
+							"title": "Format",
+							"type": "string",
+							"enum": [
+								"code"
+							],
+							"propertyOrder": 5
+						},
+						"language": {
+							"title": "Language",
+							"type": "string",
+							"enum": [
+								"yaml",
+								"json"
+							],
+							"propertyOrder": 6
 						},
 						"schema": {
 							"title": "Schema",
-							"type": "string"
-						},
-						"required": {
-							"title": "Required",
-							"type": "boolean"
+							"type": "string",
+							"propertyOrder": 7
 						}
 					},
 					"required": [
@@ -1678,7 +1784,18 @@
 					"properties": {
 						"order": {
 							"title": "Order",
-							"type": "number"
+							"type": "number",
+							"propertyOrder": 1
+						},
+						"title": {
+							"title": "Title",
+							"type": "string",
+							"propertyOrder": 2
+						},
+						"required": {
+							"title": "Required",
+							"type": "boolean",
+							"propertyOrder": 3
 						},
 						"type": {
 							"title": "Type",
@@ -1695,19 +1812,30 @@
 								"audio",
 								"video",
 								"json"
-							]
+							],
+							"propertyOrder": 4
 						},
-						"title": {
-							"title": "Title",
-							"type": "string"
+						"format": {
+							"title": "Format",
+							"type": "string",
+							"enum": [
+								"code"
+							],
+							"propertyOrder": 5
+						},
+						"language": {
+							"title": "Language",
+							"type": "string",
+							"enum": [
+								"yaml",
+								"json"
+							],
+							"propertyOrder": 6
 						},
 						"schema": {
 							"title": "Schema",
-							"type": "string"
-						},
-						"required": {
-							"title": "Required",
-							"type": "boolean"
+							"type": "string",
+							"propertyOrder": 7
 						}
 					},
 					"required": [
@@ -1931,7 +2059,18 @@
 				"properties": {
 					"order": {
 						"title": "Order",
-						"type": "number"
+						"type": "number",
+						"propertyOrder": 1
+					},
+					"title": {
+						"title": "Title",
+						"type": "string",
+						"propertyOrder": 2
+					},
+					"required": {
+						"title": "Required",
+						"type": "boolean",
+						"propertyOrder": 3
 					},
 					"type": {
 						"title": "Type",
@@ -1948,19 +2087,30 @@
 							"audio",
 							"video",
 							"json"
-						]
+						],
+						"propertyOrder": 4
 					},
-					"title": {
-						"title": "Title",
-						"type": "string"
+					"format": {
+						"title": "Format",
+						"type": "string",
+						"enum": [
+							"code"
+						],
+						"propertyOrder": 5
+					},
+					"language": {
+						"title": "Language",
+						"type": "string",
+						"enum": [
+							"yaml",
+							"json"
+						],
+						"propertyOrder": 6
 					},
 					"schema": {
 						"title": "Schema",
-						"type": "string"
-					},
-					"required": {
-						"title": "Required",
-						"type": "boolean"
+						"type": "string",
+						"propertyOrder": 7
 					}
 				},
 				"required": [
@@ -2521,6 +2671,15 @@
 							"title": "Thumbnail",
 							"propertyOrder": 5
 						},
+						"tags": {
+							"title": "Tags",
+							"headerTemplate": "en=Tags;ru=Теги",
+							"type": "array",
+							"propertyOrder": 6,
+							"items": {
+								"type": "string"
+							}
+						},
 						"category": {
 							"type": "object",
 							"properties": {
@@ -2886,7 +3045,18 @@
 								"properties": {
 									"order": {
 										"title": "Order",
-										"type": "number"
+										"type": "number",
+										"propertyOrder": 1
+									},
+									"title": {
+										"title": "Title",
+										"type": "string",
+										"propertyOrder": 2
+									},
+									"required": {
+										"title": "Required",
+										"type": "boolean",
+										"propertyOrder": 3
 									},
 									"type": {
 										"title": "Type",
@@ -2903,19 +3073,30 @@
 											"audio",
 											"video",
 											"json"
-										]
+										],
+										"propertyOrder": 4
 									},
-									"title": {
-										"title": "Title",
-										"type": "string"
+									"format": {
+										"title": "Format",
+										"type": "string",
+										"enum": [
+											"code"
+										],
+										"propertyOrder": 5
+									},
+									"language": {
+										"title": "Language",
+										"type": "string",
+										"enum": [
+											"yaml",
+											"json"
+										],
+										"propertyOrder": 6
 									},
 									"schema": {
 										"title": "Schema",
-										"type": "string"
-									},
-									"required": {
-										"title": "Required",
-										"type": "boolean"
+										"type": "string",
+										"propertyOrder": 7
 									}
 								},
 								"required": [
@@ -3093,7 +3274,18 @@
 								"properties": {
 									"order": {
 										"title": "Order",
-										"type": "number"
+										"type": "number",
+										"propertyOrder": 1
+									},
+									"title": {
+										"title": "Title",
+										"type": "string",
+										"propertyOrder": 2
+									},
+									"required": {
+										"title": "Required",
+										"type": "boolean",
+										"propertyOrder": 3
 									},
 									"type": {
 										"title": "Type",
@@ -3110,19 +3302,30 @@
 											"audio",
 											"video",
 											"json"
-										]
+										],
+										"propertyOrder": 4
 									},
-									"title": {
-										"title": "Title",
-										"type": "string"
+									"format": {
+										"title": "Format",
+										"type": "string",
+										"enum": [
+											"code"
+										],
+										"propertyOrder": 5
+									},
+									"language": {
+										"title": "Language",
+										"type": "string",
+										"enum": [
+											"yaml",
+											"json"
+										],
+										"propertyOrder": 6
 									},
 									"schema": {
 										"title": "Schema",
-										"type": "string"
-									},
-									"required": {
-										"title": "Required",
-										"type": "boolean"
+										"type": "string",
+										"propertyOrder": 7
 									}
 								},
 								"required": [
@@ -3346,7 +3549,18 @@
 							"properties": {
 								"order": {
 									"title": "Order",
-									"type": "number"
+									"type": "number",
+									"propertyOrder": 1
+								},
+								"title": {
+									"title": "Title",
+									"type": "string",
+									"propertyOrder": 2
+								},
+								"required": {
+									"title": "Required",
+									"type": "boolean",
+									"propertyOrder": 3
 								},
 								"type": {
 									"title": "Type",
@@ -3363,19 +3577,30 @@
 										"audio",
 										"video",
 										"json"
-									]
+									],
+									"propertyOrder": 4
 								},
-								"title": {
-									"title": "Title",
-									"type": "string"
+								"format": {
+									"title": "Format",
+									"type": "string",
+									"enum": [
+										"code"
+									],
+									"propertyOrder": 5
+								},
+								"language": {
+									"title": "Language",
+									"type": "string",
+									"enum": [
+										"yaml",
+										"json"
+									],
+									"propertyOrder": 6
 								},
 								"schema": {
 									"title": "Schema",
-									"type": "string"
-								},
-								"required": {
-									"title": "Required",
-									"type": "boolean"
+									"type": "string",
+									"propertyOrder": 7
 								}
 							},
 							"required": [
@@ -4408,6 +4633,15 @@
 									"title": "Thumbnail",
 									"propertyOrder": 5
 								},
+								"tags": {
+									"title": "Tags",
+									"headerTemplate": "en=Tags;ru=Теги",
+									"type": "array",
+									"propertyOrder": 6,
+									"items": {
+										"type": "string"
+									}
+								},
 								"category": {
 									"type": "object",
 									"properties": {
@@ -4773,7 +5007,18 @@
 										"properties": {
 											"order": {
 												"title": "Order",
-												"type": "number"
+												"type": "number",
+												"propertyOrder": 1
+											},
+											"title": {
+												"title": "Title",
+												"type": "string",
+												"propertyOrder": 2
+											},
+											"required": {
+												"title": "Required",
+												"type": "boolean",
+												"propertyOrder": 3
 											},
 											"type": {
 												"title": "Type",
@@ -4790,19 +5035,30 @@
 													"audio",
 													"video",
 													"json"
-												]
+												],
+												"propertyOrder": 4
 											},
-											"title": {
-												"title": "Title",
-												"type": "string"
+											"format": {
+												"title": "Format",
+												"type": "string",
+												"enum": [
+													"code"
+												],
+												"propertyOrder": 5
+											},
+											"language": {
+												"title": "Language",
+												"type": "string",
+												"enum": [
+													"yaml",
+													"json"
+												],
+												"propertyOrder": 6
 											},
 											"schema": {
 												"title": "Schema",
-												"type": "string"
-											},
-											"required": {
-												"title": "Required",
-												"type": "boolean"
+												"type": "string",
+												"propertyOrder": 7
 											}
 										},
 										"required": [
@@ -4980,7 +5236,18 @@
 										"properties": {
 											"order": {
 												"title": "Order",
-												"type": "number"
+												"type": "number",
+												"propertyOrder": 1
+											},
+											"title": {
+												"title": "Title",
+												"type": "string",
+												"propertyOrder": 2
+											},
+											"required": {
+												"title": "Required",
+												"type": "boolean",
+												"propertyOrder": 3
 											},
 											"type": {
 												"title": "Type",
@@ -4997,19 +5264,30 @@
 													"audio",
 													"video",
 													"json"
-												]
+												],
+												"propertyOrder": 4
 											},
-											"title": {
-												"title": "Title",
-												"type": "string"
+											"format": {
+												"title": "Format",
+												"type": "string",
+												"enum": [
+													"code"
+												],
+												"propertyOrder": 5
+											},
+											"language": {
+												"title": "Language",
+												"type": "string",
+												"enum": [
+													"yaml",
+													"json"
+												],
+												"propertyOrder": 6
 											},
 											"schema": {
 												"title": "Schema",
-												"type": "string"
-											},
-											"required": {
-												"title": "Required",
-												"type": "boolean"
+												"type": "string",
+												"propertyOrder": 7
 											}
 										},
 										"required": [
@@ -5233,7 +5511,18 @@
 									"properties": {
 										"order": {
 											"title": "Order",
-											"type": "number"
+											"type": "number",
+											"propertyOrder": 1
+										},
+										"title": {
+											"title": "Title",
+											"type": "string",
+											"propertyOrder": 2
+										},
+										"required": {
+											"title": "Required",
+											"type": "boolean",
+											"propertyOrder": 3
 										},
 										"type": {
 											"title": "Type",
@@ -5250,19 +5539,30 @@
 												"audio",
 												"video",
 												"json"
-											]
+											],
+											"propertyOrder": 4
 										},
-										"title": {
-											"title": "Title",
-											"type": "string"
+										"format": {
+											"title": "Format",
+											"type": "string",
+											"enum": [
+												"code"
+											],
+											"propertyOrder": 5
+										},
+										"language": {
+											"title": "Language",
+											"type": "string",
+											"enum": [
+												"yaml",
+												"json"
+											],
+											"propertyOrder": 6
 										},
 										"schema": {
 											"title": "Schema",
-											"type": "string"
-										},
-										"required": {
-											"title": "Required",
-											"type": "boolean"
+											"type": "string",
+											"propertyOrder": 7
 										}
 									},
 									"required": [

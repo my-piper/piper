@@ -24,6 +24,7 @@ import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
 import { SelectNodeComponent } from "src/app/select-node/select-node.component";
 import { AutoHeightDirective } from "src/directives/auto-height";
+import { CopyToClipboardDirective } from "src/directives/copy-clipboard.directive";
 import { DragMoveDirective } from "src/directives/drag-move.directive";
 import { ImageFallbackDirective } from "src/directives/image-fall-back.directive";
 import { ImageSizeDirective } from "src/directives/image-size";
@@ -57,6 +58,7 @@ import { SlicePipe } from "src/pipes/slice";
 import { SplitPipe } from "src/pipes/split";
 import { ValuesPipe } from "src/pipes/values";
 import { YamlPipe } from "src/pipes/yaml";
+import { Ajv, ajvFactory } from "src/providers/ajv";
 import { appConfigFactory } from "src/providers/app-config";
 import { ScrollTopListener } from "src/providers/scroll-top.listener";
 import { baseHrefFactory } from "src/ui-kit/providers/base-href";
@@ -233,6 +235,7 @@ import { UsersComponent } from "./users/users.component";
     ProjectCommentsComponent,
     ChangePasswordComponent,
     UpdatePipelineNodesComponent,
+    CopyToClipboardDirective,
   ],
   imports: [
     BrowserModule,
@@ -256,6 +259,11 @@ import { UsersComponent } from "./users/users.component";
     {
       provide: AppConfig,
       useFactory: appConfigFactory,
+      deps: [],
+    },
+    {
+      provide: Ajv,
+      useFactory: ajvFactory,
       deps: [],
     },
     {

@@ -198,6 +198,14 @@ export class NodeOutput {
 
   @Expose()
   @Type(() => String)
+  format!: string;
+
+  @Expose()
+  @Type(() => String)
+  language!: string;
+
+  @Expose()
+  @Type(() => String)
   schema!: string;
 }
 
@@ -238,6 +246,10 @@ export class Node {
 
   @Expose()
   @Type(() => String)
+  tags!: string[];
+
+  @Expose()
+  @Type(() => String)
   source: string;
 
   @Expose()
@@ -273,7 +285,7 @@ export class Node {
   inputs!: Map<string, NodeInput>;
 
   @Expose()
-  @Type(() => NodeInput)
+  @Type(() => NodeOutput)
   outputs!: Map<string, NodeOutput>;
 
   @Expose()
@@ -339,6 +351,10 @@ export class Node {
         return sorted;
       })(),
     };
+  }
+
+  valid() {
+    return true;
   }
 }
 

@@ -103,4 +103,8 @@ export class NodeIOComponent implements OnInit {
         this.cd.detectChanges();
       });
   }
+
+  copy(text: string) {
+    navigator.clipboard.writeText(text);
+  }
 }

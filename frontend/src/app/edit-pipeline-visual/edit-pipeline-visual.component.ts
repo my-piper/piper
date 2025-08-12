@@ -23,10 +23,14 @@ import { OutputFlow } from "src/models/output-flow";
 import { Pipeline, PipelineInput, PipelineOutput } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
+import { Ajv } from "src/providers/ajv";
+import SCHEMAS from "src/schemas/compiled.json";
 import { ProjectManager } from "src/services/project.manager";
 import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
 import { sid } from "src/ui-kit/utils/string";
+import { toInstance } from "src/utils/models";
+import * as YAML from "yaml";
 import { SelectNodeComponent } from "../select-node/select-node.component";
 
 function tieUp({ x, y }: Point): Point {
@@ -98,6 +102,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   constructor(
     private projectManager: ProjectManager,
     private route: ActivatedRoute,
+    private ajv: Ajv,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {}
@@ -465,5 +470,55 @@ export class EditPipelineVisualComponent implements OnDestroy {
     );
     this.cd.detectChanges();
     this.save();
+  }
+
+  @HostListener("document:paste", ["$event"])
+  async paste(event: ClipboardEvent) {
+    let clipboardItems: Array<ClipboardItem | File> = [];
+
+    if (typeof navigator?.clipboard?.read === "function") {
+      try {
+        clipboardItems = await navigator.clipboard.read();
+      } catch (error) {
+        console.error("Failed to read from clipboard", error);
+        return;
+      }
+    } else if (event.clipboardData?.files) {
+      clipboardItems = Array.from(event.clipboardData.files);
+    }
+
+    for (const item of clipboardItems) {
+      if (item instanceof ClipboardItem) {
+        for (const type of item.types) {
+          switch (type) {
+            case "text/plain":
+              const blob = await item.getType(type);
+              const text = await blob.text();
+              try {
+                const data = YAML.parse(text) as object;
+                const validate = this.ajv.compile(SCHEMAS.node);
+                if (validate(data)) {
+                  const node = toInstance(
+                    {
+                      ...data,
+                      arrange: {
+                        x: random(100, 400),
+                        y: random(100, 200),
+                      },
+                    },
+                    Node
+                  );
+                  const id = [node._id || "imported", sid()].join("_");
+                  this.pipeline.nodes.set(id, node);
+                }
+              } catch (e) {
+                console.error(e);
+              }
+              break;
+            default:
+          }
+        }
+      }
+    }
   }
 }

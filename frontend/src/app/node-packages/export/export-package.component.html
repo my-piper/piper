@@ -1,5 +1,5 @@
 <h1>{{ nodePackage.title | i18n }}</h1>
-<button submitButton class="primary" (click)="copy()" i18n="@@action.copy">
+<button [copyToClipboard]="yaml" class="primary" i18n="@@action.copy">
   Copy
 </button>
 <pre [class.busy-block]="progress.loading">{{ yaml }}</pre>

@@ -21,7 +21,7 @@
     <p i18n="@@message.nothing_found">Nothing found.</p>
   </ng-template>
   <ng-container *ngIf="progress.loading; else emptyTemplate">
-    <app-skeleton type="cards" [cols]="5"></app-skeleton>
+    <app-skeleton type="cards" [cols]="4"></app-skeleton>
   </ng-container>
 </ng-template>
 
@@ -66,8 +66,13 @@
             </h3>
           </button>
         </article>
-        <footer *ngIf="userRole.admin | can | async">
-          version: {{ node.version }}
+        <footer>
+          <ul *ngIf="node.tags as tags" class="tags">
+            <li *ngFor="let t of tags">#{{ t }}</li>
+          </ul>
+          <div class="version" *ngIf="userRole.admin | can | async">
+            {{ node.version }}
+          </div>
         </footer>
       </div>
     </div>

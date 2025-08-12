@@ -31,10 +31,6 @@ export class ExportPackageComponent implements OnInit {
     });
   }
 
-  copy() {
-    navigator.clipboard.writeText(this.yaml);
-  }
-
   load() {
     this.progress.loading = true;
     this.cd.detectChanges();

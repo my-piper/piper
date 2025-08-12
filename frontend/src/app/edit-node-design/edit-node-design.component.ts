@@ -16,12 +16,20 @@ import { toPlain } from "src/utils/models";
 })
 export class EditNodeDesignComponent implements OnInit {
   schemas = (() => {
-    const { _id, title, version, description, thumbnail, inputs, outputs } =
-      SCHEMAS.node.properties;
+    const {
+      _id,
+      title,
+      version,
+      description,
+      thumbnail,
+      tags,
+      inputs,
+      outputs,
+    } = SCHEMAS.node.properties;
     return {
       node: {
         ...SCHEMAS.node,
-        properties: { _id, title, version, description, thumbnail },
+        properties: { _id, title, version, description, thumbnail, tags },
         required: ["title", "version"],
       },
       inputs,
@@ -55,10 +63,18 @@ export class EditNodeDesignComponent implements OnInit {
   }
 
   private build() {
-    const { _id, title, version, description, thumbnail, inputs, outputs } =
-      toPlain(this.node);
+    const {
+      _id,
+      title,
+      version,
+      description,
+      thumbnail,
+      tags,
+      inputs,
+      outputs,
+    } = toPlain(this.node);
     this.form.patchValue({
-      node: essential({ _id, title, version, description, thumbnail }),
+      node: essential({ _id, title, version, description, thumbnail, tags }),
       inputs,
       outputs,
     });
@@ -66,20 +82,29 @@ export class EditNodeDesignComponent implements OnInit {
 
   private save() {
     const { pipeline, launchRequest } = this.project;
-    const { _id, title, version, description, thumbnail, inputs, outputs } =
-      plainToInstance(
-        Node,
-        (() => {
-          const { node, inputs, outputs } = this.form.getRawValue();
-          return { ...node, inputs, outputs };
-        })()
-      );
+    const {
+      _id,
+      title,
+      version,
+      description,
+      thumbnail,
+      tags,
+      inputs,
+      outputs,
+    } = plainToInstance(
+      Node,
+      (() => {
+        const { node, inputs, outputs } = this.form.getRawValue();
+        return { ...node, inputs, outputs };
+      })()
+    );
     assign(this.node, {
       _id,
       title,
       version,
       description,
       thumbnail,
+      tags,
       inputs,
       outputs,
     });

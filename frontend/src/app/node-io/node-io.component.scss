@@ -39,8 +39,10 @@
       }
 
       >div {
-        overflow: hidden;
-        text-overflow: ellipsis;
+        span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
 
         img,
         video {

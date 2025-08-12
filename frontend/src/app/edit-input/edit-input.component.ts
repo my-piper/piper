@@ -174,8 +174,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
 
     if (typeof navigator?.clipboard?.read === "function") {
       try {
-        const items = await navigator.clipboard.read();
-        clipboardItems = items;
+        clipboardItems = await navigator.clipboard.read();
       } catch (error) {
         console.error("Failed to read from clipboard", error);
         return;
@@ -184,19 +183,16 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
       clipboardItems = Array.from(event.clipboardData.files);
     }
 
-    for (const clipboardItem of clipboardItems) {
-      if (
-        clipboardItem instanceof File &&
-        clipboardItem.type.startsWith("image/")
-      ) {
-        const blob = clipboardItem;
+    for (const item of clipboardItems) {
+      if (item instanceof File && item.type.startsWith("image/")) {
+        const blob = item;
         this.upload(blob);
-      } else if (clipboardItem instanceof ClipboardItem) {
-        const imageTypes = clipboardItem.types.filter((type) =>
+      } else if (item instanceof ClipboardItem) {
+        const imageTypes = item.types.filter((type) =>
           type.startsWith("image/")
         );
         for (const imageType of imageTypes) {
-          const blob = await clipboardItem.getType(imageType);
+          const blob = await item.getType(imageType);
           this.upload(blob);
         }
       }

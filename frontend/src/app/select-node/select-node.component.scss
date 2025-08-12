@@ -37,9 +37,38 @@ h2 {
 
       img {
         display: block;
+        width: 60px;
         max-width: 60px;
         aspect-ratio: 1/1;
       }
+    }
+  }
+
+  footer {
+    position: relative;
+
+    .tags {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: $gutter-small;
+
+      li {
+        font-size: 0.85em;
+        color: $primary-text-color;
+      }
+    }
+
+    .version {
+      position: absolute;
+      bottom: -$gutter-small;
+      right: -$gutter-small;
+      background: white;
+      padding: $gutter-tiny $gutter-small;
+      line-height: 1;
+      font-size: .85em;
     }
   }
 }

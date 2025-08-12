@@ -15,6 +15,7 @@ api.get(
             category: 1,
             thumbnail: 1,
             version: 1,
+            tags: 1,
           },
         }
       )

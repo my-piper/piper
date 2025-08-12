@@ -17,7 +17,25 @@
     <span *ngSwitchCase="'float'">{{ value }}</span>
     <pre *ngSwitchCase="'json'" [title]="value">{{ value }}</pre>
     <ng-container *ngSwitchCase="'string'">
-      {{ value }}
+      <ng-container [ngSwitch]="io.format">
+        <div class="stack vertical small" *ngSwitchCase="'code'">
+          <button
+            [copyToClipboard]="value"
+            class="primary small"
+            i18n="@@action.copy"
+          >
+            Copy
+          </button>
+          <ngx-monaco-editor
+            [options]="{ automaticLayout: true, readOnly: true }"
+            [model]="{ language: io.language, value }"
+            [ngStyle]="{ width: '100%' }"
+          ></ngx-monaco-editor>
+        </div>
+        <ng-container *ngSwitchDefault>
+          {{ value }}
+        </ng-container>
+      </ng-container>
     </ng-container>
     <ng-container *ngSwitchCase="'string[]'">
       {{ value }}
