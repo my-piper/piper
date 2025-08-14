@@ -510,6 +510,9 @@ export class EditPipelineVisualComponent implements OnDestroy {
                   );
                   const id = [node._id || "imported", sid()].join("_");
                   this.pipeline.nodes.set(id, node);
+                } else {
+                  const { errors } = validate;
+                  console.error(errors);
                 }
               } catch (e) {
                 console.error(e);

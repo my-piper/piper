@@ -473,10 +473,15 @@
 										"type": "string",
 										"propertyOrder": 2
 									},
+									"description": {
+										"title": "Description",
+										"type": "string",
+										"propertyOrder": 3
+									},
 									"required": {
 										"title": "Required",
 										"type": "boolean",
-										"propertyOrder": 3
+										"propertyOrder": 4
 									},
 									"type": {
 										"title": "Type",
@@ -702,10 +707,15 @@
 										"type": "string",
 										"propertyOrder": 2
 									},
+									"description": {
+										"title": "Description",
+										"type": "string",
+										"propertyOrder": 3
+									},
 									"required": {
 										"title": "Required",
 										"type": "boolean",
-										"propertyOrder": 3
+										"propertyOrder": 4
 									},
 									"type": {
 										"title": "Type",
@@ -977,10 +987,15 @@
 									"type": "string",
 									"propertyOrder": 2
 								},
+								"description": {
+									"title": "Description",
+									"type": "string",
+									"propertyOrder": 3
+								},
 								"required": {
 									"title": "Required",
 									"type": "boolean",
-									"propertyOrder": 3
+									"propertyOrder": 4
 								},
 								"type": {
 									"title": "Type",
@@ -1563,10 +1578,15 @@
 							"type": "string",
 							"propertyOrder": 2
 						},
+						"description": {
+							"title": "Description",
+							"type": "string",
+							"propertyOrder": 3
+						},
 						"required": {
 							"title": "Required",
 							"type": "boolean",
-							"propertyOrder": 3
+							"propertyOrder": 4
 						},
 						"type": {
 							"title": "Type",
@@ -1792,10 +1812,15 @@
 							"type": "string",
 							"propertyOrder": 2
 						},
+						"description": {
+							"title": "Description",
+							"type": "string",
+							"propertyOrder": 3
+						},
 						"required": {
 							"title": "Required",
 							"type": "boolean",
-							"propertyOrder": 3
+							"propertyOrder": 4
 						},
 						"type": {
 							"title": "Type",
@@ -2067,10 +2092,15 @@
 						"type": "string",
 						"propertyOrder": 2
 					},
+					"description": {
+						"title": "Description",
+						"type": "string",
+						"propertyOrder": 3
+					},
 					"required": {
 						"title": "Required",
 						"type": "boolean",
-						"propertyOrder": 3
+						"propertyOrder": 4
 					},
 					"type": {
 						"title": "Type",
@@ -3053,10 +3083,15 @@
 										"type": "string",
 										"propertyOrder": 2
 									},
+									"description": {
+										"title": "Description",
+										"type": "string",
+										"propertyOrder": 3
+									},
 									"required": {
 										"title": "Required",
 										"type": "boolean",
-										"propertyOrder": 3
+										"propertyOrder": 4
 									},
 									"type": {
 										"title": "Type",
@@ -3282,10 +3317,15 @@
 										"type": "string",
 										"propertyOrder": 2
 									},
+									"description": {
+										"title": "Description",
+										"type": "string",
+										"propertyOrder": 3
+									},
 									"required": {
 										"title": "Required",
 										"type": "boolean",
-										"propertyOrder": 3
+										"propertyOrder": 4
 									},
 									"type": {
 										"title": "Type",
@@ -3557,10 +3597,15 @@
 									"type": "string",
 									"propertyOrder": 2
 								},
+								"description": {
+									"title": "Description",
+									"type": "string",
+									"propertyOrder": 3
+								},
 								"required": {
 									"title": "Required",
 									"type": "boolean",
-									"propertyOrder": 3
+									"propertyOrder": 4
 								},
 								"type": {
 									"title": "Type",
@@ -5015,10 +5060,15 @@
 												"type": "string",
 												"propertyOrder": 2
 											},
+											"description": {
+												"title": "Description",
+												"type": "string",
+												"propertyOrder": 3
+											},
 											"required": {
 												"title": "Required",
 												"type": "boolean",
-												"propertyOrder": 3
+												"propertyOrder": 4
 											},
 											"type": {
 												"title": "Type",
@@ -5244,10 +5294,15 @@
 												"type": "string",
 												"propertyOrder": 2
 											},
+											"description": {
+												"title": "Description",
+												"type": "string",
+												"propertyOrder": 3
+											},
 											"required": {
 												"title": "Required",
 												"type": "boolean",
-												"propertyOrder": 3
+												"propertyOrder": 4
 											},
 											"type": {
 												"title": "Type",
@@ -5519,10 +5574,15 @@
 											"type": "string",
 											"propertyOrder": 2
 										},
+										"description": {
+											"title": "Description",
+											"type": "string",
+											"propertyOrder": 3
+										},
 										"required": {
 											"title": "Required",
 											"type": "boolean",
-											"propertyOrder": 3
+											"propertyOrder": 4
 										},
 										"type": {
 											"title": "Type",

@@ -21,6 +21,10 @@ export class UiConfig {
 
 export class BillingConfig {
   @Expose()
+  @Type(() => Boolean)
+  active?: boolean;
+
+  @Expose()
   @Type(() => String)
   url?: string;
 
