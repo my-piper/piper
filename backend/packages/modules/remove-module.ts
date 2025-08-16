@@ -1,6 +1,6 @@
+import { readInstance, saveInstance } from "core-kit/packages/redis";
 import { DataError } from "core-kit/types/errors";
 import { PackageJson } from "models/package-json";
-import { readInstance, saveInstance } from "utils/redis";
 import { PACKAGE_JSON_KEY } from "./consts";
 
 export async function remove(name: string) {

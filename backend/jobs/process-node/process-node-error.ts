@@ -12,7 +12,7 @@ import { notify } from "core-kit/packages/io";
 import { DEFAULT_LANGUAGE } from "core-kit/packages/locale";
 import { createLogger } from "core-kit/packages/logger";
 import { Job } from "core-kit/packages/queue";
-import redis from "core-kit/packages/redis";
+import redis, { readInstance, saveInstance } from "core-kit/packages/redis";
 import sentry from "core-kit/packages/sentry";
 import { mapTo } from "core-kit/packages/transform";
 import { FatalError, TimeoutError } from "core-kit/types/errors";
@@ -21,7 +21,6 @@ import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { NodeStatus } from "models/node";
 import { PipelineEventType } from "types/pipeline";
-import { readInstance, saveInstance } from "utils/redis";
 
 export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
   const logger = createLogger("process-node", {
@@ -55,7 +54,8 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
     new NodeStatus({
       state: "error",
       error: `${err.message}`,
-    })
+    }),
+    LAUNCH_EXPIRED
   );
   notifyNode(nodeJob.node, "node_error");
 

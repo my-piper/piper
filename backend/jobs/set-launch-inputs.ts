@@ -3,11 +3,11 @@ import { queues } from "app/queues";
 import { LAUNCH } from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
+import { readInstance } from "core-kit/packages/redis";
 import { toPlain } from "core-kit/packages/transform";
 import { SetLaunchInputsEvent } from "models/events";
 import { Launch, LaunchInput } from "models/launch";
 import { getIOData } from "packages/launches";
-import { readInstance } from "utils/redis";
 
 queues.launches.inputs.set.process(async (setInputsJob) => {
   const logger = createLogger("set-launch-inputs", {

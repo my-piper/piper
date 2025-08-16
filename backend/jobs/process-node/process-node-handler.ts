@@ -1,21 +1,6 @@
 import { queues } from "app/queues";
 import { streams } from "app/streams";
 import { BILLING_ACTIVE, UNIT_COST } from "consts/billing";
-import { notify } from "core-kit/packages/io";
-import { createLogger } from "core-kit/packages/logger";
-import { Job } from "core-kit/packages/queue";
-import redis from "core-kit/packages/redis";
-import { mapTo } from "core-kit/packages/transform";
-import { DataError, FatalError } from "core-kit/types/errors";
-import { differenceInSeconds } from "date-fns";
-import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
-import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
-import { NodeExecution } from "enums/node-execution";
-import { ProcessNodeJob } from "models/jobs/process-node-job";
-import { SourceTextModule } from "node:vm";
-import { plan } from "packages/nodes/plan-node";
-import { importModule } from "packages/vm/utils";
-import { Primitive } from "types/primitive";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,
@@ -32,33 +17,42 @@ import {
   NODE_STATE,
   NODE_STATUS,
   PIPELINE_OUTPUT,
-} from "../../consts/redis";
-import { PipelineEvent } from "../../models/events";
-import { Launch } from "../../models/launch";
-import { NodeStatus } from "../../models/node";
-import {
-  NextNode,
-  NodeInputs,
-  NodeJobResult,
-  RepeatNode,
-} from "../../types/node";
-import { PipelineEventType } from "../../types/pipeline";
+} from "consts/redis";
+import { notify } from "core-kit/packages/io";
+import { createLogger } from "core-kit/packages/logger";
+import { Job } from "core-kit/packages/queue";
+import redis, {
+  lock,
+  locked,
+  readInstance,
+  readObject,
+  saveInstance,
+  saveObject,
+  unlock,
+} from "core-kit/packages/redis";
+import { mapTo } from "core-kit/packages/transform";
+import { DataError, FatalError } from "core-kit/types/errors";
+import { differenceInSeconds } from "date-fns";
+import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
+import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
+import { NodeExecution } from "enums/node-execution";
+import { PipelineEvent } from "models/events";
+import { ProcessNodeJob } from "models/jobs/process-node-job";
+import { Launch } from "models/launch";
+import { NodeStatus } from "models/node";
+import { SourceTextModule } from "node:vm";
+import { plan } from "packages/nodes/plan-node";
+import { importModule } from "packages/vm/utils";
+import { NextNode, NodeInputs, NodeJobResult, RepeatNode } from "types/node";
+import { PipelineEventType } from "types/pipeline";
+import { Primitive } from "types/primitive";
 import {
   checkInputs,
   convertInputs,
   convertOutputs,
   getNodeInputs,
-} from "../../utils/node";
-import {
-  lock,
-  locked,
-  readInstance,
-  readObject,
-  release,
-  saveInstance,
-  saveObject,
-  toRedisValue,
-} from "../../utils/redis";
+} from "utils/node";
+import { toRedisValue } from "utils/redis";
 import { createContext } from "./context";
 
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
@@ -204,7 +198,8 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   await saveInstance(
     NODE_STATUS(launch._id, nodeJob.node),
-    new NodeStatus({ state: "running" })
+    new NodeStatus({ state: "running" }),
+    LAUNCH_EXPIRED
   );
   notifyNode(nodeJob.node, "node_running");
 
@@ -265,7 +260,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     throw e;
   } finally {
     logger.debug("Release processing lock");
-    await release(PROCESSING_LOCK);
+    await unlock(PROCESSING_LOCK);
 
     logger.debug("Clear heartbeat timer");
     clearTimeout(timers.heartbeat);
@@ -274,12 +269,20 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   if (results instanceof RepeatNode) {
     const { delay, progress, state } = results;
     if (!!state) {
-      await saveObject(NODE_STATE(launch._id, nodeJob.node), state);
+      await saveObject(
+        NODE_STATE(launch._id, nodeJob.node),
+        state,
+        LAUNCH_EXPIRED
+      );
     }
 
     if (!!progress) {
       logger.debug(progress);
-      await saveInstance(NODE_PROGRESS(launch._id, nodeJob.node), progress);
+      await saveInstance(
+        NODE_PROGRESS(launch._id, nodeJob.node),
+        progress,
+        LAUNCH_EXPIRED
+      );
       notifyNode(nodeJob.node, "node_progress");
     }
 
@@ -327,7 +330,8 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     await saveInstance(
       NODE_STATUS(launch._id, nodeJob.node),
-      new NodeStatus({ state: "done" })
+      mapTo({ state: "done" }, NodeStatus),
+      LAUNCH_EXPIRED
     );
     notifyNode(nodeJob.node, "node_done");
 

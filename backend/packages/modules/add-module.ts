@@ -1,5 +1,5 @@
+import { readInstance, saveInstance } from "core-kit/packages/redis";
 import { PackageJson } from "models/package-json";
-import { readInstance, saveInstance } from "utils/redis";
 import { PACKAGE_JSON_KEY } from "./consts";
 
 export async function add(name: string, version: string) {

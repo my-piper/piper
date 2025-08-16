@@ -8,14 +8,14 @@ import {
 } from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
-import redis from "core-kit/packages/redis";
+import redis, { readInstance } from "core-kit/packages/redis";
 import { mapTo, toPlain } from "core-kit/packages/transform";
 import { SetLaunchOutputEvent } from "models/events";
 import { Launch, LaunchOutput, OUTPUT_TYPES } from "models/launch";
 import { User } from "models/user";
 import { getIOData } from "packages/launches/launching";
 import { ulid } from "ulid";
-import { fromRedisValue, readInstance } from "utils/redis";
+import { fromRedisValue } from "utils/redis";
 import { sid } from "utils/string";
 
 queues.launches.outputs.set.process(async (setOutputJob) => {

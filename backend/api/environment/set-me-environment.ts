@@ -1,5 +1,5 @@
 import api from "app/api";
-import { USER_ENVIRONMENT_EXPIRED, USER_ENVIRONMENT_KEY } from "consts/redis";
+import { USER_ENVIRONMENT_KEY } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { Environment } from "models/environment";
@@ -26,9 +26,8 @@ api.put(
     merge(environment, update);
     encrypt(environment);
 
-    await redis.setEx(
+    await redis.set(
       USER_ENVIRONMENT_KEY(currentUser._id),
-      USER_ENVIRONMENT_EXPIRED,
       JSON.stringify(toPlain(environment))
     );
 

@@ -5,12 +5,11 @@ import {
   LAUNCH_HEARTBEAT_EXPIRED,
 } from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
-import redis from "core-kit/packages/redis";
+import redis, { readInstance } from "core-kit/packages/redis";
 import random from "lodash/random";
 import { Launch } from "models/launch";
 import { kick } from "packages/launches";
 import { RunLaunchJobResult } from "types/launch";
-import { readInstance } from "utils/redis";
 
 queues.launches.run.process(async (runJob) => {
   const logger = createLogger("run-launch", {

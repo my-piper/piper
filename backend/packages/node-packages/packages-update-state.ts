@@ -1,10 +1,10 @@
 import { queues } from "app/queues";
 import { PACKAGES_UPDATES } from "consts/packages";
+import { loadRange } from "core-kit/packages/redis";
 import {
   NodePackageUpdates,
   NodePackageUpdatesState,
 } from "models/node-package";
-import { loadRange } from "utils/redis";
 
 export async function getPackagesUpdateState(): Promise<NodePackageUpdatesState> {
   return new NodePackageUpdatesState({

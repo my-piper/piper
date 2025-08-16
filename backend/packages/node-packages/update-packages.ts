@@ -1,9 +1,8 @@
 import { queues } from "app/queues";
 import { PACKAGES_UPDATES } from "consts/packages";
 import { createLogger } from "core-kit/packages/logger";
-import redis from "core-kit/packages/redis";
+import redis, { loadRange } from "core-kit/packages/redis";
 import { NodePackageUpdates } from "models/node-package";
-import { loadRange } from "utils/redis";
 
 const logger = createLogger("plan-update-packages");
 
