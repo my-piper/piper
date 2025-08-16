@@ -370,7 +370,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         await redis.del(NODE_STATE(launch._id, node));
         await redis.del(NODE_PROGRESS(launch._id, node));
         await redis.del(NODE_OUTPUTS(launch._id, node));
-        await release(NODE_PROCESSED_LOCK(launch._id, node));
+        await unlock(NODE_PROCESSED_LOCK(launch._id, node));
 
         logger.debug(`Plan next node ${node}`);
         await plan(node, pipeline.nodes.get(node), launch._id, { delay });
