@@ -99,6 +99,9 @@
 		"link.more": "Daha fazla",
 		"link.scheme": " Şema",
 		"action.i_agree": " Katılıyorum\n",
-		"link.updates": "Güncellemeler"
+		"link.updates": "Güncellemeler",
+		"message.confirm_email": "Size, doğru hesap sahibi olduğunuzdan emin olmak için özel bir kod içeren bir e-posta gönderdik. Lütfen gelen kutunuzu kontrol edin ve devam etmek için kodu girin.",
+		"label.code_from_email": "E-postadan kod",
+		"action.continue": "Devam et"
 	}
 }

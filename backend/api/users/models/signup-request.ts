@@ -6,6 +6,23 @@ import {
   Type,
 } from "core-kit/packages/transform";
 
+export class ConfirmEmailRequest {
+  @IsEmail()
+  @Expose()
+  @Type(() => String)
+  email!: string;
+
+  @Expose()
+  @IsOptional()
+  @Type(() => String)
+  captcha!: string;
+
+  @Expose()
+  @IsOptional()
+  @Type(() => String)
+  code!: string;
+}
+
 export class SignupRequest {
   @IsEmail()
   @Expose()
@@ -24,5 +41,5 @@ export class SignupRequest {
   @Expose()
   @IsOptional()
   @Type(() => String)
-  captcha!: string;
+  code!: string;
 }

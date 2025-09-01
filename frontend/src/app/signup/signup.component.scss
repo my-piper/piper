@@ -1,1 +1,21 @@
 @import './common.scss';
+@import 'src/ui-kit/styles/variables';
+@import 'src/ui-kit/styles/mixins';
+
+.confirmation {
+    p {
+        font-size: 0.85em;
+        text-align: center;
+    }
+
+    @include wider-mobile() {
+        max-width: 400px;
+    }
+
+    background: white;
+    padding: $gutter-normal;
+    border-radius: $corner-base;
+    display: flex;
+    flex-direction: column;
+    gap: $gutter-normal;
+}

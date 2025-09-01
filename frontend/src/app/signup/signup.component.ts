@@ -15,8 +15,8 @@ import { Authorization } from "src/models/authorisation";
 import { AppError } from "src/models/errors";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
-import { toPlain } from "src/utils/models";
-import { SignupRequest } from "./models";
+import { mapTo, toPlain } from "src/utils/models";
+import { ConfirmEmailRequest, SignupRequest } from "./models";
 
 @Component({
   selector: "app-signup",
@@ -24,8 +24,10 @@ import { SignupRequest } from "./models";
   styleUrls: ["./signup.component.scss"],
 })
 export class SigupComponent implements OnInit {
-  progress = { signup: false };
+  progress = { confirmation: false, signup: false };
   error!: AppError;
+
+  state = { confirm: false };
 
   @Output()
   logged = new EventEmitter();
@@ -43,6 +45,7 @@ export class SigupComponent implements OnInit {
     sendPassword: this.sendPasswordControl,
     password: this.passwordControl,
     captcha: [null],
+    code: [null],
   });
 
   constructor(
@@ -79,6 +82,31 @@ export class SigupComponent implements OnInit {
     });
   }
 
+  confirm() {
+    this.form.markAllAsTouched();
+    if (!this.form.valid) {
+      return;
+    }
+
+    this.progress.confirmation = true;
+    this.cd.detectChanges();
+
+    const request = mapTo(this.form.getRawValue(), ConfirmEmailRequest);
+    this.http
+      .post("signup/confirm", toPlain(request), { responseType: "text" })
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.confirmation = false;
+          this.cd.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => (this.state.confirm = true),
+        error: (err) => (this.error = err),
+      });
+  }
+
   login() {
     this.form.markAllAsTouched();
     if (!this.form.valid) {
@@ -88,7 +116,7 @@ export class SigupComponent implements OnInit {
     this.progress.signup = true;
     this.cd.detectChanges();
 
-    const request = new SignupRequest(this.form.getRawValue());
+    const request = mapTo(this.form.getRawValue(), SignupRequest);
     this.http
       .post("signup", toPlain(request))
       .pipe(

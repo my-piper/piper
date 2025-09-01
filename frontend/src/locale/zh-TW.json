@@ -97,6 +97,9 @@
 		"link.more": "更多",
 		"link.scheme": "Scheme",
 		"action.i_agree": "我同意",
-		"link.updates": "更新"
+		"link.updates": "更新",
+		"message.confirm_email": "我們向您發送了一封電子郵件，其中包含一個特殊代碼，以確保您是合法的帳戶所有者。請檢查您的收件箱並輸入代碼以繼續。",
+		"label.code_from_email": "電子郵件中的代碼",
+		"action.continue": "繼續"
 	}
 }

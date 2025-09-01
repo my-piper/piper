@@ -95,6 +95,9 @@
 		"link.more": "Mais informações",
 		"link.scheme": " Esquema",
 		"action.i_agree": " Concordo\n",
-		"link.updates": "Atualizações"
+		"link.updates": "Atualizações",
+		"message.confirm_email": "Enviamos um e-mail com um código especial para garantir que você seja o proprietário legítimo da conta. Por favor, verifique sua caixa de entrada e insira o código para continuar.",
+		"label.code_from_email": "Código do email",
+		"action.continue": "Continue"
 	}
 }
