@@ -48,6 +48,19 @@ api.post(
       throw new DataError("Wrong confirmation code");
     }
 
+    const {
+      data: { status },
+    } = await axios({
+      method: "get",
+      url: "https://rapid-email-verifier.fly.dev/api/validate",
+      params: {
+        email,
+      },
+    });
+    if (status !== "VALID") {
+      throw new DataError("Try another email or use Google or Yandex");
+    }
+
     const now = new Date();
     const user = new User({
       _id,
