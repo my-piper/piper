@@ -137,14 +137,31 @@
         <button class="circle small" (click)="editNode(node.key)">
           <app-icon class="icon" icon="edit" [size]="18"></app-icon>
         </button>
+        <button
+          class="circle small"
+          [class.busy]="progress.launching[node.key]"
+          [disabled]="progress.launching[node.key]"
+          (click)="
+            !!state.launches[node.key] ? stopNode(node.key) : runNode(node.key)
+          "
+        >
+          <app-icon
+            class="icon"
+            [icon]="!!state.launches[node.key] ? 'stop' : 'play'"
+            [size]="18"
+          ></app-icon>
+        </button>
       </div>
       <app-node
         [id]="node.key"
         [node]="node.value"
         [start]="pipeline.start.nodes | includes: node.key"
         [inputs]="launchRequest.nodes.get(node.key)?.inputs | mapToPlain"
-        (output)="startFlow(node.key, $event)"
+        [outputs]="launchRequest.nodes.get(node.key)?.outputs | mapToPlain"
+        [launch]="state.launches[node.key]"
         (input)="!!flow ? addFlow(node.key, $event) : null"
+        (output)="startFlow(node.key, $event)"
+        (done)="fillNodeOutputs(node.key, $event)"
         (takeOutInput)="takeOutPipelineInput($event)"
         (takeOutOutput)="takeOutPipelineOutput($event)"
       ></app-node>

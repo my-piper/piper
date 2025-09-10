@@ -1,13 +1,24 @@
+import "reflect-metadata";
+
 import { Expose, Transform, Type } from "class-transformer";
 import assign from "lodash/assign";
-import "reflect-metadata";
 import { primitiveMapTransformer } from "src/transformers/primitive";
 import { PrimitiveMap } from "src/types/primitive";
+
+export class Inclusive {
+  @Expose()
+  @Type(() => String)
+  nodes: string[];
+}
 
 export class NodeToLaunch {
   @Expose()
   @Transform(primitiveMapTransformer)
   inputs!: PrimitiveMap;
+
+  @Expose()
+  @Transform(primitiveMapTransformer)
+  outputs!: PrimitiveMap;
 
   constructor(defs: Partial<NodeToLaunch> = {}) {
     assign(this, defs);
@@ -15,6 +26,10 @@ export class NodeToLaunch {
 }
 
 export class LaunchRequest {
+  @Expose()
+  @Type(() => Inclusive)
+  inclusive!: Inclusive;
+
   @Expose()
   @Transform(primitiveMapTransformer)
   inputs!: PrimitiveMap;

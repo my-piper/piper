@@ -1,12 +1,35 @@
 {
   "type": "object",
   "properties": {
+    "inclusive": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["nodes"],
+      "additionalProperties": false
+    },
     "nodes": {
       "type": "object",
       "additionalProperties": {
         "type": "object",
         "properties": {
           "inputs": {
+            "type": "object",
+            "additionalProperties": {
+              "anyOf": [
+                { "type": "boolean" },
+                { "type": "number" },
+                { "type": "string" }
+              ]
+            }
+          },
+          "outputs": {
             "type": "object",
             "additionalProperties": {
               "anyOf": [

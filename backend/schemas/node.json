@@ -322,6 +322,11 @@
           "title": "Schema",
           "type": "string",
           "propertyOrder": 7
+        },
+        "featured": {
+          "title": "Featured",
+          "type": "boolean",
+          "propertyOrder": 8
         }
       },
       "required": ["type", "title"],

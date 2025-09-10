@@ -28,11 +28,11 @@ export class LaunchComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project, launch }) => {
-      [this.project, this.launch, this.pipeline] = [
-        project,
+    this.route.data.subscribe(({ launch, project }) => {
+      [this.launch, this.pipeline, this.project] = [
         launch,
         launch.pipeline,
+        project,
       ];
     });
   }

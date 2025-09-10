@@ -19,6 +19,7 @@ import {
   NodeProgress,
   NodeStatus,
 } from "src/models/node";
+import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
@@ -43,13 +44,13 @@ export class NodeComponent implements OnDestroy {
 
   @HostBinding("class.done")
   @Input()
-  get done() {
+  get hasDone() {
     return this.status?.state === "done";
   }
 
   @HostBinding("class.error")
   @Input()
-  get error() {
+  get hasError() {
     return this.status?.state === "error";
   }
 
@@ -59,8 +60,12 @@ export class NodeComponent implements OnDestroy {
   @Input()
   set launch(launch: Launch) {
     this._launch = launch;
-    this.load();
-    this.listen();
+    if (!!launch) {
+      this.load();
+      this.listen();
+    } else {
+      this.reset();
+    }
   }
 
   get launch() {
@@ -68,9 +73,14 @@ export class NodeComponent implements OnDestroy {
   }
 
   @Input()
+  project!: Project;
+
+  @Input()
   inputs!: NodeInputs;
 
+  @Input()
   outputs!: NodeOutputs;
+
   status!: NodeStatus;
   progress!: NodeProgress;
 
@@ -112,6 +122,9 @@ export class NodeComponent implements OnDestroy {
   @Output()
   output = new EventEmitter<string>();
 
+  @Output()
+  done = new EventEmitter<NodeOutputs>();
+
   subscriptions: { launch: () => void } = {
     launch: null,
   };
@@ -134,7 +147,7 @@ export class NodeComponent implements OnDestroy {
     console.log("Listen node events", this.id);
     this.socket.fromEvent<Object>("node_running").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (node === this.id) {
+      if (launch === this.launch?._id && node === this.id) {
         console.log("Node is running", node);
         this.loadStatus();
       }
@@ -142,16 +155,21 @@ export class NodeComponent implements OnDestroy {
 
     this.socket.fromEvent<Object>("node_done").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (node === this.id) {
+      if (launch === this.launch?._id && node === this.id) {
         console.log("Node done", node);
         this.loadStatus();
-        this.loadOutputs();
+        this.loadOutputs().subscribe((outputs) => {
+          this.outputs = outputs;
+          this.cd.detectChanges();
+
+          this.done.emit(outputs);
+        });
       }
     });
 
     this.socket.fromEvent<Object>("node_progress").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (node === this.id) {
+      if (launch === this.launch?._id && node === this.id) {
         console.log("Progress for", node);
         this.loadProgress();
       }
@@ -159,16 +177,15 @@ export class NodeComponent implements OnDestroy {
 
     this.socket.fromEvent<Object>("node_not_ready").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (node === this.id) {
+      if (launch === this.launch?._id && node === this.id) {
         console.log("Node is ready", node);
         this.loadStatus();
-        this.loadOutputs();
       }
     });
 
     this.socket.fromEvent<Object>("node_error").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (node === this.id) {
+      if (launch === this.launch?._id && node === this.id) {
         console.log("Node error", node);
         this.loadStatus();
       }
@@ -176,7 +193,7 @@ export class NodeComponent implements OnDestroy {
 
     this.socket.fromEvent<Object>("node_flow").subscribe((data: Object) => {
       const { launch, node } = plainToInstance(PipelineEvent, data as Object);
-      if (node === this.id) {
+      if (launch === this.launch?._id && node === this.id) {
         console.log("Node is going to flow", node);
         this.load();
       }
@@ -184,11 +201,15 @@ export class NodeComponent implements OnDestroy {
 
     this.socket.fromEvent<Object>("node_reset").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (node === this.id) {
+      if (launch === this.launch?._id && node === this.id) {
         console.log("Node is reset", node);
         this.loadInputs();
       }
     });
+  }
+
+  reset() {
+    [this.status, this.progress] = [null, null];
   }
 
   pinFrom(output: string) {
@@ -202,7 +223,10 @@ export class NodeComponent implements OnDestroy {
   private load() {
     console.log("Load node state", this.id);
     this.loadInputs();
-    this.loadOutputs();
+    this.loadOutputs().subscribe((outputs) => {
+      this.outputs = outputs;
+      this.cd.detectChanges();
+    });
     this.loadStatus();
   }
 
@@ -216,13 +240,10 @@ export class NodeComponent implements OnDestroy {
   }
 
   private loadOutputs() {
-    this.http
-      .get(`launches/${this.launch._id}/${this.id}/outputs`)
-      .pipe(catchError((err) => of(null)))
-      .subscribe((outputs) => {
-        this.outputs = outputs as NodeOutputs;
-        this.cd.detectChanges();
-      });
+    return this.http.get(`launches/${this.launch._id}/${this.id}/outputs`).pipe(
+      catchError((err) => of(null)),
+      map((obj) => obj as NodeOutputs)
+    );
   }
 
   private loadStatus() {

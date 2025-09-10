@@ -213,6 +213,10 @@ export class NodeOutput {
   @Expose()
   @Type(() => String)
   schema!: string;
+
+  @Expose()
+  @Type(() => Boolean)
+  featured!: boolean;
 }
 
 export class Node {

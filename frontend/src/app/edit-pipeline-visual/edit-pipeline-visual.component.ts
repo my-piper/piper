@@ -9,14 +9,15 @@ import {
 import { ActivatedRoute, Router } from "@angular/router";
 import { assign, random, sample } from "lodash";
 import { customAlphabet } from "nanoid";
-import { Subscription } from "rxjs";
+import { delay, finalize, map, Subscription } from "rxjs";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { matchIO } from "src/app/edit-pipeline-visual/utils";
-import { UI } from "src/consts/ui";
+import { UI, UI_DELAY } from "src/consts/ui";
 import { Arrange } from "src/models/arrange";
 import { InputFlow } from "src/models/input-flow";
-import { LaunchRequest } from "src/models/launch-request";
+import { Launch } from "src/models/launch";
+import { LaunchRequest, NodeToLaunch } from "src/models/launch-request";
 import { Node, NodeInput, NodeOutput } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
 import { OutputFlow } from "src/models/output-flow";
@@ -25,11 +26,13 @@ import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { Ajv } from "src/providers/ajv";
 import SCHEMAS from "src/schemas/compiled.json";
+import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
+import { NodeOutputs } from "src/types/node";
 import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
 import { sid } from "src/ui-kit/utils/string";
-import { toInstance } from "src/utils/models";
+import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import { SelectNodeComponent } from "../select-node/select-node.component";
 
@@ -47,6 +50,21 @@ export class EditPipelineVisualComponent implements OnDestroy {
   ui = UI;
   editNodeComponent = EditNodeComponent;
   editPipelineInputComponent = EditPipelineInputComponent;
+
+  progress: {
+    launching: {
+      [key: string]: boolean;
+    };
+  } = { launching: {} };
+  error: Error;
+
+  state: {
+    launches: {
+      [key: string]: Launch;
+    };
+  } = { launches: {} };
+
+  launch!: Launch;
 
   private _modal!:
     | EditNodeComponent
@@ -102,6 +120,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   constructor(
     private projectManager: ProjectManager,
     private route: ActivatedRoute,
+    private http: HttpService,
     private ajv: Ajv,
     private router: Router,
     private cd: ChangeDetectorRef
@@ -170,6 +189,80 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   editNode(node: string) {
     this.router.navigate(["nodes", node], { relativeTo: this.route });
+  }
+
+  runNode(node: string) {
+    this.progress.launching[node] = true;
+    this.cd.detectChanges();
+
+    const request = toInstance(
+      {
+        inclusive: {
+          nodes: [node],
+        },
+      },
+      LaunchRequest
+    );
+
+    this.http
+      .post(`projects/${this.project._id}/launch`, toPlain(request))
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.launching[node] = false;
+          this.cd.detectChanges();
+        }),
+        map((json) => toInstance(json as Object, Launch))
+      )
+      .subscribe({
+        next: (launch) => {
+          this.state.launches[node] = launch;
+          this.cd.detectChanges();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
+
+  stopNode(node: string) {
+    delete this.state.launches[node];
+    this.cd.detectChanges();
+  }
+
+  fillNodeOutputs(node: string, outputs: NodeOutputs) {
+    const { pipeline, launchRequest } = this.project;
+    const { nodes } = launchRequest;
+
+    let nodeToLaunch = launchRequest.nodes.get(node);
+    if (!nodeToLaunch) {
+      nodeToLaunch = new NodeToLaunch();
+      launchRequest.nodes.set(node, nodeToLaunch);
+    }
+
+    nodeToLaunch.outputs = mapTo({ outputs }, NodeToLaunch).outputs;
+
+    for (const [, flow] of pipeline.flows) {
+      if (flow.from === node) {
+        const value = outputs[flow.output];
+        if (value !== undefined) {
+          let toNode = nodes.get(flow.to);
+          if (!toNode) {
+            toNode = mapTo({ inputs: {} }, NodeToLaunch);
+            launchRequest.nodes.set(flow.to, toNode);
+          }
+
+          if (!toNode.inputs) {
+            toNode.inputs = new Map<string, Primitive>();
+          }
+
+          toNode.inputs.set(flow.input, value);
+        }
+      }
+    }
+
+    this.projectManager.update({ launchRequest, pipeline });
+
+    delete this.state.launches[node];
+    this.cd.detectChanges();
   }
 
   editPipelineInput(input: string) {

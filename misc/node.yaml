@@ -1,0 +1,83 @@
+_id: send_message_telegram
+title: Send Message to Telegram
+version: 1
+description: Send a specified message to a Telegram chat using a bot token and chat ID.
+thumbnail: https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg
+tags:
+  - telegram
+  - messaging
+category:
+  _id: messaging_services
+  title: en=Messaging Services;ru=Сервисы обмена сообщениями
+package: telegram_bot
+arrange:
+  x: 300
+  y: 200
+execution: rapid
+script: >
+  const fetch = require('node-fetch');
+
+  export async function run({ inputs }) {
+    const { FatalError } = DEFINITIONS;
+
+    const { botToken, chatId, message } = inputs;
+
+    if (!botToken || !chatId || !message) {
+      throw new FatalError('Bot token, chat ID, and message are required inputs.');
+    }
+
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message
+        })
+      });
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        throw new FatalError(`Telegram API error: ${data.description}`);
+      }
+
+      return { outputs: { success: true, messageId: data.result.message_id } };
+      
+    } catch (error) {
+      throw new FatalError(`Failed to send message: ${error.message}`);
+    }
+  }
+inputs:
+  botToken:
+    order: 1
+    title: en=Bot Token;ru=Токен Бота
+    type: string
+    required: true
+    placeholder: Enter your Telegram bot token
+  chatId:
+    order: 2
+    title: en=Chat ID;ru=ID Чата
+    type: string
+    required: true
+    placeholder: Enter the chat ID to send the message to
+  message:
+    order: 3
+    title: en=Message;ru=Сообщение
+    type: string
+    required: true
+    multiline: true
+    placeholder: Enter the message you want to send
+outputs:
+  success:
+    order: 1
+    title: en=Success;ru=Успех
+    type: boolean
+  messageId:
+    order: 2
+    title: en=Message ID;ru=ID Сообщения
+    type: integer

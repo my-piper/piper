@@ -48,6 +48,10 @@ api.post(
       throw new DataError("Wrong confirmation code");
     }
 
+    if (email.indexOf("+") !== -1) {
+      throw new DataError("Try another email");
+    }
+
     const {
       data: { status },
     } = await axios({
@@ -58,7 +62,7 @@ api.post(
       },
     });
     if (status !== "VALID") {
-      throw new DataError("Try another email or use Google or Yandex");
+      throw new DataError("Try another email");
     }
 
     const now = new Date();

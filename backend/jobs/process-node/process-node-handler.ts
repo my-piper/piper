@@ -124,15 +124,21 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     return NodeJobResult.LAUNCH_NOT_FOUND;
   }
 
-  const { pipeline } = launch;
+  const { pipeline, launchRequest } = launch;
   const node = pipeline.nodes.get(nodeJob.node);
   if (!node) {
     logger.error("Node is not found in workflow");
     return NodeJobResult.NODE_NOT_FOUND_IN_WORKFLOW;
   }
 
+  const inclusive = launchRequest.inclusive?.nodes || [];
+  if (inclusive.length > 0 && !inclusive.includes(nodeJob.node)) {
+    logger.error("Node is not inclusive");
+    return NodeJobResult.NODE_IN_NOT_INCLUSIVE;
+  }
+
   // prepare inputs
-  if (!!pipeline.flows) {
+  if (!inclusive.includes(nodeJob.node)) {
     for (const [id, flow] of pipeline.flows) {
       if (flow.to === nodeJob.node) {
         switch (flow.mode) {
@@ -369,7 +375,6 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         await redis.del(NODE_STATUS(launch._id, node));
         await redis.del(NODE_STATE(launch._id, node));
         await redis.del(NODE_PROGRESS(launch._id, node));
-        await redis.del(NODE_OUTPUTS(launch._id, node));
         await unlock(NODE_PROCESSED_LOCK(launch._id, node));
 
         logger.debug(`Plan next node ${node}`);

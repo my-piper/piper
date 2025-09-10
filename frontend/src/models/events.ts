@@ -17,7 +17,7 @@ export class PipelineEvent {
   @Type(() => String)
   event: PipelineEventType;
 
-  constructor(defs: Partial<PipelineEvent>) {
+  constructor(defs: Partial<PipelineEvent> = {}) {
     assign(this, defs);
   }
 }

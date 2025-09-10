@@ -7,6 +7,7 @@ import {
   LAUNCH,
   LAUNCH_EXPIRED,
   NODE_INPUT,
+  NODE_OUTPUTS,
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
   PIPELINE_OUTPUT_DATA,
@@ -18,6 +19,7 @@ import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
+import isEmpty from "lodash/isEmpty";
 import {
   BooleanData,
   FloatData,
@@ -73,23 +75,44 @@ export async function run({
     }
   }
 
+  const { inclusive } = launchRequest;
+
   const _id = sid();
 
   // set inputs for nodes
   for (const [id, node] of pipeline.nodes) {
     logger.debug(`Node ${id}`);
-    for (const [key, input] of node.inputs) {
-      const save = (value: Primitive) =>
-        redis.setEx(
-          NODE_INPUT(_id, id, key),
+    if (!!node.inputs) {
+      for (const [key, input] of node.inputs) {
+        const save = (value: Primitive) =>
+          redis.setEx(
+            NODE_INPUT(_id, id, key),
+            LAUNCH_EXPIRED,
+            toRedisValue(input.type, value)
+          );
+        const value = launchRequest.nodes?.get(id)?.inputs?.get(key);
+        if (value !== undefined) {
+          await save(value);
+        } else if (input.required && input.default !== undefined) {
+          await save(input.default);
+        }
+      }
+    }
+
+    if (!!node.outputs) {
+      const outputs = {};
+      for (const [key, input] of node.outputs) {
+        const value = launchRequest.nodes?.get(id)?.outputs?.get(key);
+        if (value !== undefined) {
+          outputs[key] = value;
+        }
+      }
+      if (!isEmpty(outputs)) {
+        await redis.setEx(
+          NODE_OUTPUTS(_id, id),
           LAUNCH_EXPIRED,
-          toRedisValue(input.type, value)
+          JSON.stringify(outputs)
         );
-      const value = launchRequest.nodes?.get(id)?.inputs?.get(key);
-      if (value !== undefined) {
-        await save(value);
-      } else if (input.required && input.default !== undefined) {
-        await save(input.default);
       }
     }
   }
@@ -190,8 +213,12 @@ export async function run({
 }
 
 export async function kick(launch: Launch) {
-  const { pipeline } = launch;
-  for (const node of launch.pipeline.start.nodes) {
+  const {
+    pipeline,
+    launchRequest: { inclusive },
+  } = launch;
+
+  for (const node of inclusive?.nodes || launch.pipeline.start.nodes) {
     await plan(node, pipeline.nodes.get(node), launch._id);
   }
 }
