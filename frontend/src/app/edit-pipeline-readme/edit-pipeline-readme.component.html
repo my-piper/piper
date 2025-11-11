@@ -23,12 +23,12 @@
     <ngx-monaco-editor
       class="monaco"
       formControlName="readme"
-      [options]="{ wordWrap: 'off', theme: 'vs-dark', language: 'markdown' }"
+      [options]="{ wordWrap: 'off', language: 'markdown', theme: 'vs-dark' }"
     >
     </ngx-monaco-editor>
   </div>
-  <footer class="stack horizontal">
-    <a class="secondary" [routerLink]="['view']">View</a>
+  <footer class="stack">
+    <a class="primary" [routerLink]="['view']">View</a>
     <button
       submitButton
       class="primary"

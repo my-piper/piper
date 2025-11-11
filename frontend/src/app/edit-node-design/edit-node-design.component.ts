@@ -41,7 +41,6 @@ export class EditNodeDesignComponent implements OnInit {
   id!: string;
   node!: Node;
 
-  inputsGroup = this.fb.group({});
   form = this.fb.group({
     node: this.fb.control<object>(null),
     inputs: this.fb.control<object>(null),
@@ -109,6 +108,6 @@ export class EditNodeDesignComponent implements OnInit {
       outputs,
     });
     this.node.build();
-    this.projectManager.update({ pipeline, launchRequest });
+    this.projectManager.markDirty();
   }
 }

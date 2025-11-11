@@ -10,7 +10,7 @@ header {
     align-items: center;
     margin-bottom: $gutter-normal;
     justify-content: space-between;
-    background-color: #252b56;
+    background-color: $control-background-color;
     padding: $gutter-normal;
     gap: $gutter-normal;
 
@@ -37,11 +37,11 @@ header {
 
             .beta {
                 position: absolute;
-                top: -12px;
+                top: -4px;
                 right: -8px;
                 color: white;
                 font-size: .55em;
-                padding: 3px 5px;
+                padding: 1px 3px;
                 line-height: 1em;
                 border-radius: $corner-small;
                 background: linear-gradient(135deg, #6e00ff, #b500f9);
@@ -67,11 +67,11 @@ header {
                     text-decoration: none;
                     color: white;
                     line-height: 1.45em;
-                    padding-top: 4px;
-                    border-bottom: 2px solid transparent;
+                    border-radius: $corner-large;
+                    padding: $gutter-small $gutter-normal;
 
                     &.active {
-                        border-color: white;
+                        background-color: $control-focus-background-color;
                     }
                 }
             }

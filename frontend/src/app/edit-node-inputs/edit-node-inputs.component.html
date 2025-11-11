@@ -3,50 +3,95 @@
     No inputs for node, please go to <a [routerLink]="['design']">Design</a>
   </p>
 </ng-template>
+
+<form [formGroup]="form">
+  <fieldset>
+    <div class="stack large align-center">
+      <div class="checkbox">
+        <label class="switch">
+          <input type="checkbox" formControlName="start" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div>
+        <h1>{{ node.title | i18n }}</h1>
+        <small *ngIf="node.description as description">{{
+          description | i18n
+        }}</small>
+      </div>
+    </div>
+  </fieldset>
+</form>
+
 <ng-container *ngIf="node.render.inputs as groups">
   <form *ngIf="groups.length > 0; else noInputsTemplate" [formGroup]="form">
     <ng-container *ngFor="let g of groups">
       <h2 *ngIf="g.group.group?.title as group">
-        <span *ngIf="userRole.admin | can | async">
-          [{{ g.group.group.order }}]
-        </span>
         {{ group | i18n }}
+        <sup *ngIf="userRole.admin | can | async">
+          {{ g.group.group.order }}
+        </sup>
       </h2>
-      <fieldset class="inputs" formGroupName="inputs">
+      <fieldset class="inputs stack vertical huge" formGroupName="inputs">
         <ng-container *ngFor="let i of g.group.inputs">
-          <label>
-            <span *ngIf="userRole.admin | can | async">
-              [{{ i.input.order }}]&nbsp;
-            </span>
-            {{ i.input.title | i18n }}
-            <ng-template #inputDescriptionPopover>
-              <div [innerHTML]="i.input.description | markdown | async"></div>
-            </ng-template>
-            <button
-              class="transparent"
-              [appPopover]="{ content: inputDescriptionPopover }"
-              *ngIf="i.input.description"
-            >
-              <app-icon class="icon" icon="help"></app-icon>
-            </button>
-          </label>
-          <app-edit-input
-            [id]="i.id"
-            [type]="i.input.type"
-            [enum]="i.input.enum"
-            [freeform]="i.input.freeform"
-            [multiline]="i.input.multiline"
-            [default]="i.input.default"
-            [placeholder]="i.input.placeholder"
-            [min]="i.input.min"
-            [max]="i.input.max"
-            [step]="i.input.step"
-            [formControlName]="i.id"
-            [extensions]="i.input.extensions"
-            [inputs]="inputsGroup"
-          ></app-edit-input>
+          <div
+            class="input stack vertical"
+            *ngIf="!i.input.featured"
+            [formGroupName]="i.id"
+          >
+            <div class="stack align-center justify-between">
+              <div class="stack align-center flex">
+                {{ i.input.title | i18n }}
+                <ng-template #inputDescriptionPopover>
+                  <div
+                    [innerHTML]="i.input.description | markdown | async"
+                  ></div>
+                </ng-template>
+                <app-icon
+                  *ngIf="i.input.description"
+                  [appPopover]="{ content: inputDescriptionPopover }"
+                  icon="help"
+                  [color]="ui.color.grey"
+                  [size]="18"
+                ></app-icon>
+              </div>
+              <button class="circle" (click)="markFeatured(i.id)">
+                <app-icon class="icon" icon="out" [size]="10"></app-icon>
+              </button>
+            </div>
+            <app-edit-input
+              [id]="i.id"
+              [type]="i.input.type"
+              [enum]="i.input.enum"
+              [freeform]="i.input.freeform"
+              [multiline]="i.input.multiline"
+              [default]="i.input.default"
+              [placeholder]="i.input.placeholder"
+              [min]="i.input.min"
+              [max]="i.input.max"
+              [step]="i.input.step"
+              formControlName="value"
+              [extensions]="i.input.extensions"
+              [inputs]="inputsGroup"
+            ></app-edit-input>
+          </div>
         </ng-container>
       </fieldset>
     </ng-container>
   </form>
 </ng-container>
+
+<footer *ngIf="userRole.engineer | can | async">
+  <a
+    [routerLink]="{ outlets: { primary: ['nodes', id, 'edit'] } }"
+    [relativeTo]="route.parent"
+    class="primary with-icon"
+  >
+    <app-icon
+      class="icon left"
+      [icon]="node.locked ? 'lock' : 'lock'"
+      [size]="16"
+    ></app-icon>
+    Edit
+  </a>
+</footer>

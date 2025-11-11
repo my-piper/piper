@@ -14,7 +14,6 @@ export class GroupNodesPipe implements PipeTransform {
       }
       categories[id].nodes.push(node);
     }
-    console.log(Object.values(categories));
     return Object.values(categories);
   }
 }

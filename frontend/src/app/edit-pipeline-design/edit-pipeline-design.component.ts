@@ -126,6 +126,6 @@ export class EditPipelineDesignComponent implements OnInit {
       thumbnail,
       category,
     });
-    this.projectManager.update({ title: name, pipeline });
+    this.projectManager.markDirty();
   }
 }

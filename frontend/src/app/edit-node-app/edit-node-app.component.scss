@@ -1,0 +1,30 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $gutter-normal;
+
+  .editor {
+    flex: 1;
+    position: relative;
+
+    .monaco {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      min-height: 400px;
+      height: 100%;
+    }
+  }
+}

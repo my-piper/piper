@@ -1,12 +1,9 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
 import { delay, filter, finalize, map, takeUntil } from "rxjs";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
-import { LaunchComponent } from "src/app/launch/launch.component";
 import { AppConfig } from "src/models/app-config";
-import { Launch } from "src/models/launch";
 import { Pipeline } from "src/models/pipeline";
 import { LaunchProject, Project } from "src/models/project";
 import { UserRole } from "src/models/user";
@@ -14,9 +11,8 @@ import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
-import { toInstance, toPlain } from "src/utils/models";
+import { toInstance } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
-import { PipelineReadmeComponent } from "../pipeline-readme/pipeline-readme.component";
 
 @Component({
   selector: "app-project",
@@ -25,8 +21,7 @@ import { PipelineReadmeComponent } from "../pipeline-readme/pipeline-readme.comp
 })
 export class ProjectComponent extends UntilDestroyed implements OnInit {
   userRole = UserRole;
-  launchComponent = LaunchComponent;
-  pipelineReadmeComponent = PipelineReadmeComponent;
+  editPipelineVisualComponent = EditPipelineVisualComponent;
 
   progress = { launching: false, cloning: false };
   error: Error;
@@ -35,10 +30,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   project!: Project;
 
   references: { popover: PopoverComponent | null } = { popover: null };
-  child!:
-    | EditPipelineVisualComponent
-    | LaunchComponent
-    | PipelineReadmeComponent;
+  child!: unknown;
 
   constructor(
     public projectManager: ProjectManager,
@@ -71,32 +63,6 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
     super.ngOnDestroy();
   }
 
-  launch() {
-    this.progress.launching = true;
-    this.cd.detectChanges();
-
-    const request = new LaunchProject();
-
-    this.http
-      .post(`projects/${this.project._id}/launch`, toPlain(request))
-      .pipe(
-        delay(UI_DELAY),
-        finalize(() => {
-          this.progress.launching = false;
-          this.cd.detectChanges();
-        }),
-        map((json) => plainToInstance(Launch, json as Object))
-      )
-      .subscribe({
-        next: (launch) => {
-          this.router.navigate(["./launches", launch._id], {
-            relativeTo: this.route,
-          });
-        },
-        error: (err) => (this.error = err),
-      });
-  }
-
   updated(project: Project) {
     assign(this.project, project);
   }
@@ -117,8 +83,8 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
         }),
         map((json) => toInstance(json as object, Project))
       )
-      .subscribe((launch) => {
-        this.router.navigate(["/projects", launch._id]);
+      .subscribe((project) => {
+        this.router.navigate(["/projects", project._id]);
       });
   }
 }

@@ -1,60 +1,30 @@
-<form [formGroup]="form">
-  <fieldset>
-    <div class="stack horizontal large align-center">
-      <div class="checkbox">
-        <label class="switch">
-          <input type="checkbox" formControlName="start" />
-          <span class="slider"></span>
-        </label>
-      </div>
-      <div>
-        <h1>{{ node.title | i18n }}</h1>
-        <small *ngIf="node.description as description">{{
-          description | i18n
-        }}</small>
-      </div>
-    </div>
-  </fieldset>
-</form>
-
-<ng-template #unlockTemplate>
-  <div *ngIf="userRole.engineer | can | async" class="tip info">
-    The node is fully up-to-date with catalog.<br />
-    <a class="default" [submitButton] (click)="unlock()"> Unlock </a>
-    if you want to change input & output parameters, source code, etc.<br />
-    In this case you will not be able to use global environment.
-  </div>
-</ng-template>
+<h1>{{ node.title | i18n }}</h1>
+<small *ngIf="node.description as description">{{ description | i18n }}</small>
 
 <header>
-  <ul *ngIf="!node.locked; else unlockTemplate" class="menu">
+  <ul class="menu">
     <li>
       <a
         [routerLink]="['./']"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLinkActive="active"
-        >Inputs</a
+        >Design</a
       >
     </li>
-    <li>|</li>
-    <li>
-      <a [routerLink]="['design']" routerLinkActive="active">Design</a>
-    </li>
-    <li>|</li>
     <li>
       <a [routerLink]="['script']" routerLinkActive="active">Script</a>
     </li>
-    <li>|</li>
+    <li>
+      <a [routerLink]="['app']" routerLinkActive="app">App</a>
+    </li>
     <li>
       <a [routerLink]="['environment']" routerLinkActive="active">
         Environment</a
       >
     </li>
-    <li>|</li>
     <li>
       <a [routerLink]="['catalog']" routerLinkActive="active">Catalog</a>
     </li>
-    <li>|</li>
     <li>
       <a [routerLink]="['yaml']" routerLinkActive="active">YAML</a>
     </li>

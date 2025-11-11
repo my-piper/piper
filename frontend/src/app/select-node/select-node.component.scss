@@ -5,42 +5,47 @@
 :host {
   display: flex;
   flex-direction: column;
-  min-height: 100px;
   gap: $gutter-normal;
+}
+
+::ng-deep .popover .version {
+  padding: $gutter-tiny $gutter-small;
+  line-height: 1;
+  font-size: $font-size-tiny;
 }
 
 h2 {
   margin: 0;
+  font-size: $font-size-big;
 }
 
 .nodes {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  min-height: 100px;
+  display: flex;
+  flex-direction: column;
   padding: $gutter-normal 0;
+
+  header {
+
+    img {
+      display: block;
+      width: 22px;
+      max-width: 22px;
+      aspect-ratio: 1/1;
+      position: absolute;
+      top: $gutter-small;
+      right: $gutter-small;
+    }
+  }
 
   article {
     display: flex;
+    user-select: none;
 
-    >button {
-      @include reset-button();
-      width: 100%;
-      display: flex;
-      align-items: center;
+    h3 {
       flex: 1;
-      gap: $gutter-small;
-
-      h3 {
-        flex: 1;
-        text-align: center;
-      }
-
-      img {
-        display: block;
-        width: 60px;
-        max-width: 60px;
-        aspect-ratio: 1/1;
-      }
+      text-align: center;
+      font-size: $font-size-base;
+      font-weight: normal;
     }
   }
 
@@ -59,16 +64,6 @@ h2 {
         font-size: 0.85em;
         color: $primary-text-color;
       }
-    }
-
-    .version {
-      position: absolute;
-      bottom: -$gutter-small;
-      right: -$gutter-small;
-      background: white;
-      padding: $gutter-tiny $gutter-small;
-      line-height: 1;
-      font-size: .85em;
     }
   }
 }

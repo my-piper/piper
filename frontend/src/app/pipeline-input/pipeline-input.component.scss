@@ -1,49 +1,54 @@
 @import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/reset";
+@import "src/variables";
 
 :host {
   display: flex;
-  align-items: center;
-  position: relative;
+  flex-direction: column;
+  gap: $gutter-small;
   user-select: none;
-  transform: translateX(calc(-50% + 16px));
+  background: $node-background-color;
+  border-radius: $corner-huge;
+  padding: $gutter-big;
+
+  &.multiline[data-type=string] {
+    min-width: 250px;
+  }
+
+  &:not(.multiline)[data-type=string] {
+    max-width: 150px;
+  }
+
+  &[data-type=image] {
+    max-width: 100px;
+  }
+
+  &[disabled=true] {
+    pointer-events: none;
+  }
+}
+
+.title {
+  margin-right: $gutter-huge;
 }
 
 .circle {
-  width: 32px;
-  height: 32px;
-  border: solid 3px green;
+  @include reset-button();
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -8px;
+  margin: auto 0;
+  width: 18px;
+  height: 18px;
+  aspect-ratio: 1;
+  background: $flow-color;
+  border: 5px solid $node-background-color;
   border-radius: 50%;
-  background: white;
-  box-sizing: border-box;
-}
 
-.value {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  font-size: 0.85em;
-  line-height: 1.25;
-  margin-right: 5px;
-
-  .title {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 80px;
-    width: fit-content;
-  }
-
-  small {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 80px;
-
-    img {
-      border: 1px solid silver;
-      border-radius: 5px;
-      max-height: 30px;
-    }
+  &:hover {
+    background: $node-background-color;
+    border-color: $flow-color;
   }
 }

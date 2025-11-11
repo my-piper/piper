@@ -4,7 +4,7 @@
     <ul>
       <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
-    <div class="stack horizontal justify-center">
+    <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
     </div>
   </div>
@@ -71,7 +71,7 @@
             </ul>
           </ng-template>
           <button
-            class="circle small"
+            class="circle"
             [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
             (attached)="references.popover = $event"
           >
@@ -99,7 +99,7 @@
           </ng-container>
         </td>
         <td>
-          <div class="stack horizontal tiny align-center">
+          <div class="stack tiny align-center">
             <app-icon
               *ngIf="u.roles | includes: userRole.admin"
               [icon]="'admin'"

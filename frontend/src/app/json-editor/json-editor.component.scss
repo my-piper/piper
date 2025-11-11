@@ -67,7 +67,7 @@
         .je-indented-panel {
             @include reset-div();
             grid-area: indented;
-            border-left: 2px dashed $primary-light-color;
+            border-left: 1px dashed $control-border-color;
             padding-left: $gutter-normal;
             margin-left: 16px;
 
@@ -79,7 +79,6 @@
         button.json-editor-btn-edit_properties,
         button.json-editor-btn-collapse {
             @extend %button-circle;
-            @extend %button-circle-small;
             display: inline-flex;
 
             span {
@@ -111,7 +110,6 @@
         button.json-editor-btn-moveup,
         button.json-editor-btn-movedown {
             @extend %button-circle;
-            @extend %button-circle-small;
             margin: 0 $gutter-small $gutter-normal 0;
             display: inline-flex;
 
@@ -158,6 +156,7 @@
         .je-modal {
             margin-top: $gutter-tiny;
             padding: $gutter-small;
+            background-color: $overlay-background;
             @include vertical-stack($gutter-small);
 
             input[type=checkbox] {

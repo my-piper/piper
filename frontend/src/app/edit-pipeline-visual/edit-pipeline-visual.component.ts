@@ -4,16 +4,26 @@ import {
   ElementRef,
   HostListener,
   OnDestroy,
+  Renderer2,
   ViewChild,
 } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { assign, random, sample } from "lodash";
 import { customAlphabet } from "nanoid";
-import { delay, finalize, map, Subscription } from "rxjs";
+import {
+  delay,
+  filter,
+  finalize,
+  map,
+  Subscription,
+  switchMap,
+  take,
+} from "rxjs";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { matchIO } from "src/app/edit-pipeline-visual/utils";
 import { UI, UI_DELAY } from "src/consts/ui";
+import { AppConfig } from "src/models/app-config";
 import { Arrange } from "src/models/arrange";
 import { InputFlow } from "src/models/input-flow";
 import { Launch } from "src/models/launch";
@@ -21,7 +31,12 @@ import { LaunchRequest, NodeToLaunch } from "src/models/launch-request";
 import { Node, NodeInput, NodeOutput } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
 import { OutputFlow } from "src/models/output-flow";
-import { Pipeline, PipelineInput, PipelineOutput } from "src/models/pipeline";
+import {
+  Layout,
+  Pipeline,
+  PipelineInput,
+  PipelineOutput,
+} from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { Ajv } from "src/providers/ajv";
@@ -36,9 +51,8 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import { SelectNodeComponent } from "../select-node/select-node.component";
 
-function tieUp({ x, y }: Point): Point {
-  return { x: Math.round(x / 10) * 10, y: Math.round(y / 10) * 10 };
-}
+const MIN_SCALE = 0.2;
+const MAX_SCALE = 5;
 
 @Component({
   selector: "app-edit-pipeline-visual",
@@ -48,81 +62,71 @@ function tieUp({ x, y }: Point): Point {
 export class EditPipelineVisualComponent implements OnDestroy {
   userRole = UserRole;
   ui = UI;
+  selectNodeComponent = SelectNodeComponent;
   editNodeComponent = EditNodeComponent;
   editPipelineInputComponent = EditPipelineInputComponent;
 
   progress: {
-    launching: {
-      [key: string]: boolean;
+    launching: boolean;
+    nodes: {
+      launching: {
+        [key: string]: boolean;
+      };
     };
-  } = { launching: {} };
+  } = { launching: false, nodes: { launching: {} } };
   error: Error;
 
-  state: {
-    launches: {
-      [key: string]: Launch;
-    };
-  } = { launches: {} };
-
   launch!: Launch;
+  launches: {
+    [key: string]: Launch;
+  } = {};
 
-  private _modal!:
+  modal!:
     | EditNodeComponent
     | EditPipelineInputComponent
-    | SelectNodeComponent;
+    | SelectNodeComponent
+    | null;
+
+  sidebar: {
+    left: SelectNodeComponent | null;
+    right: EditNodeComponent | null;
+  } = { left: null, right: null };
 
   mode: "default" | "flow" = "default";
   subscriptions: Subscription[] = [];
 
   readonly = true;
 
-  set modal(
-    modal: EditNodeComponent | EditPipelineInputComponent | SelectNodeComponent
-  ) {
-    this._modal = modal;
-    this.unsubscribe();
-    if (!!modal) {
-      if (modal instanceof EditNodeComponent) {
-      } else if (modal instanceof SelectNodeComponent) {
-        this.subscriptions.push(
-          modal.selected.subscribe((node) => {
-            this.addNode(node);
-            this.cd.detectChanges();
-
-            this.router.navigate(["./"], { relativeTo: this.route });
-          })
-        );
-      } else if (modal instanceof EditPipelineInputComponent) {
-        this.subscriptions.push(
-          modal.saved.subscribe((launchRequest) => {
-            this.launchRequest = launchRequest;
-            this.cd.detectChanges();
-          })
-        );
-      }
-    }
-  }
-
-  get modal() {
-    return this._modal;
-  }
-
   project!: Project;
   pipeline!: Pipeline;
   launchRequest!: LaunchRequest;
+  currentNode!: Node;
 
   flow: { from: string; output: string } | null = null;
   mouse: { x: number; y: number } | null = null;
 
+  @ViewChild("sidebarOutlet", { static: true })
+  sidebarOutlet!: RouterOutlet;
+
   @ViewChild("nodesRef")
   nodesRef!: ElementRef<HTMLDivElement>;
 
+  @ViewChild("paneRef")
+  paneRef!: ElementRef<HTMLElement>;
+
+  @ViewChild("gridRef")
+  gridRef!: ElementRef<HTMLElement>;
+
+  private scale = 1;
+
   constructor(
     private projectManager: ProjectManager,
+    public config: AppConfig,
     private route: ActivatedRoute,
     private http: HttpService,
     private ajv: Ajv,
     private router: Router,
+    private renderer: Renderer2,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -138,10 +142,42 @@ export class EditPipelineVisualComponent implements OnDestroy {
         this.readonly = readonly;
       }
     });
+
+    this.sidebarOutlet.activateEvents
+      .pipe(switchMap(() => this.sidebarOutlet.activatedRoute.data))
+      .subscribe(({ node: { node } }) => (this.currentNode = node));
+
+    this.sidebarOutlet.deactivateEvents.subscribe(() => {
+      this.currentNode = null;
+    });
+  }
+
+  ngAfterViewInit() {
+    this.renderer.listen(
+      this.nodesRef.nativeElement,
+      "wheel",
+      this.pinchZoom.bind(this)
+    );
+  }
+
+  pinchZoom(event: WheelEvent) {
+    if (event.ctrlKey) {
+      event.preventDefault();
+
+      const delta = -event.deltaY;
+      const zoomSpeed = 0.01;
+
+      this.scale += delta * zoomSpeed;
+      this.scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, this.scale));
+
+      this.paneRef.nativeElement.style.transform = `scale(${this.scale})`;
+    }
   }
 
   back() {
-    this.router.navigate(["./"], { relativeTo: this.route });
+    this.router.navigate([{ outlets: { primary: [] } }], {
+      relativeTo: this.route,
+    });
   }
 
   ngOnDestroy() {
@@ -158,7 +194,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   nodeMoved(node: Node, { x, y }: Point) {
-    assign(node.arrange, tieUp({ x, y }));
+    assign(node.arrange, { x, y });
     this.save();
   }
 
@@ -168,7 +204,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   inputMoved(input: PipelineInput, { x, y }: Point) {
-    assign(input.arrange, tieUp({ x, y }));
+    assign(input.arrange, { x, y });
     this.save();
   }
 
@@ -178,21 +214,41 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   outputMoved(output: NodeOutput, { x, y }: Point) {
-    assign(output.arrange, tieUp({ x, y }));
+    assign(output.arrange, { x, y });
     this.save();
   }
 
   private save() {
-    const [pipeline, launchRequest] = [this.pipeline, this.launchRequest];
-    this.projectManager.update({ pipeline, launchRequest });
+    this.projectManager.markDirty();
   }
 
-  editNode(node: string) {
-    this.router.navigate(["nodes", node], { relativeTo: this.route });
+  run() {
+    this.progress.launching = true;
+    this.cd.detectChanges();
+
+    this.http
+      .post(`projects/${this.project._id}/launch`)
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.launching = false;
+          this.cd.detectChanges();
+        }),
+        map((json) => toInstance(json as Object, Launch))
+      )
+      .subscribe({
+        next: (launch) => (this.launch = launch),
+        error: (err) => (this.error = err),
+      });
+  }
+
+  stop() {
+    this.launch = null;
+    this.cd.detectChanges();
   }
 
   runNode(node: string) {
-    this.progress.launching[node] = true;
+    this.progress.nodes.launching[node] = true;
     this.cd.detectChanges();
 
     const request = toInstance(
@@ -204,19 +260,29 @@ export class EditPipelineVisualComponent implements OnDestroy {
       LaunchRequest
     );
 
-    this.http
-      .post(`projects/${this.project._id}/launch`, toPlain(request))
+    this.projectManager.kick();
+    this.projectManager.status
+      .pipe(
+        filter((status) => status === "saved"),
+        take(1),
+        switchMap(() =>
+          this.http.post(
+            `projects/${this.project._id}/launch`,
+            toPlain(request)
+          )
+        )
+      )
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
-          this.progress.launching[node] = false;
+          this.progress.nodes.launching[node] = false;
           this.cd.detectChanges();
         }),
         map((json) => toInstance(json as Object, Launch))
       )
       .subscribe({
         next: (launch) => {
-          this.state.launches[node] = launch;
+          this.launches[node] = launch;
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
@@ -224,7 +290,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   stopNode(node: string) {
-    delete this.state.launches[node];
+    delete this.launches[node];
     this.cd.detectChanges();
   }
 
@@ -259,9 +325,9 @@ export class EditPipelineVisualComponent implements OnDestroy {
       }
     }
 
-    this.projectManager.update({ launchRequest, pipeline });
+    this.projectManager.markDirty();
 
-    delete this.state.launches[node];
+    delete this.launches[node];
     this.cd.detectChanges();
   }
 
@@ -269,14 +335,32 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.router.navigate(["inputs", input], { relativeTo: this.route });
   }
 
-  addNode(node: Node) {
-    const id = `${node._id}_${sid()}`;
-    this.pipeline.nodes.set(id, node);
-    if (this.pipeline.start.nodes.length <= 0) {
-      this.pipeline.start.nodes.push(id);
+  addNode(left: number, top: number, payload: { node: string }) {
+    if ("node" in payload) {
+      this.closeSidebar();
+
+      this.http
+        .get(`nodes/${payload.node}`)
+        .pipe(
+          delay(UI_DELAY),
+          finalize(() => {
+            this.cd.detectChanges();
+          }),
+          map((obj) => toInstance(obj as object, Node))
+        )
+        .subscribe({
+          next: (node) => {
+            const id = `${node._id}_${sid()}`;
+            this.pipeline.nodes.set(id, node);
+            if (this.pipeline.start.nodes.length <= 0) {
+              this.pipeline.start.nodes.push(id);
+            }
+            assign(node.arrange, { x: left, y: top });
+            this.save();
+          },
+          error: (err) => (this.error = err),
+        });
     }
-    assign(node.arrange, { x: random(100, 400), y: random(100, 200) });
-    this.save();
   }
 
   addInput(id: string, input: PipelineInput) {
@@ -384,7 +468,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   removeInputFlow(input: string, flow: string) {
+    const { to, input: id } = this.pipeline.inputs.get(input).flows.get(flow);
+    delete this.pipeline.nodes.get(to).inputs.get(id).featured;
+
     this.pipeline.inputs.get(input).flows.delete(flow);
+
     this.cd.detectChanges();
     this.save();
   }
@@ -401,55 +489,23 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.save();
   }
 
-  removeCurrentNode() {
-    if (!confirm($localize`:@@message.confirm:Please, confirm?`)) {
-      return;
+  removeInput(input: string) {
+    for (const [, flow] of this.pipeline.inputs.get(input).flows) {
+      const { to, input: id } = flow;
+      delete this.pipeline.nodes.get(to).inputs.get(id).featured;
     }
 
-    if (this.modal instanceof EditNodeComponent) {
-      const {
-        node: { id: node },
-      } = this.route.snapshot.firstChild.data;
-      const { pipeline } = this;
+    this.pipeline.inputs.delete(input);
 
-      const flows = [];
-      for (const [key, flow] of pipeline.flows) {
-        if (flow.from === node || flow.to === node) {
-          flows.push(key);
-        }
-      }
-      for (const flow of flows) {
-        pipeline.flows.delete(flow);
-      }
-      pipeline.nodes.delete(node);
-
-      const index = pipeline.start.nodes.indexOf(node);
-      if (index !== -1) {
-        pipeline.start.nodes.splice(index, 1);
-      }
-
-      this.launchRequest.nodes.delete(node);
-      this.save();
-
-      this.router.navigate(["./"], { relativeTo: this.route });
-    }
+    this.cd.detectChanges();
+    this.save();
   }
 
-  removeCurrentPipelineInput() {
-    if (this.modal instanceof EditPipelineInputComponent) {
-      const input = this.modal.id;
-      const { pipeline, launchRequest } = this;
+  removeNode(node: string) {
+    this.pipeline.nodes.delete(node);
+    this.save();
 
-      pipeline.inputs.delete(input);
-      launchRequest.inputs?.delete(input);
-      this.save();
-
-      this.router.navigate(["./"], { relativeTo: this.route });
-    }
-  }
-
-  validate() {
-    // TODO: waiting to be implemented
+    this.closeSidebar();
   }
 
   trackNode(index: number, { key, value }: { key: string; value: Node }) {
@@ -565,6 +621,45 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.save();
   }
 
+  @HostListener("click", ["$event"])
+  selectNode(event: MouseEvent, id: string, node: Node) {
+    const target = event.target as HTMLElement;
+    if (target.closest("a, button, input, textarea, select")) {
+      return;
+    }
+
+    if (this.currentNode !== node) {
+      this.router.navigate(
+        [{ outlets: { right: ["nodes", id], left: null } }],
+        {
+          relativeTo: this.route,
+        }
+      );
+    } else {
+      this.closeSidebar();
+    }
+  }
+
+  @HostListener("click", ["$event"])
+  clickOnGrid(event: MouseEvent) {
+    const { nativeElement: gridElement } = this.gridRef;
+    if (event.target === gridElement) {
+      this.closeSidebar();
+    }
+  }
+
+  closeSidebar() {
+    this.router.navigate([{ outlets: { left: null, right: null } }], {
+      relativeTo: this.route,
+    });
+  }
+
+  updateLayoutPosition({ left, top }: { left: number; top: number }) {
+    this.pipeline.layout ??= new Layout();
+    assign(this.pipeline.layout, { left, top });
+    this.save();
+  }
+
   @HostListener("document:paste", ["$event"])
   async paste(event: ClipboardEvent) {
     let clipboardItems: Array<ClipboardItem | File> = [];
@@ -615,6 +710,15 @@ export class EditPipelineVisualComponent implements OnDestroy {
           }
         }
       }
+    }
+  }
+
+  @HostListener("window:beforeunload", ["$event"])
+  onBeforeUnload(event: BeforeUnloadEvent) {
+    const { value } = this.projectManager.status;
+    if (value !== null && value !== "saved") {
+      event.preventDefault();
+      event.returnValue = "";
     }
   }
 }

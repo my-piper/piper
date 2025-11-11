@@ -3,7 +3,7 @@
     <ngx-monaco-editor
       class="monaco"
       formControlName="pipeline"
-      [options]="{ language: 'yaml' }"
+      [options]="{ language: 'yaml', theme: 'vs-dark' }"
       style="height: 100%"
     >
     </ngx-monaco-editor>
@@ -15,7 +15,7 @@
     <ngx-monaco-editor
       class="monaco"
       formControlName="launchRequest"
-      [options]="{ language: 'json' }"
+      [options]="{ language: 'json', theme: 'vs-dark' }"
     >
     </ngx-monaco-editor>
   </div>
@@ -26,7 +26,7 @@
     <ngx-monaco-editor
       class="monaco"
       formControlName="environment"
-      [options]="{ wordWrap: 'off', theme: 'vs-dark', language: 'json' }"
+      [options]="{ wordWrap: 'off', language: 'json', theme: 'vs-dark' }"
     >
     </ngx-monaco-editor>
   </div>

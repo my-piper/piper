@@ -152,6 +152,9 @@
 						"script": {
 							"type": "string"
 						},
+						"app": {
+							"type": "string"
+						},
 						"sign": {
 							"type": "string"
 						},
@@ -350,6 +353,10 @@
 									},
 									"required": {
 										"title": "Required",
+										"type": "boolean"
+									},
+									"featured": {
+										"title": "Featured",
 										"type": "boolean"
 									},
 									"extensions": {
@@ -589,6 +596,10 @@
 									},
 									"required": {
 										"title": "Required",
+										"type": "boolean"
+									},
+									"featured": {
+										"title": "Featured",
 										"type": "boolean"
 									},
 									"extensions": {
@@ -869,6 +880,10 @@
 								},
 								"required": {
 									"title": "Required",
+									"type": "boolean"
+								},
+								"featured": {
+									"title": "Featured",
 									"type": "boolean"
 								},
 								"extensions": {
@@ -1272,6 +1287,9 @@
 			"script": {
 				"type": "string"
 			},
+			"app": {
+				"type": "string"
+			},
 			"sign": {
 				"type": "string"
 			},
@@ -1470,6 +1488,10 @@
 						},
 						"required": {
 							"title": "Required",
+							"type": "boolean"
+						},
+						"featured": {
+							"title": "Featured",
 							"type": "boolean"
 						},
 						"extensions": {
@@ -1709,6 +1731,10 @@
 						},
 						"required": {
 							"title": "Required",
+							"type": "boolean"
+						},
+						"featured": {
+							"title": "Featured",
 							"type": "boolean"
 						},
 						"extensions": {
@@ -1989,6 +2015,10 @@
 					},
 					"required": {
 						"title": "Required",
+						"type": "boolean"
+					},
+					"featured": {
+						"title": "Featured",
 						"type": "boolean"
 					},
 					"extensions": {
@@ -2367,6 +2397,25 @@
 				"required": [
 					"_id",
 					"title"
+				],
+				"additionalProperties": false
+			},
+			"layout": {
+				"type": "object",
+				"properties": {
+					"left": {
+						"type": "number"
+					},
+					"top": {
+						"type": "number"
+					},
+					"zoom": {
+						"type": "number"
+					}
+				},
+				"required": [
+					"left",
+					"top"
 				],
 				"additionalProperties": false
 			},
@@ -2792,6 +2841,9 @@
 						"script": {
 							"type": "string"
 						},
+						"app": {
+							"type": "string"
+						},
 						"sign": {
 							"type": "string"
 						},
@@ -2990,6 +3042,10 @@
 									},
 									"required": {
 										"title": "Required",
+										"type": "boolean"
+									},
+									"featured": {
+										"title": "Featured",
 										"type": "boolean"
 									},
 									"extensions": {
@@ -3229,6 +3285,10 @@
 									},
 									"required": {
 										"title": "Required",
+										"type": "boolean"
+									},
+									"featured": {
+										"title": "Featured",
 										"type": "boolean"
 									},
 									"extensions": {
@@ -3509,6 +3569,10 @@
 								},
 								"required": {
 									"title": "Required",
+									"type": "boolean"
+								},
+								"featured": {
+									"title": "Featured",
 									"type": "boolean"
 								},
 								"extensions": {
@@ -4362,6 +4426,25 @@
 						],
 						"additionalProperties": false
 					},
+					"layout": {
+						"type": "object",
+						"properties": {
+							"left": {
+								"type": "number"
+							},
+							"top": {
+								"type": "number"
+							},
+							"zoom": {
+								"type": "number"
+							}
+						},
+						"required": [
+							"left",
+							"top"
+						],
+						"additionalProperties": false
+					},
 					"readme": {
 						"type": "string",
 						"title": "README",
@@ -4784,6 +4867,9 @@
 								"script": {
 									"type": "string"
 								},
+								"app": {
+									"type": "string"
+								},
 								"sign": {
 									"type": "string"
 								},
@@ -4982,6 +5068,10 @@
 											},
 											"required": {
 												"title": "Required",
+												"type": "boolean"
+											},
+											"featured": {
+												"title": "Featured",
 												"type": "boolean"
 											},
 											"extensions": {
@@ -5221,6 +5311,10 @@
 											},
 											"required": {
 												"title": "Required",
+												"type": "boolean"
+											},
+											"featured": {
+												"title": "Featured",
 												"type": "boolean"
 											},
 											"extensions": {
@@ -5501,6 +5595,10 @@
 										},
 										"required": {
 											"title": "Required",
+											"type": "boolean"
+										},
+										"featured": {
+											"title": "Featured",
 											"type": "boolean"
 										},
 										"extensions": {

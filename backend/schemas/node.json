@@ -74,6 +74,9 @@
     "script": {
       "type": "string"
     },
+    "app": {
+      "type": "string"
+    },
     "sign": {
       "type": "string"
     },
@@ -197,6 +200,10 @@
         },
         "required": {
           "title": "Required",
+          "type": "boolean"
+        },
+        "featured": {
+          "title": "Featured",
           "type": "boolean"
         },
         "extensions": {

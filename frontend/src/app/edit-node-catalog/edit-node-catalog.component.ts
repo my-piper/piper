@@ -86,8 +86,7 @@ export class EditNodeCatalogComponent implements OnInit {
     } else {
       delete this.node.catalog;
     }
-    const { pipeline, launchRequest } = this.project;
-    this.projectManager.update({ pipeline, launchRequest });
+    this.projectManager.markDirty();
   }
 
   publish() {

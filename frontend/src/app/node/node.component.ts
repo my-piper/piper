@@ -10,6 +10,7 @@ import {
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
 import { catchError, filter, map, of } from "rxjs";
+import { UI } from "src/consts/ui";
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
 import {
@@ -57,6 +58,16 @@ export class NodeComponent implements OnDestroy {
   @Input()
   node!: Node;
 
+  @HostBinding("style.min-height.px")
+  @Input()
+  get height() {
+    return (
+      Math.max(this.node.inputs.size, this.node.outputs.size) *
+        UI.node.input.height +
+      30
+    );
+  }
+
   @Input()
   set launch(launch: Launch) {
     this._launch = launch;
@@ -83,9 +94,6 @@ export class NodeComponent implements OnDestroy {
 
   status!: NodeStatus;
   progress!: NodeProgress;
-
-  @Output()
-  moved = new EventEmitter<Node>();
 
   @Output()
   takeOutInput = new EventEmitter<{
@@ -157,7 +165,7 @@ export class NodeComponent implements OnDestroy {
       const { launch, node } = plainToInstance(PipelineEvent, data);
       if (launch === this.launch?._id && node === this.id) {
         console.log("Node done", node);
-        this.loadStatus();
+        //this.loadStatus();
         this.loadOutputs().subscribe((outputs) => {
           this.outputs = outputs;
           this.cd.detectChanges();
@@ -209,7 +217,9 @@ export class NodeComponent implements OnDestroy {
   }
 
   reset() {
+    debugger;
     [this.status, this.progress] = [null, null];
+    this.cd.detectChanges();
   }
 
   pinFrom(output: string) {

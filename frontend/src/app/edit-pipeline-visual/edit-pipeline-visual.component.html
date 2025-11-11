@@ -1,24 +1,32 @@
+<div class="sidebar" [class.hidden]="!sidebar.right">
+  <div class="content">
+    <router-outlet
+      name="right"
+      #sidebarOutlet="outlet"
+      (activate)="sidebar.right = $event"
+      (deactivate)="sidebar.right = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<div class="sidebar left" [class.hidden]="!sidebar.left">
+  <div class="content">
+    <router-outlet
+      name="left"
+      #sidebarOutlet="outlet"
+      (activate)="sidebar.left = $event"
+      (deactivate)="sidebar.left = null"
+    ></router-outlet>
+  </div>
+</div>
+
 <div class="modal" [class.hidden]="!modal">
   <header>
-    <button
-      *ngIf="modal | is: editNodeComponent"
-      class="delete-button"
-      (click)="removeCurrentNode()"
-    >
-      Delete
-    </button>
-    <button
-      *ngIf="modal | is: editPipelineInputComponent"
-      class="delete-button"
-      (click)="removeCurrentPipelineInput()"
-    >
-      Delete
-    </button>
     <a
       class="primary with-icon"
       [hotKey]="'escape'"
       (hotKeyPressed)="back()"
-      [routerLink]="['./']"
+      [routerLink]="[{ outlets: { primary: [] } }]"
     >
       <app-icon class="icon right" icon="close"></app-icon>
       <span class="badge">ESC</span>
@@ -32,39 +40,95 @@
   </div>
 </div>
 
-<div autoHeight #nodesRef class="nodes area">
+<div
+  #nodesRef
+  class="nodes area"
+  autoHeight
+  [scrollInside]="{
+    left: pipeline.layout?.left || 0,
+    top: pipeline.layout?.top || 0,
+  }"
+  (updated)="updateLayoutPosition({ left: $event.left, top: $event.top })"
+>
   <div
     *ngIf="!readonly && (userRole.admin | can: project.createdBy | async)"
-    class="actions stack horizontal"
+    class="actions stack"
   >
-    <a class="primary with-icon small" routerLink="add-node">
+    <a
+      class="primary with-icon small"
+      [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
+    >
       <app-icon icon="add" color="white"></app-icon>
     </a>
+    <button
+      class="primary with-icon small"
+      [class.busy]="progress.launching"
+      [disabled]="progress.launching"
+      (click)="!!launch ? stop() : run()"
+    >
+      <app-icon [icon]="!!launch ? 'stop' : 'play'" color="white"></app-icon>
+      <ng-container *ngIf="config.billing.active">
+        <span
+          class="badge"
+          *ngIf="
+            (project._id | pipelineCosts: null : project.revision | async)
+              ?.total as total
+          "
+        >
+          {{ total | currency: "USD" : "symbol" : "1.0-10" }}
+        </span>
+      </ng-container>
+    </button>
   </div>
 
-  <div class="pane">
+  <div
+    #paneRef
+    class="pane"
+    dropZone
+    (drop)="addNode($event.left, $event.top, $event.payload)"
+  >
     <div
       class="input"
       [class.disabled]="
         readonly || (userRole.admin | can: project.createdBy | async | not)
       "
       *ngFor="let input of pipeline.inputs | keyvalue"
+      #drag="appDragMove"
       [appDragMove]="{
-        dug: dugRef,
+        anchorX: 1,
+        anchorY: 0.5,
         position: { x: input.value.arrange.x, y: input.value.arrange.y },
-        disabled: (userRole.admin | can: project.createdBy | async),
       }"
       (moving)="inputMoving(input.value, $event)"
       (moved)="inputMoved(input.value, $event)"
     >
-      <button class="circle small drag" #dugRef>
-        <app-icon class="icon" icon="drag" [size]="20"></app-icon>
+      <ng-template #actionsTemplate>
+        <ul class="context-menu" [class.busy]="progress.deleting">
+          <li>
+            <button (click)="removeInput(input.key)">
+              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
+              <span i18n="@@action.delete">Delete</span>
+            </button>
+          </li>
+        </ul>
+      </ng-template>
+      <button
+        class="more transparent"
+        [appPopover]="{
+          content: actionsTemplate,
+          trigger: 'click',
+          position: 'right',
+        }"
+      >
+        <app-icon class="icon" icon="more" [size]="18"></app-icon>
       </button>
       <app-pipeline-input
         [id]="input.key"
         [input]="input.value"
         [value]="launchRequest.inputs?.get(input.key)"
-        (click)="editPipelineInput(input.key)"
+        [project]="project"
+        [launchRequest]="launchRequest"
+        [attr.disabled]="drag.dragged"
       ></app-pipeline-input>
     </div>
 
@@ -75,15 +139,12 @@
       "
       *ngFor="let output of pipeline.outputs | keyvalue"
       [appDragMove]="{
-        dug: dugRef,
+        anchorY: 0.5,
         position: { x: output.value.arrange.x, y: output.value.arrange.y },
       }"
       (moving)="outputMoving(output.value, $event)"
       (moved)="outputMoved(output.value, $event)"
     >
-      <button class="circle small drag" #dugRef>
-        <app-icon class="icon" icon="drag" [size]="20"></app-icon>
-      </button>
       <app-pipeline-output
         [id]="output.key"
         [output]="output.value"
@@ -92,20 +153,18 @@
 
     <div
       class="node"
+      [class.selected]="currentNode === node.value"
+      *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
       [class.readonly]="
         readonly || (userRole.admin | can: project.createdBy | async | not)
       "
-      *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
+      #drag="appDragMove"
       [appDragMove]="{
-        dug: dugRef,
         position: { x: node.value.arrange.x, y: node.value.arrange.y },
       }"
       (moving)="nodeMoving(node.value, $event)"
       (moved)="nodeMoved(node.value, $event)"
     >
-      <div *ngIf="node.value.locked" class="locked">
-        <app-icon class="icon" icon="lock" [size]="16"></app-icon>
-      </div>
       <ng-container
         *ngIf="
           (project._id | pipelineCosts: null : project.revision | async)
@@ -130,40 +189,69 @@
         </div>
       </ng-container>
 
-      <div class="actions stack horizontal tiny">
-        <button class="circle small drag" #dugRef>
-          <app-icon class="icon" icon="drag" [size]="18"></app-icon>
-        </button>
-        <button class="circle small" (click)="editNode(node.key)">
-          <app-icon class="icon" icon="edit" [size]="18"></app-icon>
-        </button>
+      <div class="actions stack">
         <button
-          class="circle small"
-          [class.busy]="progress.launching[node.key]"
-          [disabled]="progress.launching[node.key]"
+          class="primary small with-icon icon-only"
+          [class.busy]="progress.nodes.launching[node.key]"
+          [disabled]="progress.nodes.launching[node.key]"
           (click)="
-            !!state.launches[node.key] ? stopNode(node.key) : runNode(node.key)
+            !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
           "
         >
           <app-icon
             class="icon"
-            [icon]="!!state.launches[node.key] ? 'stop' : 'play'"
+            [icon]="!!launches[node.key] ? 'stop' : 'play'"
+            color="white"
             [size]="18"
           ></app-icon>
         </button>
+        <a
+          *ngIf="!!node.value.app"
+          class="primary with-icon"
+          [routerLink]="['apps', node.key]"
+        >
+          Edit
+        </a>
+        <ng-template #actionsTemplate>
+          <ul class="context-menu" [class.busy]="progress.deleting">
+            <li>
+              <button (click)="removeNode(node.key)">
+                <app-icon
+                  class="icon left"
+                  icon="delete"
+                  [size]="18"
+                ></app-icon>
+                <span i18n="@@action.delete">Delete</span>
+              </button>
+            </li>
+          </ul>
+        </ng-template>
       </div>
+      <button
+        class="more transparent"
+        [appPopover]="{
+          content: actionsTemplate,
+          trigger: 'click',
+          position: 'right',
+        }"
+      >
+        <app-icon class="icon" icon="more" [size]="18"></app-icon>
+      </button>
       <app-node
+        [class.active]="currentNode === node.value"
         [id]="node.key"
         [node]="node.value"
         [start]="pipeline.start.nodes | includes: node.key"
         [inputs]="launchRequest.nodes.get(node.key)?.inputs | mapToPlain"
         [outputs]="launchRequest.nodes.get(node.key)?.outputs | mapToPlain"
-        [launch]="state.launches[node.key]"
+        [launch]="launch || launches[node.key]"
         (input)="!!flow ? addFlow(node.key, $event) : null"
         (output)="startFlow(node.key, $event)"
         (done)="fillNodeOutputs(node.key, $event)"
         (takeOutInput)="takeOutPipelineInput($event)"
         (takeOutOutput)="takeOutPipelineOutput($event)"
+        [attr.disabled]="drag.dragged"
+        (click)="selectNode($event, node.key, node.value)"
       ></app-node>
     </div>
 
@@ -171,18 +259,17 @@
       <defs>
         <pattern
           id="dot-pattern"
-          width="10"
-          height="10"
+          width="15"
+          height="15"
           patternUnits="userSpaceOnUse"
         >
-          <circle cx="5" cy="5" r="1" fill="black" opacity="0.05" />
+          <circle cx="5" cy="5" r="1" fill="white" opacity="0.10" />
         </pattern>
       </defs>
-      <rect width="100%" height="100%" fill="url(#dot-pattern)" />
+      <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)" />
 
       <path
         *ngIf="mode === 'flow' && !!flow && !!mouse"
-        [attr.stroke]="'silver'"
         [attr.d]="
           (pipeline | node: flow.from).arrange
             | shift
@@ -196,7 +283,6 @@
                 }
             | curve: mouse
         "
-        stroke-dasharray="4"
       />
 
       <path
@@ -206,8 +292,7 @@
           readonly || (userRole.admin | can: project.createdBy | async | not)
         "
         (click)="removeFlow(f.key)"
-        stroke-dasharray="2"
-        [attr.stroke]="f.value.color || 'silver'"
+        [attr.stroke]="f.value.color"
         [attr.d]="
           (pipeline | node: f.value.from).arrange
             | shift
@@ -228,7 +313,8 @@
                         y:
                           ((pipeline
                             | node: f.value.to
-                            | inputIndex: f.value.input) +
+                            | inputIndex: f.value.input
+                            | async) +
                             1) *
                             ui.node.input.height +
                           ui.node.shift,
@@ -244,8 +330,6 @@
             readonly || (userRole.admin | can: project.createdBy | async | not)
           "
           (click)="removeInputFlow(i.key, f.key)"
-          stroke-dasharray="2"
-          [attr.stroke]="'silver'"
           [attr.d]="
             (pipeline | pipelineInput: i.key).arrange
               | curve
@@ -255,7 +339,8 @@
                           y:
                             ((pipeline
                               | node: f.value.to
-                              | inputIndex: f.value.input) +
+                              | inputIndex: f.value.input
+                              | async) +
                               1) *
                               ui.node.input.height +
                             ui.node.shift,
@@ -272,8 +357,6 @@
             readonly || (userRole.admin | can: project.createdBy | async | not)
           "
           (click)="removeOutputFlow(o.key, f.key)"
-          stroke-dasharray="2"
-          [attr.stroke]="'silver'"
           [attr.d]="
             (pipeline | node: f.value.from).arrange
               | shift
@@ -297,8 +380,6 @@
             readonly || (userRole.admin | can: project.createdBy | async | not)
           "
           (click)="removeOutput(o.key)"
-          stroke-dasharray="2"
-          [attr.stroke]="'silver'"
           [attr.d]="
             (pipeline | pipelineOutput: o.key).arrange
               | curve

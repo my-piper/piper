@@ -26,19 +26,26 @@ form {
         flex-direction: column;
         gap: $gutter-tiny;
         align-items: center;
-        background-color: rgba($color: $primary-light-color, $alpha: .25);
+        background-color: rgba($color: $control-background-color, $alpha: .25);
         padding: $gutter-small;
         border-radius: $corner-small;
         font-size: .85em;
         border: 2px solid transparent;
+        color: $primary-text-color;
 
         &:hover {
-            background-color: rgba($color: $primary-light-color, $alpha: .5);
+            background-color: rgba($color: $control-background-color, $alpha: .5);
         }
 
         &.selected {
-            background-color: rgba($color: $primary-light-color, $alpha: .65);
-            border-color: $primary-color;
+            background-color: rgba($color: $control-background-color, $alpha: .65);
+            border-color: $control-background-color;
+        }
+
+        .icon ::ng-deep {
+            svg {
+                fill: $primary-text-color;
+            }
         }
 
         .badge {
@@ -60,13 +67,14 @@ form {
 
     button {
         @include reset-button();
-        background: $primary-light-color;
+        background: $control-background-color;
         padding: $gutter-tiny $gutter-small;
         border-radius: $corner-large;
         font-size: 0.85em;
+        color: $primary-text-color;
 
         &.selected {
-            background: $primary-color;
+            background: $control-focus-background-color;
             color: white;
         }
     }

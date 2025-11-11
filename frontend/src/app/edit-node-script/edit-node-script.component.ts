@@ -26,7 +26,6 @@ export class EditNodeScriptComponent implements OnInit {
   id!: string;
   node!: Node;
 
-  inputsGroup = this.fb.group({});
   form = this.fb.group({
     execution: this.fb.control<NodeExecution>(NodeExecution.regular),
     script: this.fb.control<string>(null),
@@ -55,6 +54,37 @@ export class EditNodeScriptComponent implements OnInit {
     });
   }
 
+  refactor() {
+    let { script } = this.form.getRawValue();
+    script = script
+      .replaceAll("DEFINITIONS;", 'require("@piper/node");')
+      .replaceAll("RepeatNode.from(", "repeat(")
+      .replaceAll("RepeatNode", "repeat")
+      .replaceAll("NextNode.from(", "next(")
+      .replaceAll("NextNode", "next")
+      .replaceAll("throw new FatalError(", "throwError.fatal(")
+      .replaceAll("throw new DataError(", "throwError.data(")
+      .replaceAll("throw new TimeoutError(", "throwError.timeout(")
+      .replaceAll("FatalError", "throwError")
+      .replaceAll("TimeoutError", "throwError")
+      .replaceAll("FatalError", "throwError")
+      .replaceAll(/\b(throwError)(?:\s*,\s*\1)+/g, "$1")
+      .replaceAll("await httpClient", "await httpRequest")
+      .replaceAll(
+        /env\.variables\.get\(\s*(['"`])([A-Za-z_$][A-Za-z0-9_$]*)\1\s*\)/g,
+        "env.variables.$2"
+      )
+      .replaceAll(
+        /env\?\.variables\?\.get\(\s*(['"`])([A-Za-z_$][A-Za-z0-9_$]*)\1\s*\)/g,
+        "env.variables.$2"
+      )
+      .replaceAll(
+        /env\?\.variables\.get\(\s*(['"`])([A-Za-z_$][A-Za-z0-9_$]*)\1\s*\)/g,
+        "env.variables.$2"
+      );
+    this.form.patchValue({ script });
+  }
+
   save() {
     this.progress.saving = true;
     this.cd.detectChanges();
@@ -72,9 +102,8 @@ export class EditNodeScriptComponent implements OnInit {
       )
       .subscribe({
         next: (sign) => {
-          const { pipeline } = this.project;
           assign(this.node, { execution, script, sign });
-          this.projectManager.update({ pipeline });
+          this.projectManager.markDirty();
         },
         error: (err) => (this.error = err),
       });

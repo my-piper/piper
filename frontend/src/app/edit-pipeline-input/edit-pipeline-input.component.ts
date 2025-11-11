@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   OnInit,
   Output,
 } from "@angular/core";
@@ -20,9 +21,16 @@ import { Primitive } from "src/types/primitive";
   styleUrls: ["./edit-pipeline-input.component.scss"],
 })
 export class EditPipelineInputComponent implements OnInit {
+  @Input()
   id!: string;
+
+  @Input()
   input!: PipelineInput;
+
+  @Input()
   project!: Project;
+
+  @Input()
   launchRequest!: LaunchRequest;
 
   valueControl = this.fb.control<Primitive | null>(null);
@@ -41,16 +49,7 @@ export class EditPipelineInputComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project, input: { id, input } }) => {
-      [this.project, this.launchRequest, this.id, this.input] = [
-        project,
-        project.launchRequest,
-        id,
-        input,
-      ];
-      this.cd.detectChanges();
-      this.build();
-    });
+    this.build();
 
     this.valueControl.valueChanges
       .pipe(debounceTime(500))
@@ -96,7 +95,7 @@ export class EditPipelineInputComponent implements OnInit {
       this.launchRequest.inputs.delete(this.id);
     }
 
-    this.projectManager.update({ launchRequest: this.launchRequest });
+    this.projectManager.markDirty();
     this.saved.emit(this.launchRequest);
   }
 }

@@ -4,7 +4,7 @@
     <ul>
       <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
-    <div class="stack horizontal justify-center">
+    <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
     </div>
   </div>
@@ -62,7 +62,7 @@
   </div>
 </ng-container>
 
-<footer class="horizontal stack space-between">
+<footer class="stack space-between">
   <button
     class="primary fluid"
     [class.busy]="progress.launching"

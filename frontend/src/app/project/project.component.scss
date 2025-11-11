@@ -4,26 +4,32 @@
 :host {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
-  padding: $gutter-normal;
-  box-sizing: border-box;
+  padding: 0;
   min-height: 100vh;
 }
 
-h1 {
-  margin: 0;
-  line-height: 1em;
-}
-
 header {
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-normal;
+  padding: $gutter-normal $gutter-big $gutter-small $gutter-big;
+
+  .title {
+    display: flex;
+    flex-direction: column;
+
+    h1 {
+      font-size: $font-size-big;
+      margin: 0;
+      line-height: 1em;
+    }
+  }
 
   .status {
     text-transform: uppercase;
-    font-size: .85em;
     color: white;
-    border-radius: $corner-small;
     padding: $gutter-tiny $gutter-small;
-    background-color: silver;
+    font-size: $font-size-small;
 
     &[data-status=saved] {
       background-color: green;
@@ -39,16 +45,8 @@ header {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
 
-.launch {
-  display: flex;
-  align-items: center;
-  background-color: #bae4ff;
-  padding: 10px;
-  border-radius: 10px;
-
-  > :not(:last-child) {
-    margin-right: 5px;
+  &:not(.edit) {
+    padding: $gutter-normal;
   }
 }

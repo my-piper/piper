@@ -1,5 +1,6 @@
 @import "src/ui-kit/styles/variables";
 @import "src/ui-kit/styles/mixins";
+@import "src/variables";
 
 :host {
   display: block;
@@ -14,6 +15,15 @@
 
 .input,
 .output {
+  position: relative;
+
+  .more {
+    z-index: 1;
+    position: absolute;
+    top: $gutter-small;
+    right: $gutter-small;
+  }
+
   &.disabled {
     pointer-events: none;
   }
@@ -29,11 +39,18 @@
   }
 }
 
-
 .nodes {
   position: relative;
   overflow: scroll;
   height: 600px;
+
+  .actions {
+    position: sticky;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    width: fit-content;
+  }
 
   .locked {
     position: absolute;
@@ -57,49 +74,25 @@
     display: block;
     position: absolute;
     z-index: 1;
-    transform: translateX(-50%) translateY(-50%);
-
-    &:not(.disabled) {
-      cursor: pointer;
-    }
+    user-select: none;
 
     &.disabled {
       pointer-events: none;
     }
+  }
 
-    .drag {
-      width: fit-content;
-      height: fit-content;
-      position: absolute;
-      z-index: 1;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      margin: auto;
-      display: none;
-      background: transparent;
+  .input {
+    transform: translate(-100%, -50%);
+  }
 
-      &:active {
-        cursor: grabbing;
-      }
-    }
-
-    &:hover {
-      .drag {
-        display: block;
-      }
-    }
+  .output {
+    transform: translateY(-50%);
   }
 
   .node {
     display: block;
     position: absolute;
     z-index: 1;
-
-    &:hover .actions {
-      display: block;
-    }
 
     &.readonly {
       .actions {
@@ -108,10 +101,10 @@
     }
 
     .costs {
+      display: none;
       position: absolute;
       right: 0;
-      bottom: -18px;
-      display: flex;
+      top: -24px;
       align-items: center;
       color: $graphite-color-100;
 
@@ -125,40 +118,33 @@
       }
 
       span {
-        font-size: .65em;
+        font-size: .75em;
       }
+    }
+
+    &.selected .costs {
+      display: block;
     }
 
     .actions {
       z-index: 1;
       position: absolute;
-      left: -15px;
-      top: -15px;
-      display: none;
-
-      .drag {
-        &:active {
-          cursor: grabbing;
-        }
-      }
+      left: 12px;
+      top: -32px;
     }
 
-    &:hover {
-      .drag {
-        opacity: 1;
-      }
+    .more {
+      z-index: 1;
+      position: absolute;
+      top: $gutter-small;
+      right: $gutter-small;
     }
-  }
-
-  .actions {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1;
   }
 
   .pane {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 5000px;
     height: 2000px;
 
@@ -173,7 +159,8 @@
       z-index: 0;
 
       path {
-        stroke-width: 2;
+        stroke-width: 3;
+        stroke: rgba($flow-color, 0.85);
         fill: transparent;
 
         &:hover {

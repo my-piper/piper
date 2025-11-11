@@ -27,7 +27,11 @@
             Copy
           </button>
           <ngx-monaco-editor
-            [options]="{ automaticLayout: true, readOnly: true }"
+            [options]="{
+              automaticLayout: true,
+              readOnly: true,
+              theme: 'vs-dark',
+            }"
             [model]="{ language: io.language, value }"
             [ngStyle]="{ width: '100%' }"
           ></ngx-monaco-editor>

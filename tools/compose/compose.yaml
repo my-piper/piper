@@ -32,17 +32,6 @@ services:
     volumes:
       - redis-data:/data
 
-  bullboard:
-    container_name: bullboard
-    image: deadly0/bull-board
-    restart: always
-    ports:
-      - 3000:3000
-    environment:
-      REDIS_HOST: redis
-      REDIS_DB: 5
-      REDIS_USE_TLS: "false"
-
   nginx:
     image: nginx:1.25.2
     volumes:
@@ -107,17 +96,6 @@ services:
       - DYNAMIC_CONFIG_ENABLED=true
       - KAFKA_CLUSTERS_0_NAME=kafka-local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-
-  gpt4free:
-    image: hlohaus789/g4f:latest
-    platform: linux/amd64
-    ports:
-      - "127.0.0.1:8080:8080"
-      - "127.0.0.1:1337:1337"
-      - "127.0.0.1:7900:7900"
-    volumes:
-      - ./tmp/har_and_cookies:/app/har_and_cookies
-      - ./tmp/generated_images:/app/generated_images
 
   seaweedfs:
     image: chrislusf/seaweedfs:3.73

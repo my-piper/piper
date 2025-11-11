@@ -4,7 +4,7 @@
     <ul>
       <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
-    <div class="stack horizontal justify-center">
+    <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
     </div>
   </div>
@@ -39,7 +39,7 @@
 </ng-template>
 
 <form *ngIf="userRole.admin | can | async" [formGroup]="form">
-  <fieldset class="stack horizontal small align-center">
+  <fieldset class="stack small align-center">
     <button
       class="circle"
       type="button"
@@ -74,7 +74,7 @@
       >
       <div class="actions">
         <button
-          class="circle small faded"
+          class="circle"
           [class.busy]="progress.removing[asset._id]"
           [disabled]="progress.removing[asset._id]"
           (click)="remove(asset)"
@@ -86,7 +86,7 @@
             [stroke]="2"
           ></app-icon>
         </button>
-        <a class="circle small faded" [href]="asset.url" target="_blank">
+        <a class="circle" [href]="asset.url" target="_blank">
           <app-icon
             class="icon"
             icon="open-link"
@@ -113,7 +113,7 @@
           </button>
         </ng-container>
         <div class="audio" *ngSwitchCase="'audio'">
-          <button class="circle small" type="button" (click)="select(asset)">
+          <button class="circle" type="button" (click)="select(asset)">
             <app-icon class="icon" icon="add-circle"></app-icon>
           </button>
           <audio controls [src]="asset.url"></audio>

@@ -25,9 +25,12 @@ import { ProjectsComponent } from "src/app/projects/projects.component";
 import { SelectNodeComponent } from "src/app/select-node/select-node.component";
 import { AutoHeightDirective } from "src/directives/auto-height";
 import { CopyToClipboardDirective } from "src/directives/copy-clipboard.directive";
+import { DragCloneDirective } from "src/directives/drag-clone.directive";
 import { DragMoveDirective } from "src/directives/drag-move.directive";
+import { DropZoneDirective } from "src/directives/drop-zone.directive";
 import { ImageFallbackDirective } from "src/directives/image-fall-back.directive";
 import { ImageSizeDirective } from "src/directives/image-size";
+import { ScrollInsideDirective } from "src/directives/scroll-inside.directive";
 import { SelectableDirective } from "src/directives/selectable.directive";
 import { SubmitButtonDirective } from "src/directives/submit-button.directive";
 import { AppConfig } from "src/models/app-config";
@@ -76,6 +79,7 @@ import { AssetsPageComponent } from "./assets-page/assets-page.component";
 import { BatchesComponent } from "./batches/batches.component";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { DrawMaskComponent } from "./draw-mask/draw-mask.component";
+import { EditNodeAppComponent } from "./edit-node-app/edit-node-app.component";
 import { EditNodeCatalogComponent } from "./edit-node-catalog/edit-node-catalog.component";
 import { EditNodeDesignComponent } from "./edit-node-design/edit-node-design.component";
 import { EditNodeEnvironmentComponent } from "./edit-node-environment/edit-node-environment.component";
@@ -98,6 +102,7 @@ import { LaunchOutputsComponent } from "./launch-outputs/launch-outputs.componen
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
 import { MeUserComponent } from "./me-user/me-user.component";
+import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
 import { NodeIOComponent } from "./node-io/node-io.component";
 import { NodeJobsComponent } from "./node-jobs/node-jobs.component";
@@ -236,6 +241,11 @@ import { UsersComponent } from "./users/users.component";
     ChangePasswordComponent,
     UpdatePipelineNodesComponent,
     CopyToClipboardDirective,
+    EditNodeAppComponent,
+    NodeAppComponent,
+    ScrollInsideDirective,
+    DragCloneDirective,
+    DropZoneDirective,
   ],
   imports: [
     BrowserModule,

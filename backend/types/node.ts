@@ -55,18 +55,23 @@ export class NextNode {
   @Type(() => ResetInputs)
   reset!: ResetInputs;
 
+  @Expose()
   @Type(() => String)
   behavior: "normal" | "loop" = "normal";
 
+  @Expose()
   @Type(() => String)
   kicks: [];
 
+  @Expose()
   @Transform(mapTransformer<Primitive | Buffer>)
   outputs: NodeOutputs;
 
+  @Expose()
   @Type(() => Number)
   delay: number = 1000;
 
+  @Expose()
   @Type(() => Number)
   costs!: number;
 

@@ -1,14 +1,8 @@
-<div class="value">
-  <div class="title">{{ input.title | i18n }}</div>
-  <small [ngSwitch]="input.type">
-    <ng-container *ngSwitchCase="'image'">
-      <img
-        *ngIf="value"
-        [imageFallback]
-        [src]="value | proxyImage: { height: 30 }"
-      />
-    </ng-container>
-    <ng-container *ngSwitchDefault>{{ value || input.default }}</ng-container>
-  </small>
-</div>
-<div class="circle"></div>
+<div class="title">{{ input.title | i18n }}</div>
+<app-edit-pipeline-input
+  [id]="id"
+  [input]="input"
+  [project]="project"
+  [launchRequest]="launchRequest"
+></app-edit-pipeline-input>
+<button class="circle"></button>

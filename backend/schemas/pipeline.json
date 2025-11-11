@@ -56,6 +56,22 @@
       "headerTemplate": "en=Category;ru=Категория",
       "$ref": "#/definitions/PipelineCategory"
     },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "left": {
+          "type": "number"
+        },
+        "top": {
+          "type": "number"
+        },
+        "zoom": {
+          "type": "number"
+        }
+      },
+      "required": ["left", "top"],
+      "additionalProperties": false
+    },
     "readme": {
       "type": "string",
       "title": "README",

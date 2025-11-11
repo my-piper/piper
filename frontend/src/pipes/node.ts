@@ -1,6 +1,8 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import { OnDestroy, Pipe, PipeTransform } from "@angular/core";
+import { BehaviorSubject, filter, Subject, takeUntil } from "rxjs";
 import { Node } from "src/models/node";
 import { Pipeline } from "src/models/pipeline";
+import { ProjectManager } from "src/services/project.manager";
 
 @Pipe({ name: "node" })
 export class NodePipe implements PipeTransform {
@@ -14,15 +16,44 @@ export class NodePipe implements PipeTransform {
 }
 
 @Pipe({ name: "inputIndex" })
-export class InputIndexOfPipe implements PipeTransform {
-  transform(node: Node, name: string): number {
-    const keys = [];
-    for (const g of node.render.inputs) {
-      for (const i of g.group.inputs) {
-        keys.push(i.id);
+export class InputIndexOfPipe implements PipeTransform, OnDestroy {
+  value: BehaviorSubject<number> | null = null;
+
+  destroyed$ = new Subject<void>();
+
+  constructor(private projectManager: ProjectManager) {}
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
+
+  transform(node: Node, name: string): BehaviorSubject<number> {
+    const update = () => {
+      const keys = [];
+      for (const g of node.render.inputs) {
+        for (const i of g.group.inputs) {
+          if (!i.input.featured) {
+            continue;
+          }
+          keys.push(i.id);
+        }
       }
+      this.value.next(keys.indexOf(name));
+    };
+
+    if (!this.value) {
+      this.value = new BehaviorSubject<number>(0);
+      this.projectManager.status
+        .pipe(
+          takeUntil(this.destroyed$),
+          filter((status) => status === "dirty")
+        )
+        .subscribe(() => update());
     }
-    return keys.indexOf(name);
+
+    update();
+    return this.value;
   }
 }
 

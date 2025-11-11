@@ -73,7 +73,11 @@
   <ngx-monaco-editor
     *ngSwitchCase="'json'"
     formControlName="value"
-    [options]="{ language: 'json', minimap: { enabled: false } }"
+    [options]="{
+      language: 'json',
+      minimap: { enabled: false },
+      theme: 'vs-dark',
+    }"
     class="editor"
     style="height: 100px"
   >
@@ -174,7 +178,7 @@
         *ngTemplateOutlet="selectAssetTemplate; context: { type: 'archive' }"
       ></ng-container>
     </ng-template>
-    <div class="stack horizontal align-center">
+    <div class="stack align-center">
       <button
         class="primary with-icon only-icon"
         type="button"
@@ -204,7 +208,7 @@
         *ngTemplateOutlet="selectAssetTemplate; context: { type: 'audio' }"
       ></ng-container>
     </ng-template>
-    <div class="stack horizontal align-center">
+    <div class="stack align-center">
       <button
         class="primary with-icon only-icon"
         type="button"
@@ -326,7 +330,7 @@
         *ngIf="multiline; else simpleInputTemplate"
         formControlName="value"
         class="input-primary"
-        rows="10"
+        rows="5"
         [attr.placeholder]="placeholder | i18n"
       >
       </textarea>

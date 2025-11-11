@@ -13,7 +13,6 @@ import { ProjectManager } from "src/services/project.manager";
 export class EditPipelineScriptComponent implements OnInit {
   pipeline!: Pipeline;
 
-  inputsGroup = this.fb.group({});
   form = this.fb.group({
     script: this.fb.control<string>(null),
   });
@@ -43,6 +42,6 @@ export class EditPipelineScriptComponent implements OnInit {
     const { pipeline } = this;
     const { script } = this.form.getRawValue();
     assign(pipeline, { script });
-    this.projectManager.update({ pipeline });
+    this.projectManager.markDirty();
   }
 }

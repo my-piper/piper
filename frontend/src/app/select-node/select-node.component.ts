@@ -1,10 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { delay, finalize, map } from "rxjs";
 import { Node } from "src/models/node";
 import { UserRole } from "src/models/user";
@@ -21,17 +15,13 @@ import { toInstance } from "src/utils/models";
 export class SelectNodeComponent implements OnInit {
   userRole = UserRole;
 
-  progress: { loading: boolean; selecting: { [key: string]: boolean } } = {
+  progress: { loading: boolean } = {
     loading: false,
-    selecting: {},
   };
   error: Error;
 
   nodes: Node[] = [];
   references: { popover: PopoverComponent } = { popover: null };
-
-  @Output()
-  selected = new EventEmitter<Node>();
 
   constructor(
     private http: HttpService,
@@ -61,26 +51,6 @@ export class SelectNodeComponent implements OnInit {
           this.nodes = nodes;
           this.cd.detectChanges();
         },
-        error: (err) => (this.error = err),
-      });
-  }
-
-  select({ _id }: Node) {
-    this.progress.selecting[_id] = true;
-    this.cd.detectChanges();
-
-    this.http
-      .get(`nodes/${_id}`)
-      .pipe(
-        delay(UI_DELAY),
-        finalize(() => {
-          this.progress.selecting[_id] = false;
-          this.cd.detectChanges();
-        }),
-        map((obj) => toInstance(obj as object, Node))
-      )
-      .subscribe({
-        next: (node) => this.selected.emit(node),
         error: (err) => (this.error = err),
       });
   }

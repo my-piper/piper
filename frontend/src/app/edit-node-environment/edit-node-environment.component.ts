@@ -49,7 +49,6 @@ export class EditNodeEnvironmentComponent implements OnInit {
   private save() {
     const { environment } = plainToInstance(Node, this.form.getRawValue());
     assign(this.node, { environment });
-    const { pipeline, launchRequest } = this.project;
-    this.projectManager.update({ pipeline, launchRequest });
+    this.projectManager.markDirty();
   }
 }

@@ -4,6 +4,7 @@
 :host {
     display: block;
     @include vertical-stack();
+    padding: $gutter-small;
 }
 
 :host-context(.project-playground) {

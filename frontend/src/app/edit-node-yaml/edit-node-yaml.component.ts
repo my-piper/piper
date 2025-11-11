@@ -19,7 +19,6 @@ export class EditNodeYamlComponent implements OnInit {
   id!: string;
   node!: Node;
 
-  inputsGroup = this.fb.group({});
   form = this.fb.group({
     node: this.fb.control<string>(null),
   });
@@ -50,6 +49,6 @@ export class EditNodeYamlComponent implements OnInit {
     const { node: yaml } = this.form.getRawValue();
     const node = plainToInstance(Node, YAML.parse(<string>yaml));
     assign(this.node, node);
-    this.projectManager.update({ pipeline });
+    this.projectManager.markDirty();
   }
 }

@@ -3,7 +3,11 @@
     <ngx-monaco-editor
       class="monaco"
       formControlName="node"
-      [options]="{ language: 'yaml', minimap: { enabled: false } }"
+      [options]="{
+        language: 'yaml',
+        minimap: { enabled: false },
+        theme: 'vs-dark',
+      }"
     >
     </ngx-monaco-editor>
   </fieldset>

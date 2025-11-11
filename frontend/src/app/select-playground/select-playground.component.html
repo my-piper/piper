@@ -5,7 +5,7 @@
       formControlName="category"
       [appSelectable]="{ value: c._id, group: 'category' }"
     >
-      <app-icon [icon]="c.icon"></app-icon>
+      <app-icon class="icon" [icon]="c.icon"></app-icon>
       {{ c.title | i18n }}
       <span class="badge">{{ c.projects }}</span>
     </button>

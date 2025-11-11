@@ -1,139 +1,88 @@
-<ng-template #ioTemplate let-io="io" let-value="value">
-  <ng-container [ngSwitch]="io.type">
-    <span *ngSwitchCase="'integer'">{{ value || io.default }}</span>
-    <span *ngSwitchCase="'float'">{{ value || io.default }}</span>
-    <span *ngSwitchCase="'boolean'">{{ value ? "yes" : "no" }}</span>
-    <span *ngSwitchCase="'json'" class="json-value" [title]="value">
-      JSON:{{ io.schema?.id || io.schema }}
-    </span>
-    <span *ngSwitchCase="'string'" class="string-value" [title]="value">
-      {{ value || io.default }}
-    </span>
-    <span *ngSwitchCase="'string[]'" class="string-value" [title]="value">
-      {{ value || io.default }}
-    </span>
-    <div *ngSwitchCase="'image'" class="image-value">
-      <img *ngIf="!!value" [src]="value | proxyImage: { height: 30 }" />
-    </div>
-    <div *ngSwitchCase="'archive'">
-      <app-icon class="icon" icon="archive" [size]="16"></app-icon>
-    </div>
-    <div *ngSwitchCase="'audio'">
-      <app-icon class="icon" icon="audio" [size]="16"></app-icon>
-    </div>
-    <div *ngSwitchCase="'video'">
-      <video *ngIf="!!value" autoplay muted [volume]="0" [src]="value"></video>
-    </div>
-    <ng-container *ngSwitchCase="'image[]'">
-      <div *ngIf="!!value" class="images-value">
-        <img
-          *ngFor="let image of value | split: '|' | slice: 2"
-          [src]="image | proxyImage: { height: 30 }"
-        />
-      </div>
-    </ng-container>
-  </ng-container>
-</ng-template>
-
 <div *ngIf="start" class="start">
-  <app-icon class="icon" icon="play" [size]="20" [color]="'#5d6f80'"></app-icon>
+  <app-icon class="icon" icon="play" [size]="20"></app-icon>
 </div>
 
+<ng-template #errorPopover>
+  <div>{{ status?.error }}</div>
+</ng-template>
+
 <div
-  class="node"
-  [style.backgroundImage]="
-    !!node.thumbnail ? 'url(' + node.thumbnail + ')' : null
-  "
-  [class.done]="status?.state === 'done'"
+  *ngIf="status?.state === 'error'"
+  class="error"
+  [appPopover]="{ content: errorPopover }"
 >
+  <app-icon class="icon" icon="error" [size]="20"></app-icon>
+</div>
+
+<div class="node" [class.done]="status?.state === 'done'">
   <h2>{{ node.title | i18n }}</h2>
-  <div class="io">
-    <ul class="inputs">
-      <ng-container *ngFor="let g of node.render.inputs">
-        <ng-container *ngFor="let i of g.group.inputs">
-          <ng-template #inputMenuPopover>
-            <div class="context-menu">
-              <li>
-                <button (click)="emitTakeOutInput(i.id, i.input)">
-                  Take out
-                </button>
-              </li>
-            </div>
-          </ng-template>
-          <li
-            [attr.data-type]="i.input.type"
-            [class.filled]="
-              inputs?.[i.id] != null || i.input.default !== undefined
-            "
-          >
-            <b>{{ i.input.title | i18n }}</b>
-            <div
-              class="circle"
-              [appPopover]="{
-                content: inputMenuPopover,
-                trigger: 'click',
-                position: 'left',
-              }"
-              (attached)="references.popover = $event"
-              (mouseup)="pinTo(i.id)"
-            ></div>
-            <ng-container
-              *ngTemplateOutlet="
-                ioTemplate;
-                context: {
-                  io: i.input,
-                  value: inputs?.[i.id] || i.input.default,
-                }
-              "
-            ></ng-container>
-          </li>
-        </ng-container>
-      </ng-container>
-    </ul>
-    <ul class="outputs">
-      <li
-        *ngFor="let o of node.outputs | keyvalue"
-        [attr.data-type]="o.value.type"
-        [class.filled]="outputs?.[o.key]"
-      >
-        <ng-template #outputMenuPopover>
+  <ul class="inputs">
+    <ng-container *ngFor="let g of node.render.inputs">
+      <ng-container *ngFor="let i of g.group.inputs">
+        <ng-template #inputMenuPopover>
           <div class="context-menu">
             <li>
-              <button (click)="emitTakeOutOutput(o.key, o.value)">
+              <button (click)="emitTakeOutInput(i.id, i.input)">
                 Take out
               </button>
             </li>
           </div>
         </ng-template>
-        <b>{{ o.value.title | i18n }}</b>
-        <div
-          class="circle"
-          [appPopover]="{
-            content: outputMenuPopover,
-            trigger: 'click',
-            position: 'right',
-          }"
-          (attached)="references.popover = $event"
-          (mousedown)="pinFrom(o.key)"
-        ></div>
-        <ng-container *ngIf="outputs?.[o.key] as value">
-          <ng-container
-            *ngTemplateOutlet="ioTemplate; context: { io: o.value, value }"
-          ></ng-container>
-        </ng-container>
-      </li>
-    </ul>
-  </div>
+        <li *ngIf="i.input.featured">
+          <div class="title">{{ i.input.title | i18n }}</div>
+          <button
+            class="circle"
+            [appPopover]="{
+              content: inputMenuPopover,
+              trigger: 'click',
+              position: 'left',
+            }"
+            (attached)="references.popover = $event"
+            (mouseup)="pinTo(i.id)"
+          ></button>
+        </li>
+      </ng-container>
+    </ng-container>
+  </ul>
+  <ul class="outputs">
+    <li *ngFor="let o of node.outputs | keyvalue">
+      <ng-template #outputMenuPopover>
+        <div class="context-menu">
+          <li>
+            <button (click)="emitTakeOutOutput(o.key, o.value)">
+              Take out
+            </button>
+          </li>
+        </div>
+      </ng-template>
+      <div class="title">{{ o.value.title | i18n }}</div>
+      <button
+        class="circle"
+        [appPopover]="{
+          content: outputMenuPopover,
+          trigger: 'click',
+          position: 'right',
+        }"
+        (attached)="references.popover = $event"
+        (mousedown)="pinFrom(o.key)"
+      ></button>
+    </li>
+  </ul>
 
   <ul class="featured">
     <ng-container *ngFor="let o of node.outputs | keyvalue">
       <li *ngIf="o.value.featured">
         <ng-container *ngIf="outputs?.[o.key] as value">
           <ng-container [ngSwitch]="o.value.type">
-            <img
-              *ngSwitchCase="'image'"
-              [src]="value | proxyImage: { height: 200 }"
-            />
+            <div *ngSwitchCase="'image'" class="image-value">
+              <img [src]="value | proxyImage: { height: 500 }" />
+            </div>
+            <div *ngSwitchCase="'image[]'" class="images-value">
+              <img
+                *ngFor="let image of value | split: '|'"
+                [src]="image | proxyImage: { height: 500 }"
+              />
+            </div>
             <div class="string-value" *ngSwitchCase="'string'">
               {{ value }}
             </div>

@@ -43,8 +43,8 @@
     position: relative;
 
     @include wider-mobile() {
-        background-color: white;
-        padding: $gutter-big;
+        background-color: $control-background-color;
+        padding: $gutter-huge;
         border-radius: $corner-base;
     }
 

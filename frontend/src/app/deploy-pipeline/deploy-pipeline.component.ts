@@ -71,7 +71,7 @@ export class DeployPipelineComponent implements OnInit {
     const { pipeline } = this.project;
     const { deploy } = toInstance(this.form.getRawValue(), Pipeline);
     assign(pipeline, { deploy });
-    this.projectManager.update({ pipeline });
+    this.projectManager.markDirty();
   }
 
   deploy() {

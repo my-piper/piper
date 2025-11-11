@@ -71,29 +71,29 @@
 </ng-template>
 
 <div class="app-container">
-  <header class="horizontal stack">
+  <header class="stack">
     <a class="primary with-icon" [routerLink]="['add']">
       <app-icon class="icon left" icon="add"></app-icon>
       <ng-container i18n="@@action.create">Create</ng-container>
     </a>
-    <a class="secondary" [routerLink]="['import']" i18n="@@link.import">
+    <a class="primary" [routerLink]="['import']" i18n="@@link.import">
       Import
     </a>
 
     <ng-container [ngSwitch]="state?.status">
       <ng-container *ngSwitchCase="'checking'">
-        <button class="secondary busy" disabled i18n="@@label.checking">
+        <button class="primary busy" disabled i18n="@@label.checking">
           Checking
         </button>
       </ng-container>
       <ng-container *ngSwitchCase="'updating'">
-        <button class="secondary busy" disabled i18n="@@label.updating">
+        <button class="primary busy" disabled i18n="@@label.updating">
           Updating
         </button>
       </ng-container>
       <ng-container *ngSwitchDefault>
         <button
-          class="secondary"
+          class="primary"
           [disabled]="progress.loading.state || progress.checking"
           [class.busy]="progress.loading.state || progress.checking"
           [appPopover]="{ content: readmePopover }"
@@ -154,7 +154,7 @@
             </ul>
           </ng-template>
           <button
-            class="circle small"
+            class="circle"
             [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
             (attached)="references.popover = $event"
           >
@@ -168,7 +168,7 @@
         </td>
         <td i18n-title="@@label.visibility" title="Visibility">
           <a
-            class="circle small"
+            class="circle"
             *ngIf="p.public"
             target="_blank"
             href="/api/node-packages/{{ p._id }}/export"
@@ -185,11 +185,11 @@
           <ng-template #releaseNotesPopover>
             <div [innerHTML]="p.readme | markdown | async"></div>
           </ng-template>
-          <div class="stack horizontal small align-center">
+          <div class="stack small align-center">
             <span>{{ p.version }}</span>
             <button
               [appPopover]="{ content: releaseNotesPopover }"
-              class="circle small"
+              class="circle"
               [disabled]="!p.readme"
             >
               <app-icon class="icon" icon="info" size="18"></app-icon>

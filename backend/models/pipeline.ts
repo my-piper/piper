@@ -23,6 +23,20 @@ export class Start {
   nodes: string[];
 }
 
+export class Layout {
+  @Expose()
+  @Type(() => Number)
+  left: number;
+
+  @Expose()
+  @Type(() => Number)
+  top: number;
+
+  @Expose()
+  @Type(() => Number)
+  zoom: number;
+}
+
 export class PipelineInput {
   @Expose()
   @Type(() => Number)
@@ -135,6 +149,10 @@ export class Pipeline {
   @Expose()
   @Type(() => String)
   tags!: string[];
+
+  @Expose()
+  @Type(() => Layout)
+  layout!: Layout;
 
   @Expose()
   @Type(() => String)

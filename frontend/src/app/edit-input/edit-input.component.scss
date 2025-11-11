@@ -45,6 +45,10 @@ textarea {
   }
 }
 
+textarea {
+  resize: vertical;
+}
+
 .extensions {
   margin-bottom: $gutter-normal;
 }

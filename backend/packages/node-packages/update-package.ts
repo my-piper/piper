@@ -25,7 +25,13 @@ export async function importPackage(source: string) {
     logger.info("Import from YAML");
   }
 
-  const json = YAML.parse(yaml);
+  let json: object;
+  try {
+    json = YAML.parse(yaml);
+  } catch (e) {
+    throw new DataError("YAML parse error");
+  }
+
   const nodePackage = toInstance(json, NodePackage);
 
   await uploadPackage(nodePackage);
@@ -43,6 +49,8 @@ export async function uploadPackage(nodePackage: NodePackage) {
       errors.map((e) => `${e.propertyName || e.instancePath}: ${e.message}`)
     );
   }
+
+  console.log(nodePackage);
 
   const { _id, nodes } = nodePackage;
 

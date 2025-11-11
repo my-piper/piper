@@ -1,0 +1,14 @@
+<form [formGroup]="form">
+  <div class="editor">
+    <ngx-monaco-editor
+      class="monaco"
+      formControlName="app"
+      [options]="{
+        language: 'html',
+        minimap: { enabled: false },
+        theme: 'vs-dark',
+      }"
+    >
+    </ngx-monaco-editor>
+  </div>
+</form>

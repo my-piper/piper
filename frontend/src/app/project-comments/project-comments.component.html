@@ -4,7 +4,7 @@
     <ul>
       <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
-    <div class="stack horizontal justify-center">
+    <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
     </div>
   </div>
@@ -52,7 +52,7 @@
   [class.busy-block]="comments.length <= 0 && progress.loading"
 >
   <div class="card" *ngFor="let c of comments; let i = index">
-    <header class="horizontal stack justify-end">
+    <header class="stack justify-end">
       <ng-template #actionsTemplate>
         <ul class="context-menu" [class.busy]="progress.removing[i]">
           <li>
@@ -75,7 +75,7 @@
     <article
       [innerHTML]="c.message | markdown: { safe: false } | async"
     ></article>
-    <footer class="horizontal stack justify-between">
+    <footer class="stack justify-between">
       <div class="created-by">{{ c.createdBy._id }}</div>
       <div>{{ c.createdAt | timePassed }}</div>
     </footer>

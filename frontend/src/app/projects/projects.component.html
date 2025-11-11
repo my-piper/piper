@@ -24,7 +24,7 @@
     <ul>
       <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
-    <div class="stack horizontal justify-center">
+    <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
     </div>
   </div>
@@ -37,7 +37,7 @@
 ></app-informer>
 
 <div class="app-container">
-  <header class="horizontal stack">
+  <header class="stack">
     <button
       class="primary with-icon"
       [routerLink]="['add']"
@@ -50,7 +50,7 @@
     </button>
     <a
       *ngIf="userRole.admin | can | async"
-      class="secondary"
+      class="primary"
       [routerLink]="['import']"
       i18n="@@link.import"
     >
@@ -85,7 +85,7 @@
             </ul>
           </ng-template>
           <button
-            class="circle small"
+            class="circle"
             [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
             [disabled]="userRole.admin | can: p.createdBy | async | not"
             (attached)="references.popover = $event"
@@ -95,6 +95,7 @@
               [icon]="
                 (userRole.admin | can: p.createdBy | async) ? 'menu' : 'lock'
               "
+              [size]="22"
             ></app-icon>
           </button>
         </td>

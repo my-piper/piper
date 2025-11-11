@@ -2,7 +2,11 @@
   <ngx-monaco-editor
     class="monaco"
     formControlName="script"
-    [options]="{ language: 'javascript', minimap: { enabled: false } }"
+    [options]="{
+      language: 'javascript',
+      minimap: { enabled: false },
+      theme: 'vs-dark',
+    }"
   >
   </ngx-monaco-editor>
 </form>

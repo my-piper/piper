@@ -181,7 +181,7 @@ export class EditPipelineEnvironmentComponent implements OnInit {
       .subscribe({
         next: () => {
           assign(this.project, { environment: pipeline });
-          this.projectManager.update({ environment: pipeline });
+          this.projectManager.markDirty();
         },
         error: (err) => (this.error = err),
       });

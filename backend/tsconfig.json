@@ -25,7 +25,7 @@
     "rewriteRelativeImportExtensions": true,
     "lib": ["ES2022"]
   },
-  "include": ["/**/*.ts"],
+  "include": ["/**/*.ts", "../../piper-node/types/primitive.js"],
   "exclude": ["node_modules", "dist", "tests"],
   "ts-node": {
     "esm": true,

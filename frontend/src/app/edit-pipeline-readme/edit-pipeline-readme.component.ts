@@ -54,6 +54,6 @@ export class EditPipelineReadmeComponent implements OnInit {
 
     const { pipeline } = this.project;
     assign(pipeline, { readme });
-    this.projectManager.update({ pipeline });
+    this.projectManager.markDirty();
   }
 }

@@ -74,7 +74,7 @@ export const GLOBAL_ENVIRONMENT_KEY = "environment";
 export const USER_ENVIRONMENT_KEY = (user: string) => `environment:${user}`;
 
 export const USER_API_TOKEN_KEY = (id: string) => `user:${id}:api-token`;
-export const USER_API_TOKEN_EXPIRED = 180 * SECONDS_IN_DAY;
+export const USER_API_TOKEN_EXPIRED = 5 * 365 * SECONDS_IN_DAY;
 
 export const USER_INITIAL_BALANCE_LOCK = (ip: string) =>
   `user:${ip}:initial-balance`;

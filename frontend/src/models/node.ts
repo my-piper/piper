@@ -144,6 +144,10 @@ export class NodeInput {
 
   @Expose()
   @Type(() => Boolean)
+  featured!: boolean;
+
+  @Expose()
+  @Type(() => Boolean)
   multiline!: boolean;
 
   @Expose()
@@ -263,6 +267,10 @@ export class Node {
   @Expose()
   @Type(() => String)
   script!: string;
+
+  @Expose()
+  @Type(() => String)
+  app!: string;
 
   @Expose()
   @Type(() => String)

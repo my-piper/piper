@@ -38,6 +38,7 @@ import { TagResolver } from "src/resolvers/tags";
 import { UserResolver } from "src/resolvers/user";
 import { AssetsPageComponent } from "./assets-page/assets-page.component";
 import { BatchesComponent } from "./batches/batches.component";
+import { EditNodeAppComponent } from "./edit-node-app/edit-node-app.component";
 import { EditNodeCatalogComponent } from "./edit-node-catalog/edit-node-catalog.component";
 import { EditNodeDesignComponent } from "./edit-node-design/edit-node-design.component";
 import { EditNodeEnvironmentComponent } from "./edit-node-environment/edit-node-environment.component";
@@ -54,6 +55,7 @@ import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usa
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
+import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
 import { NodeIOComponent } from "./node-io/node-io.component";
 import { NodeJobsComponent } from "./node-jobs/node-jobs.component";
@@ -305,9 +307,25 @@ const routes: Routes = [
           {
             path: "add-node",
             component: SelectNodeComponent,
+            outlet: "left",
+          },
+          {
+            path: "apps/:id",
+            component: NodeAppComponent,
+            resolve: {
+              node: NodeFromProjectResolver,
+            },
           },
           {
             path: "nodes/:id",
+            component: EditNodeInputsComponent,
+            outlet: "right",
+            resolve: {
+              node: NodeFromProjectResolver,
+            },
+          },
+          {
+            path: "nodes/:id/edit",
             component: EditNodeComponent,
             resolve: {
               node: NodeFromProjectResolver,
@@ -318,8 +336,8 @@ const routes: Routes = [
                 component: EditNodeScriptComponent,
               },
               {
-                path: "design",
-                component: EditNodeDesignComponent,
+                path: "app",
+                component: EditNodeAppComponent,
               },
               {
                 path: "yaml",
@@ -335,7 +353,7 @@ const routes: Routes = [
               },
               {
                 path: "",
-                component: EditNodeInputsComponent,
+                component: EditNodeDesignComponent,
               },
             ],
           },

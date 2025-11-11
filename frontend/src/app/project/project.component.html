@@ -4,7 +4,7 @@
     <ul>
       <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
-    <div class="stack horizontal justify-center">
+    <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
     </div>
   </div>
@@ -15,37 +15,6 @@
   [contentTemplate]="errorTemplate"
   (ok)="error = null"
 ></app-informer>
-
-{{ error }}
-
-<div class="stack horizontal">
-  <a class="circle" [routerLink]="['..']">
-    <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
-  </a>
-  <ng-template #shareProjectPopover>
-    <app-edit-project
-      [project]="project"
-      (updated)="updated($event)"
-    ></app-edit-project>
-  </ng-template>
-  <button
-    *ngIf="userRole.admin | can | async"
-    class="circle"
-    [appPopover]="{
-      trigger: 'click',
-      behavior: 'dropdown',
-      content: shareProjectPopover,
-    }"
-  >
-    <app-icon class="icon" [icon]="'share'"></app-icon>
-  </button>
-  <div>
-    <h1>{{ project.title | i18n }}</h1>
-    <small *ngIf="pipeline.description as description">{{
-      description | i18n
-    }}</small>
-  </div>
-</div>
 
 <ng-template #clonePipelineTemplate>
   <header>
@@ -60,7 +29,7 @@
         i18n="@@link.open_playground"
       >
         Open playground
-        <app-icon class="icon right" [size]="18" icon="open-link"></app-icon>
+        <app-icon class="icon right" icon="open-link"></app-icon>
       </a>
       or
       <button
@@ -75,199 +44,250 @@
   </header>
 </ng-template>
 
-<header
-  *ngIf="
-    userRole.admin | can: project.createdBy | async;
-    else clonePipelineTemplate
-  "
-  class="stack horizontal align-center justify-between"
->
-  <nav class="stack horizontal align-center">
-    <div class="launch">
-      <a
-        class="primary"
-        [routerLink]="['./']"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLinkActive="active"
-        i18n="@@link.pipeline"
-      >
-        Pipeline
+<header>
+  <div class="stack justify-between">
+    <div class="stack align-center">
+      <a class="circle" [routerLink]="['..']">
+        <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
       </a>
-      <ng-template #launchTemplate>
-        <button
-          class="primary with-icon only-icon"
-          [class.busy]="progress.launching"
-          [disabled]="progress.launching"
-          (click)="launch()"
-        >
-          <app-icon class="icon" icon="play" [size]="20"></app-icon>
-          <ng-container *ngIf="config.billing.active">
-            <span
-              class="badge"
-              *ngIf="
-                (project._id | pipelineCosts: null : project.revision | async)
-                  ?.total as total
-              "
-            >
-              {{ total | currency: "USD" : "symbol" : "1.0-10" }}
-            </span>
-          </ng-container>
-        </button>
+      <ng-template #shareProjectPopover>
+        <app-edit-project
+          [project]="project"
+          (updated)="updated($event)"
+        ></app-edit-project>
       </ng-template>
-
-      <a
-        *ngIf="child | is: launchComponent; else launchTemplate"
-        class="primary active with-icon only-icon"
-        [routerLink]="['./']"
+      <button
+        *ngIf="userRole.admin | can | async"
+        class="circle"
+        [appPopover]="{
+          trigger: 'click',
+          behavior: 'dropdown',
+          content: shareProjectPopover,
+        }"
       >
-        <app-icon icon="stop" color="white" [size]="20"></app-icon>
-      </a>
+        <app-icon class="icon" [icon]="'share'"></app-icon>
+      </button>
+      <div class="title">
+        <h1>{{ project.title | i18n }}</h1>
+        <small *ngIf="pipeline.description as description">{{
+          description | i18n
+        }}</small>
+      </div>
     </div>
-    <a
-      class="primary"
-      [routerLink]="['design']"
-      routerLinkActive="active"
-      i18n="@@link.design"
-      >Design</a
+    <app-me-user class="me"></app-me-user>
+  </div>
+  <div class="stack align-center justify-between">
+    <nav
+      *ngIf="
+        userRole.admin | can: project.createdBy | async;
+        else clonePipelineTemplate
+      "
+      class="stack align-center"
     >
-    <ul class="menu">
-      <ng-container
-        *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
-      >
-        <li *ngIf="(nodeUpdates?.updates | keyvalue)?.length as nodes">
-          <a [routerLink]="['node-updates']" routerLinkActive="active">
-            <ng-container i18n="@@link.updates">Updates</ng-container>
-            <span class="badge success">
-              {{ nodes }}
-            </span>
-          </a>
-        </li>
-        <li>|</li>
-      </ng-container>
-      <ng-container *ngIf="(project.pipeline.outputs | keyvalue | length) > 0">
+      <ul class="menu">
         <li>
           <a
-            class="with-icon"
-            [routerLink]="['/', 'play', project.slug || project._id]"
-            target="_blank"
+            [routerLink]="['./']"
+            [routerLinkActiveOptions]="{ exact: true }"
             routerLinkActive="active"
+            i18n="@@link.pipeline"
           >
-            <ng-container i18n="@@link.playground">Playground</ng-container>
-            <app-icon
-              class="icon right"
-              [size]="18"
-              icon="open-link"
-            ></app-icon>
+            Pipeline
           </a>
         </li>
-        <li>|</li>
-      </ng-container>
-      <li>
-        <a
-          [routerLink]="['environment']"
-          routerLinkActive="active"
-          i18n="@@link.environment"
+        <li>
+          <a
+            [routerLink]="[
+              { outlets: { primary: ['design'], left: null, right: null } },
+            ]"
+            routerLinkActive="active"
+            i18n="@@link.design"
+            >Design</a
+          >
+        </li>
+        <li>
+          <a
+            [routerLink]="[
+              {
+                outlets: { primary: ['environment'], left: null, right: null },
+              },
+            ]"
+            routerLinkActive="active"
+            i18n="@@link.environment"
+          >
+            Environment
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="[
+              { outlets: { primary: ['launches'], left: null, right: null } },
+            ]"
+            routerLinkActive="active"
+            i18n="@@link.launches"
+          >
+            Launches
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="[
+              { outlets: { primary: ['assets'], left: null, right: null } },
+            ]"
+            routerLinkActive="active"
+            (click)="references.popover?.hide()"
+            i18n="@@link.assets"
+          >
+            Assets
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="[
+              {
+                outlets: {
+                  primary: ['readme', 'edit'],
+                  left: null,
+                  right: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            (click)="references.popover?.hide()"
+            i18n="@@link.readme"
+          >
+            README
+          </a>
+        </li>
+        <ng-container
+          *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
         >
-          Environment
-        </a>
-      </li>
-      <li>|</li>
-      <li>
-        <a
-          [routerLink]="['launches']"
-          routerLinkActive="active"
-          i18n="@@link.launches"
+          <ng-container
+            *ngIf="(nodeUpdates?.updates | keyvalue).length as updates"
+          >
+            <li>
+              <a
+                [routerLink]="[
+                  {
+                    outlets: {
+                      primary: ['node-updates'],
+                      left: null,
+                      right: null,
+                    },
+                  },
+                ]"
+                routerLinkActive="active"
+              >
+                <ng-container i18n="@@link.updates">Updates</ng-container>
+                <span class="badge success">
+                  {{ updates }}
+                </span>
+              </a>
+            </li>
+          </ng-container>
+        </ng-container>
+        <ng-container
+          *ngIf="(project.pipeline.outputs | keyvalue | length) > 0"
         >
-          Launches
-        </a>
-      </li>
-      <li>|</li>
-      <li>
-        <ng-template #linksMenu>
-          <ul class="context-menu">
-            <li>
-              <a
-                [routerLink]="['readme/edit']"
-                routerLinkActive="active"
-                (click)="references.popover?.hide()"
-                i18n="@@link.readme"
-              >
-                README
-              </a>
-            </li>
-            <li *ngIf="userRole.engineer | can | async">
-              <a
-                [routerLink]="['deploy']"
-                routerLinkActive="active"
-                (click)="references.popover?.hide()"
-                i18n="@@link.deploy"
-              >
-                Deploy
-              </a>
-            </li>
-            <li>
-              <a
-                [routerLink]="['yaml']"
-                routerLinkActive="active"
-                (click)="references.popover?.hide()"
-              >
-                YAML
-              </a>
-            </li>
-            <li *ngIf="userRole.engineer | can | async">
-              <a
-                [routerLink]="['script']"
-                routerLinkActive="active"
-                (click)="references.popover?.hide()"
-                i18n="@@link.script"
-              >
-                Script
-              </a>
-            </li>
-            <li>
-              <a
-                [routerLink]="['messages']"
-                routerLinkActive="active"
-                (click)="references.popover?.hide()"
-                i18n="@@link.messages"
-              >
-                Messages
-              </a>
-            </li>
-            <li>
-              <a
-                [routerLink]="['assets']"
-                routerLinkActive="active"
-                (click)="references.popover?.hide()"
-                i18n="@@link.assets"
-              >
-                Assets
-              </a>
-            </li>
-          </ul>
-        </ng-template>
-        <button
-          class="item with-icon"
-          [appPopover]="{ behavior: 'dropdown', content: linksMenu }"
-          (attached)="references.popover = $event"
-        >
-          <ng-container i18n="@@link.more">More</ng-container>
-          <app-icon class="icon right" icon="chevron-down"></app-icon>
-        </button>
-      </li>
-    </ul>
-  </nav>
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="['/', 'play', project.slug || project._id]"
+              target="_blank"
+              routerLinkActive="active"
+            >
+              <ng-container i18n="@@link.playground">Playground</ng-container>
+              <app-icon
+                class="icon right"
+                [size]="18"
+                icon="open-link"
+              ></app-icon>
+            </a>
+          </li>
+        </ng-container>
+        <li>
+          <ng-template #linksMenu>
+            <ul class="context-menu">
+              <li *ngIf="userRole.engineer | can | async">
+                <a
+                  [routerLink]="[
+                    {
+                      outlets: { primary: ['deploy'], left: null, right: null },
+                    },
+                  ]"
+                  routerLinkActive="active"
+                  (click)="references.popover?.hide()"
+                  i18n="@@link.deploy"
+                >
+                  Deploy
+                </a>
+              </li>
+              <li>
+                <a
+                  [routerLink]="[
+                    { outlets: { primary: ['yaml'], left: null, right: null } },
+                  ]"
+                  routerLinkActive="active"
+                  (click)="references.popover?.hide()"
+                >
+                  YAML
+                </a>
+              </li>
+              <li *ngIf="userRole.engineer | can | async">
+                <a
+                  [routerLink]="[
+                    {
+                      outlets: { primary: ['script'], left: null, right: null },
+                    },
+                  ]"
+                  routerLinkActive="active"
+                  (click)="references.popover?.hide()"
+                  i18n="@@link.script"
+                >
+                  Script
+                </a>
+              </li>
+              <li>
+                <a
+                  [routerLink]="['messages']"
+                  routerLinkActive="active"
+                  (click)="references.popover?.hide()"
+                  i18n="@@link.messages"
+                >
+                  Messages
+                </a>
+              </li>
+            </ul>
+          </ng-template>
+          <button
+            class="item with-icon"
+            [appPopover]="{ behavior: 'dropdown', content: linksMenu }"
+            (attached)="references.popover = $event"
+          >
+            <ng-container i18n="@@link.more">More</ng-container>
+            <app-icon class="icon right" icon="chevron-down"></app-icon>
+          </button>
+        </li>
+      </ul>
+    </nav>
 
-  <div
-    class="status"
-    [attr.data-status]="status"
-    *ngIf="projectManager.status | async as status"
-  >
-    {{ status }}
+    <div
+      class="status"
+      [attr.data-status]="status"
+      *ngIf="projectManager.status | async as status"
+    >
+      <ng-container [ngSwitch]="status">
+        <ng-container *ngSwitchCase="'dirty'">Dirty</ng-container>
+        <ng-container *ngSwitchCase="'saving'">
+          <app-spinner [size]="'small'"></app-spinner>
+        </ng-container>
+        <ng-container *ngSwitchCase="'saved'">Saved</ng-container>
+      </ng-container>
+    </div>
   </div>
 </header>
 
-<div class="child">
+<div class="child" [class.edit]="child | is: editPipelineVisualComponent">
   <router-outlet
     (activate)="child = $event"
     (deactivate)="child = null"

@@ -17,7 +17,7 @@
         display: flex;
         flex-direction: column;
         position: relative;
-        background: #f0f0f0;
+        background: $control-background-color;
         border-radius: $gutter-small;
         padding: 35px $gutter-normal $gutter-normal $gutter-normal;
 
@@ -26,9 +26,10 @@
             font-weight: bold;
             top: -$gutter-small;
             left: $gutter-small;
-            background: #f0f0f0;
+            background: $control-background-color;
             padding: $gutter-tiny $gutter-normal;
             border-radius: $gutter-small;
+            font-size: $font-size-small;
 
             sup {
                 color: red;

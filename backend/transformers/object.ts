@@ -67,16 +67,16 @@ export function mapTransformer<T>({
 }) {
   switch (type) {
     case TransformationType.PLAIN_TO_CLASS: {
-      const source = value as { [key: string]: Primitive };
-      const map = new Map<string, Primitive>();
+      const source = value as { [key: string]: T };
+      const map = new Map<string, T>();
       for (const key of Object.keys(source)) {
         map.set(key, source[key]);
       }
       return map;
     }
     case TransformationType.CLASS_TO_PLAIN: {
-      const source = value as Map<string, Primitive>;
-      const obj: { [key: string]: Primitive } = {};
+      const source = value as Map<string, T>;
+      const obj: { [key: string]: T } = {};
       for (const [k, v] of source) {
         obj[k] = v;
       }

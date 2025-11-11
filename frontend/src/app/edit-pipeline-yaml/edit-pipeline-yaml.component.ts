@@ -69,10 +69,6 @@ export class EditPipelineYamlComponent implements OnInit {
       launchRequest,
       environment,
     });
-    this.projectManager.update({
-      pipeline,
-      launchRequest,
-      environment,
-    });
+    this.projectManager.markDirty();
   }
 }

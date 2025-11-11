@@ -71,7 +71,7 @@ export class UpdatePipelineNodesComponent implements OnInit {
     const node = this.nodeUpdates.updates.get(id);
     pipeline.nodes.set(id, node.updated);
 
-    this.projectManager.update(this.project);
+    this.projectManager.markDirty();
 
     this.state.updated[id] = true;
     this.cd.detectChanges();
@@ -84,7 +84,7 @@ export class UpdatePipelineNodesComponent implements OnInit {
       this.state.updated[id] = true;
     }
 
-    this.projectManager.update(this.project);
+    this.projectManager.markDirty();
 
     this.state.updated.all = true;
     this.cd.detectChanges();

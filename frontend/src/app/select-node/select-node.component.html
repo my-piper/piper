@@ -4,7 +4,7 @@
     <ul>
       <li *ngFor="let m of error?.details">{{ m }}</li>
     </ul>
-    <div class="stack horizontal justify-center">
+    <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
     </div>
   </div>
@@ -21,33 +21,38 @@
     <p i18n="@@message.nothing_found">Nothing found.</p>
   </ng-template>
   <ng-container *ngIf="progress.loading; else emptyTemplate">
-    <app-skeleton type="cards" [cols]="4"></app-skeleton>
+    <app-skeleton type="cards" [cols]="1"></app-skeleton>
   </ng-container>
 </ng-template>
 
 <ng-container *ngIf="nodes.length > 0; else noDataTemplate">
-  <div *ngFor="let c of nodes | groupNodes">
+  <ng-container *ngFor="let c of nodes | groupNodes">
     <h2>{{ c.category?.title | i18n }}</h2>
     <div class="cards nodes">
       <div
         class="card"
-        [class.busy-block]="progress.selecting[node._id]"
         *ngFor="let node of c.nodes"
+        [dragClone]="{ payload: { node: node._id } }"
       >
         <header>
           <ng-template #actionsTemplate>
-            <ul class="context-menu">
-              <li>
-                <button submitButton (click)="remove(node)">
-                  <app-icon
-                    class="icon left"
-                    icon="delete"
-                    [size]="18"
-                  ></app-icon>
-                  Delete
-                </button>
-              </li>
-            </ul>
+            <div class="stack vertical small">
+              <div class="version" *ngIf="userRole.admin | can | async">
+                Version: {{ node.version }}
+              </div>
+              <ul class="context-menu">
+                <li>
+                  <button submitButton (click)="remove(node)">
+                    <app-icon
+                      class="icon left"
+                      icon="delete"
+                      [size]="18"
+                    ></app-icon>
+                    Delete
+                  </button>
+                </li>
+              </ul>
+            </div>
           </ng-template>
           <button
             *ngIf="userRole.admin | can | async"
@@ -57,24 +62,21 @@
           >
             <app-icon class="icon" icon="menu"></app-icon>
           </button>
+          <img
+            class="thumbnail"
+            *ngIf="node.thumbnail as thumbnail"
+            [src]="thumbnail"
+          />
         </header>
         <article>
-          <button (click)="select(node)">
-            <img *ngIf="node.thumbnail as thumbnail" [src]="thumbnail" />
-            <h3>
-              {{ node.title | i18n }}
-            </h3>
-          </button>
+          <h3>{{ node.title | i18n }}</h3>
         </article>
         <footer>
           <ul *ngIf="node.tags as tags" class="tags">
             <li *ngFor="let t of tags">#{{ t }}</li>
           </ul>
-          <div class="version" *ngIf="userRole.admin | can | async">
-            {{ node.version }}
-          </div>
         </footer>
       </div>
     </div>
-  </div>
+  </ng-container>
 </ng-container>
