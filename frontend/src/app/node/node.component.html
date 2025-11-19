@@ -85,6 +85,7 @@
               >
                 <img
                   *ngFor="let image of images"
+                  [inspect]="{ type: 'image', url: image }"
                   [imageSize]="image"
                   [src]="image | proxyImage: { height: 500 }"
                 />

@@ -216,6 +216,10 @@ export class LaunchOutput {
   launch?: string;
 
   @Expose()
+  @Type(() => String)
+  node?: string;
+
+  @Expose()
   @Type(() => Date)
   filledAt: Date;
 

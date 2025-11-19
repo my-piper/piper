@@ -310,6 +310,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
   stopNode(node: string) {
     delete this.launches[node];
     this.cd.detectChanges();
+
+    this.saveUrlState();
   }
 
   saveUrlState() {
@@ -477,6 +479,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
       case "image":
         switch (i.type) {
           case "image":
+            break;
           case "image[]":
             assign(flow, {
               transformer: mapTo({ type: "array", index: 0 }, FlowTransformer),
@@ -489,10 +492,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
       case "image[]":
         switch (i.type) {
           case "image":
-          case "image[]":
             assign(flow, {
               transformer: mapTo({ type: "array", index: 0 }, FlowTransformer),
             });
+            break;
+          case "image[]":
             break;
           default:
             return;

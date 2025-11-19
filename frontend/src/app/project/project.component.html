@@ -151,6 +151,18 @@
         <li>
           <a
             [routerLink]="[
+              { outlets: { primary: ['artefacts'], left: null, right: null } },
+            ]"
+            routerLinkActive="active"
+            (click)="references.popover?.hide()"
+            i18n="@@link.artefacts"
+          >
+            Artefacts
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="[
               { outlets: { primary: ['assets'], left: null, right: null } },
             ]"
             routerLinkActive="active"

@@ -279,7 +279,7 @@
 
     <ng-container *ngFor="let f of pipeline.flows | keyvalue">
       <div
-        class="transformer"
+        class="flow"
         [class.disabled]="
           readonly || (userRole.admin | can: project.createdBy | async | not)
         "
@@ -313,6 +313,7 @@
         "
       >
         <app-edit-flow-transformer
+          *ngIf="!!f.value.transformer"
           [project]="project"
           [launchRequest]="launchRequest"
           [id]="f.key"
@@ -320,6 +321,35 @@
           [from]="{ id: f.value.from, node: pipeline | node: f.value.from }"
           [to]="{ id: f.value.to, node: pipeline | node: f.value.to }"
         ></app-edit-flow-transformer>
+        <ng-template #actionsTemplate>
+          <ul class="context-menu" [class.busy]="progress.deleting">
+            <li>
+              <button (click)="removeFlow(f.key)">
+                <app-icon
+                  class="icon left"
+                  icon="delete"
+                  [size]="18"
+                ></app-icon>
+                <span i18n="@@action.delete">Delete</span>
+              </button>
+            </li>
+          </ul>
+        </ng-template>
+        <button
+          class="more transparent"
+          [appPopover]="{
+            content: actionsTemplate,
+            trigger: 'click',
+            position: 'right',
+          }"
+        >
+          <app-icon
+            class="icon"
+            icon="more"
+            [size]="16"
+            [stroke]="2"
+          ></app-icon>
+        </button>
       </div>
     </ng-container>
 
@@ -354,12 +384,7 @@
       />
 
       <path
-        class="flow"
         *ngFor="let f of pipeline.flows | keyvalue"
-        [class.disabled]="
-          readonly || (userRole.admin | can: project.createdBy | async | not)
-        "
-        (click)="removeFlow(f.key)"
         [attr.stroke]="f.value.color"
         [attr.d]="
           (pipeline | node: f.value.from).arrange

@@ -29,6 +29,7 @@ import { DragMoveDirective } from "src/directives/drag-move.directive";
 import { DropZoneDirective } from "src/directives/drop-zone.directive";
 import { ImageFallbackDirective } from "src/directives/image-fall-back.directive";
 import { ImageSizeDirective } from "src/directives/image-size";
+import { InspectDirective } from "src/directives/inspect";
 import { ScrollInsideDirective } from "src/directives/scroll-inside.directive";
 import { SelectableDirective } from "src/directives/selectable.directive";
 import { SubmitButtonDirective } from "src/directives/submit-button.directive";
@@ -97,6 +98,7 @@ import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refi
 import { ExpensesComponent } from "./expenses/expenses.component";
 import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
 import { FeedSkeletonComponent } from "./feed-skeleton/feed-skeleton.component";
+import { InspectModule } from "./inspect/inspect.module";
 import { JsonEditorComponent } from "./json-editor/json-editor.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchOutputsComponent } from "./launch-outputs/launch-outputs.component";
@@ -135,6 +137,7 @@ import { UsersComponent } from "./users/users.component";
 
 @NgModule({
   declarations: [
+    InspectDirective,
     CenterPipe,
     PositionPipe,
     AppComponent,
@@ -260,6 +263,7 @@ import { UsersComponent } from "./users/users.component";
     }),
     HttpClientModule,
     UiKitModule,
+    InspectModule,
     NgHcaptchaModule.forRoot(),
   ],
   providers: [

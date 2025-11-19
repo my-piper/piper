@@ -20,6 +20,7 @@
   img {
     display: block;
     border-radius: $corner-small;
+    min-width: 30px;
     min-height: 30px;
   }
 }

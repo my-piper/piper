@@ -74,10 +74,10 @@ export class DragCloneDirective implements OnDestroy {
     this.renderer.setStyle(clone, "top", `${rect.top}px`);
     this.renderer.setStyle(clone, "width", `${rect.width}px`);
     this.renderer.setStyle(clone, "height", `${rect.height}px`);
-    this.renderer.setStyle(clone, "cursor", "dragging");
-    this.renderer.setStyle(clone, "opacity", "0.85");
-    this.renderer.setStyle(clone, "zIndex", "9999");
+    this.renderer.setStyle(clone, "cursor", "grabbing");
+    this.renderer.setStyle(clone, "opacity", "0.75");
     this.renderer.setStyle(clone, "userSelect", "none");
+    this.renderer.setStyle(clone, "zIndex", "9999");
     this.renderer.setStyle(clone, "margin", "0");
 
     // 4) Append to body so it isn't clipped
