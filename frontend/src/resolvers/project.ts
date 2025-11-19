@@ -16,6 +16,8 @@ export class ProjectResolver implements Resolve<Project> {
   resolve(route: ActivatedRouteSnapshot) {
     const { id } = route.params;
 
+    console.log("Resolve project", id);
+
     return this.http.get(`projects/${id}`).pipe(
       map((json) => plainToInstance(Project, json)),
       tap((project) => (this.projectManager.project = project))

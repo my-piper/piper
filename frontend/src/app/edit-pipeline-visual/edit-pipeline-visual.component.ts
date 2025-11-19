@@ -8,8 +8,9 @@ import {
   ViewChild,
 } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
-import { assign, random, sample } from "lodash";
+import { assign, isEmpty, mapValues, random, sample } from "lodash";
 import { customAlphabet } from "nanoid";
+import { stringify } from "qs";
 import {
   delay,
   filter,
@@ -21,7 +22,6 @@ import {
 } from "rxjs";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
-import { matchIO } from "src/app/edit-pipeline-visual/utils";
 import { UI, UI_DELAY } from "src/consts/ui";
 import { AppConfig } from "src/models/app-config";
 import { Arrange } from "src/models/arrange";
@@ -29,7 +29,7 @@ import { InputFlow } from "src/models/input-flow";
 import { Launch } from "src/models/launch";
 import { LaunchRequest, NodeToLaunch } from "src/models/launch-request";
 import { Node, NodeInput, NodeOutput } from "src/models/node";
-import { NodeFlow } from "src/models/node-flow";
+import { FlowTransformer, NodeFlow } from "src/models/node-flow";
 import { OutputFlow } from "src/models/output-flow";
 import {
   Layout,
@@ -95,7 +95,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   mode: "default" | "flow" = "default";
   subscriptions: Subscription[] = [];
 
-  readonly = true;
+  readonly = false;
 
   project!: Project;
   pipeline!: Pipeline;
@@ -131,15 +131,22 @@ export class EditPipelineVisualComponent implements OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project, readonly }) => {
-      [this.project, this.pipeline, this.launchRequest] = [
-        project,
-        project.pipeline,
-        project.launchRequest,
+    this.route.data.subscribe(({ project, launch, launches, readonly }) => {
+      [
+        this.project,
+        this.pipeline,
+        this.launchRequest,
+        this.launch,
+        this.launches,
+      ] = [
+        project || launch.project,
+        project?.pipeline || launch.pipeline,
+        project?.launchRequest || launch.launchRequest,
+        launch,
+        launches || {},
       ];
-
       if (typeof readonly !== "undefined") {
-        this.readonly = readonly;
+        this.readonly = true;
       }
     });
 
@@ -226,9 +233,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.progress.launching = true;
     this.cd.detectChanges();
 
-    this.http
-      .post(`projects/${this.project._id}/launch`)
+    this.projectManager.status
       .pipe(
+        filter((status) => status === null || status === "saved"),
+        take(1),
+        switchMap(() => this.http.post(`projects/${this.project._id}/launch`)),
         delay(UI_DELAY),
         finalize(() => {
           this.progress.launching = false;
@@ -237,7 +246,12 @@ export class EditPipelineVisualComponent implements OnDestroy {
         map((json) => toInstance(json as Object, Launch))
       )
       .subscribe({
-        next: (launch) => (this.launch = launch),
+        next: (launch) => {
+          this.launch = launch;
+          this.cd.detectChanges();
+
+          this.saveUrlState();
+        },
         error: (err) => (this.error = err),
       });
   }
@@ -245,6 +259,10 @@ export class EditPipelineVisualComponent implements OnDestroy {
   stop() {
     this.launch = null;
     this.cd.detectChanges();
+
+    this.router.navigate([{}], {
+      relativeTo: this.route,
+    });
   }
 
   runNode(node: string) {
@@ -263,16 +281,14 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.projectManager.kick();
     this.projectManager.status
       .pipe(
-        filter((status) => status === "saved"),
+        filter((status) => status === null || status === "saved"),
         take(1),
         switchMap(() =>
           this.http.post(
             `projects/${this.project._id}/launch`,
             toPlain(request)
           )
-        )
-      )
-      .pipe(
+        ),
         delay(UI_DELAY),
         finalize(() => {
           this.progress.nodes.launching[node] = false;
@@ -284,6 +300,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
         next: (launch) => {
           this.launches[node] = launch;
           this.cd.detectChanges();
+
+          this.saveUrlState();
         },
         error: (err) => (this.error = err),
       });
@@ -294,41 +312,39 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.cd.detectChanges();
   }
 
-  fillNodeOutputs(node: string, outputs: NodeOutputs) {
-    const { pipeline, launchRequest } = this.project;
-    const { nodes } = launchRequest;
+  saveUrlState() {
+    const params: { [key: string]: string } = {};
+    if (!!this.launch) {
+      assign(params, { launch: this.launch._id });
+    }
+    if (!isEmpty(this.launches)) {
+      const launches = mapValues(this.launches, (l) => l._id);
+      const qs = stringify(launches, { delimiter: "," }).replace(/\=/g, ":");
+      assign(params, { launches: qs });
+    }
 
-    let nodeToLaunch = launchRequest.nodes.get(node);
+    this.router.navigate([params], {
+      relativeTo: this.route,
+    });
+  }
+
+  fillNodeOutputs(node: string, outputs: NodeOutputs) {
+    console.log("Fill node outputs", node, outputs);
+
+    let nodeToLaunch = this.launchRequest.nodes.get(node);
     if (!nodeToLaunch) {
-      nodeToLaunch = new NodeToLaunch();
-      launchRequest.nodes.set(node, nodeToLaunch);
+      nodeToLaunch = mapTo({}, NodeToLaunch);
+      this.launchRequest.nodes.set(node, nodeToLaunch);
     }
 
     nodeToLaunch.outputs = mapTo({ outputs }, NodeToLaunch).outputs;
-
-    for (const [, flow] of pipeline.flows) {
-      if (flow.from === node) {
-        const value = outputs[flow.output];
-        if (value !== undefined) {
-          let toNode = nodes.get(flow.to);
-          if (!toNode) {
-            toNode = mapTo({ inputs: {} }, NodeToLaunch);
-            launchRequest.nodes.set(flow.to, toNode);
-          }
-
-          if (!toNode.inputs) {
-            toNode.inputs = new Map<string, Primitive>();
-          }
-
-          toNode.inputs.set(flow.input, value);
-        }
-      }
-    }
 
     this.projectManager.markDirty();
 
     delete this.launches[node];
     this.cd.detectChanges();
+
+    this.saveUrlState();
   }
 
   editPipelineInput(input: string) {
@@ -422,19 +438,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
   addFlow(to: string, input: string) {
     const { from, output } = this.flow;
 
-    {
-      const o = this.pipeline.nodes.get(from).outputs.get(output);
-      const i = this.pipeline.nodes.get(to).inputs.get(input);
-      if (!matchIO(o, i)) {
-        return;
-      }
-    }
+    const o = this.pipeline.nodes.get(from).outputs.get(output);
+    const i = this.pipeline.nodes.get(to).inputs.get(input);
 
-    const id = customAlphabet("1234567890abcdef", 5)();
-    const key = `${from}_to_${to}_${id}`;
-    this.pipeline.flows.set(
-      key,
-      new NodeFlow({
+    const flow = mapTo(
+      {
         from,
         output,
         to,
@@ -455,8 +463,50 @@ export class EditPipelineVisualComponent implements OnDestroy {
           "pink",
           "brown",
         ]),
-      })
+      },
+      NodeFlow
     );
+
+    switch (o.type) {
+      case "json":
+        console.log(o.schema, ">", i.schema?.id);
+        if (i.type !== "json" || o.schema !== i.schema?.id) {
+          return;
+        }
+        break;
+      case "image":
+        switch (i.type) {
+          case "image":
+          case "image[]":
+            assign(flow, {
+              transformer: mapTo({ type: "array", index: 0 }, FlowTransformer),
+            });
+            break;
+          default:
+            return;
+        }
+        break;
+      case "image[]":
+        switch (i.type) {
+          case "image":
+          case "image[]":
+            assign(flow, {
+              transformer: mapTo({ type: "array", index: 0 }, FlowTransformer),
+            });
+            break;
+          default:
+            return;
+        }
+        break;
+      default:
+        if (i.type !== i.type) {
+          return;
+        }
+    }
+
+    const id = customAlphabet("1234567890abcdef", 5)();
+    const key = `${from}_to_${to}_${id}`;
+    this.pipeline.flows.set(key, flow);
     this.mode = "default";
     this.save();
   }

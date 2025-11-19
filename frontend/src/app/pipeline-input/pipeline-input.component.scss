@@ -7,7 +7,7 @@
   flex-direction: column;
   gap: $gutter-small;
   user-select: none;
-  background: $node-background-color;
+  background: rgba($node-background-color, 0.75);
   border-radius: $corner-huge;
   padding: $gutter-big;
 

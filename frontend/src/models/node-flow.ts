@@ -1,6 +1,16 @@
 import { Expose, Type } from "class-transformer";
 import assign from "lodash/assign";
 
+export class FlowTransformer {
+  @Expose()
+  @Type(() => String)
+  type!: "array";
+
+  @Expose()
+  @Type(() => Number)
+  index!: number;
+}
+
 export class NodeFlow {
   @Expose()
   @Type(() => String)
@@ -25,6 +35,14 @@ export class NodeFlow {
   @Expose()
   @Type(() => String)
   mode!: "wait" | "move";
+
+  @Expose()
+  @Type(() => FlowTransformer)
+  transformer!: FlowTransformer | null;
+
+  @Expose()
+  @Type(() => String)
+  index!: "array";
 
   constructor(defs: Partial<NodeFlow> = {}) {
     assign(this, defs);

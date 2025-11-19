@@ -3,6 +3,8 @@ import {
   ElementRef,
   HostListener,
   Input,
+  OnDestroy,
+  OnInit,
   Renderer2,
 } from "@angular/core";
 
@@ -11,9 +13,10 @@ type Size = { width: number; height: number };
 @Directive({
   selector: "[imageSize]",
 })
-export class ImageSizeDirective {
+export class ImageSizeDirective implements OnInit, OnDestroy {
   private badge!: HTMLDivElement;
   private _url: string | Size;
+  private parent: HTMLElement;
 
   @Input("imageSize")
   set url(url: string | Size) {
@@ -33,6 +36,17 @@ export class ImageSizeDirective {
     private hostRef: ElementRef,
     private renderer: Renderer2
   ) {}
+
+  ngOnInit() {
+    const {
+      nativeElement: { parentElement: parent },
+    } = this.hostRef;
+    this.parent = parent;
+  }
+
+  ngOnDestroy() {
+    this.removeBadge();
+  }
 
   private loadImageSize(): void {
     if (typeof this.url === "string") {
@@ -89,10 +103,7 @@ export class ImageSizeDirective {
 
   private removeBadge() {
     if (!!this.badge) {
-      const {
-        nativeElement: { parentElement: parent },
-      } = this.hostRef;
-      this.renderer.removeChild(parent, this.badge);
+      this.renderer.removeChild(this.parent, this.badge);
       this.badge = null;
     }
   }

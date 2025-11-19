@@ -10,9 +10,9 @@ export class LaunchResolver implements Resolve<Launch> {
   constructor(private http: HttpService) {}
 
   resolve(route: ActivatedRouteSnapshot) {
-    const { id } = route.params;
+    const { id, launch } = route.params;
     return this.http
-      .get(`launches/${id}`)
+      .get(`launches/${launch || id}`)
       .pipe(map((plain) => plainToInstance(Launch, plain as Object)));
   }
 }

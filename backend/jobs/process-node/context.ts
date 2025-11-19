@@ -25,6 +25,80 @@ import { Primitive } from "types/primitive";
 import { withTempContext } from "utils/files";
 import { download } from "utils/web";
 
+export async function getEnv({
+  launch,
+  node,
+}: {
+  launch: Launch;
+  node: Node;
+}): Promise<Environment> {
+  const env = new Environment({
+    variables: new Map<string, Primitive>(),
+  });
+  if (!!node.environment) {
+    const environment: {
+      global?: Environment;
+      user?: Environment;
+      pipeline: Environment;
+    } = { pipeline: launch.environment };
+
+    // global environment
+    {
+      const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
+      if (!!json) {
+        const global = toInstance(JSON.parse(json), Environment);
+        if (!!global) {
+          assign(environment, { global });
+        }
+      }
+    }
+
+    // user environment
+    {
+      const { launchedBy } = launch;
+      const json = await redis.get(USER_ENVIRONMENT_KEY(launchedBy._id));
+      if (!!json) {
+        const user = toInstance(JSON.parse(json), Environment);
+        if (!!user) {
+          assign(environment, { user });
+        }
+      }
+    }
+
+    for (const [k, v] of node.environment) {
+      switch (v.scope) {
+        case "global": {
+          const value = environment.global?.variables?.get(k);
+          if (value !== undefined) {
+            env.variables.set(k, value);
+          }
+          break;
+        }
+        case "user": {
+          const value = environment.user?.variables?.get(k);
+          if (value !== undefined) {
+            env.variables.set(k, value);
+          }
+          break;
+        }
+        case "pipeline": {
+          const value = environment.pipeline?.variables?.get(k);
+          if (value !== undefined) {
+            env.variables.set(k, value);
+          }
+          break;
+        }
+      }
+    }
+    try {
+      decrypt(env);
+    } catch (e) {
+      throw new FatalError("Can't decrypt environment");
+    }
+  }
+  return env;
+}
+
 export async function createContext({
   logger,
   launch,
@@ -34,73 +108,7 @@ export async function createContext({
   node: Node;
   logger: Logger;
 }) {
-  const env = await (async () => {
-    const env = new Environment({
-      variables: new Map<string, Primitive>(),
-    });
-    if (!!node.environment) {
-      const environment: {
-        global?: Environment;
-        user?: Environment;
-        pipeline: Environment;
-      } = { pipeline: launch.environment };
-
-      // global environment
-      {
-        const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
-        if (!!json) {
-          const global = toInstance(JSON.parse(json), Environment);
-          if (!!global) {
-            assign(environment, { global });
-          }
-        }
-      }
-
-      // user environment
-      {
-        const { launchedBy } = launch;
-        const json = await redis.get(USER_ENVIRONMENT_KEY(launchedBy._id));
-        if (!!json) {
-          const user = toInstance(JSON.parse(json), Environment);
-          if (!!user) {
-            assign(environment, { user });
-          }
-        }
-      }
-
-      for (const [k, v] of node.environment) {
-        switch (v.scope) {
-          case "global": {
-            const value = environment.global?.variables?.get(k);
-            if (value !== undefined) {
-              env.variables.set(k, value);
-            }
-            break;
-          }
-          case "user": {
-            const value = environment.user?.variables?.get(k);
-            if (value !== undefined) {
-              env.variables.set(k, value);
-            }
-            break;
-          }
-          case "pipeline": {
-            const value = environment.pipeline?.variables?.get(k);
-            if (value !== undefined) {
-              env.variables.set(k, value);
-            }
-            break;
-          }
-        }
-      }
-      try {
-        decrypt(env);
-      } catch (e) {
-        throw new FatalError("Can't decrypt environment");
-      }
-    }
-    return env;
-  })();
+  const env = await getEnv({ launch, node });
 
   return createVmContext({
     console: {
@@ -119,7 +127,6 @@ export async function createContext({
       DataError,
       TimeoutError,
     },
-    env,
     artefact: (data: Buffer) => artefact(data),
     download,
     useTempFolder: withTempContext,

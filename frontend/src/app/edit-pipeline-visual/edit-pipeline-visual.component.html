@@ -47,6 +47,7 @@
   [scrollInside]="{
     left: pipeline.layout?.left || 0,
     top: pipeline.layout?.top || 0,
+    disabled: readonly,
   }"
   (updated)="updateLayoutPosition({ left: $event.left, top: $event.top })"
 >
@@ -58,16 +59,24 @@
       class="primary with-icon small"
       [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
     >
-      <app-icon icon="add" color="white"></app-icon>
+      <app-icon class="icon" icon="add" color="white"></app-icon>
     </a>
-    <button
-      class="primary with-icon small"
-      [class.busy]="progress.launching"
-      [disabled]="progress.launching"
-      (click)="!!launch ? stop() : run()"
-    >
-      <app-icon [icon]="!!launch ? 'stop' : 'play'" color="white"></app-icon>
+
+    <ng-template #runTemplate>
+      <ul *ngIf="(launches | keyvalue).length > 0" class="runs">
+        <li *ngFor="let l of launches | keyvalue">
+          <div>{{ pipeline.nodes.get(l.key).title | i18n }}</div>
+          <button
+            class="primary with-icon icon-only small"
+            (click)="stopNode(l.key)"
+          >
+            <app-icon class="icon" icon="stop"></app-icon>
+          </button>
+        </li>
+      </ul>
+
       <ng-container *ngIf="config.billing.active">
+        <p>Total costs for all nodes:</p>
         <span
           class="badge"
           *ngIf="
@@ -78,7 +87,22 @@
           {{ total | currency: "USD" : "symbol" : "1.0-10" }}
         </span>
       </ng-container>
-    </button>
+    </ng-template>
+
+    <div [appPopover]="{ content: runTemplate }">
+      <button
+        class="primary small with-icon icon-only"
+        [class.busy]="progress.launching || (launches | keyvalue).length > 0"
+        [disabled]="(launches | keyvalue).length > 0"
+        (click)="!!launch ? stop() : run()"
+      >
+        <app-icon
+          class="icon"
+          [icon]="!!launch ? 'stop' : 'play'"
+          color="white"
+        ></app-icon>
+      </button>
+    </div>
   </div>
 
   <div
@@ -112,6 +136,7 @@
           </li>
         </ul>
       </ng-template>
+
       <button
         class="more transparent"
         [appPopover]="{
@@ -120,7 +145,7 @@
           position: 'right',
         }"
       >
-        <app-icon class="icon" icon="more" [size]="18"></app-icon>
+        <app-icon class="icon" icon="more" [size]="16" [stroke]="2"></app-icon>
       </button>
       <app-pipeline-input
         [id]="input.key"
@@ -155,7 +180,7 @@
       class="node"
       [class.selected]="currentNode === node.value"
       *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
-      [class.readonly]="
+      [class.disabled]="
         readonly || (userRole.admin | can: project.createdBy | async | not)
       "
       #drag="appDragMove"
@@ -189,7 +214,7 @@
         </div>
       </ng-container>
 
-      <div class="actions stack">
+      <div *ngIf="!launch" class="actions stack">
         <button
           class="primary small with-icon icon-only"
           [class.busy]="progress.nodes.launching[node.key]"
@@ -201,7 +226,9 @@
           <app-icon
             class="icon"
             [icon]="!!launches[node.key] ? 'stop' : 'play'"
-            color="white"
+            [color]="
+              (pipeline.start.nodes | includes: node.key) ? 'red' : 'white'
+            "
             [size]="18"
           ></app-icon>
         </button>
@@ -212,48 +239,89 @@
         >
           Edit
         </a>
-        <ng-template #actionsTemplate>
-          <ul class="context-menu" [class.busy]="progress.deleting">
-            <li>
-              <button (click)="removeNode(node.key)">
-                <app-icon
-                  class="icon left"
-                  icon="delete"
-                  [size]="18"
-                ></app-icon>
-                <span i18n="@@action.delete">Delete</span>
-              </button>
-            </li>
-          </ul>
-        </ng-template>
       </div>
+      <ng-template #actionsTemplate>
+        <ul class="context-menu" [class.busy]="progress.deleting">
+          <li>
+            <button (click)="removeNode(node.key)">
+              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
+              <span i18n="@@action.delete">Delete</span>
+            </button>
+          </li>
+        </ul>
+      </ng-template>
       <button
-        class="more transparent"
+        class="transparent more"
         [appPopover]="{
           content: actionsTemplate,
           trigger: 'click',
           position: 'right',
         }"
       >
-        <app-icon class="icon" icon="more" [size]="18"></app-icon>
+        <app-icon class="icon" icon="more" [size]="16" [stroke]="2"></app-icon>
       </button>
       <app-node
         [class.active]="currentNode === node.value"
         [id]="node.key"
         [node]="node.value"
-        [start]="pipeline.start.nodes | includes: node.key"
         [inputs]="launchRequest.nodes.get(node.key)?.inputs | mapToPlain"
         [outputs]="launchRequest.nodes.get(node.key)?.outputs | mapToPlain"
         [launch]="launch || launches[node.key]"
         (input)="!!flow ? addFlow(node.key, $event) : null"
         (output)="startFlow(node.key, $event)"
-        (done)="fillNodeOutputs(node.key, $event)"
+        (done)="readonly ? null : fillNodeOutputs(node.key, $event)"
         (takeOutInput)="takeOutPipelineInput($event)"
         (takeOutOutput)="takeOutPipelineOutput($event)"
         [attr.disabled]="drag.dragged"
         (click)="selectNode($event, node.key, node.value)"
       ></app-node>
     </div>
+
+    <ng-container *ngFor="let f of pipeline.flows | keyvalue">
+      <div
+        class="transformer"
+        [class.disabled]="
+          readonly || (userRole.admin | can: project.createdBy | async | not)
+        "
+        [ngStyle]="
+          (pipeline | node: f.value.from).arrange
+            | shift
+              : {
+                  x: ui.node.width,
+                  y:
+                    ((pipeline
+                      | node: f.value.from
+                      | outputIndex: f.value.output) +
+                      1) *
+                      ui.node.input.height +
+                    ui.node.shift,
+                }
+            | center
+              : ((pipeline | node: f.value.to).arrange
+                  | shift
+                    : {
+                        y:
+                          ((pipeline
+                            | node: f.value.to
+                            | inputIndex: f.value.input
+                            | async) +
+                            1) *
+                            ui.node.input.height +
+                          ui.node.shift,
+                      })
+            | position
+        "
+      >
+        <app-edit-flow-transformer
+          [project]="project"
+          [launchRequest]="launchRequest"
+          [id]="f.key"
+          [flow]="f.value"
+          [from]="{ id: f.value.from, node: pipeline | node: f.value.from }"
+          [to]="{ id: f.value.to, node: pipeline | node: f.value.to }"
+        ></app-edit-flow-transformer>
+      </div>
+    </ng-container>
 
     <svg>
       <defs>

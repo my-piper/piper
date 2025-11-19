@@ -2,9 +2,11 @@ import { Injectable } from "@angular/core";
 import { diff } from "jsondiffpatch";
 import assign from "lodash/assign";
 import { BehaviorSubject, debounceTime, delay, map, Subject } from "rxjs";
+import { NodeToLaunch } from "src/models/launch-request";
 import { PatchProject, Project } from "src/models/project";
+import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/ui-kit/consts";
-import { toInstance, toPlain } from "src/utils/models";
+import { mapTo, toInstance, toPlain } from "src/utils/models";
 import { HttpService } from "./http.service";
 
 const UPDATE_INTERVAL = 1000;
@@ -13,6 +15,18 @@ function sanitize(project: Project) {
   const { pipeline, launchRequest, environment } = project;
 
   // remove from start unknown nodes
+
+  const start = pipeline.start.nodes;
+  let i = 0;
+
+  while (i < start.length) {
+    const id = start[i];
+    if (!pipeline.nodes.has(id)) {
+      start.splice(i, 1);
+    } else {
+      i++;
+    }
+  }
 
   for (const [id, input] of pipeline.inputs) {
     const { flows } = input;
@@ -38,6 +52,49 @@ function sanitize(project: Project) {
 
     if (output.flows.size === 0) {
       pipeline.outputs.delete(id);
+    }
+  }
+
+  // fill launch request nodes inputs
+  for (const [, flow] of pipeline.flows) {
+    const value = launchRequest.nodes.get(flow.from).outputs.get(flow.output);
+    if (value !== undefined) {
+      const [output, input] = [
+        pipeline.nodes.get(flow.from).outputs.get(flow.output),
+        pipeline.nodes.get(flow.to).inputs.get(flow.input),
+      ];
+      const setNodeInputValue = (value: Primitive) => {
+        let nodeToLaunch = launchRequest.nodes.get(flow.to);
+        if (!nodeToLaunch) {
+          nodeToLaunch = mapTo({ inputs: {} }, NodeToLaunch);
+          launchRequest.nodes.set(flow.to, nodeToLaunch);
+        }
+
+        nodeToLaunch.inputs.set(flow.input, value);
+      };
+      switch (flow.transformer?.type) {
+        case "array": {
+          switch (output.type) {
+            case "image[]":
+              switch (input.type) {
+                case "image":
+                  const {
+                    transformer: { index },
+                  } = flow;
+                  const array = (value as string).split("|");
+                  const element =
+                    array[Math.min(array.length - 1, index)] || null;
+                  setNodeInputValue(element);
+                  break;
+              }
+              break;
+          }
+          break;
+        }
+        default: {
+          setNodeInputValue(value);
+        }
+      }
     }
   }
 }

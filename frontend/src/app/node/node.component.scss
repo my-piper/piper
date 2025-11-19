@@ -21,7 +21,7 @@ $node-border-color: rgba($graphite-color-200, 0.25);
   border: solid 2px rgba($graphite-color-200, 0.25);
   border-radius: $corner-large;
   box-shadow: 2px 2px 2px rgba(black, 0.25);
-  background: $node-background-color;
+  background: rgba($node-background-color, 0.75);
   min-height: 100px;
 
   @keyframes bg-spin {
@@ -78,12 +78,20 @@ $node-border-color: rgba($graphite-color-200, 0.25);
 
 }
 
-.start {
+.error {
   position: absolute;
-  left: $gutter-small;
-  top: $gutter-small;
-  opacity: .55;
+  background: rgba(black, 0.5);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  border-radius: $corner-large;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 
 .node {
   display: flex;
@@ -102,7 +110,6 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     margin: 0 0 0 $gutter-normal;
   }
 
-
   display: flex;
   width: 100%;
 
@@ -112,6 +119,7 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     padding: 0;
     margin: 0;
     position: absolute;
+    z-index: 1;
     top: 30px;
 
     li {
@@ -192,40 +200,48 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     padding: $gutter-small;
     gap: $gutter-small;
 
+    li {
+      >.image {
+        @include placeholder();
 
+        img {
+          display: block;
+          width: 100%;
+          border-radius: $corner-small;
+        }
+      }
 
-    .image-value {
-      @include placeholder();
+      >.images {
+        @include placeholder();
 
-      img {
-        display: block;
-        width: 100%;
-        border-radius: $corner-small;
+        &.multiple {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: $gutter-small;
+          padding: $gutter-normal;
+        }
+
+        img {
+          display: block;
+          width: 100%;
+          border-radius: $corner-small;
+        }
+      }
+
+      >.string {
+        padding: $gutter-small;
+        font-size: 0.75em;
+        line-height: 1em;
+        display: -webkit-box;
+        overflow: hidden;
+        max-height: 15em;
       }
     }
 
-    .images-value {
-      @include placeholder();
-
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: $gutter-small;
-      padding: $gutter-normal;
-
-      img {
-        display: block;
-        width: 100%;
-        border-radius: $corner-small;
-      }
-    }
-
-    .string-value {
-      padding: $gutter-small;
-      font-size: 0.75em;
-      line-height: 1em;
-      display: -webkit-box;
-      overflow: hidden;
-      max-height: 15em;
+    .artefacts {
+      position: absolute;
+      right: $gutter-small;
+      bottom: $gutter-small;
     }
 
     &:empty {

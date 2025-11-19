@@ -39,17 +39,40 @@
   }
 }
 
+::ng-deep .popover .runs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: grid;
+    grid-template-columns: 1fr 30px;
+    gap: $gutter-small;
+    align-items: center;
+
+    div {
+      border-bottom: 1px dotted $graphite-color-60;
+    }
+  }
+}
+
+
+
 .nodes {
   position: relative;
   overflow: scroll;
   height: 600px;
 
-  .actions {
+  >.actions {
     position: sticky;
-    top: 10px;
-    left: 10px;
+    top: 5px;
+    left: 5px;
     z-index: 2;
     width: fit-content;
+    background: rgba(black, .5);
+    border-radius: $corner-small;
+    padding: $gutter-big;
+    backdrop-filter: blur(5px);
   }
 
   .locked {
@@ -94,7 +117,9 @@
     position: absolute;
     z-index: 1;
 
-    &.readonly {
+    &.disabled {
+      pointer-events: none;
+
       .actions {
         display: none;
       }
@@ -147,6 +172,15 @@
     left: 0;
     width: 5000px;
     height: 2000px;
+
+    .transformer {
+      position: absolute;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      background: rgba($node-background-color, 0.5);
+      border-radius: $corner-large;
+      padding: $gutter-small;
+    }
 
     svg {
       position: absolute;

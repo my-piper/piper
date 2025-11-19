@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
-import { catchError, filter, map, of } from "rxjs";
+import { catchError, filter, map, of, Subscription } from "rxjs";
 import { UI } from "src/consts/ui";
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
@@ -39,10 +39,6 @@ export class NodeComponent implements OnDestroy {
   @Input()
   id!: string;
 
-  @HostBinding("class.start")
-  @Input()
-  start!: boolean;
-
   @HostBinding("class.done")
   @Input()
   get hasDone() {
@@ -70,12 +66,18 @@ export class NodeComponent implements OnDestroy {
 
   @Input()
   set launch(launch: Launch) {
-    this._launch = launch;
+    console.log("Set launch", launch?._id);
     if (!!launch) {
-      this.load();
-      this.listen();
+      if (this._launch?._id !== launch?._id) {
+        this._launch = launch;
+        this.reset();
+        this.load();
+        this.listen();
+      }
     } else {
+      this._launch = null;
       this.reset();
+      this.silent();
     }
   }
 
@@ -133,9 +135,12 @@ export class NodeComponent implements OnDestroy {
   @Output()
   done = new EventEmitter<NodeOutputs>();
 
-  subscriptions: { launch: () => void } = {
+  subscriptions: { launch: () => void; sockets: Subscription[] } = {
     launch: null,
+    sockets: [],
   };
+
+  timers: { status: ReturnType<typeof setTimeout> | null } = { status: null };
 
   constructor(
     private socket: Socket,
@@ -145,79 +150,99 @@ export class NodeComponent implements OnDestroy {
   ) {}
 
   ngOnDestroy(): void {
-    this.subscriptions.launch?.();
+    this.silent();
   }
 
   private listen() {
-    this.subscriptions.launch = this.live.subscribe(this._launch._id);
-    this.socket.on("reconnect", () => this.load());
+    this.silent();
 
     console.log("Listen node events", this.id);
-    this.socket.fromEvent<Object>("node_running").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (launch === this.launch?._id && node === this.id) {
-        console.log("Node is running", node);
-        this.loadStatus();
-      }
-    });
 
-    this.socket.fromEvent<Object>("node_done").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (launch === this.launch?._id && node === this.id) {
-        console.log("Node done", node);
-        //this.loadStatus();
-        this.loadOutputs().subscribe((outputs) => {
-          this.outputs = outputs;
-          this.cd.detectChanges();
+    this.subscriptions.launch = this.live.subscribe(this.launch._id);
+    this.subscriptions.sockets.push(
+      this.socket.fromEvent<Object>("node_running").subscribe((data) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data);
+        if (launch === this.launch?._id && node === this.id) {
+          console.log("Node is running", node);
+          this.checkStatus();
+        }
+      })
+    );
 
-          this.done.emit(outputs);
-        });
-      }
-    });
+    this.subscriptions.sockets.push(
+      this.socket.fromEvent<Object>("node_done").subscribe((data) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data);
+        if (launch === this.launch?._id && node === this.id) {
+          console.log("Node done", node);
+          this.checkStatus();
+        }
+      })
+    );
 
-    this.socket.fromEvent<Object>("node_progress").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (launch === this.launch?._id && node === this.id) {
-        console.log("Progress for", node);
-        this.loadProgress();
-      }
-    });
+    this.subscriptions.sockets.push(
+      this.socket.fromEvent<Object>("node_progress").subscribe((data) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data);
+        if (launch === this.launch?._id && node === this.id) {
+          console.log("Progress for", node);
+          this.loadProgress();
+        }
+      })
+    );
 
-    this.socket.fromEvent<Object>("node_not_ready").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (launch === this.launch?._id && node === this.id) {
-        console.log("Node is ready", node);
-        this.loadStatus();
-      }
-    });
+    this.subscriptions.sockets.push(
+      this.socket.fromEvent<Object>("node_not_ready").subscribe((data) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data);
+        if (launch === this.launch?._id && node === this.id) {
+          console.log("Node is ready", node);
+          this.checkStatus();
+        }
+      })
+    );
 
-    this.socket.fromEvent<Object>("node_error").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (launch === this.launch?._id && node === this.id) {
-        console.log("Node error", node);
-        this.loadStatus();
-      }
-    });
+    this.subscriptions.sockets.push(
+      this.socket.fromEvent<Object>("node_error").subscribe((data) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data);
+        if (launch === this.launch?._id && node === this.id) {
+          console.log("Node error", node);
+          this.checkStatus();
+        }
+      })
+    );
 
-    this.socket.fromEvent<Object>("node_flow").subscribe((data: Object) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data as Object);
-      if (launch === this.launch?._id && node === this.id) {
-        console.log("Node is going to flow", node);
-        this.load();
-      }
-    });
+    this.subscriptions.sockets.push(
+      this.socket.fromEvent<Object>("node_flow").subscribe((data: Object) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data as Object);
+        if (launch === this.launch?._id && node === this.id) {
+          console.log("Node is going to flow", node);
+          this.load();
+        }
+      })
+    );
 
-    this.socket.fromEvent<Object>("node_reset").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      if (launch === this.launch?._id && node === this.id) {
-        console.log("Node is reset", node);
-        this.loadInputs();
-      }
-    });
+    this.subscriptions.sockets.push(
+      this.socket.fromEvent<Object>("node_reset").subscribe((data) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data);
+        if (launch === this.launch?._id && node === this.id) {
+          console.log("Node is reset", node);
+          this.loadInputs();
+        }
+      })
+    );
+
+    this.checkStatus();
+  }
+
+  silent() {
+    console.log("Node is silent", this.id);
+
+    this.subscriptions.launch?.();
+    this.subscriptions.sockets.forEach((s) => s.unsubscribe());
+    this.subscriptions.sockets = [];
+
+    clearTimeout(this.timers.status);
   }
 
   reset() {
-    debugger;
     [this.status, this.progress] = [null, null];
     this.cd.detectChanges();
   }
@@ -237,7 +262,6 @@ export class NodeComponent implements OnDestroy {
       this.outputs = outputs;
       this.cd.detectChanges();
     });
-    this.loadStatus();
   }
 
   private loadInputs() {
@@ -256,17 +280,44 @@ export class NodeComponent implements OnDestroy {
     );
   }
 
-  private loadStatus() {
-    this.http
-      .get(`launches/${this.launch._id}/${this.id}/status`)
-      .pipe(
-        filter((json) => !!json),
-        map((json) => plainToInstance(NodeStatus, json))
-      )
-      .subscribe((status) => {
+  private checkStatus() {
+    clearTimeout(this.timers.status);
+
+    const check = () => {
+      console.log("Check status");
+      this.loadStatus().subscribe((status) => {
         this.status = status;
         this.cd.detectChanges();
+
+        switch (status.state) {
+          case "running":
+            this.loadProgress();
+            this.timers.status = setTimeout(check, 2000);
+            break;
+          case "done":
+            this.loadOutputs().subscribe((outputs) => {
+              this.outputs = outputs;
+              this.cd.detectChanges();
+
+              console.log("Node done", this.id, outputs);
+              this.done.emit(outputs);
+            });
+            break;
+          case "error":
+            break;
+          default:
+        }
       });
+    };
+
+    check();
+  }
+
+  private loadStatus() {
+    return this.http.get(`launches/${this.launch._id}/${this.id}/status`).pipe(
+      filter((json) => !!json),
+      map((json) => plainToInstance(NodeStatus, json))
+    );
   }
 
   private loadProgress() {

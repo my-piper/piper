@@ -1,0 +1,25 @@
+@import "src/ui-kit/styles/variables";
+
+:host {
+  display: block;
+}
+
+.array {
+  position: relative;
+
+  .index {
+    position: absolute;
+    top: $gutter-small;
+    right: $gutter-small;
+    font-size: $font-size-tiny;
+    line-height: 1em;
+    color: white;
+    text-shadow: 0 0 2px black;
+  }
+
+  img {
+    display: block;
+    border-radius: $corner-small;
+    min-height: 30px;
+  }
+}

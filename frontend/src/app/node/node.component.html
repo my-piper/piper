@@ -1,17 +1,14 @@
-<div *ngIf="start" class="start">
-  <app-icon class="icon" icon="play" [size]="20"></app-icon>
-</div>
-
 <ng-template #errorPopover>
   <div>{{ status?.error }}</div>
 </ng-template>
 
-<div
-  *ngIf="status?.state === 'error'"
-  class="error"
-  [appPopover]="{ content: errorPopover }"
->
-  <app-icon class="icon" icon="error" [size]="20"></app-icon>
+<div *ngIf="status?.state === 'error'" class="error">
+  <button
+    class="transparent with-icon only-icon"
+    [appPopover]="{ content: errorPopover }"
+  >
+    <app-icon class="icon" icon="error" [size]="32"></app-icon>
+  </button>
 </div>
 
 <div class="node" [class.done]="status?.state === 'done'">
@@ -74,16 +71,27 @@
       <li *ngIf="o.value.featured">
         <ng-container *ngIf="outputs?.[o.key] as value">
           <ng-container [ngSwitch]="o.value.type">
-            <div *ngSwitchCase="'image'" class="image-value">
-              <img [src]="value | proxyImage: { height: 500 }" />
-            </div>
-            <div *ngSwitchCase="'image[]'" class="images-value">
+            <div *ngSwitchCase="'image'" class="image">
               <img
-                *ngFor="let image of value | split: '|'"
-                [src]="image | proxyImage: { height: 500 }"
+                [imageSize]="value"
+                [src]="value | proxyImage: { height: 500 }"
               />
             </div>
-            <div class="string-value" *ngSwitchCase="'string'">
+            <ng-container *ngSwitchCase="'image[]'">
+              <div
+                *ngIf="value | split: '|' as images"
+                class="images"
+                [class.multiple]="images.length > 1"
+              >
+                <img
+                  *ngFor="let image of images"
+                  [imageSize]="image"
+                  [src]="image | proxyImage: { height: 500 }"
+                />
+                <button class="artefacts">Open</button>
+              </div>
+            </ng-container>
+            <div class="string" *ngSwitchCase="'string'">
               {{ value }}
             </div>
           </ng-container>

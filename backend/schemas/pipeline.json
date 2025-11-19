@@ -216,6 +216,20 @@
         "mode": {
           "type": "string",
           "enum": ["wait", "move"]
+        },
+        "transformer": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["array"]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "required": ["type"],
+          "additionalProperties": false
         }
       },
       "required": ["from", "output", "to", "input"],

@@ -14,7 +14,6 @@ import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { EditPipelineYamlComponent } from "src/app/edit-pipeline-yaml/edit-pipeline-yaml.component";
-import { LaunchComponent } from "src/app/launch/launch.component";
 import { LaunchesComponent } from "src/app/launches/launches.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
 import { NodeComponent } from "src/app/node/node.component";
@@ -35,6 +34,7 @@ import { SelectableDirective } from "src/directives/selectable.directive";
 import { SubmitButtonDirective } from "src/directives/submit-button.directive";
 import { AppConfig } from "src/models/app-config";
 import { CanPipe } from "src/pipes/can";
+import { CenterPipe } from "src/pipes/center";
 import { CurvePipe } from "src/pipes/curve";
 import { DurationPipe } from "src/pipes/duration";
 import { FirstPipe } from "src/pipes/first";
@@ -56,6 +56,7 @@ import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { PipelineFinishedMetricPipe } from "src/pipes/pipeline-finished-metric";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { PlainPipe } from "src/pipes/plain";
+import { PositionPipe } from "src/pipes/position";
 import { ShiftPipe } from "src/pipes/shift";
 import { SlicePipe } from "src/pipes/slice";
 import { SplitPipe } from "src/pipes/split";
@@ -79,6 +80,7 @@ import { AssetsPageComponent } from "./assets-page/assets-page.component";
 import { BatchesComponent } from "./batches/batches.component";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { DrawMaskComponent } from "./draw-mask/draw-mask.component";
+import { EditFlowTransformerComponent } from "./edit-flow-transformer/edit-flow-transformer.component";
 import { EditNodeAppComponent } from "./edit-node-app/edit-node-app.component";
 import { EditNodeCatalogComponent } from "./edit-node-catalog/edit-node-catalog.component";
 import { EditNodeDesignComponent } from "./edit-node-design/edit-node-design.component";
@@ -95,7 +97,6 @@ import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refi
 import { ExpensesComponent } from "./expenses/expenses.component";
 import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
 import { FeedSkeletonComponent } from "./feed-skeleton/feed-skeleton.component";
-import { InpaintComponent } from "./inpaint/inpaint.component";
 import { JsonEditorComponent } from "./json-editor/json-editor.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchOutputsComponent } from "./launch-outputs/launch-outputs.component";
@@ -134,9 +135,10 @@ import { UsersComponent } from "./users/users.component";
 
 @NgModule({
   declarations: [
+    CenterPipe,
+    PositionPipe,
     AppComponent,
     NodeComponent,
-    LaunchComponent,
     ProjectComponent,
     EditPipelineYamlComponent,
     EditPipelineVisualComponent,
@@ -182,6 +184,7 @@ import { UsersComponent } from "./users/users.component";
     PlaygroundComponent,
     ProjectPlaygroundComponent,
     SelectPlaygroundComponent,
+    EditFlowTransformerComponent,
     PlayWithProjectComponent,
     LaunchOutputsPageComponent,
     AssetsPageComponent,
@@ -193,7 +196,6 @@ import { UsersComponent } from "./users/users.component";
     ValuesPipe,
     LaunchOutputsComponent,
     SelectGeneratedComponent,
-    InpaintComponent,
     DrawMaskComponent,
     OrderByPipe,
     LaunchesPageComponent,

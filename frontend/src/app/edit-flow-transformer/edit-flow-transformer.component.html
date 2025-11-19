@@ -1,0 +1,33 @@
+<ng-template #imageTransformerTemplate>
+  <span class="index">{{ indexControl.value + 1 }}</span>
+  <img
+    [src]="
+      (launchRequest.nodes.get(from.id)?.outputs?.get(flow.output)
+        | split: '|')[indexControl.value] | proxyImage: { height: 30 }
+    "
+  />
+</ng-template>
+
+<ng-container [ngSwitch]="flow.transformer.type">
+  <form *ngSwitchCase="'array'">
+    <fieldset class="stack small align-center">
+      <button type="button" class="transparent" (click)="down()">
+        <app-icon class="icon" [size]="16" icon="chevron-left"></app-icon>
+      </button>
+      <ng-container [ngSwitch]="from.node.outputs.get(flow.output).type">
+        <ng-container *ngSwitchCase="'image[]'">
+          <ng-container [ngSwitch]="to.node.inputs.get(flow.input).type">
+            <div class="array" *ngSwitchCase="'image'">
+              <ng-container
+                *ngTemplateOutlet="imageTransformerTemplate"
+              ></ng-container>
+            </div>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+      <button type="button" class="transparent" (click)="up()">
+        <app-icon class="icon" [size]="16" icon="chevron-right"></app-icon>
+      </button>
+    </fieldset>
+  </form>
+</ng-container>

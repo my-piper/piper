@@ -14,7 +14,6 @@
       <li *ngFor="let node of updates">
         <app-icon
           [icon]="state.updated[node.key] ? 'checked' : 'unchecked'"
-          [color]="ui.color.primary"
           [size]="24"
         ></app-icon>
         <a
@@ -52,6 +51,7 @@
         }"
         [options]="{
           readOnly: true,
+          theme: 'vs-dark',
           renderSideBySide: true,
           minimap: { enabled: false },
         }"

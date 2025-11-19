@@ -30,7 +30,7 @@ import redis, {
   saveObject,
   unlock,
 } from "core-kit/packages/redis";
-import { mapTo } from "core-kit/packages/transform";
+import { mapTo, toPlain } from "core-kit/packages/transform";
 import { DataError, FatalError } from "core-kit/types/errors";
 import { differenceInSeconds } from "date-fns";
 import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
@@ -53,7 +53,7 @@ import {
   getNodeInputs,
 } from "utils/node";
 import { toRedisValue } from "utils/redis";
-import { createContext } from "./context";
+import { createContext, getEnv } from "./context";
 
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
 
@@ -227,6 +227,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       }: {
         inputs: NodeInputs;
         state: object | null;
+        env: object;
         signal: AbortSignal;
       }) => Promise<NextNode | RepeatNode>;
     };
@@ -236,7 +237,12 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     const controller = new AbortController();
     const { signal } = controller;
     results = await Promise.race([
-      action({ inputs: converted, state, signal }),
+      action({
+        inputs: converted,
+        state,
+        env: toPlain(await getEnv({ launch, node })),
+        signal,
+      }),
       new Promise<never>((_, reject) => {
         const timeout = (() => {
           switch (node.execution) {
@@ -345,21 +351,47 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     if (!!pipeline.flows) {
       for (const [id, flow] of pipeline.flows) {
         if (flow.from === nodeJob.node) {
-          const value = converted[flow.output];
+          let value = converted[flow.output];
           if (value !== undefined) {
             related.add(flow.to);
             logger.debug(
               `Flow ${flow.from}.${flow.output} > ${flow.to}.${flow.input}`
             );
-            const output = pipeline.nodes
-              .get(flow.from)
-              .outputs.get(flow.output);
+            const [output, input] = [
+              pipeline.nodes.get(flow.from).outputs.get(flow.output),
+              pipeline.nodes.get(flow.to).inputs.get(flow.input),
+            ];
 
-            await redis.setEx(
-              NODE_INPUT(launch._id, flow.to, flow.input),
-              LAUNCH_EXPIRED,
-              toRedisValue(output.type, value)
-            );
+            const setNodeInputValue = async (value: Primitive) =>
+              redis.setEx(
+                NODE_INPUT(launch._id, flow.to, flow.input),
+                LAUNCH_EXPIRED,
+                toRedisValue(input.type, value)
+              );
+
+            switch (flow.transformer?.type) {
+              case "array": {
+                switch (output.type) {
+                  case "image[]":
+                    switch (input.type) {
+                      case "image":
+                        const {
+                          transformer: { index },
+                        } = flow;
+                        const array = (value as string).split("|");
+                        const element =
+                          array[Math.min(array.length - 1, index)] || null;
+                        setNodeInputValue(element);
+                        break;
+                    }
+                    break;
+                }
+                break;
+              }
+              default: {
+                setNodeInputValue(value);
+              }
+            }
           }
 
           // mark for next node flow is done

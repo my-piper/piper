@@ -2731,6 +2731,24 @@
 								"wait",
 								"move"
 							]
+						},
+						"transformer": {
+							"type": "object",
+							"properties": {
+								"type": {
+									"type": "string",
+									"enum": [
+										"array"
+									]
+								},
+								"index": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"type"
+							],
+							"additionalProperties": false
 						}
 					},
 					"required": [
@@ -3991,6 +4009,24 @@
 							"wait",
 							"move"
 						]
+					},
+					"transformer": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"enum": [
+									"array"
+								]
+							},
+							"index": {
+								"type": "number"
+							}
+						},
+						"required": [
+							"type"
+						],
+						"additionalProperties": false
 					}
 				},
 				"required": [
@@ -4757,6 +4793,24 @@
 										"wait",
 										"move"
 									]
+								},
+								"transformer": {
+									"type": "object",
+									"properties": {
+										"type": {
+											"type": "string",
+											"enum": [
+												"array"
+											]
+										},
+										"index": {
+											"type": "number"
+										}
+									},
+									"required": [
+										"type"
+									],
+									"additionalProperties": false
 								}
 							},
 							"required": [
@@ -6017,6 +6071,24 @@
 									"wait",
 									"move"
 								]
+							},
+							"transformer": {
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"enum": [
+											"array"
+										]
+									},
+									"index": {
+										"type": "number"
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false
 							}
 						},
 						"required": [

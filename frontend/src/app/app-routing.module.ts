@@ -7,7 +7,6 @@ import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { EditPipelineYamlComponent } from "src/app/edit-pipeline-yaml/edit-pipeline-yaml.component";
-import { LaunchComponent } from "src/app/launch/launch.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
 import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
@@ -19,6 +18,7 @@ import { AssetsFilterResolver } from "src/resolvers/assets-filter";
 import { DeployResolver } from "src/resolvers/deploy";
 import { LaunchResolver } from "src/resolvers/launch";
 import { LaunchMessagesFilterResolver } from "src/resolvers/launch-messages-filter";
+import { LaunchesResolver } from "src/resolvers/launches";
 import {
   AllLaunchesFilterResolver,
   LaunchesFilterResolver,
@@ -123,6 +123,9 @@ const routes: Routes = [
           {
             path: "scheme",
             component: EditPipelineVisualComponent,
+            data: {
+              readonly: true,
+            },
           },
           {
             path: "api/:slug",
@@ -177,6 +180,7 @@ const routes: Routes = [
     resolve: {
       project: ProjectResolver,
     },
+    runGuardsAndResolvers: "pathParamsChange",
     children: [
       {
         path: "readme/edit",
@@ -251,7 +255,11 @@ const routes: Routes = [
       },
       {
         path: "launches/:id",
-        component: LaunchComponent,
+        component: EditPipelineVisualComponent,
+        data: {
+          project: null,
+          readonly: true,
+        },
         resolve: {
           launch: LaunchResolver,
         },
@@ -300,9 +308,11 @@ const routes: Routes = [
       {
         path: "",
         component: EditPipelineVisualComponent,
-        data: {
-          readonly: false,
+        resolve: {
+          launch: LaunchResolver,
+          launches: LaunchesResolver,
         },
+        runGuardsAndResolvers: "pathParamsChange",
         children: [
           {
             path: "add-node",
@@ -407,7 +417,10 @@ const routes: Routes = [
       },
       {
         path: "launches/:id",
-        component: LaunchComponent,
+        component: EditPipelineVisualComponent,
+        data: {
+          readonly: true,
+        },
         resolve: {
           launch: LaunchResolver,
         },

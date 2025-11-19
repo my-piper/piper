@@ -107,6 +107,8 @@ export async function getCosts(
         return toLaunch.inputs;
       })();
 
+      console.log(inputs);
+
       for (const [key, input] of node.inputs) {
         const value = inputs.get(key) || input.default;
         if (value !== undefined) {

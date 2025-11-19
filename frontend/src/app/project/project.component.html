@@ -118,6 +118,25 @@
             Environment
           </a>
         </li>
+        <ng-container
+          *ngIf="(project.pipeline.outputs | keyvalue | length) > 0"
+        >
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="['/', 'play', project.slug || project._id]"
+              target="_blank"
+              routerLinkActive="active"
+            >
+              <ng-container i18n="@@link.app">App</ng-container>
+              <app-icon
+                class="icon right"
+                [size]="18"
+                icon="open-link"
+              ></app-icon>
+            </a>
+          </li>
+        </ng-container>
         <li>
           <a
             [routerLink]="[
@@ -179,31 +198,12 @@
                 routerLinkActive="active"
               >
                 <ng-container i18n="@@link.updates">Updates</ng-container>
-                <span class="badge success">
+                <span class="badge">
                   {{ updates }}
                 </span>
               </a>
             </li>
           </ng-container>
-        </ng-container>
-        <ng-container
-          *ngIf="(project.pipeline.outputs | keyvalue | length) > 0"
-        >
-          <li>
-            <a
-              class="with-icon"
-              [routerLink]="['/', 'play', project.slug || project._id]"
-              target="_blank"
-              routerLinkActive="active"
-            >
-              <ng-container i18n="@@link.playground">Playground</ng-container>
-              <app-icon
-                class="icon right"
-                [size]="18"
-                icon="open-link"
-              ></app-icon>
-            </a>
-          </li>
         </ng-container>
         <li>
           <ng-template #linksMenu>
