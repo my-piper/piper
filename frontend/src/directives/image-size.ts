@@ -18,6 +18,8 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
   private _url: string | Size;
   private parent: HTMLElement;
 
+  private observers: { parent: MutationObserver } = { parent: null };
+
   @Input("imageSize")
   set url(url: string | Size) {
     this._url = url;
@@ -42,10 +44,25 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
       nativeElement: { parentElement: parent },
     } = this.hostRef;
     this.parent = parent;
+
+    {
+      const observer = new MutationObserver(() => this.updatePosition());
+      observer.observe(parent, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
+
+      this.observers.parent = observer;
+    }
   }
 
   ngOnDestroy() {
     this.removeBadge();
+
+    if (!!this.observers.parent) {
+      this.observers.parent.disconnect();
+    }
   }
 
   private loadImageSize(): void {

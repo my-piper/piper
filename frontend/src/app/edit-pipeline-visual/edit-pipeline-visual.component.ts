@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
-import { assign, isEmpty, mapValues, random, sample } from "lodash";
+import { assign, isEmpty, mapValues, random } from "lodash";
 import { customAlphabet } from "nanoid";
 import { stringify } from "qs";
 import {
@@ -53,6 +53,10 @@ import { SelectNodeComponent } from "../select-node/select-node.component";
 
 const MIN_SCALE = 0.2;
 const MAX_SCALE = 5;
+
+function salt() {
+  return customAlphabet("1234567890abcdef", 5)();
+}
 
 @Component({
   selector: "app-edit-pipeline-visual",
@@ -102,7 +106,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
   launchRequest!: LaunchRequest;
   currentNode!: Node;
 
-  flow: { from: string; output: string } | null = null;
+  flow: { type: "node" | "input"; from?: string; output?: string } | null =
+    null;
   mouse: { x: number; y: number } | null = null;
 
   @ViewChild("sidebarOutlet", { static: true })
@@ -411,8 +416,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.cd.detectChanges();
   }
 
-  startFlow(from: string, output: string) {
-    this.flow = { from, output };
+  startNodeFlow(from: string, output: string) {
+    this.flow = { type: "node", from, output };
+    this.mode = "flow";
+  }
+
+  startInputFlow(input: string) {
+    this.flow = { type: "input", from: input };
     this.mode = "flow";
   }
 
@@ -437,9 +447,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
     }
   }
 
-  addFlow(to: string, input: string) {
-    const { from, output } = this.flow;
-
+  addNodeFlow(from: string, output: string, to: string, input: string) {
     const o = this.pipeline.nodes.get(from).outputs.get(output);
     const i = this.pipeline.nodes.get(to).inputs.get(input);
 
@@ -449,22 +457,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
         output,
         to,
         input,
-        color: sample([
-          "red",
-          "green",
-          "blue",
-          "yellow",
-          "black",
-          "cyan",
-          "magenta",
-          "lime",
-          "orange",
-          "purple",
-          "teal",
-          "indigo",
-          "pink",
-          "brown",
-        ]),
       },
       NodeFlow
     );
@@ -508,11 +500,46 @@ export class EditPipelineVisualComponent implements OnDestroy {
         }
     }
 
-    const id = customAlphabet("1234567890abcdef", 5)();
-    const key = `${from}_to_${to}_${id}`;
+    const key = `${from}_to_${to}_${salt()}`;
     this.pipeline.flows.set(key, flow);
-    this.mode = "default";
     this.save();
+  }
+
+  addInputFlow(from: string, to: string, input: string) {
+    const o = this.pipeline.inputs.get(from);
+    const i = this.pipeline.nodes.get(to).inputs.get(input);
+
+    if (o.type !== i.type) {
+      return;
+    }
+
+    const key = `to_${to}_${input}_${salt()}`;
+    o.flows.set(
+      key,
+      mapTo(
+        {
+          to,
+          input,
+        },
+        InputFlow
+      )
+    );
+    this.save();
+  }
+
+  addFlow(to: string, input: string) {
+    const { type, from, output } = this.flow;
+
+    switch (type) {
+      case "node":
+        this.addNodeFlow(from, output, to, input);
+        break;
+      case "input":
+        this.addInputFlow(from, to, input);
+        break;
+    }
+
+    this.mode = "default";
   }
 
   removeFlow(id: string) {
@@ -522,9 +549,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   removeInputFlow(input: string, flow: string) {
-    const { to, input: id } = this.pipeline.inputs.get(input).flows.get(flow);
-    delete this.pipeline.nodes.get(to).inputs.get(id).featured;
-
     this.pipeline.inputs.get(input).flows.delete(flow);
 
     this.cd.detectChanges();

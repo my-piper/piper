@@ -225,6 +225,8 @@ $node-border-color: rgba($graphite-color-200, 0.25);
           display: block;
           width: 100%;
           border-radius: $corner-small;
+          min-width: 50px;
+          min-height: 50px;
         }
       }
 

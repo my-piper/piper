@@ -7,6 +7,12 @@
   gap: $gutter-normal;
 }
 
+::ng-deep .popover {
+  .description {
+    max-width: 400px;
+  }
+}
+
 h1 {
   font-size: $font-size-big;
   margin: 0;
@@ -18,7 +24,10 @@ h1 {
     display: none;
   }
 
-  .input {}
+  .disabled {
+    opacity: .5;
+    pointer-events: none;
+  }
 
   input,
   textarea {

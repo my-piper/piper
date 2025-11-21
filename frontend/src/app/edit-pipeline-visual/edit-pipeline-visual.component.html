@@ -127,7 +127,7 @@
       (moved)="inputMoved(input.value, $event)"
     >
       <ng-template #actionsTemplate>
-        <ul class="context-menu" [class.busy]="progress.deleting">
+        <ul class="context-menu">
           <li>
             <button (click)="removeInput(input.key)">
               <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
@@ -154,8 +154,70 @@
         [project]="project"
         [launchRequest]="launchRequest"
         [attr.disabled]="drag.dragged"
+        (output)="startInputFlow(input.key)"
       ></app-pipeline-input>
     </div>
+
+    <ng-container
+      *ngIf="
+        readonly || (userRole.admin | can: project.createdBy | async | not)
+          | not
+      "
+    >
+      <ng-container *ngFor="let input of pipeline.inputs | keyvalue">
+        <div
+          *ngFor="let f of input.value.flows | keyvalue"
+          class="flow"
+          [ngStyle]="
+            (pipeline | pipelineInput: input.key).arrange
+              | center
+                : ((pipeline | node: f.value.to).arrange
+                    | shift
+                      : {
+                          y:
+                            ((pipeline
+                              | node: f.value.to
+                              | inputIndex: f.value.input
+                              | async) +
+                              1) *
+                              ui.node.input.height +
+                            ui.node.shift,
+                        })
+              | position
+          "
+        >
+          <ng-template #actionsTemplate>
+            <ul class="context-menu">
+              <li>
+                <button (click)="removeInputFlow(input.key, f.key)">
+                  <app-icon
+                    class="icon left"
+                    icon="delete"
+                    [size]="18"
+                  ></app-icon>
+                  <span i18n="@@action.delete">Delete</span>
+                </button>
+              </li>
+            </ul>
+          </ng-template>
+          <button
+            class="more transparent"
+            [appPopover]="{
+              content: actionsTemplate,
+              trigger: 'click',
+              position: 'right',
+            }"
+          >
+            <app-icon
+              class="icon"
+              icon="more"
+              [size]="16"
+              [stroke]="2"
+            ></app-icon>
+          </button>
+        </div>
+      </ng-container>
+    </ng-container>
 
     <div
       class="output"
@@ -227,7 +289,7 @@
             class="icon"
             [icon]="!!launches[node.key] ? 'stop' : 'play'"
             [color]="
-              (pipeline.start.nodes | includes: node.key) ? 'red' : 'white'
+              (pipeline.start.nodes | includes: node.key) ? 'yellow' : 'white'
             "
             [size]="18"
           ></app-icon>
@@ -241,7 +303,7 @@
         </a>
       </div>
       <ng-template #actionsTemplate>
-        <ul class="context-menu" [class.busy]="progress.deleting">
+        <ul class="context-menu">
           <li>
             <button (click)="removeNode(node.key)">
               <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
@@ -268,7 +330,7 @@
         [outputs]="launchRequest.nodes.get(node.key)?.outputs | mapToPlain"
         [launch]="launch || launches[node.key]"
         (input)="!!flow ? addFlow(node.key, $event) : null"
-        (output)="startFlow(node.key, $event)"
+        (output)="startNodeFlow(node.key, $event)"
         (done)="readonly ? null : fillNodeOutputs(node.key, $event)"
         (takeOutInput)="takeOutPipelineInput($event)"
         (takeOutOutput)="takeOutPipelineOutput($event)"
@@ -277,12 +339,15 @@
       ></app-node>
     </div>
 
-    <ng-container *ngFor="let f of pipeline.flows | keyvalue">
+    <ng-container
+      *ngIf="
+        readonly || (userRole.admin | can: project.createdBy | async | not)
+          | not
+      "
+    >
       <div
+        *ngFor="let f of pipeline.flows | keyvalue"
         class="flow"
-        [class.disabled]="
-          readonly || (userRole.admin | can: project.createdBy | async | not)
-        "
         [ngStyle]="
           (pipeline | node: f.value.from).arrange
             | shift
@@ -322,7 +387,7 @@
           [to]="{ id: f.value.to, node: pipeline | node: f.value.to }"
         ></app-edit-flow-transformer>
         <ng-template #actionsTemplate>
-          <ul class="context-menu" [class.busy]="progress.deleting">
+          <ul class="context-menu">
             <li>
               <button (click)="removeFlow(f.key)">
                 <app-icon
@@ -366,22 +431,33 @@
       </defs>
       <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)" />
 
-      <path
+      <ng-container
         *ngIf="mode === 'flow' && !!flow && !!mouse"
-        [attr.d]="
-          (pipeline | node: flow.from).arrange
-            | shift
-              : {
-                  x: ui.node.width,
-                  y:
-                    ((pipeline | node: flow.from | outputIndex: flow.output) +
-                      1) *
-                      ui.node.input.height +
-                    ui.node.shift,
-                }
-            | curve: mouse
-        "
-      />
+        [ngSwitch]="flow.type"
+      >
+        <path
+          *ngSwitchCase="'node'"
+          [attr.d]="
+            (pipeline | node: flow.from).arrange
+              | shift
+                : {
+                    x: ui.node.width,
+                    y:
+                      ((pipeline | node: flow.from | outputIndex: flow.output) +
+                        1) *
+                        ui.node.input.height +
+                      ui.node.shift,
+                  }
+              | curve: mouse
+          "
+        />
+        <path
+          *ngSwitchCase="'input'"
+          [attr.d]="
+            (pipeline | pipelineInput: flow.from).arrange | curve: mouse
+          "
+        />
+      </ng-container>
 
       <path
         *ngFor="let f of pipeline.flows | keyvalue"
@@ -422,7 +498,6 @@
           [class.disabled]="
             readonly || (userRole.admin | can: project.createdBy | async | not)
           "
-          (click)="removeInputFlow(i.key, f.key)"
           [attr.d]="
             (pipeline | pipelineInput: i.key).arrange
               | curve

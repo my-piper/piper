@@ -1,4 +1,11 @@
-import { Component, ElementRef, HostBinding, Input } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostBinding,
+  Input,
+  Output,
+} from "@angular/core";
 import { LaunchRequest } from "src/models/launch-request";
 import { PipelineInput } from "src/models/pipeline";
 import { Project } from "src/models/project";
@@ -38,5 +45,12 @@ export class PipelineInputComponent {
     return this.input.multiline;
   }
 
+  @Output()
+  output = new EventEmitter<string>();
+
   constructor(private hostRef: ElementRef) {}
+
+  pin() {
+    this.output.emit();
+  }
 }

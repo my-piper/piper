@@ -147,4 +147,9 @@ export class EditNodeInputsComponent implements OnInit {
     this.node.inputs.get(input).featured = true;
     this.projectManager.markDirty();
   }
+
+  markUnFeatured(input: string) {
+    delete this.node.inputs.get(input).featured;
+    this.projectManager.markDirty();
+  }
 }

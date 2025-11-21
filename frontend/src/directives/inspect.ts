@@ -30,6 +30,8 @@ export class InspectDirective implements OnInit, OnDestroy {
   private type: SourceType;
   private url: string;
 
+  private observers: { parent: MutationObserver } = { parent: null };
+
   @Input("inspect")
   set config({ type, url }: { type: SourceType; url: string }) {
     [this.type, this.url] = [type, url];
@@ -51,10 +53,25 @@ export class InspectDirective implements OnInit, OnDestroy {
 
     this.createButton();
     this.updatePosition();
+
+    {
+      const observer = new MutationObserver(() => this.updatePosition());
+      observer.observe(parent, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
+
+      this.observers.parent = observer;
+    }
   }
 
   ngOnDestroy() {
     this.removeButton();
+
+    if (!!this.observers.parent) {
+      this.observers.parent.disconnect();
+    }
   }
 
   private createButton() {

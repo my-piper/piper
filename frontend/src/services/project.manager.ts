@@ -31,7 +31,12 @@ function sanitize(project: Project) {
   for (const [id, input] of pipeline.inputs) {
     const { flows } = input;
     for (const [id, flow] of flows) {
-      if (!pipeline.nodes.has(flow.to)) {
+      const node = pipeline.nodes.get(flow.to);
+      if (!node) {
+        flows.delete(id);
+      }
+
+      if (!node.inputs.get(flow.input).featured) {
         flows.delete(id);
       }
     }
