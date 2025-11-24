@@ -8,17 +8,19 @@ import {
   Renderer2,
 } from "@angular/core";
 
+// thanks for ChatGPT here
+
 type Size = { width: number; height: number };
 
 @Directive({
   selector: "[imageSize]",
 })
 export class ImageSizeDirective implements OnInit, OnDestroy {
-  private badge!: HTMLDivElement;
+  private badge!: HTMLDivElement | null;
   private _url: string | Size;
-  private parent: HTMLElement;
+  private parent: HTMLElement | null = null;
 
-  private observers: { parent: MutationObserver } = { parent: null };
+  private observers: { parent: MutationObserver | null } = { parent: null };
 
   @Input("imageSize")
   set url(url: string | Size) {
@@ -35,7 +37,7 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
   }
 
   constructor(
-    private hostRef: ElementRef,
+    private hostRef: ElementRef<HTMLImageElement>,
     private renderer: Renderer2
   ) {}
 
@@ -45,22 +47,20 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
     } = this.hostRef;
     this.parent = parent;
 
-    {
-      const observer = new MutationObserver(() => this.updatePosition());
-      observer.observe(parent, {
-        attributes: true,
-        childList: true,
-        subtree: true,
-      });
+    const observer = new MutationObserver(() => this.updatePosition());
+    observer.observe(parent, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
 
-      this.observers.parent = observer;
-    }
+    this.observers.parent = observer;
   }
 
   ngOnDestroy() {
     this.removeBadge();
 
-    if (!!this.observers.parent) {
+    if (this.observers.parent) {
       this.observers.parent.disconnect();
     }
   }
@@ -71,7 +71,7 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
       this.renderer.setAttribute(image, "src", this.url);
       this.renderer.setStyle(image, "display", "none");
 
-      const { nativeElement: host } = this.hostRef;
+      const host = this.hostRef.nativeElement;
 
       this.renderer.listen(image, "load", () => {
         const { naturalWidth: width, naturalHeight: height } = image;
@@ -92,6 +92,7 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
         "textContent",
         `${width} × ${height}`
       );
+      this.updatePosition();
     }
   }
 
@@ -112,22 +113,28 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
     const {
       nativeElement: { parentElement: parent },
     } = this.hostRef;
-    this.renderer.setStyle(parent, "position", "relative");
+
+    const parentStyle = getComputedStyle(parent);
+    if (parentStyle.position === "static") {
+      this.renderer.setStyle(parent, "position", "relative");
+    }
+
     this.renderer.appendChild(parent, badge);
 
     this.badge = badge;
+    this.parent = parent;
   }
 
   private removeBadge() {
-    if (!!this.badge) {
+    if (this.badge && this.parent) {
       this.renderer.removeChild(this.parent, this.badge);
       this.badge = null;
     }
   }
 
-  @HostListener("load", ["$event.target"])
+  @HostListener("load")
   onLoad(): void {
-    if (!!this.badge) {
+    if (this.badge) {
       this.renderer.setStyle(this.badge, "display", "block");
       this.updatePosition();
     }
@@ -137,26 +144,23 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
     if (!this.badge) {
       return;
     }
-    const img = this.hostRef.nativeElement as HTMLImageElement;
 
-    const parent = img.parentElement as HTMLElement;
-    const imgRect = img.getBoundingClientRect();
-    const parentRect = parent.getBoundingClientRect();
+    const img = this.hostRef.nativeElement;
+    const parent = this.parent || img.parentElement;
+    if (!img || !parent) {
+      return;
+    }
 
-    const top = imgRect.top - parentRect.top;
-    const left = imgRect.left - parentRect.left;
+    const top = img.offsetTop;
+    const left = img.offsetLeft + img.offsetWidth - this.badge.offsetWidth;
 
     this.renderer.setStyle(this.badge, "top", `${top}px`);
-    this.renderer.setStyle(
-      this.badge,
-      "left",
-      `${left + imgRect.width - this.badge.offsetWidth}px`
-    );
+    this.renderer.setStyle(this.badge, "left", `${left}px`);
   }
 
   @HostListener("error")
   onError() {
-    if (!!this.badge) {
+    if (this.badge) {
       this.renderer.setStyle(this.badge, "display", "none");
     }
   }

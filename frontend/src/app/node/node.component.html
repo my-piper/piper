@@ -69,15 +69,30 @@
   <ul class="featured">
     <ng-container *ngFor="let o of node.outputs | keyvalue">
       <li *ngIf="o.value.featured">
-        <ng-container *ngIf="outputs?.[o.key] as value">
-          <ng-container [ngSwitch]="o.value.type">
-            <div *ngSwitchCase="'image'" class="image">
-              <img
-                [imageSize]="value"
-                [src]="value | proxyImage: { height: 500 }"
-              />
-            </div>
-            <ng-container *ngSwitchCase="'image[]'">
+        <ng-container [ngSwitch]="o.value.type">
+          <div *ngSwitchCase="'image'" class="image">
+            <ng-template #noValueTemplate>
+              <div class="no-value">
+                <app-icon icon="image" [size]="64"></app-icon>
+              </div>
+            </ng-template>
+            <img
+              *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+              [imageSize]="value"
+              [src]="value | proxyImage: { height: 500 }"
+            />
+          </div>
+          <ng-container *ngSwitchCase="'image[]'">
+            <ng-template #noValueTemplate>
+              <div class="images">
+                <div class="no-value">
+                  <app-icon icon="image" [size]="64"></app-icon>
+                </div>
+              </div>
+            </ng-template>
+            <ng-container
+              *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+            >
               <div
                 *ngIf="value | split: '|' as images"
                 class="images"
@@ -89,13 +104,24 @@
                   [imageSize]="image"
                   [src]="image | proxyImage: { height: 500 }"
                 />
-                <button class="artefacts">Open</button>
               </div>
             </ng-container>
-            <div class="string" *ngSwitchCase="'string'">
-              {{ value }}
-            </div>
           </ng-container>
+          <div *ngSwitchCase="'video'" class="video">
+            <ng-template #noValueTemplate>
+              <div class="no-value">
+                <app-icon icon="video" [size]="64"></app-icon>
+              </div>
+            </ng-template>
+            <video
+              *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+              [src]="value"
+              controls
+            ></video>
+          </div>
+          <div class="string" *ngSwitchCase="'string'">
+            {{ value }}
+          </div>
         </ng-container>
       </li>
     </ng-container>

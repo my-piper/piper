@@ -1,0 +1,25 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+:host {
+  display: block;
+  @include vertical-stack($gutter-small);
+}
+
+p {
+  font-weight: bold;
+  margin: 0;
+  padding: $gutter-normal 0;
+}
+
+pre[data-level="debug"] {
+  color: $graphite-color-100;
+}
+
+pre[data-level="warn"] {
+  color: $accent-color;
+}
+
+pre[data-level="error"] {
+  color: red;
+}

@@ -8,7 +8,7 @@ import {
   LAUNCH_HEARTBEAT_EXPIRED,
   NODE_FLOWS,
   NODE_INPUT,
-  NODE_JOB,
+  NODE_JOBS,
   NODE_OUTPUTS,
   NODE_PROCESSED_LOCK,
   NODE_PROCESSING_LOCK,
@@ -58,11 +58,11 @@ import { createContext, getEnv } from "./context";
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
 
 export default async (nodeJob: ProcessNodeJob, job: Job) => {
-  await redis.setEx(
-    NODE_JOB(nodeJob.launch, nodeJob.node, job.id),
-    LAUNCH_EXPIRED,
-    new Date().toISOString()
-  );
+  {
+    const key = NODE_JOBS(nodeJob.launch, nodeJob.node);
+    await redis.sAdd(key, job.id);
+    await redis.expire(key, LAUNCH_EXPIRED);
+  }
 
   const logger = createLogger("process-node", {
     launch: nodeJob.launch,
@@ -164,15 +164,15 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   }
 
   const inputs = await getNodeInputs({ launch, node })(nodeJob.node);
-  //logger.debug('Node inputs', inputs);
+  logger.debug("Node inputs", inputs);
   if (!checkInputs(inputs, node.inputs).ready) {
     logger.debug("Node is not ready yet");
     return NodeJobResult.NODE_INPUTS_NOT_READY_YET;
   }
 
   const converted = convertInputs({ node })(inputs);
-  // logger.debug("Converted inputs", converted);
-  // logger.debug(JSON.stringify(inputs));
+  logger.debug("Converted inputs", converted);
+  logger.debug(JSON.stringify(inputs));
 
   // node is ready
   const state = await readObject(NODE_STATE(launch._id, nodeJob.node));
@@ -212,7 +212,13 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   logger.debug("Run node script");
 
   const script = new SourceTextModule(node.script, {
-    context: await createContext({ launch, node, logger }),
+    context: await createContext({
+      job,
+      nodeJob,
+      launch,
+      node,
+      logger,
+    }),
     importModuleDynamically: importModule,
   });
   await script.link(() => null);
@@ -221,10 +227,8 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   try {
     await script.evaluate();
     const { run: action } = script.namespace as {
-      run: ({
-        inputs,
-        state,
-      }: {
+      run: (data: {
+        schema: { node: object };
         inputs: NodeInputs;
         state: object | null;
         env: object;
@@ -238,6 +242,9 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     const { signal } = controller;
     results = await Promise.race([
       action({
+        schema: {
+          node: toPlain(node),
+        },
         inputs: converted,
         state,
         env: toPlain(await getEnv({ launch, node })),

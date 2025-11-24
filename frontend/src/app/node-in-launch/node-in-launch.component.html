@@ -4,15 +4,28 @@
   <ul class="menu">
     <li>
       <a
+        [routerLink]="['inputs']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="active"
+        >Inputs</a
+      >
+    </li>
+    <li>|</li>
+    <li>
+      <a
         [routerLink]="['./']"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLinkActive="active"
-        >IO</a
+        >Outputs</a
       >
     </li>
     <li>|</li>
     <li>
       <a [routerLink]="['state']" routerLinkActive="active"> State</a>
+    </li>
+    <li>|</li>
+    <li>
+      <a [routerLink]="['logs']" routerLinkActive="active">Logs</a>
     </li>
     <li>|</li>
     <li>

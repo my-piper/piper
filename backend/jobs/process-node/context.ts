@@ -3,16 +3,23 @@ import { artefact } from "app/storage";
 import { streams } from "app/streams";
 import axios from "axios";
 import { NODE_ENV } from "consts/core";
-import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
+import {
+  GLOBAL_ENVIRONMENT_KEY,
+  LAUNCH_EXPIRED,
+  NODE_LOGS,
+  USER_ENVIRONMENT_KEY,
+} from "consts/redis";
+import { Job } from "core-kit/packages/queue";
 import redis from "core-kit/packages/redis";
 import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError, FatalError, TimeoutError } from "core-kit/types/errors";
 import assign from "lodash-es/assign";
 import merge from "lodash-es/merge";
 import { Environment } from "models/environment";
+import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { LaunchRequest } from "models/launch-request";
-import { Node } from "models/node";
+import { Node, NodeLog } from "models/node";
 import { createContext as createVmContext } from "node:vm";
 import * as deploying from "packages/deploy/get-deploy";
 import { decrypt } from "packages/environment/crypt-environment";
@@ -100,23 +107,47 @@ export async function getEnv({
 }
 
 export async function createContext({
+  job,
+  nodeJob,
   logger,
   launch,
   node,
 }: {
+  job: Job;
+  nodeJob: ProcessNodeJob;
   launch: Launch;
   node: Node;
   logger: Logger;
 }) {
   const env = await getEnv({ launch, node });
 
+  const debug = async (
+    level: "debug" | "info" | "warn" | "error",
+    ...args: (boolean | number | string)[]
+  ) => {
+    const message = args.join(" ");
+    const { id, attemptsMade } = job;
+    const plain = toPlain(
+      mapTo({ message, level, job: id, attempt: attemptsMade }, NodeLog)
+    );
+    const key = NODE_LOGS(launch._id, nodeJob.node);
+    await redis.rPush(key, JSON.stringify(plain));
+    await redis.expire(key, LAUNCH_EXPIRED);
+  };
+
   return createVmContext({
     console: {
-      log: (...args: (boolean | number | string)[]) => {
-        logger.info(args.join(" "));
+      log: async (...args: (boolean | number | string)[]) => {
+        await debug("debug", ...args);
       },
-      error: (...args: (boolean | number | string)[]) => {
-        logger.info(args.join(" "));
+      info: async (...args: (boolean | number | string)[]) => {
+        await debug("info", ...args);
+      },
+      warn: async (...args: (boolean | number | string)[]) => {
+        await debug("warn", ...args);
+      },
+      error: async (...args: (boolean | number | string)[]) => {
+        await debug("error", ...args);
       },
     },
     // TODO: remove then

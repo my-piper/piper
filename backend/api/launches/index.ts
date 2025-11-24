@@ -11,6 +11,7 @@ import "./metrics/outputs";
 
 import "./nodes/node-inputs";
 import "./nodes/node-jobs";
+import "./nodes/node-logs";
 import "./nodes/node-outputs";
 import "./nodes/node-progress";
 import "./nodes/node-state";

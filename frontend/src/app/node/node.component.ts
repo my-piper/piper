@@ -58,7 +58,10 @@ export class NodeComponent implements OnDestroy {
   @Input()
   get height() {
     return (
-      Math.max(this.node.inputs.size, this.node.outputs.size) *
+      Math.max(
+        [...this.node.inputs.values()].filter((v) => v.featured).length,
+        this.node.outputs.size
+      ) *
         UI.node.input.height +
       30
     );

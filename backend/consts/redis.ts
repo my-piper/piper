@@ -61,11 +61,11 @@ export const NODE_PROGRESS = (launch: string, node: string) =>
 export const NODE_STATUS = (launch: string, node: string) =>
   `launch:${launch}:nodes:${node}:status`;
 
-export const NODE_JOBS = (launch: string, node: string) =>
-  `launch:${launch}:nodes:${node}:jobs:*`;
+export const NODE_LOGS = (launch: string, node: string) =>
+  `launch:${launch}:nodes:${node}:logs`;
 
-export const NODE_JOB = (launch: string, node: string, job: string) =>
-  `launch:${launch}:nodes:${node}:jobs:${job}`;
+export const NODE_JOBS = (launch: string, node: string) =>
+  `launch:${launch}:nodes:${node}:jobs`;
 
 export const NODE_FLOWS = (launch: string, node: string) =>
   `launch:${launch}:nodes:${node}:flows`;

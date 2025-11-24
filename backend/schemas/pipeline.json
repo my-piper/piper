@@ -136,7 +136,6 @@
       "additionalProperties": false
     },
     "PipelineCategory": {
-      "title": "Category",
       "type": "object",
       "options": {
         "disable_collapse": true
@@ -167,6 +166,7 @@
       "type": "object",
       "properties": {
         "slug": {
+          "title": "Slug",
           "type": "string",
           "pattern": "^[a-z0-9\\-_]{5,40}$"
         },
@@ -192,7 +192,7 @@
           "additionalProperties": false
         }
       },
-      "required": ["slug", "scope"],
+      "required": ["slug"],
       "additionalProperties": false
     },
     "NodeFlow": {
@@ -331,12 +331,6 @@
         },
         "default": {
           "type": ["boolean", "number", "string"]
-        },
-        "extensions": {
-          "type": "array",
-          "items": {
-            "$ref": "local://input-extension.json"
-          }
         },
         "flows": {
           "type": "object",

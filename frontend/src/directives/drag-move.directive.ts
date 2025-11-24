@@ -35,12 +35,14 @@ export class DragMoveDirective {
   private hostW = 0;
   private hostH = 0;
 
-  anchorX = 0;
-  anchorY = 0;
+  private anchorX = 0;
+  private anchorY = 0;
 
-  grid = 10;
+  private grid = 10;
 
-  dragged = false;
+  private zoom: number = 1;
+
+  private dragged = false;
 
   @Input("appDragMove")
   set config({
@@ -48,16 +50,19 @@ export class DragMoveDirective {
     anchorX = 0,
     anchorY = 0,
     grid = 10,
+    zoom,
   }: {
     position: Point;
     anchorX: number;
     anchorY: number;
     grid: number;
+    zoom: number;
   }) {
     this.position = position;
-    this.grid = grid;
     this.anchorX = anchorX;
     this.anchorY = anchorY;
+    this.grid = grid;
+    this.zoom = zoom;
   }
 
   set position(position: Point) {
@@ -91,14 +96,16 @@ export class DragMoveDirective {
     if (target.closest("a, button, input, textarea, select")) {
       return;
     }
-
     const { nativeElement: e } = this.hostRef;
+
     const hostRect = e.getBoundingClientRect();
+    const zoom = this.zoom;
 
-    [this.hostW, this.hostH] = [e.offsetWidth, e.offsetHeight];
+    this.hostW = e.offsetWidth / zoom;
+    this.hostH = e.offsetHeight / zoom;
 
-    this.shiftX = event.clientX - hostRect.left;
-    this.shiftY = event.clientY - hostRect.top;
+    this.shiftX = (event.clientX - hostRect.left) / zoom;
+    this.shiftY = (event.clientY - hostRect.top) / zoom;
 
     clearTimeout(this.timers.start);
     this.timers.start = setTimeout(() => {
@@ -112,17 +119,24 @@ export class DragMoveDirective {
   @HostListener("document:mousemove", ["$event"])
   move(event: MouseEvent) {
     if (this.mode === "move") {
-      const { parentNode } = this.hostRef.nativeElement;
-      const rect = parentNode.getBoundingClientRect();
-      let x = Math.floor(event.clientX - this.shiftX - rect.left);
-      let y = Math.floor(event.clientY - this.shiftY - rect.top);
+      const zoom = this.zoom;
+      const parent = this.hostRef.nativeElement.parentNode;
+      const rect = parent.getBoundingClientRect();
+
+      const mouseX = event.clientX;
+      const mouseY = event.clientY;
+
+      let x = (mouseX - rect.left) / zoom - this.shiftX;
+      let y = (mouseY - rect.top) / zoom - this.shiftY;
+
       x = Math.round(x / this.grid) * this.grid;
       y = Math.round(y / this.grid) * this.grid;
 
-      x = x + Math.round(this.hostW * this.anchorX);
-      y = y + Math.round(this.hostH * this.anchorY);
+      x += this.hostW * this.anchorX * zoom;
+      y += this.hostH * this.anchorY * zoom;
 
       this.position = { x, y };
+
       this.moving.emit(this.position);
       this.dragged = true;
     }

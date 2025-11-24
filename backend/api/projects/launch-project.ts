@@ -108,7 +108,6 @@ api.post(
     });
     const plain = toPlain(launch);
     delete plain["pipeline"];
-    delete plain["launchRequest"];
     return plain;
   })
 );

@@ -49,10 +49,9 @@ import { Primitive } from "src/types/primitive";
 import { sid } from "src/ui-kit/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
+import { EditNodeInputsComponent } from "../edit-node-inputs/edit-node-inputs.component";
+import { LaunchComponent } from "../launch/launch.component";
 import { SelectNodeComponent } from "../select-node/select-node.component";
-
-const MIN_SCALE = 0.2;
-const MAX_SCALE = 5;
 
 function salt() {
   return customAlphabet("1234567890abcdef", 5)();
@@ -69,6 +68,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   selectNodeComponent = SelectNodeComponent;
   editNodeComponent = EditNodeComponent;
   editPipelineInputComponent = EditPipelineInputComponent;
+  launchComponent = LaunchComponent;
 
   progress: {
     launching: boolean;
@@ -110,8 +110,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
     null;
   mouse: { x: number; y: number } | null = null;
 
-  @ViewChild("sidebarOutlet", { static: true })
-  sidebarOutlet!: RouterOutlet;
+  @ViewChild("sidebarRight", { static: true })
+  sidebarRight!: RouterOutlet;
 
   @ViewChild("nodesRef")
   nodesRef!: ElementRef<HTMLDivElement>;
@@ -121,8 +121,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   @ViewChild("gridRef")
   gridRef!: ElementRef<HTMLElement>;
-
-  private scale = 1;
 
   constructor(
     private projectManager: ProjectManager,
@@ -155,35 +153,17 @@ export class EditPipelineVisualComponent implements OnDestroy {
       }
     });
 
-    this.sidebarOutlet.activateEvents
-      .pipe(switchMap(() => this.sidebarOutlet.activatedRoute.data))
+    this.sidebarRight.activateEvents
+      .pipe(
+        map(() => this.sidebarRight.activatedRoute),
+        filter(({ component }) => component === EditNodeInputsComponent),
+        switchMap(({ data }) => data)
+      )
       .subscribe(({ node: { node } }) => (this.currentNode = node));
 
-    this.sidebarOutlet.deactivateEvents.subscribe(() => {
+    this.sidebarRight.deactivateEvents.subscribe(() => {
       this.currentNode = null;
     });
-  }
-
-  ngAfterViewInit() {
-    this.renderer.listen(
-      this.nodesRef.nativeElement,
-      "wheel",
-      this.pinchZoom.bind(this)
-    );
-  }
-
-  pinchZoom(event: WheelEvent) {
-    if (event.ctrlKey) {
-      event.preventDefault();
-
-      const delta = -event.deltaY;
-      const zoomSpeed = 0.01;
-
-      this.scale += delta * zoomSpeed;
-      this.scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, this.scale));
-
-      this.paneRef.nativeElement.style.transform = `scale(${this.scale})`;
-    }
   }
 
   back() {
@@ -539,7 +519,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
         break;
     }
 
-    this.mode = "default";
+    [this.mode, this.mouse] = ["default", null];
   }
 
   removeFlow(id: string) {
@@ -568,11 +548,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   removeInput(input: string) {
-    for (const [, flow] of this.pipeline.inputs.get(input).flows) {
-      const { to, input: id } = flow;
-      delete this.pipeline.nodes.get(to).inputs.get(id).featured;
-    }
-
     this.pipeline.inputs.delete(input);
 
     this.cd.detectChanges();
@@ -609,7 +584,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
       step,
       placeholder,
       freeform,
-      extensions,
     } = input.input;
 
     this.pipeline.inputs ??= new Map<string, PipelineInput>();
@@ -645,7 +619,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
         default: input.input.default,
         enum: input.input.enum,
         freeform,
-        extensions,
         flows,
         arrange: new Arrange({
           x: x - 100,
@@ -707,12 +680,29 @@ export class EditPipelineVisualComponent implements OnDestroy {
     }
 
     if (this.currentNode !== node) {
-      this.router.navigate(
-        [{ outlets: { right: ["nodes", id], left: null } }],
-        {
-          relativeTo: this.route,
-        }
-      );
+      const launch = this.launches[id] || this.launch;
+      if (!!launch) {
+        this.router.navigate(
+          [
+            {
+              outlets: {
+                right: ["launches", launch._id, "nodes", id],
+                left: null,
+              },
+            },
+          ],
+          {
+            relativeTo: this.route,
+          }
+        );
+      } else {
+        this.router.navigate(
+          [{ outlets: { right: ["nodes", id], left: null } }],
+          {
+            relativeTo: this.route,
+          }
+        );
+      }
     } else {
       this.closeSidebar();
     }
@@ -735,6 +725,12 @@ export class EditPipelineVisualComponent implements OnDestroy {
   updateLayoutPosition({ left, top }: { left: number; top: number }) {
     this.pipeline.layout ??= new Layout();
     assign(this.pipeline.layout, { left, top });
+    this.save();
+  }
+
+  updateLayoutZoom(zoom: number) {
+    this.pipeline.layout ??= new Layout();
+    assign(this.pipeline.layout, { zoom });
     this.save();
   }
 

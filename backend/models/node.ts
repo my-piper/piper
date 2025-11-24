@@ -11,7 +11,6 @@ import {
 import { PipelineIOType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import { Arrange } from "./arrange";
-import { Extension } from "./extension";
 
 export class NodeEnvironment {
   @Expose()
@@ -113,6 +112,24 @@ export class NodeInputSchema {
   id: string;
 }
 
+export class DynamicInput {
+  @Expose()
+  @Type(() => String)
+  group: string;
+
+  @Expose()
+  @Type(() => String)
+  id: string;
+
+  @Expose()
+  @Type(() => String)
+  title: string;
+
+  @Expose()
+  @Type(() => Number)
+  index: number;
+}
+
 export class NodeGroups {
   @Expose()
   @Transform(objectsMapTransformer(InputGroup))
@@ -153,6 +170,14 @@ export class NodeInput {
   featured!: boolean;
 
   @Expose()
+  @Type(() => DynamicInput)
+  dynamic!: DynamicInput;
+
+  @Expose()
+  @Type(() => Boolean)
+  cloned: boolean;
+
+  @Expose()
   @Type(() => Boolean)
   multiline!: boolean;
 
@@ -187,10 +212,6 @@ export class NodeInput {
   @Expose()
   @Type(() => NodeInputSchema)
   schema!: NodeInputSchema;
-
-  @Expose()
-  @Type(() => Extension)
-  extensions!: Extension[];
 }
 
 export class NodeOutput {
@@ -317,6 +338,24 @@ export class NodeStatus {
   constructor(defs: Partial<NodeStatus> = {}) {
     merge(this, defs);
   }
+}
+
+export class NodeLog {
+  @Expose()
+  @Type(() => String)
+  level: "debug" | "info" | "warn" | "error";
+
+  @Expose()
+  @Type(() => String)
+  message: string;
+
+  @Expose()
+  @Type(() => Number)
+  job: number;
+
+  @Expose()
+  @Type(() => Number)
+  attempt: number;
 }
 
 export class NodeToUpdate {

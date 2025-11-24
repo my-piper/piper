@@ -1,21 +1,24 @@
-<div class="sidebar" [class.hidden]="!sidebar.right">
-  <div class="content">
-    <router-outlet
-      name="right"
-      #sidebarOutlet="outlet"
-      (activate)="sidebar.right = $event"
-      (deactivate)="sidebar.right = null"
-    ></router-outlet>
-  </div>
-</div>
-
 <div class="sidebar left" [class.hidden]="!sidebar.left">
   <div class="content">
     <router-outlet
       name="left"
-      #sidebarOutlet="outlet"
       (activate)="sidebar.left = $event"
       (deactivate)="sidebar.left = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<div
+  class="sidebar"
+  [class.hidden]="!sidebar.right"
+  [class.wide]="sidebar.right | is: launchComponent"
+>
+  <div class="content">
+    <router-outlet
+      name="right"
+      #sidebarRight="outlet"
+      (activate)="sidebar.right = $event"
+      (deactivate)="sidebar.right = null"
     ></router-outlet>
   </div>
 </div>
@@ -56,10 +59,10 @@
     class="actions stack"
   >
     <a
-      class="primary with-icon small"
+      class="circle"
       [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
     >
-      <app-icon class="icon" icon="add" color="white"></app-icon>
+      <app-icon class="icon" icon="add-node"></app-icon>
     </a>
 
     <ng-template #runTemplate>
@@ -91,7 +94,7 @@
 
     <div [appPopover]="{ content: runTemplate }">
       <button
-        class="primary small with-icon icon-only"
+        class="circle"
         [class.busy]="progress.launching || (launches | keyvalue).length > 0"
         [disabled]="(launches | keyvalue).length > 0"
         (click)="!!launch ? stop() : run()"
@@ -109,7 +112,15 @@
     #paneRef
     class="pane"
     dropZone
-    (drop)="addNode($event.left, $event.top, $event.payload)"
+    [pitchZoom]="{ zoom: pipeline.layout?.zoom || 1 }"
+    (drop)="
+      addNode(
+        $event.left / (pipeline.layout?.zoom || 1),
+        $event.top / (pipeline.layout?.zoom || 1),
+        $event.payload
+      )
+    "
+    (zoom)="updateLayoutZoom($event)"
   >
     <div
       class="input"
@@ -122,6 +133,7 @@
         anchorX: 1,
         anchorY: 0.5,
         position: { x: input.value.arrange.x, y: input.value.arrange.y },
+        zoom: pipeline.layout?.zoom || 1,
       }"
       (moving)="inputMoving(input.value, $event)"
       (moved)="inputMoved(input.value, $event)"
@@ -138,6 +150,7 @@
       </ng-template>
 
       <button
+        *ngIf="!readonly && (userRole.admin | can: project.createdBy | async)"
         class="more transparent"
         [appPopover]="{
           content: actionsTemplate,
@@ -201,6 +214,9 @@
             </ul>
           </ng-template>
           <button
+            *ngIf="
+              !readonly && (userRole.admin | can: project.createdBy | async)
+            "
             class="more transparent"
             [appPopover]="{
               content: actionsTemplate,
@@ -228,6 +244,7 @@
       [appDragMove]="{
         anchorY: 0.5,
         position: { x: output.value.arrange.x, y: output.value.arrange.y },
+        zoom: pipeline.layout?.zoom || 1,
       }"
       (moving)="outputMoving(output.value, $event)"
       (moved)="outputMoved(output.value, $event)"
@@ -236,6 +253,27 @@
         [id]="output.key"
         [output]="output.value"
       ></app-pipeline-output>
+      <ng-template #actionsTemplate>
+        <ul class="context-menu">
+          <li>
+            <button (click)="removeOutput(output.key)">
+              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
+              <span i18n="@@action.delete">Delete</span>
+            </button>
+          </li>
+        </ul>
+      </ng-template>
+      <button
+        *ngIf="!readonly && (userRole.admin | can: project.createdBy | async)"
+        class="transparent"
+        [appPopover]="{
+          content: actionsTemplate,
+          trigger: 'click',
+          position: 'right',
+        }"
+      >
+        <app-icon class="icon" icon="more" [size]="16" [stroke]="2"></app-icon>
+      </button>
     </div>
 
     <div
@@ -248,6 +286,7 @@
       #drag="appDragMove"
       [appDragMove]="{
         position: { x: node.value.arrange.x, y: node.value.arrange.y },
+        zoom: pipeline.layout?.zoom || 1,
       }"
       (moving)="nodeMoving(node.value, $event)"
       (moved)="nodeMoved(node.value, $event)"
@@ -276,9 +315,9 @@
         </div>
       </ng-container>
 
-      <div *ngIf="!launch" class="actions stack">
+      <div *ngIf="!launch" class="actions stack align-center">
         <button
-          class="primary small with-icon icon-only"
+          class="circle small"
           [class.busy]="progress.nodes.launching[node.key]"
           [disabled]="progress.nodes.launching[node.key]"
           (click)="
@@ -287,11 +326,14 @@
         >
           <app-icon
             class="icon"
-            [icon]="!!launches[node.key] ? 'stop' : 'play'"
-            [color]="
-              (pipeline.start.nodes | includes: node.key) ? 'yellow' : 'white'
+            [icon]="
+              !!launches[node.key]
+                ? 'stop'
+                : (pipeline.start.nodes | includes: node.key)
+                  ? 'play-filled'
+                  : 'play'
             "
-            [size]="18"
+            [size]="20"
           ></app-icon>
         </button>
         <a
@@ -313,6 +355,11 @@
         </ul>
       </ng-template>
       <button
+        *ngIf="
+          !readonly &&
+          (userRole.admin | can: project.createdBy | async) &&
+          !launches[node.key]
+        "
         class="transparent more"
         [appPopover]="{
           content: actionsTemplate,
@@ -326,8 +373,17 @@
         [class.active]="currentNode === node.value"
         [id]="node.key"
         [node]="node.value"
-        [inputs]="launchRequest.nodes.get(node.key)?.inputs | mapToPlain"
-        [outputs]="launchRequest.nodes.get(node.key)?.outputs | mapToPlain"
+        [inputs]="
+          (!!launches[node.key]
+            ? launches[node.key].launchRequest.nodes.get(node.key)?.inputs
+            : launchRequest.nodes.get(node.key)?.inputs
+          ) | mapToPlain
+        "
+        [outputs]="
+          !!launches[node.key]
+            ? launches[node.key].launchRequest.nodes.get(node.key)?.outputs
+            : (launchRequest.nodes.get(node.key)?.outputs | mapToPlain)
+        "
         [launch]="launch || launches[node.key]"
         (input)="!!flow ? addFlow(node.key, $event) : null"
         (output)="startNodeFlow(node.key, $event)"
@@ -426,7 +482,7 @@
           height="15"
           patternUnits="userSpaceOnUse"
         >
-          <circle cx="5" cy="5" r="1" fill="white" opacity="0.10" />
+          <circle cx="5" cy="5" r="1" fill="white" opacity="0.20" />
         </pattern>
       </defs>
       <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)" />
@@ -448,13 +504,14 @@
                         ui.node.input.height +
                       ui.node.shift,
                   }
-              | curve: mouse
+              | curve: (mouse | multiply: pipeline.layout.zoom || 1)
           "
         />
         <path
           *ngSwitchCase="'input'"
           [attr.d]="
-            (pipeline | pipelineInput: flow.from).arrange | curve: mouse
+            (pipeline | pipelineInput: flow.from).arrange
+              | curve: (mouse | multiply: pipeline.layout.zoom || 1)
           "
         />
       </ng-container>
@@ -524,7 +581,6 @@
           [class.disabled]="
             readonly || (userRole.admin | can: project.createdBy | async | not)
           "
-          (click)="removeOutputFlow(o.key, f.key)"
           [attr.d]="
             (pipeline | node: f.value.from).arrange
               | shift

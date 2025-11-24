@@ -1,0 +1,13 @@
+<ng-container *ngFor="let log of logs; let i = index">
+  <p
+    *ngIf="
+      i === 0 ||
+      logs[i - 1].job !== log.job ||
+      logs[i - 1].attempt !== log.attempt
+    "
+  >
+    Job <code>{{ log.job }}</code> attempt {{ log.attempt + 1 }}
+  </p>
+
+  <pre [attr.data-level]="log.level">{{ log.message }}</pre>
+</ng-container>

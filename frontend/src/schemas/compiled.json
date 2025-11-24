@@ -359,36 +359,34 @@
 										"title": "Featured",
 										"type": "boolean"
 									},
-									"extensions": {
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"id": {
-													"type": "string"
-												},
-												"params": {
-													"type": "object",
-													"additionalProperties": {
-														"anyOf": [
-															{
-																"type": "boolean"
-															},
-															{
-																"type": "number"
-															},
-															{
-																"type": "string"
-															}
-														]
-													}
-												}
+									"dynamic": {
+										"title": "Dynamic",
+										"type": "object",
+										"properties": {
+											"group": {
+												"type": "string"
 											},
-											"required": [
-												"id"
-											],
-											"additionalProperties": false
-										}
+											"index": {
+												"type": "number"
+											},
+											"id": {
+												"type": "string"
+											},
+											"title": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"group",
+											"index",
+											"id",
+											"title"
+										],
+										"additionalProperties": false
+									},
+									"cloned": {
+										"title": "Cloned",
+										"type": "boolean"
 									},
 									"group": {
 										"title": "Group",
@@ -602,36 +600,34 @@
 										"title": "Featured",
 										"type": "boolean"
 									},
-									"extensions": {
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"id": {
-													"type": "string"
-												},
-												"params": {
-													"type": "object",
-													"additionalProperties": {
-														"anyOf": [
-															{
-																"type": "boolean"
-															},
-															{
-																"type": "number"
-															},
-															{
-																"type": "string"
-															}
-														]
-													}
-												}
+									"dynamic": {
+										"title": "Dynamic",
+										"type": "object",
+										"properties": {
+											"group": {
+												"type": "string"
 											},
-											"required": [
-												"id"
-											],
-											"additionalProperties": false
-										}
+											"index": {
+												"type": "number"
+											},
+											"id": {
+												"type": "string"
+											},
+											"title": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"group",
+											"index",
+											"id",
+											"title"
+										],
+										"additionalProperties": false
+									},
+									"cloned": {
+										"title": "Cloned",
+										"type": "boolean"
 									},
 									"group": {
 										"title": "Group",
@@ -886,36 +882,34 @@
 									"title": "Featured",
 									"type": "boolean"
 								},
-								"extensions": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"id": {
-												"type": "string"
-											},
-											"params": {
-												"type": "object",
-												"additionalProperties": {
-													"anyOf": [
-														{
-															"type": "boolean"
-														},
-														{
-															"type": "number"
-														},
-														{
-															"type": "string"
-														}
-													]
-												}
-											}
+								"dynamic": {
+									"title": "Dynamic",
+									"type": "object",
+									"properties": {
+										"group": {
+											"type": "string"
 										},
-										"required": [
-											"id"
-										],
-										"additionalProperties": false
-									}
+										"index": {
+											"type": "number"
+										},
+										"id": {
+											"type": "string"
+										},
+										"title": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"group",
+										"index",
+										"id",
+										"title"
+									],
+									"additionalProperties": false
+								},
+								"cloned": {
+									"title": "Cloned",
+									"type": "boolean"
 								},
 								"group": {
 									"title": "Group",
@@ -1494,36 +1488,34 @@
 							"title": "Featured",
 							"type": "boolean"
 						},
-						"extensions": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"id": {
-										"type": "string"
-									},
-									"params": {
-										"type": "object",
-										"additionalProperties": {
-											"anyOf": [
-												{
-													"type": "boolean"
-												},
-												{
-													"type": "number"
-												},
-												{
-													"type": "string"
-												}
-											]
-										}
-									}
+						"dynamic": {
+							"title": "Dynamic",
+							"type": "object",
+							"properties": {
+								"group": {
+									"type": "string"
 								},
-								"required": [
-									"id"
-								],
-								"additionalProperties": false
-							}
+								"index": {
+									"type": "number"
+								},
+								"id": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"group",
+								"index",
+								"id",
+								"title"
+							],
+							"additionalProperties": false
+						},
+						"cloned": {
+							"title": "Cloned",
+							"type": "boolean"
 						},
 						"group": {
 							"title": "Group",
@@ -1737,36 +1729,34 @@
 							"title": "Featured",
 							"type": "boolean"
 						},
-						"extensions": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"id": {
-										"type": "string"
-									},
-									"params": {
-										"type": "object",
-										"additionalProperties": {
-											"anyOf": [
-												{
-													"type": "boolean"
-												},
-												{
-													"type": "number"
-												},
-												{
-													"type": "string"
-												}
-											]
-										}
-									}
+						"dynamic": {
+							"title": "Dynamic",
+							"type": "object",
+							"properties": {
+								"group": {
+									"type": "string"
 								},
-								"required": [
-									"id"
-								],
-								"additionalProperties": false
-							}
+								"index": {
+									"type": "number"
+								},
+								"id": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"group",
+								"index",
+								"id",
+								"title"
+							],
+							"additionalProperties": false
+						},
+						"cloned": {
+							"title": "Cloned",
+							"type": "boolean"
 						},
 						"group": {
 							"title": "Group",
@@ -2021,36 +2011,34 @@
 						"title": "Featured",
 						"type": "boolean"
 					},
-					"extensions": {
-						"type": "array",
-						"items": {
-							"type": "object",
-							"properties": {
-								"id": {
-									"type": "string"
-								},
-								"params": {
-									"type": "object",
-									"additionalProperties": {
-										"anyOf": [
-											{
-												"type": "boolean"
-											},
-											{
-												"type": "number"
-											},
-											{
-												"type": "string"
-											}
-										]
-									}
-								}
+					"dynamic": {
+						"title": "Dynamic",
+						"type": "object",
+						"properties": {
+							"group": {
+								"type": "string"
 							},
-							"required": [
-								"id"
-							],
-							"additionalProperties": false
-						}
+							"index": {
+								"type": "number"
+							},
+							"id": {
+								"type": "string"
+							},
+							"title": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"group",
+							"index",
+							"id",
+							"title"
+						],
+						"additionalProperties": false
+					},
+					"cloned": {
+						"title": "Cloned",
+						"type": "boolean"
 					},
 					"group": {
 						"title": "Group",
@@ -2371,7 +2359,6 @@
 			"category": {
 				"propertyOrder": 8,
 				"headerTemplate": "en=Category;ru=Категория",
-				"title": "Category",
 				"type": "object",
 				"options": {
 					"disable_collapse": true
@@ -2447,6 +2434,7 @@
 				"type": "object",
 				"properties": {
 					"slug": {
+						"title": "Slug",
 						"type": "string",
 						"pattern": "^[a-z0-9\\-_]{5,40}$"
 					},
@@ -2477,8 +2465,7 @@
 					}
 				},
 				"required": [
-					"slug",
-					"scope"
+					"slug"
 				],
 				"additionalProperties": false
 			},
@@ -2575,37 +2562,6 @@
 								"number",
 								"string"
 							]
-						},
-						"extensions": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"id": {
-										"type": "string"
-									},
-									"params": {
-										"type": "object",
-										"additionalProperties": {
-											"anyOf": [
-												{
-													"type": "boolean"
-												},
-												{
-													"type": "number"
-												},
-												{
-													"type": "string"
-												}
-											]
-										}
-									}
-								},
-								"required": [
-									"id"
-								],
-								"additionalProperties": false
-							}
 						},
 						"flows": {
 							"type": "object",
@@ -3066,36 +3022,34 @@
 										"title": "Featured",
 										"type": "boolean"
 									},
-									"extensions": {
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"id": {
-													"type": "string"
-												},
-												"params": {
-													"type": "object",
-													"additionalProperties": {
-														"anyOf": [
-															{
-																"type": "boolean"
-															},
-															{
-																"type": "number"
-															},
-															{
-																"type": "string"
-															}
-														]
-													}
-												}
+									"dynamic": {
+										"title": "Dynamic",
+										"type": "object",
+										"properties": {
+											"group": {
+												"type": "string"
 											},
-											"required": [
-												"id"
-											],
-											"additionalProperties": false
-										}
+											"index": {
+												"type": "number"
+											},
+											"id": {
+												"type": "string"
+											},
+											"title": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"group",
+											"index",
+											"id",
+											"title"
+										],
+										"additionalProperties": false
+									},
+									"cloned": {
+										"title": "Cloned",
+										"type": "boolean"
 									},
 									"group": {
 										"title": "Group",
@@ -3309,36 +3263,34 @@
 										"title": "Featured",
 										"type": "boolean"
 									},
-									"extensions": {
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"id": {
-													"type": "string"
-												},
-												"params": {
-													"type": "object",
-													"additionalProperties": {
-														"anyOf": [
-															{
-																"type": "boolean"
-															},
-															{
-																"type": "number"
-															},
-															{
-																"type": "string"
-															}
-														]
-													}
-												}
+									"dynamic": {
+										"title": "Dynamic",
+										"type": "object",
+										"properties": {
+											"group": {
+												"type": "string"
 											},
-											"required": [
-												"id"
-											],
-											"additionalProperties": false
-										}
+											"index": {
+												"type": "number"
+											},
+											"id": {
+												"type": "string"
+											},
+											"title": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"group",
+											"index",
+											"id",
+											"title"
+										],
+										"additionalProperties": false
+									},
+									"cloned": {
+										"title": "Cloned",
+										"type": "boolean"
 									},
 									"group": {
 										"title": "Group",
@@ -3593,36 +3545,34 @@
 									"title": "Featured",
 									"type": "boolean"
 								},
-								"extensions": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"id": {
-												"type": "string"
-											},
-											"params": {
-												"type": "object",
-												"additionalProperties": {
-													"anyOf": [
-														{
-															"type": "boolean"
-														},
-														{
-															"type": "number"
-														},
-														{
-															"type": "string"
-														}
-													]
-												}
-											}
+								"dynamic": {
+									"title": "Dynamic",
+									"type": "object",
+									"properties": {
+										"group": {
+											"type": "string"
 										},
-										"required": [
-											"id"
-										],
-										"additionalProperties": false
-									}
+										"index": {
+											"type": "number"
+										},
+										"id": {
+											"type": "string"
+										},
+										"title": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"group",
+										"index",
+										"id",
+										"title"
+									],
+									"additionalProperties": false
+								},
+								"cloned": {
+									"title": "Cloned",
+									"type": "boolean"
 								},
 								"group": {
 									"title": "Group",
@@ -3916,7 +3866,6 @@
 				"additionalProperties": false
 			},
 			"PipelineCategory": {
-				"title": "Category",
 				"type": "object",
 				"options": {
 					"disable_collapse": true
@@ -3950,6 +3899,7 @@
 				"type": "object",
 				"properties": {
 					"slug": {
+						"title": "Slug",
 						"type": "string",
 						"pattern": "^[a-z0-9\\-_]{5,40}$"
 					},
@@ -3980,8 +3930,7 @@
 					}
 				},
 				"required": [
-					"slug",
-					"scope"
+					"slug"
 				],
 				"additionalProperties": false
 			},
@@ -4160,37 +4109,6 @@
 							"number",
 							"string"
 						]
-					},
-					"extensions": {
-						"type": "array",
-						"items": {
-							"type": "object",
-							"properties": {
-								"id": {
-									"type": "string"
-								},
-								"params": {
-									"type": "object",
-									"additionalProperties": {
-										"anyOf": [
-											{
-												"type": "boolean"
-											},
-											{
-												"type": "number"
-											},
-											{
-												"type": "string"
-											}
-										]
-									}
-								}
-							},
-							"required": [
-								"id"
-							],
-							"additionalProperties": false
-						}
 					},
 					"flows": {
 						"type": "object",
@@ -4433,7 +4351,6 @@
 					"category": {
 						"propertyOrder": 8,
 						"headerTemplate": "en=Category;ru=Категория",
-						"title": "Category",
 						"type": "object",
 						"options": {
 							"disable_collapse": true
@@ -4509,6 +4426,7 @@
 						"type": "object",
 						"properties": {
 							"slug": {
+								"title": "Slug",
 								"type": "string",
 								"pattern": "^[a-z0-9\\-_]{5,40}$"
 							},
@@ -4539,8 +4457,7 @@
 							}
 						},
 						"required": [
-							"slug",
-							"scope"
+							"slug"
 						],
 						"additionalProperties": false
 					},
@@ -4637,37 +4554,6 @@
 										"number",
 										"string"
 									]
-								},
-								"extensions": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"id": {
-												"type": "string"
-											},
-											"params": {
-												"type": "object",
-												"additionalProperties": {
-													"anyOf": [
-														{
-															"type": "boolean"
-														},
-														{
-															"type": "number"
-														},
-														{
-															"type": "string"
-														}
-													]
-												}
-											}
-										},
-										"required": [
-											"id"
-										],
-										"additionalProperties": false
-									}
 								},
 								"flows": {
 									"type": "object",
@@ -5128,36 +5014,34 @@
 												"title": "Featured",
 												"type": "boolean"
 											},
-											"extensions": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"id": {
-															"type": "string"
-														},
-														"params": {
-															"type": "object",
-															"additionalProperties": {
-																"anyOf": [
-																	{
-																		"type": "boolean"
-																	},
-																	{
-																		"type": "number"
-																	},
-																	{
-																		"type": "string"
-																	}
-																]
-															}
-														}
+											"dynamic": {
+												"title": "Dynamic",
+												"type": "object",
+												"properties": {
+													"group": {
+														"type": "string"
 													},
-													"required": [
-														"id"
-													],
-													"additionalProperties": false
-												}
+													"index": {
+														"type": "number"
+													},
+													"id": {
+														"type": "string"
+													},
+													"title": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"group",
+													"index",
+													"id",
+													"title"
+												],
+												"additionalProperties": false
+											},
+											"cloned": {
+												"title": "Cloned",
+												"type": "boolean"
 											},
 											"group": {
 												"title": "Group",
@@ -5371,36 +5255,34 @@
 												"title": "Featured",
 												"type": "boolean"
 											},
-											"extensions": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"id": {
-															"type": "string"
-														},
-														"params": {
-															"type": "object",
-															"additionalProperties": {
-																"anyOf": [
-																	{
-																		"type": "boolean"
-																	},
-																	{
-																		"type": "number"
-																	},
-																	{
-																		"type": "string"
-																	}
-																]
-															}
-														}
+											"dynamic": {
+												"title": "Dynamic",
+												"type": "object",
+												"properties": {
+													"group": {
+														"type": "string"
 													},
-													"required": [
-														"id"
-													],
-													"additionalProperties": false
-												}
+													"index": {
+														"type": "number"
+													},
+													"id": {
+														"type": "string"
+													},
+													"title": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"group",
+													"index",
+													"id",
+													"title"
+												],
+												"additionalProperties": false
+											},
+											"cloned": {
+												"title": "Cloned",
+												"type": "boolean"
 											},
 											"group": {
 												"title": "Group",
@@ -5655,36 +5537,34 @@
 											"title": "Featured",
 											"type": "boolean"
 										},
-										"extensions": {
-											"type": "array",
-											"items": {
-												"type": "object",
-												"properties": {
-													"id": {
-														"type": "string"
-													},
-													"params": {
-														"type": "object",
-														"additionalProperties": {
-															"anyOf": [
-																{
-																	"type": "boolean"
-																},
-																{
-																	"type": "number"
-																},
-																{
-																	"type": "string"
-																}
-															]
-														}
-													}
+										"dynamic": {
+											"title": "Dynamic",
+											"type": "object",
+											"properties": {
+												"group": {
+													"type": "string"
 												},
-												"required": [
-													"id"
-												],
-												"additionalProperties": false
-											}
+												"index": {
+													"type": "number"
+												},
+												"id": {
+													"type": "string"
+												},
+												"title": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"group",
+												"index",
+												"id",
+												"title"
+											],
+											"additionalProperties": false
+										},
+										"cloned": {
+											"title": "Cloned",
+											"type": "boolean"
 										},
 										"group": {
 											"title": "Group",
@@ -5978,7 +5858,6 @@
 						"additionalProperties": false
 					},
 					"PipelineCategory": {
-						"title": "Category",
 						"type": "object",
 						"options": {
 							"disable_collapse": true
@@ -6012,6 +5891,7 @@
 						"type": "object",
 						"properties": {
 							"slug": {
+								"title": "Slug",
 								"type": "string",
 								"pattern": "^[a-z0-9\\-_]{5,40}$"
 							},
@@ -6042,8 +5922,7 @@
 							}
 						},
 						"required": [
-							"slug",
-							"scope"
+							"slug"
 						],
 						"additionalProperties": false
 					},
@@ -6222,37 +6101,6 @@
 									"number",
 									"string"
 								]
-							},
-							"extensions": {
-								"type": "array",
-								"items": {
-									"type": "object",
-									"properties": {
-										"id": {
-											"type": "string"
-										},
-										"params": {
-											"type": "object",
-											"additionalProperties": {
-												"anyOf": [
-													{
-														"type": "boolean"
-													},
-													{
-														"type": "number"
-													},
-													{
-														"type": "string"
-													}
-												]
-											}
-										}
-									},
-									"required": [
-										"id"
-									],
-									"additionalProperties": false
-								}
 							},
 							"flows": {
 								"type": "object",

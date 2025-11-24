@@ -64,21 +64,39 @@
                   [size]="18"
                 ></app-icon>
               </div>
-              <button
-                class="circle small"
-                (click)="
-                  i.input.featured ? markUnFeatured(i.id) : markFeatured(i.id)
-                "
-              >
-                <app-icon
-                  class="icon"
-                  [icon]="i.input.featured ? 'in' : 'out'"
-                  [size]="12"
-                ></app-icon>
-              </button>
+              <div class="stack small">
+                <button
+                  *ngIf="!!i.input.cloned"
+                  class="circle small"
+                  (click)="removeInput(i.id)"
+                >
+                  <app-icon class="icon" icon="minus" [size]="12"></app-icon>
+                </button>
+                <button
+                  *ngIf="!!i.input.dynamic && !i.input.cloned"
+                  class="circle small"
+                  (click)="addDynamic(i.input)"
+                >
+                  <app-icon class="icon" icon="add" [size]="12"></app-icon>
+                </button>
+                <button
+                  class="circle small"
+                  (click)="
+                    i.input.featured
+                      ? markUnFeatured(i.id)
+                      : markFeatured(i.input)
+                  "
+                >
+                  <app-icon
+                    class="icon"
+                    [icon]="i.input.featured ? 'in' : 'out'"
+                    [size]="12"
+                  ></app-icon>
+                </button>
+              </div>
             </div>
             <app-edit-input
-              [class.disabled]="i.input.featured"
+              *ngIf="!i.input.featured"
               [id]="i.id"
               [type]="i.input.type"
               [enum]="i.input.enum"
@@ -90,7 +108,6 @@
               [max]="i.input.max"
               [step]="i.input.step"
               formControlName="value"
-              [extensions]="i.input.extensions"
               [inputs]="inputsGroup"
             ></app-edit-input>
           </div>

@@ -128,16 +128,12 @@
               target="_blank"
               routerLinkActive="active"
             >
+              <app-icon class="icon left" [size]="18" icon="app"></app-icon>
               <ng-container i18n="@@link.app">App</ng-container>
-              <app-icon
-                class="icon right"
-                [size]="18"
-                icon="open-link"
-              ></app-icon>
             </a>
           </li>
         </ng-container>
-        <li>
+        <li style="display: none">
           <a
             [routerLink]="[
               { outlets: { primary: ['launches'], left: null, right: null } },
@@ -148,7 +144,7 @@
             Launches
           </a>
         </li>
-        <li>
+        <li style="display: none">
           <a
             [routerLink]="[
               { outlets: { primary: ['artefacts'], left: null, right: null } },
@@ -160,7 +156,7 @@
             Artefacts
           </a>
         </li>
-        <li>
+        <li style="display: none">
           <a
             [routerLink]="[
               { outlets: { primary: ['assets'], left: null, right: null } },
@@ -170,24 +166,6 @@
             i18n="@@link.assets"
           >
             Assets
-          </a>
-        </li>
-        <li>
-          <a
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['readme', 'edit'],
-                  left: null,
-                  right: null,
-                },
-              },
-            ]"
-            routerLinkActive="active"
-            (click)="references.popover?.hide()"
-            i18n="@@link.readme"
-          >
-            README
           </a>
         </li>
         <ng-container
@@ -220,6 +198,24 @@
         <li>
           <ng-template #linksMenu>
             <ul class="context-menu">
+              <li>
+                <a
+                  [routerLink]="[
+                    {
+                      outlets: {
+                        primary: ['readme', 'edit'],
+                        left: null,
+                        right: null,
+                      },
+                    },
+                  ]"
+                  routerLinkActive="active"
+                  (click)="references.popover?.hide()"
+                  i18n="@@link.readme"
+                >
+                  README
+                </a>
+              </li>
               <li *ngIf="userRole.engineer | can | async">
                 <a
                   [routerLink]="[
@@ -276,8 +272,8 @@
             [appPopover]="{ behavior: 'dropdown', content: linksMenu }"
             (attached)="references.popover = $event"
           >
+            <app-icon class="icon left" icon="chevron-down"></app-icon>
             <ng-container i18n="@@link.more">More</ng-container>
-            <app-icon class="icon right" icon="chevron-down"></app-icon>
           </button>
         </li>
       </ul>

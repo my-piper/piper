@@ -27,6 +27,7 @@ h1 {
   .disabled {
     opacity: .5;
     pointer-events: none;
+    filter: blur(5px);
   }
 
   input,

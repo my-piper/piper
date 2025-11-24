@@ -17,7 +17,6 @@ import {
 import { plainToInstance } from "class-transformer";
 import { delay, finalize, map } from "rxjs";
 import { Artefact } from "src/models/artefacts";
-import { Extension } from "src/models/extension";
 import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/ui-kit/consts";
@@ -77,9 +76,6 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
 
   @Input()
   step: number;
-
-  @Input()
-  extensions: Extension[];
 
   @Input()
   inputs: FormGroup;

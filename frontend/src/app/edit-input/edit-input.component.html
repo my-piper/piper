@@ -52,23 +52,6 @@
   </div>
 </ng-template>
 
-<div class="extensions" *ngIf="extensions?.length > 0">
-  <ng-container *ngFor="let e of extensions">
-    <ng-container [ngSwitch]="e.id">
-      <ng-container *ngSwitchCase="'draw-mask'">
-        <app-draw-mask
-          *ngIf="!!valueControl.value"
-          [image]="id"
-          [mask]="e.params.get('mask')"
-          [type]="e.params.get('type') || 'grayscale'"
-          [inputs]="inputs"
-          (changed)="cd.detectChanges()"
-        ></app-draw-mask>
-      </ng-container>
-    </ng-container>
-  </ng-container>
-</div>
-
 <ng-container [formGroup]="form" [ngSwitch]="type">
   <ngx-monaco-editor
     *ngSwitchCase="'json'"
@@ -150,19 +133,6 @@
       }"
     >
       <div class="drag-zone" i18n="@@label.drop_here">Drop here...</div>
-      <ng-container *ngFor="let e of extensions">
-        <ng-container [ngSwitch]="e.id">
-          <ng-container *ngSwitchCase="'draw-mask'">
-            <ng-container *ngIf="!!valueControl.value">
-              <img
-                class="mask"
-                *ngIf="inputs.get(e.params.get('mask'))?.value as mask"
-                [src]="mask | proxyImage: { width: 500 }"
-              />
-            </ng-container>
-          </ng-container>
-        </ng-container>
-      </ng-container>
       <img
         *ngIf="valueControl.value as url; else uploadImage"
         [imageFallback]

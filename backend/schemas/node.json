@@ -206,11 +206,29 @@
           "title": "Featured",
           "type": "boolean"
         },
-        "extensions": {
-          "type": "array",
-          "items": {
-            "$ref": "local://input-extension.json"
-          }
+        "dynamic": {
+          "title": "Dynamic",
+          "type": "object",
+          "properties": {
+            "group": {
+              "type": "string"
+            },
+            "index": {
+              "type": "number"
+            },
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": ["group", "index", "id", "title"],
+          "additionalProperties": false
+        },
+        "cloned": {
+          "title": "Cloned",
+          "type": "boolean"
         },
         "group": {
           "title": "Group",

@@ -62,52 +62,19 @@
   </ng-container>
 </ng-template>
 
-<div class="io">
-  <div class="inputs">
-    <h2>Inputs</h2>
-    <ul>
-      <ng-container *ngFor="let g of node.render.inputs">
-        <h3 *ngIf="g.group.group?.title as group">{{ group | i18n }}</h3>
-        <ng-container *ngFor="let i of g.group.inputs">
-          <li
-            *ngIf="!i.input.hidden"
-            [attr.data-type]="i.input.type"
-            [class.filled]="!!inputs?.[i.id]"
-          >
-            <b>{{ i.input.title | i18n }}</b>
-            <div [attr.data-type]="i.input.type">
-              <ng-container *ngIf="inputs?.[i.id] as value">
-                <ng-container
-                  *ngTemplateOutlet="
-                    ioTemplate;
-                    context: { io: i.input, value }
-                  "
-                ></ng-container>
-              </ng-container>
-            </div>
-          </li>
-        </ng-container>
+<ul>
+  <li
+    *ngFor="let o of node.outputs | keyvalue"
+    [attr.data-type]="o.value.type"
+    [class.filled]="outputs?.[o.key]"
+  >
+    <b>{{ o.value.title | i18n }}</b>
+    <div [attr.data-type]="o.value.type">
+      <ng-container *ngIf="outputs?.[o.key] as value">
+        <ng-container
+          *ngTemplateOutlet="ioTemplate; context: { io: o.value, value }"
+        ></ng-container>
       </ng-container>
-    </ul>
-  </div>
-  <div class="split"></div>
-  <div class="outputs">
-    <h2>Outputs</h2>
-    <ul>
-      <li
-        *ngFor="let o of node.outputs | keyvalue"
-        [attr.data-type]="o.value.type"
-        [class.filled]="outputs?.[o.key]"
-      >
-        <b>{{ o.value.title | i18n }}</b>
-        <div [attr.data-type]="o.value.type">
-          <ng-container *ngIf="outputs?.[o.key] as value">
-            <ng-container
-              *ngTemplateOutlet="ioTemplate; context: { io: o.value, value }"
-            ></ng-container>
-          </ng-container>
-        </div>
-      </li>
-    </ul>
-  </div>
-</div>
+    </div>
+  </li>
+</ul>

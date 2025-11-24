@@ -6,12 +6,13 @@ import {
   Renderer2,
 } from "@angular/core";
 
+// thanks for ChatGPT here
 @Directive({
   selector: "[autoHeight]",
 })
 export class AutoHeightDirective implements OnInit {
   constructor(
-    private el: ElementRef,
+    private hostRef: ElementRef,
     private renderer: Renderer2
   ) {}
 
@@ -26,10 +27,9 @@ export class AutoHeightDirective implements OnInit {
 
   private adjustHeight() {
     const windowHeight = window.innerHeight;
-    const top = this.el.nativeElement.getBoundingClientRect().top;
-    const newHeight = windowHeight - top - 20;
-
-    // Apply the calculated height
-    this.renderer.setStyle(this.el.nativeElement, "height", `${newHeight}px`);
+    const { nativeElement: el } = this.hostRef;
+    const top = el.getBoundingClientRect().top;
+    const newHeight = windowHeight - top;
+    this.renderer.setStyle(el, "height", `${newHeight}px`);
   }
 }

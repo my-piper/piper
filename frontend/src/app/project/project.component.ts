@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import assign from "lodash/assign";
-import { delay, filter, finalize, map, takeUntil } from "rxjs";
+import { delay, finalize, map, takeUntil } from "rxjs";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { AppConfig } from "src/models/app-config";
 import { Pipeline } from "src/models/pipeline";
@@ -51,11 +51,9 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
     this.projectManager.error
       .pipe(takeUntil(this.destroyed$))
       .subscribe((error) => (this.error = error));
+
     this.projectManager.status
-      .pipe(
-        filter((status) => status === "saved"),
-        takeUntil(this.destroyed$)
-      )
+      .pipe(takeUntil(this.destroyed$))
       .subscribe(() => this.cd.detectChanges());
   }
 

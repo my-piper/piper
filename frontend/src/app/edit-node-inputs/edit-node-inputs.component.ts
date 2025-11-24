@@ -1,15 +1,19 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
+import { merge } from "lodash";
 import { Subscription } from "rxjs";
 import { Asset } from "src/models/assets";
 import { NodeToLaunch } from "src/models/launch-request";
-import { Node } from "src/models/node";
+import { Node, NodeInput } from "src/models/node";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
 import { Primitive } from "src/types/primitive";
 import { UI } from "src/ui-kit/consts";
+import { mapTo, toPlain } from "src/utils/models";
+
+const DYNAMIC_PLACEHOLDER = "#";
 
 @Component({
   selector: "app-edit-node-inputs",
@@ -35,6 +39,7 @@ export class EditNodeInputsComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
+    private cd: ChangeDetectorRef,
     public route: ActivatedRoute
   ) {}
 
@@ -143,8 +148,51 @@ export class EditNodeInputsComponent implements OnInit {
     this.projectManager.markDirty();
   }
 
-  markFeatured(input: string) {
-    this.node.inputs.get(input).featured = true;
+  addDynamic(input: NodeInput) {
+    const plain = toPlain(input);
+    const cloned = mapTo(plain, NodeInput);
+
+    const {
+      dynamic: { id, title },
+    } = cloned;
+
+    const index =
+      [...this.node.inputs.values()].reduce((max, i) => {
+        if (i.cloned && i.dynamic?.group !== input.dynamic.group) {
+          return max;
+        }
+
+        const index = i.dynamic.index || 0;
+        return index > max ? index : max;
+      }, 0) + 1;
+
+    merge(cloned, {
+      title: title.replace(DYNAMIC_PLACEHOLDER, index.toString()),
+      cloned: true,
+      dynamic: {
+        index,
+      },
+    });
+
+    this.node.inputs.set(
+      id.replace(DYNAMIC_PLACEHOLDER, index.toString()),
+      cloned
+    );
+    this.projectManager.markDirty();
+
+    this.node.build();
+    this.build();
+  }
+
+  removeInput(input: string) {
+    this.node.inputs.delete(input);
+    this.projectManager.markDirty();
+
+    this.node.build();
+  }
+
+  markFeatured(input: NodeInput) {
+    input.featured = true;
     this.projectManager.markDirty();
   }
 

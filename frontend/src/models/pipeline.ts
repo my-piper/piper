@@ -11,7 +11,6 @@ import {
 import { PipelineIOType } from "src/types/pipeline";
 import { Primitive } from "src/types/primitive";
 import { DeployConfig } from "./deploy-config";
-import { Extension } from "./extension";
 import { Node } from "./node";
 import { OutputFlow } from "./output-flow";
 import { PipelineCategory } from "./pipeline-category";
@@ -92,10 +91,6 @@ export class PipelineInput {
   @Expose()
   @Type(() => String)
   placeholder!: string;
-
-  @Expose()
-  @Type(() => Extension)
-  extensions!: Extension[];
 
   @Expose()
   @Type(() => InputFlow)

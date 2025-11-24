@@ -7,7 +7,6 @@ import {
   LAUNCH,
   LAUNCH_EXPIRED,
   NODE_INPUT,
-  NODE_OUTPUTS,
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
   PIPELINE_OUTPUT_DATA,
@@ -19,7 +18,6 @@ import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
-import isEmpty from "lodash/isEmpty";
 import {
   BooleanData,
   FloatData,
@@ -106,13 +104,6 @@ export async function run({
         if (value !== undefined) {
           outputs[key] = value;
         }
-      }
-      if (!isEmpty(outputs)) {
-        await redis.setEx(
-          NODE_OUTPUTS(_id, id),
-          LAUNCH_EXPIRED,
-          JSON.stringify(outputs)
-        );
       }
     }
   }

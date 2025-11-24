@@ -24,13 +24,13 @@ const ICON = `
   selector: "[inspect]",
 })
 export class InspectDirective implements OnInit, OnDestroy {
-  private parent: HTMLElement;
-  private button: HTMLButtonElement;
+  private parent: HTMLElement | null = null;
+  private button: HTMLButtonElement | null = null;
 
   private type: SourceType;
   private url: string;
 
-  private observers: { parent: MutationObserver } = { parent: null };
+  private observers: { parent: MutationObserver | null } = { parent: null };
 
   @Input("inspect")
   set config({ type, url }: { type: SourceType; url: string }) {
@@ -41,7 +41,7 @@ export class InspectDirective implements OnInit, OnDestroy {
     private injector: Injector,
     private modal: ModalService,
     private cfr: ComponentFactoryResolver,
-    private hostRef: ElementRef,
+    private hostRef: ElementRef<HTMLElement>,
     private renderer: Renderer2
   ) {}
 
@@ -54,28 +54,26 @@ export class InspectDirective implements OnInit, OnDestroy {
     this.createButton();
     this.updatePosition();
 
-    {
-      const observer = new MutationObserver(() => this.updatePosition());
-      observer.observe(parent, {
-        attributes: true,
-        childList: true,
-        subtree: true,
-      });
+    const observer = new MutationObserver(() => this.updatePosition());
+    observer.observe(parent, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
 
-      this.observers.parent = observer;
-    }
+    this.observers.parent = observer;
   }
 
   ngOnDestroy() {
     this.removeButton();
 
-    if (!!this.observers.parent) {
+    if (this.observers.parent) {
       this.observers.parent.disconnect();
     }
   }
 
   private createButton() {
-    const button = this.renderer.createElement("button");
+    const button = this.renderer.createElement("button") as HTMLButtonElement;
     this.renderer.setStyle(button, "position", "absolute");
     this.renderer.setStyle(button, "border", "none");
     this.renderer.setStyle(button, "top", "0");
@@ -96,34 +94,46 @@ export class InspectDirective implements OnInit, OnDestroy {
     const {
       nativeElement: { parentElement: parent },
     } = this.hostRef;
-    this.renderer.setStyle(parent, "position", "relative");
+
+    const parentStyle = getComputedStyle(parent);
+    if (parentStyle.position === "static") {
+      this.renderer.setStyle(parent, "position", "relative");
+    }
+
     this.renderer.appendChild(parent, button);
 
     this.button = button;
+    this.parent = parent;
   }
 
   private removeButton() {
-    if (!!this.button) {
+    if (this.button && this.parent) {
       this.renderer.removeChild(this.parent, this.button);
       this.button = null;
     }
+  }
+
+  // For image/video load layout changes
+  @HostListener("load")
+  onLoad() {
+    this.updatePosition();
   }
 
   private updatePosition() {
     if (!this.button) {
       return;
     }
-    const hostElement = this.hostRef.nativeElement as HTMLImageElement;
 
-    const parent = hostElement.parentElement as HTMLElement;
-    const hostRect = hostElement.getBoundingClientRect();
-    const parentRect = parent.getBoundingClientRect();
+    const host = this.hostRef.nativeElement;
+    const parent = this.parent || host.parentElement;
+    if (!host || !parent) {
+      return;
+    }
+    const top = host.offsetTop + 5;
+    const left = host.offsetLeft + 5;
 
-    const top = hostRect.top - parentRect.top;
-    const left = hostRect.left - parentRect.left;
-
-    this.renderer.setStyle(this.button, "top", `${top + 5}px`);
-    this.renderer.setStyle(this.button, "left", `${left + 5}px`);
+    this.renderer.setStyle(this.button, "top", `${top}px`);
+    this.renderer.setStyle(this.button, "left", `${left}px`);
   }
 
   private inspect() {

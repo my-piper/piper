@@ -10,11 +10,11 @@ import { HttpService } from "src/services/http.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
 
 @Component({
-  selector: "app-node-io",
-  templateUrl: "./node-io.component.html",
-  styleUrls: ["./node-io.component.scss"],
+  selector: "app-node-outputs",
+  templateUrl: "./node-outputs.component.html",
+  styleUrls: ["./node-outputs.component.scss"],
 })
-export class NodeIOComponent implements OnInit {
+export class NodeOutputsComponent implements OnInit {
   launch: Launch;
   id!: string;
   node!: Node;

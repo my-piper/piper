@@ -53,12 +53,15 @@ import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refi
 import { ExpensesComponent } from "./expenses/expenses.component";
 import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
+import { LaunchComponent } from "./launch/launch.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
 import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
-import { NodeIOComponent } from "./node-io/node-io.component";
+import { NodeInputsComponent } from "./node-inputs/node-inputs.component";
 import { NodeJobsComponent } from "./node-jobs/node-jobs.component";
+import { NodeLogsComponent } from "./node-logs/node-logs.component";
+import { NodeOutputsComponent } from "./node-outputs/node-outputs.component";
 import { EditPackageComponent } from "./node-packages/edit/edit-package.component";
 import { ExportPackageComponent } from "./node-packages/export/export-package.component";
 import { ImportPackageComponent } from "./node-packages/import/import-package.component";
@@ -273,11 +276,15 @@ const routes: Routes = [
             children: [
               {
                 path: "",
-                component: NodeIOComponent,
+                component: NodeInputsComponent,
               },
               {
                 path: "state",
                 component: NodeStateComponent,
+              },
+              {
+                path: "logs",
+                component: NodeJobsComponent,
               },
               {
                 path: "jobs",
@@ -314,6 +321,46 @@ const routes: Routes = [
         },
         runGuardsAndResolvers: "pathParamsChange",
         children: [
+          {
+            path: "launches/:id",
+            resolve: {
+              launch: LaunchResolver,
+            },
+            component: LaunchComponent,
+            outlet: "right",
+            children: [
+              {
+                path: "nodes/:id",
+                component: NodeInLaunchComponent,
+                resolve: {
+                  node: NodeFromLaunchResolver,
+                },
+                children: [
+                  {
+                    path: "",
+                    component: NodeOutputsComponent,
+                  },
+                  {
+                    path: "inputs",
+                    component: NodeInputsComponent,
+                  },
+                  {
+                    path: "state",
+                    component: NodeStateComponent,
+                  },
+                  {
+                    path: "logs",
+                    component: NodeLogsComponent,
+                  },
+                  {
+                    path: "jobs",
+                    component: NodeJobsComponent,
+                  },
+                ],
+              },
+            ],
+          },
+
           {
             path: "add-node",
             component: SelectNodeComponent,
@@ -434,7 +481,7 @@ const routes: Routes = [
             children: [
               {
                 path: "",
-                component: NodeIOComponent,
+                component: NodeInputsComponent,
               },
               {
                 path: "state",

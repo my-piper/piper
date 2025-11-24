@@ -7,7 +7,7 @@ import { Project } from "src/models/project";
 @Injectable({ providedIn: "root" })
 export class NodeFromProjectResolver {
   resolve: ResolveFn<{ id: string; node: Node }> = (
-    route: ActivatedRouteSnapshot,
+    route: ActivatedRouteSnapshot
   ) => {
     const { id } = route.params;
     const project = route.parent.data["project"] as Project;
@@ -18,7 +18,7 @@ export class NodeFromProjectResolver {
 @Injectable({ providedIn: "root" })
 export class NodeFromLaunchResolver {
   resolve: ResolveFn<{ id: string; node: Node }> = (
-    route: ActivatedRouteSnapshot,
+    route: ActivatedRouteSnapshot
   ) => {
     const { id } = route.params;
     const launch = route.parent.data["launch"] as Launch;

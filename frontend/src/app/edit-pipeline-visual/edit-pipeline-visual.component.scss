@@ -13,22 +13,6 @@
   }
 }
 
-.input,
-.output {
-  position: relative;
-
-  .more {
-    z-index: 1;
-    position: absolute;
-    top: $gutter-small;
-    right: $gutter-small;
-  }
-
-  &.disabled {
-    pointer-events: none;
-  }
-}
-
 ::ng-deep .popover .costs-details {
   &::ng-deep {
     font-size: .75em;
@@ -56,12 +40,11 @@
   }
 }
 
-
-
 .nodes {
   position: relative;
   overflow: scroll;
   height: 600px;
+  background: gray;
 
   >.actions {
     position: sticky;
@@ -70,7 +53,7 @@
     z-index: 2;
     width: fit-content;
     background: rgba(black, .5);
-    border-radius: $corner-small;
+    border-radius: 30px;
     padding: $gutter-big;
     backdrop-filter: blur(5px);
   }
@@ -105,10 +88,19 @@
   }
 
   .input {
+    .more {
+      z-index: 1;
+      position: absolute;
+      top: $gutter-normal;
+      right: $gutter-small;
+    }
+
     transform: translate(-100%, -50%);
   }
 
   .output {
+    display: flex;
+    align-items: center;
     transform: translateY(-50%);
   }
 
@@ -161,7 +153,7 @@
     .more {
       z-index: 1;
       position: absolute;
-      top: $gutter-small;
+      top: $gutter-normal;
       right: $gutter-small;
     }
   }
@@ -171,7 +163,8 @@
     top: 0;
     left: 0;
     width: 5000px;
-    height: 2000px;
+    height: 5000px;
+    background: black;
 
     >.flow {
       position: absolute;
@@ -205,6 +198,7 @@
         stroke-width: 3;
         stroke: rgba($flow-color, 0.85);
         fill: transparent;
+        opacity: .85;
       }
     }
   }

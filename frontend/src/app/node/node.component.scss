@@ -201,10 +201,17 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     gap: $gutter-small;
 
     li {
-      >.image {
-        @include placeholder();
+      .no-value {
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.5;
+      }
 
+      >.image {
         img {
+          @include placeholder();
           display: block;
           width: 100%;
           border-radius: $corner-small;
@@ -212,8 +219,6 @@ $node-border-color: rgba($graphite-color-200, 0.25);
       }
 
       >.images {
-        @include placeholder();
-
         &.multiple {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -222,11 +227,21 @@ $node-border-color: rgba($graphite-color-200, 0.25);
         }
 
         img {
+          @include placeholder();
           display: block;
           width: 100%;
           border-radius: $corner-small;
           min-width: 50px;
           min-height: 50px;
+        }
+      }
+
+      >.video {
+
+        video {
+          display: block;
+          width: 100%;
+          border-radius: $corner-small;
         }
       }
 

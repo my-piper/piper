@@ -16,6 +16,10 @@ import { ImportProjectComponent } from "./import/import-project.component";
 const TEST_PIPELINE = `
 name: New project
 version: 1
+layout:
+  left: 200
+  top: 200
+  zoom: 1
 start:
   nodes: []
 inputs: {}

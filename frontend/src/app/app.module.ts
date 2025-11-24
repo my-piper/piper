@@ -30,6 +30,7 @@ import { DropZoneDirective } from "src/directives/drop-zone.directive";
 import { ImageFallbackDirective } from "src/directives/image-fall-back.directive";
 import { ImageSizeDirective } from "src/directives/image-size";
 import { InspectDirective } from "src/directives/inspect";
+import { PitchZoomDirective } from "src/directives/pitch-zoom.directive";
 import { ScrollInsideDirective } from "src/directives/scroll-inside.directive";
 import { SelectableDirective } from "src/directives/selectable.directive";
 import { SubmitButtonDirective } from "src/directives/submit-button.directive";
@@ -47,6 +48,7 @@ import { PipelineInputPipe } from "src/pipes/input";
 import { IsPipe } from "src/pipes/is";
 import { MapToPlainPipe } from "src/pipes/map-to-plain";
 import { MarkdownPipe } from "src/pipes/markdown";
+import { MultiplyPipe } from "src/pipes/multiply";
 import { InputIndexOfPipe, NodePipe, OutputIndexOfPipe } from "src/pipes/node";
 import { NotPipe } from "src/pipes/not";
 import { NsfwPipe } from "src/pipes/nsfw";
@@ -80,7 +82,6 @@ import { AppComponent } from "./app.component";
 import { AssetsPageComponent } from "./assets-page/assets-page.component";
 import { BatchesComponent } from "./batches/batches.component";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
-import { DrawMaskComponent } from "./draw-mask/draw-mask.component";
 import { EditFlowTransformerComponent } from "./edit-flow-transformer/edit-flow-transformer.component";
 import { EditNodeAppComponent } from "./edit-node-app/edit-node-app.component";
 import { EditNodeCatalogComponent } from "./edit-node-catalog/edit-node-catalog.component";
@@ -102,13 +103,16 @@ import { InspectModule } from "./inspect/inspect.module";
 import { JsonEditorComponent } from "./json-editor/json-editor.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchOutputsComponent } from "./launch-outputs/launch-outputs.component";
+import { LaunchComponent } from "./launch/launch.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
 import { MeUserComponent } from "./me-user/me-user.component";
 import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
-import { NodeIOComponent } from "./node-io/node-io.component";
+import { NodeInputsComponent } from "./node-inputs/node-inputs.component";
 import { NodeJobsComponent } from "./node-jobs/node-jobs.component";
+import { NodeLogsComponent } from "./node-logs/node-logs.component";
+import { NodeOutputsComponent } from "./node-outputs/node-outputs.component";
 import { EditPackageComponent } from "./node-packages/edit/edit-package.component";
 import { ExportPackageComponent } from "./node-packages/export/export-package.component";
 import { ImportPackageComponent } from "./node-packages/import/import-package.component";
@@ -183,7 +187,8 @@ import { UsersComponent } from "./users/users.component";
     NodeInLaunchComponent,
     NodeStateComponent,
     NodeJobsComponent,
-    NodeIOComponent,
+    NodeInputsComponent,
+    NodeOutputsComponent,
     PlaygroundComponent,
     ProjectPlaygroundComponent,
     SelectPlaygroundComponent,
@@ -199,7 +204,6 @@ import { UsersComponent } from "./users/users.component";
     ValuesPipe,
     LaunchOutputsComponent,
     SelectGeneratedComponent,
-    DrawMaskComponent,
     OrderByPipe,
     LaunchesPageComponent,
     ImageSizeDirective,
@@ -217,6 +221,7 @@ import { UsersComponent } from "./users/users.component";
     EditNodeCatalogComponent,
     EditNodeEnvironmentComponent,
     EditPipelineEnvironmentComponent,
+    NodeLogsComponent,
     SubmitButtonDirective,
     GroupNodesPipe,
     EditPackageComponent,
@@ -230,6 +235,8 @@ import { UsersComponent } from "./users/users.component";
     EditPipelineDesignComponent,
     EditProjectComponent,
     SelectableDirective,
+    PitchZoomDirective,
+    MultiplyPipe,
     CanPipe,
     NotPipe,
     EditPipelineReadmeComponent,
@@ -251,6 +258,7 @@ import { UsersComponent } from "./users/users.component";
     ScrollInsideDirective,
     DragCloneDirective,
     DropZoneDirective,
+    LaunchComponent,
   ],
   imports: [
     BrowserModule,
