@@ -78,6 +78,7 @@
             </ng-template>
             <img
               *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+              imageFallback
               [imageSize]="value"
               [src]="value | proxyImage: { height: 500 }"
             />
@@ -100,6 +101,7 @@
               >
                 <img
                   *ngFor="let image of images"
+                  imageFallback
                   [inspect]="{ type: 'image', url: image }"
                   [imageSize]="image"
                   [src]="image | proxyImage: { height: 500 }"

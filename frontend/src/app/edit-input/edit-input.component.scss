@@ -3,6 +3,33 @@
 
 :host {
   display: block;
+
+  &[data-type="image[]"] {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    &.compact {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    &.empty {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+:host-context(.pipeline-input) {
+  .image {
+    max-width: 100px;
+    max-height: 100px;
+  }
+
+  &.compact {
+    .image {
+      max-width: 50px;
+      max-height: 50px;
+    }
+  }
 }
 
 .upload {
@@ -26,7 +53,7 @@
     font-size: $font-size-small;
 
     span {
-      background: $graphite-color-60;
+      background: $control-background-color;
       padding: $gutter-tiny $gutter-small;
       border-radius: $corner-small;
     }
@@ -81,17 +108,55 @@ textarea {
   }
 }
 
+.image {
+  @include placeholder();
+  position: relative;
+  min-width: 50px;
+  min-height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    button {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    &:hover {
+      button {
+        opacity: 1;
+      }
+    }
+  }
+
+  &.add-image {
+    background: $control-background-color;
+
+    &.dragging {
+      background: $control-focus-background-color;
+    }
+  }
+}
+
 img,
 video {
-  &:not(.mask) {
-    @include placeholder();
-  }
+  @include placeholder();
 
   display: block;
   width: 100%;
-  min-width: 100px;
-  min-height: 100px;
-  border-radius: $corner-small;
 
   &.mask {
     position: absolute;

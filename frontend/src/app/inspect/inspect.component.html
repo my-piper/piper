@@ -1,3 +1,3 @@
 <ng-container [ngSwitch]="type">
-  <img *ngSwitchCase="'image'" [src]="url" />
+  <img *ngSwitchCase="'image'" imageFallback [src]="url" />
 </ng-container>

@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   forwardRef,
+  HostBinding,
   Input,
   OnInit,
   ViewChild,
@@ -21,6 +22,8 @@ import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { ModalService } from "../../ui-kit/modal/modal.service";
+
+const COMPACT_LENGTH = 3;
 
 @Component({
   selector: "app-edit-input",
@@ -50,8 +53,29 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
   @Input()
   id!: string;
 
+  @HostBinding("attr.data-type")
   @Input()
   type!: string;
+
+  @HostBinding("class.compact")
+  @Input()
+  get compact() {
+    if (this.type === "image[]") {
+      const value = this.valueControl.value as string[];
+      return value.length > COMPACT_LENGTH;
+    }
+    return false;
+  }
+
+  @HostBinding("class.empty")
+  @Input()
+  get empty() {
+    if (this.type === "image[]") {
+      const value = this.valueControl.value as string[];
+      return value.length <= 0;
+    }
+    return false;
+  }
 
   @Input()
   enum: Primitive[] = [];
@@ -79,6 +103,10 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
 
   @Input()
   inputs: FormGroup;
+
+  @HostBinding("class.disabled")
+  @Input()
+  disabled: boolean = false;
 
   @ViewChild("inputRef")
   set inputRef(inputRef: ElementRef<HTMLElement>) {
@@ -109,7 +137,8 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
             case "boolean":
               return !!value;
             case "string[]":
-              const values = value as string[];
+            case "image[]":
+              const values = (value as string[]) || [];
               if (values.length <= 0) {
                 return null;
               }
@@ -130,10 +159,8 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
           case "boolean":
             return !!value;
           case "string[]":
-            if (!value) {
-              return null;
-            }
-            return (value as string).split("|");
+          case "image[]":
+            return !!value ? (value as string).split("|") : [];
           default:
             return value;
         }
@@ -154,18 +181,37 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
     this.onTouch = fn;
   }
 
-  setDisabledState?(isDisabled: boolean): void {
-    // Handle disabling component
+  setDisabledState?(disabled: boolean): void {
+    this.disabled = disabled;
   }
 
   putUrl(url: string) {
-    this.valueControl.setValue(url);
-    this.cd.detectChanges();
-
+    this.setValue(url);
     this.modal.close();
   }
 
-  async paste(event: ClipboardEvent) {
+  setValue(value: Primitive) {
+    switch (this.type) {
+      case "string[]":
+      case "image[]":
+        const items = this.valueControl.value as string[];
+        this.valueControl.setValue([...items, value as string]);
+        break;
+      default:
+        this.valueControl.setValue(value);
+    }
+
+    this.cd.detectChanges();
+  }
+
+  removeItem(index: number) {
+    const items = this.valueControl.value as string[];
+    items.splice(index, 1);
+    this.valueControl.setValue([...items]);
+    this.cd.detectChanges();
+  }
+
+  async pasteFromClipboard(event: ClipboardEvent) {
     let clipboardItems: Array<ClipboardItem | File> = [];
 
     if (typeof navigator?.clipboard?.read === "function") {
@@ -214,9 +260,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
       )
       .subscribe({
         next: ({ url }) => {
-          this.valueControl.setValue(url);
-          this.cd.detectChanges();
-
+          this.setValue(url);
           this.modal.close();
         },
         error: (err) => (this.error = err),
@@ -237,18 +281,17 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
 
   dropped(event: DragEvent) {
     event.preventDefault();
-
     this.state.dragging = false;
     this.cd.detectChanges();
 
     const data = event.dataTransfer.getData("text/uri");
     if (!!data) {
-      this.valueControl.setValue(data);
+      this.setValue(data);
       return;
     }
 
     const file = event.dataTransfer.files[0];
-    if (!!file && file.type.startsWith("image/")) {
+    if (file?.type.startsWith("image/")) {
       this.upload(file);
     }
   }

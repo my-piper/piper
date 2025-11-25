@@ -46,6 +46,7 @@
     <ng-container *ngIf="visibilityControl.value !== 'private'">
       <input class="input-primary fluid" type="text" formControlName="slug" />
       <input
+        *ngIf="visibilityControl.value === 'public'"
         class="input-primary fluid"
         type="number"
         formControlName="order"

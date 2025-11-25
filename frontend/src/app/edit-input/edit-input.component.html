@@ -15,21 +15,34 @@
   </div>
 </ng-template>
 
-<ng-template #selectAssetTemplate let-type="type">
+<ng-template #selectAssetTemplate let-filterType="type">
   <div [formGroup]="form" class="select-asset">
     <p i18n="@@message.upload_image">
       Just press <span>Ctrl+V</span> to upload image
     </p>
-    <textarea
-      #inputRef
-      [class.uploading]="progress.uploading"
-      [disabled]="progress.uploading"
-      formControlName="value"
-      class="input-primary"
-      cols="50"
-      rows="3"
-      (paste)="paste($event)"
-    ></textarea>
+    <ng-container [ngSwitch]="type">
+      <textarea
+        #inputRef
+        *ngSwitchCase="'image[]'"
+        [class.uploading]="progress.uploading"
+        [disabled]="progress.uploading"
+        class="input-primary"
+        cols="50"
+        rows="3"
+        (paste)="pasteFromClipboard($event)"
+      ></textarea>
+      <textarea
+        #inputRef
+        *ngSwitchDefault
+        [class.uploading]="progress.uploading"
+        [disabled]="progress.uploading"
+        formControlName="value"
+        class="input-primary"
+        cols="50"
+        rows="3"
+        (paste)="pasteFromClipboard($event)"
+      ></textarea>
+    </ng-container>
 
     <ng-template #generatedTab>
       <app-select-generated (selected)="putUrl($event)"></app-select-generated>
@@ -37,7 +50,7 @@
 
     <ng-template #assetsTab>
       <app-assets
-        [filter]="{ type: type }"
+        [filter]="{ type: filterType }"
         (selected)="putUrl($event.url)"
       ></app-assets>
     </ng-template>
@@ -139,6 +152,55 @@
         [imageSize]="url"
         [src]="url | proxyImage: { width: 500 }"
       />
+    </div>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'image[]'">
+    <ng-template #selectImageAssetModal>
+      <ng-container
+        *ngTemplateOutlet="selectAssetTemplate; context: { type: 'image' }"
+      ></ng-container>
+    </ng-template>
+    <ng-container *ngIf="valueControl.value as value">
+      <div class="image" *ngFor="let url of value; let i = index">
+        <div class="remove">
+          <button class="primary with-icon only-icon" (click)="removeItem(i)">
+            <app-icon class="icon" icon="delete" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <ng-template #defaultTemplate>
+          <img
+            [imageFallback]
+            [imageSize]="url"
+            [src]="url | proxyImage: { width: 250 }"
+          />
+        </ng-template>
+        <img
+          *ngIf="compact; else defaultTemplate"
+          [imageFallback]
+          [src]="url | proxyImage: { width: 250 }"
+        />
+      </div>
+    </ng-container>
+    <div
+      class="image add-image"
+      [class.dragging]="state.dragging"
+      (dragover)="tryDragOver($event)"
+      (dragleave)="leaveDragZone($event)"
+      (drop)="dropped($event)"
+    >
+      <button
+        class="primary with-icon only-icon"
+        [class.busy]="progress.uploading"
+        [disabled]="progress.uploading"
+        [appModal]="{
+          title: i18n.selectImage,
+          content: selectImageAssetModal,
+        }"
+      >
+        <app-icon class="icon" icon="add" [size]="18"></app-icon>
+      </button>
     </div>
   </ng-container>
 
