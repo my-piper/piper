@@ -36,6 +36,8 @@
   </form>
 </header>
 
+<hr />
+
 <ng-container *ngIf="node.render.inputs as groups">
   <form *ngIf="groups.length > 0; else noInputsTemplate" [formGroup]="form">
     <ng-container *ngFor="let g of groups">
