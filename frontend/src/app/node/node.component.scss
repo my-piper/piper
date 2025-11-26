@@ -209,13 +209,11 @@ $node-border-color: rgba($graphite-color-200, 0.25);
         opacity: 0.5;
       }
 
-      >.image {
-        img {
-          @include placeholder();
-          display: block;
-          width: 100%;
-          border-radius: $corner-small;
-        }
+      img {
+        @include placeholder();
+        display: block;
+        width: 100%;
+        border-radius: $corner-small;
       }
 
       >.images {
@@ -224,15 +222,6 @@ $node-border-color: rgba($graphite-color-200, 0.25);
           grid-template-columns: repeat(2, 1fr);
           gap: $gutter-small;
           padding: $gutter-normal;
-        }
-
-        img {
-          @include placeholder();
-          display: block;
-          width: 100%;
-          border-radius: $corner-small;
-          min-width: 50px;
-          min-height: 50px;
         }
       }
 
@@ -247,11 +236,18 @@ $node-border-color: rgba($graphite-color-200, 0.25);
 
       >.string {
         padding: $gutter-small;
-        font-size: 0.75em;
-        line-height: 1em;
-        display: -webkit-box;
         overflow: hidden;
         max-height: 15em;
+        font-size: 0.75em;
+        line-height: 1em;
+
+        ::ng-deep {
+
+          ul,
+          ol {
+            padding-left: 1.5em;
+          }
+        }
       }
     }
 

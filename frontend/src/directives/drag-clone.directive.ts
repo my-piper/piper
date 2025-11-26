@@ -9,6 +9,8 @@ import {
 } from "@angular/core";
 import { DropZoneHub } from "src/services/drop-zone.hub";
 
+// thanks for ChatGPT here
+
 @Directive({
   selector: "[dragClone]",
 })
@@ -82,6 +84,7 @@ export class DragCloneDirective implements OnDestroy {
 
     // 4) Append to body so it isn't clipped
     this.renderer.appendChild(document.body, clone);
+    this.renderer.setStyle(document.body, "cursor", "grabbing");
     this.dragging = true;
   }
 
@@ -122,13 +125,14 @@ export class DragCloneDirective implements OnDestroy {
   }
 
   private cleanup() {
-    this.dragging = false;
     if (this.clonedElement?.parentElement) {
       this.renderer.removeChild(
         this.clonedElement.parentElement,
         this.clonedElement
       );
     }
+    this.dragging = false;
+    this.renderer.removeStyle(document.body, "cursor");
     this.clonedElement = null;
   }
 }
@@ -148,12 +152,12 @@ function copyComputedStyles(src: HTMLElement, dst: HTMLElement) {
   const computed = getComputedStyle(src);
 
   for (let i = 0; i < computed.length; i++) {
-    const prop = computed[i];
-    const val = computed.getPropertyValue(prop);
-    if (!val) {
+    const property = computed[i];
+    const value = computed.getPropertyValue(property);
+    if (!value) {
       continue;
     }
-    const priority = computed.getPropertyPriority(prop);
-    dst.style.setProperty(prop, val, priority);
+    const priority = computed.getPropertyPriority(property);
+    dst.style.setProperty(property, value, priority);
   }
 }

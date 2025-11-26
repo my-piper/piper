@@ -7,7 +7,7 @@ import { delay, finalize, map, merge } from "rxjs";
 import { User, UserRole, UsersFilter } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
-import { toPlain } from "src/utils/models";
+import { mapTo, toPlain } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { EditUserComponent } from "./edit/edit-user.component";
 
@@ -71,7 +71,7 @@ export class UsersComponent {
     this.cd.detectChanges();
 
     this.http
-      .get("users", toPlain(new UsersFilter({ cursor })))
+      .get("users", toPlain(mapTo({ cursor }, UsersFilter)))
       .pipe(
         delay(UI_DELAY),
         map((arr) =>

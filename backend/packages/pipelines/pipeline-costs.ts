@@ -99,11 +99,12 @@ export async function getCosts(
       const inputs = (() => {
         let toLaunch = launchRequest.nodes.get(id);
         if (!toLaunch) {
-          toLaunch = new NodeToLaunch({
-            inputs: new Map<string, Primitive>(),
-          });
+          toLaunch = new NodeToLaunch();
           launchRequest.nodes.set(id, toLaunch);
         }
+        toLaunch.inputs ??= new Map<string, Primitive>();
+        toLaunch.outputs ??= new Map<string, Primitive>();
+
         return toLaunch.inputs;
       })();
 

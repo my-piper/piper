@@ -72,12 +72,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   progress: {
     launching: boolean;
+    interrupting: boolean;
     nodes: {
       launching: {
         [key: string]: boolean;
       };
     };
-  } = { launching: false, nodes: { launching: {} } };
+  } = { launching: false, interrupting: false, nodes: { launching: {} } };
   error: Error;
 
   launch!: Launch;
@@ -241,13 +242,28 @@ export class EditPipelineVisualComponent implements OnDestroy {
       });
   }
 
-  stop() {
-    this.launch = null;
+  interrupt() {
+    this.progress.interrupting = true;
     this.cd.detectChanges();
 
-    this.router.navigate([{}], {
-      relativeTo: this.route,
-    });
+    this.http
+      .post(`launches/${this.launch._id}/interrupt`)
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.interrupting = false;
+          this.cd.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.launch = null;
+          this.cd.detectChanges();
+
+          this.saveUrlState();
+        },
+        error: (err) => (this.error = err),
+      });
   }
 
   runNode(node: string) {

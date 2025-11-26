@@ -121,9 +121,47 @@
               controls
             ></video>
           </div>
-          <div class="string" *ngSwitchCase="'string'">
-            {{ value }}
-          </div>
+          <ng-container *ngSwitchCase="'json'">
+            <ng-template #noValueTemplate>
+              <div class="no-value">
+                <app-icon icon="json" [size]="64"></app-icon>
+              </div>
+            </ng-template>
+            <ng-container
+              *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+            >
+              <pre class="json" [inspect]="{ type: 'json', text: value }">{{
+                value
+              }}</pre>
+            </ng-container>
+          </ng-container>
+          <ng-container class="string" *ngSwitchCase="'string'">
+            <ng-template #noValueTemplate>
+              <div class="no-value">
+                <app-icon icon="text" [size]="64"></app-icon>
+              </div>
+            </ng-template>
+            <ng-container
+              *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+            >
+              <ng-container [ngSwitch]="o.value.format">
+                <div
+                  *ngSwitchCase="'markdown'"
+                  [inspect]="{ type: 'markdown', text: value }"
+                  class="string"
+                  [innerHTML]="value | markdown | async"
+                ></div>
+                <pre
+                  *ngSwitchCase="'code'"
+                  class="string"
+                  [innerHTML]="value | markdown | async"
+                ></pre>
+                <div *ngSwitchDefault class="string">
+                  {{ value }}
+                </div>
+              </ng-container>
+            </ng-container>
+          </ng-container>
         </ng-container>
       </li>
     </ng-container>

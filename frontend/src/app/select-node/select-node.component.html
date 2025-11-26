@@ -25,6 +25,17 @@
   </ng-container>
 </ng-template>
 
+<form [formGroup]="form">
+  <fieldset>
+    <input
+      #searchInput
+      class="search input-primary"
+      formControlName="search"
+      placeholder="Search"
+    />
+  </fieldset>
+</form>
+
 <ng-container *ngIf="nodes.length > 0; else noDataTemplate">
   <ng-container *ngFor="let c of nodes | groupNodes">
     <h2>{{ c.category?.title | i18n }}</h2>

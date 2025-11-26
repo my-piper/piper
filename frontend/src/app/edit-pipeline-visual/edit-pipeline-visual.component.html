@@ -1,3 +1,9 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
 <div class="sidebar left" [class.hidden]="!sidebar.left">
   <div class="content">
     <router-outlet
@@ -95,9 +101,13 @@
     <div [appPopover]="{ content: runTemplate }">
       <button
         class="circle"
-        [class.busy]="progress.launching || (launches | keyvalue).length > 0"
+        [class.busy]="
+          progress.launching ||
+          progress.interrupting ||
+          (launches | keyvalue).length > 0
+        "
         [disabled]="(launches | keyvalue).length > 0"
-        (click)="!!launch ? stop() : run()"
+        (click)="!!launch ? interrupt() : run()"
       >
         <app-icon
           class="icon"

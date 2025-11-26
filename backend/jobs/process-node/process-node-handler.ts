@@ -6,6 +6,7 @@ import {
   LAUNCH_EXPIRED,
   LAUNCH_HEARTBEAT,
   LAUNCH_HEARTBEAT_EXPIRED,
+  LAUNCH_INTERRUPTED,
   NODE_FLOWS,
   NODE_INPUT,
   NODE_JOBS,
@@ -22,6 +23,7 @@ import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import { Job } from "core-kit/packages/queue";
 import redis, {
+  exists,
   lock,
   locked,
   readInstance,
@@ -111,6 +113,11 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   logger.debug(
     `Processing job ${job.id} for node ${attemptsMade} / ${maxAttempts}`
   );
+
+  if (await exists(LAUNCH_INTERRUPTED(nodeJob.launch))) {
+    logger.debug("Launch has been interrupted");
+    return NodeJobResult.LAUNCH_INTERRUPTED;
+  }
 
   const PROCESSED_LOCK = NODE_PROCESSED_LOCK(nodeJob.launch, nodeJob.node);
   if (await locked(PROCESSED_LOCK)) {

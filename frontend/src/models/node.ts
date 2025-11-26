@@ -424,3 +424,9 @@ export class PipelineNodeUpdates {
   @Type(() => NodeToUpdate)
   updates: Map<string, NodeToUpdate>;
 }
+
+export class NodesFilter {
+  @Expose()
+  @Type(() => String)
+  search?: string;
+}

@@ -1,3 +1,15 @@
 <ng-container [ngSwitch]="type">
   <img *ngSwitchCase="'image'" imageFallback [src]="url" />
+  <div *ngSwitchCase="'markdown'" [innerHTML]="text | markdown | async"></div>
+  <ngx-monaco-editor
+    *ngSwitchCase="'json'"
+    class="monaco"
+    [options]="{
+      readOnly: true,
+      theme: 'vs-dark',
+      automaticLayout: true,
+    }"
+    [model]="{ language: 'json', value: text }"
+  >
+  </ngx-monaco-editor>
 </ng-container>

@@ -8,6 +8,10 @@
   gap: $gutter-normal;
 }
 
+.search {
+  width: 100%;
+}
+
 ::ng-deep .popover .version {
   padding: $gutter-tiny $gutter-small;
   line-height: 1;
@@ -40,6 +44,7 @@ h2 {
   article {
     display: flex;
     user-select: none;
+    cursor: grab;
 
     h3 {
       flex: 1;

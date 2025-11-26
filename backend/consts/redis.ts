@@ -18,6 +18,8 @@ export const DEPLOY = (slug: string) => `deploy:${slug}`;
 export const LAUNCH = (launch: string) => `launch:${launch}`;
 export const LAUNCH_HEARTBEAT = (launch: string) =>
   `launch:${launch}:heartbeat`;
+export const LAUNCH_INTERRUPTED = (launch: string) =>
+  `launch:${launch}:interrupted`;
 export const PIPELINE = (launch: string) => `launch:${launch}:pipeline`;
 
 export const NODE_INPUT = (

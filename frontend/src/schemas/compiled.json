@@ -510,7 +510,8 @@
 										"title": "Format",
 										"type": "string",
 										"enum": [
-											"code"
+											"code",
+											"markdown"
 										],
 										"propertyOrder": 5
 									},
@@ -751,7 +752,8 @@
 										"title": "Format",
 										"type": "string",
 										"enum": [
-											"code"
+											"code",
+											"markdown"
 										],
 										"propertyOrder": 5
 									},
@@ -1038,7 +1040,8 @@
 									"title": "Format",
 									"type": "string",
 									"enum": [
-										"code"
+										"code",
+										"markdown"
 									],
 									"propertyOrder": 5
 								},
@@ -1639,7 +1642,8 @@
 							"title": "Format",
 							"type": "string",
 							"enum": [
-								"code"
+								"code",
+								"markdown"
 							],
 							"propertyOrder": 5
 						},
@@ -1880,7 +1884,8 @@
 							"title": "Format",
 							"type": "string",
 							"enum": [
-								"code"
+								"code",
+								"markdown"
 							],
 							"propertyOrder": 5
 						},
@@ -2167,7 +2172,8 @@
 						"title": "Format",
 						"type": "string",
 						"enum": [
-							"code"
+							"code",
+							"markdown"
 						],
 						"propertyOrder": 5
 					},
@@ -3173,7 +3179,8 @@
 										"title": "Format",
 										"type": "string",
 										"enum": [
-											"code"
+											"code",
+											"markdown"
 										],
 										"propertyOrder": 5
 									},
@@ -3414,7 +3421,8 @@
 										"title": "Format",
 										"type": "string",
 										"enum": [
-											"code"
+											"code",
+											"markdown"
 										],
 										"propertyOrder": 5
 									},
@@ -3701,7 +3709,8 @@
 									"title": "Format",
 									"type": "string",
 									"enum": [
-										"code"
+										"code",
+										"markdown"
 									],
 									"propertyOrder": 5
 								},
@@ -5165,7 +5174,8 @@
 												"title": "Format",
 												"type": "string",
 												"enum": [
-													"code"
+													"code",
+													"markdown"
 												],
 												"propertyOrder": 5
 											},
@@ -5406,7 +5416,8 @@
 												"title": "Format",
 												"type": "string",
 												"enum": [
-													"code"
+													"code",
+													"markdown"
 												],
 												"propertyOrder": 5
 											},
@@ -5693,7 +5704,8 @@
 											"title": "Format",
 											"type": "string",
 											"enum": [
-												"code"
+												"code",
+												"markdown"
 											],
 											"propertyOrder": 5
 										},

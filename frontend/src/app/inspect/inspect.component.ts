@@ -7,8 +7,11 @@ import { Component, Input } from "@angular/core";
 })
 export class InspectComponent {
   @Input()
-  type: "image" | "video" = "image";
+  type: "image" | "video" | "text" | "markdown" = "image";
 
   @Input()
   url: string;
+
+  @Input()
+  text: string;
 }

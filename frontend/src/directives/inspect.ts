@@ -29,12 +29,21 @@ export class InspectDirective implements OnInit, OnDestroy {
 
   private type: SourceType;
   private url: string;
+  private text: string;
 
   private observers: { parent: MutationObserver | null } = { parent: null };
 
   @Input("inspect")
-  set config({ type, url }: { type: SourceType; url: string }) {
-    [this.type, this.url] = [type, url];
+  set config({
+    type,
+    url,
+    text,
+  }: {
+    type: SourceType;
+    url?: string;
+    text?: string;
+  }) {
+    [this.type, this.url, this.text] = [type, url, text];
   }
 
   constructor(
@@ -140,7 +149,8 @@ export class InspectDirective implements OnInit, OnDestroy {
     const component = this.cfr
       .resolveComponentFactory(InspectComponent)
       .create(this.injector);
-    [component.instance.type, component.instance.url] = [this.type, this.url];
+    [component.instance.type, component.instance.url, component.instance.text] =
+      [this.type, this.url, this.text];
     this.modal.open(component, {
       title: $localize`:@@label.inspect:Inspect`,
     });

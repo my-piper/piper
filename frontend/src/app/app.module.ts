@@ -99,7 +99,7 @@ import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refi
 import { ExpensesComponent } from "./expenses/expenses.component";
 import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
 import { FeedSkeletonComponent } from "./feed-skeleton/feed-skeleton.component";
-import { InspectModule } from "./inspect/inspect.module";
+import { InspectComponent } from "./inspect/inspect.component";
 import { JsonEditorComponent } from "./json-editor/json-editor.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchOutputsComponent } from "./launch-outputs/launch-outputs.component";
@@ -259,6 +259,7 @@ import { UsersComponent } from "./users/users.component";
     DragCloneDirective,
     DropZoneDirective,
     LaunchComponent,
+    InspectComponent,
   ],
   imports: [
     BrowserModule,
@@ -271,7 +272,6 @@ import { UsersComponent } from "./users/users.component";
     }),
     HttpClientModule,
     UiKitModule,
-    InspectModule,
     NgHcaptchaModule.forRoot(),
   ],
   providers: [

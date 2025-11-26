@@ -334,7 +334,7 @@
         "format": {
           "title": "Format",
           "type": "string",
-          "enum": ["code"],
+          "enum": ["code", "markdown"],
           "propertyOrder": 5
         },
         "language": {
