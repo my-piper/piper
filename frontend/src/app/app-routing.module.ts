@@ -37,6 +37,7 @@ import { ProjectMessagesFilterResolver } from "src/resolvers/project-messages-fi
 import { TagResolver } from "src/resolvers/tags";
 import { UserResolver } from "src/resolvers/user";
 import { AssetsPageComponent } from "./assets-page/assets-page.component";
+import { AssistantComponent } from "./assistant/assistant.component";
 import { BatchesComponent } from "./batches/batches.component";
 import { EditNodeAppComponent } from "./edit-node-app/edit-node-app.component";
 import { EditNodeCatalogComponent } from "./edit-node-catalog/edit-node-catalog.component";
@@ -360,11 +361,15 @@ const routes: Routes = [
               },
             ],
           },
-
           {
             path: "add-node",
             component: SelectNodeComponent,
             outlet: "left",
+          },
+          {
+            path: "assistant",
+            component: AssistantComponent,
+            outlet: "bottom",
           },
           {
             path: "apps/:id",

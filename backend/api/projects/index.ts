@@ -17,4 +17,5 @@ import "./check-node-updates";
 import "./get-launch-costs";
 import "./launch-project";
 
+import "./assistant";
 import "./comments";

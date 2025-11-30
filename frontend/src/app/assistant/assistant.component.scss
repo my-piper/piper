@@ -1,0 +1,36 @@
+@import 'src/ui-kit/styles/variables';
+@import 'src/ui-kit/styles/mixins';
+
+:host {
+  display: block;
+}
+
+.chat {
+  height: 200px;
+  overflow-y: scroll;
+  border: 1px solid $control-border-color;
+  border-radius: $corner-base;
+  padding: $gutter-normal;
+
+  >div {
+    border: 1px solid $control-border-color;
+    background: rgba($control-background-color, 0.25);
+    border-radius: $corner-huge;
+    padding: $gutter-small $gutter-normal;
+    margin-bottom: $gutter-normal;
+
+    ::ng-deep {
+      p {
+        margin: $gutter-tiny 0;
+      }
+    }
+  }
+}
+
+form {
+  @include vertical-stack();
+}
+
+textarea {
+  width: 100%;
+}

@@ -4,27 +4,48 @@
   (ok)="error = null"
 ></app-informer>
 
-<div class="sidebar left" [class.hidden]="!sidebar.left">
+<div class="drawler left" [class.hidden]="!drawlers.left">
   <div class="content">
     <router-outlet
       name="left"
-      (activate)="sidebar.left = $event"
-      (deactivate)="sidebar.left = null"
+      (activate)="drawlers.left = $event"
+      (deactivate)="drawlers.left = null"
     ></router-outlet>
   </div>
 </div>
 
 <div
-  class="sidebar"
-  [class.hidden]="!sidebar.right"
-  [class.wide]="sidebar.right | is: launchComponent"
+  class="drawler right"
+  [class.hidden]="!drawlers.right"
+  [class.wide]="drawlers.right | is: launchComponent"
 >
   <div class="content">
     <router-outlet
       name="right"
-      #sidebarRight="outlet"
-      (activate)="sidebar.right = $event"
-      (deactivate)="sidebar.right = null"
+      #drawlerRight="outlet"
+      (activate)="drawlers.right = $event"
+      (deactivate)="drawlers.right = null"
+    ></router-outlet>
+  </div>
+</div>
+
+<div
+  class="drawler bottom"
+  [class.hidden]="!drawlers.bottom"
+  [class.shift-left]="drawlers.left"
+  [class.shift-right]="drawlers.right"
+>
+  <header>
+    <div class="title" i18n="@@label.ai_assistant">AI assistant</div>
+    <a class="circle" [routerLink]="[{ outlets: { bottom: null } }]">
+      <app-icon class="icon" icon="close"></app-icon>
+    </a>
+  </header>
+  <div class="content">
+    <router-outlet
+      name="bottom"
+      (activate)="drawlers.bottom = $event"
+      (deactivate)="drawlers.bottom = null"
     ></router-outlet>
   </div>
 </div>
@@ -66,6 +87,7 @@
   >
     <a
       class="circle"
+      [class.toggled]="drawlers.left"
       [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
     >
       <app-icon class="icon" icon="add-node"></app-icon>
@@ -116,6 +138,16 @@
         ></app-icon>
       </button>
     </div>
+
+    <a
+      class="circle"
+      [class.toggled]="drawlers.bottom"
+      [routerLink]="[
+        { outlets: { bottom: drawlers.bottom ? null : ['assistant'] } },
+      ]"
+    >
+      <app-icon class="icon" icon="assistant"></app-icon>
+    </a>
   </div>
 
   <div

@@ -105,8 +105,8 @@ function sanitize(project: Project) {
   // fill launch request nodes inputs
   for (const [id, flow] of pipeline.flows) {
     const [output, input] = [
-      pipeline.nodes.get(flow.from).outputs.get(flow.output),
-      pipeline.nodes.get(flow.to).inputs.get(flow.input),
+      pipeline.nodes.get(flow.from)?.outputs.get(flow.output),
+      pipeline.nodes.get(flow.to)?.inputs.get(flow.input),
     ];
 
     if (!input || !input.featured) {
@@ -114,7 +114,12 @@ function sanitize(project: Project) {
       continue;
     }
 
-    const value = launchRequest.nodes.get(flow.from).outputs.get(flow.output);
+    if (!output) {
+      pipeline.flows.delete(id);
+      continue;
+    }
+
+    const value = launchRequest.nodes.get(flow.from)?.outputs?.get(flow.output);
     if (value !== undefined) {
       const setNodeInputValue = (value: Primitive) => {
         let nodeToLaunch = launchRequest.nodes.get(flow.to);

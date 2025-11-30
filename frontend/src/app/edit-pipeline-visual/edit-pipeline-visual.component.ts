@@ -49,6 +49,7 @@ import { Primitive } from "src/types/primitive";
 import { sid } from "src/ui-kit/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
+import { AssistantComponent } from "../assistant/assistant.component";
 import { EditNodeInputsComponent } from "../edit-node-inputs/edit-node-inputs.component";
 import { LaunchComponent } from "../launch/launch.component";
 import { SelectNodeComponent } from "../select-node/select-node.component";
@@ -92,10 +93,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
     | SelectNodeComponent
     | null;
 
-  sidebar: {
+  drawlers: {
     left: SelectNodeComponent | null;
     right: EditNodeComponent | null;
-  } = { left: null, right: null };
+    bottom: AssistantComponent | null;
+  } = { left: null, right: null, bottom: null };
 
   mode: "default" | "flow" = "default";
   subscriptions: Subscription[] = [];
@@ -111,8 +113,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
     null;
   mouse: { x: number; y: number } | null = null;
 
-  @ViewChild("sidebarRight", { static: true })
-  sidebarRight!: RouterOutlet;
+  @ViewChild("drawlerRight", { static: true })
+  drawlerRight!: RouterOutlet;
 
   @ViewChild("nodesRef")
   nodesRef!: ElementRef<HTMLDivElement>;
@@ -154,15 +156,15 @@ export class EditPipelineVisualComponent implements OnDestroy {
       }
     });
 
-    this.sidebarRight.activateEvents
+    this.drawlerRight.activateEvents
       .pipe(
-        map(() => this.sidebarRight.activatedRoute),
+        map(() => this.drawlerRight.activatedRoute),
         filter(({ component }) => component === EditNodeInputsComponent),
         switchMap(({ data }) => data)
       )
       .subscribe(({ node: { node } }) => (this.currentNode = node));
 
-    this.sidebarRight.deactivateEvents.subscribe(() => {
+    this.drawlerRight.deactivateEvents.subscribe(() => {
       this.currentNode = null;
     });
   }
@@ -356,7 +358,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   addNode(left: number, top: number, payload: { node: string }) {
     if ("node" in payload) {
-      this.closeSidebar();
+      this.closedrawler();
 
       this.http
         .get(`nodes/${payload.node}`)
@@ -574,7 +576,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.pipeline.nodes.delete(node);
     this.save();
 
-    this.closeSidebar();
+    this.closedrawler();
   }
 
   trackNode(index: number, { key, value }: { key: string; value: Node }) {
@@ -720,7 +722,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
         );
       }
     } else {
-      this.closeSidebar();
+      this.closedrawler();
     }
   }
 
@@ -728,11 +730,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
   clickOnGrid(event: MouseEvent) {
     const { nativeElement: gridElement } = this.gridRef;
     if (event.target === gridElement) {
-      this.closeSidebar();
+      this.closedrawler();
     }
   }
 
-  closeSidebar() {
+  closedrawler() {
     this.router.navigate([{ outlets: { left: null, right: null } }], {
       relativeTo: this.route,
     });

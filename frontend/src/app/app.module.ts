@@ -23,6 +23,7 @@ import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
 import { SelectNodeComponent } from "src/app/select-node/select-node.component";
 import { AutoHeightDirective } from "src/directives/auto-height";
+import { AutoScrollDirective } from "src/directives/auto-scroll";
 import { CopyToClipboardDirective } from "src/directives/copy-clipboard.directive";
 import { DragCloneDirective } from "src/directives/drag-clone.directive";
 import { DragMoveDirective } from "src/directives/drag-move.directive";
@@ -80,6 +81,7 @@ import {
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { AppComponent } from "./app.component";
 import { AssetsPageComponent } from "./assets-page/assets-page.component";
+import { AssistantComponent } from "./assistant/assistant.component";
 import { BatchesComponent } from "./batches/batches.component";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { EditFlowTransformerComponent } from "./edit-flow-transformer/edit-flow-transformer.component";
@@ -260,6 +262,8 @@ import { UsersComponent } from "./users/users.component";
     DropZoneDirective,
     LaunchComponent,
     InspectComponent,
+    AssistantComponent,
+    AutoScrollDirective,
   ],
   imports: [
     BrowserModule,

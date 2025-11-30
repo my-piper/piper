@@ -1,5 +1,6 @@
 <ng-container [ngSwitch]="type">
   <img *ngSwitchCase="'image'" imageFallback [src]="url" />
+  <video *ngSwitchCase="'video'" [src]="url" autoplay muted controls></video>
   <div *ngSwitchCase="'markdown'" [innerHTML]="text | markdown | async"></div>
   <ngx-monaco-editor
     *ngSwitchCase="'json'"

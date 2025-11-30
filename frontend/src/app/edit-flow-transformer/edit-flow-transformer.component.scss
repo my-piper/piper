@@ -17,10 +17,12 @@
     text-shadow: 0 0 2px black;
   }
 
-  img {
+  img,
+  .no-image {
     display: block;
     border-radius: $corner-small;
     min-width: 30px;
     min-height: 30px;
+    background: white;
   }
 }

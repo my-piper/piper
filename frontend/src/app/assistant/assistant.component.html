@@ -1,0 +1,29 @@
+<form [formGroup]="form">
+  <div autoScroll class="chat">
+    <ng-container *ngFor="let m of messages">
+      <div [attr.data-from]="m.from">
+        <div *ngIf="m.message" [innerHTML]="m.message | markdown | async"></div>
+        <ul *ngIf="m.changes?.length > 0">
+          <li *ngFor="let c of m.changes">
+            {{ c.action }}
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+
+    <div *ngIf="progress.sending">
+      <app-spinner></app-spinner>
+    </div>
+  </div>
+  <fieldset>
+    <textarea
+      [hotKey]="'enter'"
+      class="input-primary"
+      formControlName="query"
+      placeholder="Ask me anything..."
+      type="text"
+      rows="3"
+      (hotKeyPressed)="send()"
+    ></textarea>
+  </fieldset>
+</form>

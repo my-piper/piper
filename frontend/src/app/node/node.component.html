@@ -80,6 +80,7 @@
               *ngIf="outputs?.[o.key] as value; else noValueTemplate"
               imageFallback
               [imageSize]="value"
+              [inspect]="{ type: 'image', url: value }"
               [src]="value | proxyImage: { height: 500 }"
             />
           </div>
@@ -117,6 +118,7 @@
             </ng-template>
             <video
               *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+              [inspect]="{ type: 'video', url: value }"
               [src]="value"
               controls
             ></video>

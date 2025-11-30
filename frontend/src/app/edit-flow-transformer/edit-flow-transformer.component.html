@@ -1,11 +1,17 @@
 <ng-template #imageTransformerTemplate>
   <span class="index">{{ indexControl.value + 1 }}</span>
-  <img
-    [src]="
+  <ng-template #noImageTemplate>
+    <div class="no-image"></div>
+  </ng-template>
+  <ng-container
+    *ngIf="
       (launchRequest.nodes.get(from.id)?.outputs?.get(flow.output)
-        | split: '|')[indexControl.value] | proxyImage: { height: 30 }
+        | split: '|')[indexControl.value] as image;
+      else noImageTemplate
     "
-  />
+  >
+    <img [src]="image | proxyImage: { height: 30 }" />
+  </ng-container>
 </ng-template>
 
 <ng-container [ngSwitch]="flow.transformer.type">

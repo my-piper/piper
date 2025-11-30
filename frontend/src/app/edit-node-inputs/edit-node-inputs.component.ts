@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { merge } from "lodash";
@@ -39,7 +39,6 @@ export class EditNodeInputsComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
-    private cd: ChangeDetectorRef,
     public route: ActivatedRoute
   ) {}
 
@@ -49,6 +48,7 @@ export class EditNodeInputsComponent implements OnInit {
       this.build();
     });
   }
+
   private build() {
     this.subscriptions.changes?.unsubscribe();
     Object.keys(this.inputsGroup.controls).forEach((key) =>
