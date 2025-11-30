@@ -29,6 +29,16 @@ export class BillingConfig {
   }
 }
 
+export class AssistantConfig {
+  @Expose()
+  @Type(() => Boolean)
+  active?: boolean;
+
+  constructor(defs: Partial<AssistantConfig> = {}) {
+    assign(this, defs);
+  }
+}
+
 export class CaptchaConfig {
   @Expose()
   @Type(() => Boolean)
@@ -47,6 +57,10 @@ export class AppConfig {
   @Expose()
   @Type(() => BillingConfig)
   billing?: BillingConfig;
+
+  @Expose()
+  @Type(() => BillingConfig)
+  assistant?: AssistantConfig;
 
   @Expose()
   @Type(() => CaptchaConfig)

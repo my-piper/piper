@@ -1,4 +1,5 @@
 import env from "core-kit/env";
 
-export const LLM_API_KEY = env["LLM_API_KEY"];
-export const LLM_MODEL = env["LLM_MODEL"];
+export const ACTIVATE_ASSISTANT = env["ACTIVATE_ASSISTANT"] === "yes";
+export const LLM_API_KEY = env["LLM_API_KEY"] || "xyzXYZ";
+export const LLM_MODEL = env["LLM_MODEL"] || "gpt-4.1";

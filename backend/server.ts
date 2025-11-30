@@ -34,6 +34,7 @@ import "./api/deploys";
 import "./packages/debug";
 
 import { CAPTCHA_REQUIRED, CAPTCHA_SITE_KEY } from "consts/captcha";
+import { ACTIVATE_ASSISTANT } from "consts/llm";
 import { ALLOW_SIGNUP, APP_FOOTER, GOOGLE_AUTH, YANDEX_AUTH } from "consts/ui";
 import { ALL_LANGUAGES } from "core-kit/packages/locale";
 import { writeFile } from "fs/promises";
@@ -90,6 +91,9 @@ api.get(
           billing: {
             active: BILLING_ACTIVE,
             url: BILLING_URL,
+          },
+          assistant: {
+            active: ACTIVATE_ASSISTANT,
           },
           captcha: {
             required: CAPTCHA_REQUIRED,

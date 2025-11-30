@@ -140,6 +140,7 @@
     </div>
 
     <a
+      *ngIf="config.assistant.active"
       class="circle"
       [class.toggled]="drawlers.bottom"
       [routerLink]="[

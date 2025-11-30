@@ -38,6 +38,9 @@ export function appConfigFactory(): AppConfig {
         active: ENV_MODE == "development",
         url: "https://google.com",
       },
+      assistant: {
+        active: true,
+      },
       captcha:
         ENV_MODE == "development"
           ? {
