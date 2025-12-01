@@ -10,7 +10,7 @@ api.delete(
     if (deletedCount <= 0) {
       throw new NotFoundError();
     }
-    await mongo.launchOutputs.deleteMany({ launch: _id });
+    await mongo.launchArtefacts.deleteMany({ launch: _id });
     return null;
   })
 );

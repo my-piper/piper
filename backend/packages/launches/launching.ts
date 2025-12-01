@@ -26,8 +26,8 @@ import {
   IntegerData,
   JsonData,
   Launch,
+  LaunchArtefact,
   LaunchData,
-  LaunchOutput,
   LaunchState,
   OUTPUT_TYPES,
   StringData,
@@ -59,12 +59,12 @@ export async function run({
   parent,
   comment,
 }: Partial<Launch>): Promise<Launch> {
-  const outputs = new Map<string, LaunchOutput>();
+  const outputs = new Map<string, LaunchArtefact>();
   if (!!pipeline.outputs) {
     for (const [key, { type, title, order }] of pipeline.outputs) {
       outputs.set(
         key,
-        new LaunchOutput({
+        new LaunchArtefact({
           type,
           title,
           order,
@@ -261,7 +261,7 @@ export async function data(id: string): Promise<LaunchData> {
 
   const { launchedAt, pipeline } = launch;
 
-  const outputs = new Map<string, LaunchOutput>();
+  const outputs = new Map<string, LaunchArtefact>();
 
   if (!!pipeline.outputs) {
     for (const [key, output] of pipeline.outputs) {

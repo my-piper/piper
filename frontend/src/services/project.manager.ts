@@ -103,6 +103,7 @@ function sanitize(project: Project) {
   }
 
   // fill launch request nodes inputs
+
   for (const [id, flow] of pipeline.flows) {
     const [output, input] = [
       pipeline.nodes.get(flow.from)?.outputs.get(flow.output),
@@ -119,15 +120,18 @@ function sanitize(project: Project) {
       continue;
     }
 
+    console.log(flow.from);
+
     const value = launchRequest.nodes.get(flow.from)?.outputs?.get(flow.output);
     if (value !== undefined) {
       const setNodeInputValue = (value: Primitive) => {
         let nodeToLaunch = launchRequest.nodes.get(flow.to);
         if (!nodeToLaunch) {
-          nodeToLaunch = mapTo({ inputs: {} }, NodeToLaunch);
+          nodeToLaunch = mapTo({}, NodeToLaunch);
           launchRequest.nodes.set(flow.to, nodeToLaunch);
         }
 
+        nodeToLaunch.inputs ??= new Map<string, Primitive>();
         nodeToLaunch.inputs.set(flow.input, value);
       };
       switch (flow.transformer?.type) {

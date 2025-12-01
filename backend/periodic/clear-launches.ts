@@ -17,7 +17,7 @@ export async function cleanLaunches() {
   await mongo.launches.deleteMany({
     launchedAt: { $lt: subDays(new Date(), MAX_STORE_LAUNCH_DAYS) },
   });
-  await mongo.launchOutputs.deleteMany({
+  await mongo.launchArtefacts.deleteMany({
     filledAt: { $lt: subDays(new Date(), MAX_STORE_LAUNCH_DAYS) },
   });
 }

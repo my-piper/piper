@@ -8,7 +8,7 @@ import {
   ViewChildren,
 } from "@angular/core";
 import first from "lodash/first";
-import { ImageData, Launch, LaunchOutput } from "src/models/launch";
+import { ImageData, Launch, LaunchArtefact } from "src/models/launch";
 
 @Component({
   selector: "app-launch-outputs",
@@ -48,7 +48,7 @@ export class LaunchOutputsComponent {
     this.cd.detectChanges();
   }
 
-  startDrag(event: DragEvent, output: LaunchOutput) {
+  startDrag(event: DragEvent, output: LaunchArtefact) {
     switch (output.type) {
       case "image":
         const image = output.data as ImageData;

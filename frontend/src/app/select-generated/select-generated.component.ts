@@ -7,7 +7,7 @@ import {
 import { plainToInstance } from "class-transformer";
 import { delay, finalize, map } from "rxjs";
 import { AppConfig } from "src/models/app-config";
-import { LaunchOutput } from "src/models/launch";
+import { LaunchArtefact } from "src/models/launch";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
@@ -25,7 +25,7 @@ export class SelectGeneratedComponent extends UntilDestroyed {
   error: Error;
 
   references: { popover: PopoverComponent } = { popover: null };
-  outputs: LaunchOutput[] = [];
+  outputs: LaunchArtefact[] = [];
 
   @Output()
   selected = new EventEmitter<string>();
@@ -55,7 +55,7 @@ export class SelectGeneratedComponent extends UntilDestroyed {
           this.cd.detectChanges();
         }),
         map((arr) =>
-          (arr as Object[]).map((e) => plainToInstance(LaunchOutput, e))
+          (arr as Object[]).map((e) => plainToInstance(LaunchArtefact, e))
         )
       )
       .subscribe({

@@ -11,7 +11,7 @@ import { createLogger } from "core-kit/packages/logger";
 import redis, { readInstance } from "core-kit/packages/redis";
 import { mapTo, toPlain } from "core-kit/packages/transform";
 import { SetLaunchOutputEvent } from "models/events";
-import { Launch, LaunchOutput, OUTPUT_TYPES } from "models/launch";
+import { Launch, LaunchArtefact, OUTPUT_TYPES } from "models/launch";
 import { User } from "models/user";
 import { getIOData } from "packages/launches/launching";
 import { ulid } from "ulid";
@@ -66,7 +66,7 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
     )
   );
 
-  const output = new LaunchOutput({
+  const output = new LaunchArtefact({
     _id: sid(),
     launch: launch._id,
     filledAt: new Date(),
@@ -83,7 +83,7 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
   });
 
   const plain = toPlain(output);
-  await mongo.launchOutputs.insertOne(plain as { _id: string });
+  await mongo.launchArtefacts.insertOne(plain as { _id: string });
   await mongo.launches.updateOne({ _id: launch._id }, [
     {
       $set: {

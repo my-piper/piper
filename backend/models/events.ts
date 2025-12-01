@@ -2,7 +2,7 @@ import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { objectsMapTransformer } from "transformers/map";
 import { PipelineEventType } from "types/pipeline";
-import { LaunchInput, LaunchOutput } from "./launch";
+import { LaunchArtefact, LaunchInput } from "./launch";
 
 export class PipelineEvent {
   @Expose()
@@ -46,8 +46,8 @@ export class SetLaunchOutputEvent {
   id: string;
 
   @Expose()
-  @Type(() => LaunchOutput)
-  output: LaunchOutput;
+  @Type(() => LaunchArtefact)
+  output: LaunchArtefact;
 
   constructor(defs: Partial<SetLaunchOutputEvent> = {}) {
     assign(this, defs);

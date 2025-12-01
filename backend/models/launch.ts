@@ -206,7 +206,7 @@ export class LaunchInput {
   }
 }
 
-export class LaunchOutput {
+export class LaunchArtefact {
   @Expose()
   @Type(() => String)
   _id?: string;
@@ -269,7 +269,7 @@ export class LaunchOutput {
   @Type(() => String)
   cursor: string;
 
-  constructor(defs: Partial<LaunchOutput> = {}) {
+  constructor(defs: Partial<LaunchArtefact> = {}) {
     assign(this, defs);
   }
 }
@@ -336,8 +336,8 @@ export class Launch {
   inputs!: Map<string, LaunchInput>;
 
   @Expose()
-  @Transform(objectsMapTransformer(LaunchOutput))
-  outputs!: Map<string, LaunchOutput>;
+  @Transform(objectsMapTransformer(LaunchArtefact))
+  outputs!: Map<string, LaunchArtefact>;
 
   @Expose()
   @Type(() => PipelineCosts)

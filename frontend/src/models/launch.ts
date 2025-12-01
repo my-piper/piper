@@ -62,12 +62,12 @@ export class Launch {
   launchRequest!: LaunchRequest;
 
   @Expose()
-  @Type(() => LaunchOutput)
+  @Type(() => LaunchArtefact)
   inputs!: Map<string, LaunchInput>;
 
   @Expose()
-  @Type(() => LaunchOutput)
-  outputs!: Map<string, LaunchOutput>;
+  @Type(() => LaunchArtefact)
+  outputs!: Map<string, LaunchArtefact>;
 
   @Expose()
   @Type(() => String)
@@ -239,12 +239,12 @@ export class LaunchInput {
     | ImagesData
     | VideoData;
 
-  constructor(defs: Partial<LaunchOutput> = {}) {
+  constructor(defs: Partial<LaunchArtefact> = {}) {
     assign(this, defs);
   }
 }
 
-export class LaunchOutput {
+export class LaunchArtefact {
   @Expose()
   @Type(() => String)
   _id: string;
@@ -283,7 +283,7 @@ export class LaunchOutput {
     | ImagesData
     | VideoData;
 
-  constructor(defs: Partial<LaunchOutput> = {}) {
+  constructor(defs: Partial<LaunchArtefact> = {}) {
     assign(this, defs);
   }
 }

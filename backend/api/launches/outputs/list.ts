@@ -10,7 +10,7 @@ api.get(
   handle(({ currentUser }) => async () => {
     checkLogged(currentUser);
 
-    return await mongo.launchOutputs
+    return await mongo.launchArtefacts
       .find({
         ...(checkRoles(currentUser, UserRole.admin)
           ? {}

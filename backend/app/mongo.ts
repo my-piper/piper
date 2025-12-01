@@ -13,7 +13,7 @@ mongo.connect();
 export default {
   users: db.collection<Object & { _id: string }>("users"),
   launches: db.collection<Object & { _id: string }>("launches"),
-  launchOutputs: db.collection<Object & { _id: string }>("launchOutputs"),
+  launchArtefacts: db.collection<Object & { _id: string }>("launchArtefacts"),
   projects: db.collection<Object & { _id: string }>("projects"),
   projectCategories: db.collection<Object & { _id: string }>(
     "projectCategories"
