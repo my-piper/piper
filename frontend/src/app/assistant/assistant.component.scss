@@ -6,18 +6,41 @@
 }
 
 .chat {
+  display: flex;
+  flex-direction: column;
   height: 200px;
   overflow-y: scroll;
   border: 1px solid $control-border-color;
   border-radius: $corner-base;
   padding: $gutter-normal;
+  gap: $gutter-normal;
 
-  >div {
+  .message {
     border: 1px solid $control-border-color;
-    background: rgba($control-background-color, 0.25);
+    background: $control-background-color;
     border-radius: $corner-huge;
-    padding: $gutter-small $gutter-normal;
+    padding: $gutter-small $gutter-large;
     margin-bottom: $gutter-normal;
+
+    &[data-from=user] {
+      align-self: end;
+    }
+
+    &[data-from=assistant] {
+      align-self: start;
+    }
+
+    ul {
+      display: flex;
+      gap: $gutter-small;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        font-weight: bold;
+      }
+    }
 
     ::ng-deep {
       p {
@@ -29,8 +52,17 @@
 
 form {
   @include vertical-stack();
-}
 
-textarea {
-  width: 100%;
+  fieldset {
+    display: flex;
+    gap: $gutter-normal;
+
+    textarea {
+      width: 100%;
+    }
+
+    .actions {
+      max-width: 50px;
+    }
+  }
 }

@@ -97,16 +97,6 @@
         <li>
           <a
             [routerLink]="[
-              { outlets: { primary: ['design'], left: null, right: null } },
-            ]"
-            routerLinkActive="active"
-            i18n="@@link.design"
-            >Design</a
-          >
-        </li>
-        <li>
-          <a
-            [routerLink]="[
               {
                 outlets: { primary: ['environment'], left: null, right: null },
               },
@@ -197,6 +187,19 @@
         <li>
           <ng-template #linksMenu>
             <ul class="context-menu">
+              <li>
+                <a
+                  [routerLink]="[
+                    {
+                      outlets: { primary: ['design'], left: null, right: null },
+                    },
+                  ]"
+                  routerLinkActive="active"
+                  (click)="references.popover?.hide()"
+                  i18n="@@link.design"
+                  >Design</a
+                >
+              </li>
               <li>
                 <a
                   [routerLink]="[

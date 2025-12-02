@@ -36,7 +36,9 @@
   [class.shift-right]="drawlers.right"
 >
   <header>
-    <div class="title" i18n="@@label.ai_assistant">AI assistant</div>
+    <div class="title" i18n="@@label.ai_assistant">
+      AI assistant <sup>BETA</sup>
+    </div>
     <a class="circle" [routerLink]="[{ outlets: { bottom: null } }]">
       <app-icon class="icon" icon="close"></app-icon>
     </a>
@@ -227,12 +229,13 @@
           [ngStyle]="
             (pipeline | pipelineInput: input.key).arrange
               | center
-                : ((pipeline | node: f.value.to).arrange
+                : ((pipeline | node: f.value.to | async).arrange
                     | shift
                       : {
                           y:
                             ((pipeline
                               | node: f.value.to
+                              | async
                               | inputIndex: f.value.input
                               | async) +
                               1) *
@@ -448,13 +451,14 @@
         *ngFor="let f of pipeline.flows | keyvalue"
         class="flow"
         [ngStyle]="
-          (pipeline | node: f.value.from).arrange
+          (pipeline | node: f.value.from | async).arrange
             | shift
               : {
                   x: ui.node.width,
                   y:
                     ((pipeline
                       | node: f.value.from
+                      | async
                       | outputIndex: f.value.output) +
                       1) *
                       ui.node.input.height +
@@ -467,6 +471,7 @@
                         y:
                           ((pipeline
                             | node: f.value.to
+                            | async
                             | inputIndex: f.value.input
                             | async) +
                             1) *
@@ -482,8 +487,11 @@
           [launchRequest]="launchRequest"
           [id]="f.key"
           [flow]="f.value"
-          [from]="{ id: f.value.from, node: pipeline | node: f.value.from }"
-          [to]="{ id: f.value.to, node: pipeline | node: f.value.to }"
+          [from]="{
+            id: f.value.from,
+            node: pipeline | node: f.value.from | async,
+          }"
+          [to]="{ id: f.value.to, node: pipeline | node: f.value.to | async }"
         ></app-edit-flow-transformer>
         <ng-template #actionsTemplate>
           <ul class="context-menu">
@@ -537,12 +545,15 @@
         <path
           *ngSwitchCase="'node'"
           [attr.d]="
-            (pipeline | node: flow.from).arrange
+            (pipeline | node: flow.from | async).arrange
               | shift
                 : {
                     x: ui.node.width,
                     y:
-                      ((pipeline | node: flow.from | outputIndex: flow.output) +
+                      ((pipeline
+                        | node: flow.from
+                        | async
+                        | outputIndex: flow.output) +
                         1) *
                         ui.node.input.height +
                       ui.node.shift,
@@ -563,25 +574,27 @@
         *ngFor="let f of pipeline.flows | keyvalue"
         [attr.stroke]="f.value.color"
         [attr.d]="
-          (pipeline | node: f.value.from).arrange
+          (pipeline | node: f.value.from | async).arrange
             | shift
               : {
                   x: ui.node.width,
                   y:
                     ((pipeline
                       | node: f.value.from
+                      | async
                       | outputIndex: f.value.output) +
                       1) *
                       ui.node.input.height +
                     ui.node.shift,
                 }
             | curve
-              : ((pipeline | node: f.value.to).arrange
+              : ((pipeline | node: f.value.to | async).arrange
                   | shift
                     : {
                         y:
                           ((pipeline
                             | node: f.value.to
+                            | async
                             | inputIndex: f.value.input
                             | async) +
                             1) *
@@ -601,12 +614,13 @@
           [attr.d]="
             (pipeline | pipelineInput: i.key).arrange
               | curve
-                : ((pipeline | node: f.value.to).arrange
+                : ((pipeline | node: f.value.to | async).arrange
                     | shift
                       : {
                           y:
                             ((pipeline
                               | node: f.value.to
+                              | async
                               | inputIndex: f.value.input
                               | async) +
                               1) *
@@ -625,13 +639,14 @@
             readonly || (userRole.admin | can: project.createdBy | async | not)
           "
           [attr.d]="
-            (pipeline | node: f.value.from).arrange
+            (pipeline | node: f.value.from | async).arrange
               | shift
                 : {
                     x: ui.node.width,
                     y:
                       ((pipeline
                         | node: f.value.from
+                        | async
                         | outputIndex: f.value.output) +
                         1) *
                         ui.node.input.height +
@@ -650,13 +665,14 @@
           [attr.d]="
             (pipeline | pipelineOutput: o.key).arrange
               | curve
-                : ((pipeline | node: o.value.from).arrange
+                : ((pipeline | node: o.value.from | async).arrange
                     | shift
                       : {
                           x: ui.node.width,
                           y:
                             ((pipeline
                               | node: o.value.from
+                              | async
                               | outputIndex: o.value.output) +
                               1) *
                               ui.node.input.height +

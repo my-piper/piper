@@ -5,13 +5,40 @@ import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
 
 @Pipe({ name: "node" })
-export class NodePipe implements PipeTransform {
-  transform(pipeline: Pipeline, id: string): Node {
-    const node = pipeline.nodes.get(id);
-    if (!node) {
-      throw new Error(`Node ${id} not found`);
+export class NodePipe implements PipeTransform, OnDestroy {
+  value: BehaviorSubject<Node> | null = null;
+
+  destroyed$ = new Subject<void>();
+
+  constructor(private projectManager: ProjectManager) {}
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
+
+  transform(pipeline: Pipeline, id: string): BehaviorSubject<Node> {
+    const update = () => {
+      const node = pipeline.nodes.get(id);
+      if (!node) {
+        throw new Error(`Node ${id} not found`);
+      }
+      this.value.next(node);
+    };
+
+    if (!this.value) {
+      this.value = new BehaviorSubject<Node>(null);
+      this.projectManager.status
+        .pipe(
+          takeUntil(this.destroyed$),
+          filter((status) => status === "dirty")
+        )
+        .subscribe(() => update());
     }
-    return node;
+
+    update();
+
+    return this.value;
   }
 }
 

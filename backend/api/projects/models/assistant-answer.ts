@@ -1,4 +1,6 @@
+import { ChatCompletionMessage } from "app/llm";
 import {
+  arrayTransformer,
   Expose,
   objectTransformer,
   Transform,
@@ -25,10 +27,28 @@ export class PipelineChange {
   data!: ChangeData;
 }
 
+export class PipelineChanges {
+  @Expose()
+  @Type(() => PipelineChange)
+  changes!: PipelineChange[];
+}
+
 export class ChatMessage {
   @Expose()
   @Type(() => String)
-  from!: "user" | "assistant";
+  _id!: string;
+
+  @Expose()
+  @Type(() => String)
+  project!: string;
+
+  @Expose()
+  @Type(() => Date)
+  createdAt!: Date;
+
+  @Expose()
+  @Type(() => String)
+  from!: string | "assistant";
 
   @Expose()
   @Type(() => String)
@@ -37,4 +57,26 @@ export class ChatMessage {
   @Expose()
   @Type(() => PipelineChange)
   changes!: PipelineChange[];
+
+  @Expose()
+  @Transform(arrayTransformer<Object>())
+  completions!: ChatCompletionMessage[];
+}
+
+export class AssistantMessage {
+  @Expose()
+  @Type(() => String)
+  _id!: string;
+
+  @Expose()
+  @Type(() => String)
+  project!: string;
+
+  @Expose()
+  @Type(() => Date)
+  createdAt!: Date;
+
+  @Expose()
+  @Transform(objectTransformer)
+  data!: object;
 }

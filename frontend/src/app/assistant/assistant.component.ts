@@ -1,13 +1,15 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { finalize, map } from "rxjs";
+import { assign } from "lodash";
+import { delay, finalize, map } from "rxjs";
 import { ChatMessage } from "src/models/assistant-answer";
 import { Node } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
+import { UI_DELAY } from "src/ui-kit/consts";
 import { toInstance } from "src/utils/models";
 
 @Component({
@@ -17,7 +19,7 @@ import { toInstance } from "src/utils/models";
 })
 export class AssistantComponent implements OnInit {
   error!: Error;
-  progress = { sending: false };
+  progress = { loading: false, sending: false, clearing: false };
 
   project!: Project;
   messages: ChatMessage[] = [];
@@ -39,7 +41,29 @@ export class AssistantComponent implements OnInit {
   ngOnInit() {
     this.route.data.subscribe(({ project }) => {
       [this.project] = [project];
+      this.load();
     });
+  }
+
+  load() {
+    this.progress.loading = true;
+    this.cd.detectChanges();
+
+    this.http
+      .get(`projects/${this.project._id}/assistant/chat`)
+      .pipe(
+        finalize(() => {
+          this.progress.loading = false;
+          this.cd.detectChanges();
+        }),
+        map((json) =>
+          (json as object[]).map((j: Object) => toInstance(j, ChatMessage))
+        )
+      )
+      .subscribe((messages) => {
+        this.messages = messages;
+        this.cd.detectChanges();
+      });
   }
 
   send() {
@@ -76,11 +100,20 @@ export class AssistantComponent implements OnInit {
 
           for (const { action, data } of changes) {
             switch (action) {
-              case "add_node":
-              case "replace_node":
+              case "add_node": {
                 const node = toInstance(data.json, Node);
                 nodes.set(data.id, node);
                 break;
+              }
+              case "replace_node": {
+                const {
+                  arrange: { x, y },
+                } = nodes.get(data.id);
+                const node = toInstance(data.json, Node);
+                assign(node.arrange, { x, y });
+                nodes.set(data.id, node);
+                break;
+              }
               case "remove_node":
                 nodes.delete(data.id);
                 break;
@@ -94,6 +127,25 @@ export class AssistantComponent implements OnInit {
           this.projectManager.markDirty();
           this.cd.detectChanges();
         }
+      });
+  }
+
+  clear() {
+    this.progress.clearing = true;
+    this.cd.detectChanges();
+
+    this.http
+      .post(`projects/${this.project._id}/assistant/clear`)
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.clearing = false;
+          this.cd.detectChanges();
+        })
+      )
+      .subscribe(() => {
+        this.messages = [];
+        this.cd.detectChanges();
       });
   }
 }

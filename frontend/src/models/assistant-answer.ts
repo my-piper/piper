@@ -24,7 +24,11 @@ export class PipelineChange {
 export class ChatMessage {
   @Expose()
   @Type(() => String)
-  from!: "user" | "assistant";
+  from!: string | "assistant";
+
+  @Expose()
+  @Type(() => Date)
+  createdAt!: Date;
 
   @Expose()
   @Type(() => String)

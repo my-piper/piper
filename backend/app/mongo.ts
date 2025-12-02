@@ -25,4 +25,5 @@ export default {
   batches: db.collection<Object & { _id: string }>("batches"),
   nodes: db.collection<Object & { _id: string }>("nodes"),
   nodePackages: db.collection<Object & { _id: string }>("nodePackages"),
+  chatMessages: db.collection<Object & { _id: string }>("chatMessages"),
 };

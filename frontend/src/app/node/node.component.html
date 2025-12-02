@@ -137,7 +137,7 @@
               }}</pre>
             </ng-container>
           </ng-container>
-          <ng-container class="string" *ngSwitchCase="'string'">
+          <ng-container *ngSwitchCase="'string'">
             <ng-template #noValueTemplate>
               <div class="no-value">
                 <app-icon icon="text" [size]="64"></app-icon>
@@ -162,6 +162,19 @@
                   {{ value }}
                 </div>
               </ng-container>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngSwitchDefault>
+            <ng-template #noValueTemplate>
+              <div class="no-value">
+                <app-icon icon="text" [size]="64"></app-icon>
+              </div>
+            </ng-template>
+            <ng-container
+              *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+            >
+              {{ value }}
             </ng-container>
           </ng-container>
         </ng-container>

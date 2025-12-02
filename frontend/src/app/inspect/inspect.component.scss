@@ -6,7 +6,7 @@
 }
 
 .monaco {
-  min-width: 600px;
+  min-width: 500px;
   min-height: 50vh;
 }
 
@@ -15,7 +15,7 @@ video {
   @include placeholder();
 
   display: block;
-  min-width: 600px;
+  min-width: 300px;
   max-width: 100%;
   max-height: 80vh;
 }

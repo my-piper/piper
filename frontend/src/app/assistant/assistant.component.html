@@ -1,20 +1,57 @@
 <form [formGroup]="form">
   <div autoScroll class="chat">
     <ng-container *ngFor="let m of messages">
-      <div [attr.data-from]="m.from">
+      <div
+        class="message"
+        [attr.data-from]="m.from !== 'assistant' ? 'user' : 'assistant'"
+      >
         <div *ngIf="m.message" [innerHTML]="m.message | markdown | async"></div>
         <ul *ngIf="m.changes?.length > 0">
           <li *ngFor="let c of m.changes">
-            {{ c.action }}
+            <ng-container [ngSwitch]="c.action">
+              <ng-container *ngSwitchCase="'add_node'" i18n="@@action.add_node">
+                Add node
+              </ng-container>
+              <ng-container
+                *ngSwitchCase="'remove_node'"
+                i18n="@@action.remove_node"
+              >
+                Remove node
+              </ng-container>
+              <ng-container
+                *ngSwitchCase="'replace_node'"
+                i18n="@@action.replace_node"
+              >
+                Replace node
+              </ng-container>
+              <ng-container *ngSwitchCase="'add_flow'" i18n="@@action.add_flow">
+                Add flow
+              </ng-container>
+            </ng-container>
           </li>
         </ul>
       </div>
     </ng-container>
-
     <div *ngIf="progress.sending">
       <app-spinner></app-spinner>
     </div>
+
+    <div
+      class="stack justify-center"
+      *ngIf="messages.length > 0 && !progress.loading"
+    >
+      <button
+        class="primary small with-icon"
+        [class.busy]="progress.clearing"
+        [disabled]="progress.clearing"
+        (click)="clear()"
+      >
+        <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
+        Clear history
+      </button>
+    </div>
   </div>
+
   <fieldset>
     <textarea
       [hotKey]="'enter'"

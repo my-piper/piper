@@ -6,3 +6,5 @@ export default new OpenAI({
 });
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool;
+export type ChatCompletionMessage =
+  OpenAI.Chat.Completions.ChatCompletionMessageParam;

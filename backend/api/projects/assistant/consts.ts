@@ -84,7 +84,7 @@ export async function run({ env, inputs }) {
 # Nodes from catalog
 
 \`\`\`json
-{NODES_JSON}
+{{NODES_JSON}}
 \`\`\`
 
 # Current pipeline JSON file
@@ -93,10 +93,23 @@ export async function run({ env, inputs }) {
 {{PIPELINE_JSON}}
 \`\`\`
 
+# Launch request JSON file
+
+\`\`\`json
+{{LAUNCH_REQUEST_JSON}}
+\`\`\`
+
+# General rules
+- If you want to replace node, please, save old arrange position.
+
 # Node schema rules
-- Node inputs & outputs must have featured: true
+- Node inputs & outputs must have \`featured: true\`
 - Try use nodes from catalog first
 - By default user don't need ENV variables for nodes from catalog
+
+# Node script rules
+- You must write only safe JS code
+- Don't write code what can break the system
 
 # Your job
 - Read the user's request.
