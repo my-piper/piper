@@ -465,7 +465,7 @@
                     ui.node.shift,
                 }
             | center
-              : ((pipeline | node: f.value.to).arrange
+              : ((pipeline | node: f.value.to | async).arrange
                   | shift
                     : {
                         y:

@@ -38,7 +38,7 @@
 
     <div
       class="stack justify-center"
-      *ngIf="messages.length > 0 && !progress.loading"
+      *ngIf="messages.length > 0 && !progress.loading && !progress.sending"
     >
       <button
         class="primary small with-icon"
@@ -47,7 +47,7 @@
         (click)="clear()"
       >
         <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
-        Clear history
+        <ng-container i18n="@@action.clear_history">Clear history</ng-container>
       </button>
     </div>
   </div>
