@@ -167,7 +167,7 @@ export class EditNodeInputsComponent implements OnInit {
       }, 0) + 1;
 
     merge(cloned, {
-      title: title.replace(DYNAMIC_PLACEHOLDER, index.toString()),
+      title: title.replaceAll(DYNAMIC_PLACEHOLDER, index.toString()),
       cloned: true,
       dynamic: {
         index,
@@ -175,7 +175,7 @@ export class EditNodeInputsComponent implements OnInit {
     });
 
     this.node.inputs.set(
-      id.replace(DYNAMIC_PLACEHOLDER, index.toString()),
+      id.replaceAll(DYNAMIC_PLACEHOLDER, index.toString()),
       cloned
     );
     this.projectManager.markDirty();
