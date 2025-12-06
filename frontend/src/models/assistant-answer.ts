@@ -1,6 +1,16 @@
 import { Expose, Transform, Type } from "class-transformer";
 import { objectTransformer } from "src/ui-kit/transformers";
 
+export class AssistantRequest {
+  @Expose()
+  @Type(() => String)
+  activeNode!: string;
+
+  @Expose()
+  @Type(() => String)
+  question!: string;
+}
+
 export class ChangeData {
   @Expose()
   @Type(() => String)

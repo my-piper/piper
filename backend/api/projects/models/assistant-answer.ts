@@ -7,6 +7,16 @@ import {
   Type,
 } from "core-kit/packages/transform";
 
+export class AssistantRequest {
+  @Expose()
+  @Type(() => String)
+  activeNode!: string;
+
+  @Expose()
+  @Type(() => String)
+  question!: string;
+}
+
 export class ChangeData {
   @Expose()
   @Type(() => String)

@@ -9,7 +9,6 @@
   color: red;
 }
 
-
 ul {
   display: flex;
   flex-direction: column;
@@ -28,30 +27,6 @@ ul {
     >b {
       display: flex;
       align-items: flex-end;
-    }
-
-    >div {
-      span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      img,
-      video {
-        display: block;
-        max-height: 100px;
-        border-radius: 2px;
-      }
-
-      &[data-type="image[]"] {
-        display: flex;
-        flex-wrap: wrap;
-
-        img {
-          margin: 0 5px 5px 0;
-          max-height: 30px;
-        }
-      }
     }
   }
 }

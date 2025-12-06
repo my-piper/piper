@@ -1,16 +1,17 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { assign } from "lodash";
-import { delay, finalize, map } from "rxjs";
-import { ChatMessage } from "src/models/assistant-answer";
+import { delay, filter, finalize, map } from "rxjs";
+import { AssistantRequest, ChatMessage } from "src/models/assistant-answer";
 import { Node } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
-import { toInstance } from "src/utils/models";
+import { toInstance, toPlain } from "src/utils/models";
+import { getMergedData } from "../utils/route";
 
 @Component({
   selector: "app-assistant",
@@ -22,18 +23,19 @@ export class AssistantComponent implements OnInit {
   progress = { loading: false, sending: false, clearing: false };
 
   project!: Project;
+  node!: { id: string; node: Node };
   messages: ChatMessage[] = [];
 
-  queryControl = this.fb.control<string>(null);
-
+  questionControl = this.fb.control<string>(null);
   form = this.fb.group({
-    query: this.queryControl,
+    question: this.questionControl,
   });
 
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private router: Router,
     private http: HttpService,
     private cd: ChangeDetectorRef
   ) {}
@@ -43,6 +45,17 @@ export class AssistantComponent implements OnInit {
       [this.project] = [project];
       this.load();
     });
+
+    const readData = () => {
+      const { node } = getMergedData(this.route.root);
+      this.node = node;
+      console.log(node);
+    };
+    readData();
+
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => readData());
   }
 
   load() {
@@ -67,22 +80,30 @@ export class AssistantComponent implements OnInit {
   }
 
   send() {
-    this.queryControl.disable();
-    const { query } = this.form.getRawValue();
+    this.questionControl.disable();
+    const { question } = this.form.getRawValue();
 
     setTimeout(() => {
       this.messages.push(
-        toInstance({ from: "user", message: query }, ChatMessage)
+        toInstance({ from: "user", message: question }, ChatMessage)
       );
-      this.queryControl.setValue(null);
-      this.queryControl.enable();
+      this.questionControl.setValue(null);
+      this.questionControl.enable();
     }, 100);
+
+    const request = toInstance(
+      {
+        activeNode: this.node?.id,
+        question,
+      },
+      AssistantRequest
+    );
 
     this.progress.sending = true;
     this.cd.detectChanges();
 
     this.http
-      .post(`projects/${this.project._id}/assist`, query)
+      .post(`projects/${this.project._id}/assist`, toPlain(request))
       .pipe(
         finalize(() => {
           this.progress.sending = false;

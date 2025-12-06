@@ -32,6 +32,7 @@
 
     ul {
       display: flex;
+      flex-direction: column;
       gap: $gutter-small;
       list-style: none;
       padding: 0;
@@ -52,6 +53,11 @@
 
 form {
   @include vertical-stack();
+
+  .active-node {
+    font-weight: bold;
+    font-size: $font-size-small;
+  }
 
   fieldset {
     display: flex;

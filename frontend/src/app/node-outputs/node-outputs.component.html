@@ -1,67 +1,5 @@
 <p class="error" *ngIf="status?.error as error">{{ error }}</p>
 
-<ng-template #ioTemplate let-io="io" let-value="value">
-  <ng-container [ngSwitch]="io.type">
-    <span *ngSwitchCase="'boolean'">{{
-      value !== undefined
-        ? value
-          ? "yes"
-          : "no"
-        : io.default !== undefined
-          ? io.default
-            ? "yes"
-            : "no"
-          : null
-    }}</span>
-    <span *ngSwitchCase="'integer'">{{ value }}</span>
-    <span *ngSwitchCase="'float'">{{ value }}</span>
-    <pre *ngSwitchCase="'json'" [title]="value">{{ value }}</pre>
-    <ng-container *ngSwitchCase="'string'">
-      <ng-container [ngSwitch]="io.format">
-        <div class="stack vertical small" *ngSwitchCase="'code'">
-          <button
-            [copyToClipboard]="value"
-            class="primary small"
-            i18n="@@action.copy"
-          >
-            Copy
-          </button>
-          <ngx-monaco-editor
-            [options]="{
-              automaticLayout: true,
-              readOnly: true,
-              theme: 'vs-dark',
-            }"
-            [model]="{ language: io.language, value }"
-            [ngStyle]="{ width: '100%' }"
-          ></ngx-monaco-editor>
-        </div>
-        <ng-container *ngSwitchDefault>
-          {{ value }}
-        </ng-container>
-      </ng-container>
-    </ng-container>
-    <ng-container *ngSwitchCase="'string[]'">
-      {{ value }}
-    </ng-container>
-    <a *ngSwitchCase="'image'" [href]="value" target="_blank">
-      <img [imageSize]="value" [src]="value" />
-    </a>
-    <a *ngSwitchCase="'video'" [href]="value" target="_blank">
-      <video autoplay muted [volume]="0" [src]="value"></video>
-    </a>
-    <ng-container *ngSwitchCase="'image[]'">
-      <a
-        *ngFor="let image of value | split: '|'"
-        [href]="image"
-        target="_blank"
-      >
-        <img [imageSize]="image" [src]="image" />
-      </a>
-    </ng-container>
-  </ng-container>
-</ng-template>
-
 <ul>
   <li
     *ngFor="let o of node.outputs | keyvalue"
@@ -69,12 +7,6 @@
     [class.filled]="outputs?.[o.key]"
   >
     <b>{{ o.value.title | i18n }}</b>
-    <div [attr.data-type]="o.value.type">
-      <ng-container *ngIf="outputs?.[o.key] as value">
-        <ng-container
-          *ngTemplateOutlet="ioTemplate; context: { io: o.value, value }"
-        ></ng-container>
-      </ng-container>
-    </div>
+    <app-io-value [io]="o.value" [value]="outputs?.[o.key]"></app-io-value>
   </li>
 </ul>

@@ -1,27 +1,38 @@
+<p i18n="@@message.define_global_variables">
+  You can define global variables for your pipeline here. In this case we will
+  not bill you for execution of this pipeline.
+</p>
+
 <ng-template #noVariablesTemplate>
-  <p>No one node has require environment variables.</p>
+  <p i18n="@@message.no_environment_variables">
+    No one node has require environment variables.
+  </p>
 </ng-template>
-<form
-  *ngIf="
-    (schemas.environment.properties.variables.properties | keyvalue).length > 0;
-    else noVariablesTemplate
-  "
-  [formGroup]="form"
->
-  <fieldset>
-    <app-json-editor
-      [schema]="schemas.environment"
-      formControlName="environment"
-    ></app-json-editor>
-  </fieldset>
-  <footer>
-    <button
-      class="primary"
-      [class.busy]="progress.saving"
-      [disabled]="form.invalid || progress.saving"
-      (click)="save()"
-    >
-      Save
-    </button>
-  </footer>
-</form>
+
+<ng-container *ngIf="project.pipeline | pipelineEnvironment | async as schema">
+  <form
+    *ngIf="
+      (schema.properties.variables.properties | keyvalue).length > 0;
+      else noVariablesTemplate
+    "
+    [formGroup]="form"
+  >
+    <fieldset>
+      <app-json-editor
+        [schema]="schema"
+        formControlName="environment"
+        [features]="[]"
+      ></app-json-editor>
+    </fieldset>
+    <footer>
+      <button
+        class="primary"
+        [class.busy]="progress.saving"
+        [disabled]="form.invalid || progress.saving"
+        (click)="save()"
+      >
+        Save
+      </button>
+    </footer>
+  </form>
+</ng-container>

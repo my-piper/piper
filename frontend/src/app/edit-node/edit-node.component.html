@@ -8,25 +8,42 @@
         [routerLink]="['./']"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLinkActive="active"
+        i18n="@@link.design"
         >Design</a
       >
     </li>
     <li>
-      <a [routerLink]="['script']" routerLinkActive="active">Script</a>
+      <a
+        [routerLink]="['script']"
+        routerLinkActive="active"
+        i18n="@@link.script"
+        >Script</a
+      >
     </li>
     <li>
-      <a [routerLink]="['app']" routerLinkActive="app">App</a>
+      <a [routerLink]="['app']" routerLinkActive="app" i18n="@@link.app">App</a>
     </li>
     <li>
-      <a [routerLink]="['environment']" routerLinkActive="active">
+      <a
+        [routerLink]="['environment']"
+        routerLinkActive="active"
+        i18n="@@link.environment"
+      >
         Environment</a
       >
     </li>
     <li>
-      <a [routerLink]="['catalog']" routerLinkActive="active">Catalog</a>
+      <a
+        [routerLink]="['catalog']"
+        routerLinkActive="active"
+        i18n="@@link.catalog"
+        >Catalog</a
+      >
     </li>
     <li>
-      <a [routerLink]="['yaml']" routerLinkActive="active">YAML</a>
+      <a [routerLink]="['yaml']" routerLinkActive="active" i18n="@@link.yaml"
+        >YAML</a
+      >
     </li>
   </ul>
 </header>

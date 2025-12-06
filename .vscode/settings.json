@@ -43,6 +43,7 @@
     "nocodb",
     "Partitioner",
     "Partitioners",
-    "replenishments"
+    "replenishments",
+    "unflatten"
   ]
 }

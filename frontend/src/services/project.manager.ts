@@ -120,8 +120,6 @@ function sanitize(project: Project) {
       continue;
     }
 
-    console.log(flow.from);
-
     const value = launchRequest.nodes.get(flow.from)?.outputs?.get(flow.output);
     if (value !== undefined) {
       const setNodeInputValue = (value: Primitive) => {

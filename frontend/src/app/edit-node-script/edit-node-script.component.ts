@@ -10,6 +10,7 @@ import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { toInstance, toPlain } from "src/utils/models";
 
 @Component({
   selector: "app-edit-node-script",
@@ -90,8 +91,17 @@ export class EditNodeScriptComponent implements OnInit {
     this.cd.detectChanges();
 
     const { execution, script } = this.form.getRawValue();
+
+    const node = toInstance(
+      {
+        ...toPlain(this.node),
+        script,
+      },
+      Node
+    );
+
     this.http
-      .post("nodes/get-sign", script, { responseType: "text" })
+      .post("nodes/get-sign", toPlain(node), { responseType: "text" })
       .pipe(
         delay(UI_DELAY),
         finalize(() => {

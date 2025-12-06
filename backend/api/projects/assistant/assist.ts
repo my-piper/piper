@@ -13,15 +13,20 @@ import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { Node } from "models/node";
 import { Project } from "models/project";
+import { generateSign } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { checkAdmin, checkLogged, handle } from "utils/http";
 import { sid } from "utils/string";
-import { ChatMessage, PipelineChanges } from "../models/assistant-answer";
+import {
+  AssistantRequest,
+  ChatMessage,
+  PipelineChanges,
+} from "../models/assistant-answer";
 import { ASSISTANT_INSTRUCTIONS, ASSISTANT_TOOLS } from "./consts";
 
 api.post(
   "/api/projects/:_id/assist",
-  handle(({ currentUser }) => async ({ params: { _id }, body: question }) => {
+  handle(({ currentUser }) => async ({ params: { _id }, body }) => {
     checkLogged(currentUser);
 
     const project = toModel(
@@ -34,6 +39,7 @@ api.post(
             _id: 1,
             title: 1,
             pipeline: 1,
+            launchRequest: 1,
           },
         }
       ),
@@ -44,18 +50,23 @@ api.post(
       checkAdmin(currentUser);
     }
 
-    let prompt = ASSISTANT_INSTRUCTIONS.replace(
+    const request = toInstance(body, AssistantRequest);
+    const { activeNode, question } = request;
+
+    let instructions = ASSISTANT_INSTRUCTIONS.replace(
       "{{PIPELINE_JSON}}",
       JSON.stringify(toPlain(project.pipeline), null, "\t")
     );
 
-    prompt = prompt.replace(
+    instructions = instructions.replace("{{ACTIVE_NODE}}", activeNode || "-");
+
+    instructions = instructions.replace(
       "{{LAUNCH_REQUEST_JSON}}",
       JSON.stringify(toPlain(project.launchRequest), null, "\t")
     );
 
     const nodes = await mongo.nodes.find().toArray();
-    prompt = prompt.replace(
+    instructions = instructions.replace(
       "{{NODES_JSON}}",
       nodes.map((n) => JSON.stringify(toPlain(n), null, "\t")).join("\n\n")
     );
@@ -71,10 +82,10 @@ api.post(
       return arr.concat(completions);
     }, []);
 
-    const initial = await llm.chat.completions.create({
+    const ask = await llm.chat.completions.create({
       model: LLM_MODEL,
       messages: [
-        { role: "system", content: prompt },
+        { role: "system", content: instructions },
         ...latest,
         { role: "user", content: question },
       ],
@@ -83,7 +94,9 @@ api.post(
 
     const {
       choices: [{ message }],
-    } = initial;
+    } = ask;
+
+    console.log(message);
 
     await mongo.chatMessages.insertOne(
       toPlain(
@@ -129,15 +142,27 @@ api.post(
             switch (action) {
               case "add_node":
               case "replace_node": {
-                console.log(data.json);
-                const node = toInstance(data.json, Node);
+                const json = toInstance(data.json, Node);
                 const validate = ajv.compile(SCHEMAS.node);
-                if (!validate(node)) {
+                if (!validate(json)) {
                   const { errors } = validate;
                   throw new DataError(
                     `Node schema invalid: ${JSON.stringify(errors)}`
                   );
                 }
+
+                const node = toInstance(data.json, Node);
+
+                if (!!node.environment) {
+                  for (const variable of node.environment.values()) {
+                    variable.scope = "user";
+                  }
+                }
+
+                const sign = generateSign(node);
+                assign(node, { sign });
+
+                data.json = toPlain(node);
                 break;
               }
 

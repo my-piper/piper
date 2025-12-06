@@ -57,6 +57,7 @@ import { OrderByPipe } from "src/pipes/order-by";
 import { PipelineOutputPipe } from "src/pipes/output";
 import { GetPercentPipe } from "src/pipes/percents";
 import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
+import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
 import { PipelineFinishedMetricPipe } from "src/pipes/pipeline-finished-metric";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { PlainPipe } from "src/pipes/plain";
@@ -102,6 +103,7 @@ import { ExpensesComponent } from "./expenses/expenses.component";
 import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
 import { FeedSkeletonComponent } from "./feed-skeleton/feed-skeleton.component";
 import { InspectComponent } from "./inspect/inspect.component";
+import { IoValueComponent } from "./io-value/io-value.component";
 import { JsonEditorComponent } from "./json-editor/json-editor.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchOutputsComponent } from "./launch-outputs/launch-outputs.component";
@@ -201,6 +203,7 @@ import { UsersComponent } from "./users/users.component";
     SelectPlaygroundPageComponent,
     ImageFallbackDirective,
     FeedSkeletonComponent,
+    IoValueComponent,
     GetPercentPipe,
     FirstPipe,
     ValuesPipe,
@@ -264,6 +267,7 @@ import { UsersComponent } from "./users/users.component";
     InspectComponent,
     AssistantComponent,
     AutoScrollDirective,
+    PipelineEnvironmentPipe,
   ],
   imports: [
     BrowserModule,

@@ -22,7 +22,7 @@
                 *ngSwitchCase="'replace_node'"
                 i18n="@@action.replace_node"
               >
-                Replace node
+                Replace node: {{ c.data.id }}
               </ng-container>
               <ng-container *ngSwitchCase="'add_flow'" i18n="@@action.add_flow">
                 Add flow
@@ -52,11 +52,13 @@
     </div>
   </div>
 
+  <div class="active-node" *ngIf="!!node">{{ node.node.title | i18n }}</div>
+
   <fieldset>
     <textarea
       [hotKey]="'enter'"
       class="input-primary"
-      formControlName="query"
+      formControlName="question"
       placeholder="Ask me anything..."
       type="text"
       rows="3"

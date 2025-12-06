@@ -75,9 +75,14 @@ export async function getEnv({
     for (const [k, v] of node.environment) {
       switch (v.scope) {
         case "global": {
-          const value = environment.global?.variables?.get(k);
+          const value = environment.user?.variables?.get(k);
           if (value !== undefined) {
             env.variables.set(k, value);
+          } else {
+            const value = environment.global?.variables?.get(k);
+            if (value !== undefined) {
+              env.variables.set(k, value);
+            }
           }
           break;
         }

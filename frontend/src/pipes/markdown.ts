@@ -28,9 +28,7 @@ export class MarkdownPipe implements PipeTransform {
         return of(markdown);
       })();
       content.subscribe((content) => {
-        const parsed = marked.parse(
-          getLabel(content, this.language, { mode: "multiline" })
-        ) as string;
+        const parsed = marked.parse(getLabel(content, this.language)) as string;
         if (safe) {
           const safe = this.sanitizer.bypassSecurityTrustHtml(parsed);
           subscriber.next(safe);

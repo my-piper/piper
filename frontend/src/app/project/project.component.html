@@ -89,22 +89,39 @@
             [routerLink]="['./']"
             [routerLinkActiveOptions]="{ exact: true }"
             routerLinkActive="active"
-            i18n="@@link.pipeline"
+            i18n="@@link.canvas"
           >
-            Pipeline
+            Canvas
           </a>
         </li>
         <li>
           <a
             [routerLink]="[
               {
-                outlets: { primary: ['environment'], left: null, right: null },
+                outlets: {
+                  primary: ['environment'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
               },
             ]"
             routerLinkActive="active"
             i18n="@@link.environment"
           >
             Environment
+            <ng-container
+              *ngIf="
+                (project.pipeline | pipelineEnvironment | async)?.properties
+                  .variables.properties
+                  | keyvalue
+                  | length as variables
+              "
+            >
+              <span *ngIf="variables > 0" class="badge">
+                {{ variables }}
+              </span>
+            </ng-container>
           </a>
         </li>
         <ng-container
@@ -125,7 +142,14 @@
         <li style="display: none">
           <a
             [routerLink]="[
-              { outlets: { primary: ['launches'], left: null, right: null } },
+              {
+                outlets: {
+                  primary: ['launches'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
             ]"
             routerLinkActive="active"
             i18n="@@link.launches"
@@ -136,7 +160,14 @@
         <li style="display: none">
           <a
             [routerLink]="[
-              { outlets: { primary: ['artefacts'], left: null, right: null } },
+              {
+                outlets: {
+                  primary: ['artefacts'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
             ]"
             routerLinkActive="active"
             (click)="references.popover?.hide()"
@@ -148,7 +179,14 @@
         <li style="display: none">
           <a
             [routerLink]="[
-              { outlets: { primary: ['assets'], left: null, right: null } },
+              {
+                outlets: {
+                  primary: ['assets'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
             ]"
             routerLinkActive="active"
             (click)="references.popover?.hide()"
@@ -171,6 +209,7 @@
                       primary: ['node-updates'],
                       left: null,
                       right: null,
+                      bottom: null,
                     },
                   },
                 ]"
@@ -191,7 +230,12 @@
                 <a
                   [routerLink]="[
                     {
-                      outlets: { primary: ['design'], left: null, right: null },
+                      outlets: {
+                        primary: ['design'],
+                        left: null,
+                        right: null,
+                        bottom: null,
+                      },
                     },
                   ]"
                   routerLinkActive="active"
@@ -208,6 +252,7 @@
                         primary: ['readme', 'edit'],
                         left: null,
                         right: null,
+                        bottom: null,
                       },
                     },
                   ]"
@@ -222,7 +267,12 @@
                 <a
                   [routerLink]="[
                     {
-                      outlets: { primary: ['deploy'], left: null, right: null },
+                      outlets: {
+                        primary: ['deploy'],
+                        left: null,
+                        right: null,
+                        bottom: null,
+                      },
                     },
                   ]"
                   routerLinkActive="active"
@@ -235,7 +285,14 @@
               <li>
                 <a
                   [routerLink]="[
-                    { outlets: { primary: ['yaml'], left: null, right: null } },
+                    {
+                      outlets: {
+                        primary: ['yaml'],
+                        left: null,
+                        right: null,
+                        bottom: null,
+                      },
+                    },
                   ]"
                   routerLinkActive="active"
                   (click)="references.popover?.hide()"
@@ -247,7 +304,12 @@
                 <a
                   [routerLink]="[
                     {
-                      outlets: { primary: ['script'], left: null, right: null },
+                      outlets: {
+                        primary: ['script'],
+                        left: null,
+                        right: null,
+                        bottom: null,
+                      },
                     },
                   ]"
                   routerLinkActive="active"

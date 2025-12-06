@@ -105,7 +105,7 @@ api.patch(
       }
 
       for (const [id, node] of patched.nodes) {
-        const sign = generateSign(node.script);
+        const sign = generateSign(node);
         if (sign !== node.sign) {
           if (isEngineer(currentUser)) {
             assign(node, { sign });

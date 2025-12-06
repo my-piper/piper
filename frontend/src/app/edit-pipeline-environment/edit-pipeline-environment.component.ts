@@ -3,7 +3,6 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
-import * as marked from "marked";
 import { delay, finalize } from "rxjs";
 import { Environment } from "src/models/environment";
 import { AppError } from "src/models/errors";
@@ -22,46 +21,6 @@ import { toPlain } from "src/utils/models";
 export class EditPipelineEnvironmentComponent implements OnInit {
   progress = { saving: false };
   error!: AppError;
-
-  schemas: {
-    environment: {
-      type: string;
-      title: string;
-      properties: {
-        variables: {
-          type: string;
-          title: string;
-          properties: {
-            [key: string]: {
-              type: string;
-              title: string;
-              description: string;
-            };
-          };
-          required: string[];
-          additionalProperties: boolean;
-        };
-      };
-      required: string[];
-      additionalProperties: boolean;
-    };
-  } = {
-    environment: {
-      type: "object",
-      title: "Environment",
-      properties: {
-        variables: {
-          type: "object",
-          title: "Variables",
-          properties: {},
-          required: [],
-          additionalProperties: false,
-        },
-      },
-      required: ["variables"],
-      additionalProperties: false,
-    },
-  };
 
   project: Project;
   environment: { pipeline?: Environment; user?: Environment } = {};
@@ -90,27 +49,6 @@ export class EditPipelineEnvironmentComponent implements OnInit {
   }
 
   private build() {
-    const { variables } = this.schemas.environment.properties;
-    for (const [, node] of this.project.pipeline.nodes) {
-      if (!!node.environment) {
-        for (const [
-          key,
-          { title, type, scope, description },
-        ] of node.environment) {
-          if (scope !== "global") {
-            variables.properties[key] = {
-              title,
-              type,
-              description: !!description
-                ? (marked.parse(description) as string)
-                : null,
-            };
-            variables.required.push(key);
-          }
-        }
-      }
-    }
-
     const environment = new Environment({
       variables: new Map<string, Primitive>(),
     });
@@ -147,6 +85,7 @@ export class EditPipelineEnvironmentComponent implements OnInit {
         variables: new Map<string, Primitive>(),
       }),
     ];
+
     const { environment } = plainToInstance(Project, this.form.getRawValue());
     for (const [, node] of this.project.pipeline.nodes) {
       if (!!node.environment) {
@@ -156,6 +95,7 @@ export class EditPipelineEnvironmentComponent implements OnInit {
           }
           const value = environment.variables.get(key);
           switch (scope) {
+            case "global":
             case "user":
               user.variables.set(key, value);
               break;

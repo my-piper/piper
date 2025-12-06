@@ -1,0 +1,25 @@
+:host {
+  display: block;
+
+  &[data-type="image[]"] {
+    display: flex;
+    flex-wrap: wrap;
+
+    img {
+      margin: 0 5px 5px 0;
+      max-height: 30px;
+    }
+  }
+}
+
+span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+img,
+video {
+  display: block;
+  max-height: 100px;
+  border-radius: 2px;
+}
