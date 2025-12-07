@@ -45,11 +45,16 @@
     </ng-container>
 
     <ng-template #generatedTab>
-      <app-select-generated (selected)="putUrl($event)"></app-select-generated>
+      <app-artefacts
+        mode="select"
+        [filter]="{ type: filterType }"
+        (selected)="putUrl($event)"
+      ></app-artefacts>
     </ng-template>
 
     <ng-template #assetsTab>
       <app-assets
+        mode="select"
         [filter]="{ type: filterType }"
         (selected)="putUrl($event.url)"
       ></app-assets>

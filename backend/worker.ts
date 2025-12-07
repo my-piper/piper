@@ -113,6 +113,13 @@ const Workers = new Map<string, Worker>([
           },
         ],
         [
+          "save_node_artefacts",
+          {
+            queue: queues.launches.artefacts.save,
+            loader: () => import("./jobs/save-launch-artefacts"),
+          },
+        ],
+        [
           "set_launches_errors",
           {
             queue: queues.launches.errors.set,

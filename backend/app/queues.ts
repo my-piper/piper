@@ -3,6 +3,7 @@ import { minutesToMilliseconds, secondsToMilliseconds } from "date-fns";
 import { CheckPackageUpdatesJob } from "models/jobs/check-package-updates";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { RecordPipelineUsageJob } from "models/jobs/record-pipeline-usage-job";
+import { SaveNodeArtefactsJob } from "models/jobs/save-node-artefact";
 import { SetLaunchErrorsJob } from "models/jobs/set-launch-errors-job";
 import { SetLaunchInputsJob } from "models/jobs/set-launch-inputs-job";
 import { SetLaunchOutputJob } from "models/jobs/set-launch-output-job";
@@ -60,6 +61,12 @@ export const queues = {
     }),
     inputs: {
       set: new JobsQueue("set_launch_inputs", SetLaunchInputsJob, {
+        limiter: { max: 100, duration: secondsToMilliseconds(10) },
+        concurrency: 50,
+      }),
+    },
+    artefacts: {
+      save: new JobsQueue("save_node_artefacts", SaveNodeArtefactsJob, {
         limiter: { max: 100, duration: secondsToMilliseconds(10) },
         concurrency: 50,
       }),

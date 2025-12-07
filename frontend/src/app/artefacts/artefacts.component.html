@@ -1,0 +1,40 @@
+<div class="artefacts" [class.busy-block]="progress.loading">
+  <ng-container *ngFor="let o of artefacts">
+    <ng-container *ngIf="o.data as data" [ngSwitch]="o.type">
+      <img
+        *ngSwitchCase="'image'"
+        [imageFallback]
+        [inspect]="{ type: 'image', url: data.url, disabled: mode == 'select' }"
+        [src]="data.url | proxyImage: { width: 300 }"
+        [class.vertical]="data.height > data.width"
+        [style.aspect-ratio]="data.width + '/' + data.height"
+        (click)="select(data.url)"
+      />
+      <ng-container *ngSwitchCase="'image[]'">
+        <img
+          *ngFor="let image of data.images"
+          [imageFallback]
+          [inspect]="{
+            type: 'image',
+            url: data.url,
+            disabled: mode == 'select',
+          }"
+          [src]="image.url | proxyImage: { width: 300 }"
+          [class.vertical]="image.height > image.width"
+          [style.aspect-ratio]="image.width + '/' + image.height"
+          (click)="select(image.url)"
+        />
+      </ng-container>
+      <video
+        *ngSwitchCase="'video'"
+        controls
+        [inspect]="{ type: 'video', url: data.url, disabled: mode == 'select' }"
+        [poster]="data.poster | proxyImage: { width: 300 }"
+        [src]="data.url"
+        [class.vertical]="data.height > data.width"
+        [style.aspect-ratio]="data.width + '/' + data.height"
+        (click)="select(data.url)"
+      ></video>
+    </ng-container>
+  </ng-container>
+</div>

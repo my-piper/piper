@@ -14,7 +14,6 @@ import { SelectNodeComponent } from "src/app/select-node/select-node.component";
 import { AnonymousGuard } from "src/guards/anonymous.guard";
 import { ShouldCheckReadmeGuard } from "src/guards/pipeline-readme";
 import { SigninNeededGuard } from "src/guards/signin.guard";
-import { AssetsFilterResolver } from "src/resolvers/assets-filter";
 import { DeployResolver } from "src/resolvers/deploy";
 import { LaunchResolver } from "src/resolvers/launch";
 import { LaunchMessagesFilterResolver } from "src/resolvers/launch-messages-filter";
@@ -36,7 +35,7 @@ import { ProjectResolver } from "src/resolvers/project";
 import { ProjectMessagesFilterResolver } from "src/resolvers/project-messages-filter";
 import { TagResolver } from "src/resolvers/tags";
 import { UserResolver } from "src/resolvers/user";
-import { AssetsPageComponent } from "./assets-page/assets-page.component";
+import { AssetsComponent } from "./assets/assets.component";
 import { AssistantComponent } from "./assistant/assistant.component";
 import { BatchesComponent } from "./batches/batches.component";
 import { EditNodeAppComponent } from "./edit-node-app/edit-node-app.component";
@@ -54,7 +53,6 @@ import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refi
 import { ExpensesComponent } from "./expenses/expenses.component";
 import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
-import { LaunchComponent } from "./launch/launch.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
 import { NodeAppComponent } from "./node-app/node-app.component";
@@ -72,6 +70,8 @@ import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.compo
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
+import { ProjectArtefactsComponent } from "./project-artefacts/project-artefacts.component";
+import { ProjectAssetsComponent } from "./project-assets/project-assets.component";
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
@@ -187,6 +187,17 @@ const routes: Routes = [
     runGuardsAndResolvers: "pathParamsChange",
     children: [
       {
+        path: "artefacts",
+        component: ProjectArtefactsComponent,
+      },
+      {
+        path: "environment",
+        resolve: {
+          environment: MeEnvironmentResolver,
+        },
+        component: EditPipelineEnvironmentComponent,
+      },
+      {
         path: "readme/edit",
         component: EditPipelineReadmeComponent,
         children: [
@@ -222,22 +233,6 @@ const routes: Routes = [
         resolve: {
           filter: LaunchesFilterResolver,
         },
-        children: [
-          {
-            path: "outputs/:id",
-            component: LaunchOutputsPageComponent,
-            resolve: {
-              launch: LaunchResolver,
-            },
-          },
-        ],
-      },
-      {
-        path: "environment",
-        resolve: {
-          environment: MeEnvironmentResolver,
-        },
-        component: EditPipelineEnvironmentComponent,
       },
       {
         path: "node-updates",
@@ -252,17 +247,14 @@ const routes: Routes = [
       },
       {
         path: "assets",
-        resolve: {
-          filter: AssetsFilterResolver,
-        },
-        component: AssetsPageComponent,
+        component: ProjectAssetsComponent,
       },
       {
         path: "launches/:id",
         component: EditPipelineVisualComponent,
         data: {
           project: null,
-          readonly: true,
+          mode: "launch",
         },
         resolve: {
           launch: LaunchResolver,
@@ -327,7 +319,6 @@ const routes: Routes = [
             resolve: {
               launch: LaunchResolver,
             },
-            component: LaunchComponent,
             outlet: "right",
             children: [
               {
@@ -447,7 +438,7 @@ const routes: Routes = [
       },
       {
         path: "assets",
-        component: AssetsPageComponent,
+        component: AssetsComponent,
         canActivate: [SigninNeededGuard],
       },
       {
@@ -471,7 +462,7 @@ const routes: Routes = [
         path: "launches/:id",
         component: EditPipelineVisualComponent,
         data: {
-          readonly: true,
+          mode: "launch",
         },
         resolve: {
           launch: LaunchResolver,
@@ -480,17 +471,26 @@ const routes: Routes = [
           {
             path: "nodes/:id",
             component: NodeInLaunchComponent,
+            outlet: "right",
             resolve: {
               node: NodeFromLaunchResolver,
             },
             children: [
               {
                 path: "",
+                component: NodeOutputsComponent,
+              },
+              {
+                path: "inputs",
                 component: NodeInputsComponent,
               },
               {
                 path: "state",
                 component: NodeStateComponent,
+              },
+              {
+                path: "logs",
+                component: NodeLogsComponent,
               },
               {
                 path: "jobs",

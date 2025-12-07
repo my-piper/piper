@@ -21,7 +21,8 @@
           <li>
             <a
               class="link"
-              [routerLink]="[l._id]"
+              target="_blank"
+              [routerLink]="['/launches', l._id]"
               (click)="references.popover?.hide()"
             >
               <app-icon

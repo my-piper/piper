@@ -1,26 +1,22 @@
-<table class="default" [class.busy]="progress.loading">
-  <thead>
-    <th width="100px">Id</th>
-    <th width="100px">Attempts</th>
-    <th width="200px">Created At</th>
-    <th width="50px">Waited</th>
-    <th width="50px">Processed</th>
-    <th>Result</th>
-  </thead>
-  <tbody>
-    <tr *ngFor="let job of jobs">
-      <td>{{ job.id }}</td>
-      <td>{{ job.attemptsMade }} / {{ job.maxAttempts }}</td>
-      <td>{{ job.createdAt | date: "short" }}</td>
-      <td style="text-align: right">
-        {{ (job.processedAt - job.createdAt) / 1000 | duration }}
-      </td>
-      <td style="text-align: right">
-        {{ ((job.finishedAt - job.processedAt) / 1000 | duration) || "-" }}
-      </td>
-      <td>
-        <small>{{ job.result }}</small>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div class="card" *ngFor="let job of jobs">
+  <header>
+    <div>{{ job.createdAt | date: "short" }}</div>
+  </header>
+  <article>
+    <div i18n="@@label.id">Id</div>
+    <div>{{ job.id }}</div>
+    <div i18n="@@label.attempts">Attempts</div>
+    <div>{{ job.attemptsMade }} / {{ job.maxAttempts }}</div>
+    <div i18n="@@label.waited">Waited</div>
+    <div>
+      {{ ((job.processedAt - job.createdAt) / 1000 | duration) || "-" }}
+    </div>
+    <div i18n="@@label.processed">Processed</div>
+    <div>
+      {{ ((job.finishedAt - job.processedAt) / 1000 | duration) || "-" }}
+    </div>
+  </article>
+  <footer>
+    <small>{{ job.result }}</small>
+  </footer>
+</div>

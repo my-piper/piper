@@ -19,7 +19,7 @@ import { toPlain } from "src/utils/models";
   styleUrls: ["./edit-pipeline-environment.component.scss"],
 })
 export class EditPipelineEnvironmentComponent implements OnInit {
-  progress = { saving: false };
+  progress = { saving: false, deleting: false };
   error!: AppError;
 
   project: Project;
@@ -123,6 +123,25 @@ export class EditPipelineEnvironmentComponent implements OnInit {
           assign(this.project, { environment: pipeline });
           this.projectManager.markDirty();
         },
+        error: (err) => (this.error = err),
+      });
+  }
+
+  clear() {
+    this.progress.deleting = true;
+    this.cd.detectChanges();
+
+    this.http
+      .delete("me/environment")
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.deleting = false;
+          this.cd.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => null,
         error: (err) => (this.error = err),
       });
   }

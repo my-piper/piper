@@ -100,6 +100,7 @@
 		"link.updates": "Aggiornamenti",
 		"message.confirm_email": "Ti abbiamo inviato un'email con un codice speciale per essere sicuri che tu sia il legittimo proprietario dell'account. Ti preghiamo di controllare la tua casella di posta elettronica e inserire il codice per continuare.",
 		"label.code_from_email": "Codice dall'email",
-		"action.continue": "Continua"
+		"action.continue": "Continua",
+		"label.attempts": "Tentativi"
 	}
 }

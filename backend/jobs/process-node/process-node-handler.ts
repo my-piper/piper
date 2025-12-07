@@ -55,7 +55,8 @@ import {
   getNodeInputs,
 } from "utils/node";
 import { toRedisValue } from "utils/redis";
-import { createContext, getEnv } from "./context";
+import { createContext } from "./context";
+import { getEnvironment } from "./environment";
 
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
 
@@ -236,9 +237,9 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     const { run: action } = script.namespace as {
       run: (data: {
         schema: { node: object };
+        env: object;
         inputs: NodeInputs;
         state: object | null;
-        env: object;
         signal: AbortSignal;
       }) => Promise<NextNode | RepeatNode>;
     };
@@ -254,7 +255,15 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         },
         inputs: converted,
         state,
-        env: toPlain(await getEnv({ launch, node })),
+        env: await (async () => {
+          const { launchedBy } = launch;
+          const environment = await getEnvironment({
+            launch,
+            launchedBy,
+            node,
+          });
+          return toPlain(environment);
+        })(),
         signal,
       }),
       new Promise<never>((_, reject) => {
@@ -338,6 +347,11 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         LAUNCH_EXPIRED,
         JSON.stringify(converted)
       );
+
+      await queues.launches.artefacts.save.plan({
+        launch: launch._id,
+        node: nodeJob.node,
+      });
     }
 
     if (behavior === "normal") {

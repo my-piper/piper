@@ -2,6 +2,15 @@
 @import "src/ui-kit/styles/mixins";
 
 :host {
-  display: block;
-  @include vertical-stack();
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $gutter-normal;
+}
+
+.card {
+  article {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
 }

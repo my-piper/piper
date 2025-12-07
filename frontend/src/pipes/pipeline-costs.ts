@@ -1,51 +1,67 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import { OnDestroy, Pipe, PipeTransform } from "@angular/core";
 import { plainToInstance } from "class-transformer";
-import { minutesToMilliseconds } from "date-fns";
-import { BehaviorSubject, map, Observable } from "rxjs";
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  filter,
+  map,
+  Observable,
+  skip,
+  Subject,
+  takeUntil,
+} from "rxjs";
 import { LaunchRequest } from "src/models/launch-request";
 import { PipelineCosts } from "src/models/pipeline";
 import { HttpService } from "src/services/http.service";
+import { ProjectManager } from "src/services/project.manager";
 import { toPlain } from "src/utils/models";
 
-const cache = new Map<string, BehaviorSubject<PipelineCosts>>();
-setInterval(() => cache.clear(), minutesToMilliseconds(30));
-
 @Pipe({ name: "pipelineCosts" })
-export class PipelineCostsPipe implements PipeTransform {
-  last: PipelineCosts | null = null;
+export class PipelineCostsPipe implements PipeTransform, OnDestroy {
+  value: BehaviorSubject<PipelineCosts> | null = null;
 
-  constructor(private http: HttpService) {}
+  destroyed$ = new Subject<void>();
+
+  constructor(
+    private http: HttpService,
+    private projectManager: ProjectManager
+  ) {}
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
 
   transform(
     project: string,
-    launchRequest: LaunchRequest | null = null,
-    revision: string
+    launchRequest: LaunchRequest | null = null
   ): Observable<PipelineCosts | null> {
-    const key = [
-      project,
-      revision,
-      ...(!!launchRequest ? [JSON.stringify(launchRequest)] : []),
-    ].join(":");
-    if (cache.has(key)) {
-      return cache.get(key);
+    const update = () => {
+      this.http
+        .post(
+          `projects/${project}/launch-costs`,
+          !!launchRequest ? toPlain(launchRequest) : null
+        )
+        .pipe(
+          map((json) => (!!json ? plainToInstance(PipelineCosts, json) : null))
+        )
+        .subscribe((costs) => this.value.next(costs));
+    };
+
+    if (!this.value) {
+      this.value = new BehaviorSubject<PipelineCosts>(null);
+      this.projectManager.status
+        .pipe(
+          takeUntil(this.destroyed$),
+          skip(1),
+          distinctUntilChanged(),
+          filter((status) => status === "saved")
+        )
+        .subscribe(() => update());
     }
 
-    const value = new BehaviorSubject<PipelineCosts>(this.last);
-    cache.set(key, value);
+    update();
 
-    this.http
-      .post(
-        `projects/${project}/launch-costs`,
-        !!launchRequest ? toPlain(launchRequest) : null
-      )
-      .pipe(
-        map((json) => (!!json ? plainToInstance(PipelineCosts, json) : null))
-      )
-      .subscribe((costs) => {
-        value.next(costs);
-        this.last = costs;
-      });
-
-    return value;
+    return this.value;
   }
 }

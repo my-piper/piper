@@ -213,6 +213,10 @@ export class LaunchArtefact {
 
   @Expose()
   @Type(() => String)
+  project?: string;
+
+  @Expose()
+  @Type(() => String)
   launch?: string;
 
   @Expose()

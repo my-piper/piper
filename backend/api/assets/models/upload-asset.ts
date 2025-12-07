@@ -5,5 +5,11 @@ export class UploadAsset {
   @IsOptional()
   @Expose()
   @Type(() => String)
+  project?: string;
+
+  @Matches(/^[a-z0-9\-]{5,30}$/)
+  @IsOptional()
+  @Expose()
+  @Type(() => String)
   folder?: string;
 }

@@ -47,7 +47,7 @@
       [appPopover]="{ content: foldersPopover, trigger: 'click' }"
       (attached)="references.popover = $event"
     >
-      <app-icon class="icon" icon="menu"></app-icon>
+      <app-icon class="icon" icon="menu" [size]="20"></app-icon>
     </button>
     <input
       class="input-primary"
@@ -79,25 +79,17 @@
           [disabled]="progress.removing[asset._id]"
           (click)="remove(asset)"
         >
-          <app-icon
-            class="icon"
-            icon="delete"
-            [size]="18"
-            [stroke]="2"
-          ></app-icon>
+          <app-icon class="icon" icon="delete" [size]="18"></app-icon>
         </button>
-        <a class="circle" [href]="asset.url" target="_blank">
-          <app-icon
-            class="icon"
-            icon="open-link"
-            [stroke]="2"
-            [size]="18"
-          ></app-icon>
-        </a>
       </div>
       <ng-container [ngSwitch]="asset.type">
         <img
           *ngSwitchCase="'image'"
+          [inspect]="{
+            type: 'image',
+            url: asset.url,
+            disabled: mode === 'select',
+          }"
           [src]="asset.url | proxyImage: { width: 300 }"
           [style.aspect-ratio]="asset.width + '/' + asset.height"
           (click)="select(asset)"
@@ -123,6 +115,11 @@
           muted
           autoplay
           [volume]="0"
+          [inspect]="{
+            type: 'video',
+            url: asset.url,
+            disabled: mode === 'select',
+          }"
           [src]="asset.url"
           [style.aspect-ratio]="asset.width + '/' + asset.height"
           (click)="select(asset)"

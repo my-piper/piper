@@ -17,7 +17,7 @@
 <div
   class="drawler right"
   [class.hidden]="!drawlers.right"
-  [class.wide]="drawlers.right | is: launchComponent"
+  [class.wide]="drawlers.right | is: editNodeInputsComponent | not"
 >
   <div class="content">
     <router-outlet
@@ -79,12 +79,14 @@
   [scrollInside]="{
     left: pipeline.layout?.left || 0,
     top: pipeline.layout?.top || 0,
-    disabled: readonly,
+    disabled: mode === 'launch',
   }"
   (updated)="updateLayoutPosition({ left: $event.left, top: $event.top })"
 >
   <div
-    *ngIf="!readonly && (userRole.admin | can: project.createdBy | async)"
+    *ngIf="
+      mode === 'project' && (userRole.admin | can: project.createdBy | async)
+    "
     class="actions stack"
   >
     <a
@@ -96,33 +98,61 @@
     </a>
 
     <ng-template #runTemplate>
-      <ul *ngIf="(launches | keyvalue).length > 0" class="runs">
-        <li *ngFor="let l of launches | keyvalue">
-          <div>{{ pipeline.nodes.get(l.key).title | i18n }}</div>
-          <button
-            class="primary with-icon icon-only small"
-            (click)="stopNode(l.key)"
-          >
-            <app-icon class="icon" icon="stop"></app-icon>
-          </button>
-        </li>
-      </ul>
+      <div class="run-pipeline">
+        <ul *ngIf="(launches | keyvalue).length > 0; else costsTemplate">
+          <li *ngFor="let l of launches | keyvalue">
+            <div>{{ pipeline.nodes.get(l.key).title | i18n }}</div>
+            <button
+              class="primary with-icon icon-only small"
+              (click)="stopNode(l.key)"
+            >
+              <app-icon class="icon" icon="stop"></app-icon>
+            </button>
+          </li>
+        </ul>
 
-      <ng-container *ngIf="config.billing.active">
-        <p>Total costs for all nodes:</p>
-        <span
-          class="badge"
-          *ngIf="
-            (project._id | pipelineCosts: null : project.revision | async)
-              ?.total as total
-          "
-        >
-          {{ total | currency: "USD" : "symbol" : "1.0-10" }}
-        </span>
-      </ng-container>
+        <ng-template #costsTemplate>
+          <ng-container *ngIf="project._id | pipelineCosts | async as costs">
+            <ng-template #loadingTemplate>
+              <app-spinner></app-spinner>
+            </ng-template>
+            <ng-container *ngIf="costs !== null; else loadingTemplate">
+              <ng-template #noCostsTemplate>
+                <div i18n="@@message.no_costs_for_pipeline">
+                  This pipeline is free to use.
+                </div>
+              </ng-template>
+              <ng-container *ngIf="costs.total > 0; else noCostsTemplate">
+                <ul>
+                  <li *ngFor="let n of costs.nodes | keyvalue">
+                    <div>{{ pipeline.nodes.get(n.key).title | i18n }}</div>
+                    <div>
+                      {{
+                        n.value.costs | currency: "USD" : "symbol" : "1.0-10"
+                      }}
+                    </div>
+                  </li>
+                </ul>
+                <footer>
+                  <ng-container i18n="@@label.total_pipeline_costs">
+                    Total pipeline costs:
+                  </ng-container>
+                  {{ costs.total | currency: "USD" : "symbol" : "1.0-10" }}
+                </footer>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </ng-template>
+      </div>
     </ng-template>
 
-    <div [appPopover]="{ content: runTemplate }">
+    <div
+      [appPopover]="{
+        content: runTemplate,
+        maxWidth: '500px',
+        disabled: !config.billing.active,
+      }"
+    >
       <button
         class="circle"
         [class.busy]="
@@ -170,7 +200,8 @@
     <div
       class="input"
       [class.disabled]="
-        readonly || (userRole.admin | can: project.createdBy | async | not)
+        mode === 'launch' ||
+        (userRole.admin | can: project.createdBy | async | not)
       "
       *ngFor="let input of pipeline.inputs | keyvalue"
       #drag="appDragMove"
@@ -195,7 +226,10 @@
       </ng-template>
 
       <button
-        *ngIf="!readonly && (userRole.admin | can: project.createdBy | async)"
+        *ngIf="
+          mode === 'project' &&
+          (userRole.admin | can: project.createdBy | async)
+        "
         class="more transparent"
         [appPopover]="{
           content: actionsTemplate,
@@ -218,8 +252,7 @@
 
     <ng-container
       *ngIf="
-        readonly || (userRole.admin | can: project.createdBy | async | not)
-          | not
+        mode === 'project' && (userRole.admin | can: project.createdBy | async)
       "
     >
       <ng-container *ngFor="let input of pipeline.inputs | keyvalue">
@@ -260,9 +293,6 @@
             </ul>
           </ng-template>
           <button
-            *ngIf="
-              !readonly && (userRole.admin | can: project.createdBy | async)
-            "
             class="more transparent"
             [appPopover]="{
               content: actionsTemplate,
@@ -284,7 +314,8 @@
     <div
       class="output"
       [class.disabled]="
-        readonly || (userRole.admin | can: project.createdBy | async | not)
+        mode === 'launch' ||
+        (userRole.admin | can: project.createdBy | async | not)
       "
       *ngFor="let output of pipeline.outputs | keyvalue"
       [appDragMove]="{
@@ -310,7 +341,10 @@
         </ul>
       </ng-template>
       <button
-        *ngIf="!readonly && (userRole.admin | can: project.createdBy | async)"
+        *ngIf="
+          mode === 'project' &&
+          (userRole.admin | can: project.createdBy | async)
+        "
         class="transparent"
         [appPopover]="{
           content: actionsTemplate,
@@ -326,46 +360,54 @@
       class="node"
       [class.selected]="currentNode === node.value"
       *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
-      [class.disabled]="
-        readonly || (userRole.admin | can: project.createdBy | async | not)
-      "
+      [class.disabled]="userRole.admin | can: project.createdBy | async | not"
       #drag="appDragMove"
       [appDragMove]="{
         position: { x: node.value.arrange.x, y: node.value.arrange.y },
         zoom: pipeline.layout?.zoom || 1,
+        disabled: mode === 'launch',
       }"
       (moving)="nodeMoving(node.value, $event)"
       (moved)="nodeMoved(node.value, $event)"
     >
-      <ng-container
-        *ngIf="
-          (project._id | pipelineCosts: null : project.revision | async)
-            ?.nodes?.[node.key] as costs
-        "
-      >
-        <div *ngIf="costs.costs > 0" class="costs">
-          <ng-template #detailsTemplate>
+      <ng-template #nodeCostsTemplate>
+        <div
+          class="node-costs"
+          *ngIf="
+            (project._id | pipelineCosts | async)?.nodes?.get(node.key) as costs
+          "
+        >
+          <ng-template #noCostsTemplate>
+            <div i18n="@@message.no_costs_for_node">
+              This node is free to use.
+            </div>
+          </ng-template>
+
+          <div *ngIf="costs.costs > 0; else noCostsTemplate">
             <div
-              class="costs-details"
+              *ngIf="!!costs.details"
               [innerHTML]="costs.details | markdown | async"
             ></div>
-          </ng-template>
-          <app-icon
-            *ngIf="!!costs.details"
-            class="icon"
-            icon="info"
-            [size]="16"
-            [appPopover]="{ content: detailsTemplate, trigger: 'click' }"
-          ></app-icon>
-          <span>{{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}</span>
+
+            <div class="costs">
+              <ng-container i18n="@@label.cost_per_run">
+                Cost per run:
+              </ng-container>
+              {{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}
+            </div>
+          </div>
         </div>
-      </ng-container>
+      </ng-template>
 
       <div *ngIf="!launch" class="actions stack align-center">
         <button
           class="circle small"
           [class.busy]="progress.nodes.launching[node.key]"
           [disabled]="progress.nodes.launching[node.key]"
+          [appPopover]="{
+            content: nodeCostsTemplate,
+            disabled: !config.billing.active,
+          }"
           (click)="
             !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
           "
@@ -402,7 +444,7 @@
       </ng-template>
       <button
         *ngIf="
-          !readonly &&
+          mode === 'project' &&
           (userRole.admin | can: project.createdBy | async) &&
           !launches[node.key]
         "
@@ -417,6 +459,7 @@
       </button>
       <app-node
         [class.active]="currentNode === node.value"
+        [disabled]="mode === 'launch'"
         [id]="node.key"
         [node]="node.value"
         [inputs]="
@@ -426,14 +469,16 @@
           ) | mapToPlain
         "
         [outputs]="
-          !!launches[node.key]
-            ? launches[node.key].launchRequest.nodes.get(node.key)?.outputs
-            : (launchRequest.nodes.get(node.key)?.outputs | mapToPlain)
+          mode === 'project'
+            ? !!launches[node.key]
+              ? launches[node.key].launchRequest.nodes.get(node.key)?.outputs
+              : (launchRequest.nodes.get(node.key)?.outputs | mapToPlain)
+            : null
         "
         [launch]="launch || launches[node.key]"
         (input)="!!flow ? addFlow(node.key, $event) : null"
         (output)="startNodeFlow(node.key, $event)"
-        (done)="readonly ? null : fillNodeOutputs(node.key, $event)"
+        (done)="mode === 'project' ? fillNodeOutputs(node.key, $event) : null"
         (takeOutInput)="takeOutPipelineInput($event)"
         (takeOutOutput)="takeOutPipelineOutput($event)"
         [attr.disabled]="drag.dragged"
@@ -443,8 +488,7 @@
 
     <ng-container
       *ngIf="
-        readonly || (userRole.admin | can: project.createdBy | async | not)
-          | not
+        mode === 'project' && (userRole.admin | can: project.createdBy | async)
       "
     >
       <div
@@ -539,7 +583,7 @@
       <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)" />
 
       <ng-container
-        *ngIf="mode === 'flow' && !!flow && !!mouse"
+        *ngIf="state === 'flow' && !!flow && !!mouse"
         [ngSwitch]="flow.type"
       >
         <path
@@ -609,7 +653,8 @@
           class="flow"
           *ngFor="let f of i.value.flows | keyvalue"
           [class.disabled]="
-            readonly || (userRole.admin | can: project.createdBy | async | not)
+            mode === 'launch' ||
+            (userRole.admin | can: project.createdBy | async | not)
           "
           [attr.d]="
             (pipeline | pipelineInput: i.key).arrange
@@ -636,7 +681,8 @@
           class="flow"
           *ngFor="let f of o.value.flows | keyvalue"
           [class.disabled]="
-            readonly || (userRole.admin | can: project.createdBy | async | not)
+            mode === 'launch' ||
+            (userRole.admin | can: project.createdBy | async | not)
           "
           [attr.d]="
             (pipeline | node: f.value.from | async).arrange
@@ -659,7 +705,8 @@
           class="flow"
           *ngIf="!!o.value.from"
           [class.disabled]="
-            readonly || (userRole.admin | can: project.createdBy | async | not)
+            mode === 'launch' ||
+            (userRole.admin | can: project.createdBy | async | not)
           "
           (click)="removeOutput(o.key)"
           [attr.d]="

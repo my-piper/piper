@@ -44,7 +44,7 @@
       a {
         @include reset-link();
         display: block;
-        background: $primary-light-color;
+        background: $control-background-color;
         padding: $gutter-small $gutter-normal;
         text-align: center;
         border-radius: $corner-small;

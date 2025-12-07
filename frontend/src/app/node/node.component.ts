@@ -39,6 +39,10 @@ export class NodeComponent implements OnDestroy {
   @Input()
   id!: string;
 
+  @Input()
+  @HostBinding("class.disabled")
+  disabled = false;
+
   @HostBinding("class.done")
   @Input()
   get hasDone() {

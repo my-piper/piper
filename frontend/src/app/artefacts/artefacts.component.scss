@@ -1,0 +1,29 @@
+@import "src/ui-kit/styles/mixins";
+@import "src/ui-kit/styles/reset";
+
+:host {
+    display: block;
+
+    &[data-mode=select] {
+        .artefacts {
+
+            img,
+            video {
+                cursor: pointer;
+                max-height: 100px;
+            }
+        }
+    }
+}
+
+.artefacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $gutter-small;
+    min-height: 100px;
+
+    img,
+    video {
+        max-height: 200px;
+    }
+}

@@ -30,6 +30,7 @@ export class InspectDirective implements OnInit, OnDestroy {
   private type: SourceType;
   private url: string;
   private text: string;
+  private disabled = false;
 
   private observers: { parent: MutationObserver | null } = { parent: null };
 
@@ -38,12 +39,19 @@ export class InspectDirective implements OnInit, OnDestroy {
     type,
     url,
     text,
+    disabled,
   }: {
     type: SourceType;
     url?: string;
     text?: string;
+    disabled?: boolean;
   }) {
-    [this.type, this.url, this.text] = [type, url, text];
+    [this.type, this.url, this.text, this.disabled] = [
+      type,
+      url,
+      text,
+      disabled,
+    ];
   }
 
   constructor(
@@ -55,6 +63,10 @@ export class InspectDirective implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    if (this.disabled) {
+      return;
+    }
+
     const {
       nativeElement: { parentElement: parent },
     } = this.hostRef;
@@ -75,10 +87,7 @@ export class InspectDirective implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.removeButton();
-
-    if (this.observers.parent) {
-      this.observers.parent.disconnect();
-    }
+    this.observers.parent?.disconnect();
   }
 
   private createButton() {
@@ -116,7 +125,7 @@ export class InspectDirective implements OnInit, OnDestroy {
   }
 
   private removeButton() {
-    if (this.button && this.parent) {
+    if (!!this.button && !!this.parent) {
       this.renderer.removeChild(this.parent, this.button);
       this.button = null;
     }

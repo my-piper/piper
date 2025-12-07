@@ -5,42 +5,38 @@
 :host {
   display: block;
   @include vertical-stack();
-}
 
-:host-context(.ui-modal) {
-  .assets {
-    display: flex;
+  &[data-mode=select] {
+    .assets {
+      display: flex;
 
-    li {
-      padding: 0;
-      height: 80px;
-      position: relative;
+      li {
+        padding: 0;
+        height: 80px;
+        position: relative;
 
-      .folder,
-      .actions {
-        display: none;
-      }
-
-      img,
-      video {
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all;
-
-        &:hover {
-          border-color: $accent-color;
+        .folder,
+        .actions {
+          display: none;
         }
-      }
 
-      .audio {
-        button {
-          display: block;
+        img,
+        video {
+          cursor: pointer;
         }
-      }
 
-      &.upload {
-        button {
-          min-width: auto;
+        .audio {
+          button {
+            display: block;
+          }
+        }
+
+        &.upload {
+          width: 100px;
+
+          button {
+            min-width: auto;
+          }
         }
       }
     }
@@ -68,8 +64,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 5px;
-    padding: $gutter-small;
     height: 160px;
 
     .folder {
@@ -77,9 +71,9 @@
       bottom: $gutter-normal;
       left: $gutter-normal;
       font-size: .75em;
-      color: $primary-dark-color;
+      color: $primary-text-color;
       padding: $gutter-tiny;
-      background: rgba(white, .75);
+      background: $control-background-color;
       border-radius: $gutter-tiny;
       line-height: 1em;
     }
@@ -90,13 +84,20 @@
       top: $gutter-normal;
       right: $gutter-normal;
       z-index: 1;
+
+      button {
+        opacity: .5;
+        transition: all 500ms;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
     }
 
     &.upload {
       @include placeholder();
-      border-radius: 5px;
-      overflow: hidden;
-      width: 100px;
+      width: 150px;
 
       &:hover {
         button {

@@ -81,7 +81,7 @@ import {
 } from "src/ui-kit/providers/date-locale";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { AppComponent } from "./app.component";
-import { AssetsPageComponent } from "./assets-page/assets-page.component";
+import { ArtefactsComponent } from "./artefacts/artefacts.component";
 import { AssistantComponent } from "./assistant/assistant.component";
 import { BatchesComponent } from "./batches/batches.component";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
@@ -107,7 +107,6 @@ import { IoValueComponent } from "./io-value/io-value.component";
 import { JsonEditorComponent } from "./json-editor/json-editor.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchOutputsComponent } from "./launch-outputs/launch-outputs.component";
-import { LaunchComponent } from "./launch/launch.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
 import { MeUserComponent } from "./me-user/me-user.component";
@@ -131,10 +130,11 @@ import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.compo
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
+import { ProjectArtefactsComponent } from "./project-artefacts/project-artefacts.component";
+import { ProjectAssetsComponent } from "./project-assets/project-assets.component";
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectPlaygroundComponent } from "./project-playground/project-playground.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
-import { SelectGeneratedComponent } from "./select-generated/select-generated.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { SelectPlaygroundComponent } from "./select-playground/select-playground.component";
 import { LoginComponent } from "./signin/login.component";
@@ -199,7 +199,7 @@ import { UsersComponent } from "./users/users.component";
     EditFlowTransformerComponent,
     PlayWithProjectComponent,
     LaunchOutputsPageComponent,
-    AssetsPageComponent,
+    ProjectAssetsComponent,
     SelectPlaygroundPageComponent,
     ImageFallbackDirective,
     FeedSkeletonComponent,
@@ -208,7 +208,7 @@ import { UsersComponent } from "./users/users.component";
     FirstPipe,
     ValuesPipe,
     LaunchOutputsComponent,
-    SelectGeneratedComponent,
+    ArtefactsComponent,
     OrderByPipe,
     LaunchesPageComponent,
     ImageSizeDirective,
@@ -263,11 +263,11 @@ import { UsersComponent } from "./users/users.component";
     ScrollInsideDirective,
     DragCloneDirective,
     DropZoneDirective,
-    LaunchComponent,
     InspectComponent,
     AssistantComponent,
     AutoScrollDirective,
     PipelineEnvironmentPipe,
+    ProjectArtefactsComponent,
   ],
   imports: [
     BrowserModule,

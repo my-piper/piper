@@ -279,7 +279,7 @@ export async function data(id: string): Promise<LaunchData> {
 
 export async function getIOData(
   launch: string,
-  container: "inputs" | "outputs",
+  container: "inputs" | "outputs" | "artefacts",
   id: string,
   type: PipelineIOType,
   value: Primitive
@@ -313,7 +313,7 @@ export async function getIOData(
     case "image":
       const url = value as string;
       const data = await downloadBinary(url);
-      const { ext } = await fileTypeFromBuffer(data);
+      const { ext } = await fileTypeFromBuffer(new Uint8Array(data));
       const fileName = `${launch}_${container}_${id}.${ext}`;
 
       const { width, height } = await sharp(data).metadata();
@@ -329,7 +329,7 @@ export async function getIOData(
       let index = 0;
       for (const url of urls) {
         const data = await downloadBinary(url);
-        const { ext } = await fileTypeFromBuffer(data);
+        const { ext } = await fileTypeFromBuffer(new Uint8Array(data));
         const fileName = `${launch}_${container}_${id}_${index++}.${ext}`;
         const { width, height } = await sharp(data).metadata();
         images.push(
@@ -346,8 +346,8 @@ export async function getIOData(
       });
     case "video": {
       const url = value as string;
-      const video = await downloadBinary(url);
-      const { ext } = await fileTypeFromBuffer(video);
+      const data = await downloadBinary(url);
+      const { ext } = await fileTypeFromBuffer(new Uint8Array(data));
       const name = `${launch}_${container}_${id}`;
       const fileName = {
         video: `${name}.${ext}`,
@@ -357,14 +357,14 @@ export async function getIOData(
       let poster: Buffer;
       await withTempContext(async (tmpFolder) => {
         const filePath = path.join(tmpFolder, fileName.video);
-        await fs.writeFile(filePath, video);
+        await fs.writeFile(filePath, new Uint8Array(data));
         poster = await getPoster(filePath);
       });
 
       const { width, height } = await sharp(poster).metadata();
 
       return new VideoData({
-        url: await storage.output(video, fileName.video),
+        url: await storage.output(data, fileName.video),
         poster: await storage.output(poster, fileName.poster),
         width,
         height,

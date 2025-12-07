@@ -51,7 +51,6 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import { AssistantComponent } from "../assistant/assistant.component";
 import { EditNodeInputsComponent } from "../edit-node-inputs/edit-node-inputs.component";
-import { LaunchComponent } from "../launch/launch.component";
 import { SelectNodeComponent } from "../select-node/select-node.component";
 
 function salt() {
@@ -69,7 +68,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   selectNodeComponent = SelectNodeComponent;
   editNodeComponent = EditNodeComponent;
   editPipelineInputComponent = EditPipelineInputComponent;
-  launchComponent = LaunchComponent;
+  editNodeInputsComponent = EditNodeInputsComponent;
 
   progress: {
     launching: boolean;
@@ -99,10 +98,10 @@ export class EditPipelineVisualComponent implements OnDestroy {
     bottom: AssistantComponent | null;
   } = { left: null, right: null, bottom: null };
 
-  mode: "default" | "flow" = "default";
+  state: "default" | "flow" = "default";
   subscriptions: Subscription[] = [];
 
-  readonly = false;
+  mode: "project" | "launch" = "project";
 
   project!: Project;
   pipeline!: Pipeline;
@@ -137,23 +136,22 @@ export class EditPipelineVisualComponent implements OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project, launch, launches, readonly }) => {
+    this.route.data.subscribe(({ project, launch, launches, mode }) => {
       [
         this.project,
         this.pipeline,
         this.launchRequest,
         this.launch,
         this.launches,
+        this.mode,
       ] = [
         project || launch.project,
         project?.pipeline || launch.pipeline,
         project?.launchRequest || launch.launchRequest,
         launch,
         launches || {},
+        mode || "project",
       ];
-      if (typeof readonly !== "undefined") {
-        this.readonly = true;
-      }
     });
 
     this.drawlerRight.activateEvents
@@ -358,7 +356,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   addNode(left: number, top: number, payload: { node: string }) {
     if ("node" in payload) {
-      this.closedrawler();
+      this.closeDrawler();
 
       this.http
         .get(`nodes/${payload.node}`)
@@ -416,17 +414,17 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   startNodeFlow(from: string, output: string) {
     this.flow = { type: "node", from, output };
-    this.mode = "flow";
+    this.state = "flow";
   }
 
   startInputFlow(input: string) {
     this.flow = { type: "input", from: input };
-    this.mode = "flow";
+    this.state = "flow";
   }
 
   @HostListener("document:mousemove", ["$event"])
   move(event: MouseEvent) {
-    if (this.mode === "flow") {
+    if (this.state === "flow") {
       const { nativeElement } = this.nodesRef;
       const rect = nativeElement.getBoundingClientRect();
       let x = Math.floor(event.clientX - rect.left);
@@ -439,8 +437,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   @HostListener("document:mouseup")
   stopMove() {
-    if (this.mode === "flow") {
-      this.mode = "default";
+    if (this.state === "flow") {
+      this.state = "default";
       [this.flow, this.mouse] = [null, null];
     }
   }
@@ -537,7 +535,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
         break;
     }
 
-    [this.mode, this.mouse] = ["default", null];
+    [this.state, this.mouse] = ["default", null];
   }
 
   removeFlow(id: string) {
@@ -576,7 +574,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.pipeline.nodes.delete(node);
     this.save();
 
-    this.closedrawler();
+    this.closeDrawler();
   }
 
   trackNode(index: number, { key, value }: { key: string; value: Node }) {
@@ -700,11 +698,15 @@ export class EditPipelineVisualComponent implements OnDestroy {
     if (this.currentNode !== node) {
       const launch = this.launches[id] || this.launch;
       if (!!launch) {
+        console.log(this.mode);
         this.router.navigate(
           [
             {
               outlets: {
-                right: ["launches", launch._id, "nodes", id],
+                right:
+                  this.mode === "project"
+                    ? ["launches", launch._id, "nodes", id]
+                    : ["nodes", id],
                 left: null,
               },
             },
@@ -722,7 +724,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
         );
       }
     } else {
-      this.closedrawler();
+      this.closeDrawler();
     }
   }
 
@@ -730,11 +732,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
   clickOnGrid(event: MouseEvent) {
     const { nativeElement: gridElement } = this.gridRef;
     if (event.target === gridElement) {
-      this.closedrawler();
+      this.closeDrawler();
     }
   }
 
-  closedrawler() {
+  closeDrawler() {
     this.router.navigate([{ outlets: { left: null, right: null } }], {
       relativeTo: this.route,
     });

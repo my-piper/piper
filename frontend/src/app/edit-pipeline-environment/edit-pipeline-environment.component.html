@@ -1,6 +1,6 @@
 <p i18n="@@message.define_global_variables">
-  You can define global variables for your pipeline here. In this case we will
-  not bill you for execution of this pipeline.
+  You can override global variables for your pipeline here. In this case we
+  won't bill you for execution of this pipeline.
 </p>
 
 <ng-template #noVariablesTemplate>
@@ -24,14 +24,24 @@
         [features]="[]"
       ></app-json-editor>
     </fieldset>
-    <footer>
+    <footer class="stack horizontal justify-between">
       <button
         class="primary"
         [class.busy]="progress.saving"
         [disabled]="form.invalid || progress.saving"
         (click)="save()"
+        i18n="@@action.save"
       >
         Save
+      </button>
+      <button
+        class="delete-button"
+        [class.busy]="progress.deleting"
+        [disabled]="progress.deleting"
+        (click)="clear()"
+        i18n="@@action.Clear"
+      >
+        Clear
       </button>
     </footer>
   </form>

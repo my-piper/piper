@@ -86,12 +86,30 @@
       <ul class="menu">
         <li>
           <a
+            [class.active]="child | is: editPipelineVisualComponent"
             [routerLink]="['./']"
-            [routerLinkActiveOptions]="{ exact: true }"
-            routerLinkActive="active"
             i18n="@@link.canvas"
           >
             Canvas
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="[
+              {
+                outlets: {
+                  primary: ['artefacts'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            (click)="references.popover?.hide()"
+            i18n="@@link.artefacts"
+          >
+            Artefacts
           </a>
         </li>
         <li>
@@ -139,7 +157,7 @@
             </a>
           </li>
         </ng-container>
-        <li style="display: none">
+        <li>
           <a
             [routerLink]="[
               {
@@ -157,26 +175,7 @@
             Launches
           </a>
         </li>
-        <li style="display: none">
-          <a
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['artefacts'],
-                  left: null,
-                  right: null,
-                  bottom: null,
-                },
-              },
-            ]"
-            routerLinkActive="active"
-            (click)="references.popover?.hide()"
-            i18n="@@link.artefacts"
-          >
-            Artefacts
-          </a>
-        </li>
-        <li style="display: none">
+        <li>
           <a
             [routerLink]="[
               {

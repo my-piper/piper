@@ -99,6 +99,7 @@
 		"link.updates": "Mises à jour",
 		"message.confirm_email": "Nous vous avons envoyé un e-mail avec un code spécial pour vous assurer que vous êtes le véritable propriétaire du compte. Veuillez vérifier votre boîte de réception et entrer le code pour continuer.",
 		"label.code_from_email": "Code de l'e-mail",
-		"action.continue": "Continuer"
+		"action.continue": "Continuer",
+		"label.attempts": "Tentatives"
 	}
 }

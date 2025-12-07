@@ -22,9 +22,9 @@ api.get(
             ? {}
             : { "createdBy._id": currentUser._id };
         })(),
-        ...(() => (!!folder ? { folder } : {}))(),
         ...(() => (!!type ? { type } : {}))(),
-        ...(() => (!!project ? { "project._id": project } : {}))(),
+        ...(() => (!!project ? { project } : {}))(),
+        ...(() => (!!folder ? { folder } : {}))(),
       })
       .sort({ createdAt: -1 })
       .toArray();

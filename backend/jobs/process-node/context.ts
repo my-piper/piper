@@ -3,26 +3,18 @@ import { artefact } from "app/storage";
 import { streams } from "app/streams";
 import axios from "axios";
 import { NODE_ENV } from "consts/core";
-import {
-  GLOBAL_ENVIRONMENT_KEY,
-  LAUNCH_EXPIRED,
-  NODE_LOGS,
-  USER_ENVIRONMENT_KEY,
-} from "consts/redis";
+import { LAUNCH_EXPIRED, NODE_LOGS } from "consts/redis";
 import { Job } from "core-kit/packages/queue";
 import redis from "core-kit/packages/redis";
 import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError, FatalError, TimeoutError } from "core-kit/types/errors";
-import assign from "lodash-es/assign";
 import merge from "lodash-es/merge";
-import { Environment } from "models/environment";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { LaunchRequest } from "models/launch-request";
 import { Node, NodeLog } from "models/node";
 import { createContext as createVmContext } from "node:vm";
 import * as deploying from "packages/deploy/get-deploy";
-import { decrypt } from "packages/environment/crypt-environment";
 import * as launching from "packages/launches/launching";
 import { run } from "packages/launches/launching";
 import { requireModule } from "packages/vm/utils";
@@ -31,85 +23,6 @@ import { NextNode, RepeatNode } from "types/node";
 import { Primitive } from "types/primitive";
 import { withTempContext } from "utils/files";
 import { download } from "utils/web";
-
-export async function getEnv({
-  launch,
-  node,
-}: {
-  launch: Launch;
-  node: Node;
-}): Promise<Environment> {
-  const env = new Environment({
-    variables: new Map<string, Primitive>(),
-  });
-  if (!!node.environment) {
-    const environment: {
-      global?: Environment;
-      user?: Environment;
-      pipeline: Environment;
-    } = { pipeline: launch.environment };
-
-    // global environment
-    {
-      const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
-      if (!!json) {
-        const global = toInstance(JSON.parse(json), Environment);
-        if (!!global) {
-          assign(environment, { global });
-        }
-      }
-    }
-
-    // user environment
-    {
-      const { launchedBy } = launch;
-      const json = await redis.get(USER_ENVIRONMENT_KEY(launchedBy._id));
-      if (!!json) {
-        const user = toInstance(JSON.parse(json), Environment);
-        if (!!user) {
-          assign(environment, { user });
-        }
-      }
-    }
-
-    for (const [k, v] of node.environment) {
-      switch (v.scope) {
-        case "global": {
-          const value = environment.user?.variables?.get(k);
-          if (value !== undefined) {
-            env.variables.set(k, value);
-          } else {
-            const value = environment.global?.variables?.get(k);
-            if (value !== undefined) {
-              env.variables.set(k, value);
-            }
-          }
-          break;
-        }
-        case "user": {
-          const value = environment.user?.variables?.get(k);
-          if (value !== undefined) {
-            env.variables.set(k, value);
-          }
-          break;
-        }
-        case "pipeline": {
-          const value = environment.pipeline?.variables?.get(k);
-          if (value !== undefined) {
-            env.variables.set(k, value);
-          }
-          break;
-        }
-      }
-    }
-    try {
-      decrypt(env);
-    } catch (e) {
-      throw new FatalError("Can't decrypt environment");
-    }
-  }
-  return env;
-}
 
 export async function createContext({
   job,
@@ -124,8 +37,6 @@ export async function createContext({
   node: Node;
   logger: Logger;
 }) {
-  const env = await getEnv({ launch, node });
-
   const debug = async (
     level: "debug" | "info" | "warn" | "error",
     ...args: (boolean | number | string)[]
@@ -202,7 +113,6 @@ export async function createContext({
           repeat(obj: object) {
             return mapTo(obj, RepeatNode);
           },
-          env: toPlain(env),
           messages: {
             defect: async (message: string) => {
               await streams.pipeline.messages.send({

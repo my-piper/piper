@@ -24,6 +24,12 @@ $node-border-color: rgba($graphite-color-200, 0.25);
   background: rgba($node-background-color, 0.75);
   min-height: 100px;
 
+  &.disabled {
+    .circle {
+      pointer-events: none;
+    }
+  }
+
   @keyframes bg-spin {
     to {
       --border-angle: 1turn;

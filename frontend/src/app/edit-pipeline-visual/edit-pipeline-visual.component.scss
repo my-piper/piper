@@ -13,29 +13,46 @@
   }
 }
 
-::ng-deep .popover .costs-details {
-  &::ng-deep {
-    font-size: .75em;
-
-    p {
-      margin: 0;
+::ng-deep .popover {
+  .node-costs {
+    &::ng-deep {
+      p {
+        margin: 0;
+      }
     }
   }
-}
 
-::ng-deep .popover .runs {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  .run-pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: $gutter-normal;
 
-  li {
-    display: grid;
-    grid-template-columns: 1fr 30px;
-    gap: $gutter-small;
-    align-items: center;
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: $gutter-small;
 
-    div {
-      border-bottom: 1px dotted $graphite-color-60;
+      li {
+        display: grid;
+        grid-template-columns: 1fr fit-content(40px);
+        gap: $gutter-small;
+        align-items: center;
+        border-bottom: 1px dotted $graphite-color-60;
+
+        div:first-child {
+          max-width: 150px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        div:last-child {
+          text-align: right;
+        }
+      }
     }
   }
 }
@@ -115,32 +132,6 @@
       .actions {
         display: none;
       }
-    }
-
-    .costs {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: -24px;
-      align-items: center;
-      color: $graphite-color-100;
-
-      .icon {
-        margin-right: $gutter-tiny;
-        cursor: pointer;
-
-        &::ng-deep svg {
-          stroke: $graphite-color-100;
-        }
-      }
-
-      span {
-        font-size: .75em;
-      }
-    }
-
-    &.selected .costs {
-      display: block;
     }
 
     .actions {

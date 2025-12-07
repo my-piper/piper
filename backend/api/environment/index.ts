@@ -1,3 +1,4 @@
+import "./clear-me-environment";
 import "./get-environment";
 import "./get-me-environment";
 import "./set-environment";

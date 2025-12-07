@@ -2,36 +2,54 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  HostBinding,
+  Input,
   Output,
 } from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { delay, finalize, map } from "rxjs";
-import { AppConfig } from "src/models/app-config";
 import { LaunchArtefact } from "src/models/launch";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { toInstance, toPlain } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
+import { ArtefactsFilter } from "./models";
 
 @Component({
-  selector: "app-select-generated",
-  templateUrl: "./select-generated.component.html",
-  styleUrls: ["./select-generated.component.scss"],
+  selector: "app-artefacts",
+  templateUrl: "./artefacts.component.html",
+  styleUrls: ["./artefacts.component.scss"],
 })
-export class SelectGeneratedComponent extends UntilDestroyed {
+export class ArtefactsComponent extends UntilDestroyed {
+  private _filter!: ArtefactsFilter;
+
   progress: { loading: boolean } = {
     loading: false,
   };
   error: Error;
 
+  @HostBinding("attr.data-mode")
+  @Input()
+  mode: "view" | "select" = "view";
+
   references: { popover: PopoverComponent } = { popover: null };
-  outputs: LaunchArtefact[] = [];
+  artefacts: LaunchArtefact[] = [];
+
+  @Input()
+  set filter(filter: Partial<ArtefactsFilter>) {
+    this._filter = toInstance(filter, ArtefactsFilter);
+    this.load();
+  }
+
+  get filter() {
+    return this._filter;
+  }
 
   @Output()
   selected = new EventEmitter<string>();
 
   constructor(
-    private config: AppConfig,
     private http: HttpService,
     private cd: ChangeDetectorRef
   ) {
@@ -47,7 +65,7 @@ export class SelectGeneratedComponent extends UntilDestroyed {
     this.cd.detectChanges();
 
     this.http
-      .get("launches/outputs")
+      .get("artefacts", toPlain(this.filter))
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
@@ -59,8 +77,8 @@ export class SelectGeneratedComponent extends UntilDestroyed {
         )
       )
       .subscribe({
-        next: (outputs) => {
-          this.outputs = outputs;
+        next: (artefacts) => {
+          this.artefacts = artefacts;
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err.error),

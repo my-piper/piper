@@ -1,7 +1,5 @@
 import { Expose, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
-import { Launch } from "./launch";
-import { Project } from "./project";
 import { User } from "./user";
 
 export class Asset {
@@ -18,12 +16,8 @@ export class Asset {
   createdBy: User;
 
   @Expose()
-  @Type(() => Project)
-  project!: Project;
-
-  @Expose()
-  @Type(() => Launch)
-  launch!: Launch;
+  @Type(() => String)
+  project!: string;
 
   @Expose()
   @Type(() => String)

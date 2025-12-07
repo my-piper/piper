@@ -2,7 +2,7 @@ import api from "app/api";
 import mongo from "app/mongo";
 import * as storage from "app/storage";
 import { validate } from "class-validator";
-import { toInstance, toPlain } from "core-kit/packages/transform";
+import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import { Request, Response } from "express";
 import { Asset } from "models/asset";
@@ -23,8 +23,6 @@ api.post(
     const m = multer({ storage: memoryStorage() });
     const upload = m.single("file");
 
-    type File = { mimetype: string; size: number; buffer: Buffer };
-
     await new Promise<void>((done, reject) => {
       upload(req, res, (error) => {
         if (!!error) {
@@ -38,7 +36,7 @@ api.post(
     const request = toInstance(body, UploadAsset);
     await validate(request);
 
-    const { folder } = request;
+    const { project, folder } = request;
 
     if (!file) {
       throw new DataError("Can't upload file");
@@ -60,21 +58,25 @@ api.post(
     ].join("_");
 
     const now = new Date();
-    const asset = new Asset({
-      _id,
-      createdAt: now,
-      createdBy: (() => {
-        const { _id } = currentUser;
-        return new User({ _id });
-      })(),
-      folder,
-      type,
-      format,
-      width,
-      height,
-      url: await storage.asset(data, fileName),
-      cursor: ulid(),
-    });
+    const asset = mapTo(
+      {
+        _id,
+        createdAt: now,
+        createdBy: (() => {
+          const { _id } = currentUser;
+          return new User({ _id });
+        })(),
+        type,
+        project,
+        folder,
+        format,
+        width,
+        height,
+        url: await storage.asset(data, fileName),
+        cursor: ulid(),
+      },
+      Asset
+    );
     const plain = toPlain(asset);
     await mongo.assets.insertOne(asset as { _id: string });
     return plain;

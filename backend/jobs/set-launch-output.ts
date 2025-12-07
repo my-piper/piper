@@ -41,7 +41,7 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
   }
 
   const { type, title } = launch.pipeline.outputs.get(setOutputJob.output);
-  const { launchedBy } = launch;
+  const { project, launchedBy } = launch;
 
   const data = await getIOData(
     launch._id,
@@ -68,6 +68,7 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
 
   const output = new LaunchArtefact({
     _id: sid(),
+    project: project._id,
     launch: launch._id,
     filledAt: new Date(),
     launchedBy: !!launchedBy

@@ -102,6 +102,7 @@
 		"link.updates": "更新",
 		"message.confirm_email": "特定のアカウント所有者であることを確認するために、特別なコードが記載されたメールをお送りしました。受信トレイを確認し、コードを入力して続行してください。",
 		"label.code_from_email": "電子メールからのコード",
-		"action.continue": "続ける"
+		"action.continue": "続ける",
+		"label.attempts": "試み"
 	}
 }

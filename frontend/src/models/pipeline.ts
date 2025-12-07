@@ -230,7 +230,7 @@ export class PipelineCosts {
 
   @Expose()
   @Type(() => NodeCosts)
-  nodes!: NodeCosts[];
+  nodes!: Map<string, NodeCosts>;
 
   @Expose()
   @Type(() => Number)

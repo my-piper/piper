@@ -42,6 +42,7 @@ export class DragMoveDirective {
 
   private zoom: number = 1;
 
+  private disabled = false;
   private dragged = false;
 
   @Input("appDragMove")
@@ -51,18 +52,21 @@ export class DragMoveDirective {
     anchorY = 0,
     grid = 10,
     zoom,
+    disabled,
   }: {
     position: Point;
     anchorX: number;
     anchorY: number;
     grid: number;
     zoom: number;
+    disabled: boolean;
   }) {
     this.position = position;
     this.anchorX = anchorX;
     this.anchorY = anchorY;
     this.grid = grid;
     this.zoom = zoom;
+    this.disabled = disabled;
   }
 
   set position(position: Point) {
@@ -92,6 +96,10 @@ export class DragMoveDirective {
 
   @HostListener("mousedown", ["$event"])
   startMove(event: MouseEvent) {
+    if (this.disabled) {
+      return;
+    }
+
     const target = event.target as HTMLElement;
     if (target.closest("a, button, input, textarea, select")) {
       return;

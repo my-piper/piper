@@ -226,7 +226,7 @@ export class NodeOutput {
 
   @Expose()
   @Type(() => String)
-  type!: string;
+  type!: PipelineIOType;
 
   @Expose()
   @Type(() => String)

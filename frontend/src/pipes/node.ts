@@ -1,5 +1,12 @@
 import { OnDestroy, Pipe, PipeTransform } from "@angular/core";
-import { BehaviorSubject, filter, Subject, takeUntil } from "rxjs";
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  filter,
+  skip,
+  Subject,
+  takeUntil,
+} from "rxjs";
 import { Node } from "src/models/node";
 import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
@@ -31,6 +38,8 @@ export class NodePipe implements PipeTransform, OnDestroy {
       this.projectManager.status
         .pipe(
           takeUntil(this.destroyed$),
+          skip(1),
+          distinctUntilChanged(),
           filter((status) => status === "dirty")
         )
         .subscribe(() => update());
@@ -74,6 +83,8 @@ export class InputIndexOfPipe implements PipeTransform, OnDestroy {
       this.projectManager.status
         .pipe(
           takeUntil(this.destroyed$),
+          skip(1),
+          distinctUntilChanged(),
           filter((status) => status === "dirty")
         )
         .subscribe(() => update());

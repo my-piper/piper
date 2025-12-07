@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  HostBinding,
   Input,
   OnInit,
   Output,
@@ -10,6 +11,7 @@ import { FormBuilder } from "@angular/forms";
 import first from "lodash/first";
 import { debounceTime, delay, finalize, map } from "rxjs";
 import { Asset, AssetsFilter } from "src/models/assets";
+import { Project } from "src/models/project";
 import { AssetImportedSignal } from "src/models/signals/asset";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
@@ -43,8 +45,11 @@ export class AssetsComponent implements OnInit {
   };
 
   @Input()
+  project!: Project;
+
+  @Input()
   set filter(filter: Partial<AssetsFilter>) {
-    this._filter = new AssetsFilter(filter);
+    this._filter = toInstance(filter, AssetsFilter);
     this.cd.detectChanges();
   }
 
@@ -55,6 +60,10 @@ export class AssetsComponent implements OnInit {
   folders: string[] = [];
   assets: Asset[] = [];
   references: { popover: PopoverComponent } = { popover: null };
+
+  @HostBinding("attr.data-mode")
+  @Input()
+  mode: "default" | "select" = "default";
 
   @Output()
   selected = new EventEmitter<Asset>();
@@ -163,6 +172,10 @@ export class AssetsComponent implements OnInit {
     const t = target as HTMLInputElement;
     const file = first(t.files);
     let formData = new FormData();
+    if (!!this.project) {
+      formData.append("project", this.project._id);
+    }
+
     const { folder } = this.form.getRawValue();
     if (!!folder) {
       formData.append("folder", folder);

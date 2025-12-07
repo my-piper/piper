@@ -1,9 +1,12 @@
 import { createLogger } from "core-kit/packages/logger";
-import { mapTo } from "core-kit/packages/transform";
+import { mapTo, toPlain } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
+import { getEnvironment } from "jobs/process-node/environment";
 import assign from "lodash/assign";
+import { Environment } from "models/environment";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
 import { NodeCosts, Pipeline, PipelineCosts } from "models/pipeline";
+import { User } from "models/user";
 import {
   Context,
   createContext as createVmContext,
@@ -16,7 +19,10 @@ import { convertInputs } from "utils/node";
 
 const logger = createLogger("pipeline_costs");
 
-async function run(code: string, inputs: NodeInputs): Promise<number | object> {
+async function run(
+  code: string,
+  { environment, inputs }: { environment?: Environment; inputs: NodeInputs }
+): Promise<number | object> {
   let script: SourceTextModule;
   let context: Context;
   try {
@@ -32,12 +38,18 @@ async function run(code: string, inputs: NodeInputs): Promise<number | object> {
     await script.link(() => null);
     await script.evaluate();
     const { costs: action } = script.namespace as {
-      costs: ({ inputs }: { inputs: NodeInputs }) => Promise<number | object>;
+      costs: (data: {
+        env?: object;
+        inputs: NodeInputs;
+      }) => Promise<number | object>;
     };
     if (typeof action !== "function") {
       return 0;
     }
-    return await action({ inputs });
+    return await action({
+      ...(!!environment ? { env: toPlain(environment) } : {}),
+      inputs,
+    });
   } catch (err) {
     console.log(err);
     return 0;
@@ -49,7 +61,8 @@ async function run(code: string, inputs: NodeInputs): Promise<number | object> {
 
 export async function getCosts(
   pipeline: Pipeline,
-  launchRequest: LaunchRequest
+  launchRequest: LaunchRequest,
+  forUser: User
 ): Promise<PipelineCosts> {
   const getNodeInputs = (id: string) => {
     let toLaunch = launchRequest.nodes.get(id);
@@ -84,9 +97,10 @@ export async function getCosts(
   const costs = new PipelineCosts({ pipeline: 0 });
 
   if (!!pipeline.script) {
-    const converted = convertInputs({ pipeline })(inputs);
     assign(costs, {
-      pipeline: (await run(pipeline.script, converted)) as number,
+      pipeline: (await run(pipeline.script, {
+        inputs: convertInputs({ pipeline })(inputs),
+      })) as number,
     });
   } else {
     // calculate all nodes
@@ -115,13 +129,18 @@ export async function getCosts(
         }
       }
 
-      const converted = convertInputs({ node })(inputs);
       nodes.set(
         id,
         new NodeCosts({
           node: node.title,
           ...(await (async () => {
-            const costs = await run(node.script, converted);
+            const costs = await run(node.script, {
+              inputs: convertInputs({ node })(inputs),
+              environment: await getEnvironment({
+                node,
+                launchedBy: forUser,
+              }),
+            });
             if (typeof costs === "number") {
               return { costs: costs as number };
             }

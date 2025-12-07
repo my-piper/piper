@@ -64,6 +64,7 @@
   </div>
 
   <div class="stack small align-center">
+    <app-me-user class="me"></app-me-user>
     <ng-template #selectLanguagePopover>
       <app-select-language></app-select-language>
     </ng-template>
@@ -71,9 +72,8 @@
       class="circle"
       [appPopover]="{content: selectLanguagePopover, trigger: 'click'}"
     >
-      <app-icon class="icon" icon="lang"></app-icon>
+      <app-icon class="icon" icon="lang" [size]="20"></app-icon>
     </button>
-    <app-me-user class="me"></app-me-user>
   </div>
 </header>
 
