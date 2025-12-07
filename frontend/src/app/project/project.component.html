@@ -344,25 +344,10 @@
 
     <div
       class="status"
-      [attr.data-status]="status"
       *ngIf="projectManager.status | async as status"
+      [attr.data-status]="status"
     >
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M6.789 10.421C4.697 10.421 3 12.118 3 14.211C3 16.304 4.697 18 6.789 18H17.21C19.303 18 21 16.303 21 14.211C21 12.119 19.303 10.422 17.211 10.422C17.211 7.544 14.878 5.211 12 5.211C9.122 5.211 6.789 7.543 6.789 10.421Z"
-          stroke="white"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+      <app-icon icon="cloud"></app-icon>
     </div>
   </div>
 </header>

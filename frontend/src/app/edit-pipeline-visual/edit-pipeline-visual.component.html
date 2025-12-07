@@ -112,7 +112,7 @@
         </ul>
 
         <ng-template #costsTemplate>
-          <ng-container *ngIf="project._id | pipelineCosts | async as costs">
+          <ng-container *ngLet="project._id | pipelineCosts | async as costs">
             <ng-template #loadingTemplate>
               <app-spinner></app-spinner>
             </ng-template>
@@ -373,7 +373,7 @@
       <ng-template #nodeCostsTemplate>
         <div
           class="node-costs"
-          *ngIf="
+          *ngLet="
             (project._id | pipelineCosts | async)?.nodes?.get(node.key) as costs
           "
         >
@@ -383,19 +383,24 @@
             </div>
           </ng-template>
 
-          <div *ngIf="costs.costs > 0; else noCostsTemplate">
-            <div
-              *ngIf="!!costs.details"
-              [innerHTML]="costs.details | markdown | async"
-            ></div>
+          <ng-template #loadingTemplate>
+            <app-spinner></app-spinner>
+          </ng-template>
+          <ng-container *ngIf="costs !== null; else loadingTemplate">
+            <div *ngIf="costs.costs > 0; else noCostsTemplate">
+              <div
+                *ngIf="!!costs.details"
+                [innerHTML]="costs.details | markdown | async"
+              ></div>
 
-            <div class="costs">
-              <ng-container i18n="@@label.cost_per_run">
-                Cost per run:
-              </ng-container>
-              {{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}
+              <div class="costs">
+                <ng-container i18n="@@label.cost_per_run">
+                  Cost per run:
+                </ng-container>
+                {{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}
+              </div>
             </div>
-          </div>
+          </ng-container>
         </div>
       </ng-template>
 
