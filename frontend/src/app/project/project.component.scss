@@ -26,17 +26,30 @@ header {
   }
 
   .status {
-    text-transform: uppercase;
-    color: white;
-    padding: $gutter-tiny $gutter-small;
-    font-size: $font-size-small;
+    @keyframes saving-animation {
+      0% {
+        opacity: .5;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    &[data-status=dirty] {
+      opacity: .3;
+    }
+
+    &[data-status=saving] {
+      animation: saving-animation 500ms infinite alternate ease-in-out;
+    }
 
     &[data-status=saved] {
-      background-color: green;
+      opacity: 0;
     }
 
     &[data-status=error] {
-      background-color: $error-color;
+      stroke: $error-color;
     }
   }
 }

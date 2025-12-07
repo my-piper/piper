@@ -50,6 +50,7 @@ export class PipelineCostsPipe implements PipeTransform, OnDestroy {
 
     if (!this.value) {
       this.value = new BehaviorSubject<PipelineCosts>(null);
+      update();
       this.projectManager.status
         .pipe(
           takeUntil(this.destroyed$),
@@ -59,8 +60,6 @@ export class PipelineCostsPipe implements PipeTransform, OnDestroy {
         )
         .subscribe(() => update());
     }
-
-    update();
 
     return this.value;
   }

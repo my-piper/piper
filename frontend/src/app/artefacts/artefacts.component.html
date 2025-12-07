@@ -1,4 +1,14 @@
 <div class="artefacts" [class.busy-block]="progress.loading">
+  <ng-template #noDataTemplate>
+    <p *ngIf="!progress.loading" i18n="@@message.nothing_found">
+      No artefacts found.
+    </p>
+  </ng-template>
+
+  <ng-container
+    *ngIf="artefacts.length > 0; else noDataTemplate"
+  ></ng-container>
+
   <ng-container *ngFor="let o of artefacts">
     <ng-container *ngIf="o.data as data" [ngSwitch]="o.type">
       <img

@@ -24,6 +24,8 @@ import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
+import { Primitive } from "src/types/primitive";
+import { ModalService } from "src/ui-kit/modal/modal.service";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
 @Component({
@@ -54,6 +56,9 @@ export class NodeComponent implements OnDestroy {
   get hasError() {
     return this.status?.state === "error";
   }
+
+  @Input()
+  project!: Project;
 
   @Input()
   node!: Node;
@@ -91,9 +96,6 @@ export class NodeComponent implements OnDestroy {
   get launch() {
     return this._launch;
   }
-
-  @Input()
-  project!: Project;
 
   @Input()
   inputs!: NodeInputs;
@@ -142,6 +144,9 @@ export class NodeComponent implements OnDestroy {
   @Output()
   done = new EventEmitter<NodeOutputs>();
 
+  @Output()
+  setOutput = new EventEmitter<{ output: string; value: Primitive }>();
+
   subscriptions: { launch: () => void; sockets: Subscription[] } = {
     launch: null,
     sockets: [],
@@ -153,7 +158,8 @@ export class NodeComponent implements OnDestroy {
     private socket: Socket,
     private http: HttpService,
     private cd: ChangeDetectorRef,
-    private live: LiveService
+    private live: LiveService,
+    private modal: ModalService
   ) {}
 
   ngOnDestroy(): void {
@@ -357,5 +363,10 @@ export class NodeComponent implements OnDestroy {
       },
       node: { id: this.id, node: this.node },
     });
+  }
+
+  pickArtefact(output: string, artefact: string) {
+    this.setOutput.emit({ output, value: artefact });
+    this.modal.close();
   }
 }

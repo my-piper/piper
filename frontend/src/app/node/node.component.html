@@ -68,7 +68,25 @@
 
   <ul class="featured">
     <ng-container *ngFor="let o of node.outputs | keyvalue">
-      <li *ngIf="o.value.featured">
+      <li *ngIf="o.value.featured" [attr.data-type]="o.value.type">
+        <ng-template #pickArtefactModal>
+          <app-artefacts
+            mode="select"
+            [filter]="{ project: project._id, node: id, type: o.value.type }"
+            (selected)="pickArtefact(o.key, $event)"
+          ></app-artefacts>
+        </ng-template>
+
+        <button
+          class="pick-output circle"
+          [appModal]="{
+            title: 'Pick artefact',
+            content: pickArtefactModal,
+          }"
+        >
+          <app-icon icon="cursor" [size]="18"></app-icon>
+        </button>
+
         <ng-container [ngSwitch]="o.value.type">
           <div *ngSwitchCase="'image'" class="image">
             <ng-template #noValueTemplate>
@@ -76,6 +94,7 @@
                 <app-icon icon="image" [size]="64"></app-icon>
               </div>
             </ng-template>
+
             <img
               *ngIf="outputs?.[o.key] as value; else noValueTemplate"
               imageFallback
@@ -92,6 +111,7 @@
                 </div>
               </div>
             </ng-template>
+
             <ng-container
               *ngIf="outputs?.[o.key] as value; else noValueTemplate"
             >
@@ -116,6 +136,7 @@
                 <app-icon icon="video" [size]="64"></app-icon>
               </div>
             </ng-template>
+
             <video
               *ngIf="outputs?.[o.key] as value; else noValueTemplate"
               [inspect]="{ type: 'video', url: value }"

@@ -728,6 +728,21 @@ export class EditPipelineVisualComponent implements OnDestroy {
     }
   }
 
+  setNodeOutput(node: string, output: string, value: Primitive) {
+    const { nodes } = this.launchRequest;
+    let nodeToLaunch = nodes.get(node);
+    if (!nodeToLaunch) {
+      nodeToLaunch = mapTo({}, NodeToLaunch);
+      nodes.set(node, nodeToLaunch);
+    }
+
+    nodeToLaunch.outputs ??= new Map<string, Primitive>();
+    nodeToLaunch.outputs.set(output, value);
+
+    this.cd.detectChanges();
+    this.projectManager.markDirty();
+  }
+
   @HostListener("click", ["$event"])
   clickOnGrid(event: MouseEvent) {
     const { nativeElement: gridElement } = this.gridRef;

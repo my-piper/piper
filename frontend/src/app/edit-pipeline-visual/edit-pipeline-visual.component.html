@@ -461,6 +461,7 @@
         [class.active]="currentNode === node.value"
         [disabled]="mode === 'launch'"
         [id]="node.key"
+        [project]="project"
         [node]="node.value"
         [inputs]="
           (!!launches[node.key]
@@ -479,9 +480,9 @@
         (input)="!!flow ? addFlow(node.key, $event) : null"
         (output)="startNodeFlow(node.key, $event)"
         (done)="mode === 'project' ? fillNodeOutputs(node.key, $event) : null"
+        (setOutput)="setNodeOutput(node.key, $event.output, $event.value)"
         (takeOutInput)="takeOutPipelineInput($event)"
         (takeOutOutput)="takeOutPipelineOutput($event)"
-        [attr.disabled]="drag.dragged"
         (click)="selectNode($event, node.key, node.value)"
       ></app-node>
     </div>

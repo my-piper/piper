@@ -207,12 +207,31 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     gap: $gutter-small;
 
     li {
+      position: relative;
+
       .no-value {
         min-height: 100px;
         display: flex;
         align-items: center;
         justify-content: center;
         opacity: 0.5;
+      }
+
+      .pick-output {
+        position: absolute;
+        bottom: $gutter-small;
+        right: $gutter-small;
+        z-index: 1;
+        opacity: 0;
+        transition: all 250ms;
+      }
+
+      &[data-type="image"],
+      &[data-type="image[]"],
+      &[data-type="video"] {
+        &:hover .pick-output {
+          opacity: 1;
+        }
       }
 
       img {
