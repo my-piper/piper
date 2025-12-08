@@ -152,7 +152,9 @@ export async function run({
     }
   }
 
-  const costs = BILLING_ACTIVE ? await getCosts(pipeline, launchRequest) : null;
+  const costs = BILLING_ACTIVE
+    ? await getCosts(pipeline, launchRequest, launchedBy)
+    : null;
 
   const now = new Date();
   const launch = new Launch({
