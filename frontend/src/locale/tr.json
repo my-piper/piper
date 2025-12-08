@@ -103,6 +103,12 @@
 		"message.confirm_email": "Size, doğru hesap sahibi olduğunuzdan emin olmak için özel bir kod içeren bir e-posta gönderdik. Lütfen gelen kutunuzu kontrol edin ve devam etmek için kodu girin.",
 		"label.code_from_email": "E-postadan kod",
 		"action.continue": "Devam et",
-		"label.attempts": "Girişimler"
+		"label.attempts": "Girişimler",
+		"link.apps": "Uygulamalar",
+		"label.select_app": "Uygulamayı seç",
+		"link.canvas": "Tuval",
+		"link.artefacts": "Artefaktlar",
+		"label.auto_start": "Otomatik başlat",
+		"label.search": "Arama"
 	}
 }

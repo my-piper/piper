@@ -103,6 +103,12 @@
 		"message.confirm_email": "特定のアカウント所有者であることを確認するために、特別なコードが記載されたメールをお送りしました。受信トレイを確認し、コードを入力して続行してください。",
 		"label.code_from_email": "電子メールからのコード",
 		"action.continue": "続ける",
-		"label.attempts": "試み"
+		"label.attempts": "試み",
+		"link.apps": "アプリ",
+		"label.select_app": "アプリを選択",
+		"link.canvas": "キャンバス",
+		"link.artefacts": "アーティファクト",
+		"label.auto_start": "自動開始",
+		"label.search": "検索"
 	}
 }

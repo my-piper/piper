@@ -100,6 +100,10 @@
 		"message.confirm_email": "Wir haben Ihnen eine E-Mail mit einem speziellen Code geschickt, um sicherzustellen, dass Sie der rechtmäßige Kontoinhaber sind. Bitte überprüfen Sie Ihr Postfach und geben Sie den Code ein, um fortzufahren.",
 		"label.code_from_email": "Code aus E-Mail",
 		"action.continue": "Weiter",
-		"label.attempts": "Versuche"
+		"label.attempts": "Versuche",
+		"label.select_app": "Wählen Sie die App",
+		"link.canvas": "Leinwand",
+		"link.artefacts": "Artefakte",
+		"label.search": "Suche"
 	}
 }

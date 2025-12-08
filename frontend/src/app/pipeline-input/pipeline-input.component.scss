@@ -19,8 +19,10 @@
     max-width: 150px;
   }
 
-  &[data-type=image] {
-    max-width: 100px;
+  &[data-type="image"],
+  &[data-type='image[]'],
+  &[data-type='video'] {
+    max-width: 200px;
   }
 
   &[disabled=true] {

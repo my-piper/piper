@@ -18,20 +18,6 @@
   }
 }
 
-:host-context(.pipeline-input) {
-  .image {
-    max-width: 100px;
-    max-height: 100px;
-  }
-
-  &.compact {
-    .image {
-      max-width: 50px;
-      max-height: 50px;
-    }
-  }
-}
-
 .upload {
   @include placeholder();
   display: flex;
@@ -161,10 +147,5 @@ video {
 
   display: block;
   width: 100%;
-
-  &.mask {
-    position: absolute;
-    z-index: 1;
-    opacity: .5;
-  }
+  max-width: 100%;
 }

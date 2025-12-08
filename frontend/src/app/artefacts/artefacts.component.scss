@@ -3,14 +3,15 @@
 
 :host {
     display: block;
+    min-width: 500px;
 
     &[data-mode=select] {
         .artefacts {
 
             img,
             video {
+                height: 100px;
                 cursor: pointer;
-                max-height: 100px;
             }
         }
     }
@@ -19,11 +20,12 @@
 .artefacts {
     display: flex;
     flex-wrap: wrap;
-    gap: $gutter-small;
-    min-height: 100px;
+    gap: $gutter-normal;
+    min-height: 200px;
 
     img,
     video {
-        max-height: 200px;
+        @include placeholder();
+        height: 200px;
     }
 }

@@ -1,4 +1,15 @@
-<div class="artefacts" [class.busy-block]="progress.loading">
+<ng-template #noDataTemplate>
+  <app-skeleton
+    *ngIf="progress.loading; else emptyTemplate"
+    type="cards"
+    [cols]="5"
+  ></app-skeleton>
+  <ng-template #emptyTemplate>
+    <p i18n="@@message.nothing_found">Nothing found.</p>
+  </ng-template>
+</ng-template>
+
+<div *ngIf="artefacts.length > 0; else noDataTemplate" class="artefacts">
   <ng-template #noDataTemplate>
     <p *ngIf="!progress.loading" i18n="@@message.nothing_found">
       No artefacts found.

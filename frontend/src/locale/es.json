@@ -103,6 +103,11 @@
 		"message.confirm_email": "Le enviamos un correo electrónico con un código especial para asegurarnos de que usted es el legítimo propietario de la cuenta. Por favor revise su bandeja de entrada e ingrese el código para continuar.",
 		"label.code_from_email": "Código del correo electrónico",
 		"action.continue": "Continuar",
-		"label.attempts": "Intentos"
+		"label.attempts": "Intentos",
+		"link.apps": "Aplicaciones",
+		"label.select_app": "Seleccionar aplicación",
+		"link.canvas": "Lienzo",
+		"link.artefacts": "Artefactos",
+		"label.search": "Búsqueda"
 	}
 }
