@@ -109,6 +109,8 @@
 		"link.canvas": "キャンバス",
 		"link.artefacts": "アーティファクト",
 		"label.auto_start": "自動開始",
-		"label.search": "検索"
+		"label.search": "検索",
+		"label.ask_me_anything": "どんな質問でもしてください...",
+		"label.ai_assistant": "AIアシスタント"
 	}
 }

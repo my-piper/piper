@@ -107,6 +107,8 @@
 		"link.canvas": "畫布",
 		"link.artefacts": "文物",
 		"label.auto_start": "自動啟動",
-		"label.search": "搜尋"
+		"label.search": "搜尋",
+		"label.ask_me_anything": "問我任何事情...",
+		"label.ai_assistant": "AI 助理"
 	}
 }

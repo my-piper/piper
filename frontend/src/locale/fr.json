@@ -62,7 +62,7 @@
 		"label.updating": " Mise à jour",
 		"action.check_updates": " Vérifier les mises à jour",
 		"label.description": "Description de l'application",
-		"action.edit": "Editer",
+		"action.edit": "Modifier",
 		"label.release_notes": "Notes de version :",
 		"action.import": " Importer",
 		"label.put_yaml_or_url": "Mettre le paquet YAML",
@@ -106,6 +106,8 @@
 		"link.canvas": "Canvas",
 		"link.artefacts": "Artefacts",
 		"label.auto_start": "Démarrage automatique",
-		"label.search": "Rechercher"
+		"label.search": "Rechercher",
+		"label.ask_me_anything": "Demandez-moi n'importe quoi...",
+		"label.ai_assistant": "Assistant AI"
 	}
 }

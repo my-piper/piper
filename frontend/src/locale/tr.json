@@ -109,6 +109,8 @@
 		"link.canvas": "Tuval",
 		"link.artefacts": "Artefaktlar",
 		"label.auto_start": "Otomatik başlat",
-		"label.search": "Arama"
+		"label.search": "Arama",
+		"label.ask_me_anything": "Bana her şeyi sor...",
+		"label.ai_assistant": "Yapay zeka asistanı"
 	}
 }

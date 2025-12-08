@@ -104,6 +104,8 @@
 		"label.select_app": "Wählen Sie die App",
 		"link.canvas": "Leinwand",
 		"link.artefacts": "Artefakte",
-		"label.search": "Suche"
+		"label.search": "Suche",
+		"label.ask_me_anything": "Frag mich alles...",
+		"label.ai_assistant": "KI-Assistent"
 	}
 }

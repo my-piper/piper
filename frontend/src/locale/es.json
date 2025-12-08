@@ -108,6 +108,8 @@
 		"label.select_app": "Seleccionar aplicación",
 		"link.canvas": "Lienzo",
 		"link.artefacts": "Artefactos",
-		"label.search": "Búsqueda"
+		"label.search": "Búsqueda",
+		"label.ask_me_anything": "Pregúntame cualquier cosa...",
+		"label.ai_assistant": "Asistente de IA"
 	}
 }

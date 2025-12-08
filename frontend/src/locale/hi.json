@@ -109,6 +109,8 @@
 		"link.canvas": "कैनवास",
 		"link.artefacts": "वस्त्रागार",
 		"label.auto_start": "ऑटो स्टार्ट",
-		"label.search": "खोजें"
+		"label.search": "खोजें",
+		"label.ask_me_anything": "मुझसे कुछ भी पूछें...",
+		"label.ai_assistant": "एआई सहायक"
 	}
 }

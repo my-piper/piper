@@ -105,6 +105,8 @@
 		"link.canvas": "Canvas",
 		"link.artefacts": "Artefatos",
 		"label.auto_start": "Iniciar automaticamente",
-		"label.search": "Pesquisar"
+		"label.search": "Pesquisar",
+		"label.ask_me_anything": "Me pergunte qualquer coisa...",
+		"label.ai_assistant": "assistente de IA"
 	}
 }

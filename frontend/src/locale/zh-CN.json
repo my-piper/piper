@@ -110,6 +110,8 @@
 		"label.select_app": "选择应用程序",
 		"link.canvas": "画布",
 		"label.auto_start": "自动启动",
-		"label.search": "搜索"
+		"label.search": "搜索",
+		"label.ask_me_anything": "问我任何事情...",
+		"label.ai_assistant": "AI助手"
 	}
 }
