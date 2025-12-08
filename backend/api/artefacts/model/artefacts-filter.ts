@@ -8,7 +8,7 @@ import {
 import assign from "lodash/assign";
 
 export class ArtefactsFilter {
-  @IsEnum(["image", "archive", "audio", "video"])
+  @IsEnum(["image", "image[]", "archive", "audio", "video"])
   @IsOptional()
   @Expose()
   @Type(() => String)

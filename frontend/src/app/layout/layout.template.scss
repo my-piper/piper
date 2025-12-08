@@ -10,7 +10,7 @@ header {
     align-items: center;
     margin-bottom: $gutter-normal;
     justify-content: space-between;
-    background-color: $control-background-color;
+    background-color: rgba($control-background-color, 0.50);
     padding: $gutter-normal;
     gap: $gutter-normal;
 

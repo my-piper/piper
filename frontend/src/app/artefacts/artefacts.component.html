@@ -3,6 +3,7 @@
     *ngIf="progress.loading; else emptyTemplate"
     type="cards"
     [cols]="5"
+    [rows]="2"
   ></app-skeleton>
   <ng-template #emptyTemplate>
     <p i18n="@@message.nothing_found">Nothing found.</p>

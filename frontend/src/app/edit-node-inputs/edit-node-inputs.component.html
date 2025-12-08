@@ -96,7 +96,9 @@
               </div>
             </div>
             <app-edit-input
-              *ngIf="!i.input.featured"
+              *ngIf="
+                (project.pipeline | inputFlows: id : i.id | async | length) <= 0
+              "
               [id]="i.id"
               [type]="i.input.type"
               [enum]="i.input.enum"

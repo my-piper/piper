@@ -50,7 +50,12 @@ import { IsPipe } from "src/pipes/is";
 import { MapToPlainPipe } from "src/pipes/map-to-plain";
 import { MarkdownPipe } from "src/pipes/markdown";
 import { MultiplyPipe } from "src/pipes/multiply";
-import { InputIndexOfPipe, NodePipe, OutputIndexOfPipe } from "src/pipes/node";
+import {
+  InputFlowsPipe,
+  InputIndexOfPipe,
+  NodePipe,
+  OutputIndexPipe,
+} from "src/pipes/node";
 import { NotPipe } from "src/pipes/not";
 import { NsfwPipe } from "src/pipes/nsfw";
 import { OrderByPipe } from "src/pipes/order-by";
@@ -163,7 +168,7 @@ import { UsersComponent } from "./users/users.component";
     PlainPipe,
     IncludesPipe,
     AssetsComponent,
-    OutputIndexOfPipe,
+    OutputIndexPipe,
     InputIndexOfPipe,
     SelectNodeComponent,
     EditNodeComponent,
@@ -268,6 +273,7 @@ import { UsersComponent } from "./users/users.component";
     AutoScrollDirective,
     PipelineEnvironmentPipe,
     ProjectArtefactsComponent,
+    InputFlowsPipe,
   ],
   imports: [
     BrowserModule,
