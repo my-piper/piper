@@ -13,7 +13,7 @@ import { Project } from "models/project";
 import { User } from "models/user";
 import { run } from "packages/launches/launching";
 import { getCosts } from "packages/pipelines";
-import { checkBalance, handle, toModel } from "utils/http";
+import { checkBalance, checkLogged, handle, toModel } from "utils/http";
 
 const FLOAT_INCREMENT = `
 local key = KEYS[1]
@@ -35,6 +35,7 @@ const logger = createLogger("launch_project");
 api.post(
   "/api/projects/:_id/launch",
   handle(({ currentUser }) => async ({ params: { _id }, body }) => {
+    checkLogged(currentUser);
     checkBalance(currentUser);
 
     const project = toModel(
@@ -70,7 +71,11 @@ api.post(
     if (TRACK_BALANCE) {
       const remaining = currentUser.balance?.remaining || 0;
       if (remaining <= MIN_BALANCE_FOR_TRACK) {
-        const { total: costs } = await getCosts(pipeline, launchRequest);
+        const { total: costs } = await getCosts(
+          pipeline,
+          launchRequest,
+          currentUser
+        );
 
         const key = ACCRUED_USER_BALANCE(currentUser._id, project._id);
 

@@ -106,9 +106,8 @@
               },
             ]"
             routerLinkActive="active"
-            i18n="@@link.environment"
           >
-            Environment
+            <ng-container i18n="@@link.environment">Environment</ng-container>
             <ng-container
               *ngIf="
                 (project.pipeline | pipelineEnvironment | async)?.properties
