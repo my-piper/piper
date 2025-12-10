@@ -88,7 +88,7 @@
 		"label.draw_mask": "Dibujar máscara",
 		"message.upload_image": " Sólo tiene que pulsar {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} para cargar la imagen",
 		"label.select_image": "Seleccionar imagen",
-		"action.clear": " Claro",
+		"action.clear": "Claro",
 		"link.pipeline": " Tubería",
 		"link.design": "Diseño",
 		"link.environment": " Entorno",
@@ -116,6 +116,7 @@
 		"message.request_node": "Si no puedes encontrar el nodo que necesitas, puedes",
 		"link.request_node": "solicitud de nodo",
 		"label.environment": "Medio ambiente",
-		"message.leave_empty_to_global_scope": "Deje vacío para usar nuestro valor"
+		"message.leave_empty_to_global_scope": "Deje vacío para usar nuestro valor",
+		"message.define_global_variables": "Puede anular las variables globales para su canalización aquí. En este caso, no le facturaremos por la ejecución de esta canalización."
 	}
 }

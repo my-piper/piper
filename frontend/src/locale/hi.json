@@ -88,7 +88,7 @@
 		"label.draw_mask": "मुखौटा बनाएं",
 		"message.upload_image": "केवल छू दबाएं {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} छवि अपलोड करने के लिए",
 		"label.select_image": "छवि का चयन करें",
-		"action.clear": "साफ",
+		"action.clear": "स्पष्ट",
 		"link.pipeline": "पाइपलाइन",
 		"link.design": "डिज़ाइन",
 		"link.environment": "वातावरण",
@@ -118,6 +118,7 @@
 		"link.request_node": "अनुरोध नोड",
 		"label.environment": "पर्यावरण",
 		"label.variables": "चर",
-		"message.leave_empty_to_global_scope": "हमारा मूल्य उपयोग करने के लिए खाली छोड़ें"
+		"message.leave_empty_to_global_scope": "हमारा मूल्य उपयोग करने के लिए खाली छोड़ें",
+		"message.define_global_variables": "यहाँ अपने पाइपलाइन के लिए ग्लोबल वेरिएबल को ओवरराइड कर सकते हैं। इस मामले में हम इस पाइपलाइन के क्रियान्वयन के लिए आपको बिलिंग नहीं करेंगे।"
 	}
 }

@@ -57,7 +57,7 @@
 		"label.academy": "学院",
 		"message.piper_api_academy": "请在我们的 {$START_LINK}Academy{$CLOSE_LINK} 中查看有关 Piper API 的更多详情。",
 		"action.delete": "删除",
-		"message.no_updates_for_package": "软件包没有更新。",
+		"message.no_updates_for_package": "包没有更新。",
 		"action.update": "更新",
 		"label.check_updates": "请检查更新。",
 		"link.import": "导入",
@@ -119,6 +119,7 @@
 		"link.request_node": "请求节点",
 		"label.environment": "环境",
 		"label.variables": "变量",
-		"message.leave_empty_to_global_scope": "保持空白以使用我们的值"
+		"message.leave_empty_to_global_scope": "保持空白以使用我们的值",
+		"message.define_global_variables": "您可以在此处覆盖管道的全局变量。在这种情况下，我们不会为执行此管道而向您收费。"
 	}
 }

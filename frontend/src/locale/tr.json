@@ -55,7 +55,7 @@
 		"label.academy": "Akademi",
 		"message.piper_api_academy": " Lütfen {$START_LINK}Academy{$CLOSE_LINK} sayfamızdan Piper API hakkında daha fazla ayrıntıya göz atın",
 		"action.delete": "Silme",
-		"message.no_updates_for_package": "Pakette güncelleme yok.",
+		"message.no_updates_for_package": "Paket güncellemeleri yok.",
 		"action.update": " Güncelleme",
 		"label.check_updates": "Lütfen güncellemeyi kontrol edin.",
 		"link.import": " İthalat",
@@ -88,7 +88,7 @@
 		"label.draw_mask": "Maske çiz",
 		"message.upload_image": " Resim yüklemek için {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} tuşlarına basmanız yeterli",
 		"label.select_image": "Görüntü seçin",
-		"action.clear": " Temizle",
+		"action.clear": "Açık",
 		"link.pipeline": " Boru Hattı",
 		"link.design": "Tasarım",
 		"link.environment": " Çevre",
@@ -118,6 +118,7 @@
 		"link.request_node": "istek düğümü",
 		"label.environment": "Çevre",
 		"label.variables": "Değişkenler",
-		"message.leave_empty_to_global_scope": "Değerimizi kullanmak için boş bırakın"
+		"message.leave_empty_to_global_scope": "Değerimizi kullanmak için boş bırakın",
+		"message.define_global_variables": "Pipeline'ınız için global değişkenleri burada geçersiz kılabilirsiniz. Bu durumda, bu pipeline'ın yürütülmesi için size fatura kesmeyeceğiz."
 	}
 }

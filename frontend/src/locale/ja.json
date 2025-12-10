@@ -55,7 +55,7 @@
 		"label.academy": "アカデミー",
 		"message.piper_api_academy": "パイパーAPIの詳細は{$START_LINK}アカデミー{$CLOSE_LINK}をご覧ください。",
 		"action.delete": "削除",
-		"message.no_updates_for_package": "パッケージにはアップデートがありません。",
+		"message.no_updates_for_package": "パッケージには更新がありません。",
 		"action.update": "更新",
 		"label.check_updates": "アップデートをご確認ください。",
 		"link.import": "インポート",
@@ -118,6 +118,7 @@
 		"link.request_node": "リクエストノード",
 		"label.environment": "環境",
 		"label.variables": "変数",
-		"message.leave_empty_to_global_scope": "当社の値を使用するには空白のままにしてください"
+		"message.leave_empty_to_global_scope": "当社の値を使用するには空白のままにしてください",
+		"message.define_global_variables": "あなたはここでパイプラインのグローバル変数をオーバーライドすることができます。 この場合、このパイプラインの実行に対して請求は発生しません。"
 	}
 }

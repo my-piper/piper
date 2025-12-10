@@ -87,7 +87,7 @@
 		"label.draw_mask": "Maschera di disegno",
 		"message.upload_image": " Basta premere {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} per caricare l'immagine",
 		"label.select_image": "Selezionare l'immagine",
-		"action.clear": " Libero",
+		"action.clear": "Chiaro",
 		"link.pipeline": " La pipeline",
 		"link.environment": " Ambiente",
 		"link.deploy": " Distribuire",
@@ -116,6 +116,7 @@
 		"link.request_node": "richiesta nodo",
 		"label.environment": "Ambiente",
 		"label.variables": "Variabili",
-		"message.leave_empty_to_global_scope": "Lascia vuoto per utilizzare il nostro valore"
+		"message.leave_empty_to_global_scope": "Lascia vuoto per utilizzare il nostro valore",
+		"message.define_global_variables": "È possibile sovrascrivere le variabili globali per il proprio pipeline qui. In questo caso non ti addebiteremo l'esecuzione di questa pipeline."
 	}
 }

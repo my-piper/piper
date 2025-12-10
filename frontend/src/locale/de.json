@@ -53,7 +53,7 @@
 		"label.academy": "Akademie",
 		"message.piper_api_academy": " Bitte lesen Sie weitere Details über Piper API in unserer {$START_LINK}Academy{$CLOSE_LINK}",
 		"action.delete": "Löschen",
-		"message.no_updates_for_package": "Das Paket hat keine Updates.",
+		"message.no_updates_for_package": "Paket hat keine Updates.",
 		"action.update": " Aktualisieren",
 		"label.check_updates": "Bitte überprüfen Sie das Update.",
 		"link.import": " Importieren",
@@ -84,7 +84,7 @@
 		"label.draw_mask": "Maske zeichnen",
 		"message.upload_image": " Drücken Sie einfach {$START_TAG_SPAN}Strg+V{$CLOSE_TAG_SPAN}, um ein Bild hochzuladen",
 		"label.select_image": "Bild auswählen",
-		"action.clear": " Klar",
+		"action.clear": "Clear",
 		"link.pipeline": " Pipeline",
 		"link.design": "Gestaltung",
 		"link.environment": " Umgebung",
@@ -113,6 +113,7 @@
 		"label.environment": "Umgebung",
 		"label.variables": "Variablen",
 		"message.leave_empty_to_global_scope": "Leer lassen, um unseren Wert zu verwenden",
-		"action.reset": "Zurücksetzen"
+		"action.reset": "Zurücksetzen",
+		"message.define_global_variables": "Sie können globale Variablen für Ihre Pipeline hier überschreiben. In diesem Fall werden wir Ihnen die Ausführung dieser Pipeline nicht in Rechnung stellen."
 	}
 }

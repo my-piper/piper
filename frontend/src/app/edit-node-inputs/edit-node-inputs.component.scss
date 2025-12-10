@@ -1,5 +1,6 @@
 @import "src/ui-kit/styles/variables";
 @import "src/variables";
+@import "src/ui-kit/styles/reset";
 
 :host {
   display: flex;
@@ -13,49 +14,68 @@
   }
 }
 
-h1,
+header {
+  input {
+    @include reset-input();
+    font-size: $font-size-big;
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    font-weight: bold;
+  }
+}
+
 h2 {
   font-size: $font-size-big;
   margin: 0;
   padding: 0;
 }
 
-.inputs {
-  :empty {
-    display: none;
+.order {
+  font-family: monospace;
+  font-size: 0.75em;
+  line-height: 1em;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-huge;
+  align-items: stretch;
+
+  .inputs {
+    :empty {
+      display: none;
+    }
+
+    .disabled {
+      opacity: .5;
+      pointer-events: none;
+      filter: blur(5px);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+    }
+
+    .json {
+      border: 1px solid silver;
+    }
+
+    .select-asset {
+      margin-top: 10px;
+    }
   }
 
-  .disabled {
-    opacity: .5;
-    pointer-events: none;
-    filter: blur(5px);
-  }
-
-  .order {
-    font-family: monospace;
-    font-size: 0.75em;
-    line-height: 1em;
-  }
-
-  input,
-  textarea {
-    width: 100%;
-  }
-
-  .json {
+  .editor {
     border: 1px solid silver;
-  }
-
-  .select-asset {
-    margin-top: 10px;
+    border-radius: 5px;
+    overflow: hidden;
   }
 }
 
-.editor {
-  border: 1px solid silver;
-  border-radius: 5px;
-  overflow: hidden;
-}
+
 
 footer {
   margin-top: $gutter-big;

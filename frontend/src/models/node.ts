@@ -8,6 +8,7 @@ import {
 } from "src/transformers/primitive";
 import { PipelineIOType } from "src/types/pipeline";
 import { Primitive } from "src/types/primitive";
+import { mapTo } from "src/utils/models";
 import { Arrange } from "./arrange";
 
 export class NodeEnvironment {
@@ -347,6 +348,7 @@ export class Node {
 
   build() {
     this._render = this.getRender();
+    console.log("Render", this._render);
   }
 
   private getRender() {
@@ -356,6 +358,8 @@ export class Node {
       group: null,
       inputs: [],
     };
+    this.groups ??= mapTo({ inputs: {} }, NodeGroups);
+
     for (const [k, v] of this.inputs) {
       if (!!v.group) {
         let group = groups.get(v.group);
@@ -363,6 +367,7 @@ export class Node {
           const g = this.groups.inputs.get(v.group);
           if (!g) {
             console.error(`Input group ${v.group} not found`);
+            orphan.inputs.push({ id: k, input: v });
             continue;
           }
           groups.set(v.group, {

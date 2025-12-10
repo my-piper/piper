@@ -85,7 +85,7 @@
 		"label.draw_mask": "Desenhar máscara",
 		"message.upload_image": " Basta pressionar {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN} para carregar a imagem",
 		"label.select_image": "Selecionar imagem",
-		"action.clear": " Limpar",
+		"action.clear": "Limpar",
 		"link.pipeline": " Pipeline",
 		"link.environment": " Ambiente",
 		"link.deploy": " Implementar",
@@ -114,6 +114,7 @@
 		"link.request_node": "nó de solicitação",
 		"label.environment": "Ambiente",
 		"label.variables": "Variáveis",
-		"message.leave_empty_to_global_scope": "Deixe vazio para usar nosso valor"
+		"message.leave_empty_to_global_scope": "Deixe vazio para usar nosso valor",
+		"message.define_global_variables": "Você pode substituir variáveis globais para o seu pipeline aqui. Neste caso, não cobraremos a execução deste pipeline."
 	}
 }

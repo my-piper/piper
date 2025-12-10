@@ -4,7 +4,7 @@
 		"action.save": " Сохранить",
 		"link.node_packages": "Пакеты",
 		"link.pipelines": "Проекты",
-		"link.launches": "Коллекция",
+		"link.launches": "Запуски",
 		"link.assets": "Заготовки",
 		"link.users": "Пользователи",
 		"link.playground": "Продукты",
@@ -90,7 +90,7 @@
 		"label.draw_mask": "Маска для рисования",
 		"message.upload_image": " Просто нажмите {$START_TAG_SPAN}Ctrl+V{$CLOSE_TAG_SPAN}, чтобы загрузить изображение",
 		"label.select_image": "Выберите изображение",
-		"action.clear": " Очистить",
+		"action.clear": "Чистый",
 		"link.pipeline": " Конвейер",
 		"link.design": "Дизайн",
 		"link.environment": " Окружение",
@@ -116,9 +116,10 @@
 		"action.clear_history": "Очистить историю",
 		"action.take_out": "Выйдите",
 		"message.request_node": "Если вы не можете найти узел, который вам нужен, вы можете",
-		"link.request_node": "запрос узла",
-		"label.environment": "Окружающая среда",
+		"link.request_node": "запросить узел",
+		"label.environment": "Окружение",
 		"label.variables": "Переменные",
-		"message.leave_empty_to_global_scope": "Оставьте пустым, чтобы использовать наше значение"
+		"message.leave_empty_to_global_scope": "Оставьте пустым, чтобы использовать наше значение",
+		"message.define_global_variables": "Вы можете переопределить глобальные переменные для вашего конвейера здесь. В этом случае мы не будем выставлять вам счет за выполнение этого конвейера."
 	}
 }

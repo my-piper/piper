@@ -5,7 +5,9 @@
 </ng-template>
 
 <ng-template #noUpdatesTemplate>
-  <p>No updates in nodes from catalog.</p>
+  <p i18n="@@message.no_updates_for_package">
+    No updates in nodes from catalog.
+  </p>
 </ng-template>
 
 <ng-container *ngIf="nodeUpdates?.updates | keyvalue as updates">

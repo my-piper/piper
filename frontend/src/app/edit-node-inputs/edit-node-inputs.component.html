@@ -2,9 +2,9 @@
   <p>No inputs for node.</p>
 </ng-template>
 
-<header class="stack vertical">
+<header class="stack vertical" [formGroup]="form">
   <div class="stack horizontal align-center">
-    <h1>{{ node.title | i18n }}</h1>
+    <input type="text" formControlName="title" />
     <ng-template #descriptionPopover>
       <div
         class="description"
@@ -29,6 +29,16 @@
           </label>
         </div>
         <span i18n="@@label.auto_start">Auto start</span>
+        <ng-template #autoStartPopover>
+          <div i18n="@@message.auto_start">
+            Will be executed when the pipeline is started.
+          </div>
+        </ng-template>
+        <app-icon
+          icon="info"
+          [appPopover]="{ content: autoStartPopover }"
+          size="18"
+        ></app-icon>
       </div>
     </fieldset>
   </form>
@@ -39,8 +49,11 @@
 <ng-container *ngIf="node.render.inputs as groups">
   <form *ngIf="groups.length > 0; else noInputsTemplate" [formGroup]="form">
     <ng-container *ngFor="let g of groups">
-      <h2 *ngIf="g.group.group?.title as group">
+      <h2 class="stack align-center" *ngIf="g.group.group?.title as group">
         {{ group | i18n }}
+        <div class="order" *ngIf="userRole.admin | can | async">
+          {{ g.group.group?.order }}
+        </div>
       </h2>
       <fieldset class="inputs stack vertical huge" formGroupName="inputs">
         <ng-container *ngFor="let i of g.group.inputs">
@@ -144,7 +157,7 @@
     </ul>
   </ng-template>
   <button
-    [hotKey]="'e'"
+    [hotKey]="'meta+e'"
     class="primary small with-icon icon-only"
     [appPopover]="{ content: toolsPopover }"
     (hotKeyPressed)="edit()"

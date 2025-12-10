@@ -53,7 +53,7 @@
 		"message.coming_soon": "即將推出...",
 		"label.academy": "學院",
 		"message.piper_api_academy": "請查看有關我們 {$START_LINK}學院{$CLOSE_LINK} 中 Piper API 的更多細節",
-		"message.no_updates_for_package": "包裹沒有更新。",
+		"message.no_updates_for_package": "套件沒有更新。",
 		"action.update": "更新",
 		"label.check_updates": "請檢查更新。",
 		"link.import": "導入",
@@ -86,7 +86,7 @@
 		"label.draw_mask": "繪製遮罩",
 		"message.upload_image": "只需按{$START_TAG_SPAN}Ctrl + V{$CLOSE_TAG_SPAN}上傳圖片",
 		"label.select_image": "選擇圖片",
-		"action.clear": "清除",
+		"action.clear": "清晰",
 		"link.pipeline": "管道",
 		"link.design": "設計",
 		"link.environment": "環境",
@@ -116,6 +116,7 @@
 		"link.request_node": "請求節點",
 		"label.environment": "環境",
 		"label.variables": "變數",
-		"message.leave_empty_to_global_scope": "留空以使用我們的值"
+		"message.leave_empty_to_global_scope": "留空以使用我們的值",
+		"message.define_global_variables": "您可以在此覆寫管道的全域變數。在這種情況下，我們不會向您收取此管道的執行費用。"
 	}
 }

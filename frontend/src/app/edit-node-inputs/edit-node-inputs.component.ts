@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { Component, Inject, OnInit } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { merge } from "lodash";
 import { filter, Subscription, takeUntil } from "rxjs";
@@ -11,8 +11,11 @@ import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
 import { Primitive } from "src/types/primitive";
 import { UI } from "src/ui-kit/consts";
+import { Languages } from "src/ui-kit/enums/languages";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
+import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
+import { getLabel } from "src/ui-kit/utils/i18n";
 import { createLogger, LogLevel } from "src/utils/logger";
 import { mapTo, toPlain } from "src/utils/models";
 
@@ -39,11 +42,16 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   startControl = this.fb.control<boolean>(false);
   inputsGroup = this.fb.group({});
   form = this.fb.group({
+    title: this.fb.control<string>(null, [
+      Validators.required,
+      Validators.minLength(3),
+    ]),
     start: this.startControl,
     inputs: this.inputsGroup,
   });
 
   constructor(
+    @Inject(CURRENT_LANGUAGE) private language: Languages,
     private projectManager: ProjectManager,
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -96,8 +104,11 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
       inputGroup.addControl("value", control);
       this.inputsGroup.addControl(k, inputGroup);
     }
+    this.form.patchValue({
+      title: getLabel(this.node.title, this.language),
+      start: pipeline.start.nodes.includes(this.id),
+    });
 
-    this.startControl.setValue(pipeline.start.nodes.includes(this.id));
     this.subscriptions.changes = this.form.valueChanges.subscribe(() =>
       this.save()
     );
@@ -108,9 +119,17 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   }
 
   private async save() {
+    if (!this.form.valid) {
+      return;
+    }
+
     const { pipeline, launchRequest } = this.project;
 
-    const { start } = this.form.getRawValue();
+    const { title, start } = this.form.getRawValue();
+    if (title !== getLabel(this.node.title, this.language)) {
+      this.node.title = title;
+    }
+
     const index = pipeline.start.nodes.indexOf(this.id);
     if (start) {
       if (index === -1) {
