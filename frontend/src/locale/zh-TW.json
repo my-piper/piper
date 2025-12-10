@@ -38,7 +38,7 @@
 		"label.title": "標題",
 		"label.type": "類型",
 		"label.default": "默認",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 重設",
+		"action.reset": "重設",
 		"link.comments": "評論",
 		"action.add_comment": "添加評論",
 		"message.markdown_available": "您可以使用 {$START_LINK}markdown{$CLOSE_LINK}",

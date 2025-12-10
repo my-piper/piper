@@ -39,7 +39,7 @@
 		"label.type": "タイプ",
 		"label.default": "デフォルト",
 		"label.enum": "列挙",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Reset",
+		"action.reset": "リセット",
 		"link.comments": "コメント",
 		"action.add_comment": "コメントを追加",
 		"message.markdown_available": "あなたは{$START_LINK}マークダウン{$CLOSE_LINK}を使用できます",

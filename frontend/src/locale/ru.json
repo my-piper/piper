@@ -41,7 +41,7 @@
 		"label.type": "Тип",
 		"label.default": "По умолчанию",
 		"label.enum": "Перечисление",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Сбросить",
+		"action.reset": "Сброс",
 		"link.comments": "Комментарии",
 		"action.add_comment": " Добавить комментарий",
 		"message.markdown_available": " Вы можете использовать {$START_LINK}markdown{$CLOSE_LINK}",

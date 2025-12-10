@@ -85,12 +85,10 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
       }
 
       inputGroup.addControl("value", control);
-
       this.inputsGroup.addControl(k, inputGroup);
     }
 
     this.startControl.setValue(pipeline.start.nodes.includes(this.id));
-
     this.subscriptions.changes = this.form.valueChanges.subscribe(() =>
       this.save()
     );

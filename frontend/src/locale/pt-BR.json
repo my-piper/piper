@@ -37,7 +37,7 @@
 		"label.title": "Título",
 		"label.type": "Tipo de imagem",
 		"label.default": "Padrão",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Redefinir",
+		"action.reset": "Reset",
 		"link.comments": "Comentários",
 		"action.add_comment": " Adicionar comentário",
 		"message.markdown_available": " Você pode usar {$START_LINK}markdown{$CLOSE_LINK}",

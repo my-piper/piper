@@ -39,7 +39,7 @@
 		"label.type": "टाइप करें",
 		"label.default": "डिफ़ॉल्ट",
 		"label.enum": "सूची",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} रीसेट",
+		"action.reset": "रीसेट",
 		"link.comments": "टिप्पणियां",
 		"action.add_comment": "टिप्पणी जोड़ें",
 		"message.markdown_available": "आप {$START_LINK}मार्कडाउन{$CLOSE_LINK} का उपयोग कर सकते हैं",

@@ -38,7 +38,6 @@
 		"label.title": "Titel",
 		"label.type": "Typ",
 		"label.default": "Standard",
-		"action.reset": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Zurücksetzen",
 		"link.comments": "Kommentare",
 		"action.add_comment": " Kommentar hinzufügen",
 		"message.markdown_available": " Sie können {$START_LINK}markdown{$CLOSE_LINK} verwenden",
@@ -113,6 +112,7 @@
 		"link.request_node": "Anforderungsknoten",
 		"label.environment": "Umgebung",
 		"label.variables": "Variablen",
-		"message.leave_empty_to_global_scope": "Leer lassen, um unseren Wert zu verwenden"
+		"message.leave_empty_to_global_scope": "Leer lassen, um unseren Wert zu verwenden",
+		"action.reset": "Zurücksetzen"
 	}
 }
