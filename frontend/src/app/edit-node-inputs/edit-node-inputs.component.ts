@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { merge } from "lodash";
-import { filter, skip, Subscription, takeUntil } from "rxjs";
+import { filter, Subscription, takeUntil } from "rxjs";
 import { Asset } from "src/models/assets";
 import { NodeToLaunch } from "src/models/launch-request";
 import { Node, NodeInput } from "src/models/node";
@@ -12,9 +12,13 @@ import { ProjectManager } from "src/services/project.manager";
 import { Primitive } from "src/types/primitive";
 import { UI } from "src/ui-kit/consts";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { PopoverComponent } from "src/ui-kit/popover/popover.component";
+import { createLogger, LogLevel } from "src/utils/logger";
 import { mapTo, toPlain } from "src/utils/models";
 
 const DYNAMIC_PLACEHOLDER = "#";
+
+const logger = createLogger("edit_node_inputs", LogLevel.debug);
 
 @Component({
   selector: "app-edit-node-inputs",
@@ -30,6 +34,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   node!: Node;
 
   subscriptions: { changes?: Subscription } = {};
+  references: { popover: PopoverComponent } = { popover: null };
 
   startControl = this.fb.control<boolean>(false);
   inputsGroup = this.fb.group({});
@@ -41,22 +46,24 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
-    public route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     super();
   }
 
   ngOnInit() {
+    logger.debug("Init edit node inputs");
+
     this.route.data.subscribe(({ project, node: { id, node } }) => {
       [this.project, this.id, this.node] = [project, id, node];
       this.build();
     });
 
-    this.projectManager.status
+    this.projectManager.updates
       .pipe(
         takeUntil(this.destroyed$),
-        skip(1),
-        filter((status) => status === "dirty")
+        filter((initiator) => initiator !== this)
       )
       .subscribe(() => {
         this.node.build();
@@ -65,6 +72,8 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   }
 
   private build() {
+    logger.debug("Build edit node inputs");
+
     this.subscriptions.changes?.unsubscribe();
     Object.keys(this.inputsGroup.controls).forEach((key) =>
       this.inputsGroup.removeControl(key)
@@ -156,7 +165,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
     }
     nodeToLaunch.inputs = inputs;
 
-    this.projectManager.markDirty();
+    this.projectManager.markDirty(this);
   }
 
   addDynamic(input: NodeInput) {
@@ -179,6 +188,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
     merge(cloned, {
       title: title.replaceAll(DYNAMIC_PLACEHOLDER, index.toString()),
+      order: index,
       cloned: true,
       dynamic: {
         index,
@@ -189,12 +199,20 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
       id.replaceAll(DYNAMIC_PLACEHOLDER, index.toString()),
       cloned
     );
-    this.projectManager.markDirty();
+
+    this.node.build();
+    this.build();
+
+    this.projectManager.markDirty(this);
   }
 
   removeInput(input: string) {
     this.node.inputs.delete(input);
-    this.projectManager.markDirty();
+
+    this.node.build();
+    this.build();
+
+    this.projectManager.markDirty(this);
   }
 
   markFeatured(input: NodeInput) {
@@ -204,7 +222,15 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
   markUnFeatured(input: string) {
     delete this.node.inputs.get(input).featured;
-    this.projectManager.markDirty();
+    this.projectManager.markDirty(this);
+  }
+
+  edit() {
+    this.references.popover?.hide();
+    this.router.navigate(
+      [{ outlets: { primary: ["nodes", this.id, "edit", "script"] } }],
+      { relativeTo: this.route.parent }
+    );
   }
 
   reset() {
@@ -217,6 +243,25 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
     node.inputs.forEach((v, k) => node.inputs.delete(k));
 
-    this.projectManager.markDirty();
+    this.node.build();
+    this.build();
+
+    this.projectManager.markDirty(this);
+  }
+
+  reorder() {
+    let i = 1;
+    for (const { group } of this.node.render.inputs) {
+      group.order = i++;
+      let j = 1;
+      for (const { input } of group.inputs) {
+        input.order = j++;
+      }
+    }
+
+    this.node.build();
+    this.build();
+
+    this.projectManager.markDirty(this);
   }
 }

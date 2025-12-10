@@ -31,6 +31,12 @@ h2 {
     filter: blur(5px);
   }
 
+  .order {
+    font-family: monospace;
+    font-size: 0.75em;
+    line-height: 1em;
+  }
+
   input,
   textarea {
     width: 100%;

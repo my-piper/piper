@@ -1,29 +1,21 @@
 import { OnDestroy, Pipe, PipeTransform } from "@angular/core";
-import {
-  BehaviorSubject,
-  distinctUntilChanged,
-  filter,
-  skip,
-  Subject,
-  takeUntil,
-} from "rxjs";
+import { BehaviorSubject, takeUntil } from "rxjs";
 import { InputFlow } from "src/models/input-flow";
 import { Node } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
 import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
+import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 
 @Pipe({ name: "node" })
-export class NodePipe implements PipeTransform, OnDestroy {
+export class NodePipe
+  extends UntilDestroyed
+  implements PipeTransform, OnDestroy
+{
   value: BehaviorSubject<Node> | null = null;
 
-  destroyed$ = new Subject<void>();
-
-  constructor(private projectManager: ProjectManager) {}
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+  constructor(private projectManager: ProjectManager) {
+    super();
   }
 
   transform(pipeline: Pipeline, id: string): BehaviorSubject<Node> {
@@ -37,13 +29,8 @@ export class NodePipe implements PipeTransform, OnDestroy {
 
     if (!this.value) {
       this.value = new BehaviorSubject<Node>(null);
-      this.projectManager.status
-        .pipe(
-          takeUntil(this.destroyed$),
-          skip(1),
-          distinctUntilChanged(),
-          filter((status) => status === "dirty")
-        )
+      this.projectManager.updates
+        .pipe(takeUntil(this.destroyed$))
         .subscribe(() => update());
     }
 
@@ -54,16 +41,14 @@ export class NodePipe implements PipeTransform, OnDestroy {
 }
 
 @Pipe({ name: "inputIndex" })
-export class InputIndexOfPipe implements PipeTransform, OnDestroy {
+export class InputIndexOfPipe
+  extends UntilDestroyed
+  implements PipeTransform, OnDestroy
+{
   value: BehaviorSubject<number> | null = null;
 
-  destroyed$ = new Subject<void>();
-
-  constructor(private projectManager: ProjectManager) {}
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+  constructor(private projectManager: ProjectManager) {
+    super();
   }
 
   transform(node: Node, name: string): BehaviorSubject<number> {
@@ -82,13 +67,8 @@ export class InputIndexOfPipe implements PipeTransform, OnDestroy {
 
     if (!this.value) {
       this.value = new BehaviorSubject<number>(0);
-      this.projectManager.status
-        .pipe(
-          takeUntil(this.destroyed$),
-          skip(1),
-          distinctUntilChanged(),
-          filter((status) => status === "dirty")
-        )
+      this.projectManager.updates
+        .pipe(takeUntil(this.destroyed$))
         .subscribe(() => update());
     }
 
@@ -100,16 +80,14 @@ export class InputIndexOfPipe implements PipeTransform, OnDestroy {
 type Flow = InputFlow | NodeFlow;
 
 @Pipe({ name: "inputFlows" })
-export class InputFlowsPipe implements PipeTransform, OnDestroy {
+export class InputFlowsPipe
+  extends UntilDestroyed
+  implements PipeTransform, OnDestroy
+{
   value: BehaviorSubject<Flow[]> | null = null;
 
-  destroyed$ = new Subject<void>();
-
-  constructor(private projectManager: ProjectManager) {}
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+  constructor(private projectManager: ProjectManager) {
+    super();
   }
 
   transform(
@@ -137,13 +115,8 @@ export class InputFlowsPipe implements PipeTransform, OnDestroy {
 
     if (!this.value) {
       this.value = new BehaviorSubject<Flow[]>([]);
-      this.projectManager.status
-        .pipe(
-          takeUntil(this.destroyed$),
-          skip(1),
-          distinctUntilChanged(),
-          filter((status) => status === "dirty")
-        )
+      this.projectManager.updates
+        .pipe(takeUntil(this.destroyed$))
         .subscribe(() => update());
     }
 

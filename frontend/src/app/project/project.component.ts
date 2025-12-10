@@ -52,7 +52,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
       .pipe(takeUntil(this.destroyed$))
       .subscribe((error) => (this.error = error));
 
-    this.projectManager.status
+    this.projectManager.updates
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => this.cd.detectChanges());
   }

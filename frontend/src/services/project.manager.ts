@@ -1,15 +1,25 @@
 import { Injectable } from "@angular/core";
 import { diff } from "jsondiffpatch";
 import assign from "lodash/assign";
-import { BehaviorSubject, debounceTime, delay, map, Subject } from "rxjs";
+import {
+  BehaviorSubject,
+  debounceTime,
+  delay,
+  map,
+  mergeMap,
+  of,
+  Subject,
+  tap,
+} from "rxjs";
 import { NodeToLaunch } from "src/models/launch-request";
 import { PatchProject, Project } from "src/models/project";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { createLogger, LogLevel } from "src/utils/logger";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import { HttpService } from "./http.service";
 
-const UPDATE_INTERVAL = 1000;
+const logger = createLogger("project_manager", LogLevel.debug);
 
 function sanitize(project: Project) {
   const { pipeline, launchRequest, environment } = project;
@@ -166,7 +176,8 @@ export class ProjectManager {
   _project!: Project;
   snapshots!: { pipeline: Object; launchRequest: Object; environment: Object };
 
-  private updates = new Subject<void>();
+  dirty = new Subject<object | null>();
+  updates = new Subject<object | null>();
   status = new BehaviorSubject<SaveStatus | null>(null);
   error = new BehaviorSubject<Error | null>(null);
 
@@ -185,9 +196,32 @@ export class ProjectManager {
     return this._project;
   }
 
+  lastUpdate = new Date();
+
   constructor(private http: HttpService) {
-    this.updates
-      .pipe(debounceTime(UPDATE_INTERVAL))
+    const update = (initiator: object | null) => {
+      sanitize(this.project);
+      this.updates.next(initiator);
+    };
+
+    this.dirty
+      .pipe(
+        mergeMap((initiator) => {
+          const diff = Date.now() - this.lastUpdate.getTime();
+          this.lastUpdate = new Date();
+          if (diff > 1000) {
+            logger.debug("Immediate update");
+            update(initiator);
+          }
+          return of(initiator);
+        }),
+        debounceTime(1000),
+        tap((initiator) => {
+          logger.debug("Delayed update");
+          update(initiator);
+        }),
+        debounceTime(3000)
+      )
       .subscribe(() => this.save());
   }
 
@@ -196,6 +230,8 @@ export class ProjectManager {
   }
 
   private save() {
+    logger.debug("Save project");
+
     if (this.status.value === "saving") {
       return;
     }
@@ -261,9 +297,8 @@ export class ProjectManager {
       });
   }
 
-  markDirty() {
-    sanitize(this.project);
-    this.updates.next();
+  markDirty(initiator: object = null) {
+    this.dirty.next(initiator);
     this.status.next("dirty");
   }
 }

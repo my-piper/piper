@@ -1,35 +1,25 @@
 import { OnDestroy, Pipe, PipeTransform } from "@angular/core";
 import { plainToInstance } from "class-transformer";
-import {
-  BehaviorSubject,
-  distinctUntilChanged,
-  filter,
-  map,
-  Observable,
-  skip,
-  Subject,
-  takeUntil,
-} from "rxjs";
+import { BehaviorSubject, map, Observable, takeUntil } from "rxjs";
 import { LaunchRequest } from "src/models/launch-request";
 import { PipelineCosts } from "src/models/pipeline";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
+import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { toPlain } from "src/utils/models";
 
 @Pipe({ name: "pipelineCosts" })
-export class PipelineCostsPipe implements PipeTransform, OnDestroy {
+export class PipelineCostsPipe
+  extends UntilDestroyed
+  implements PipeTransform, OnDestroy
+{
   value: BehaviorSubject<PipelineCosts> | null = null;
-
-  destroyed$ = new Subject<void>();
 
   constructor(
     private http: HttpService,
     private projectManager: ProjectManager
-  ) {}
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+  ) {
+    super();
   }
 
   transform(
@@ -51,13 +41,8 @@ export class PipelineCostsPipe implements PipeTransform, OnDestroy {
     if (!this.value) {
       this.value = new BehaviorSubject<PipelineCosts>(null);
       update();
-      this.projectManager.status
-        .pipe(
-          takeUntil(this.destroyed$),
-          skip(1),
-          distinctUntilChanged(),
-          filter((status) => status === "saved")
-        )
+      this.projectManager.updates
+        .pipe(takeUntil(this.destroyed$))
         .subscribe(() => update());
     }
 

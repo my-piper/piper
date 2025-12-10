@@ -1,10 +1,18 @@
 import { Pipe, PipeTransform } from "@angular/core";
 import { plainToInstance } from "class-transformer";
-import { BehaviorSubject, filter, map, Observable, takeUntil } from "rxjs";
+import {
+  BehaviorSubject,
+  debounceTime,
+  map,
+  Observable,
+  takeUntil,
+} from "rxjs";
 import { PipelineNodeUpdates } from "src/models/node";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+
+const CHECK_DELAY = 10000;
 
 @Pipe({ name: "pipelineNodeUpdates" })
 export class PipelineNodeUpdatesPipe
@@ -37,11 +45,8 @@ export class PipelineNodeUpdatesPipe
     if (!this.last) {
       this.last = new BehaviorSubject<PipelineNodeUpdates>(null);
 
-      this.projectManager.status
-        .pipe(
-          filter((status) => status === "saved"),
-          takeUntil(this.destroyed$)
-        )
+      this.projectManager.updates
+        .pipe(takeUntil(this.destroyed$), debounceTime(CHECK_DELAY))
         .subscribe(() => load());
     }
 
