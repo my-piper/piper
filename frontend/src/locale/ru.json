@@ -112,6 +112,13 @@
 		"label.auto_start": "Авто запуск",
 		"label.search": "Поиск",
 		"label.ask_me_anything": "Спросите меня о чём угодно...",
-		"label.ai_assistant": "AI помощник"
+		"label.ai_assistant": "AI помощник",
+		"action.clear_history": "Очистить историю",
+		"action.take_out": "Выйдите",
+		"message.request_node": "Если вы не можете найти узел, который вам нужен, вы можете",
+		"link.request_node": "запрос узла",
+		"label.environment": "Окружающая среда",
+		"label.variables": "Переменные",
+		"message.leave_empty_to_global_scope": "Оставьте пустым, чтобы использовать наше значение"
 	}
 }

@@ -15,7 +15,7 @@ import { Node } from "models/node";
 import { Project } from "models/project";
 import { generateSign } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
-import { checkAdmin, checkLogged, handle } from "utils/http";
+import { checkAdmin, checkLogged, handle, isAdmin } from "utils/http";
 import { sid } from "utils/string";
 import {
   AssistantRequest,
@@ -153,7 +153,7 @@ api.post(
 
                 const node = toInstance(data.json, Node);
 
-                if (!!node.environment) {
+                if (!!node.environment && !isAdmin(currentUser)) {
                   for (const variable of node.environment.values()) {
                     variable.scope = "user";
                   }

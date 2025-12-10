@@ -111,6 +111,13 @@
 		"label.auto_start": "ऑटो स्टार्ट",
 		"label.search": "खोजें",
 		"label.ask_me_anything": "मुझसे कुछ भी पूछें...",
-		"label.ai_assistant": "एआई सहायक"
+		"label.ai_assistant": "एआई सहायक",
+		"action.clear_history": "स्पष्ट इतिहास",
+		"action.take_out": "बाहर निकालें",
+		"message.request_node": "अगर आप जो आपको चाहिए, उसका नोड नहीं मिल पाता है, तो आप",
+		"link.request_node": "अनुरोध नोड",
+		"label.environment": "पर्यावरण",
+		"label.variables": "चर",
+		"message.leave_empty_to_global_scope": "हमारा मूल्य उपयोग करने के लिए खाली छोड़ें"
 	}
 }

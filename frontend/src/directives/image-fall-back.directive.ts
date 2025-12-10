@@ -9,8 +9,10 @@ export class ImageFallbackDirective {
     private renderer: Renderer2
   ) {}
 
-  @HostListener("error")
-  onError() {
+  @HostListener("error", ["$event"])
+  onError(e: Event) {
+    const element = e.target as HTMLImageElement;
+    console.error("Failed to load image", element.src);
     const svg = `
       <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <rect width="100%" height="100%" fill="silver" opacity="0.5" />
@@ -22,12 +24,13 @@ export class ImageFallbackDirective {
             </svg>
         </g>
         <text font-size="4" 
-              font-family="Arial" 
+              font-family="Inter, Roboto, Helvetica, Arial, sans-serif"
+              font-weight="bold" 
               x="50%"
               y="70%"
               text-anchor="middle" 
               dominant-baseline="middle"
-              opacity="0.75">Image was removed</text>
+              opacity="0.5">Image is unavailable or was removed</text>
       </svg>`;
     this.renderer.setProperty(
       this.el.nativeElement,

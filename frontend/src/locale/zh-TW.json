@@ -109,6 +109,13 @@
 		"label.auto_start": "自動啟動",
 		"label.search": "搜尋",
 		"label.ask_me_anything": "問我任何事情...",
-		"label.ai_assistant": "AI 助理"
+		"label.ai_assistant": "AI 助理",
+		"action.clear_history": "清除歷史記錄",
+		"action.take_out": "拿出來",
+		"message.request_node": "如果找不到您需要的節點，您可以",
+		"link.request_node": "請求節點",
+		"label.environment": "環境",
+		"label.variables": "變數",
+		"message.leave_empty_to_global_scope": "留空以使用我們的值"
 	}
 }

@@ -698,7 +698,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
     if (this.currentNode !== node) {
       const launch = this.launches[id] || this.launch;
       if (!!launch) {
-        console.log(this.mode);
         this.router.navigate(
           [
             {

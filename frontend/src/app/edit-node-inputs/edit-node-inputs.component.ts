@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { merge } from "lodash";
-import { Subscription } from "rxjs";
+import { filter, skip, Subscription, takeUntil } from "rxjs";
 import { Asset } from "src/models/assets";
 import { NodeToLaunch } from "src/models/launch-request";
 import { Node, NodeInput } from "src/models/node";
@@ -11,6 +11,7 @@ import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
 import { Primitive } from "src/types/primitive";
 import { UI } from "src/ui-kit/consts";
+import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { mapTo, toPlain } from "src/utils/models";
 
 const DYNAMIC_PLACEHOLDER = "#";
@@ -20,7 +21,7 @@ const DYNAMIC_PLACEHOLDER = "#";
   templateUrl: "./edit-node-inputs.component.html",
   styleUrls: ["./edit-node-inputs.component.scss"],
 })
-export class EditNodeInputsComponent implements OnInit {
+export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   userRole = UserRole;
   ui = UI;
 
@@ -30,9 +31,10 @@ export class EditNodeInputsComponent implements OnInit {
 
   subscriptions: { changes?: Subscription } = {};
 
+  startControl = this.fb.control<boolean>(false);
   inputsGroup = this.fb.group({});
   form = this.fb.group({
-    start: this.fb.control<boolean>(false),
+    start: this.startControl,
     inputs: this.inputsGroup,
   });
 
@@ -40,13 +42,26 @@ export class EditNodeInputsComponent implements OnInit {
     private projectManager: ProjectManager,
     private fb: FormBuilder,
     public route: ActivatedRoute
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit() {
     this.route.data.subscribe(({ project, node: { id, node } }) => {
       [this.project, this.id, this.node] = [project, id, node];
       this.build();
     });
+
+    this.projectManager.status
+      .pipe(
+        takeUntil(this.destroyed$),
+        skip(1),
+        filter((status) => status === "dirty")
+      )
+      .subscribe(() => {
+        this.node.build();
+        this.build();
+      });
   }
 
   private build() {
@@ -59,8 +74,8 @@ export class EditNodeInputsComponent implements OnInit {
       const inputGroup = this.fb.group({});
 
       const control = this.fb.control<Primitive>(null);
-      const value =
-        launchRequest.nodes.get(this.id)?.inputs?.get(k) || input.default;
+      const node = launchRequest.nodes.get(this.id);
+      const value = node?.inputs?.get(k) || input.default;
       switch (input.type) {
         case "boolean":
           control.setValue(!!value);
@@ -74,9 +89,7 @@ export class EditNodeInputsComponent implements OnInit {
       this.inputsGroup.addControl(k, inputGroup);
     }
 
-    this.form.patchValue({
-      start: pipeline.start.nodes.includes(this.id),
-    });
+    this.startControl.setValue(pipeline.start.nodes.includes(this.id));
 
     this.subscriptions.changes = this.form.valueChanges.subscribe(() =>
       this.save()
@@ -179,16 +192,11 @@ export class EditNodeInputsComponent implements OnInit {
       cloned
     );
     this.projectManager.markDirty();
-
-    this.node.build();
-    this.build();
   }
 
   removeInput(input: string) {
     this.node.inputs.delete(input);
     this.projectManager.markDirty();
-
-    this.node.build();
   }
 
   markFeatured(input: NodeInput) {
@@ -198,6 +206,19 @@ export class EditNodeInputsComponent implements OnInit {
 
   markUnFeatured(input: string) {
     delete this.node.inputs.get(input).featured;
+    this.projectManager.markDirty();
+  }
+
+  reset() {
+    const { launchRequest } = this.project;
+
+    const node = launchRequest.nodes.get(this.id);
+    if (!node.inputs) {
+      return;
+    }
+
+    node.inputs.forEach((v, k) => node.inputs.delete(k));
+
     this.projectManager.markDirty();
   }
 }

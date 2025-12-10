@@ -110,6 +110,12 @@
 		"label.auto_start": "자동 시작",
 		"label.search": "검색",
 		"label.ask_me_anything": "저에게 질문해주세요...",
-		"label.ai_assistant": "AI ​​\n애완 도우미"
+		"label.ai_assistant": "AI ​​\n애완 도우미",
+		"action.take_out": "가져다 놓다",
+		"message.request_node": "당신이 필요한 노드를 찾을 수 없는 경우,",
+		"link.request_node": "요청 노드",
+		"label.environment": "환경",
+		"label.variables": "변수",
+		"message.leave_empty_to_global_scope": "우리의 값을 사용하려면 비워 두기"
 	}
 }

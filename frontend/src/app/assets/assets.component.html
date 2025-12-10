@@ -59,10 +59,12 @@
 
 <ul class="assets" [class.busy-block]="progress.loading">
   <li class="upload" [class.busy-block]="progress.uploading">
-    <input type="file" (change)="upload($event)" />
-    <button>
-      <app-icon icon="upload" [size]="32"></app-icon>
-    </button>
+    <ng-container *ngIf="!progress.uploading">
+      <input type="file" (change)="upload($event)" />
+      <button>
+        <app-icon icon="upload" [size]="32"></app-icon>
+      </button>
+    </ng-container>
   </li>
   <ng-container *ngIf="assets.length > 0; else loadingTemplate">
     <li *ngFor="let asset of assets">

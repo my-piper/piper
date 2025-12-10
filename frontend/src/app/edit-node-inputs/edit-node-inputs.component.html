@@ -41,15 +41,15 @@
     <ng-container *ngFor="let g of groups">
       <h2 *ngIf="g.group.group?.title as group">
         {{ group | i18n }}
-        <sup *ngIf="userRole.admin | can | async">
-          {{ g.group.group.order }}
-        </sup>
       </h2>
       <fieldset class="inputs stack vertical huge" formGroupName="inputs">
         <ng-container *ngFor="let i of g.group.inputs">
           <div class="input stack vertical" [formGroupName]="i.id">
             <div class="stack align-center justify-between">
               <div class="stack align-center flex">
+                <div *ngIf="userRole.admin | can | async">
+                  {{ i.input.order }}
+                </div>
                 {{ i.input.title | i18n }}
                 <ng-template #inputDescriptionPopover>
                   <div
@@ -119,8 +119,12 @@
   </form>
 </ng-container>
 
-<footer *ngIf="userRole.engineer | can | async">
+<footer class="stack">
+  <button submitButton class="primary" (click)="reset()" i18n="@@action.reset">
+    Reset
+  </button>
   <a
+    *ngIf="userRole.engineer | can | async"
     [routerLink]="{ outlets: { primary: ['nodes', id, 'edit'] } }"
     [relativeTo]="route.parent"
     class="primary with-icon"

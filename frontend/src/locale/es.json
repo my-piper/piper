@@ -110,6 +110,12 @@
 		"link.artefacts": "Artefactos",
 		"label.search": "Búsqueda",
 		"label.ask_me_anything": "Pregúntame cualquier cosa...",
-		"label.ai_assistant": "Asistente de IA"
+		"label.ai_assistant": "Asistente de IA",
+		"action.clear_history": "Borrar historial",
+		"action.take_out": "Quitar",
+		"message.request_node": "Si no puedes encontrar el nodo que necesitas, puedes",
+		"link.request_node": "solicitud de nodo",
+		"label.environment": "Medio ambiente",
+		"message.leave_empty_to_global_scope": "Deje vacío para usar nuestro valor"
 	}
 }

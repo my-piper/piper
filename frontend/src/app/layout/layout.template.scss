@@ -70,8 +70,9 @@ header {
                     border-radius: $corner-large;
                     padding: $gutter-small $gutter-normal;
 
+                    &:hover,
                     &.active {
-                        background-color: $control-focus-background-color;
+                        background-color: rgba($control-focus-background-color, 0.5);
                     }
                 }
             }

@@ -107,6 +107,13 @@
 		"label.auto_start": "Iniciar automaticamente",
 		"label.search": "Pesquisar",
 		"label.ask_me_anything": "Me pergunte qualquer coisa...",
-		"label.ai_assistant": "assistente de IA"
+		"label.ai_assistant": "assistente de IA",
+		"action.clear_history": "Limpar histórico",
+		"action.take_out": "Retirar",
+		"message.request_node": "Se você não conseguir encontrar o nó de que precisa, você pode",
+		"link.request_node": "nó de solicitação",
+		"label.environment": "Ambiente",
+		"label.variables": "Variáveis",
+		"message.leave_empty_to_global_scope": "Deixe vazio para usar nosso valor"
 	}
 }

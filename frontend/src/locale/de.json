@@ -106,6 +106,13 @@
 		"link.artefacts": "Artefakte",
 		"label.search": "Suche",
 		"label.ask_me_anything": "Frag mich alles...",
-		"label.ai_assistant": "KI-Assistent"
+		"label.ai_assistant": "KI-Assistent",
+		"action.clear_history": "Verlauf löschen",
+		"action.take_out": "Herausnehmen",
+		"message.request_node": "Wenn Sie den Knoten nicht finden können, den Sie benötigen, können Sie",
+		"link.request_node": "Anforderungsknoten",
+		"label.environment": "Umgebung",
+		"label.variables": "Variablen",
+		"message.leave_empty_to_global_scope": "Leer lassen, um unseren Wert zu verwenden"
 	}
 }

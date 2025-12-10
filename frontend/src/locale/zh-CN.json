@@ -112,6 +112,13 @@
 		"label.auto_start": "自动启动",
 		"label.search": "搜索",
 		"label.ask_me_anything": "问我任何事情...",
-		"label.ai_assistant": "AI助手"
+		"label.ai_assistant": "AI助手",
+		"action.clear_history": "清除历史记录",
+		"action.take_out": "拿出来",
+		"message.request_node": "如果找不到您所需的节点，您可以",
+		"link.request_node": "请求节点",
+		"label.environment": "环境",
+		"label.variables": "变量",
+		"message.leave_empty_to_global_scope": "保持空白以使用我们的值"
 	}
 }

@@ -19,7 +19,10 @@
         <ng-template #inputMenuPopover>
           <div class="context-menu">
             <li>
-              <button (click)="emitTakeOutInput(i.id, i.input)">
+              <button
+                (click)="emitTakeOutInput(i.id, i.input)"
+                i18n="@@action.take_out"
+              >
                 Take out
               </button>
             </li>
@@ -46,7 +49,10 @@
       <ng-template #outputMenuPopover>
         <div class="context-menu">
           <li>
-            <button (click)="emitTakeOutOutput(o.key, o.value)">
+            <button
+              (click)="emitTakeOutOutput(o.key, o.value)"
+              i18n="@@action.take_out"
+            >
               Take out
             </button>
           </li>

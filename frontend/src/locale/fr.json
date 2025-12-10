@@ -108,6 +108,12 @@
 		"label.auto_start": "Démarrage automatique",
 		"label.search": "Rechercher",
 		"label.ask_me_anything": "Demandez-moi n'importe quoi...",
-		"label.ai_assistant": "Assistant AI"
+		"label.ai_assistant": "Assistant AI",
+		"action.clear_history": "Effacer l'historique",
+		"action.take_out": "Sortez",
+		"message.request_node": "Si vous ne pouvez pas trouver noeud ce dont vous avez besoin, vous pouvez",
+		"link.request_node": " demande de noeud ",
+		"label.environment": "Environnement",
+		"message.leave_empty_to_global_scope": "Laissez vide pour utiliser notre valeur"
 	}
 }

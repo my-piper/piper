@@ -111,6 +111,13 @@
 		"label.auto_start": "自動開始",
 		"label.search": "検索",
 		"label.ask_me_anything": "どんな質問でもしてください...",
-		"label.ai_assistant": "AIアシスタント"
+		"label.ai_assistant": "AIアシスタント",
+		"action.clear_history": "クリア履歴",
+		"action.take_out": "持ち出す",
+		"message.request_node": "必要なノードが見つからない場合は、",
+		"link.request_node": "リクエストノード",
+		"label.environment": "環境",
+		"label.variables": "変数",
+		"message.leave_empty_to_global_scope": "当社の値を使用するには空白のままにしてください"
 	}
 }

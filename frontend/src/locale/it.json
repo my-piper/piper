@@ -109,6 +109,13 @@
 		"label.auto_start": "Auto avvio",
 		"label.search": "Ricerca",
 		"label.ask_me_anything": "Chiedimi qualsiasi cosa...",
-		"label.ai_assistant": "AI assistente"
+		"label.ai_assistant": "AI assistente",
+		"action.clear_history": "Cancella cronologia",
+		"action.take_out": "Rimuovere",
+		"message.request_node": "Se non riesci a trovare il nodo di cui hai bisogno, puoi",
+		"link.request_node": "richiesta nodo",
+		"label.environment": "Ambiente",
+		"label.variables": "Variabili",
+		"message.leave_empty_to_global_scope": "Lascia vuoto per utilizzare il nostro valore"
 	}
 }

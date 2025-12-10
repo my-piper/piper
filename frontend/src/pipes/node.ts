@@ -132,7 +132,6 @@ export class InputFlowsPipe implements PipeTransform, OnDestroy {
           flows.push(flow);
         }
       }
-      console.log(flows);
       this.value.next(flows);
     };
 
