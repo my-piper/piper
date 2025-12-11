@@ -41,9 +41,6 @@ RUN npm --prefix ./frontend run build
 ENV ENV=production \
   NPM_CACHE_DIR=/var/npm-cache
 
-RUN mkdir -p ${NPM_CACHE_DIR} \
-  && npm config set cache ${NPM_CACHE_DIR} --global
-
 WORKDIR /app/backend
 
 ENTRYPOINT ["make"]
