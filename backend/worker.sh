@@ -23,13 +23,7 @@ do
             echo "Packages directory already exists"
         fi
         
-        if [ -n "${NPM_CACHE_DIR}" ]; then
-            echo "Setting npm cache directory to ${NPM_CACHE_DIR}"
-            mkdir -p ${NPM_CACHE_DIR}
-            npm config set cache ${NPM_CACHE_DIR} --global
-        else
-            echo "NPM_CACHE_DIR is not set, using default npm cache"
-        fi
+        
         
         echo "Updating modules and install packages"
         
@@ -39,7 +33,16 @@ do
             echo "Can't update modules"
             exit $app_status
         fi
-        npm i --prefix ../packages
+        
+        if [ -n "${NPM_CACHE_DIR}" ]; then
+            echo "Installing packages with npm cache: ${NPM_CACHE_DIR}"
+            mkdir -p ${NPM_CACHE_DIR}
+            npm i --prefix ../packages --cache ${NPM_CACHE_DIR}
+        else
+            echo "Installing packages with default npm cache"
+            npm i --prefix ../packages
+        fi
+        
         if [ $app_status -ne 0 ]; then
             echo "Can't install modules"
             exit $app_status
