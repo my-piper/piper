@@ -69,7 +69,8 @@ $node-border-color: rgba($graphite-color-200, 0.25);
 
   &:hover .node ul.inputs li .title,
   &:hover .node ul.outputs li .title {
-    display: block;
+    display: visible;
+    opacity: 1;
   }
 
   &.active {
@@ -78,7 +79,7 @@ $node-border-color: rgba($graphite-color-200, 0.25);
 
   &.active .node ul.inputs li .title,
   &.active .node ul.outputs li .title {
-    display: block;
+    visibility: visible;
     opacity: 1;
   }
 
@@ -138,14 +139,13 @@ $node-border-color: rgba($graphite-color-200, 0.25);
       flex-direction: column;
 
       .title {
-        display: block;
         white-space: nowrap;
         line-height: 1.5;
         overflow: hidden;
         max-width: 150px;
         text-overflow: ellipsis;
         opacity: 0;
-        display: none;
+        visibility: none;
         transition: opacity 250ms;
       }
 
@@ -239,6 +239,9 @@ $node-border-color: rgba($graphite-color-200, 0.25);
         display: block;
         width: 100%;
         border-radius: $corner-small;
+        user-select: none;
+        -webkit-user-drag: none;
+        user-drag: none;
       }
 
       >.images {
