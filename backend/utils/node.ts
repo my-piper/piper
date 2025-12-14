@@ -2,7 +2,6 @@ import * as storage from "app/storage";
 import { plainToClass } from "class-transformer";
 import { NODE_INPUT, NODE_STATUS } from "consts/redis";
 import redis from "core-kit/packages/redis";
-import { fileTypeFromBuffer } from "file-type";
 import { Launch } from "models/launch";
 import { Node, NodeInput, NodeOutput, NodeStatus } from "models/node";
 import { Pipeline } from "models/pipeline";
@@ -10,6 +9,7 @@ import { NodeInputs, NodeOutputs } from "types/node";
 import { PipelineIOType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import { fromRedisValue } from "utils/redis";
+import { getFileInfo } from "./files";
 import { sid } from "./string";
 import { downloadBinary } from "./web";
 
@@ -141,7 +141,7 @@ export const convertOutputs =
               if (typeof value === "object") {
                 const buffer = value as Buffer;
                 const fileName = [launch._id, node, key, sid(2)].join("_");
-                const { ext } = await fileTypeFromBuffer(buffer);
+                const { ext } = await getFileInfo(buffer);
                 results[key] = await storage.artefact(
                   buffer,
                   `${fileName}.${ext}`
@@ -161,7 +161,7 @@ export const convertOutputs =
                 if (typeof image === "object") {
                   const buffer = image as Buffer;
                   const fileName = [launch._id, node, key, index++].join("_");
-                  const { ext } = await fileTypeFromBuffer(buffer);
+                  const { ext } = await getFileInfo(buffer);
                   urls.push(
                     await storage.artefact(buffer, `${fileName}.${ext}`)
                   );

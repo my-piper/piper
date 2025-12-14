@@ -49,7 +49,6 @@ export class AssistantComponent implements OnInit {
     const readData = () => {
       const { node } = getMergedData(this.route.root);
       this.node = node;
-      console.log(node);
     };
     readData();
 

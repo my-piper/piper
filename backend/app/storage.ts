@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { fileTypeFromBuffer } from "file-type";
+import { getFileInfo } from "utils/files";
 import { sid } from "utils/string";
 import {
   ARTEFACTS_BUCKET_NAME,
@@ -28,7 +28,7 @@ async function getKey(data: Buffer, fileName: string | null = null) {
         return [[y, m, d].join("-"), fileName].join("_");
       })()
     : await (async () => {
-        const { ext } = await fileTypeFromBuffer(new Uint8Array(data));
+        const { ext } = await getFileInfo(data);
         return `${sid()}.${ext}`;
       })();
 }

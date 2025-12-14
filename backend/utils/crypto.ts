@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash } from "crypto";
 
 const CRYPTO_ALGORITHM = "aes-256-ecb";
-  
+
 export function encrypt(text: string, key: string): string {
   const CRYPTO_KEY = createHash("sha256").update(key).digest();
 

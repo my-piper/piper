@@ -16,7 +16,6 @@ import redis from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { dataUriToBuffer } from "data-uri-to-buffer";
-import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
 import {
   BooleanData,
@@ -40,7 +39,7 @@ import sharp from "sharp";
 import { PipelineIOType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import { ulid } from "ulid";
-import { withTempContext } from "utils/files";
+import { getFileInfo, withTempContext } from "utils/files";
 import { fromRedisValue, toRedisValue } from "utils/redis";
 import { sid } from "utils/string";
 import { getPoster } from "utils/video";
@@ -315,7 +314,7 @@ export async function getIOData(
     case "image":
       const url = value as string;
       const data = await downloadBinary(url);
-      const { ext } = await fileTypeFromBuffer(new Uint8Array(data));
+      const { ext } = await getFileInfo(data);
       const fileName = `${launch}_${container}_${id}.${ext}`;
 
       const { width, height } = await sharp(data).metadata();
@@ -331,7 +330,7 @@ export async function getIOData(
       let index = 0;
       for (const url of urls) {
         const data = await downloadBinary(url);
-        const { ext } = await fileTypeFromBuffer(new Uint8Array(data));
+        const { ext } = await getFileInfo(data);
         const fileName = `${launch}_${container}_${id}_${index++}.${ext}`;
         const { width, height } = await sharp(data).metadata();
         images.push(
@@ -349,7 +348,7 @@ export async function getIOData(
     case "video": {
       const url = value as string;
       const data = await downloadBinary(url);
-      const { ext } = await fileTypeFromBuffer(new Uint8Array(data));
+      const { ext } = await getFileInfo(data);
       const name = `${launch}_${container}_${id}`;
       const fileName = {
         video: `${name}.${ext}`,
