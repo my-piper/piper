@@ -62,9 +62,6 @@
         <header>
           <ng-template #actionsTemplate>
             <div class="stack vertical small">
-              <div class="version" *ngIf="userRole.admin | can | async">
-                Version: {{ node.version }}
-              </div>
               <ul class="context-menu">
                 <li>
                   <button submitButton (click)="remove(node)">
@@ -100,6 +97,9 @@
           <ul *ngIf="node.tags as tags" class="tags">
             <li *ngFor="let t of tags">#{{ t }}</li>
           </ul>
+          <div class="version" *ngIf="userRole.admin | can | async">
+            ver. {{ node.version }}
+          </div>
         </footer>
       </div>
     </div>

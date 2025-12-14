@@ -269,6 +269,8 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   }
 
   reorder() {
+    this.references.popover?.hide();
+
     let i = 1;
     for (const { group } of this.node.render.inputs) {
       group.order = i++;

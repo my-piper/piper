@@ -24,6 +24,10 @@ const logger = createLogger("project_manager", LogLevel.debug);
 function sanitize(project: Project) {
   const { pipeline, launchRequest, environment } = project;
 
+  // TODO: check groups for inputs/outputs exists
+  // TODO: reset from launch request inputs what has pipeline input flows
+  // TODO: clear empty node to launch inputs/outputs
+
   // remove from start unknown nodes
 
   const start = pipeline.start.nodes;

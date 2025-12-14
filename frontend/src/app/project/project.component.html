@@ -317,7 +317,7 @@
                   Script
                 </a>
               </li>
-              <li>
+              <li *ngIf="userRole.admin | can | async">
                 <a
                   [routerLink]="['messages']"
                   routerLinkActive="active"
@@ -325,6 +325,25 @@
                   i18n="@@link.messages"
                 >
                   Messages
+                </a>
+              </li>
+              <li>
+                <a
+                  [routerLink]="[
+                    {
+                      outlets: {
+                        primary: ['tools'],
+                        left: null,
+                        right: null,
+                        bottom: null,
+                      },
+                    },
+                  ]"
+                  routerLinkActive="active"
+                  (click)="references.popover?.hide()"
+                  i18n="@@link.tools"
+                >
+                  Tools
                 </a>
               </li>
             </ul>

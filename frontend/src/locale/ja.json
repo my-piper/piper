@@ -119,6 +119,7 @@
 		"label.environment": "環境",
 		"label.variables": "変数",
 		"message.leave_empty_to_global_scope": "当社の値を使用するには空白のままにしてください",
-		"message.define_global_variables": "あなたはここでパイプラインのグローバル変数をオーバーライドすることができます。 この場合、このパイプラインの実行に対して請求は発生しません。"
+		"message.define_global_variables": "あなたはここでパイプラインのグローバル変数をオーバーライドすることができます。 この場合、このパイプラインの実行に対して請求は発生しません。",
+		"action.reorder": "並べ替え"
 	}
 }

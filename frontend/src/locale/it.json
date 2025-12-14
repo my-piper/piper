@@ -117,6 +117,7 @@
 		"label.environment": "Ambiente",
 		"label.variables": "Variabili",
 		"message.leave_empty_to_global_scope": "Lascia vuoto per utilizzare il nostro valore",
-		"message.define_global_variables": "È possibile sovrascrivere le variabili globali per il proprio pipeline qui. In questo caso non ti addebiteremo l'esecuzione di questa pipeline."
+		"message.define_global_variables": "È possibile sovrascrivere le variabili globali per il proprio pipeline qui. In questo caso non ti addebiteremo l'esecuzione di questa pipeline.",
+		"action.reorder": "Riordinare"
 	}
 }

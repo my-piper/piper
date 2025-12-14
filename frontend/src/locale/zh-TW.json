@@ -117,6 +117,7 @@
 		"label.environment": "環境",
 		"label.variables": "變數",
 		"message.leave_empty_to_global_scope": "留空以使用我們的值",
-		"message.define_global_variables": "您可以在此覆寫管道的全域變數。在這種情況下，我們不會向您收取此管道的執行費用。"
+		"message.define_global_variables": "您可以在此覆寫管道的全域變數。在這種情況下，我們不會向您收取此管道的執行費用。",
+		"action.reorder": "重新排序"
 	}
 }

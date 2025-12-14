@@ -67,6 +67,7 @@ import { ImportPackageComponent } from "./node-packages/import/import-package.co
 import { NodePackagesComponent } from "./node-packages/node-packages.component";
 import { PipelineMessagesComponent } from "./pipeline-messages/pipeline-messages.component";
 import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.component";
+import { PipelineToolsComponent } from "./pipeline-tools/pipeline-tools.component";
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
@@ -244,6 +245,10 @@ const routes: Routes = [
           filter: ProjectMessagesFilterResolver,
         },
         component: PipelineMessagesComponent,
+      },
+      {
+        path: "tools",
+        component: PipelineToolsComponent,
       },
       {
         path: "assets",

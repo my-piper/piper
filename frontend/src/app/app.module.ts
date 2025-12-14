@@ -132,6 +132,7 @@ import {
 import { NsfwDisclaimer } from "./nsfw-disclaimer/nsfw-disclaimer.component";
 import { PipelineMessagesComponent } from "./pipeline-messages/pipeline-messages.component";
 import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.component";
+import { PipelineToolsComponent } from "./pipeline-tools/pipeline-tools.component";
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
@@ -188,6 +189,7 @@ import { UsersComponent } from "./users/users.component";
     AutoHeightDirective,
     LaunchOutputsComponent,
     PipelineMessagesComponent,
+    PipelineToolsComponent,
     PipelineFinishedMetricPipe,
     DurationPipe,
     LoginComponent,

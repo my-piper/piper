@@ -117,6 +117,7 @@
 		"link.request_node": "solicitud de nodo",
 		"label.environment": "Medio ambiente",
 		"message.leave_empty_to_global_scope": "Deje vacío para usar nuestro valor",
-		"message.define_global_variables": "Puede anular las variables globales para su canalización aquí. En este caso, no le facturaremos por la ejecución de esta canalización."
+		"message.define_global_variables": "Puede anular las variables globales para su canalización aquí. En este caso, no le facturaremos por la ejecución de esta canalización.",
+		"action.reorder": "Reordenar"
 	}
 }

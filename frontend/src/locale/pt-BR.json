@@ -115,6 +115,7 @@
 		"label.environment": "Ambiente",
 		"label.variables": "Variáveis",
 		"message.leave_empty_to_global_scope": "Deixe vazio para usar nosso valor",
-		"message.define_global_variables": "Você pode substituir variáveis globais para o seu pipeline aqui. Neste caso, não cobraremos a execução deste pipeline."
+		"message.define_global_variables": "Você pode substituir variáveis globais para o seu pipeline aqui. Neste caso, não cobraremos a execução deste pipeline.",
+		"action.reorder": "Reordenar"
 	}
 }

@@ -117,6 +117,7 @@
 		"label.environment": "환경",
 		"label.variables": "변수",
 		"message.leave_empty_to_global_scope": "우리의 값을 사용하려면 비워 두기",
-		"message.define_global_variables": "여기에서 파이프라인에 대한 전역 변수를 재정의할 수 있습니다. 이 경우에는이 파이프라인의 실행에 대해 청구하지 않습니다."
+		"message.define_global_variables": "여기에서 파이프라인에 대한 전역 변수를 재정의할 수 있습니다. 이 경우에는이 파이프라인의 실행에 대해 청구하지 않습니다.",
+		"action.reorder": "재주문"
 	}
 }

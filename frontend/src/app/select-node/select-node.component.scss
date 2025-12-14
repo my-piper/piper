@@ -12,12 +12,6 @@
   width: 100%;
 }
 
-::ng-deep .popover .version {
-  padding: $gutter-tiny $gutter-small;
-  line-height: 1;
-  font-size: $font-size-tiny;
-}
-
 h2 {
   margin: 0;
   font-size: $font-size-big;
@@ -56,6 +50,16 @@ h2 {
 
   footer {
     position: relative;
+
+    .version {
+      position: absolute;
+      bottom: -$gutter-small;
+      right: -$gutter-small;
+      padding: $gutter-tiny $gutter-small;
+      line-height: 1;
+      font-size: $font-size-tiny;
+      background: $control-background-color;
+    }
 
     .tags {
       list-style: none;

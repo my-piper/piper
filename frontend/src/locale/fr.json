@@ -115,6 +115,7 @@
 		"link.request_node": " demande de noeud ",
 		"label.environment": "Environnement",
 		"message.leave_empty_to_global_scope": "Laissez vide pour utiliser notre valeur",
-		"message.define_global_variables": "Vous pouvez remplacer les variables globales de votre pipeline ici. Dans ce cas, nous ne vous facturerons pas l'exécution de ce pipeline."
+		"message.define_global_variables": "Vous pouvez remplacer les variables globales de votre pipeline ici. Dans ce cas, nous ne vous facturerons pas l'exécution de ce pipeline.",
+		"action.reorder": "Recommander"
 	}
 }

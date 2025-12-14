@@ -1,0 +1,64 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<ng-template #publishTab>
+  <div class="publish">
+    <table class="default">
+      <thead>
+        <th i18n="@@label.title">Node</th>
+        <th i18n="@@label.category">Category</th>
+        <th i18n="@@label.version" style="width: 100px">Version</th>
+      </thead>
+      <tbody>
+        <tr *ngFor="let n of project.pipeline.nodes | keyvalue">
+          <td
+            title="Node"
+            i18n-title="@@label.title"
+            class="stack align-center"
+          >
+            <app-icon
+              class="icon"
+              [icon]="
+                (progress.published | includes: n.key) ? 'checked' : 'unchecked'
+              "
+            ></app-icon>
+            {{ n.value.title | i18n }}
+          </td>
+          <td title="Category" i18n-title="@@label.category">
+            {{ n.value.catalog?.category?.title | i18n }}
+          </td>
+          <td title="Version" i18n-title="@@label.version">
+            {{ n.value.catalog?.version || "-" }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <form class="stack horizontal" [formGroup]="form">
+      <fieldset>
+        <input
+          class="input-primary"
+          formControlName="version"
+          style="width: 80px"
+          type="number"
+        />
+      </fieldset>
+      <footer>
+        <button
+          class="primary"
+          type="button"
+          [class.busy]="progress.publishing"
+          [disabled]="form.invalid || progress.publishing"
+          (click)="publish()"
+        >
+          Publish
+        </button>
+      </footer>
+    </form>
+  </div>
+</ng-template>
+
+<app-tabs [tabs]="[{ title: 'Publish', content: publishTab }]"></app-tabs>
