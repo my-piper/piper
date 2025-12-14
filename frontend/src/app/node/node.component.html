@@ -72,7 +72,7 @@
     </li>
   </ul>
 
-  <ul class="featured">
+  <ul class="featured" [class.filled]="(outputs | keyvalue)?.length > 0">
     <ng-container *ngFor="let o of node.outputs | keyvalue">
       <li *ngIf="o.value.featured" [attr.data-type]="o.value.type">
         <ng-template #pickArtefactModal>

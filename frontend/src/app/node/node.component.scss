@@ -206,6 +206,12 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     padding: $gutter-small;
     gap: $gutter-small;
 
+    &.filled {
+      li:has(.no-value) {
+        display: none;
+      }
+    }
+
     li {
       position: relative;
 
