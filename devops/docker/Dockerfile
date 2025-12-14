@@ -1,7 +1,7 @@
 FROM node:22
 
 ENV MIGRATE_VERSION=v4.18.3 \
-  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true 
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
@@ -36,10 +36,11 @@ COPY ./frontend ./frontend
 COPY ./migrations ./migrations
 COPY ./devops/docker/Makefile ./backend/Makefile
 
-RUN npm --prefix ./frontend run build
+RUN npm --prefix ./frontend run build 
+
+ENV ENV=production \
+  NPM_CACHE_DIR=/var/npm-cache
 
 WORKDIR /app/backend
-
-VOLUME /var/packages
 
 ENTRYPOINT ["make"]
