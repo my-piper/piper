@@ -20,7 +20,7 @@ import { toInstance, toPlain } from "src/utils/models";
 export class EditNodeScriptComponent implements OnInit {
   nodeExecution = NodeExecution;
 
-  progress = { saving: false };
+  progress = { saving: false, formatting: false };
   error!: AppError;
 
   project!: Project;
@@ -55,35 +55,29 @@ export class EditNodeScriptComponent implements OnInit {
     });
   }
 
-  refactor() {
-    let { script } = this.form.getRawValue();
-    script = script
-      .replaceAll("DEFINITIONS;", 'require("@piper/node");')
-      .replaceAll("RepeatNode.from(", "repeat(")
-      .replaceAll("RepeatNode", "repeat")
-      .replaceAll("NextNode.from(", "next(")
-      .replaceAll("NextNode", "next")
-      .replaceAll("throw new FatalError(", "throwError.fatal(")
-      .replaceAll("throw new DataError(", "throwError.data(")
-      .replaceAll("throw new TimeoutError(", "throwError.timeout(")
-      .replaceAll("FatalError", "throwError")
-      .replaceAll("TimeoutError", "throwError")
-      .replaceAll("FatalError", "throwError")
-      .replaceAll(/\b(throwError)(?:\s*,\s*\1)+/g, "$1")
-      .replaceAll("await httpClient", "await httpRequest")
-      .replaceAll(
-        /env\.variables\.get\(\s*(['"`])([A-Za-z_$][A-Za-z0-9_$]*)\1\s*\)/g,
-        "env.variables.$2"
+  format() {
+    this.progress.formatting = true;
+    this.cd.detectChanges();
+
+    const { script } = this.form.getRawValue();
+
+    this.http
+      .post("utils/format-code", script, { responseType: "text" })
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.formatting = false;
+          this.cd.detectChanges();
+        }),
+        map((script) => script as string)
       )
-      .replaceAll(
-        /env\?\.variables\?\.get\(\s*(['"`])([A-Za-z_$][A-Za-z0-9_$]*)\1\s*\)/g,
-        "env.variables.$2"
-      )
-      .replaceAll(
-        /env\?\.variables\.get\(\s*(['"`])([A-Za-z_$][A-Za-z0-9_$]*)\1\s*\)/g,
-        "env.variables.$2"
-      );
-    this.form.patchValue({ script });
+      .subscribe({
+        next: (script) => {
+          this.form.patchValue({ script });
+          this.projectManager.markDirty();
+        },
+        error: (err) => (this.error = err),
+      });
   }
 
   save() {

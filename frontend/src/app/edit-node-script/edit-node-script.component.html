@@ -54,10 +54,12 @@
     <button
       class="primary-button"
       type="button"
-      submitButton
-      (click)="refactor()"
+      [disabled]="progress.formatting"
+      [class.busy]="progress.formatting"
+      (click)="format()"
+      i18n="@@action.format"
     >
-      Refactor
+      Format
     </button>
     <button
       class="primary-button"
