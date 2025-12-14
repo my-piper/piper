@@ -66,26 +66,6 @@ export async function createContext({
         await debug("error", ...args);
       },
     },
-    // TODO: remove then
-    DEFINITIONS: {
-      NextNode,
-      RepeatNode,
-      FatalError,
-      DataError,
-      TimeoutError,
-    },
-    artefact: (data: Buffer) => artefact(data),
-    download,
-    useTempFolder: withTempContext,
-    httpClient: axios.create({
-      httpsAgent: new HttpsAgent({
-        keepAliveMsecs: 15000,
-        maxSockets: 150,
-        maxFreeSockets: 10,
-        timeout: 10000,
-        freeSocketTimeout: 30000,
-      }),
-    }),
     // built-in functions
     Buffer,
     NODE_ENV,
@@ -95,7 +75,6 @@ export async function createContext({
       logger.debug(`Require module ${modulePath}`);
       if (modulePath === "@piper/node") {
         return {
-          launch: launch._id,
           throwError: {
             data: (message: string, details: object = {}) => {
               throw new DataError(message, details);
