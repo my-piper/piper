@@ -1,10 +1,11 @@
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   Renderer2,
   ViewEncapsulation,
 } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { UI } from "src/consts/ui";
 import { NodeToLaunch } from "src/models/launch-request";
 import { Node } from "src/models/node";
@@ -31,9 +32,11 @@ export class NodeAppComponent {
 
   constructor(
     private projectManager: ProjectManager,
+    private router: Router,
     private route: ActivatedRoute,
     private host: ElementRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -44,11 +47,34 @@ export class NodeAppComponent {
   }
 
   async build() {
-    const { pipeline, launchRequest } = this.project;
+    const { launchRequest } = this.project;
+
+    const app = this.renderer.createElement("div");
+    const appRoot = app.attachShadow({ mode: "open" });
+    this.renderer.setProperty(appRoot, "innerHTML", this.node.app);
+    this.renderer.appendChild(this.host.nativeElement, app);
+
+    const links = appRoot.querySelectorAll('link[rel="stylesheet"]');
+    links.forEach((old: HTMLLinkElement) => {
+      const l = document.createElement("link");
+      l.rel = "stylesheet";
+      l.href = old.href;
+      appRoot.appendChild(l);
+      old.remove();
+    });
+
+    const styles = appRoot.querySelectorAll("style");
+    styles.forEach((old: HTMLStyleElement) => {
+      const s = document.createElement("style");
+      s.textContent = old.textContent;
+      appRoot.appendChild(s);
+      old.remove();
+    });
 
     this.renderer.setProperty(window, "Piper", {
       create: () => {
         return {
+          appRoot,
           meta: {
             node: toPlain(this.node),
           },
@@ -78,17 +104,19 @@ export class NodeAppComponent {
             }
 
             this.projectManager.markDirty();
+            this.cd.detectChanges();
+          },
+          close: () => {
+            this.router.navigate(["../.."], {
+              relativeTo: this.route,
+            });
           },
         };
       },
     });
 
-    const app = this.renderer.createElement("div");
-    this.renderer.setProperty(app, "innerHTML", this.node.app);
-    this.renderer.appendChild(this.host.nativeElement, app);
-
     const scripts: HTMLScriptElement[] = Array.from(
-      this.host.nativeElement.querySelectorAll("script")
+      appRoot.querySelectorAll("script")
     );
 
     for (const script of scripts) {

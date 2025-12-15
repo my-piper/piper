@@ -44,6 +44,12 @@ form {
   align-items: stretch;
 
   .inputs {
+
+    .span {
+      font-size: 1.35em;
+      line-height: 1em;
+    }
+
     :empty {
       display: none;
     }

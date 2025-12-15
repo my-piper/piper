@@ -63,7 +63,10 @@
                 <div class="order" *ngIf="userRole.admin | can | async">
                   {{ i.input.order }}
                 </div>
-                {{ i.input.title | i18n }}
+                <div>
+                  {{ i.input.title | i18n }}
+                  <span class="required" *ngIf="i.input.required">&ast;</span>
+                </div>
                 <ng-template #inputDescriptionPopover>
                   <div
                     [innerHTML]="i.input.description | markdown | async"
