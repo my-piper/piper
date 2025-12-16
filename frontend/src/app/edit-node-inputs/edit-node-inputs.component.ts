@@ -92,10 +92,13 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
       const control = this.fb.control<Primitive>(null);
       const node = launchRequest.nodes.get(this.id);
-      const value = node?.inputs?.get(k) || input.default;
+      let value = node?.inputs?.get(k);
+      if (value === undefined) {
+        value = input.default;
+      }
       switch (input.type) {
         case "boolean":
-          control.setValue(!!value);
+          control.setValue(value);
           break;
         default:
           control.setValue(value);
@@ -153,12 +156,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
       switch (input.type) {
         case "boolean":
           const val = value as boolean;
-          if (val) {
-            inputs.set(k, val);
-          } else {
-            inputs.delete(k);
-          }
-
+          inputs.set(k, val);
           break;
         case "integer":
         case "float":

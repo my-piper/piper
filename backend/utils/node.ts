@@ -2,6 +2,7 @@ import * as storage from "app/storage";
 import { plainToClass } from "class-transformer";
 import { NODE_INPUT, NODE_STATUS } from "consts/redis";
 import redis from "core-kit/packages/redis";
+import { DataError } from "core-kit/types/errors";
 import { Launch } from "models/launch";
 import { Node, NodeInput, NodeOutput, NodeStatus } from "models/node";
 import { Pipeline } from "models/pipeline";
@@ -45,7 +46,16 @@ export const convertInputs =
     for (const [key, input] of pipeline?.inputs || node?.inputs) {
       const value = inputs instanceof Map ? inputs.get(key) : inputs[key];
       if (value !== undefined && value !== null) {
-        converted[key] = convertInput(value, input.type);
+        try {
+          converted[key] = convertInput(value, input.type);
+        } catch (e) {
+          console.error(e);
+          throw new DataError(`Can't convert input [${key}]`, {
+            input: key,
+            value,
+            type: input.type,
+          });
+        }
       }
     }
     return converted;
