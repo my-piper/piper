@@ -99,7 +99,11 @@
             ></app-icon>
           </button>
         </td>
-        <td i18n-title="@@label.title" title="Title">
+        <td
+          i18n-title="@@label.title"
+          title="Title"
+          class="stack justify-between"
+        >
           <a
             class="default"
             [routerLink]="[p.slug || p._id]"
@@ -107,6 +111,10 @@
           >
             {{ p.title | i18n }}
           </a>
+
+          <div *ngIf="p.tags as tags" class="stack">
+            <span class="tag" *ngFor="let t of tags">{{ t }}</span>
+          </div>
         </td>
         <td i18n-title="@@label.visibility" title="Visibility">
           <app-icon *ngIf="p.visibility === 'public'" icon="share"></app-icon>

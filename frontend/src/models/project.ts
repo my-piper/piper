@@ -31,6 +31,10 @@ export class Project {
 
   @Expose()
   @Type(() => String)
+  tags!: string[];
+
+  @Expose()
+  @Type(() => String)
   revision!: string;
 
   @Expose()

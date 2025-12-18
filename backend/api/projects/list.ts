@@ -48,6 +48,7 @@ api.get(
           projection: {
             _id: 1,
             slug: 1,
+            tags: 1,
             createdAt: 1,
             createdBy: 1,
             visibility: 1,

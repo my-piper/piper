@@ -162,6 +162,16 @@ export const OUTPUT_TYPES = {
   video: VideoData,
 };
 
+export type OutputDataType =
+  | BooleanData
+  | IntegerData
+  | FloatData
+  | StringData
+  | JsonData
+  | ImageData
+  | ImagesData
+  | VideoData;
+
 export class LaunchInput {
   @Expose()
   @Type(() => String)
@@ -191,15 +201,7 @@ export class LaunchInput {
       ],
     },
   })
-  data?:
-    | BooleanData
-    | IntegerData
-    | FloatData
-    | StringData
-    | JsonData
-    | ImageData
-    | ImagesData
-    | VideoData;
+  data?: OutputDataType;
 
   constructor(defs: Partial<LaunchInput> = {}) {
     assign(this, defs);
@@ -259,15 +261,7 @@ export class LaunchArtefact {
       ],
     },
   })
-  data?:
-    | BooleanData
-    | IntegerData
-    | FloatData
-    | StringData
-    | JsonData
-    | ImageData
-    | ImagesData
-    | VideoData;
+  data?: OutputDataType;
 
   @Expose()
   @Type(() => String)

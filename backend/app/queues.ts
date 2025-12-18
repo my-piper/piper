@@ -63,24 +63,36 @@ export const queues = {
       set: new JobsQueue("set_launch_inputs", SetLaunchInputsJob, {
         limiter: { max: 100, duration: secondsToMilliseconds(10) },
         concurrency: 50,
+        defaultJobOptions: {
+          attempts: 1,
+        },
       }),
     },
     artefacts: {
       save: new JobsQueue("save_node_artefacts", SaveNodeArtefactsJob, {
         limiter: { max: 100, duration: secondsToMilliseconds(10) },
         concurrency: 50,
+        defaultJobOptions: {
+          attempts: 1,
+        },
       }),
     },
     outputs: {
       set: new JobsQueue("set_launch_output", SetLaunchOutputJob, {
         limiter: { max: 100, duration: secondsToMilliseconds(10) },
         concurrency: 50,
+        defaultJobOptions: {
+          attempts: 1,
+        },
       }),
     },
     errors: {
       set: new JobsQueue("set_launch_errors", SetLaunchErrorsJob, {
         limiter: { max: 100, duration: secondsToMilliseconds(10) },
         concurrency: 50,
+        defaultJobOptions: {
+          attempts: 1,
+        },
       }),
     },
   },

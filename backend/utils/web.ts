@@ -15,12 +15,20 @@ const httpsAgent = new HttpsAgent({
 });
 const httpClient = axios.create({ httpsAgent });
 
+const USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
 export async function download(
   url: string
 ): Promise<{ mimeType: string; data: Buffer }> {
   logger.debug(`Downloading url from ${url}`);
   const { data, headers } = await httpClient({
     method: "get",
+    headers: {
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+      "User-Agent": USER_AGENT,
+    },
     url,
     responseType: "arraybuffer",
   });

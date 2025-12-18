@@ -29,6 +29,7 @@ import {
   LaunchData,
   LaunchState,
   OUTPUT_TYPES,
+  OutputDataType,
   StringData,
   VideoData,
 } from "models/launch";
@@ -284,7 +285,7 @@ export async function getIOData(
   id: string,
   type: PipelineIOType,
   value: Primitive
-) {
+): Promise<OutputDataType> {
   switch (type) {
     case "boolean":
       return new BooleanData({

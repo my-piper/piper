@@ -98,7 +98,7 @@ api.patch(
       }
 
       const patched = toInstance(forPatch, Pipeline);
-      const { name: title, thumbnail } = patched;
+      const { name: title, tags, thumbnail } = patched;
 
       if (!!patched.script && !isAdmin(currentUser)) {
         throw new DataError("You can't edit pipeline script");
@@ -117,6 +117,7 @@ api.patch(
 
       assign(update, {
         title,
+        tags,
         thumbnail,
         pipeline: patched,
       });

@@ -3,8 +3,9 @@ import { queues } from "app/queues";
 import { LAUNCH, NODE_OUTPUTS } from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
 import redis, { readInstance } from "core-kit/packages/redis";
+import sentry from "core-kit/packages/sentry";
 import { toPlain } from "core-kit/packages/transform";
-import { Launch, LaunchArtefact } from "models/launch";
+import { Launch, LaunchArtefact, OutputDataType } from "models/launch";
 import { User } from "models/user";
 import { getIOData } from "packages/launches/launching";
 import { Primitive } from "types/primitive";
@@ -38,7 +39,6 @@ queues.launches.artefacts.save.process(async (saveArtefactsJob) => {
   const outputs = JSON.parse(value) as { [key: string]: Primitive };
 
   const node = launch.pipeline.nodes.get(saveArtefactsJob.node);
-
   for (const [key, output] of node.outputs) {
     const value = outputs[key];
     if (value === undefined) {
@@ -46,13 +46,22 @@ queues.launches.artefacts.save.process(async (saveArtefactsJob) => {
     }
 
     const { title, type } = output;
-    const data = await getIOData(
-      launch._id,
-      "artefacts",
-      [saveArtefactsJob.node, key].join("_"),
-      type,
-      value
-    );
+
+    let data: OutputDataType;
+
+    try {
+      data = await getIOData(
+        launch._id,
+        "artefacts",
+        [saveArtefactsJob.node, key].join("_"),
+        type,
+        value
+      );
+    } catch (e) {
+      logger.error(e);
+      sentry.captureException(e);
+      continue;
+    }
 
     const artefact = new LaunchArtefact({
       _id: sid(),
