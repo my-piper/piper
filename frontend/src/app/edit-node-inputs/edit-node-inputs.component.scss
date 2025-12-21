@@ -81,7 +81,11 @@ form {
   }
 }
 
-
+.dynamic {
+  &:empty {
+    display: none;
+  }
+}
 
 footer {
   margin-top: $gutter-big;
