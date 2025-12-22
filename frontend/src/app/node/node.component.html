@@ -150,6 +150,19 @@
               controls
             ></video>
           </div>
+          <div *ngSwitchCase="'audio'" class="audio">
+            <ng-template #noValueTemplate>
+              <div class="no-value">
+                <app-icon icon="audio" [size]="64"></app-icon>
+              </div>
+            </ng-template>
+
+            <audio
+              *ngIf="outputs?.[o.key] as value; else noValueTemplate"
+              [src]="value"
+              controls
+            ></audio>
+          </div>
           <ng-container *ngSwitchCase="'json'">
             <ng-template #noValueTemplate>
               <div class="no-value">
