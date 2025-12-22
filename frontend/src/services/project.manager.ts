@@ -177,8 +177,16 @@ type SaveStatus = "dirty" | "saving" | "saved" | "error";
 
 @Injectable({ providedIn: "root" })
 export class ProjectManager {
-  _project!: Project;
-  snapshots!: { pipeline: Object; launchRequest: Object; environment: Object };
+  _project: Project | null = null;
+  snapshots: {
+    pipeline: Object | null;
+    launchRequest: Object | null;
+    environment: Object | null;
+  } = {
+    pipeline: null,
+    launchRequest: null,
+    environment: null,
+  };
 
   dirty = new Subject<object | null>();
   updates = new Subject<object | null>();
@@ -187,13 +195,20 @@ export class ProjectManager {
 
   set project(project: Project) {
     this._project = project;
-
-    const { pipeline, launchRequest, environment } = project;
     this.snapshots = {
-      pipeline: toPlain(pipeline),
-      launchRequest: toPlain(launchRequest),
-      environment: toPlain(environment),
+      pipeline: null,
+      launchRequest: null,
+      environment: null,
     };
+
+    if (!!project) {
+      const { pipeline, launchRequest, environment } = project;
+      this.snapshots = {
+        pipeline: toPlain(pipeline),
+        launchRequest: toPlain(launchRequest),
+        environment: toPlain(environment),
+      };
+    }
   }
 
   get project() {

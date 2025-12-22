@@ -80,7 +80,7 @@
   [scrollInside]="{
     left: pipeline.layout?.left || 0,
     top: pipeline.layout?.top || 0,
-    disabled: mode === 'launch',
+    disabled: mode !== 'project',
   }"
   (updated)="updateLayoutPosition({ left: $event.left, top: $event.top })"
 >
@@ -201,7 +201,7 @@
     <div
       class="input"
       [class.disabled]="
-        mode === 'launch' ||
+        mode !== 'project' ||
         (userRole.admin | can: project.createdBy | async | not)
       "
       *ngFor="let input of pipeline.inputs | keyvalue"
@@ -315,7 +315,7 @@
     <div
       class="output"
       [class.disabled]="
-        mode === 'launch' ||
+        mode !== 'project' ||
         (userRole.admin | can: project.createdBy | async | not)
       "
       *ngFor="let output of pipeline.outputs | keyvalue"
@@ -343,7 +343,7 @@
       </ng-template>
       <button
         *ngIf="
-          mode === 'project' &&
+          mode !== 'project' &&
           (userRole.admin | can: project.createdBy | async)
         "
         class="transparent"
@@ -366,7 +366,7 @@
       [appDragMove]="{
         position: { x: node.value.arrange.x, y: node.value.arrange.y },
         zoom: pipeline.layout?.zoom || 1,
-        disabled: mode === 'launch',
+        disabled: mode !== 'project',
       }"
       (moving)="nodeMoving(node.value, $event)"
       (moved)="nodeMoved(node.value, $event)"
@@ -465,7 +465,7 @@
       </button>
       <app-node
         [class.active]="currentNode === node.value"
-        [disabled]="mode === 'launch'"
+        [disabled]="mode !== 'project'"
         [id]="node.key"
         [project]="project"
         [node]="node.value"
@@ -660,7 +660,7 @@
           class="flow"
           *ngFor="let f of i.value.flows | keyvalue"
           [class.disabled]="
-            mode === 'launch' ||
+            mode !== 'project' ||
             (userRole.admin | can: project.createdBy | async | not)
           "
           [attr.d]="
@@ -688,7 +688,7 @@
           class="flow"
           *ngFor="let f of o.value.flows | keyvalue"
           [class.disabled]="
-            mode === 'launch' ||
+            mode !== 'project' ||
             (userRole.admin | can: project.createdBy | async | not)
           "
           [attr.d]="
@@ -712,7 +712,7 @@
           class="flow"
           *ngIf="!!o.value.from"
           [class.disabled]="
-            mode === 'launch' ||
+            mode !== 'project' ||
             (userRole.admin | can: project.createdBy | async | not)
           "
           (click)="removeOutput(o.key)"

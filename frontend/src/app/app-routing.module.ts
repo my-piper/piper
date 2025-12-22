@@ -13,6 +13,7 @@ import { ProjectsComponent } from "src/app/projects/projects.component";
 import { SelectNodeComponent } from "src/app/select-node/select-node.component";
 import { AnonymousGuard } from "src/guards/anonymous.guard";
 import { ShouldCheckReadmeGuard } from "src/guards/pipeline-readme";
+import { SaveProjectGuard } from "src/guards/save-project.guard";
 import { SigninNeededGuard } from "src/guards/signin.guard";
 import { DeployResolver } from "src/resolvers/deploy";
 import { LaunchResolver } from "src/resolvers/launch";
@@ -129,7 +130,7 @@ const routes: Routes = [
             path: "scheme",
             component: EditPipelineVisualComponent,
             data: {
-              readonly: true,
+              mode: "scheme",
             },
           },
           {
@@ -182,6 +183,7 @@ const routes: Routes = [
     matcher: projectIdMatcher,
     component: ProjectComponent,
     canActivate: [SigninNeededGuard],
+    canDeactivate: [SaveProjectGuard],
     resolve: {
       project: ProjectResolver,
     },

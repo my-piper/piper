@@ -12,7 +12,7 @@ import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 
-const CHECK_DELAY = 10000;
+const CHECK_DELAY = 2000;
 
 @Pipe({ name: "pipelineNodeUpdates" })
 export class PipelineNodeUpdatesPipe
