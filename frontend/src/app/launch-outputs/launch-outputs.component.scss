@@ -24,8 +24,6 @@
         }
 
         .results {
-            padding: $gutter-small;
-
             &[data-type=string] {
                 padding: $gutter-normal;
                 font-size: $font-size-tiny;

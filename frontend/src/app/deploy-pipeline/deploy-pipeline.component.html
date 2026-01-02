@@ -76,7 +76,12 @@
           <ng-container *ngIf="!!d.prefix">{{ d.prefix }}/</ng-container
           >{{ d.slug }}
 
-          <app-icon class="icon right" icon="open-link" [size]="16"></app-icon>
+          <app-icon
+            class="icon right"
+            icon="open-link"
+            [size]="16"
+            [stroke]="2"
+          ></app-icon>
         </a>
       </td>
     </tr>

@@ -134,6 +134,13 @@ const routes: Routes = [
             },
           },
           {
+            path: "api/:prefix/:slug",
+            resolve: {
+              deploy: DeployResolver,
+            },
+            component: PlayViaApiComponent,
+          },
+          {
             path: "api/:slug",
             resolve: {
               deploy: DeployResolver,

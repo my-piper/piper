@@ -1,5 +1,6 @@
 import "./delete-launch";
 import "./get-launch";
+import "./heartbeat";
 import "./interrupt-launch";
 import "./launch-data";
 import "./launch-state";
