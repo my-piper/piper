@@ -16,8 +16,8 @@
   <h2 i18n="@@label.how_to_call">How to call</h2>
   <pre>
 <![CDATA[curl --location --request POST '{{ config.baseUrl }}/api/{{
-      deploy.slug
-    }}/launch' \
+      !!deploy.prefix ? deploy.prefix + "/" : ""
+    }}{{ deploy.slug }}/launch' \
 --header 'content-type: application/json' \
 --header 'api-token: [YOUR_API_KEY_HERE]' \
 --data '{{ launchRequest | json }}']]></pre
@@ -96,14 +96,3 @@
     </table>
   </ng-container>
 </ng-container>
-
-<h2 i18n="@@label.academy">Academy</h2>
-
-<p i18n="@@message.piper_api_academy">
-  Please, check more details about Piper API in our
-  <a
-    target="_blank"
-    href="https://pipermy-academy.hf.space/docs/deploy-pipelines/call-via-api"
-    >Academy</a
-  >
-</p>

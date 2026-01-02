@@ -1,16 +1,27 @@
-import { Expose, Type } from "core-kit/packages/transform";
+import {
+  Expose,
+  IsOptional,
+  Matches,
+  Type,
+  ValidateNested,
+} from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { RunScope } from "./run-scope";
 
 export class DeployConfig {
+  @IsOptional()
+  @Matches(/^[a-z0-9\-\_\.]{3,15}$/)
   @Expose()
+  @Type(() => String)
+  prefix!: string;
+
+  @Expose()
+  @Matches(/^[a-z0-9\-_]{5,40}$/)
   @Type(() => String)
   slug!: string;
 
-  @Expose()
-  @Type(() => String)
-  apiKey: string;
-
+  @IsOptional()
+  @ValidateNested()
   @Expose()
   @Type(() => RunScope)
   scope!: RunScope;

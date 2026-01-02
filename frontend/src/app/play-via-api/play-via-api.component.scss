@@ -19,13 +19,13 @@ table {
     max-width: 100%;
     border-collapse: collapse;
     overflow: hidden;
-    background: white;
+    background: $control-background-color;
     font-size: .85em;
 }
 
 th,
 td {
-    border: 1px solid #ddd;
+    border: 1px solid $control-border-color;
     padding: 8px;
     text-align: left;
 

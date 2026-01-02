@@ -229,6 +229,22 @@ const routes: Routes = [
       {
         path: "deploy",
         component: DeployPipelineComponent,
+        children: [
+          {
+            path: ":slug",
+            resolve: {
+              deploy: DeployResolver,
+            },
+            component: PlayViaApiComponent,
+          },
+          {
+            path: ":prefix/:slug",
+            resolve: {
+              deploy: DeployResolver,
+            },
+            component: PlayViaApiComponent,
+          },
+        ],
       },
       {
         path: "launches",
@@ -236,6 +252,15 @@ const routes: Routes = [
         resolve: {
           filter: LaunchesFilterResolver,
         },
+        children: [
+          {
+            path: "outputs/:id",
+            component: LaunchOutputsPageComponent,
+            resolve: {
+              launch: LaunchResolver,
+            },
+          },
+        ],
       },
       {
         path: "node-updates",

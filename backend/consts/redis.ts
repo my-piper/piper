@@ -6,7 +6,6 @@ const KEY_SEPARATOR = ":";
 
 export const REDIS_SECRET_KEY = process.env["REDIS_SECRET_KEY"] || "xyzXYZ";
 
-export const DEPLOY_EXPIRED = SECONDS_IN_DAY * 180;
 export const LAUNCH_EXPIRED =
   (() => {
     const value = process.env["LAUNCH_EXPIRED"];
@@ -14,7 +13,8 @@ export const LAUNCH_EXPIRED =
   })() || SECONDS_IN_DAY * 7;
 export const LAUNCH_HEARTBEAT_EXPIRED = 30;
 export const NODE_PROCESSING_TIMEOUT = 20;
-export const DEPLOY = (slug: string) => `deploy:${slug}`;
+export const DEPLOY = (slug: string, prefix: string = null) =>
+  ["deploy", ...(!!prefix ? [prefix] : []), slug].join(KEY_SEPARATOR);
 export const LAUNCH = (launch: string) => `launch:${launch}`;
 export const LAUNCH_HEARTBEAT = (launch: string) =>
   `launch:${launch}:heartbeat`;

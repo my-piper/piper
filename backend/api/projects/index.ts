@@ -19,3 +19,4 @@ import "./launch-project";
 
 import "./assistant";
 import "./comments";
+import "./deploys";

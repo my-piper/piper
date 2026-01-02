@@ -1,7 +1,8 @@
-import { Expose, Type } from "core-kit/packages/transform";
+import { Expose, Matches, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 
 export class RunScope {
+  @Matches(/^[a-z0-9\\-_]{5,40}$/)
   @Expose()
   @Type(() => String)
   id: string;

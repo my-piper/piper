@@ -161,6 +161,24 @@
             [routerLink]="[
               {
                 outlets: {
+                  primary: ['deploy'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            i18n="@@link.deploy"
+          >
+            Deploy
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="[
+              {
+                outlets: {
                   primary: ['assets'],
                   left: null,
                   right: null,
@@ -259,25 +277,6 @@
                   i18n="@@link.readme"
                 >
                   README
-                </a>
-              </li>
-              <li *ngIf="userRole.engineer | can | async">
-                <a
-                  [routerLink]="[
-                    {
-                      outlets: {
-                        primary: ['deploy'],
-                        left: null,
-                        right: null,
-                        bottom: null,
-                      },
-                    },
-                  ]"
-                  routerLinkActive="active"
-                  (click)="references.popover?.hide()"
-                  i18n="@@link.deploy"
-                >
-                  Deploy
                 </a>
               </li>
               <li>

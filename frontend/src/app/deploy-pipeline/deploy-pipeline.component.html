@@ -4,15 +4,35 @@
   (ok)="error = null"
 ></app-informer>
 
+<div class="modal" [class.hidden]="!modal">
+  <header>
+    <a
+      class="primary with-icon"
+      [hotKey]="'escape'"
+      (hotKeyPressed)="back()"
+      [routerLink]="['./']"
+    >
+      <app-icon class="icon right" icon="close"></app-icon>
+      <span class="badge">ESC</span>
+    </a>
+  </header>
+  <div class="content filled">
+    <router-outlet
+      (activate)="modal = $event"
+      (deactivate)="modal = null"
+    ></router-outlet>
+  </div>
+</div>
+
 <form [formGroup]="form">
   <fieldset>
     <app-json-editor
       [schema]="schemas.pipeline.properties.deploy"
+      [disable]="(userRole.admin | can | async) ? [] : ['root.prefix']"
       formControlName="deploy"
     ></app-json-editor>
   </fieldset>
   <footer class="stack">
-    <button submitButton class="primary" (click)="save()">Save</button>
     <button
       class="primary"
       type="button"
@@ -24,3 +44,44 @@
     </button>
   </footer>
 </form>
+
+<h2>Current deploys</h2>
+
+<table class="default">
+  <thead>
+    <th width="20px"></th>
+    <th i18n="@@label.deployed_at" width="150px">Deployed at</th>
+    <th i18n="@@label.slug">Slug</th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let d of deploys">
+      <td>
+        <button
+          class="circle small"
+          (click)="remove(d._id)"
+          [class.busy]="progress.removing[d._id]"
+          [disabled]="progress.removing[d._id]"
+        >
+          <app-icon class="icon" icon="delete" [size]="16"></app-icon>
+        </button>
+      </td>
+      <td title="Deployed at" i18n-title="@@label.deployed_at">
+        {{ d.deployedAt | date: "short" }}
+      </td>
+      <td title="Path" i18n-title="@@label.path">
+        <a
+          class="default with-icon"
+          [routerLink]="!!d.prefix ? [d.prefix, d.slug] : [d.slug]"
+        >
+          <ng-container *ngIf="!!d.prefix">{{ d.prefix }}/</ng-container
+          >{{ d.slug }}
+
+          <app-icon class="icon right" icon="open-link" [size]="16"></app-icon>
+        </a>
+      </td>
+    </tr>
+    <tr class="loading" *ngIf="progress.loading">
+      <td colspan="3"></td>
+    </tr>
+  </tbody>
+</table>

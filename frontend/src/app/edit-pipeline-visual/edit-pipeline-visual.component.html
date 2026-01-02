@@ -343,7 +343,7 @@
       </ng-template>
       <button
         *ngIf="
-          mode !== 'project' &&
+          mode === 'project' &&
           (userRole.admin | can: project.createdBy | async)
         "
         class="transparent"
@@ -405,7 +405,10 @@
         </div>
       </ng-template>
 
-      <div *ngIf="!launch" class="actions stack align-center">
+      <div
+        *ngIf="mode !== 'scheme' && !launch"
+        class="actions stack align-center"
+      >
         <button
           class="circle small"
           [class.busy]="progress.nodes.launching[node.key]"
@@ -489,7 +492,9 @@
         (setOutput)="setNodeOutput(node.key, $event.output, $event.value)"
         (takeOutInput)="takeOutPipelineInput($event)"
         (takeOutOutput)="takeOutPipelineOutput($event)"
-        (click)="selectNode($event, node.key, node.value)"
+        (click)="
+          mode !== 'scheme' ? selectNode($event, node.key, node.value) : null
+        "
       ></app-node>
     </div>
 
@@ -587,7 +592,7 @@
           <circle cx="5" cy="5" r="1" fill="white" opacity="0.20" />
         </pattern>
       </defs>
-      <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)" />
+      <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)"></rect>
 
       <ng-container
         *ngIf="state === 'flow' && !!flow && !!mouse"

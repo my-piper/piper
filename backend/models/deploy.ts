@@ -9,6 +9,18 @@ import { RunScope } from "./run-scope";
 export class Deploy {
   @Expose()
   @Type(() => String)
+  _id!: string;
+
+  @Expose()
+  @Type(() => Date)
+  deployedAt!: Date;
+
+  @Expose()
+  @Type(() => String)
+  prefix!: string;
+
+  @Expose()
+  @Type(() => String)
   slug!: string;
 
   @Expose()

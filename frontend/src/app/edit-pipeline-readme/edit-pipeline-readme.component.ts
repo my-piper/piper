@@ -33,10 +33,6 @@ export class EditPipelineReadmeComponent implements OnInit {
     });
   }
 
-  back() {
-    this.router.navigate(["./"], { relativeTo: this.route });
-  }
-
   private build() {
     const {
       pipeline: { readme },
@@ -55,5 +51,9 @@ export class EditPipelineReadmeComponent implements OnInit {
     const { pipeline } = this.project;
     assign(pipeline, { readme });
     this.projectManager.markDirty();
+  }
+
+  back() {
+    this.router.navigate(["./"], { relativeTo: this.route });
   }
 }

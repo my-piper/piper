@@ -11,48 +11,51 @@ import * as launches from "packages/launches";
 import { checkRateLimits } from "packages/users/check-rate-limits";
 import { checkBalance, checkLogged, handle } from "utils/http";
 
-api.post(
-  "/api/:slug/launch",
-  handle(({ currentUser }) => async ({ params: { slug }, body, ip }) => {
-    checkLogged(currentUser);
-    checkBalance(currentUser);
+const launch = handle(
+  ({ currentUser }) =>
+    async ({ params: { slug, prefix }, body, ip }) => {
+      checkLogged(currentUser);
+      checkBalance(currentUser);
 
-    const {
-      project,
-      pipeline,
-      launchRequest: deployLaunchRequest,
-      environment,
-      scope,
-    } = await deploys.get(slug);
+      const {
+        project,
+        pipeline,
+        launchRequest: deployLaunchRequest,
+        environment,
+        scope,
+      } = await deploys.get(slug, prefix);
 
-    if (BILLING_ACTIVE) {
-      await checkRateLimits(currentUser);
+      if (BILLING_ACTIVE) {
+        await checkRateLimits(currentUser);
+      }
+
+      const launchRequest = toInstance(
+        merge(toPlain(deployLaunchRequest), body),
+        LaunchRequest
+      );
+
+      const { comment } = body;
+      const { _id, url } = await launches.run({
+        launchedBy: (() => {
+          const { _id } = currentUser;
+          return new User({ _id });
+        })(),
+        project: (() => {
+          const { _id, title, createdBy } = project;
+          return new Project({ _id, title, createdBy });
+        })(),
+        pipeline,
+        launchRequest,
+        environment,
+        scope,
+        options: new LaunchOptions({
+          notify: false,
+        }),
+        comment: comment || `API call from ${ip}`,
+      });
+      return toPlain(new Launch({ _id, url }));
     }
-
-    const launchRequest = toInstance(
-      merge(toPlain(deployLaunchRequest), body),
-      LaunchRequest
-    );
-
-    const { comment } = body;
-    const { _id, url } = await launches.run({
-      launchedBy: (() => {
-        const { _id } = currentUser;
-        return new User({ _id });
-      })(),
-      project: (() => {
-        const { _id, title, createdBy } = project;
-        return new Project({ _id, title, createdBy });
-      })(),
-      pipeline,
-      launchRequest,
-      environment,
-      scope,
-      options: new LaunchOptions({
-        notify: false,
-      }),
-      comment: comment || `API call from ${ip}`,
-    });
-    return toPlain(new Launch({ _id, url }));
-  })
 );
+
+api.post("/api/:slug/launch", launch);
+api.post("/api/:prefix/:slug/launch", launch);

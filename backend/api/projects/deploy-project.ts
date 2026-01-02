@@ -1,16 +1,18 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { DEPLOY, DEPLOY_EXPIRED } from "consts/redis";
+import { DEPLOY } from "consts/redis";
 import redis from "core-kit/packages/redis";
-import { toPlain } from "core-kit/packages/transform";
+import { toInstance, toPlain, validate } from "core-kit/packages/transform";
+import { DataError } from "core-kit/types/errors";
 import { Deploy } from "models/deploy";
+import { DeployConfig } from "models/deploy-config";
 import { Project } from "models/project";
 import "reflect-metadata";
-import { checkAdmin, handle, toModel } from "utils/http";
+import { checkAdmin, handle, isAdmin, toModel } from "utils/http";
 
 api.post(
   "/api/projects/:_id/deploy",
-  handle(({ currentUser }) => async ({ params: { _id } }) => {
+  handle(({ currentUser }) => async ({ params: { _id }, body }) => {
     checkAdmin(currentUser);
 
     const project = toModel(
@@ -32,43 +34,50 @@ api.post(
     );
 
     const { pipeline, launchRequest, environment } = project;
-    const {
-      deploy: { slug, scope },
-    } = pipeline;
 
-    {
-      const deploy = new Deploy({
-        slug,
-        scope,
-        pipeline,
-        launchRequest,
-        environment,
-        project: (() => {
-          const { _id, title } = project;
-          return new Project({ _id, title });
-        })(),
-      });
-      await redis.setEx(
-        DEPLOY(slug),
-        DEPLOY_EXPIRED,
-        JSON.stringify(toPlain(deploy))
-      );
+    const config = toInstance(body, DeployConfig);
+    await validate(config);
+    const { prefix, slug, scope } = config;
+
+    if (!isAdmin(currentUser) && prefix !== currentUser._id) {
+      throw new DataError("You can't deploy this project in this prefix");
     }
 
-    {
-      const deploy = new Deploy({
-        slug,
-        scope,
-      });
-      await mongo.projects.updateOne(
-        { _id },
-        {
-          $set: {
-            deploy: toPlain(deploy),
-          },
-        }
-      );
-    }
+    const deploy = new Deploy({
+      deployedAt: new Date(),
+      prefix,
+      slug,
+      scope,
+      pipeline,
+      launchRequest,
+      environment,
+      project: (() => {
+        const { _id, title } = project;
+        return new Project({ _id, title });
+      })(),
+    });
+
+    const plain = toPlain(deploy);
+    await mongo.deploys.updateOne(
+      { _id: [...(!!prefix ? [prefix] : []), slug].join("_") },
+      { $set: plain as { _id: string } },
+      { upsert: true }
+    );
+    await redis.set(DEPLOY(slug, prefix), JSON.stringify(plain));
+
+    await mongo.projects.updateOne(
+      { _id },
+      {
+        $set: {
+          deploy: toPlain(
+            new Deploy({
+              prefix,
+              slug,
+            })
+          ),
+        },
+      }
+    );
 
     return null;
   })

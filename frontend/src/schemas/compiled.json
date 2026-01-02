@@ -2439,6 +2439,11 @@
 				"title": "Deploy",
 				"type": "object",
 				"properties": {
+					"prefix": {
+						"title": "Prefix",
+						"type": "string",
+						"pattern": "^[a-z0-9\\-_]{5,40}$"
+					},
 					"slug": {
 						"title": "Slug",
 						"type": "string",
@@ -3907,6 +3912,11 @@
 				"title": "Deploy",
 				"type": "object",
 				"properties": {
+					"prefix": {
+						"title": "Prefix",
+						"type": "string",
+						"pattern": "^[a-z0-9\\-_]{5,40}$"
+					},
 					"slug": {
 						"title": "Slug",
 						"type": "string",
@@ -4434,6 +4444,11 @@
 						"title": "Deploy",
 						"type": "object",
 						"properties": {
+							"prefix": {
+								"title": "Prefix",
+								"type": "string",
+								"pattern": "^[a-z0-9\\-_]{5,40}$"
+							},
 							"slug": {
 								"title": "Slug",
 								"type": "string",
@@ -5902,6 +5917,11 @@
 						"title": "Deploy",
 						"type": "object",
 						"properties": {
+							"prefix": {
+								"title": "Prefix",
+								"type": "string",
+								"pattern": "^[a-z0-9\\-_]{5,40}$"
+							},
 							"slug": {
 								"title": "Slug",
 								"type": "string",

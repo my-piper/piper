@@ -1,7 +1,11 @@
 <ng-template #toolsPopover>
   <ul class="context-menu" [class.busy]="progress.organizing">
     <li>
-      <button [disabled]="progress.organizing" (click)="organize()">
+      <button
+        [disabled]="progress.organizing"
+        (click)="organize()"
+        i18n="@@action.organize"
+      >
         Organize
       </button>
     </li>

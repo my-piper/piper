@@ -6,6 +6,10 @@ import { RunScope } from "./run-scope";
 export class DeployConfig {
   @Expose()
   @Type(() => String)
+  prefix!: string;
+
+  @Expose()
+  @Type(() => String)
   slug!: string;
 
   @Expose()

@@ -15,6 +15,7 @@ export default {
   launches: db.collection<Object & { _id: string }>("launches"),
   launchArtefacts: db.collection<Object & { _id: string }>("launchArtefacts"),
   projects: db.collection<Object & { _id: string }>("projects"),
+  deploys: db.collection<Object & { _id: string }>("deploys"),
   projectCategories: db.collection<Object & { _id: string }>(
     "projectCategories"
   ),

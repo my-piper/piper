@@ -10,9 +10,9 @@ export class DeployResolver implements Resolve<Deploy> {
   constructor(private http: HttpService) {}
 
   resolve(route: ActivatedRouteSnapshot) {
-    const { slug } = route.params;
+    const { prefix, slug } = route.params;
     return this.http
-      .get(slug)
+      .get([...(!!prefix ? [prefix] : []), slug].join("/"))
       .pipe(map((json) => plainToInstance(Deploy, json)));
   }
 }
