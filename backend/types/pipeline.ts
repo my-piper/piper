@@ -6,7 +6,8 @@ export type PipelineEventType =
   | "node_flow"
   | "node_reset"
   | "node_gonna_repeat"
-  | "set_pipeline_output";
+  | "set_pipeline_output"
+  | "launch_heartbeat";
 
 export type PipelineIOType =
   | "boolean"

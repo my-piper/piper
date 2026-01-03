@@ -47,6 +47,7 @@ import { ImageProxyPipe } from "src/pipes/image-proxy";
 import { IncludesPipe } from "src/pipes/includes";
 import { PipelineInputPipe } from "src/pipes/input";
 import { IsPipe } from "src/pipes/is";
+import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
 import { MapToPlainPipe } from "src/pipes/map-to-plain";
 import { MarkdownPipe } from "src/pipes/markdown";
 import { MultiplyPipe } from "src/pipes/multiply";
@@ -276,6 +277,7 @@ import { UsersComponent } from "./users/users.component";
     PipelineEnvironmentPipe,
     ProjectArtefactsComponent,
     InputFlowsPipe,
+    LaunchHeartbeatPipe,
   ],
   imports: [
     BrowserModule,

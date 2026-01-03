@@ -1,10 +1,9 @@
 import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { objectsMapTransformer } from "transformers/map";
-import { PipelineEventType } from "types/pipeline";
 import { LaunchArtefact, LaunchInput } from "./launch";
 
-export class PipelineEvent {
+export class NodeEvent {
   @Expose()
   @Type(() => String)
   launch: string;
@@ -12,14 +11,16 @@ export class PipelineEvent {
   @Expose()
   @Type(() => String)
   node: string;
+}
 
+export class HeartbeatEvent {
   @Expose()
   @Type(() => String)
-  event: PipelineEventType;
+  launch: string;
 
-  constructor(defs: Partial<PipelineEvent> = {}) {
-    assign(this, defs);
-  }
+  @Expose()
+  @Type(() => Date)
+  heartbeat: Date;
 }
 
 export class SetLaunchInputsEvent {

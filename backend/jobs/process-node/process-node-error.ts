@@ -16,7 +16,7 @@ import redis, { readInstance, saveInstance } from "core-kit/packages/redis";
 import sentry from "core-kit/packages/sentry";
 import { mapTo } from "core-kit/packages/transform";
 import { FatalError, TimeoutError } from "core-kit/types/errors";
-import { PipelineEvent } from "models/events";
+import { NodeEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { NodeStatus } from "models/node";
@@ -35,18 +35,7 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
   }
 
   const notifyNode = (node: string, event: PipelineEventType) => {
-    notify(
-      launch._id,
-      event,
-      mapTo(
-        {
-          launch: launch._id,
-          node,
-          event,
-        },
-        PipelineEvent
-      )
-    );
+    notify(launch._id, event, mapTo({ launch: launch._id, node }, NodeEvent));
   };
 
   await saveInstance(

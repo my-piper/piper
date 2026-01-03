@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
-import { catchError, filter, map, of, Subscription } from "rxjs";
+import { catchError, filter, map, of, takeUntil } from "rxjs";
 import { UI } from "src/consts/ui";
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
@@ -25,6 +25,7 @@ import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
+import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { ModalService } from "src/ui-kit/modal/modal.service";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
@@ -33,7 +34,7 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   templateUrl: "./node.component.html",
   styleUrls: ["./node.component.scss"],
 })
-export class NodeComponent implements OnDestroy {
+export class NodeComponent extends UntilDestroyed implements OnDestroy {
   private _launch!: Launch;
 
   references: { popover?: PopoverComponent } = { popover: null };
@@ -147,10 +148,7 @@ export class NodeComponent implements OnDestroy {
   @Output()
   setOutput = new EventEmitter<{ output: string; value: Primitive }>();
 
-  subscriptions: { launch: () => void; sockets: Subscription[] } = {
-    launch: null,
-    sockets: [],
-  };
+  subscriptions: { launch: () => void } = { launch: null };
 
   timers: { status: ReturnType<typeof setTimeout> | null } = { status: null };
 
@@ -160,9 +158,13 @@ export class NodeComponent implements OnDestroy {
     private cd: ChangeDetectorRef,
     private live: LiveService,
     private modal: ModalService
-  ) {}
+  ) {
+    super();
+  }
 
-  ngOnDestroy(): void {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.subscriptions.launch?.();
     this.silent();
   }
 
@@ -172,86 +174,90 @@ export class NodeComponent implements OnDestroy {
     console.log("Listen node events", this.id);
 
     this.subscriptions.launch = this.live.subscribe(this.launch._id);
-    this.subscriptions.sockets.push(
-      this.socket.fromEvent<Object>("node_running").subscribe((data) => {
+
+    this.socket
+      .fromEvent<Object>("node_running")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
           console.log("Node is running", node);
           this.checkStatus();
         }
-      })
-    );
+      });
 
-    this.subscriptions.sockets.push(
-      this.socket.fromEvent<Object>("node_done").subscribe((data) => {
+    this.socket
+      .fromEvent<Object>("node_done")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
           console.log("Node done", node);
           this.checkStatus();
         }
-      })
-    );
+      });
 
-    this.subscriptions.sockets.push(
-      this.socket.fromEvent<Object>("node_progress").subscribe((data) => {
+    this.socket
+      .fromEvent<Object>("node_progress")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
           console.log("Progress for", node);
           this.loadProgress();
         }
-      })
-    );
+      });
 
-    this.subscriptions.sockets.push(
-      this.socket.fromEvent<Object>("node_not_ready").subscribe((data) => {
+    this.socket
+      .fromEvent<Object>("node_not_ready")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
           console.log("Node is ready", node);
           this.checkStatus();
         }
-      })
-    );
+      });
 
-    this.subscriptions.sockets.push(
-      this.socket.fromEvent<Object>("node_error").subscribe((data) => {
+    this.socket
+      .fromEvent<Object>("node_error")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
           console.log("Node error", node);
           this.checkStatus();
         }
-      })
-    );
+      });
 
-    this.subscriptions.sockets.push(
-      this.socket.fromEvent<Object>("node_flow").subscribe((data: Object) => {
+    this.socket
+      .fromEvent<Object>("node_flow")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data: Object) => {
         const { launch, node } = plainToInstance(PipelineEvent, data as Object);
         if (launch === this.launch?._id && node === this.id) {
           console.log("Node is going to flow", node);
           this.load();
         }
-      })
-    );
+      });
 
-    this.subscriptions.sockets.push(
-      this.socket.fromEvent<Object>("node_reset").subscribe((data) => {
+    this.socket
+      .fromEvent<Object>("node_reset")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
           console.log("Node is reset", node);
           this.loadInputs();
         }
-      })
-    );
+      });
 
     this.checkStatus();
   }
 
   silent() {
     console.log("Node is silent", this.id);
-
     this.subscriptions.launch?.();
-    this.subscriptions.sockets.forEach((s) => s.unsubscribe());
-    this.subscriptions.sockets = [];
-
     clearTimeout(this.timers.status);
   }
 

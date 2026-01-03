@@ -87,3 +87,13 @@ export class BalanceUpdatedEvent {
     assign(this, defs);
   }
 }
+
+export class HeartbeatEvent {
+  @Expose()
+  @Type(() => String)
+  launch: string;
+
+  @Expose()
+  @Type(() => Date)
+  heartbeat: Date;
+}

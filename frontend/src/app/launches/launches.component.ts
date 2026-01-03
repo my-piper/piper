@@ -96,6 +96,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
           }
         }
       });
+
     this.live.socket
       .fromEvent<Object>("set_output")
       .pipe(

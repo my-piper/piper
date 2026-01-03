@@ -38,7 +38,7 @@ import { differenceInSeconds } from "date-fns";
 import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
 import { NodeExecution } from "enums/node-execution";
-import { PipelineEvent } from "models/events";
+import { HeartbeatEvent, NodeEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { NodeStatus } from "models/node";
@@ -75,34 +75,16 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   const notifyNode = (node: string, event: PipelineEventType) => {
     if (launch.options?.notify) {
       logger.info(`Notify ${event}`);
-      notify(
-        launch._id,
-        event,
-        mapTo(
-          {
-            launch: launch._id,
-            node,
-            event,
-          },
-          PipelineEvent
-        )
-      );
+      notify(launch._id, event, mapTo({ launch: launch._id, node }, NodeEvent));
     }
   };
 
-  const notifyPipeline = (event: PipelineEventType) => {
+  const notifyPipeline = <T extends object | null>(
+    type: PipelineEventType,
+    event: T = null
+  ) => {
     if (launch.options?.notify) {
-      notify(
-        launch._id,
-        event,
-        mapTo(
-          {
-            launch: launch._id,
-            event,
-          },
-          PipelineEvent
-        )
-      );
+      notify(launch._id, type, event);
     }
   };
 
@@ -198,6 +180,10 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       LAUNCH_HEARTBEAT(launch._id),
       LAUNCH_HEARTBEAT_EXPIRED,
       new Date().toISOString()
+    );
+    notifyPipeline(
+      "launch_heartbeat",
+      mapTo({ launch: launch._id, heartbeat: new Date() }, HeartbeatEvent)
     );
     timers.heartbeat = setTimeout(async () => {
       await heartbeat();

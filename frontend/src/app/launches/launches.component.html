@@ -92,9 +92,19 @@
           </li>
         </ul>
       </ng-template>
-      <button class="transparent" [appPopover]="{ content: inputsPopover }">
-        <app-icon icon="info"></app-icon>
-      </button>
+      <div class="stack horizontal align-center">
+        <button class="transparent" [appPopover]="{ content: inputsPopover }">
+          <app-icon icon="info"></app-icon>
+        </button>
+        <ng-container
+          *ngIf="l._id | launchHeartbeat | ticker | async as heartbeat"
+        >
+          <app-spinner
+            *ngIf="(heartbeat | timeDiff: 's') < 10"
+            size="small"
+          ></app-spinner>
+        </ng-container>
+      </div>
       <span
         *ngIf="l.launchedBy?._id === config.authorization._id"
         class="launched-by"
