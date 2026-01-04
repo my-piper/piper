@@ -68,16 +68,18 @@
     [disabled]="!form.valid || progress.launching"
     (click)="launch()"
   >
-    <ng-container i18n="@@action.run">Run</ng-container>
-    <ng-container *ngIf="!!request">
-      <span
-        class="badge"
-        *ngIf="(project._id | pipelineCosts: request | async)?.total as total"
-        >{{
-          total | countdown | async | currency: "USD" : "symbol" : "1.0-10"
-        }}</span
-      >
-    </ng-container>
+    <div class="stack small align-center">
+      <ng-container i18n="@@action.run">Run</ng-container>
+      <ng-container *ngIf="!!request">
+        <span
+          class="money"
+          *ngIf="(project._id | pipelineCosts: request | async)?.total as total"
+          >{{
+            total | countdown | async | currency: "USD" : "symbol" : "1.0-10"
+          }}</span
+        >
+      </ng-container>
+    </div>
   </button>
 
   <ng-template #toolsPopover>

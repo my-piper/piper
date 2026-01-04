@@ -127,7 +127,7 @@
                 <ul>
                   <li *ngFor="let n of costs.nodes | keyvalue">
                     <div>{{ pipeline.nodes.get(n.key).title | i18n }}</div>
-                    <div>
+                    <div class="money">
                       {{
                         n.value.costs | currency: "USD" : "symbol" : "1.0-10"
                       }}
@@ -138,7 +138,9 @@
                   <ng-container i18n="@@label.total_pipeline_costs">
                     Total pipeline costs:
                   </ng-container>
-                  {{ costs.total | currency: "USD" : "symbol" : "1.0-10" }}
+                  <span class="money">
+                    {{ costs.total | currency: "USD" : "symbol" : "1.0-10" }}
+                  </span>
                 </footer>
               </ng-container>
             </ng-container>
@@ -398,7 +400,9 @@
                 <ng-container i18n="@@label.cost_per_run">
                   Cost per run:
                 </ng-container>
-                {{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}
+                <span class="money">
+                  {{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}
+                </span>
               </div>
             </div>
           </ng-container>
@@ -435,10 +439,10 @@
         </button>
         <a
           *ngIf="!!node.value.app"
-          class="primary with-icon"
+          class="circle"
           [routerLink]="['apps', node.key]"
         >
-          Edit
+          <app-icon class="icon" icon="cursor" [size]="18"></app-icon>
         </a>
       </div>
       <ng-template #actionsTemplate>
@@ -589,7 +593,7 @@
           height="15"
           patternUnits="userSpaceOnUse"
         >
-          <circle cx="5" cy="5" r="1" fill="white" opacity="0.20" />
+          <circle cx="5" cy="5" r="1" fill="white" opacity="0.1" />
         </pattern>
       </defs>
       <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)"></rect>

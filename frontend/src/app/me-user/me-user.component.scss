@@ -5,17 +5,11 @@
 :host {
   display: flex;
   align-items: center;
+  gap: $gutter-normal;
   background-color: rgba($color: $primary-light-color, $alpha: .15);
   border-radius: 50px;
   padding: $gutter-tiny;
   overflow: hidden;
-}
-
-.remaining {
-  font-family: "Quantico", sans-serif;
-  font-size: .75rem;
-  line-height: 1em;
-  padding: 0 $gutter-small 0 $gutter-normal;
 }
 
 .user {

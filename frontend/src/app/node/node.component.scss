@@ -18,7 +18,7 @@ $node-border-color: rgba($graphite-color-200, 0.25);
   width: $node-width;
   box-sizing: border-box;
   user-select: none;
-  border: solid 2px rgba($graphite-color-200, 0.25);
+  border: solid 1px rgba($graphite-color-200, 0.45);
   border-radius: $corner-large;
   box-shadow: 2px 2px 2px rgba(black, 0.25);
   background: rgba($node-background-color, 0.75);

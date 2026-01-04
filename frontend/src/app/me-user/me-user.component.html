@@ -89,7 +89,7 @@
 
 <ng-container *ngIf="me.user$ | async as user">
   <ng-container *ngIf="config.billing.active"></ng-container>
-  <div *ngIf="user.balance?.remaining as remaining" class="remaining">
+  <div *ngIf="user.balance?.remaining as remaining" class="money">
     {{ remaining | countdown | async | currency: "USD" : "symbol" : "1.3-3" }}
   </div>
 </ng-container>
