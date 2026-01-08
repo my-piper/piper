@@ -46,8 +46,6 @@ export class EditNodeAppComponent implements OnInit {
 
   save() {
     const { app } = this.form.getRawValue();
-
-    const { pipeline } = this.project;
     assign(this.node, { app });
     this.projectManager.markDirty();
   }

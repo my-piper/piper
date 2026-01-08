@@ -6,11 +6,13 @@ import {
   ViewEncapsulation,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom, map } from "rxjs";
 import { UI } from "src/consts/ui";
 import { NodeToLaunch } from "src/models/launch-request";
 import { Node } from "src/models/node";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
+import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { NodeInputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
@@ -31,6 +33,7 @@ export class NodeAppComponent {
   node!: Node;
 
   constructor(
+    private http: HttpService,
     private projectManager: ProjectManager,
     private router: Router,
     private route: ActivatedRoute,
@@ -46,12 +49,23 @@ export class NodeAppComponent {
     });
   }
 
+  async getApp(): Promise<string> {
+    if (/^http/.test(this.node.app)) {
+      return await firstValueFrom(
+        this.http
+          .get("utils/fetch", { url: this.node.app }, { responseType: "text" })
+          .pipe(map((resp) => resp as string))
+      );
+    }
+    return this.node.app;
+  }
+
   async build() {
     const { launchRequest } = this.project;
 
     const app = this.renderer.createElement("div");
     const appRoot = app.attachShadow({ mode: "open" });
-    this.renderer.setProperty(appRoot, "innerHTML", this.node.app);
+    this.renderer.setProperty(appRoot, "innerHTML", await this.getApp());
     this.renderer.appendChild(this.host.nativeElement, app);
 
     const links = appRoot.querySelectorAll('link[rel="stylesheet"]');

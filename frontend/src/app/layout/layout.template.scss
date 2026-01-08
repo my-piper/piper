@@ -10,9 +10,10 @@ header {
     align-items: center;
     margin-bottom: $gutter-normal;
     justify-content: space-between;
-    background-color: rgba($control-background-color, 0.50);
+    background-color: black;
     padding: $gutter-normal;
     gap: $gutter-normal;
+    border-bottom: 1px solid rgba($graphite-color-60, 0.1);
 
     @include less-tablet() {
         flex-direction: column;
@@ -65,7 +66,7 @@ header {
                 a {
                     display: inline-block;
                     text-decoration: none;
-                    color: white;
+                    color: $primary-text-color;
                     line-height: 1.45em;
                     border-radius: $corner-large;
                     padding: $gutter-small $gutter-normal;
