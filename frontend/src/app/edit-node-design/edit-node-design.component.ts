@@ -23,13 +23,24 @@ export class EditNodeDesignComponent implements OnInit {
       description,
       thumbnail,
       tags,
+      icon,
+      order,
       inputs,
       outputs,
     } = SCHEMAS.node.properties;
     return {
       node: {
         ...SCHEMAS.node,
-        properties: { _id, title, version, description, thumbnail, tags },
+        properties: {
+          _id,
+          title,
+          version,
+          description,
+          thumbnail,
+          tags,
+          icon,
+          order,
+        },
         required: ["title", "version"],
       },
       inputs,
@@ -69,18 +80,28 @@ export class EditNodeDesignComponent implements OnInit {
       description,
       thumbnail,
       tags,
+      icon,
+      order,
       inputs,
       outputs,
     } = toPlain(this.node);
     this.form.patchValue({
-      node: essential({ _id, title, version, description, thumbnail, tags }),
+      node: essential({
+        _id,
+        title,
+        version,
+        description,
+        thumbnail,
+        tags,
+        icon,
+        order,
+      }),
       inputs,
       outputs,
     });
   }
 
   private save() {
-    const { pipeline, launchRequest } = this.project;
     const {
       _id,
       title,
@@ -88,6 +109,8 @@ export class EditNodeDesignComponent implements OnInit {
       description,
       thumbnail,
       tags,
+      icon,
+      order,
       inputs,
       outputs,
     } = plainToInstance(
@@ -104,6 +127,8 @@ export class EditNodeDesignComponent implements OnInit {
       description,
       thumbnail,
       tags,
+      icon,
+      order,
       inputs,
       outputs,
     });

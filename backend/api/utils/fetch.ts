@@ -10,7 +10,7 @@ const FETCH_ALLOWED_URIS = env["FETCH_ALLOWED_URIS"]?.split(",") || [
 
 api.get(
   "/api/utils/fetch",
-  handle(() => async ({ query: { url } }) => {
+  handle(() => async ({ query: { url } }, resp) => {
     if (!url) {
       throw new DataError("URL is not provided");
     }
@@ -19,7 +19,10 @@ api.get(
     if (!FETCH_ALLOWED_URIS.some((u) => uri.startsWith(u))) {
       throw new DataError("Access denied");
     }
+
     const { data } = await axios.get(uri, { responseType: "text" });
-    return data;
+    resp.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    resp.send(data);
+    return;
   })
 );

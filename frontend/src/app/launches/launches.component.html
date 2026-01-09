@@ -77,20 +77,28 @@
     </article>
     <footer>
       <ng-template #inputsPopover>
-        <ng-template #emptyInputs>Inputs are not filled yet.</ng-template>
-        <ul *ngIf="!!l.inputs; else emptyInputs" class="inputs">
-          <li *ngFor="let i of l.inputs | keyvalue | orderBy: ['value.order']">
-            <b>{{ i.value.title | i18n }}:</b>
-            <div class="value" [ngSwitch]="i.value.type">
-              <ng-container *ngSwitchCase="'image'">
-                <img [src]="i.value.data?.url | proxyImage: { width: 100 }" />
-              </ng-container>
-              <ng-container *ngSwitchDefault>
-                {{ i.value.data?.value }}
-              </ng-container>
-            </div>
-          </li>
-        </ul>
+        <ng-template #noInputs>
+          <ng-container i18n="@@message.inputs_are_not_filled_yet">
+            Inputs are not filled yet.
+          </ng-container>
+        </ng-template>
+        <ng-conatiner
+          *ngIf="l.inputs | keyvalue | orderBy: ['value.order'] as inputs"
+        >
+          <ul *ngIf="inputs.length > 0; else noInputs" class="inputs">
+            <li *ngFor="let i of inputs">
+              <b>{{ i.value.title | i18n }}:</b>
+              <div class="value" [ngSwitch]="i.value.type">
+                <ng-container *ngSwitchCase="'image'">
+                  <img [src]="i.value.data?.url | proxyImage: { width: 100 }" />
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  {{ i.value.data?.value }}
+                </ng-container>
+              </div>
+            </li>
+          </ul>
+        </ng-conatiner>
       </ng-template>
       <div class="stack horizontal align-center">
         <button class="transparent" [appPopover]="{ content: inputsPopover }">

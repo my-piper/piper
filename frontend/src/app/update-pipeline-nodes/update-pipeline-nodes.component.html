@@ -21,7 +21,7 @@
         <a
           (click)="select(node.key)"
           [class.active]="state.active == node.key"
-          >{{ node.key }}</a
+          >{{ node.value.updated.title | i18n }}</a
         >
       </li>
     </ul>

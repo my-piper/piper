@@ -100,19 +100,21 @@
           (attached)="references.popover = $event"
           (click)="checkUpdates()"
         >
-          <ng-container i18n="@@action.check_updates">
-            Check updates
-          </ng-container>
-          <span
-            class="badge"
-            *ngIf="state?.updates || [] | packagesForUpdate as updates"
-            >{{ updates }}</span
-          >
-          <span
-            class="badge errors"
-            *ngIf="state?.updates || [] | packagesUpdateErrors as errors"
-            >{{ errors }}</span
-          >
+          <div class="stack align-center">
+            <ng-container i18n="@@action.check_updates">
+              Check updates
+            </ng-container>
+            <span
+              class="badge ghost"
+              *ngIf="state?.updates || [] | packagesForUpdate as updates"
+              >{{ updates }}</span
+            >
+            <span
+              class="badge error"
+              *ngIf="state?.updates || [] | packagesUpdateErrors as errors"
+              >{{ errors }}</span
+            >
+          </div>
         </button>
       </ng-container>
     </ng-container>

@@ -48,6 +48,14 @@ export class NodeCategory {
   @Type(() => String)
   thumbnail: string;
 
+  @Expose()
+  @Type(() => String)
+  icon: string;
+
+  @Expose()
+  @Type(() => Number)
+  order: number;
+
   toString() {
     return this._id;
   }
@@ -257,6 +265,14 @@ export class Node {
   @Expose()
   @Type(() => NodeCategory)
   category: NodeCategory;
+
+  @Expose()
+  @Type(() => String)
+  icon: string;
+
+  @Expose()
+  @Type(() => Number)
+  order: number;
 
   @Expose()
   @Type(() => String)

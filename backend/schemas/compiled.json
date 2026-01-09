@@ -102,16 +102,24 @@
 						},
 						"category": {
 							"type": "object",
+							"propertyOrder": 7,
 							"properties": {
 								"_id": {
 									"title": "ID",
 									"type": "string",
-									"pattern": "^[a-z0-9_]{5,40}$",
-									"propertyOrder": 2
+									"pattern": "^[a-z0-9_]{5,40}$"
 								},
 								"title": {
 									"title": "Title",
 									"type": "string"
+								},
+								"icon": {
+									"title": "Icon",
+									"type": "string"
+								},
+								"order": {
+									"title": "Order",
+									"type": "number"
 								}
 							},
 							"required": [
@@ -119,6 +127,16 @@
 								"title"
 							],
 							"additionalProperties": false
+						},
+						"icon": {
+							"title": "Icon",
+							"type": "string",
+							"propertyOrder": 9
+						},
+						"order": {
+							"title": "Order",
+							"type": "number",
+							"propertyOrder": 10
 						},
 						"package": {
 							"type": "string",
@@ -253,6 +271,16 @@
 											"title": "Thumbnail",
 											"type": "string",
 											"propertyOrder": 4
+										},
+										"icon": {
+											"title": "Icon",
+											"type": "string",
+											"propertyOrder": 5
+										},
+										"order": {
+											"title": "Order",
+											"type": "number",
+											"propertyOrder": 6
 										}
 									},
 									"required": [
@@ -1105,6 +1133,16 @@
 											"title": "Thumbnail",
 											"type": "string",
 											"propertyOrder": 4
+										},
+										"icon": {
+											"title": "Icon",
+											"type": "string",
+											"propertyOrder": 5
+										},
+										"order": {
+											"title": "Order",
+											"type": "number",
+											"propertyOrder": 6
 										}
 									},
 									"required": [
@@ -1234,16 +1272,24 @@
 			},
 			"category": {
 				"type": "object",
+				"propertyOrder": 7,
 				"properties": {
 					"_id": {
 						"title": "ID",
 						"type": "string",
-						"pattern": "^[a-z0-9_]{5,40}$",
-						"propertyOrder": 2
+						"pattern": "^[a-z0-9_]{5,40}$"
 					},
 					"title": {
 						"title": "Title",
 						"type": "string"
+					},
+					"icon": {
+						"title": "Icon",
+						"type": "string"
+					},
+					"order": {
+						"title": "Order",
+						"type": "number"
 					}
 				},
 				"required": [
@@ -1251,6 +1297,16 @@
 					"title"
 				],
 				"additionalProperties": false
+			},
+			"icon": {
+				"title": "Icon",
+				"type": "string",
+				"propertyOrder": 9
+			},
+			"order": {
+				"title": "Order",
+				"type": "number",
+				"propertyOrder": 10
 			},
 			"package": {
 				"type": "string",
@@ -1385,6 +1441,16 @@
 								"title": "Thumbnail",
 								"type": "string",
 								"propertyOrder": 4
+							},
+							"icon": {
+								"title": "Icon",
+								"type": "string",
+								"propertyOrder": 5
+							},
+							"order": {
+								"title": "Order",
+								"type": "number",
+								"propertyOrder": 6
 							}
 						},
 						"required": [
@@ -2237,6 +2303,16 @@
 								"title": "Thumbnail",
 								"type": "string",
 								"propertyOrder": 4
+							},
+							"icon": {
+								"title": "Icon",
+								"type": "string",
+								"propertyOrder": 5
+							},
+							"order": {
+								"title": "Order",
+								"type": "number",
+								"propertyOrder": 6
 							}
 						},
 						"required": [
@@ -2442,7 +2518,7 @@
 					"prefix": {
 						"title": "Prefix",
 						"type": "string",
-						"pattern": "^[a-z0-9\\-_]{5,40}$"
+						"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
 					},
 					"slug": {
 						"title": "Slug",
@@ -2776,16 +2852,24 @@
 						},
 						"category": {
 							"type": "object",
+							"propertyOrder": 7,
 							"properties": {
 								"_id": {
 									"title": "ID",
 									"type": "string",
-									"pattern": "^[a-z0-9_]{5,40}$",
-									"propertyOrder": 2
+									"pattern": "^[a-z0-9_]{5,40}$"
 								},
 								"title": {
 									"title": "Title",
 									"type": "string"
+								},
+								"icon": {
+									"title": "Icon",
+									"type": "string"
+								},
+								"order": {
+									"title": "Order",
+									"type": "number"
 								}
 							},
 							"required": [
@@ -2793,6 +2877,16 @@
 								"title"
 							],
 							"additionalProperties": false
+						},
+						"icon": {
+							"title": "Icon",
+							"type": "string",
+							"propertyOrder": 9
+						},
+						"order": {
+							"title": "Order",
+							"type": "number",
+							"propertyOrder": 10
 						},
 						"package": {
 							"type": "string",
@@ -2927,6 +3021,16 @@
 											"title": "Thumbnail",
 											"type": "string",
 											"propertyOrder": 4
+										},
+										"icon": {
+											"title": "Icon",
+											"type": "string",
+											"propertyOrder": 5
+										},
+										"order": {
+											"title": "Order",
+											"type": "number",
+											"propertyOrder": 6
 										}
 									},
 									"required": [
@@ -3779,6 +3883,16 @@
 											"title": "Thumbnail",
 											"type": "string",
 											"propertyOrder": 4
+										},
+										"icon": {
+											"title": "Icon",
+											"type": "string",
+											"propertyOrder": 5
+										},
+										"order": {
+											"title": "Order",
+											"type": "number",
+											"propertyOrder": 6
 										}
 									},
 									"required": [
@@ -3915,7 +4029,7 @@
 					"prefix": {
 						"title": "Prefix",
 						"type": "string",
-						"pattern": "^[a-z0-9\\-_]{5,40}$"
+						"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
 					},
 					"slug": {
 						"title": "Slug",
@@ -4447,7 +4561,7 @@
 							"prefix": {
 								"title": "Prefix",
 								"type": "string",
-								"pattern": "^[a-z0-9\\-_]{5,40}$"
+								"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
 							},
 							"slug": {
 								"title": "Slug",
@@ -4781,16 +4895,24 @@
 								},
 								"category": {
 									"type": "object",
+									"propertyOrder": 7,
 									"properties": {
 										"_id": {
 											"title": "ID",
 											"type": "string",
-											"pattern": "^[a-z0-9_]{5,40}$",
-											"propertyOrder": 2
+											"pattern": "^[a-z0-9_]{5,40}$"
 										},
 										"title": {
 											"title": "Title",
 											"type": "string"
+										},
+										"icon": {
+											"title": "Icon",
+											"type": "string"
+										},
+										"order": {
+											"title": "Order",
+											"type": "number"
 										}
 									},
 									"required": [
@@ -4798,6 +4920,16 @@
 										"title"
 									],
 									"additionalProperties": false
+								},
+								"icon": {
+									"title": "Icon",
+									"type": "string",
+									"propertyOrder": 9
+								},
+								"order": {
+									"title": "Order",
+									"type": "number",
+									"propertyOrder": 10
 								},
 								"package": {
 									"type": "string",
@@ -4932,6 +5064,16 @@
 													"title": "Thumbnail",
 													"type": "string",
 													"propertyOrder": 4
+												},
+												"icon": {
+													"title": "Icon",
+													"type": "string",
+													"propertyOrder": 5
+												},
+												"order": {
+													"title": "Order",
+													"type": "number",
+													"propertyOrder": 6
 												}
 											},
 											"required": [
@@ -5784,6 +5926,16 @@
 													"title": "Thumbnail",
 													"type": "string",
 													"propertyOrder": 4
+												},
+												"icon": {
+													"title": "Icon",
+													"type": "string",
+													"propertyOrder": 5
+												},
+												"order": {
+													"title": "Order",
+													"type": "number",
+													"propertyOrder": 6
 												}
 											},
 											"required": [
@@ -5920,7 +6072,7 @@
 							"prefix": {
 								"title": "Prefix",
 								"type": "string",
-								"pattern": "^[a-z0-9\\-_]{5,40}$"
+								"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
 							},
 							"slug": {
 								"title": "Slug",

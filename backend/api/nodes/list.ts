@@ -29,6 +29,7 @@ api.get(
             thumbnail: 1,
             version: 1,
             tags: 1,
+            order: 1,
           },
         }
       )

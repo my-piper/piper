@@ -46,6 +46,14 @@ export class NodeCategory {
   @Type(() => String)
   thumbnail: string;
 
+  @Expose()
+  @Type(() => String)
+  icon: string;
+
+  @Expose()
+  @Type(() => Number)
+  order: number;
+
   toString() {
     return this._id;
   }
@@ -249,6 +257,8 @@ type GroupOfInputs = {
   inputs: { id: string; input: NodeInput }[];
 };
 
+const DEFAULT_ORDER = 999;
+
 export class Node {
   @Expose()
   @Type(() => String)
@@ -261,6 +271,14 @@ export class Node {
   @Expose()
   @Type(() => NodeCategory)
   category: NodeCategory;
+
+  @Expose()
+  @Type(() => String)
+  icon: string;
+
+  @Expose()
+  @Type(() => Number)
+  order: number;
 
   @Expose()
   @Type(() => String)
@@ -354,7 +372,7 @@ export class Node {
   private getRender() {
     const groups = new Map<string, GroupOfInputs>();
     const orphan: GroupOfInputs = {
-      order: 0,
+      order: DEFAULT_ORDER,
       group: null,
       inputs: [],
     };
@@ -386,10 +404,17 @@ export class Node {
       inputs: (() => {
         const sorted = [];
         for (const [k, v] of groups) {
-          v.inputs.sort((a, b) => (a.input.order ?? 1) - (b.input.order ?? 1));
+          v.inputs.sort(
+            (a, b) =>
+              (a.input.order ?? DEFAULT_ORDER) -
+              (b.input.order ?? DEFAULT_ORDER)
+          );
           sorted.push({ id: k, group: v });
         }
-        sorted.sort((a, b) => (a.group.order ?? 1) - (b.group.order ?? 1));
+        sorted.sort(
+          (a, b) =>
+            (a.group.order ?? DEFAULT_ORDER) - (b.group.order ?? DEFAULT_ORDER)
+        );
         return sorted;
       })(),
     };

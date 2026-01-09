@@ -22,6 +22,13 @@ p {
   @extend %button-primary;
   justify-content: flex-start;
   gap: $gutter-small;
+
+  .title {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .nodes {

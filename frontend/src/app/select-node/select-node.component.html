@@ -54,13 +54,28 @@
   <ng-container *ngFor="let c of nodes | groupNodes">
     <button class="category" (click)="toggle(c.category?._id)">
       <app-icon
-        class="icon left"
-        [icon]="state.currentGroup === c.category?._id ? 'minus' : 'plus'"
-        [size]="16"
+        *ngIf="c.category?.icon as icon"
+        class="icon"
+        [icon]="icon"
+        [size]="18"
       ></app-icon>
       <div class="stack horizontal justify-between flex">
-        {{ c.category?.title | i18n }}
-        <div class="badge ghost">{{ c.nodes.length }}</div>
+        <div class="title">
+          {{ c.category?.title | i18n }}
+        </div>
+
+        <div class="stack">
+          <div class="badge ghost">{{ c.nodes.length }}</div>
+          <app-icon
+            class="icon"
+            [icon]="
+              state.currentGroup === c.category?._id
+                ? 'chevron-up'
+                : 'chevron-down'
+            "
+            [size]="18"
+          ></app-icon>
+        </div>
       </div>
     </button>
     <div *ngIf="state.currentGroup === c.category?._id" class="cards nodes">

@@ -187,6 +187,63 @@ const routes: Routes = [
     component: SigupComponent,
   },
   {
+    path: "launches/:id",
+    component: EditPipelineVisualComponent,
+    data: {
+      project: null,
+      mode: "launch",
+    },
+    resolve: {
+      launch: LaunchResolver,
+    },
+    children: [
+      {
+        path: "nodes/:id",
+        outlet: "right",
+        component: NodeInLaunchComponent,
+        resolve: {
+          node: NodeFromLaunchResolver,
+        },
+        children: [
+          {
+            path: "",
+            component: NodeInputsComponent,
+          },
+          {
+            path: "state",
+            component: NodeStateComponent,
+          },
+          {
+            path: "logs",
+            component: NodeJobsComponent,
+          },
+          {
+            path: "jobs",
+            component: NodeJobsComponent,
+          },
+        ],
+      },
+      {
+        path: "outputs",
+        component: LaunchOutputsPageComponent,
+      },
+      {
+        path: "nested",
+        component: LaunchesPageComponent,
+        resolve: {
+          filter: NestedLaunchesFilterResolver,
+        },
+      },
+      {
+        path: "messages",
+        resolve: {
+          filter: LaunchMessagesFilterResolver,
+        },
+        component: PipelineMessagesComponent,
+      },
+    ],
+  },
+  {
     matcher: projectIdMatcher,
     component: ProjectComponent,
     canActivate: [SigninNeededGuard],
@@ -287,62 +344,6 @@ const routes: Routes = [
       {
         path: "assets",
         component: ProjectAssetsComponent,
-      },
-      {
-        path: "launches/:id",
-        component: EditPipelineVisualComponent,
-        data: {
-          project: null,
-          mode: "launch",
-        },
-        resolve: {
-          launch: LaunchResolver,
-        },
-        children: [
-          {
-            path: "nodes/:id",
-            component: NodeInLaunchComponent,
-            resolve: {
-              node: NodeFromLaunchResolver,
-            },
-            children: [
-              {
-                path: "",
-                component: NodeInputsComponent,
-              },
-              {
-                path: "state",
-                component: NodeStateComponent,
-              },
-              {
-                path: "logs",
-                component: NodeJobsComponent,
-              },
-              {
-                path: "jobs",
-                component: NodeJobsComponent,
-              },
-            ],
-          },
-          {
-            path: "outputs",
-            component: LaunchOutputsPageComponent,
-          },
-          {
-            path: "nested",
-            component: LaunchesPageComponent,
-            resolve: {
-              filter: NestedLaunchesFilterResolver,
-            },
-          },
-          {
-            path: "messages",
-            resolve: {
-              filter: LaunchMessagesFilterResolver,
-            },
-            component: PipelineMessagesComponent,
-          },
-        ],
       },
       {
         path: "",
