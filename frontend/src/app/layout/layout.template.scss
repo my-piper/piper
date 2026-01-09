@@ -21,8 +21,7 @@ header {
 
     .left {
         display: flex;
-        gap: $gutter-normal;
-        column-gap: $gutter-huge;
+        column-gap: $gutter-huge * 4;
         align-items: center;
 
         @include less-tablet() {

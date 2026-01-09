@@ -1,20 +1,27 @@
 @import "src/ui-kit/styles/variables";
 @import "src/ui-kit/styles/mixins";
 @import "src/ui-kit/styles/reset";
+@import "src/ui-kit/styles/defs/buttons";
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
+  gap: $gutter-huge;
+}
+
+p {
+  margin: 0;
+  font-size: $font-size-small;
 }
 
 .search {
   width: 100%;
 }
 
-h2 {
-  margin: 0;
-  font-size: $font-size-big;
+.category {
+  @extend %button-primary;
+  justify-content: flex-start;
+  gap: $gutter-small;
 }
 
 .nodes {

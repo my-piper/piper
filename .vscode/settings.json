@@ -30,7 +30,10 @@
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
   "editor.lineNumbers": "on",
-  "editor.rulers": [80, 120],
+  "editor.rulers": [
+    80,
+    120
+  ],
   "makefile.configureOnOpen": false,
   "angular.enable-strict-mode-prompt": false,
   "cSpell.words": [

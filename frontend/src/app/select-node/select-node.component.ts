@@ -39,6 +39,8 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
   @ViewChild("searchInput")
   searchInput!: ElementRef<HTMLInputElement>;
 
+  state: { currentGroup?: string } = {};
+
   constructor(
     private fb: FormBuilder,
     private http: HttpService,
@@ -106,5 +108,10 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
       },
       error: (err) => (this.error = err),
     });
+  }
+
+  toggle(group: string) {
+    this.state.currentGroup = this.state.currentGroup === group ? null : group;
+    this.cd.detectChanges();
   }
 }

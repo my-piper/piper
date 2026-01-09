@@ -9,7 +9,9 @@
     <table class="default">
       <thead>
         <th i18n="@@label.title">Node</th>
+        <th i18n="@@label.id">Id</th>
         <th i18n="@@label.category">Category</th>
+        <th i18n="@@label.package">Package</th>
         <th i18n="@@label.version" style="width: 100px">Version</th>
       </thead>
       <tbody>
@@ -27,8 +29,14 @@
             ></app-icon>
             {{ n.value.title | i18n }}
           </td>
+          <td title="Id" i18n-title="@@label.id">
+            {{ n.value.catalog?._id }}
+          </td>
           <td title="Category" i18n-title="@@label.category">
             {{ n.value.catalog?.category?.title | i18n }}
+          </td>
+          <td title="Package" i18n-title="@@label.package">
+            {{ n.value.catalog?.package }}
           </td>
           <td title="Version" i18n-title="@@label.version">
             {{ n.value.catalog?.version || "-" }}
