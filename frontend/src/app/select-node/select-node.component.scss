@@ -79,6 +79,14 @@ p {
       li {
         font-size: 0.85em;
         color: $primary-text-color;
+        &.free {
+          color: $success-color;
+          font-weight: bold;
+        }
+        &.cheap {
+          color: $accent-color;
+          font-weight: bold;
+        }
       }
     }
   }

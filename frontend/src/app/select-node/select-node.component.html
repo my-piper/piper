@@ -105,7 +105,13 @@
         </article>
         <footer>
           <ul *ngIf="node.tags as tags" class="tags">
-            <li *ngFor="let t of tags">#{{ t }}</li>
+            <li
+              *ngFor="let t of tags"
+              [class.cheap]="(t | i18n: 'en') === 'cheap'"
+              [class.free]="(t | i18n: 'en') === 'free'"
+            >
+              #{{ t | i18n }}
+            </li>
           </ul>
           <div class="version" *ngIf="userRole.admin | can | async">
             ver. {{ node.version }}
