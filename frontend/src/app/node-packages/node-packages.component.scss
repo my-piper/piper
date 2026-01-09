@@ -5,6 +5,12 @@
   display: block;
 }
 
+::ng-deep .popover {
+  p {
+    margin: 0;
+  }
+}
+
 .app-container {
   @include vertical-stack();
 }

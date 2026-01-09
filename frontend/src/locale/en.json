@@ -77,7 +77,7 @@
     "action.import": " Import ",
     "message.no_updates_for_package": "Package has no updates.",
     "action.update": " Update ",
-    "label.check_updates": "Please, check update.",
+    "label.check_updates": "Please, check updates.",
     "message.new_version": " New version {$INTERPOLATION}: ",
     "action.create": "Create",
     "link.import": " Import ",

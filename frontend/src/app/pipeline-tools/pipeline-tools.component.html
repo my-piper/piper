@@ -16,18 +16,19 @@
       </thead>
       <tbody>
         <tr *ngFor="let n of project.pipeline.nodes | keyvalue">
-          <td
-            title="Node"
-            i18n-title="@@label.title"
-            class="stack align-center"
-          >
+          <td title="Node" i18n-title="@@label.title" class="stack">
             <app-icon
               class="icon"
               [icon]="
                 (progress.published | includes: n.key) ? 'checked' : 'unchecked'
               "
             ></app-icon>
-            {{ n.value.title | i18n }}
+            <div class="stack vertical tiny">
+              <div>{{ n.value.title | i18n }}</div>
+              <ul class="tags">
+                <li *ngFor="let t of n?.value.tags">#{{ t | i18n }}</li>
+              </ul>
+            </div>
           </td>
           <td title="Id" i18n-title="@@label.id">
             {{ n.value.catalog?._id }}

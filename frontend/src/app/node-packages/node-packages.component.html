@@ -43,7 +43,7 @@
       </button>
     </header>
     <ng-template #noUpdatesTemplate>
-      <p i18n="@@label.check_updates">Please, check update.</p>
+      <p i18n="@@label.check_updates">Please, check updates.</p>
     </ng-template>
     <ul *ngIf="state?.updates.length; else noUpdatesTemplate">
       <li *ngFor="let update of state.updates">
