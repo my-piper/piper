@@ -18,6 +18,7 @@ api.get(
           projection: {
             _id: 1,
             title: 1,
+            createdBy: 1,
             pipeline: 1,
           },
         }

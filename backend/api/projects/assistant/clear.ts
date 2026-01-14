@@ -19,6 +19,7 @@ api.post(
             _id: 1,
             title: 1,
             pipeline: 1,
+            createdBy: 1,
           },
         }
       ),

@@ -65,11 +65,6 @@ api.patch(
 
     const update = new Project({
       revision: sid(),
-      // TODO: remove then
-      createdBy: (() => {
-        const { _id } = currentUser;
-        return new User({ _id });
-      })(),
       updatedBy: (() => {
         const { _id } = currentUser;
         return new User({ _id });
