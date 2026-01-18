@@ -15,7 +15,11 @@ import { Job } from "core-kit/packages/queue";
 import redis, { readInstance, saveInstance } from "core-kit/packages/redis";
 import sentry from "core-kit/packages/sentry";
 import { mapTo } from "core-kit/packages/transform";
-import { FatalError, TimeoutError } from "core-kit/types/errors";
+import {
+  FatalError,
+  MemoryLimitError,
+  TimeoutError,
+} from "core-kit/types/errors";
 import { NodeEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
@@ -79,7 +83,11 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
     queues.launches.errors.set.plan({ launch: launch._id });
   }
 
-  if (err instanceof FatalError || err instanceof TimeoutError) {
+  if (
+    err instanceof FatalError ||
+    err instanceof TimeoutError ||
+    err instanceof MemoryLimitError
+  ) {
     const key = PIPELINE_ERRORS(launch._id);
     await redis.lPush(key, err.message);
     await redis.expire(key, LAUNCH_EXPIRED);

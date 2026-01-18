@@ -10,6 +10,7 @@ import {
   NODE_FLOWS,
   NODE_INPUT,
   NODE_JOBS,
+  NODE_LOGS,
   NODE_OUTPUTS,
   NODE_PROCESSED_LOCK,
   NODE_PROCESSING_LOCK,
@@ -21,7 +22,7 @@ import {
 } from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
-import { Job } from "core-kit/packages/queue";
+import { DelayedError, Job } from "core-kit/packages/queue";
 import redis, {
   exists,
   lock,
@@ -32,20 +33,22 @@ import redis, {
   saveObject,
   unlock,
 } from "core-kit/packages/redis";
-import { mapTo, toPlain } from "core-kit/packages/transform";
-import { DataError, FatalError } from "core-kit/types/errors";
-import { differenceInSeconds } from "date-fns";
-import minutesToMilliseconds from "date-fns/fp/minutesToMilliseconds";
+import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
+import { differenceInSeconds, minutesToMilliseconds } from "date-fns";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
 import { NodeExecution } from "enums/node-execution";
 import { HeartbeatEvent, NodeEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
-import { NodeStatus } from "models/node";
-import { SourceTextModule } from "node:vm";
+import { NodeLog, NodeStatus } from "models/node";
+import {
+  execute,
+  ExecutionError,
+  ExecutionResult,
+  LogEntry,
+} from "packages/deno";
 import { plan } from "packages/nodes/plan-node";
-import { importModule } from "packages/vm/utils";
-import { NextNode, NodeInputs, NodeJobResult, RepeatNode } from "types/node";
+import { NextNode, NodeJobResult, RepeatNode } from "types/node";
 import { PipelineEventType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import {
@@ -55,10 +58,24 @@ import {
   getNodeInputs,
 } from "utils/node";
 import { toRedisValue } from "utils/redis";
-import { createContext } from "./context";
 import { getEnvironment } from "./environment";
 
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
+const RUN_FUNCTION_NAME = "run";
+
+function getTimeout(execution: NodeExecution): number {
+  switch (execution) {
+    case NodeExecution.rapid:
+      return secondsToMilliseconds(5);
+    case NodeExecution.deferred:
+      return minutesToMilliseconds(2);
+    case NodeExecution.protracted:
+      return minutesToMilliseconds(5);
+    case NodeExecution.regular:
+    default:
+      return secondsToMilliseconds(20);
+  }
+}
 
 export default async (nodeJob: ProcessNodeJob, job: Job) => {
   {
@@ -205,37 +222,12 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   logger.debug("Run node script");
 
-  const script = new SourceTextModule(node.script, {
-    context: await createContext({
-      job,
-      nodeJob,
-      launch,
-      node,
-      logger,
-    }),
-    importModuleDynamically: importModule,
-  });
-  await script.link(() => null);
-
-  let results: RepeatNode | NextNode | null = null;
+  let [results, logs]: [ExecutionResult, LogEntry[]] = [null, null];
   try {
-    await script.evaluate();
-    const { run: action } = script.namespace as {
-      run: (data: {
-        schema: { node: object };
-        env: object;
-        inputs: NodeInputs;
-        state: object | null;
-        signal: AbortSignal;
-      }) => Promise<NextNode | RepeatNode>;
-    };
-    if (typeof action !== "function") {
-      throw new FatalError("Function `run()` is not implemented");
-    }
-    const controller = new AbortController();
-    const { signal } = controller;
-    results = await Promise.race([
-      action({
+    results = await execute(
+      node.script,
+      RUN_FUNCTION_NAME,
+      {
         schema: {
           node: toPlain(node),
         },
@@ -250,34 +242,19 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
           });
           return toPlain(environment);
         })(),
-        signal,
-      }),
-      new Promise<never>((_, reject) => {
-        const timeout = (() => {
-          switch (node.execution) {
-            case NodeExecution.rapid:
-              return secondsToMilliseconds(5);
-            case NodeExecution.deferred:
-              return minutesToMilliseconds(2);
-            case NodeExecution.protracted:
-              return minutesToMilliseconds(5);
-            case NodeExecution.regular:
-            default:
-              return secondsToMilliseconds(20);
-          }
-        })();
-        logger.debug(`Execute node script in ${timeout / 1000}s timeout`);
-        setTimeout(() => {
-          controller.abort();
-          reject(
-            new DataError(`Execution timeout ${timeout / 1000}s exceeded`)
-          );
-        }, timeout);
-      }),
-    ]);
+      },
+      getTimeout(node.execution)
+    );
+    logs = results.logs;
   } catch (e) {
     logger.error(e);
     logger.error("Error while processing");
+
+    if (e instanceof ExecutionError) {
+      logs = e.logs;
+      throw e.typed();
+    }
+
     throw e;
   } finally {
     logger.debug("Release processing lock");
@@ -285,10 +262,26 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     logger.debug("Clear heartbeat timer");
     clearTimeout(timers.heartbeat);
+
+    if (logs?.length > 0) {
+      const key = NODE_LOGS(launch._id, nodeJob.node);
+      await redis.rPush(
+        key,
+        logs.map(({ message, level }) => {
+          const plain = toPlain(
+            mapTo({ message, level, attempt: attemptsMade }, NodeLog)
+          );
+          return JSON.stringify(plain);
+        })
+      );
+      await redis.expire(key, LAUNCH_EXPIRED);
+    }
   }
 
-  if (results instanceof RepeatNode) {
-    const { delay, progress, state } = results;
+  const { result } = results;
+
+  if (result?.["__type"] === "repeat") {
+    const { delay, progress, state } = toInstance(result as object, RepeatNode);
     if (!!state) {
       await saveObject(
         NODE_STATE(launch._id, nodeJob.node),
@@ -310,13 +303,13 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     logger.debug(`Node ${nodeJob.node} is going to repeat with delay ${delay}`);
     notifyNode(nodeJob.node, "node_gonna_repeat");
 
-    await plan(nodeJob.node, node, launch._id, {
-      delay: delay || 1000,
-    });
-
-    return NodeJobResult.NODE_IS_GOING_TO_REPEAT;
-  } else if (results instanceof NextNode) {
-    const { outputs, kicks, behavior, reset, delay } = results;
+    await job.moveToDelayed(Date.now() + (delay || 1000));
+    throw new DelayedError();
+  } else if (result?.["__type"] === "next") {
+    const { outputs, kicks, behavior, reset, delay } = toInstance(
+      result as object,
+      NextNode
+    );
 
     logger.debug(`Node behavior is ${behavior}`);
 
@@ -326,7 +319,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         outputs,
         node.outputs
       );
-      logger.debug("Converted outputs", converted);
+      logger.debug("Converted outputs");
 
       await redis.setEx(
         NODE_OUTPUTS(launch._id, nodeJob.node),
@@ -539,6 +532,6 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     return NodeJobResult.NODE_PROCESSED;
   } else {
-    throw new Error(`Wrong handler results ${results}`);
+    throw new Error(`Wrong handler results ${JSON.stringify(results)}`);
   }
 };

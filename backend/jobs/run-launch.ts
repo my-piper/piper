@@ -11,7 +11,9 @@ import { Launch } from "models/launch";
 import { kick } from "packages/launches";
 import { RunLaunchJobResult } from "types/launch";
 
-queues.launches.run.process(async (runJob) => {
+const REPEAT_DELAY = 5000;
+
+queues.launches.run.process(async (runJob, job) => {
   const logger = createLogger("run-launch", {
     launch: runJob.launch,
   });
@@ -40,7 +42,7 @@ queues.launches.run.process(async (runJob) => {
       const heartbeats = await multi.exec();
       const dead = queue.filter((_, i) => heartbeats[i] === 0);
       if (dead.length > 0) {
-        logger.debug(`Dead pipelines: ${dead.join(" | ")}`);
+        logger.debug(`Dead launches: ${dead.join(" | ")}`);
         await Promise.all(dead.map((id) => redis.lRem(scope.id, 0, id)));
       }
 
@@ -50,18 +52,15 @@ queues.launches.run.process(async (runJob) => {
 
         if (position >= scope.maxConcurrent - dead.length) {
           logger.debug("Continue wait in scope queue");
-          await queues.launches.run.plan(
-            { launch: runJob.launch, scope },
-            { delay: 5000 + random(1000, 3000) }
+          await job.moveToDelayed(
+            Date.now() + REPEAT_DELAY + random(1000, 3000)
           );
           return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
         }
       } else {
         logger.debug("Waiting in scope queue");
-        await queues.launches.run.plan(
-          { launch: runJob.launch, scope },
-          { delay: 10000 }
-        );
+
+        await job.moveToDelayed(Date.now() + 10000);
         return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
       }
     } else {

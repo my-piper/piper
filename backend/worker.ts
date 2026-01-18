@@ -1,7 +1,6 @@
 import "reflect-metadata";
 
 import { Command } from "commander";
-import { RELOAD_WORKER_CHANNEL } from "consts/signals";
 import { createLogger } from "core-kit/packages/logger";
 import { JobsQueue } from "core-kit/packages/queue";
 import redis from "core-kit/packages/redis";
@@ -192,12 +191,10 @@ const program = new Command();
 program
   .option("-w, --workers <items...>")
   .option("-h, --health")
-  .option("-i, --reboot")
   .parse(process.argv);
 
 const options = program.opts<{
   workers: string[];
-  reboot: boolean;
   health: boolean;
 }>();
 const workers = options.workers || Workers.keys();
@@ -217,7 +214,6 @@ for (const id of workers) {
 }
 
 let health: Server | null = null;
-let EXIT_CODE = 0;
 let shutting = false;
 const GRACEFUL_SHUTDOWN_TIMEOUT = 120;
 
@@ -240,7 +236,7 @@ const shutdown = async () => {
         promises.push(queue.queue.close());
       }
       return promises;
-    })()
+    })(),
   );
   logger.info("Queues are closed");
 
@@ -258,24 +254,9 @@ const shutdown = async () => {
       });
     });
   }
-  logger.info(
-    `Worker stopped with code ${EXIT_CODE}! See you on the flip side! 😉😘`
-  );
-  process.exit(EXIT_CODE);
+  logger.info(`Worker stopped! See you on the flip side! 😉😘`);
+  process.exit(0);
 };
-
-if (options.reboot) {
-  logger.info("Reboot activated");
-  const subscriber = redis.duplicate();
-  await subscriber.connect();
-  await subscriber.subscribe(RELOAD_WORKER_CHANNEL, () => {
-    logger.info("Received signal to reboot");
-    EXIT_CODE = 123;
-    const timeout = Math.round(Math.random() * 30) + 5;
-    logger.info(`Rebooting in ${timeout}s`);
-    setTimeout(() => shutdown(), secondsToMilliseconds(timeout));
-  });
-}
 
 process.on("uncaughtException", (error) => {
   logger.error("Uncaught exception");

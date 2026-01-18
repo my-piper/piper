@@ -1,9 +1,4 @@
-import {
-  Expose,
-  plainToInstance,
-  Transform,
-  Type,
-} from "core-kit/packages/transform";
+import { Expose, Transform, Type } from "core-kit/packages/transform";
 import { NodeProgress } from "models/node";
 import { mapTransformer, objectTransformer } from "transformers/object";
 import { Primitive } from "./primitive";
@@ -26,13 +21,6 @@ export class RepeatNode {
   @Expose()
   @Type(() => Number)
   delay?: number;
-
-  static from(obj: object) {
-    return plainToInstance(RepeatNode, obj, {
-      excludeExtraneousValues: false,
-      exposeUnsetFields: false,
-    });
-  }
 }
 
 export class ResetInputs {
@@ -45,10 +33,7 @@ export type NodeInputs = {
   [key: string]: Primitive | object;
 };
 
-export type NodeOutputs = Map<
-  string,
-  boolean | number | string | string[] | Buffer | Buffer[]
->;
+export type NodeOutputs = Map<string, boolean | number | string | string[]>;
 
 export class NextNode {
   @Expose()
@@ -64,7 +49,7 @@ export class NextNode {
   kicks: [];
 
   @Expose()
-  @Transform(mapTransformer<Primitive | Buffer>)
+  @Transform(mapTransformer<Primitive>)
   outputs: NodeOutputs;
 
   @Expose()
@@ -74,13 +59,6 @@ export class NextNode {
   @Expose()
   @Type(() => Number)
   costs!: number;
-
-  static from(obj: object) {
-    return plainToInstance(NextNode, obj, {
-      excludeExtraneousValues: false,
-      exposeUnsetFields: false,
-    });
-  }
 }
 
 export function Input(options: InputOptions = {}): PropertyDecorator {

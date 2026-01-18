@@ -368,10 +368,6 @@ export class NodeLog {
 
   @Expose()
   @Type(() => Number)
-  job: number;
-
-  @Expose()
-  @Type(() => Number)
   attempt: number;
 }
 

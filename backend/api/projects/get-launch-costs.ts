@@ -32,7 +32,7 @@ api.post(
     const launchRequest = toInstance(
       (() => {
         const request = toPlain(project.launchRequest);
-        if (!!body) {
+        if (body) {
           merge(request, body);
         }
         return request;

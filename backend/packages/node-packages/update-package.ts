@@ -50,8 +50,6 @@ export async function uploadPackage(nodePackage: NodePackage) {
     );
   }
 
-  console.log(nodePackage);
-
   const { _id, nodes } = nodePackage;
 
   if (nodes.size <= 0) {

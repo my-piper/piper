@@ -1,61 +1,40 @@
 import { createLogger } from "core-kit/packages/logger";
-import { mapTo, toPlain } from "core-kit/packages/transform";
-import { DataError } from "core-kit/types/errors";
+import { mapTo, toPlain, validate } from "core-kit/packages/transform";
 import { getEnvironment } from "jobs/process-node/environment";
 import assign from "lodash/assign";
 import { Environment } from "models/environment";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
 import { NodeCosts, Pipeline, PipelineCosts } from "models/pipeline";
 import { User } from "models/user";
-import {
-  Context,
-  createContext as createVmContext,
-  SourceTextModule,
-} from "node:vm";
-import { importModule, requireModule } from "packages/vm/utils";
+import { execute, ExecutionError } from "packages/deno";
 import { NodeInputs } from "types/node";
 import { Primitive } from "types/primitive";
 import { convertInputs } from "utils/node";
 
 const logger = createLogger("pipeline_costs");
 
+const COSTS_FUNCTION = "costs";
+
 async function run(
-  code: string,
+  script: string,
   { environment, inputs }: { environment?: Environment; inputs: NodeInputs }
 ): Promise<number | object> {
-  let script: SourceTextModule;
-  let context: Context;
   try {
-    logger.debug("Create VM context");
-    context = createVmContext({
-      require: requireModule,
-    });
-    logger.debug("Create module");
-    script = new SourceTextModule(code, {
-      context,
-      importModuleDynamically: importModule,
-    });
-    await script.link(() => null);
-    await script.evaluate();
-    const { costs: action } = script.namespace as {
-      costs: (data: {
-        env?: object;
-        inputs: NodeInputs;
-      }) => Promise<number | object>;
-    };
-    if (typeof action !== "function") {
-      return 0;
-    }
-    return await action({
-      ...(!!environment ? { env: toPlain(environment) } : {}),
-      inputs,
-    });
+    const { result, logs } = await execute(
+      script,
+      COSTS_FUNCTION,
+      {
+        ...(!!environment ? { env: toPlain(environment) } : {}),
+        inputs,
+      },
+      { timeout: 5_000, isolation: "none" }
+    );
+    return result as number | object;
   } catch (err) {
-    console.log(err);
+    if (err instanceof ExecutionError) {
+      logger.debug(err);
+    }
     return 0;
-  } finally {
-    logger.debug("Clear resource");
-    [context, script] = [null, null];
   }
 }
 
@@ -145,11 +124,10 @@ export async function getCosts(
               return { costs: costs as number };
             }
 
-            if (!("costs" in costs)) {
-              throw new DataError("Costs function should have [costs] field");
-            }
+            const nodeCosts = mapTo(costs as object, NodeCosts);
+            await validate(nodeCosts);
 
-            return mapTo(costs as object, NodeCosts);
+            return nodeCosts;
           })()),
         })
       );

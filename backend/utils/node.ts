@@ -3,6 +3,7 @@ import { plainToClass } from "class-transformer";
 import { NODE_INPUT, NODE_STATUS } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { DataError } from "core-kit/types/errors";
+import { dataUriToBuffer } from "data-uri-to-buffer";
 import { Launch } from "models/launch";
 import { Node, NodeInput, NodeOutput, NodeStatus } from "models/node";
 import { Pipeline } from "models/pipeline";
@@ -10,6 +11,7 @@ import { NodeInputs, NodeOutputs } from "types/node";
 import { PipelineIOType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import { fromRedisValue } from "utils/redis";
+import { isDataUri } from "./data-uri";
 import { getFileInfo } from "./files";
 import { sid } from "./string";
 import { downloadBinary } from "./web";
@@ -148,16 +150,20 @@ export const convertOutputs =
             case "archive":
             case "audio":
             case "video": {
-              if (typeof value === "object") {
-                const buffer = value as Buffer;
-                const fileName = [launch._id, node, key, sid(2)].join("_");
-                const { ext } = await getFileInfo(buffer);
-                results[key] = await storage.artefact(
-                  buffer,
-                  `${fileName}.${ext}`
-                );
-              } else if (typeof value === "string") {
-                results[key] = value;
+              if (typeof value === "string") {
+                if (isDataUri(value)) {
+                  // Handle data URI
+                  const { buffer } = dataUriToBuffer(value);
+                  const fileName = [launch._id, node, key, sid(2)].join("_");
+                  const { ext } = await getFileInfo(Buffer.from(buffer));
+                  results[key] = await storage.artefact(
+                    Buffer.from(buffer),
+                    `${fileName}.${ext}`
+                  );
+                } else {
+                  // Regular URL string
+                  results[key] = value;
+                }
               } else {
                 throw new Error(`Can't convert binary`);
               }
@@ -166,17 +172,23 @@ export const convertOutputs =
             case "image[]": {
               const urls = [];
               let index = 0;
-              type expect = Buffer | string;
-              for (const image of value as expect[]) {
-                if (typeof image === "object") {
-                  const buffer = image as Buffer;
-                  const fileName = [launch._id, node, key, index++].join("_");
-                  const { ext } = await getFileInfo(buffer);
-                  urls.push(
-                    await storage.artefact(buffer, `${fileName}.${ext}`)
-                  );
-                } else if (typeof image === "string") {
-                  urls.push(image);
+              for (const image of value as string[]) {
+                if (typeof image === "string") {
+                  if (isDataUri(image)) {
+                    // Handle data URI
+                    const { buffer } = dataUriToBuffer(image);
+                    const fileName = [launch._id, node, key, index++].join("_");
+                    const { ext } = await getFileInfo(Buffer.from(buffer));
+                    urls.push(
+                      await storage.artefact(
+                        Buffer.from(buffer),
+                        `${fileName}.${ext}`
+                      )
+                    );
+                  } else {
+                    // Regular URL string
+                    urls.push(image);
+                  }
                 } else {
                   throw new Error(`Can't convert image`);
                 }

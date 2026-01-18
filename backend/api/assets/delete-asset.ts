@@ -14,5 +14,5 @@ api.delete(
     }
 
     return null;
-  })
+  }),
 );

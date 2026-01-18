@@ -1,5 +1,10 @@
 import { UNIT_COST } from "consts/billing";
-import { Expose, Transform, Type } from "core-kit/packages/transform";
+import {
+  Expose,
+  IsNotEmpty,
+  Transform,
+  Type,
+} from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { Arrange } from "models/arrange";
 import { InputFlow } from "models/input-flow";
@@ -203,10 +208,12 @@ export class NodeCosts {
   @Type(() => String)
   node!: string;
 
+  @IsNotEmpty()
   @Expose()
   @Type(() => Number)
   costs!: number;
 
+  @IsNotEmpty()
   @Expose()
   @Type(() => String)
   details!: string;
@@ -245,7 +252,7 @@ export class PipelineCosts {
     if (!!this.nodes) {
       this.total += [...this.nodes.values()].reduce(
         (costs, n) => costs + n.costs,
-        0
+        0,
       );
     }
     return this;
