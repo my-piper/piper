@@ -1,3 +1,3 @@
 import env from "core-kit/env";
 
-export const DENO_URL = env["DENO_URL"] || "http://localhost:9090/";
+export const DENO_URL = env["DENO_URL"] || "http://deno/";
