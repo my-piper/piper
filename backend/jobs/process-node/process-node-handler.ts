@@ -34,7 +34,7 @@ import redis, {
   unlock,
 } from "core-kit/packages/redis";
 import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
-import { differenceInSeconds, minutesToMilliseconds } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
 import { NodeExecution } from "enums/node-execution";
 import { HeartbeatEvent, NodeEvent } from "models/events";
@@ -66,14 +66,14 @@ const RUN_FUNCTION_NAME = "run";
 function getTimeout(execution: NodeExecution): number {
   switch (execution) {
     case NodeExecution.rapid:
-      return secondsToMilliseconds(5);
+      return 3_000;
     case NodeExecution.deferred:
-      return minutesToMilliseconds(2);
+      return 60_000;
     case NodeExecution.protracted:
-      return minutesToMilliseconds(5);
+      return 300_000;
     case NodeExecution.regular:
     default:
-      return secondsToMilliseconds(20);
+      return 20_000;
   }
 }
 
@@ -243,7 +243,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
           return toPlain(environment);
         })(),
       },
-      getTimeout(node.execution)
+      { timeout: getTimeout(node.execution) }
     );
     logs = results.logs;
   } catch (e) {

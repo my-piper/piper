@@ -39,7 +39,7 @@ export class NodeAppComponent {
     private route: ActivatedRoute,
     private host: ElementRef,
     private renderer: Renderer2,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -49,23 +49,66 @@ export class NodeAppComponent {
     });
   }
 
-  async getApp(): Promise<string> {
+  private resolveUrl(url: string) {
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+
+    if (/^https?:\/\//i.test(this.node.app)) {
+      return new URL(url, this.node.app).toString();
+    }
+
+    return url;
+  }
+
+  private async getApp(): Promise<string> {
     if (/^http/.test(this.node.app)) {
       return await firstValueFrom(
         this.http
           .get("utils/fetch", { url: this.node.app }, { responseType: "text" })
-          .pipe(map((resp) => resp as string))
+          .pipe(map((resp) => resp as string)),
       );
     }
     return this.node.app;
   }
 
-  async build() {
+  async prepareApp() {
+    const html = await this.getApp();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    // Rewrite <link>
+    doc.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+      const rawHref = link.getAttribute("href");
+      if (!rawHref) return;
+      link.setAttribute("href", this.resolveUrl(rawHref));
+    });
+
+    // Rewrite <script src>
+    doc.querySelectorAll("script[src]").forEach((script) => {
+      const rawSrc = script.getAttribute("src");
+      if (!rawSrc) return;
+      script.setAttribute("src", this.resolveUrl(rawSrc));
+    });
+
+    // Rewrite images if needed
+    doc.querySelectorAll("img[src]").forEach((img) => {
+      const rawSrc = img.getAttribute("src");
+      if (!rawSrc) return;
+      img.setAttribute("src", this.resolveUrl(rawSrc));
+    });
+
+    return doc.documentElement.outerHTML;
+  }
+
+  private async build() {
     const { launchRequest } = this.project;
 
     const app = this.renderer.createElement("div");
     const appRoot = app.attachShadow({ mode: "open" });
-    this.renderer.setProperty(appRoot, "innerHTML", await this.getApp());
+
+    this.renderer.setProperty(appRoot, "innerHTML", await this.prepareApp());
     this.renderer.appendChild(this.host.nativeElement, app);
 
     const links = appRoot.querySelectorAll('link[rel="stylesheet"]');
@@ -130,7 +173,7 @@ export class NodeAppComponent {
     });
 
     const scripts: HTMLScriptElement[] = Array.from(
-      appRoot.querySelectorAll("script")
+      appRoot.querySelectorAll("script"),
     );
 
     for (const script of scripts) {
@@ -140,6 +183,7 @@ export class NodeAppComponent {
       }
 
       if (s.hasAttribute("src")) {
+        s.setAttribute("src", s.src);
         s.async = false;
       }
       if (!s.src) {
