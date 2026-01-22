@@ -243,7 +243,10 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
           return toPlain(environment);
         })(),
       },
-      { timeout: getTimeout(node.execution) }
+      {
+        timeout: getTimeout(node.execution),
+        isolation: node.sign ? "none" : "process",
+      }
     );
     logs = results.logs;
   } catch (e) {
