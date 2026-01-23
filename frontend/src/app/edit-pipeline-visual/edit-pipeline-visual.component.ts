@@ -132,7 +132,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
     private ajv: Ajv,
     private router: Router,
     private renderer: Renderer2,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -158,7 +158,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
       .pipe(
         map(() => this.drawlerRight.activatedRoute),
         filter(({ component }) => component === EditNodeInputsComponent),
-        switchMap(({ data }) => data)
+        switchMap(({ data }) => data),
       )
       .subscribe(({ node: { node } }) => (this.currentNode = node));
 
@@ -219,17 +219,31 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.progress.launching = true;
     this.cd.detectChanges();
 
+    const request = toInstance(
+      {
+        options: {
+          bucket: "output",
+        },
+      },
+      LaunchRequest,
+    );
+
     this.projectManager.status
       .pipe(
         filter((status) => status === null || status === "saved"),
         take(1),
-        switchMap(() => this.http.post(`projects/${this.project._id}/launch`)),
+        switchMap(() =>
+          this.http.post(
+            `projects/${this.project._id}/launch`,
+            toPlain(request),
+          ),
+        ),
         delay(UI_DELAY),
         finalize(() => {
           this.progress.launching = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Launch))
+        map((json) => toInstance(json as Object, Launch)),
       )
       .subscribe({
         next: (launch) => {
@@ -253,7 +267,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
         finalize(() => {
           this.progress.interrupting = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -272,11 +286,14 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
     const request = toInstance(
       {
+        options: {
+          bucket: "output",
+        },
         inclusive: {
           nodes: [node],
         },
       },
-      LaunchRequest
+      LaunchRequest,
     );
 
     this.projectManager.kick();
@@ -287,15 +304,15 @@ export class EditPipelineVisualComponent implements OnDestroy {
         switchMap(() =>
           this.http.post(
             `projects/${this.project._id}/launch`,
-            toPlain(request)
-          )
+            toPlain(request),
+          ),
         ),
         delay(UI_DELAY),
         finalize(() => {
           this.progress.nodes.launching[node] = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Launch))
+        map((json) => toInstance(json as Object, Launch)),
       )
       .subscribe({
         next: (launch) => {
@@ -365,7 +382,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
           finalize(() => {
             this.cd.detectChanges();
           }),
-          map((obj) => toInstance(obj as object, Node))
+          map((obj) => toInstance(obj as object, Node)),
         )
         .subscribe({
           next: (node) => {
@@ -454,7 +471,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
         to,
         input,
       },
-      NodeFlow
+      NodeFlow,
     );
 
     switch (o.type) {
@@ -517,8 +534,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
           to,
           input,
         },
-        InputFlow
-      )
+        InputFlow,
+      ),
     );
     this.save();
   }
@@ -609,7 +626,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
       new InputFlow({
         to: node.id,
         input: input.id,
-      })
+      }),
     );
 
     const { x, y } = node.node.arrange;
@@ -640,7 +657,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
           x: x - 100,
           y: y,
         }),
-      })
+      }),
     );
     this.cd.detectChanges();
     this.save();
@@ -662,7 +679,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
       new OutputFlow({
         from: node.id,
         output: output.id,
-      })
+      }),
     );
 
     const { x, y } = node.node.arrange;
@@ -682,7 +699,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
           x: x + UI.node.width + 100,
           y: y + 10,
         }),
-      })
+      }),
     );
     this.cd.detectChanges();
     this.save();
@@ -712,14 +729,14 @@ export class EditPipelineVisualComponent implements OnDestroy {
           ],
           {
             relativeTo: this.route,
-          }
+          },
         );
       } else {
         this.router.navigate(
           [{ outlets: { right: ["nodes", id], left: null } }],
           {
             relativeTo: this.route,
-          }
+          },
         );
       }
     } else {
@@ -802,7 +819,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
                         y: random(100, 200),
                       },
                     },
-                    Node
+                    Node,
                   );
                   const id = [node._id || "imported", sid()].join("_");
                   this.pipeline.nodes.set(id, node);

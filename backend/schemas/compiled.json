@@ -6385,6 +6385,15 @@
 			"launchRequest": {
 				"type": "object",
 				"properties": {
+					"options": {
+						"type": "object",
+						"properties": {
+							"saveArtefacts": {
+								"type": "boolean"
+							}
+						},
+						"additionalProperties": false
+					},
 					"inclusive": {
 						"type": "object",
 						"properties": {
@@ -6481,6 +6490,15 @@
 	"launchRequest": {
 		"type": "object",
 		"properties": {
+			"options": {
+				"type": "object",
+				"properties": {
+					"saveArtefacts": {
+						"type": "boolean"
+					}
+				},
+				"additionalProperties": false
+			},
 			"inclusive": {
 				"type": "object",
 				"properties": {

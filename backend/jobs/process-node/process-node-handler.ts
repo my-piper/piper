@@ -318,10 +318,11 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     let converted: { [key: string]: Primitive } = {};
     if (!!outputs) {
-      converted = await convertOutputs({ launch, node: nodeJob.node })(
-        outputs,
-        node.outputs
-      );
+      converted = await convertOutputs({
+        launch,
+        node: nodeJob.node,
+        bucket: launchRequest.options?.bucket,
+      })(outputs, node.outputs);
       logger.debug("Converted outputs");
 
       await redis.setEx(

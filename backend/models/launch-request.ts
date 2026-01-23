@@ -1,11 +1,19 @@
 import { Expose, Transform } from "class-transformer";
-import { IsNotEmpty } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional } from "class-validator";
 import { Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import merge from "lodash/merge";
 import { objectsMapTransformer } from "transformers/map";
 import { primitiveMapTransformer } from "transformers/primitive";
 import { PrimitiveMap } from "types/primitive";
+
+export class LaunchOptions {
+  @Expose()
+  @IsOptional()
+  @IsEnum(["artefact", "output", null])
+  @Type(() => String)
+  bucket: "artefact" | "output" | null;
+}
 
 export class Inclusive {
   @Expose()
@@ -28,6 +36,10 @@ export class NodeToLaunch {
 }
 
 export class LaunchRequest {
+  @Expose()
+  @Type(() => LaunchOptions)
+  options!: LaunchOptions;
+
   @Expose()
   @Type(() => Inclusive)
   inclusive!: Inclusive;

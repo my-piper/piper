@@ -5,6 +5,12 @@ import assign from "lodash/assign";
 import { primitiveMapTransformer } from "src/transformers/primitive";
 import { PrimitiveMap } from "src/types/primitive";
 
+export class LaunchOptions {
+  @Expose()
+  @Type(() => String)
+  bucket: "artefact" | "output" | null;
+}
+
 export class Inclusive {
   @Expose()
   @Type(() => String)
@@ -26,6 +32,10 @@ export class NodeToLaunch {
 }
 
 export class LaunchRequest {
+  @Expose()
+  @Type(() => LaunchOptions)
+  options!: LaunchOptions;
+
   @Expose()
   @Type(() => Inclusive)
   inclusive!: Inclusive;
