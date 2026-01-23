@@ -4,7 +4,7 @@ import { MIN_BALANCE_FOR_TRACK, TRACK_BALANCE } from "consts/billing";
 import { ACCRUED_USER_BALANCE } from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
 import { evalScript } from "core-kit/packages/redis";
-import { toInstance, toPlain } from "core-kit/packages/transform";
+import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import merge from "lodash/merge";
 import { LaunchOptions } from "models/launch";
@@ -67,6 +67,8 @@ api.post(
       merge(toPlain(projectLaunchRequest), body),
       LaunchRequest
     );
+
+    await validate(launchRequest);
 
     if (TRACK_BALANCE) {
       const remaining = currentUser.balance?.remaining || 0;
