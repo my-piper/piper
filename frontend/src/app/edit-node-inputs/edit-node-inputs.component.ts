@@ -55,7 +55,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
     private projectManager: ProjectManager,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {
     super();
   }
@@ -71,7 +71,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
     this.projectManager.updates
       .pipe(
         takeUntil(this.destroyed$),
-        filter((initiator) => initiator !== this)
+        filter((initiator) => initiator !== this),
       )
       .subscribe(() => {
         this.node.build();
@@ -84,7 +84,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
     this.subscriptions.changes?.unsubscribe();
     Object.keys(this.inputsGroup.controls).forEach((key) =>
-      this.inputsGroup.removeControl(key)
+      this.inputsGroup.removeControl(key),
     );
     const { pipeline, launchRequest } = this.project;
     for (const [k, input] of this.node.inputs) {
@@ -113,7 +113,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
     });
 
     this.subscriptions.changes = this.form.valueChanges.subscribe(() =>
-      this.save()
+      this.save(),
     );
   }
 
@@ -199,7 +199,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
           return max;
         }
 
-        const index = i.dynamic.index || 0;
+        const index = i.dynamic?.index || 0;
         return index > max ? index : max;
       }, 0) + 1;
 
@@ -214,7 +214,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
     this.node.inputs.set(
       id.replaceAll(DYNAMIC_PLACEHOLDER, index.toString()),
-      cloned
+      cloned,
     );
 
     this.node.build();
@@ -246,7 +246,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
     this.references.popover?.hide();
     this.router.navigate(
       [{ outlets: { primary: ["nodes", this.id, "edit", "script"] } }],
-      { relativeTo: this.route.parent }
+      { relativeTo: this.route.parent },
     );
   }
 
