@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
+import { assign } from "lodash";
 import { LaunchRequest } from "src/models/launch-request";
 import { NodeInput } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
@@ -13,6 +14,8 @@ import { ProjectManager } from "src/services/project.manager";
 })
 export class EditFlowTransformerComponent implements OnInit {
   _flow!: NodeFlow;
+
+  instances = { popover: null as any };
 
   @Input()
   project!: Project;
@@ -40,13 +43,15 @@ export class EditFlowTransformerComponent implements OnInit {
   to!: { id: string; node: NodeInput };
 
   indexControl = this.fb.control<number>(0);
+  pathControl = this.fb.control<string>(null);
   form = this.fb.group({
     index: this.indexControl,
+    path: this.pathControl,
   });
 
   constructor(
     private fb: FormBuilder,
-    private projectManager: ProjectManager
+    private projectManager: ProjectManager,
   ) {}
 
   ngOnInit() {
@@ -55,9 +60,9 @@ export class EditFlowTransformerComponent implements OnInit {
 
   build() {
     const {
-      transformer: { index },
+      transformer: { index, path },
     } = this.flow;
-    this.form.patchValue({ index }, { emitEvent: false });
+    this.form.patchValue({ index, path }, { emitEvent: false });
   }
 
   down() {
@@ -82,9 +87,14 @@ export class EditFlowTransformerComponent implements OnInit {
     }
   }
 
+  setPath(path: string) {
+    this.pathControl.setValue(path);
+    this.instances.popover?.hide();
+  }
+
   save() {
-    const { index } = this.form.getRawValue();
-    this.flow.transformer.index = index;
+    const { index, path } = this.form.getRawValue();
+    assign(this.flow.transformer, { index, path });
 
     this.projectManager.markDirty();
   }

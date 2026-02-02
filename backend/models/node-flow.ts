@@ -3,11 +3,15 @@ import { Expose, Type } from "core-kit/packages/transform";
 export class FlowTransformer {
   @Expose()
   @Type(() => String)
-  type!: "array";
+  type!: "array" | "json";
 
   @Expose()
   @Type(() => Number)
   index!: number;
+
+  @Expose()
+  @Type(() => String)
+  path!: string;
 }
 
 export class NodeFlow {

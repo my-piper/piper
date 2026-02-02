@@ -37,6 +37,7 @@ import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
 import { differenceInSeconds } from "date-fns";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
 import { NodeExecution } from "enums/node-execution";
+import get from "lodash/get";
 import { HeartbeatEvent, NodeEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
@@ -381,6 +382,55 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
               );
 
             switch (flow.transformer?.type) {
+              case "json": {
+                const { path } = flow.transformer;
+                if (!!path) {
+                  let json: object = null;
+
+                  try {
+                    json = JSON.parse(value as string) as object;
+                  } catch (e) {
+                    logger.error(e);
+                    break;
+                  }
+
+                  const fromPath = get(json, path);
+                  if (fromPath !== undefined) {
+                    switch (input.type) {
+                      case "boolean":
+                        await setNodeInputValue(Boolean(fromPath));
+                        break;
+                      case "integer":
+                        if (typeof fromPath === "number") {
+                          await setNodeInputValue(fromPath);
+                        } else if (typeof fromPath === "string") {
+                          await setNodeInputValue(parseInt(fromPath));
+                        }
+                        break;
+                      case "float":
+                        if (typeof fromPath === "number") {
+                          await setNodeInputValue(fromPath);
+                        } else if (typeof fromPath === "string") {
+                          await setNodeInputValue(parseFloat(fromPath));
+                        }
+                        break;
+                      case "string":
+                        if (typeof fromPath === "string") {
+                          await setNodeInputValue(fromPath);
+                        } else if (typeof fromPath === "number") {
+                          await setNodeInputValue(fromPath.toString());
+                        }
+                        break;
+                      case "json":
+                        if (typeof fromPath === "object") {
+                          await setNodeInputValue(JSON.stringify(fromPath));
+                        }
+                        break;
+                    }
+                  }
+                }
+                break;
+              }
               case "array": {
                 switch (output.type) {
                   case "image[]":
@@ -392,7 +442,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
                         const array = (value as string).split("|");
                         const element =
                           array[Math.min(array.length - 1, index)] || null;
-                        setNodeInputValue(element);
+                        await setNodeInputValue(element);
                         break;
                     }
                     break;
@@ -400,7 +450,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
                 break;
               }
               default: {
-                setNodeInputValue(value);
+                await setNodeInputValue(value);
               }
             }
           }

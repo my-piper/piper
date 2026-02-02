@@ -476,10 +476,22 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
     switch (o.type) {
       case "json":
-        console.log(o.schema, ">", i.schema?.id);
-        if (i.type !== "json" || o.schema !== i.schema?.id) {
-          return;
+        switch (i.type) {
+          case "string":
+          case "integer":
+          case "float":
+          case "boolean":
+            assign(flow, {
+              transformer: mapTo({ type: "json" }, FlowTransformer),
+            });
+            break;
+          default:
+            console.log(o.schema, ">", i.schema?.id);
+            if (i.type !== "json" || o.schema !== i.schema?.id) {
+              return;
+            }
         }
+
         break;
       case "image":
         switch (i.type) {

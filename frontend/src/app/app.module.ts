@@ -59,8 +59,10 @@ import {
 } from "src/pipes/node";
 import { NotPipe } from "src/pipes/not";
 import { NsfwPipe } from "src/pipes/nsfw";
+import { ObjectPathsPipe } from "src/pipes/object-paths";
 import { OrderByPipe } from "src/pipes/order-by";
 import { PipelineOutputPipe } from "src/pipes/output";
+import { ParseJsonPipe } from "src/pipes/parse-json";
 import { GetPercentPipe } from "src/pipes/percents";
 import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
@@ -278,6 +280,8 @@ import { UsersComponent } from "./users/users.component";
     ProjectArtefactsComponent,
     InputFlowsPipe,
     LaunchHeartbeatPipe,
+    ObjectPathsPipe,
+    ParseJsonPipe,
   ],
   imports: [
     BrowserModule,

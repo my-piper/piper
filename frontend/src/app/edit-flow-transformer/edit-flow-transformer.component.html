@@ -36,4 +36,25 @@
       </button>
     </fieldset>
   </form>
+  <div *ngSwitchCase="'json'" class="json">
+    <ng-template #jsonTransformerTemplate>
+      <ng-container
+        *ngIf="
+          launchRequest.nodes.get(from.id)?.outputs?.get(flow.output) as json
+        "
+      >
+        <ul class="paths">
+          <li *ngFor="let path of json | parseJson | objectPaths">
+            <a (click)="setPath(path)">{{ path }}</a>
+          </li>
+        </ul>
+      </ng-container>
+    </ng-template>
+    <button
+      [appPopover]="{ content: jsonTransformerTemplate, trigger: 'click' }"
+      (attached)="instances.popover = $event"
+    >
+      {{ pathControl.value || "JSON" }}
+    </button>
+  </div>
 </ng-container>

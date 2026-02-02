@@ -1,7 +1,8 @@
 @import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/reset";
 
 :host {
-  display: block;
+  display: flex;
 }
 
 .array {
@@ -24,5 +25,39 @@
     min-width: 30px;
     min-height: 30px;
     background: white;
+  }
+}
+
+.json {
+  display: flex;
+  button {
+    @include reset-button();
+    color: $primary-text-color;
+    font-size: 0.65em;
+    font-family: $monospace-font-family;
+    max-width: 100px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+::ng-deep .popover {
+  .paths {
+    list-style: none;
+    margin: 0;
+    padding: 0 $gutter-small 0;
+    font-size: 0.75em;
+    font-family: $monospace-font-family;
+    max-height: 200px;
+    overflow: auto;
+    li {
+      a {
+        opacity: 0.75;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
   }
 }

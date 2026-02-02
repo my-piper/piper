@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { diff } from "jsondiffpatch";
+import { get } from "lodash";
 import assign from "lodash/assign";
 import {
   BehaviorSubject,
@@ -147,6 +148,55 @@ function sanitize(project: Project) {
         nodeToLaunch.inputs.set(flow.input, value);
       };
       switch (flow.transformer?.type) {
+        case "json": {
+          const { path } = flow.transformer;
+          if (!!path) {
+            let json: object = null;
+
+            try {
+              json = JSON.parse(value as string) as object;
+            } catch (e) {
+              logger.error(e);
+              break;
+            }
+
+            const fromPath = get(json, path);
+            if (fromPath !== undefined) {
+              switch (input.type) {
+                case "boolean":
+                  setNodeInputValue(Boolean(fromPath));
+                  break;
+                case "integer":
+                  if (typeof fromPath === "number") {
+                    setNodeInputValue(fromPath);
+                  } else if (typeof fromPath === "string") {
+                    setNodeInputValue(parseInt(fromPath));
+                  }
+                  break;
+                case "float":
+                  if (typeof fromPath === "number") {
+                    setNodeInputValue(fromPath);
+                  } else if (typeof fromPath === "string") {
+                    setNodeInputValue(parseFloat(fromPath));
+                  }
+                  break;
+                case "string":
+                  if (typeof fromPath === "string") {
+                    setNodeInputValue(fromPath);
+                  } else if (typeof fromPath === "number") {
+                    setNodeInputValue(fromPath.toString());
+                  }
+                  break;
+                case "json":
+                  if (typeof fromPath === "object") {
+                    setNodeInputValue(JSON.stringify(fromPath));
+                  }
+                  break;
+              }
+            }
+          }
+          break;
+        }
         case "array": {
           switch (output.type) {
             case "image[]":
@@ -239,7 +289,7 @@ export class ProjectManager {
           logger.debug("Delayed update");
           update(initiator);
         }),
-        debounceTime(3000)
+        debounceTime(3000),
       )
       .subscribe(() => this.save());
   }
@@ -300,7 +350,7 @@ export class ProjectManager {
       .patch(`projects/${id}/patch/${revision}`, update)
       .pipe(
         delay(UI_DELAY),
-        map((json) => toInstance(json as object, Project))
+        map((json) => toInstance(json as object, Project)),
       )
       .subscribe({
         next: ({ revision }) => {

@@ -5,6 +5,10 @@
     "source.organizeImports": "explicit",
     "source.fixAll.eslint": "explicit"
   },
+  "editor.rulers": [80, 120],
+
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
 
   "eslint.enable": true,
   "eslint.workingDirectories": [
@@ -17,8 +21,55 @@
     "typescript",
     "typescriptreact"
   ],
+  "eslint.run": "onType",
+  "eslint.lintTask.enable": true,
 
   "prettier.enable": true,
   "prettier.configPath": null,
-  "prettier.requireConfig": false
+  "prettier.requireConfig": false,
+  "prettier.useEditorConfig": false,
+
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[dockercompose]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "makefile.configureOnOpen": false,
+
+  "git.experimental.generateCommitMessagePrompt": "",
+  "github.copilot.chat.commitMessageGeneration.instructions": [],
+
+  "cSpell.words": [
+    "ARTEFACTS",
+    "bandbool",
+    "CLICKHOUSE",
+    "consts",
+    "greyscale",
+    "loras",
+    "nocodb",
+    "Partitioner",
+    "Partitioners",
+    "replenishments",
+    "unflatten"
+  ]
 }

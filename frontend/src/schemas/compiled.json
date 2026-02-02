@@ -2781,11 +2781,15 @@
 								"type": {
 									"type": "string",
 									"enum": [
-										"array"
+										"array",
+										"json"
 									]
 								},
 								"index": {
 									"type": "number"
+								},
+								"path": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -4098,11 +4102,15 @@
 							"type": {
 								"type": "string",
 								"enum": [
-									"array"
+									"array",
+									"json"
 								]
 							},
 							"index": {
 								"type": "number"
+							},
+							"path": {
+								"type": "string"
 							}
 						},
 						"required": [
@@ -4824,11 +4832,15 @@
 										"type": {
 											"type": "string",
 											"enum": [
-												"array"
+												"array",
+												"json"
 											]
 										},
 										"index": {
 											"type": "number"
+										},
+										"path": {
+											"type": "string"
 										}
 									},
 									"required": [
@@ -6141,11 +6153,15 @@
 									"type": {
 										"type": "string",
 										"enum": [
-											"array"
+											"array",
+											"json"
 										]
 									},
 									"index": {
 										"type": "number"
+									},
+									"path": {
+										"type": "string"
 									}
 								},
 								"required": [
