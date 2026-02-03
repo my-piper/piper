@@ -1,5 +1,5 @@
-@import 'src/ui-kit/styles/variables';
-@import 'src/ui-kit/styles/mixins';
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
 
 :host {
   display: block;
@@ -15,7 +15,7 @@ video {
   @include placeholder();
 
   display: block;
-  min-height: 300px;
+  min-height: 100px;
   min-width: 300px;
   max-width: 100%;
   max-height: 80vh;
