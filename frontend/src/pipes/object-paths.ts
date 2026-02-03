@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from "@angular/core";
 import { isArray, isPlainObject } from "lodash";
 
-function objectPaths(value: unknown, prefix: string = null): string[] {
+function objectPaths(value: any, prefix: string = ""): string[] {
   if (isArray(value)) {
     return value.flatMap((v, i) => objectPaths(v, `${prefix}[${i}]`));
   }
