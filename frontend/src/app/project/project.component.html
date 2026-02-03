@@ -45,8 +45,8 @@
 </ng-template>
 
 <header>
-  <div class="stack justify-between">
-    <div class="stack align-center">
+  <div class="stack">
+    <div class="stack align-center flex">
       <a class="circle" [routerLink]="['..']">
         <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
       </a>
@@ -66,8 +66,11 @@
       >
         <app-icon class="icon" [icon]="'share'"></app-icon>
       </button>
-      <div class="title">
-        <h1>{{ project.title | i18n }}</h1>
+      <div class="title" [formGroup]="form">
+        <input
+          [class.error]="form | invalidField: 'name'"
+          formControlName="name"
+        />
         <small *ngIf="pipeline.description as description">{{
           description | i18n
         }}</small>

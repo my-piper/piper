@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, OnInit } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import assign from "lodash/assign";
-import { delay, finalize, map, takeUntil } from "rxjs";
+import { debounceTime, delay, finalize, map, takeUntil } from "rxjs";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { AppConfig } from "src/models/app-config";
 import { Pipeline } from "src/models/pipeline";
@@ -10,7 +11,10 @@ import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { Languages } from "src/ui-kit/enums/languages";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
+import { getLabel } from "src/ui-kit/utils/i18n";
 import { toInstance } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
@@ -32,13 +36,19 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   references: { popover: PopoverComponent | null } = { popover: null };
   child!: unknown;
 
+  form = this.fb.group({
+    name: this.fb.control<string>(null, [Validators.required]),
+  });
+
   constructor(
+    @Inject(CURRENT_LANGUAGE) public language: Languages,
     public projectManager: ProjectManager,
     private http: HttpService,
     public config: AppConfig,
     private router: Router,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private fb: FormBuilder,
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }
@@ -46,6 +56,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   ngOnInit() {
     this.route.data.subscribe(({ project }) => {
       [this.project, this.pipeline] = [project, project.pipeline];
+      this.build();
     });
 
     this.projectManager.error
@@ -55,10 +66,27 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
     this.projectManager.updates
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => this.cd.detectChanges());
+
+    this.form.valueChanges
+      .pipe(takeUntil(this.destroyed$), debounceTime(300))
+      .subscribe(({ name }) => {
+        if (
+          this.form.valid &&
+          name !== getLabel(this.pipeline.name, this.language)
+        ) {
+          assign(this.pipeline, { name });
+          this.projectManager.markDirty();
+        }
+      });
   }
 
   override ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  build() {
+    const { name } = this.pipeline;
+    this.form.patchValue({ name: getLabel(name, this.language) });
   }
 
   updated(project: Project) {
@@ -79,7 +107,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
           this.progress.cloning = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, Project))
+        map((json) => toInstance(json as object, Project)),
       )
       .subscribe((project) => {
         this.router.navigate(["/projects", project._id]);

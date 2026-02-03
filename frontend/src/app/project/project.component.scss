@@ -1,5 +1,6 @@
 @import "src/ui-kit/styles/variables";
 @import "src/ui-kit/styles/mixins";
+@import "src/ui-kit/styles/reset";
 
 :host {
   display: flex;
@@ -17,18 +18,22 @@ header {
   .title {
     display: flex;
     flex-direction: column;
+    flex: 1;
 
-    h1 {
-      font-size: $font-size-big;
-      margin: 0;
-      line-height: 1em;
+    input {
+      @include reset-input();
+      font-size: $font-size-large;
+      font-weight: $font-weight-bold;
+      &.error {
+        border-bottom: 1px dotted $error-color;
+      }
     }
   }
 
   .status {
     @keyframes saving-animation {
       0% {
-        opacity: .5;
+        opacity: 0.5;
       }
 
       100% {
@@ -36,19 +41,19 @@ header {
       }
     }
 
-    &[data-status=dirty] {
-      opacity: .3;
+    &[data-status="dirty"] {
+      opacity: 0.3;
     }
 
-    &[data-status=saving] {
+    &[data-status="saving"] {
       animation: saving-animation 500ms infinite alternate ease-in-out;
     }
 
-    &[data-status=saved] {
+    &[data-status="saved"] {
       opacity: 0;
     }
 
-    &[data-status=error] {
+    &[data-status="error"] {
       stroke: $error-color;
     }
   }
