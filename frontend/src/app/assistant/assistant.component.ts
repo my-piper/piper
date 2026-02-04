@@ -10,6 +10,7 @@ import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { sid } from "src/ui-kit/utils/string";
 import { toInstance, toPlain } from "src/utils/models";
 import { getMergedData } from "../utils/route";
 
@@ -37,7 +38,7 @@ export class AssistantComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -69,8 +70,8 @@ export class AssistantComponent implements OnInit {
           this.cd.detectChanges();
         }),
         map((json) =>
-          (json as object[]).map((j: Object) => toInstance(j, ChatMessage))
-        )
+          (json as object[]).map((j: Object) => toInstance(j, ChatMessage)),
+        ),
       )
       .subscribe((messages) => {
         this.messages = messages;
@@ -84,7 +85,7 @@ export class AssistantComponent implements OnInit {
 
     setTimeout(() => {
       this.messages.push(
-        toInstance({ from: "user", message: question }, ChatMessage)
+        toInstance({ from: "user", message: question }, ChatMessage),
       );
       this.questionControl.setValue(null);
       this.questionControl.enable();
@@ -95,7 +96,7 @@ export class AssistantComponent implements OnInit {
         activeNode: this.node?.id,
         question,
       },
-      AssistantRequest
+      AssistantRequest,
     );
 
     this.progress.sending = true;
@@ -108,18 +109,34 @@ export class AssistantComponent implements OnInit {
           this.progress.sending = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, ChatMessage))
+        map((json) => toInstance(json as Object, ChatMessage)),
       )
       .subscribe((message) => {
         this.messages.push(message);
         const { changes } = message;
         if (!!changes) {
           const {
-            pipeline: { nodes, flows },
+            pipeline: { layout, nodes, flows },
           } = this.project;
 
-          for (const { action, data } of changes) {
+          for (const { action, catalog, data } of changes) {
             switch (action) {
+              case "add_node_from_catalog": {
+                this.http
+                  .get(`nodes/${catalog.id}`)
+                  .pipe(map((obj) => toInstance(obj as object, Node)))
+                  .subscribe({
+                    next: (node) => {
+                      const id = `${node._id}_${sid()}`;
+                      nodes.set(id, node);
+                      const left = layout.left + Math.random() * 400 + 100;
+                      const top = layout.top + Math.random() * 400 + 100;
+                      assign(node.arrange, { x: left, y: top });
+                    },
+                    error: (err) => (this.error = err),
+                  });
+                break;
+              }
               case "add_node": {
                 const node = toInstance(data.json, Node);
                 nodes.set(data.id, node);
@@ -161,7 +178,7 @@ export class AssistantComponent implements OnInit {
         finalize(() => {
           this.progress.clearing = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe(() => {
         this.messages = [];

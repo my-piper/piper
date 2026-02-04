@@ -17,6 +17,12 @@ export class AssistantRequest {
   question!: string;
 }
 
+export class Catalog {
+  @Expose()
+  @Type(() => String)
+  id!: string;
+}
+
 export class ChangeData {
   @Expose()
   @Type(() => String)
@@ -30,7 +36,16 @@ export class ChangeData {
 export class PipelineChange {
   @Expose()
   @Type(() => String)
-  action!: "add_node" | "remove_node" | "replace_node" | "add_flow";
+  action!:
+    | "add_node_from_catalog"
+    | "add_node"
+    | "remove_node"
+    | "replace_node"
+    | "add_flow";
+
+  @Expose()
+  @Type(() => Catalog)
+  catalog!: Catalog;
 
   @Expose()
   @Type(() => ChangeData)

@@ -12,6 +12,7 @@ import {
 import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { Node } from "models/node";
+import { NodeFlow } from "models/node-flow";
 import { Project } from "models/project";
 import { generateSign } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
@@ -97,7 +98,7 @@ api.post(
       choices: [{ message }],
     } = ask;
 
-    console.log(message);
+    console.log(JSON.stringify(message, null, "\t"));
 
     await mongo.chatMessages.insertOne(
       toPlain(
@@ -166,12 +167,12 @@ api.post(
                 data.json = toPlain(node);
                 break;
               }
-
+              case "add_node_from_catalog":
               case "remove_node":
                 break;
               case "add_flow": {
-                const flow = toInstance(data.json, Node);
-                const validate = ajv.compile(SCHEMAS.node);
+                const flow = toInstance(data.json, NodeFlow);
+                const validate = ajv.compile(SCHEMAS.flow);
                 if (!validate(flow)) {
                   const { errors } = validate;
                   throw new DataError(

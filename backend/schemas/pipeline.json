@@ -102,7 +102,7 @@
     "flows": {
       "type": "object",
       "additionalProperties": {
-        "$ref": "#/definitions/NodeFlow"
+        "$ref": "local://flow.json"
       }
     },
     "nodes": {
@@ -199,49 +199,6 @@
         }
       },
       "required": ["slug"],
-      "additionalProperties": false
-    },
-    "NodeFlow": {
-      "type": "object",
-      "properties": {
-        "from": {
-          "type": "string"
-        },
-        "output": {
-          "type": "string"
-        },
-        "to": {
-          "type": "string"
-        },
-        "input": {
-          "type": "string"
-        },
-        "color": {
-          "type": "string"
-        },
-        "mode": {
-          "type": "string",
-          "enum": ["wait", "move"]
-        },
-        "transformer": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": ["array", "json"]
-            },
-            "index": {
-              "type": "number"
-            },
-            "path": {
-              "type": "string"
-            }
-          },
-          "required": ["type"],
-          "additionalProperties": false
-        }
-      },
-      "required": ["from", "output", "to", "input"],
       "additionalProperties": false
     },
     "InputFlow": {

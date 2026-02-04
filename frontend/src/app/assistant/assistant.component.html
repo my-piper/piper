@@ -9,6 +9,12 @@
         <ul *ngIf="m.changes?.length > 0">
           <li *ngFor="let c of m.changes">
             <ng-container [ngSwitch]="c.action">
+              <ng-container
+                *ngSwitchCase="'add_node_from_catalog'"
+                i18n="@@action.add_node"
+              >
+                Add node
+              </ng-container>
               <ng-container *ngSwitchCase="'add_node'" i18n="@@action.add_node">
                 Add node
               </ng-container>

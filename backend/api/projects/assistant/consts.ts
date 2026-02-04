@@ -1,4 +1,5 @@
 import { ChatCompletionTool } from "app/llm";
+import { response } from "express";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 
 export const ASSISTANT_INSTRUCTIONS = `
@@ -15,67 +16,53 @@ ${JSON.stringify(SCHEMAS.pipeline, null, "\t")}
 ## Concat 2 strings node
 
 \`\`\`js
+import { next } from "https://cdn.jsdelivr.net/gh/my-piper/piper-nodes@main/utils/node.js";
+
 export async function run({ inputs }) {
-    const { throwError, next, download } = require("@piper/node");
     const { string1, string2 } = inputs;
     const result = [string1, string2].join('');
     return next({ outputs: { result } });
 }
 \`\`\`
 
-## Resize image node
-
-All inputs type: images, videos & sounds must be downloaded first.
+## Throw errors
 
 \`\`\`js
-export async function run({ inputs }) {
-    const { next, download } = require("@piper/node");
-    const sharp = require('sharp');
+import { throwError, next } from "https://cdn.jsdelivr.net/gh/my-piper/piper-nodes@main/utils/node.js";
 
-    // download image from url 
-    const { data } = await download(image);
-    const resized = await sharp(data)
-        .resize({
-            width: 300,
-            height: 150,
-            fit: 'cover'
-        })
-        .toBuffer();
-    return next({ outputs: { image: resized } });
+export async function run({ inputs }) {
+    throwError.fatal('Error message here');
+    throwError.timeout();
+    throwError.data('Some data error here');
 }
 \`\`\`
 
 ## Node with http request
 
 \`\`\`js
-export async function run({ env, inputs }) {
-    const { throwError, next, httpRequest } = require("@piper/node");
+import { throwError, next } from "https://cdn.jsdelivr.net/gh/my-piper/piper-nodes@main/utils/node.js";
 
-    const { data } = await httpRequest({
-        method: "get",
-        url: "https://jsonplaceholder.typicode.com/posts",
-        params: {
-            user,
-            page,
+export async function run({ env, inputs }) {
+    const { user, page } = inputs;
+
+    const url = new URL("https://jsonplaceholder.typicode.com/posts");
+    url.search = new URLSearchParams({
+        user,
+        page,
+    }).toString();
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
         },
     });
 
-    // more code here
-}
-\`\`\`
-
-## Node with environment variables
-
-\`\`\`js
-export async function run({ env, inputs }) {
-    const { throwError, next } = require("@piper/node");
-
-    // take variables from environment
-    const { SOME_ENV } = env.variables;
-    if (!SOME_ENV) {
-       // throw error
-        throwError.fatal('Please, set SOME_ENV in environment');
+    if (!response.ok) {
+        throwError.fatal(\`Request failed with status ${response.status}\`);
     }
+
+    const data = await response.json();
 
     // more code here
 }
@@ -178,14 +165,39 @@ export const ASSISTANT_TOOLS: ChatCompletionTool[] = [
               properties: {
                 action: {
                   type: "string",
-                  enum: ["add_node", "remove_node", "replace_node", "add_flow"],
+                  enum: [
+                    "add_node_from_catalog",
+                    "add_node",
+                    "remove_node",
+                    "replace_node",
+                    "add_flow",
+                  ],
                 },
-                data: {
+                catalog: {
                   type: "object",
                   properties: {
                     id: {
                       type: "string",
-                      description: "id for node/flow in pipeline collection",
+                      description: "Node id from catalog",
+                    },
+                    inputs: {
+                      type: "object",
+                      description:
+                        "Inputs object to set initial inputs for node from catalog.",
+                      additionalProperties: {
+                        type: ["boolean", "number", "string"],
+                      },
+                    },
+                  },
+                  description: "Used only for `add_node_from_catalog` action.",
+                },
+                data: {
+                  type: "object",
+                  description: "Used for action data not related with catalog.",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "id for node/flow in pipeline collection.",
                     },
                     json: {
                       type: "string",
