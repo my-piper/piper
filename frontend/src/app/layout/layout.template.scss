@@ -2,126 +2,125 @@
 @import "src/ui-kit/styles/mixins";
 
 :host {
-    display: block;
+  display: block;
 }
 
 header {
+  display: flex;
+  align-items: center;
+  margin-bottom: $gutter-normal;
+  justify-content: space-between;
+  background-color: black;
+  padding: $gutter-normal;
+  gap: $gutter-normal;
+  border-bottom: 1px solid rgba($graphite-color-60, 0.1);
+
+  @include less-tablet() {
+    flex-direction: column;
+  }
+
+  .left {
     display: flex;
+    column-gap: $gutter-huge * 4;
     align-items: center;
-    margin-bottom: $gutter-normal;
-    justify-content: space-between;
-    background-color: black;
-    padding: $gutter-normal;
-    gap: $gutter-normal;
-    border-bottom: 1px solid rgba($graphite-color-60, 0.1);
 
     @include less-tablet() {
-        flex-direction: column;
+      flex-direction: column;
+      gap: $gutter-normal;
     }
 
-    .left {
-        display: flex;
-        column-gap: $gutter-huge * 4;
-        align-items: center;
+    .logo {
+      position: relative;
 
-        @include less-tablet() {
-            flex-direction: column;
-        }
+      img {
+        display: block;
+      }
 
-        .logo {
-            position: relative;
-
-            img {
-                display: block;
-            }
-
-            .beta {
-                position: absolute;
-                top: -6px;
-                right: -8px;
-                color: white;
-                font-size: .55em;
-                padding: 1px 3px;
-                line-height: 1em;
-                border-radius: $corner-small;
-                background: linear-gradient(135deg, #6e00ff, #b500f9);
-            }
-        }
-
-        ul {
-            list-style: none;
-            display: flex;
-            align-items: center;
-            margin: 0;
-            padding: 0;
-            gap: $gutter-large;
-
-            @include less-tablet() {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            li {
-                a {
-                    display: inline-block;
-                    text-decoration: none;
-                    color: $primary-text-color;
-                    line-height: 1.45em;
-                    border-radius: $corner-large;
-                    padding: $gutter-small $gutter-normal;
-
-                    &:hover,
-                    &.active {
-                        background-color: rgba($control-focus-background-color, 0.8);
-                    }
-                }
-            }
-        }
+      .beta {
+        position: absolute;
+        top: -6px;
+        right: -8px;
+        color: white;
+        font-size: 0.55em;
+        padding: 1px 3px;
+        line-height: 1em;
+        border-radius: $corner-small;
+        background: linear-gradient(135deg, #6e00ff, #b500f9);
+      }
     }
 
-    ::ng-deep button.circle {
-        .icon svg {
-            stroke: white !important;
-        }
+    ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      gap: $gutter-large;
 
-        background-color: rgba(white, 0.1);
+      @include less-tablet() {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      li {
+        a {
+          display: inline-block;
+          text-decoration: none;
+          color: $primary-text-color;
+          line-height: 1.45em;
+          border-radius: $corner-large;
+          padding: $gutter-small $gutter-normal;
+
+          &:hover,
+          &.active {
+            background-color: rgba($control-focus-background-color, 0.8);
+          }
+        }
+      }
+    }
+  }
+
+  ::ng-deep button.circle {
+    .icon svg {
+      stroke: white !important;
     }
 
-    .me ::ng-deep {
-        .remaining {
-            color: white;
-        }
-    }
+    background-color: rgba(white, 0.1);
+  }
 
+  .me ::ng-deep {
+    .remaining {
+      color: white;
+    }
+  }
 }
 
 main {
-    @include wider-tablet() {
-        padding: 20px;
-        min-height: calc(100vmin - 200px);
-    }
+  @include wider-tablet() {
+    padding: 20px;
+    min-height: calc(100vmin - 200px);
+  }
 }
 
 footer {
-    margin-top: $gutter-normal;
-    border-top: 1px solid $graphite-color-60;
+  margin-top: $gutter-normal;
+  border-top: 1px solid rgba($graphite-color-60, 0.1);
 
-    >div {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: $gutter-normal;
-        gap: $gutter-small;
-        font-size: .85em;
-        color: $graphite-color-300;
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $gutter-normal;
+    gap: $gutter-small;
+    font-size: 0.85em;
 
-        @include less-tablet() {
-            flex-direction: column;
-        }
-
-        @include wider-tablet() {
-            margin: 0 auto;
-            max-width: 960px;
-        }
+    @include less-tablet() {
+      flex-direction: column;
     }
+
+    @include wider-tablet() {
+      margin: 0 auto;
+      max-width: 960px;
+    }
+  }
 }

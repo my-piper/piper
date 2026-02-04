@@ -39,7 +39,7 @@ export class UsersComponent {
       });
 
       merge(modal.added, modal.saved).subscribe(() =>
-        this.router.navigate(["./"], { relativeTo: this.route })
+        this.router.navigate(["./"], { relativeTo: this.route }),
       );
     }
   }
@@ -55,7 +55,7 @@ export class UsersComponent {
     private http: HttpService,
     private route: ActivatedRoute,
     private router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -75,12 +75,12 @@ export class UsersComponent {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) => plainToInstance(User, plain))
+          (arr as Object[]).map((plain) => plainToInstance(User, plain)),
         ),
         finalize(() => {
           this.progress.loading = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (users) => {
@@ -111,7 +111,7 @@ export class UsersComponent {
           this.progress.deleting = false;
           this.references?.popover?.hide();
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {

@@ -8,6 +8,7 @@ import {
   Output,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
+import { last } from "lodash";
 import first from "lodash/first";
 import { debounceTime, delay, finalize, map } from "rxjs";
 import { Asset, AssetsFilter } from "src/models/assets";
@@ -59,6 +60,7 @@ export class AssetsComponent implements OnInit {
 
   folders: string[] = [];
   assets: Asset[] = [];
+  chunk: Asset[] = [];
   references: { popover: PopoverComponent } = { popover: null };
 
   @HostBinding("attr.data-mode")
@@ -78,7 +80,7 @@ export class AssetsComponent implements OnInit {
     private http: HttpService,
     private signals: SignalsService,
     private fb: FormBuilder,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -92,22 +94,22 @@ export class AssetsComponent implements OnInit {
 
     this.form.valueChanges
       .pipe(debounceTime(1000))
-      .subscribe(() => this.loadAssets());
+      .subscribe(() => this.load());
 
     this.loadFolders();
-    this.loadAssets();
+    this.load();
   }
 
   filterFolder(folder: string) {
     this.form.patchValue({ folder }, { emitEvent: false });
-    this.loadAssets();
+    this.load();
 
     this.references.popover?.hide();
   }
 
   clearFilter() {
     this.form.patchValue({ folder: null }, { emitEvent: false });
-    this.loadAssets();
+    this.load();
   }
 
   private loadFolders() {
@@ -116,14 +118,14 @@ export class AssetsComponent implements OnInit {
         ...this.filter,
         ...this.form.getRawValue(),
       },
-      AssetsFilter
+      AssetsFilter,
     );
 
     this.http
       .get("assets/folders", valuable(toPlain(filter)))
       .pipe(
         delay(UI_DELAY),
-        map((arr) => arr as string[])
+        map((arr) => arr as string[]),
       )
       .subscribe({
         next: (folders) => {
@@ -134,7 +136,7 @@ export class AssetsComponent implements OnInit {
       });
   }
 
-  private loadAssets() {
+  private load(cursor?: string) {
     this.progress.loading = true;
     this.cd.detectChanges();
 
@@ -142,8 +144,9 @@ export class AssetsComponent implements OnInit {
       {
         ...this.filter,
         ...this.form.getRawValue(),
+        ...(!!cursor ? { cursor } : {}),
       },
-      AssetsFilter
+      AssetsFilter,
     );
 
     this.http
@@ -154,15 +157,25 @@ export class AssetsComponent implements OnInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as Object[]).map((plain) => toInstance(plain, Asset)))
+        map((arr) =>
+          (arr as Object[]).map((plain) => toInstance(plain, Asset)),
+        ),
       )
       .subscribe({
         next: (assets) => {
-          this.assets = assets;
+          this.chunk = assets;
+          this.assets.push(...assets);
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
       });
+  }
+
+  loadMore() {
+    const asset = last(this.assets);
+    if (!!asset) {
+      this.load(asset.cursor);
+    }
   }
 
   upload({ target }: Event) {
@@ -190,7 +203,7 @@ export class AssetsComponent implements OnInit {
           this.progress.uploading = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Asset))
+        map((json) => toInstance(json as Object, Asset)),
       )
       .subscribe({
         next: (asset) => {
@@ -214,7 +227,7 @@ export class AssetsComponent implements OnInit {
         finalize(() => {
           this.progress.removing[asset._id] = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {

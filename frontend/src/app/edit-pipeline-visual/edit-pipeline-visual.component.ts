@@ -349,7 +349,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   fillNodeOutputs(node: string, outputs: NodeOutputs) {
-    console.log("Fill node outputs", node, outputs);
+    console.log("Fill node outputs", node);
 
     let nodeToLaunch = this.launchRequest.nodes.get(node);
     if (!nodeToLaunch) {

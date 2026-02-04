@@ -13,7 +13,7 @@ api.get(
     const filter = toInstance(query, AssetsFilter);
     await validate(filter);
 
-    const { folder, type, project } = filter;
+    const { folder, type, project, cursor } = filter;
 
     return await mongo.assets
       .find({
@@ -25,8 +25,10 @@ api.get(
         ...(() => (!!type ? { type } : {}))(),
         ...(() => (!!project ? { project } : {}))(),
         ...(() => (!!folder ? { folder } : {}))(),
+        ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
       })
       .sort({ createdAt: -1 })
+      .limit(30)
       .toArray();
   })
 );

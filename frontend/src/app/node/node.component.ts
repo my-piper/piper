@@ -27,6 +27,7 @@ import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { ModalService } from "src/ui-kit/modal/modal.service";
+import { createLogger } from "src/utils/logger";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
 @Component({
@@ -36,11 +37,20 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 })
 export class NodeComponent extends UntilDestroyed implements OnDestroy {
   private _launch!: Launch;
+  private _id!: string;
+
+  logger: ReturnType<typeof createLogger>;
 
   references: { popover?: PopoverComponent } = { popover: null };
 
   @Input()
-  id!: string;
+  set id(id: string) {
+    this.logger = createLogger(id);
+    this._id = id;
+  }
+  get id() {
+    return this._id;
+  }
 
   @Input()
   @HostBinding("class.disabled")
@@ -70,7 +80,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
     return (
       Math.max(
         [...this.node.inputs.values()].filter((v) => v.featured).length,
-        this.node.outputs.size
+        this.node.outputs.size,
       ) *
         UI.node.input.height +
       30
@@ -79,7 +89,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
   @Input()
   set launch(launch: Launch) {
-    console.log("Set launch", launch?._id);
+    this.logger.debug("Set launch", launch?._id || "-");
     if (!!launch) {
       if (this._launch?._id !== launch?._id) {
         this._launch = launch;
@@ -157,7 +167,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
     private http: HttpService,
     private cd: ChangeDetectorRef,
     private live: LiveService,
-    private modal: ModalService
+    private modal: ModalService,
   ) {
     super();
   }
@@ -171,7 +181,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
   private listen() {
     this.silent();
 
-    console.log("Listen node events", this.id);
+    this.logger.debug("Listen node events");
 
     this.subscriptions.launch = this.live.subscribe(this.launch._id);
 
@@ -181,7 +191,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
-          console.log("Node is running", node);
+          this.logger.debug("Node is running");
           this.checkStatus();
         }
       });
@@ -192,7 +202,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
-          console.log("Node done", node);
+          this.logger.debug("Node done");
           this.checkStatus();
         }
       });
@@ -203,7 +213,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
-          console.log("Progress for", node);
+          this.logger.debug("Progress");
           this.loadProgress();
         }
       });
@@ -214,7 +224,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
-          console.log("Node is ready", node);
+          this.logger.debug("Node is ready");
           this.checkStatus();
         }
       });
@@ -225,7 +235,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
-          console.log("Node error", node);
+          this.logger.debug("Node error");
           this.checkStatus();
         }
       });
@@ -236,7 +246,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
       .subscribe((data: Object) => {
         const { launch, node } = plainToInstance(PipelineEvent, data as Object);
         if (launch === this.launch?._id && node === this.id) {
-          console.log("Node is going to flow", node);
+          this.logger.debug("Node is going to flow");
           this.load();
         }
       });
@@ -247,7 +257,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
-          console.log("Node is reset", node);
+          this.logger.debug(`Node is reset ${node}`);
           this.loadInputs();
         }
       });
@@ -256,7 +266,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
   }
 
   silent() {
-    console.log("Node is silent", this.id);
+    this.logger.debug("Silent");
     this.subscriptions.launch?.();
     clearTimeout(this.timers.status);
   }
@@ -275,7 +285,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
   }
 
   private load() {
-    console.log("Load node state", this.id);
+    this.logger.debug("Load node state");
     this.loadInputs();
     this.loadOutputs().subscribe((outputs) => {
       this.outputs = outputs;
@@ -295,7 +305,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
   private loadOutputs() {
     return this.http.get(`launches/${this.launch._id}/${this.id}/outputs`).pipe(
       catchError((err) => of(null)),
-      map((obj) => obj as NodeOutputs)
+      map((obj) => obj as NodeOutputs),
     );
   }
 
@@ -303,7 +313,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
     clearTimeout(this.timers.status);
 
     const check = () => {
-      console.log("Check status");
+      this.logger.debug("Check status");
       this.loadStatus().subscribe((status) => {
         this.status = status;
         this.cd.detectChanges();
@@ -318,7 +328,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
               this.outputs = outputs;
               this.cd.detectChanges();
 
-              console.log("Node done", this.id, outputs);
+              this.logger.debug("Node done");
               this.done.emit(outputs);
             });
             break;
@@ -335,7 +345,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
   private loadStatus() {
     return this.http.get(`launches/${this.launch._id}/${this.id}/status`).pipe(
       filter((json) => !!json),
-      map((json) => plainToInstance(NodeStatus, json))
+      map((json) => plainToInstance(NodeStatus, json)),
     );
   }
 
@@ -344,7 +354,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
       .get(`launches/${this.launch._id}/${this.id}/progress`)
       .pipe(
         filter((json) => !!json),
-        map((json) => plainToInstance(NodeProgress, json))
+        map((json) => plainToInstance(NodeProgress, json)),
       )
       .subscribe((progress) => {
         this.progress = progress;

@@ -26,6 +26,12 @@ export class AssetsFilter {
   @Type(() => String)
   project?: string;
 
+  @IsOptional()
+  @Matches(/^[A-Za-z0-9]{26}$/)
+  @Expose()
+  @Type(() => String)
+  cursor: string;
+
   constructor(defs: Partial<AssetsFilter> = {}) {
     assign(this, defs);
   }

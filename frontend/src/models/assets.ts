@@ -19,6 +19,10 @@ export class AssetsFilter {
   @Type(() => String)
   type?: string;
 
+  @Expose()
+  @Type(() => String)
+  cursor?: string;
+
   constructor(defs: Partial<AssetsFilter> = {}) {
     assign(this, defs);
   }
@@ -60,6 +64,10 @@ export class Asset {
   @Expose()
   @Type(() => String)
   url!: string;
+
+  @Expose()
+  @Type(() => String)
+  cursor!: string;
 
   constructor(defs: Partial<Asset> = {}) {
     assign(this, defs);
