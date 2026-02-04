@@ -46,7 +46,7 @@
 		"action.change_password": "पासवर्ड बदलें",
 		"message.your_can_restore_password": "आप भी {$START_LINK}पासवर्ड पुनर्स्थापित कर सकते हैं{$CLOSE_LINK}",
 		"message.not_owner_pipeline": "आप इस पाइपलाइन के मालिक नहीं हैं, लेकिन इसके साथ खेल सकते हैं।",
-		"link.open_playground": "खुला खेलकक्ष {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.open_playground": "खुला मैदान",
 		"label.change_password": "पासवर्ड बदलें",
 		"label.confirm_password": "पासवर्ड की पुष्टि करें",
 		"label.created": "बनाया गया",
@@ -120,6 +120,8 @@
 		"label.variables": "चर",
 		"message.leave_empty_to_global_scope": "हमारा मूल्य उपयोग करने के लिए खाली छोड़ें",
 		"message.define_global_variables": "यहाँ अपने पाइपलाइन के लिए ग्लोबल वेरिएबल को ओवरराइड कर सकते हैं। इस मामले में हम इस पाइपलाइन के क्रियान्वयन के लिए आपको बिलिंग नहीं करेंगे।",
-		"action.reorder": "क्रमबद्ध"
+		"action.reorder": "क्रमबद्ध",
+		"link.app": "ऐप",
+		"label.or": "या"
 	}
 }

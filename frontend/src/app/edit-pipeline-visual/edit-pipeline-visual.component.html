@@ -75,12 +75,13 @@
 
 <div
   #nodesRef
-  class="nodes area"
-  autoHeight
+  class="nodes"
   [scrollInside]="{
     left: pipeline.layout?.left || 0,
     top: pipeline.layout?.top || 0,
-    disabled: mode !== 'project',
+    disabled:
+      mode !== 'project' ||
+      (userRole.admin | can: project.createdBy | async | not),
   }"
   (updated)="updateLayoutPosition({ left: $event.left, top: $event.top })"
 >

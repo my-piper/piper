@@ -26,17 +26,19 @@
         class="primary with-icon"
         [routerLink]="['/', 'play', project.slug || project._id]"
         routerLinkActive="active"
-        i18n="@@link.open_playground"
       >
-        Open playground
-        <app-icon class="icon right" icon="open-link"></app-icon>
-      </a>
-      or
-      <button
+        <ng-container i18n="@@link.open_playground">Playground</ng-container>
+        <app-icon
+          class="icon right"
+          icon="open-link"
+          [size]="18"
+        ></app-icon> </a
+      >&nbsp;<ng-container i18n="@@label.or">or</ng-container>&nbsp;<button
         class="primary"
         [disabled]="progress.cloning"
         [class.busy]="progress.cloning"
         (click)="clone()"
+        i18n="@@button.clone_pipeline"
       >
         Clone
       </button>

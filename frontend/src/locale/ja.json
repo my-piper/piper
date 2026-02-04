@@ -46,7 +46,7 @@
 		"action.change_password": "パスワード変更",
 		"message.your_can_restore_password": "また、{$START_LINK}パスワードの復元{$CLOSE_LINK}もできます。",
 		"message.not_owner_pipeline": "あなたはこのパイプラインの所有者ではありませんが、このパイプラインで遊ぶことができます。",
-		"link.open_playground": "オープンプレイグラウンド{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}。",
+		"link.open_playground": "遊び場を開く",
 		"label.change_password": "パスワード変更",
 		"label.confirm_password": "パスワードの確認",
 		"label.created": "作成",
@@ -120,6 +120,8 @@
 		"label.variables": "変数",
 		"message.leave_empty_to_global_scope": "当社の値を使用するには空白のままにしてください",
 		"message.define_global_variables": "あなたはここでパイプラインのグローバル変数をオーバーライドすることができます。 この場合、このパイプラインの実行に対して請求は発生しません。",
-		"action.reorder": "並べ替え"
+		"action.reorder": "並べ替え",
+		"link.app": "アプリ",
+		"label.or": "または"
 	}
 }

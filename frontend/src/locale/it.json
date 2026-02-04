@@ -45,7 +45,7 @@
 		"action.change_password": " Cambia password",
 		"message.your_can_restore_password": " È anche possibile {$START_LINK}ripristinare la password{$CLOSE_LINK}",
 		"message.not_owner_pipeline": " L'utente non è proprietario di questa pipeline, ma può giocare con essa in",
-		"link.open_playground": " Parco giochi aperto {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.open_playground": "Apri il parco giochi",
 		"label.change_password": "Cambia password",
 		"label.confirm_password": "Conferma la password",
 		"label.created": "Creato",
@@ -118,6 +118,7 @@
 		"label.variables": "Variabili",
 		"message.leave_empty_to_global_scope": "Lascia vuoto per utilizzare il nostro valore",
 		"message.define_global_variables": "È possibile sovrascrivere le variabili globali per il proprio pipeline qui. In questo caso non ti addebiteremo l'esecuzione di questa pipeline.",
-		"action.reorder": "Riordinare"
+		"action.reorder": "Riordinare",
+		"label.or": "o"
 	}
 }

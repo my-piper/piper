@@ -9,7 +9,7 @@
     "name": {
       "type": "string",
       "headerTemplate": "en=Name;ru=Название",
-      "pattern": "^.{5,40}$",
+      "pattern": "^.{5,160}$",
       "propertyOrder": 1
     },
     "description": {

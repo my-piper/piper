@@ -45,7 +45,7 @@
 		"action.change_password": "更改密碼",
 		"message.your_can_restore_password": "您也可以 {$START_LINK}恢復密碼{$CLOSE_LINK}",
 		"message.not_owner_pipeline": "您不是這個管道的所有者，但您可以玩它。",
-		"link.open_playground": "打開遊樂場 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.open_playground": "開放遊樂場",
 		"label.change_password": "更改密碼",
 		"label.confirm_password": "確認密碼",
 		"label.created": "已建立",
@@ -118,6 +118,7 @@
 		"label.variables": "變數",
 		"message.leave_empty_to_global_scope": "留空以使用我們的值",
 		"message.define_global_variables": "您可以在此覆寫管道的全域變數。在這種情況下，我們不會向您收取此管道的執行費用。",
-		"action.reorder": "重新排序"
+		"action.reorder": "重新排序",
+		"label.or": "或者"
 	}
 }

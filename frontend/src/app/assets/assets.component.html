@@ -132,6 +132,6 @@
 </ul>
 <div
   *ngIf="chunk.length > 0 && !progress.loading"
-  [inViewport]
+  [inViewport]="{ root: hostRef.nativeElement }"
   (visible)="loadMore()"
 ></div>

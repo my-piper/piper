@@ -44,7 +44,7 @@ import { getFileInfo, withTempContext } from "utils/files";
 import { fromRedisValue, toRedisValue } from "utils/redis";
 import { sid } from "utils/string";
 import { getPoster } from "utils/video";
-import { downloadBinary, extFromMime } from "utils/web";
+import { download, downloadBinary, extFromMime } from "utils/web";
 
 const logger = createLogger("utils/launch");
 
@@ -314,7 +314,7 @@ export async function getIOData(
       });
     case "image":
       const url = value as string;
-      const data = await downloadBinary(url);
+      const { data } = await download(url);
       const { ext } = await getFileInfo(data);
       const fileName = `${launch}_${container}_${id}.${ext}`;
 
@@ -330,7 +330,7 @@ export async function getIOData(
       const urls = (value as string).split("|");
       let index = 0;
       for (const url of urls) {
-        const data = await downloadBinary(url);
+        const { data } = await download(url);
         const { ext } = await getFileInfo(data);
         const fileName = `${launch}_${container}_${id}_${index++}.${ext}`;
         const { width, height } = await sharp(data).metadata();

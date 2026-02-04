@@ -13,7 +13,7 @@ import { ulid } from "ulid";
 import { sid } from "utils/string";
 
 queues.launches.artefacts.save.process(async (saveArtefactsJob) => {
-  const logger = createLogger("save-node-artefacts", {
+  const logger = createLogger("save-launch-artefacts", {
     launch: saveArtefactsJob.launch,
   });
 

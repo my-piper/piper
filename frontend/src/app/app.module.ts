@@ -22,7 +22,6 @@ import { PipelineOutputComponent } from "src/app/pipeline-output/pipeline-output
 import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
 import { SelectNodeComponent } from "src/app/select-node/select-node.component";
-import { AutoHeightDirective } from "src/directives/auto-height";
 import { AutoScrollDirective } from "src/directives/auto-scroll";
 import { CopyToClipboardDirective } from "src/directives/copy-clipboard.directive";
 import { DragCloneDirective } from "src/directives/drag-clone.directive";
@@ -189,7 +188,6 @@ import { UsersComponent } from "./users/users.component";
     SlicePipe,
     ImageProxyPipe,
     MarkdownPipe,
-    AutoHeightDirective,
     LaunchOutputsComponent,
     PipelineMessagesComponent,
     PipelineToolsComponent,

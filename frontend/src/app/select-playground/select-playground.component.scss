@@ -3,180 +3,180 @@
 @import "src/ui-kit/styles/reset";
 
 :host {
-    display: flex;
-    flex-direction: column;
-    gap: $gutter-normal;
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-normal;
 }
 
 form {
-    display: flex;
-    flex-direction: column;
-    gap: $gutter-normal;
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-normal;
 }
 
 .categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $gutter-normal;
+
+  button {
+    @include reset-button();
+    position: relative;
     display: flex;
-    flex-wrap: wrap;
-    gap: $gutter-normal;
+    flex-direction: column;
+    gap: $gutter-tiny;
+    align-items: center;
+    background-color: rgba($color: $control-background-color, $alpha: 0.25);
+    padding: $gutter-small;
+    border-radius: $corner-small;
+    font-size: 0.85em;
+    border: 2px solid transparent;
+    color: $primary-text-color;
 
-    button {
-        @include reset-button();
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        gap: $gutter-tiny;
-        align-items: center;
-        background-color: rgba($color: $control-background-color, $alpha: .25);
-        padding: $gutter-small;
-        border-radius: $corner-small;
-        font-size: .85em;
-        border: 2px solid transparent;
-        color: $primary-text-color;
-
-        &:hover {
-            background-color: rgba($color: $control-background-color, $alpha: .5);
-        }
-
-        &.selected {
-            background-color: rgba($color: $control-background-color, $alpha: .65);
-            border-color: $control-background-color;
-        }
-
-        .icon ::ng-deep {
-            svg {
-                fill: $primary-text-color;
-            }
-        }
-
-        .badge {
-            position: absolute;
-            top: $gutter-small;
-            right: $gutter-small;
-        }
-
-        input {
-            display: none;
-        }
+    &:hover {
+      background-color: rgba($color: $control-background-color, $alpha: 0.5);
     }
+
+    &.selected {
+      background-color: rgba($color: $control-background-color, $alpha: 0.65);
+      border-color: $control-background-color;
+    }
+
+    .icon ::ng-deep {
+      svg {
+        fill: $primary-text-color;
+      }
+    }
+
+    .badge {
+      position: absolute;
+      top: $gutter-small;
+      right: $gutter-small;
+    }
+
+    input {
+      display: none;
+    }
+  }
 }
 
 .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $gutter-small;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $gutter-small;
 
-    button {
-        @include reset-button();
-        background: $control-background-color;
-        padding: $gutter-tiny $gutter-small;
-        border-radius: $corner-large;
-        font-size: 0.85em;
-        color: $primary-text-color;
+  button {
+    @include reset-button();
+    background: $control-background-color;
+    padding: $gutter-tiny $gutter-small;
+    border-radius: $corner-large;
+    font-size: 0.85em;
+    color: $primary-text-color;
 
-        &.selected {
-            background: $control-focus-background-color;
-            color: white;
-        }
+    &.selected {
+      background: $control-focus-background-color;
+      color: white;
     }
+  }
 }
 
 .projects {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: $gutter-normal;
-    min-height: 100px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: $gutter-normal;
+  min-height: 100px;
 
-    @include for-desktop() {
-        grid-template-columns: repeat(5, 1fr);
+  @include for-desktop() {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  @include less-tablet() {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include for-mobile() {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    .order {
+      position: absolute;
+      top: -$gutter-small;
+      left: -$gutter-small;
+      background: $control-background-color;
+      line-height: 1em;
+      padding: $gutter-tiny $gutter-small;
+      font-size: 0.75em;
+      border-radius: $corner-small;
     }
 
-    @include less-tablet() {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    article {
+      padding: 0;
 
-    @include for-mobile() {
-        grid-template-columns: 1fr;
-    }
+      button {
+        @include reset-button();
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
 
-    .card {
-        .order {
-            position: absolute;
-            top: -$gutter-small;
-            left: -$gutter-small;
-            background: white;
-            line-height: 1em;
-            padding: $gutter-tiny;
-            font-size: .75em;
-            border-radius: $corner-small;
+        .title {
+          position: absolute;
+          z-index: 1;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          display: none;
+          color: white;
+          padding: $gutter-small;
         }
 
-        article {
-            padding: 0;
+        .no-thumbnail {
+          display: block;
 
-            button {
-                @include reset-button();
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-
-                .title {
-                    position: absolute;
-                    z-index: 1;
-                    top: 0;
-                    right: 0;
-                    bottom: 0;
-                    left: 0;
-                    display: none;
-                    color: white;
-                    padding: $gutter-small;
-                }
-
-                .no-thumbnail {
-                    display: block;
-
-                    ::ng-deep svg {
-                        stroke: $graphite-color-200;
-                    }
-                }
-
-                img,
-                video {
-                    display: block;
-                    width: 100%;
-                    aspect-ratio: 400 / 400;
-                    background: $primary-background-color;
-                }
-            }
+          ::ng-deep svg {
+            stroke: $graphite-color-200;
+          }
         }
 
-        footer {
-            p {
-                margin: 0;
-                padding: $gutter-small;
-                text-align: center;
-            }
+        img,
+        video {
+          display: block;
+          width: 100%;
+          aspect-ratio: 400 / 400;
+          background: $primary-background-color;
         }
+      }
     }
+
+    footer {
+      p {
+        margin: 0;
+        padding: $gutter-small;
+        text-align: center;
+      }
+    }
+  }
 }
 
 :host-context(.popover) {
-    .projects {
-        width: 600px;
+  .projects {
+    width: 600px;
 
-        .card {
-            article {
-                .title {
-                    display: block;
-                    backdrop-filter: blur(5px);
-                    background-color: rgba($color: #000000, $alpha: .5);
-                }
-            }
-
-            header,
-            footer {
-                display: none;
-            }
+    .card {
+      article {
+        .title {
+          display: block;
+          backdrop-filter: blur(5px);
+          background-color: rgba($color: #000000, $alpha: 0.5);
         }
+      }
+
+      header,
+      footer {
+        display: none;
+      }
     }
+  }
 }

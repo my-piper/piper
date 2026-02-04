@@ -45,7 +45,7 @@
 		"action.change_password": " 비밀번호 변경",
 		"message.your_can_restore_password": " 또한 {$START_LINK}비밀번호{$CLOSE_LINK}를 복원할 수도 있습니다",
 		"message.not_owner_pipeline": " 이 파이프라인의 소유자는 아니지만 다음에서 사용할 수 있습니다",
-		"link.open_playground": " 놀이터 열기 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.open_playground": "놀이터를 열다",
 		"label.change_password": "비밀번호 변경",
 		"label.confirm_password": "비밀번호 확인",
 		"label.created": "생성됨",
@@ -118,6 +118,8 @@
 		"label.variables": "변수",
 		"message.leave_empty_to_global_scope": "우리의 값을 사용하려면 비워 두기",
 		"message.define_global_variables": "여기에서 파이프라인에 대한 전역 변수를 재정의할 수 있습니다. 이 경우에는이 파이프라인의 실행에 대해 청구하지 않습니다.",
-		"action.reorder": "재주문"
+		"action.reorder": "재주문",
+		"link.app": "앱",
+		"label.or": "또는"
 	}
 }

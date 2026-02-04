@@ -46,7 +46,7 @@
 		"action.change_password": " Cambiar contraseña",
 		"message.your_can_restore_password": " También puede {$START_LINK}restaurar contraseña{$CLOSE_LINK}",
 		"message.not_owner_pipeline": " Usted no es propietario de esta tubería, pero se puede jugar con él en",
-		"link.open_playground": " Zona de juegos abierta {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.open_playground": "Abrir parque de juegos",
 		"label.change_password": "Cambiar contraseña",
 		"label.confirm_password": "Confirmar contraseña",
 		"label.created": "Creado",
@@ -118,6 +118,8 @@
 		"label.environment": "Medio ambiente",
 		"message.leave_empty_to_global_scope": "Deje vacío para usar nuestro valor",
 		"message.define_global_variables": "Puede anular las variables globales para su canalización aquí. En este caso, no le facturaremos por la ejecución de esta canalización.",
-		"action.reorder": "Reordenar"
+		"action.reorder": "Reordenar",
+		"link.app": "Aplicación",
+		"label.or": "o"
 	}
 }

@@ -8,12 +8,12 @@ import { Deploy } from "models/deploy";
 import { DeployConfig } from "models/deploy-config";
 import { Project } from "models/project";
 import "reflect-metadata";
-import { checkAdmin, handle, isAdmin, toModel } from "utils/http";
+import { checkLogged, handle, isAdmin, toModel } from "utils/http";
 
 api.post(
   "/api/projects/:_id/deploy",
   handle(({ currentUser }) => async ({ params: { _id }, body }) => {
-    checkAdmin(currentUser);
+    checkLogged(currentUser);
 
     const project = toModel(
       await mongo.projects.findOne(

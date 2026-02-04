@@ -1,6 +1,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter,
   HostBinding,
   Input,
@@ -81,6 +82,7 @@ export class AssetsComponent implements OnInit {
     private signals: SignalsService,
     private fb: FormBuilder,
     private cd: ChangeDetectorRef,
+    public hostRef: ElementRef,
   ) {}
 
   ngOnInit() {

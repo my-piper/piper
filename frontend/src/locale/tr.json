@@ -46,7 +46,7 @@
 		"action.change_password": " Şifre değiştir",
 		"message.your_can_restore_password": " Ayrıca {$START_LINK}şifreyi geri yükleyebilirsiniz{$CLOSE_LINK}",
 		"message.not_owner_pipeline": " Bu boru hattının sahibi değilsiniz, ancak onunla",
-		"link.open_playground": " Açık oyun alanı {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
+		"link.open_playground": "Oyun alanını aç",
 		"label.change_password": "Şifre değiştir",
 		"label.confirm_password": "Şifreyi onayla",
 		"label.created": "Oluşturuldu",
@@ -120,6 +120,8 @@
 		"label.variables": "Değişkenler",
 		"message.leave_empty_to_global_scope": "Değerimizi kullanmak için boş bırakın",
 		"message.define_global_variables": "Pipeline'ınız için global değişkenleri burada geçersiz kılabilirsiniz. Bu durumda, bu pipeline'ın yürütülmesi için size fatura kesmeyeceğiz.",
-		"action.reorder": "Yeniden düzenle"
+		"action.reorder": "Yeniden düzenle",
+		"link.app": "Uygulama",
+		"label.or": "veya"
 	}
 }
