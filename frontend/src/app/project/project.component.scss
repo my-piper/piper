@@ -64,9 +64,7 @@ header {
   flex-direction: column;
   flex: 1;
   &.edit {
-    ::ng-deep > :not(router-outlet) {
-      flex: 1;
-    }
+    position: relative;
   }
 
   &:not(.edit) {

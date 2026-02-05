@@ -1,68 +1,75 @@
 @import "src/ui-kit/styles/variables";
 @import "src/ui-kit/styles/mixins";
 
-
 :host {
-    display: grid;
-    grid-template-columns: .3fr .7fr;
-    grid-template-rows: auto 1fr;
-    grid-template-areas:
-        "header header"
-        "project launches";
-    gap: $gutter-big;
-    padding: $gutter-normal;
-    box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 0.3fr 0.7fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "header header"
+    "project launches";
+  gap: $gutter-big;
+  padding: $gutter-normal;
+  box-sizing: border-box;
+  min-height: 100vh;
 
-    @include less-tablet() {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            "header"
-            "project"
-            "launches";
-    }
+  @include less-tablet() {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "project"
+      "launches";
+  }
 }
 
 header {
-    grid-area: header;
+  grid-area: header;
 
-    display: grid;
-    grid-template-columns: max-content auto max-content;
-    grid-template-areas: "actions title me";
-    align-items: flex-start;
-    gap: $gutter-big;
+  display: grid;
+  grid-template-columns: max-content auto max-content;
+  grid-template-areas: "actions title me";
+  align-items: flex-start;
+  gap: $gutter-big;
 
-    @include for-mobile() {
-        grid-template-columns: 1fr;
-        grid-template-areas: "actions me" "title title";
+  @include for-mobile() {
+    grid-template-columns: 1fr;
+    grid-template-areas: "actions me" "title title";
+  }
+
+  .actions {
+    grid-area: actions;
+  }
+
+  .title {
+    grid-area: title;
+
+    h1 {
+      margin: 0;
+      line-height: 1em;
     }
+  }
 
-    .actions {
-        grid-area: actions;
-    }
-
-    .title {
-        grid-area: title;
-
-        h1 {
-            margin: 0;
-            line-height: 1em;
-        }
-    }
-
-    .me {
-        grid-area: me;
-    }
+  .me {
+    grid-area: me;
+  }
 }
 
 .project {
-    grid-area: project;
+  grid-area: project;
 }
 
 .launches {
-    grid-area: launches;
-    overflow: hidden;
+  grid-area: launches;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
-    .menu {
-        margin-bottom: $gutter-big;
-    }
+  .menu {
+    margin-bottom: $gutter-big;
+  }
+
+  .child {
+    flex: 1;
+    position: relative;
+  }
 }
