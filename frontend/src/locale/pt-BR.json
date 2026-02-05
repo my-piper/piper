@@ -117,6 +117,7 @@
 		"message.leave_empty_to_global_scope": "Deixe vazio para usar nosso valor",
 		"message.define_global_variables": "Você pode substituir variáveis globais para o seu pipeline aqui. Neste caso, não cobraremos a execução deste pipeline.",
 		"action.reorder": "Reordenar",
-		"label.or": "ou"
+		"label.or": "ou",
+		"action.clone_pipeline": "Clone"
 	}
 }

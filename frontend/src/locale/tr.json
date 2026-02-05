@@ -122,6 +122,7 @@
 		"message.define_global_variables": "Pipeline'ınız için global değişkenleri burada geçersiz kılabilirsiniz. Bu durumda, bu pipeline'ın yürütülmesi için size fatura kesmeyeceğiz.",
 		"action.reorder": "Yeniden düzenle",
 		"link.app": "Uygulama",
-		"label.or": "veya"
+		"label.or": "veya",
+		"action.clone_pipeline": " Klon "
 	}
 }

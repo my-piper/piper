@@ -116,6 +116,7 @@
 		"action.reset": "Zurücksetzen",
 		"message.define_global_variables": "Sie können globale Variablen für Ihre Pipeline hier überschreiben. In diesem Fall werden wir Ihnen die Ausführung dieser Pipeline nicht in Rechnung stellen.",
 		"action.reorder": "Neu anordnen",
-		"label.or": "oder"
+		"label.or": "oder",
+		"action.clone_pipeline": "Klon"
 	}
 }

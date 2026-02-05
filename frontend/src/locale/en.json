@@ -117,7 +117,7 @@
     "message.not_owner_pipeline": " You are not owner of this pipeline, but you can play with it in",
     "link.open_playground": "Playground",
     "label.or": "or",
-    "button.clone_pipeline": " Clone ",
+    "action.clone_pipeline": " Clone ",
     "link.canvas": " Canvas ",
     "link.artefacts": " Artefacts ",
     "link.deploy": " Deploy ",

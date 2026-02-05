@@ -122,6 +122,7 @@
 		"message.define_global_variables": "あなたはここでパイプラインのグローバル変数をオーバーライドすることができます。 この場合、このパイプラインの実行に対して請求は発生しません。",
 		"action.reorder": "並べ替え",
 		"link.app": "アプリ",
-		"label.or": "または"
+		"label.or": "または",
+		"action.clone_pipeline": "クローン"
 	}
 }

@@ -120,6 +120,7 @@
 		"message.define_global_variables": "Puede anular las variables globales para su canalización aquí. En este caso, no le facturaremos por la ejecución de esta canalización.",
 		"action.reorder": "Reordenar",
 		"link.app": "Aplicación",
-		"label.or": "o"
+		"label.or": "o",
+		"action.clone_pipeline": "Clon"
 	}
 }

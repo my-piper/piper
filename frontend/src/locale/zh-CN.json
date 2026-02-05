@@ -123,6 +123,7 @@
 		"message.define_global_variables": "您可以在此处覆盖管道的全局变量。在这种情况下，我们不会为执行此管道而向您收费。",
 		"action.reorder": "重新订购",
 		"link.app": "应用",
-		"label.or": "或"
+		"label.or": "或",
+		"action.clone_pipeline": " 克隆 "
 	}
 }

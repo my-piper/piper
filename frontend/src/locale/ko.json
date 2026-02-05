@@ -120,6 +120,7 @@
 		"message.define_global_variables": "여기에서 파이프라인에 대한 전역 변수를 재정의할 수 있습니다. 이 경우에는이 파이프라인의 실행에 대해 청구하지 않습니다.",
 		"action.reorder": "재주문",
 		"link.app": "앱",
-		"label.or": "또는"
+		"label.or": "또는",
+		"action.clone_pipeline": " 클론 "
 	}
 }
