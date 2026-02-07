@@ -152,6 +152,14 @@ export class EditPipelineVisualComponent implements OnDestroy {
         launches || {},
         mode || "project",
       ];
+
+      if (this.mode === "project" && this.pipeline.nodes.size <= 0) {
+        setTimeout(() => {
+          this.router.navigate([{ outlets: { left: ["add-node"] } }], {
+            relativeTo: this.route,
+          });
+        }, 500);
+      }
     });
 
     this.drawlerRight.activateEvents
