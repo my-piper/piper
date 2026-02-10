@@ -251,7 +251,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
           this.progress.launching = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Launch)),
+        map((json) => toInstance(json as object, Launch)),
       )
       .subscribe({
         next: (launch) => {
@@ -320,7 +320,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
           this.progress.nodes.launching[node] = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Launch)),
+        map((json) => toInstance(json as object, Launch)),
       )
       .subscribe({
         next: (launch) => {
@@ -342,7 +342,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   saveUrlState() {
     const params: { [key: string]: string } = {};
-    if (!!this.launch) {
+    if (this.launch) {
       assign(params, { launch: this.launch._id });
     }
     if (!isEmpty(this.launches)) {
@@ -417,7 +417,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
     this.pipeline.inputs.set(key, input);
     const value = input.default;
-    if (!!value) {
+    if (value) {
       this.launchRequest.inputs ??= new Map<string, Primitive>();
       this.launchRequest.inputs.set(key, value);
     }
@@ -734,7 +734,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
     if (this.currentNode !== node) {
       const launch = this.launches[id] || this.launch;
-      if (!!launch) {
+      if (launch) {
         this.router.navigate(
           [
             {

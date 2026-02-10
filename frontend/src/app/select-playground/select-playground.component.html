@@ -37,9 +37,11 @@
   [class.busy-block]="progress.loading.projects"
 >
   <div class="card" *ngFor="let p of projects">
-    <div class="order" *ngIf="userRole.admin | can | async">
-      {{ p.order }}
-    </div>
+    <ng-container *ngIf="userRole.admin | can | async">
+      <div *ngIf="p.order as order" class="order">
+        {{ order }}
+      </div>
+    </ng-container>
     <header>
       <h2>{{ p.title | i18n }}</h2>
     </header>

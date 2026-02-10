@@ -24,12 +24,6 @@ $node-border-color: rgba($graphite-color-200, 0.25);
   background: rgba($node-background-color, 0.75);
   min-height: 100px;
 
-  &.disabled {
-    .circle {
-      pointer-events: none;
-    }
-  }
-
   @keyframes bg-spin {
     to {
       --border-angle: 1turn;
@@ -38,15 +32,19 @@ $node-border-color: rgba($graphite-color-200, 0.25);
 
   &.running {
     --border-angle: 0turn;
-    $main-bg: conic-gradient(from var(--border-angle),
-        $node-background-color 5%,
-        $node-background-color 60%,
-        $node-background-color 95%);
-    $gradient-border: conic-gradient(from var(--border-angle),
-        transparent 25%,
-        #08f,
-        #f03 99%,
-        transparent);
+    $main-bg: conic-gradient(
+      from var(--border-angle),
+      $node-background-color 5%,
+      $node-background-color 60%,
+      $node-background-color 95%
+    );
+    $gradient-border: conic-gradient(
+      from var(--border-angle),
+      transparent 25%,
+      #08f,
+      #f03 99%,
+      transparent
+    );
     background:
       $main-bg padding-box,
       $gradient-border border-box,
@@ -63,8 +61,13 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     border-color: red;
   }
 
-  &[disabled=true] {
-    pointer-events: none;
+  &.disabled {
+    .circle {
+      pointer-events: none;
+    }
+    .pick-output {
+      display: none;
+    }
   }
 
   &:hover .node ul.inputs li .title,
@@ -82,7 +85,6 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     visibility: visible;
     opacity: 1;
   }
-
 }
 
 .error {
@@ -98,7 +100,6 @@ $node-border-color: rgba($graphite-color-200, 0.25);
   align-items: center;
   justify-content: center;
 }
-
 
 .node {
   display: flex;
@@ -250,7 +251,7 @@ $node-border-color: rgba($graphite-color-200, 0.25);
         user-drag: none;
       }
 
-      >.images {
+      > .images {
         &.multiple {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -259,8 +260,7 @@ $node-border-color: rgba($graphite-color-200, 0.25);
         }
       }
 
-      >.video {
-
+      > .video {
         video {
           display: block;
           width: 100%;
@@ -268,15 +268,14 @@ $node-border-color: rgba($graphite-color-200, 0.25);
         }
       }
 
-      >.audio {
-
+      > .audio {
         audio {
           display: block;
           width: 100%;
         }
       }
 
-      >.string {
+      > .string {
         padding: $gutter-small;
         overflow: hidden;
         max-height: 15em;
@@ -284,7 +283,6 @@ $node-border-color: rgba($graphite-color-200, 0.25);
         line-height: 1em;
 
         ::ng-deep {
-
           ul,
           ol {
             padding-left: 1.5em;
@@ -304,7 +302,6 @@ $node-border-color: rgba($graphite-color-200, 0.25);
     }
   }
 }
-
 
 .progress {
   display: flex;

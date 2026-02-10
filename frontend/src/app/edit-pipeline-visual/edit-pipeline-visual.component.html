@@ -484,7 +484,7 @@
           ) | mapToPlain
         "
         [outputs]="
-          mode === 'project'
+          (['project', 'scheme'] | includes: mode)
             ? !!launches[node.key]
               ? launches[node.key].launchRequest.nodes.get(node.key)?.outputs
               : (launchRequest.nodes.get(node.key)?.outputs | mapToPlain)
