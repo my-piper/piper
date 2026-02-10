@@ -2,13 +2,14 @@ import { ChangeDetectorRef, Component, Renderer2 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
-import { toPairs } from "lodash";
+import { assign, toPairs } from "lodash";
 import { delay, finalize, map } from "rxjs";
 import { AppError } from "src/models/errors";
 import { Launch } from "src/models/launch";
 import { LaunchRequest } from "src/models/launch-request";
 import { Project } from "src/models/project";
 import { PipelineLaunchedSignal } from "src/models/signals/launch";
+import { LaunchRequestChangedSignal } from "src/models/signals/launch-request";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { Primitive } from "src/types/primitive";
@@ -42,12 +43,13 @@ export class ProjectPlaygroundComponent {
     private signals: SignalsService,
     private cd: ChangeDetectorRef,
     private route: ActivatedRoute,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) {}
 
   ngOnInit() {
     this.route.data.subscribe(({ project }) => {
       this.project = project;
+      this.request = this.project.launchRequest;
       this.build();
     });
 
@@ -61,7 +63,7 @@ export class ProjectPlaygroundComponent {
       "play",
       (data: object, element?: HTMLElement) => {
         this.inputsGroup.patchValue(data);
-        if (!!element) {
+        if (element) {
           if (element instanceof HTMLButtonElement) {
             this.renderer.addClass(element, "busy");
             this.renderer.setProperty(element, "disabled", true);
@@ -69,18 +71,19 @@ export class ProjectPlaygroundComponent {
             setTimeout(() => {
               this.renderer.removeClass(element, "busy");
               this.renderer.setProperty(element, "disabled", false);
-            }, 1000);
+            }, 1_000);
           }
         }
-      }
+      },
     );
   }
 
   private fillRequest() {
     const { inputs } = this.form.getRawValue();
-    this.request = new LaunchRequest({
+    assign(this.request, {
       inputs: new Map(toPairs(inputs)),
     });
+    this.signals.emit(new LaunchRequestChangedSignal());
   }
 
   private build() {
@@ -90,11 +93,11 @@ export class ProjectPlaygroundComponent {
     }
 
     const { pipeline, launchRequest } = this.project;
-    if (!!pipeline.inputs) {
+    if (pipeline.inputs) {
       for (const [k, input] of pipeline.inputs) {
         const control = this.fb.control<Primitive>(
           null,
-          input.required ? [Validators.required] : []
+          input.required ? [Validators.required] : [],
         );
         const value = launchRequest.inputs?.get(k) || input.default;
         if (value != null) {
@@ -106,7 +109,7 @@ export class ProjectPlaygroundComponent {
     }
 
     const json = localStorage.getItem(this.project._id);
-    if (!!json) {
+    if (json) {
       this.form.patchValue(JSON.parse(json), { emitEvent: false });
     }
     this.fillRequest();
@@ -116,7 +119,7 @@ export class ProjectPlaygroundComponent {
     console.log("Save playground form");
     localStorage.setItem(
       this.project._id,
-      JSON.stringify(toPlain(this.request))
+      JSON.stringify(toPlain(this.request)),
     );
   }
 
@@ -132,7 +135,7 @@ export class ProjectPlaygroundComponent {
           this.progress.launching = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Launch, json as Object))
+        map((json) => plainToInstance(Launch, json as object)),
       )
       .subscribe({
         next: (launch) => this.signals.emit(new PipelineLaunchedSignal(launch)),
@@ -144,7 +147,7 @@ export class ProjectPlaygroundComponent {
     localStorage.removeItem(this.project._id);
     const { pipeline, launchRequest } = this.project;
     const state: { [key: string]: Primitive } = {};
-    if (!!pipeline.inputs) {
+    if (pipeline.inputs) {
       for (const [k, input] of pipeline.inputs) {
         const value = launchRequest.inputs?.get(k) || input.default;
         if (value !== undefined) {

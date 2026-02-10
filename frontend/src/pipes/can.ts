@@ -16,8 +16,8 @@ export class CanPipe implements PipeTransform {
     }
 
     const can = (currentUser: User) => {
-      if (!!currentUser) {
-        if (!!owner) {
+      if (currentUser) {
+        if (owner) {
           if (owner?._id === currentUser?._id) {
             return true;
           }
