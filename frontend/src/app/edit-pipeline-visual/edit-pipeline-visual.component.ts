@@ -4,12 +4,12 @@ import {
   ElementRef,
   HostListener,
   OnDestroy,
-  Renderer2,
   ViewChild,
 } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { assign, isEmpty, mapValues, random } from "lodash";
 import { customAlphabet } from "nanoid";
+import { Socket } from "ngx-socket-io";
 import { stringify } from "qs";
 import {
   delay,
@@ -19,12 +19,14 @@ import {
   Subscription,
   switchMap,
   take,
+  takeUntil,
 } from "rxjs";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { UI, UI_DELAY } from "src/consts/ui";
 import { AppConfig } from "src/models/app-config";
 import { Arrange } from "src/models/arrange";
+import { PipelineEvent } from "src/models/events";
 import { InputFlow } from "src/models/input-flow";
 import { Launch } from "src/models/launch";
 import { LaunchRequest, NodeToLaunch } from "src/models/launch-request";
@@ -42,10 +44,13 @@ import { UserRole } from "src/models/user";
 import { Ajv } from "src/providers/ajv";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
+import { LiveService } from "src/services/live.service";
+import { MeManager } from "src/services/me.service";
 import { ProjectManager } from "src/services/project.manager";
 import { NodeOutputs } from "src/types/node";
 import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
+import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { sid } from "src/ui-kit/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
@@ -62,7 +67,10 @@ function salt() {
   templateUrl: "./edit-pipeline-visual.component.html",
   styleUrls: ["./edit-pipeline-visual.component.scss"],
 })
-export class EditPipelineVisualComponent implements OnDestroy {
+export class EditPipelineVisualComponent
+  extends UntilDestroyed
+  implements OnDestroy
+{
   userRole = UserRole;
   ui = UI;
   selectNodeComponent = SelectNodeComponent;
@@ -131,9 +139,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
     private http: HttpService,
     private ajv: Ajv,
     private router: Router,
-    private renderer: Renderer2,
+    private live: LiveService,
+    private me: MeManager,
+    private socket: Socket,
     private cd: ChangeDetectorRef,
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit() {
     this.route.data.subscribe(({ project, launch, launches, mode }) => {
@@ -172,7 +184,26 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
     this.drawlerRight.deactivateEvents.subscribe(() => {
       this.currentNode = null;
+      this.cd.detectChanges();
     });
+
+    this.listen();
+  }
+
+  private listen() {
+    this.live.subscribe(this.me.user._id);
+    this.socket
+      .fromEvent<object>("pipeline_done")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
+        const { launch } = toInstance(data, PipelineEvent);
+        if (launch === this.launch?._id) {
+          this.launch = null;
+          this.cd.detectChanges();
+
+          this.saveUrlState();
+        }
+      });
   }
 
   back() {
@@ -181,7 +212,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  override ngOnDestroy() {
+    super.ngOnDestroy();
     this.unsubscribe();
   }
 
@@ -824,7 +856,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
       if (item instanceof ClipboardItem) {
         for (const type of item.types) {
           switch (type) {
-            case "text/plain":
+            case "text/plain": {
               const blob = await item.getType(type);
               const text = await blob.text();
               try {
@@ -851,6 +883,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
                 console.error(e);
               }
               break;
+            }
             default:
           }
         }

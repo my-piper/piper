@@ -84,7 +84,7 @@ import { EditUserComponent } from "./users/edit/edit-user.component";
 import { UsersComponent } from "./users/users.component";
 
 export function projectIdMatcher(
-  segments: UrlSegment[]
+  segments: UrlSegment[],
 ): { consumed: UrlSegment[]; posParams: { [key: string]: UrlSegment } } | null {
   if (
     segments.length >= 2 &&
@@ -207,6 +207,15 @@ const routes: Routes = [
         children: [
           {
             path: "",
+            redirectTo: "outputs",
+            pathMatch: "full",
+          },
+          {
+            path: "outputs",
+            component: NodeOutputsComponent,
+          },
+          {
+            path: "inputs",
             component: NodeInputsComponent,
           },
           {
@@ -370,6 +379,11 @@ const routes: Routes = [
                 children: [
                   {
                     path: "",
+                    redirectTo: "outputs",
+                    pathMatch: "full",
+                  },
+                  {
+                    path: "outputs",
                     component: NodeOutputsComponent,
                   },
                   {
@@ -495,66 +509,6 @@ const routes: Routes = [
             resolve: {
               launch: LaunchResolver,
             },
-          },
-        ],
-      },
-      {
-        path: "launches/:id",
-        component: EditPipelineVisualComponent,
-        data: {
-          mode: "launch",
-        },
-        resolve: {
-          launch: LaunchResolver,
-        },
-        children: [
-          {
-            path: "nodes/:id",
-            component: NodeInLaunchComponent,
-            outlet: "right",
-            resolve: {
-              node: NodeFromLaunchResolver,
-            },
-            children: [
-              {
-                path: "",
-                component: NodeOutputsComponent,
-              },
-              {
-                path: "inputs",
-                component: NodeInputsComponent,
-              },
-              {
-                path: "state",
-                component: NodeStateComponent,
-              },
-              {
-                path: "logs",
-                component: NodeLogsComponent,
-              },
-              {
-                path: "jobs",
-                component: NodeJobsComponent,
-              },
-            ],
-          },
-          {
-            path: "outputs",
-            component: LaunchOutputsPageComponent,
-          },
-          {
-            path: "nested",
-            component: LaunchesPageComponent,
-            resolve: {
-              filter: NestedLaunchesFilterResolver,
-            },
-          },
-          {
-            path: "messages",
-            resolve: {
-              filter: LaunchMessagesFilterResolver,
-            },
-            component: PipelineMessagesComponent,
           },
         ],
       },

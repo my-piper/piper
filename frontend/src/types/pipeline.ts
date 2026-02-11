@@ -2,7 +2,8 @@ export type PipelineEventType =
   | "node_running"
   | "node_done"
   | "node_error"
-  | "node_flow";
+  | "node_flow"
+  | "pipeline_done";
 
 export type PipelineIOType =
   | "boolean"

@@ -3,7 +3,7 @@ import assign from "lodash/assign";
 import { objectsMapTransformer } from "transformers/map";
 import { LaunchArtefact, LaunchInput } from "./launch";
 
-export class NodeEvent {
+export class PipelineEvent {
   @Expose()
   @Type(() => String)
   launch: string;

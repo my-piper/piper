@@ -38,7 +38,7 @@ import { differenceInSeconds } from "date-fns";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
 import { NodeExecution } from "enums/node-execution";
 import get from "lodash/get";
-import { HeartbeatEvent, NodeEvent } from "models/events";
+import { HeartbeatEvent, PipelineEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { NodeLog, NodeStatus } from "models/node";
@@ -90,10 +90,24 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     node: nodeJob.node,
   });
 
+  const notifyUser = <T extends object | null>(
+    type: PipelineEventType,
+    event: T = null
+  ) => {
+    logger.info(`Notify ${type}`);
+    if (launch.options?.notify) {
+      notify(launch.launchedBy._id, type, event);
+    }
+  };
+
   const notifyNode = (node: string, event: PipelineEventType) => {
     if (launch.options?.notify) {
       logger.info(`Notify ${event}`);
-      notify(launch._id, event, mapTo({ launch: launch._id, node }, NodeEvent));
+      notify(
+        launch._id,
+        event,
+        mapTo({ launch: launch._id, node }, PipelineEvent)
+      );
     }
   };
 
@@ -101,6 +115,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     type: PipelineEventType,
     event: T = null
   ) => {
+    logger.info(`Notify ${type}`);
     if (launch.options?.notify) {
       notify(launch._id, type, event);
     }
@@ -310,7 +325,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     await job.moveToDelayed(Date.now() + (delay || 1000));
     throw new DelayedError();
   } else if (result?.["__type"] === "next") {
-    const { outputs, kicks, behavior, reset, delay } = toInstance(
+    const { outputs, kicks, behavior, reset, delay, costs } = toInstance(
       result as object,
       NextNode
     );
@@ -553,6 +568,11 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
             fromStart,
           });
 
+          notifyUser(
+            "pipeline_done",
+            mapTo({ launch: launch._id }, PipelineEvent)
+          );
+
           const { costs } = launch;
           if (costs?.pipeline > 0) {
             await queues.pipelines.usage.record.plan({
@@ -568,20 +588,17 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       }
     }
 
-    if (BILLING_ACTIVE) {
-      const { costs } = results;
-      if (costs > 0) {
-        const { launchedBy } = launch;
-        await queues.pipelines.usage.record.plan({
-          project: launch.project.title,
-          pipeline: launch.pipeline.name,
-          launch: launch._id,
-          launchedBy: launchedBy._id,
-          node: node.title,
-          processedAt,
-          costs: costs * UNIT_COST,
-        });
-      }
+    if (BILLING_ACTIVE && costs > 0) {
+      const { launchedBy } = launch;
+      await queues.pipelines.usage.record.plan({
+        project: launch.project.title,
+        pipeline: launch.pipeline.name,
+        launch: launch._id,
+        launchedBy: launchedBy._id,
+        node: node.title,
+        processedAt,
+        costs: costs * UNIT_COST,
+      });
     }
 
     return NodeJobResult.NODE_PROCESSED;

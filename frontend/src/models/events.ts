@@ -88,6 +88,12 @@ export class BalanceUpdatedEvent {
   }
 }
 
+export class LaunchEvent {
+  @Expose()
+  @Type(() => String)
+  launch: string;
+}
+
 export class HeartbeatEvent {
   @Expose()
   @Type(() => String)
