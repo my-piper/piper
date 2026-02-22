@@ -151,7 +151,7 @@ export const convertOutputs =
       };
 
       const saveUri = async (url: string) => {
-        if (storage.bucket(url) != bucket) {
+        if (storage.bucket(url) == bucket) {
           return url;
         }
 
