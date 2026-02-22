@@ -81,6 +81,9 @@ export class ProjectPlaygroundComponent {
   private fillRequest() {
     const { inputs } = this.form.getRawValue();
     assign(this.request, {
+      options: {
+        bucket: "artefacts",
+      },
       inputs: new Map(toPairs(inputs)),
     });
     this.signals.emit(new LaunchRequestChangedSignal());

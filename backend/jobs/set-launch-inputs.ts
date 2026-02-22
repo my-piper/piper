@@ -9,13 +9,13 @@ import { SetLaunchInputsEvent } from "models/events";
 import { Launch, LaunchInput } from "models/launch";
 import { getIOData } from "packages/launches";
 
-queues.launches.inputs.set.process(async (setInputsJob) => {
+queues.launches.inputs.set.process(async (job) => {
   const logger = createLogger("set-launch-inputs", {
-    launch: setInputsJob.launch,
+    launch: job.launch,
   });
 
-  logger.info(`Set inputs for launch ${setInputsJob.launch}`);
-  const launch = await readInstance(LAUNCH(setInputsJob.launch), Launch);
+  logger.info(`Set inputs for launch ${job.launch}`);
+  const launch = await readInstance(LAUNCH(job.launch), Launch);
   if (!launch) {
     logger.error("Launch is not found");
     return;
@@ -37,7 +37,14 @@ queues.launches.inputs.set.process(async (setInputsJob) => {
           title,
           type,
           order,
-          data: await getIOData(_id, "inputs", id, type, value),
+          data: await getIOData(
+            _id,
+            launchRequest.options?.bucket,
+            "inputs",
+            id,
+            type,
+            value
+          ),
         })
       );
     }

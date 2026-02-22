@@ -15,7 +15,7 @@ import { fromRedisValue } from "utils/redis";
 import { isDataUri } from "./data-uri";
 import { getFileInfo } from "./files";
 import { sid } from "./string";
-import { download, downloadBinary } from "./web";
+import { download } from "./web";
 
 const logger = createLogger("utils/node");
 
@@ -88,10 +88,6 @@ export const getNodeStatus =
     return !!json ? plainToClass(NodeStatus, JSON.parse(json) as Object) : null;
   };
 
-export async function getBinary(url: string): Promise<Buffer> {
-  return await downloadBinary(url);
-}
-
 export type InputsReadiness = {
   required: string[];
   filled: string[];
@@ -124,11 +120,11 @@ export const convertOutputs =
   ({
     launch,
     node,
-    bucket = null,
+    bucket,
   }: {
     launch: Launch;
     node: string;
-    bucket: "artefact" | "output" | null;
+    bucket: "artefacts" | "outputs" | null;
   }) =>
   async (
     outputs: NodeOutputs,
@@ -141,10 +137,10 @@ export const convertOutputs =
 
         const action = (() => {
           switch (bucket) {
-            case "output":
+            case "outputs":
               logger.debug("Save data to outputs");
               return storage.output;
-            case "artefact":
+            case "artefacts":
             default:
               logger.debug("Save data to artefacts");
               return storage.artefact;
@@ -155,9 +151,10 @@ export const convertOutputs =
       };
 
       const saveUri = async (url: string) => {
-        if (!bucket) {
+        if (storage.bucket(url) != bucket) {
           return url;
         }
+
         const { data } = await download(url);
         const fileName = [launch._id, node, key, sid(2)].join("_");
         return await saveBinary(data, fileName);

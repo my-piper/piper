@@ -347,10 +347,12 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         JSON.stringify(converted)
       );
 
-      await queues.launches.artefacts.save.plan({
-        launch: launch._id,
-        node: nodeJob.node,
-      });
+      if (!!launchRequest.options?.bucket) {
+        await queues.launches.artefacts.save.plan({
+          launch: launch._id,
+          node: nodeJob.node,
+        });
+      }
     }
 
     if (behavior === "normal") {

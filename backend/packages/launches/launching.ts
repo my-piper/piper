@@ -44,7 +44,7 @@ import { getFileInfo, withTempContext } from "utils/files";
 import { fromRedisValue, toRedisValue } from "utils/redis";
 import { sid } from "utils/string";
 import { getPoster } from "utils/video";
-import { download, downloadBinary, extFromMime } from "utils/web";
+import { download, extFromMime } from "utils/web";
 
 const logger = createLogger("utils/launch");
 
@@ -281,7 +281,8 @@ export async function data(id: string): Promise<LaunchData> {
 
 export async function getIOData(
   launch: string,
-  container: "inputs" | "outputs" | "artefacts",
+  bucket: "artefacts" | "outputs" | null,
+  container: "inputs" | "outputs" | "nodes",
   id: string,
   type: PipelineIOType,
   value: Primitive
@@ -321,7 +322,10 @@ export async function getIOData(
       const { width, height } = await sharp(data).metadata();
       return new ImageData({
         format: ext,
-        url: await storage.output(data, fileName),
+        url:
+          storage.bucket(url) != bucket
+            ? await storage.output(data, fileName)
+            : url,
         width,
         height,
       });
@@ -337,7 +341,10 @@ export async function getIOData(
         images.push(
           new ImageData({
             format: ext,
-            url: await storage.output(data, fileName),
+            url:
+              storage.bucket(url) != bucket
+                ? await storage.output(data, fileName)
+                : url,
             width,
             height,
           })
@@ -348,7 +355,7 @@ export async function getIOData(
       });
     case "video": {
       const url = value as string;
-      const data = await downloadBinary(url);
+      const { data } = await download(url);
       const { ext } = await getFileInfo(data);
       const name = `${launch}_${container}_${id}`;
       const fileName = {
@@ -366,7 +373,10 @@ export async function getIOData(
       const { width, height } = await sharp(poster).metadata();
 
       return new VideoData({
-        url: await storage.output(data, fileName.video),
+        url:
+          storage.bucket(url) != bucket
+            ? await storage.output(data, fileName.video)
+            : url,
         poster: await storage.output(poster, fileName.poster),
         width,
         height,

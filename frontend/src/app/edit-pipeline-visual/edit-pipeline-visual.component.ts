@@ -262,7 +262,7 @@ export class EditPipelineVisualComponent
     const request = toInstance(
       {
         options: {
-          bucket: "output",
+          bucket: "outputs",
         },
       },
       LaunchRequest,
@@ -327,7 +327,7 @@ export class EditPipelineVisualComponent
     const request = toInstance(
       {
         options: {
-          bucket: "output",
+          bucket: "outputs",
         },
         inclusive: {
           nodes: [node],

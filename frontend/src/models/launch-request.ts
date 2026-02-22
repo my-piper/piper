@@ -8,7 +8,7 @@ import { PrimitiveMap } from "src/types/primitive";
 export class LaunchOptions {
   @Expose()
   @Type(() => String)
-  bucket: "artefact" | "output" | null;
+  bucket: "artefacts" | "outputs" | null;
 }
 
 export class Inclusive {

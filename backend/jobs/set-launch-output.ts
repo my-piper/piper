@@ -18,40 +18,37 @@ import { ulid } from "ulid";
 import { fromRedisValue } from "utils/redis";
 import { sid } from "utils/string";
 
-queues.launches.outputs.set.process(async (setOutputJob) => {
+queues.launches.outputs.set.process(async (job) => {
   const logger = createLogger("set-launch-output", {
-    launch: setOutputJob.launch,
+    launch: job.launch,
   });
 
-  logger.info(
-    `Set output ${setOutputJob.output} in launch ${setOutputJob.launch}`
-  );
-  const launch = await readInstance(LAUNCH(setOutputJob.launch), Launch);
+  logger.info(`Set output ${job.output} in launch ${job.launch}`);
+  const launch = await readInstance(LAUNCH(job.launch), Launch);
   if (!launch) {
     logger.error("Launch is not found");
     return;
   }
 
-  const value = await redis.get(
-    PIPELINE_OUTPUT(launch._id, setOutputJob.output)
-  );
+  const value = await redis.get(PIPELINE_OUTPUT(launch._id, job.output));
   if (value == null) {
     logger.error("Output has no value");
     return;
   }
 
-  const { type, title } = launch.pipeline.outputs.get(setOutputJob.output);
-  const { project, launchedBy } = launch;
+  const { type, title } = launch.pipeline.outputs.get(job.output);
+  const { project, launchRequest, launchedBy } = launch;
 
   const data = await getIOData(
     launch._id,
+    launchRequest.options?.bucket,
     "outputs",
-    setOutputJob.output,
+    job.output,
     type,
     fromRedisValue(type, value)
   );
   await redis.setEx(
-    PIPELINE_OUTPUT_DATA(launch._id, setOutputJob.output),
+    PIPELINE_OUTPUT_DATA(launch._id, job.output),
     LAUNCH_EXPIRED,
     JSON.stringify(
       (() => {
@@ -92,11 +89,8 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
           $mergeObjects: [
             "$outputs",
             {
-              [setOutputJob.output]: {
-                $mergeObjects: [
-                  ["$outputs", setOutputJob.output].join("."),
-                  plain,
-                ],
+              [job.output]: {
+                $mergeObjects: [["$outputs", job.output].join("."), plain],
               },
             },
           ],
@@ -109,7 +103,7 @@ queues.launches.outputs.set.process(async (setOutputJob) => {
     const event = mapTo(
       {
         launch: launch._id,
-        id: setOutputJob.output,
+        id: job.output,
         output,
       },
       SetLaunchOutputEvent

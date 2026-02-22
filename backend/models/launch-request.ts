@@ -10,9 +10,9 @@ import { PrimitiveMap } from "types/primitive";
 export class LaunchOptions {
   @Expose()
   @IsOptional()
-  @IsEnum(["artefact", "output", null])
+  @IsEnum(["artefacts", "outputs", null])
   @Type(() => String)
-  bucket: "artefact" | "output" | null;
+  bucket: "artefacts" | "outputs" | null;
 }
 
 export class Inclusive {

@@ -12,25 +12,21 @@ import { Primitive } from "types/primitive";
 import { ulid } from "ulid";
 import { sid } from "utils/string";
 
-queues.launches.artefacts.save.process(async (saveArtefactsJob) => {
+queues.launches.artefacts.save.process(async (job) => {
   const logger = createLogger("save-launch-artefacts", {
-    launch: saveArtefactsJob.launch,
+    launch: job.launch,
   });
 
-  logger.info(
-    `Save artefacts for node ${saveArtefactsJob.node} in launch ${saveArtefactsJob.launch}`
-  );
-  const launch = await readInstance(LAUNCH(saveArtefactsJob.launch), Launch);
+  logger.info(`Save artefacts for node ${job.node} in launch ${job.launch}`);
+  const launch = await readInstance(LAUNCH(job.launch), Launch);
   if (!launch) {
     logger.error("Launch is not found");
     return;
   }
 
-  const { project, launchedBy } = launch;
+  const { project, launchRequest, launchedBy } = launch;
 
-  const value = await redis.get(
-    NODE_OUTPUTS(launch._id, saveArtefactsJob.node)
-  );
+  const value = await redis.get(NODE_OUTPUTS(launch._id, job.node));
   if (value == null) {
     logger.error("Node outputs not found");
     return;
@@ -38,7 +34,7 @@ queues.launches.artefacts.save.process(async (saveArtefactsJob) => {
 
   const outputs = JSON.parse(value) as { [key: string]: Primitive };
 
-  const node = launch.pipeline.nodes.get(saveArtefactsJob.node);
+  const node = launch.pipeline.nodes.get(job.node);
   for (const [key, output] of node.outputs) {
     const value = outputs[key];
     if (value === undefined) {
@@ -52,8 +48,9 @@ queues.launches.artefacts.save.process(async (saveArtefactsJob) => {
     try {
       data = await getIOData(
         launch._id,
-        "artefacts",
-        [saveArtefactsJob.node, key].join("_"),
+        launchRequest.options?.bucket,
+        "nodes",
+        [job.node, key].join("_"),
         type,
         value
       );
@@ -67,7 +64,7 @@ queues.launches.artefacts.save.process(async (saveArtefactsJob) => {
       _id: sid(),
       project: project._id,
       launch: launch._id,
-      node: saveArtefactsJob.node,
+      node: job.node,
       filledAt: new Date(),
       launchedBy: !!launchedBy
         ? (() => {

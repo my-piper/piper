@@ -42,11 +42,6 @@ export async function download(
   return { mimeType, data: data as Buffer };
 }
 
-export async function downloadBinary(url: string): Promise<Buffer> {
-  const { data } = await download(url);
-  return data;
-}
-
 export function extFromMime(type: string): string {
   switch (type) {
     case "image/png":
