@@ -2,9 +2,6 @@ import "reflect-metadata";
 
 import { queues } from "./app/queues";
 
-await queues.nodes.process.deferred.close();
-await queues.nodes.process.deferred.obliterate();
-
 await queues.launches.outputs.set.close();
 await queues.launches.outputs.set.obliterate();
 
