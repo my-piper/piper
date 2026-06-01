@@ -60,19 +60,19 @@ export const queues = {
     }),
     inputs: {
       set: new JobsQueue("set_launch_inputs", SetLaunchInputsJob, {
-        limiter: { max: 100, duration: secondsToMilliseconds(10) },
+        limiter: { max: 1000, duration: secondsToMilliseconds(10) },
         concurrency: 50,
       }),
     },
     outputs: {
       set: new JobsQueue("set_launch_output", SetLaunchOutputJob, {
-        limiter: { max: 100, duration: secondsToMilliseconds(10) },
+        limiter: { max: 1000, duration: secondsToMilliseconds(10) },
         concurrency: 50,
       }),
     },
     errors: {
       set: new JobsQueue("set_launch_errors", SetLaunchErrorsJob, {
-        limiter: { max: 100, duration: secondsToMilliseconds(10) },
+        limiter: { max: 1000, duration: secondsToMilliseconds(10) },
         concurrency: 50,
       }),
     },
