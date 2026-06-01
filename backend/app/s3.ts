@@ -49,12 +49,12 @@ async function streamToBuffer(stream): Promise<Buffer> {
 export async function upload(
   key: string,
   data: Buffer,
-  bucket: string | null = null
+  bucket: string | null = null,
 ): Promise<string> {
-  logger.debug(`Upload file ${key}`);
   try {
     const { mime } = await fileTypeFromBuffer(data);
     const target = bucket || S3_DEFAULT_BUCKET_NAME;
+    logger.debug(`Upload file ${key} to ${target}`);
     const {
       $metadata: { httpStatusCode },
     } = await s3.send(
@@ -64,7 +64,7 @@ export async function upload(
         Body: data,
         ACL: "public-read",
         ContentType: mime,
-      })
+      }),
     );
     logger.debug(`Server returned ${httpStatusCode}`);
     return [S3_BASE_URL, target, key].join("/");
@@ -77,14 +77,14 @@ export async function upload(
 
 export async function load(
   key: string,
-  bucket: string = S3_DEFAULT_BUCKET_NAME
+  bucket: string = S3_DEFAULT_BUCKET_NAME,
 ): Promise<Buffer> {
   try {
     const data = (await s3.send(
       new GetObjectCommand({
         Bucket: bucket,
         Key: getKey(key),
-      })
+      }),
     )) as GetObjectCommandOutput;
 
     return streamToBuffer(data.Body);
@@ -104,7 +104,7 @@ export async function load(
 
 export async function exists(
   key: string,
-  bucket: string = S3_DEFAULT_BUCKET_NAME
+  bucket: string = S3_DEFAULT_BUCKET_NAME,
 ): Promise<boolean> {
   try {
     const {
@@ -113,7 +113,7 @@ export async function exists(
       new HeadObjectCommand({
         Bucket: bucket,
         Key: getKey(key),
-      })
+      }),
     );
     if (httpStatusCode === 200) {
       return true;
@@ -134,7 +134,7 @@ export async function exists(
 
 export async function remove(
   key: string,
-  bucket: string = S3_DEFAULT_BUCKET_NAME
+  bucket: string = S3_DEFAULT_BUCKET_NAME,
 ): Promise<void> {
   logger.debug(`Remove file ${key}`);
 
@@ -143,7 +143,7 @@ export async function remove(
       new DeleteObjectCommand({
         Bucket: bucket,
         Key: getKey(key),
-      })
+      }),
     );
   } catch (e) {
     const {
@@ -163,7 +163,7 @@ export async function copy(
   fromKey: string,
   toKey: string,
   fromBucket: string = S3_DEFAULT_BUCKET_NAME,
-  toBucket: string = S3_DEFAULT_BUCKET_NAME
+  toBucket: string = S3_DEFAULT_BUCKET_NAME,
 ): Promise<void> {
   logger.debug(`Copy file ${fromBucket}/${fromKey} to ${toBucket}/${toKey}`);
 
@@ -176,7 +176,7 @@ export async function copy(
         CopySource: `${fromBucket}/${getKey(fromKey)}`,
         Key: getKey(toKey),
         ACL: "public-read",
-      })
+      }),
     );
     logger.debug(`Server returned ${httpStatusCode}`);
   } catch (e) {

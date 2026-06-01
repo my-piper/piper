@@ -17,7 +17,6 @@ import { toInstance, toPlain } from "core-kit/packages/transform";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import { fileTypeFromBuffer } from "file-type";
-import fs from "fs/promises";
 import {
   BooleanData,
   FloatData,
@@ -35,15 +34,12 @@ import {
 } from "models/launch";
 import { plan } from "packages/nodes/plan-node";
 import { getCosts } from "packages/pipelines/pipeline-costs";
-import path from "path";
 import sharp from "sharp";
 import { PipelineIOType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import { ulid } from "ulid";
-import { withTempContext } from "utils/files";
 import { fromRedisValue, toRedisValue } from "utils/redis";
 import { sid } from "utils/string";
-import { getPoster } from "utils/video";
 import { downloadBinary, extFromMime } from "utils/web";
 
 const logger = createLogger("utils/launch");
@@ -68,7 +64,7 @@ export async function run({
           type,
           title,
           order,
-        })
+        }),
       );
     }
   }
@@ -83,7 +79,7 @@ export async function run({
         redis.setEx(
           NODE_INPUT(_id, id, key),
           LAUNCH_EXPIRED,
-          toRedisValue(input.type, value)
+          toRedisValue(input.type, value),
         );
       const value = launchRequest.nodes?.get(id)?.inputs?.get(key);
       if (value !== undefined) {
@@ -110,7 +106,7 @@ export async function run({
               const fileName = [sid(), extFromMime(typeFull)].join(".");
               inputs.set(
                 id,
-                await storage.artefact(Buffer.from(buffer), fileName)
+                await storage.artefact(Buffer.from(buffer), fileName),
               );
             }
             break;
@@ -130,7 +126,7 @@ export async function run({
             await redis.setEx(
               NODE_INPUT(_id, flow.to, flow.input),
               LAUNCH_EXPIRED,
-              toRedisValue(to.type, value)
+              toRedisValue(to.type, value),
             );
           }
         }
@@ -165,13 +161,13 @@ export async function run({
       delete plain["pipeline"];
       delete plain["request"];
       return plain;
-    })() as { _id: string }
+    })() as { _id: string },
   );
 
   await redis.setEx(
     LAUNCH(launch._id),
     LAUNCH_EXPIRED,
-    JSON.stringify(toPlain(launch))
+    JSON.stringify(toPlain(launch)),
   );
 
   if (scope?.activated) {
@@ -264,7 +260,7 @@ export async function getIOData(
   container: "inputs" | "outputs",
   id: string,
   type: PipelineIOType,
-  value: Primitive
+  value: Primitive,
 ) {
   switch (type) {
     case "boolean":
@@ -320,7 +316,7 @@ export async function getIOData(
             url: await storage.output(data, fileName),
             width,
             height,
-          })
+          }),
         );
       }
       return new ImagesData({
@@ -333,23 +329,23 @@ export async function getIOData(
       const name = `${launch}_${container}_${id}`;
       const fileName = {
         video: `${name}.${ext}`,
-        poster: `${name}_poster.jpg`,
+        //poster: `${name}_poster.jpg`,
       };
 
-      let poster: Buffer;
+      /*let poster: Buffer;
       await withTempContext(async (tmpFolder) => {
         const filePath = path.join(tmpFolder, fileName.video);
         await fs.writeFile(filePath, video);
         poster = await getPoster(filePath);
-      });
+      });*/
 
-      const { width, height } = await sharp(poster).metadata();
+      //const { width, height } = await sharp(poster).metadata();
 
       return new VideoData({
         url: await storage.output(video, fileName.video),
-        poster: await storage.output(poster, fileName.poster),
-        width,
-        height,
+        //poster: await storage.output(poster, fileName.poster),
+        //width,
+        //height,
       });
     }
     default:

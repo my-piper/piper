@@ -4,6 +4,3 @@
 [submodule "translator"]
 	path = translator
 	url = git@github.com:my-piper/translator.git
-[submodule "backend/core-kit"]
-	path = backend/core-kit
-	url = git@github.com:my-piper/core-kit.git

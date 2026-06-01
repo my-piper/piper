@@ -22,8 +22,8 @@ api.post(
     await redis.setEx(
       USER_API_TOKEN_KEY(_id),
       USER_API_TOKEN_EXPIRED,
-      await bcrypt.hash(token, 10)
+      await bcrypt.hash(token, 10),
     );
     return new Authorization({ token });
-  })
+  }),
 );

@@ -24,7 +24,7 @@ export const NODE_INPUT = (
   launch: string,
   node: string,
   input: string,
-  index: string | null = null
+  index: string | null = null,
 ) => {
   return ["launch", launch, "nodes", node, "inputs", input].join(KEY_SEPARATOR);
 };
@@ -32,7 +32,7 @@ export const NODE_INPUT = (
 export const NODE_INPUT_ELEMENTS = (
   launch: string,
   node: string,
-  input: string
+  input: string,
 ) => `launch:${launch}:nodes:${node}:inputs:${input}:*`;
 
 export const NODE_PROCESSING_LOCK = (launch: string, node: string) =>
@@ -74,7 +74,7 @@ export const GLOBAL_ENVIRONMENT_KEY = "environment";
 export const USER_ENVIRONMENT_KEY = (user: string) => `environment:${user}`;
 
 export const USER_API_TOKEN_KEY = (id: string) => `user:${id}:api-token`;
-export const USER_API_TOKEN_EXPIRED = 180 * SECONDS_IN_DAY;
+export const USER_API_TOKEN_EXPIRED = 730 * SECONDS_IN_DAY;
 
 export const USER_INITIAL_BALANCE_LOCK = (ip: string) =>
   `user:${ip}:initial-balance`;
