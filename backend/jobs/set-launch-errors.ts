@@ -22,13 +22,14 @@ queues.launches.errors.set.process(async (setErrorsJob) => {
 
   logger.info(`Set errors for launch ${launch._id}`);
   const errors = (await redis.lRange(PIPELINE_ERRORS(launch._id), 0, -1)) || [];
-  await mongo.launches.updateOne({ _id: launch }, { $set: { errors } });
+
+  await mongo.launches.updateOne({ _id: launch._id }, { $set: { errors } });
 
   const event = toPlain(
     new SetLaunchErrorsEvent({
       launch: launch._id,
       errors,
-    })
+    }),
   );
   const { launchedBy } = launch;
   if (!!launchedBy) {
