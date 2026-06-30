@@ -1,7 +1,5 @@
 import env from "core-kit/env";
 
-export const USE_BILLING = env["USE_BILLING"] === "yes";
-
 export const BILLING_ACTIVE = env["BILLING_ACTIVE"] === "yes";
 export const BILLING_URL = env["BILLING_URL"] || null;
 

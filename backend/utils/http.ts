@@ -1,6 +1,6 @@
 import mongo from "app/mongo";
 import bcrypt from "bcrypt";
-import { USE_BILLING } from "consts/billing";
+import { BILLING_ACTIVE } from "consts/billing";
 import { JWT_SECRET, NODE_ENV } from "consts/core";
 import { NO_CACHE_HEADERS } from "consts/http";
 import { USER_API_TOKEN_KEY } from "consts/redis";
@@ -236,7 +236,7 @@ export function checkRoles(user: User, roles: UserRole | UserRole[]) {
 export function checkBalance(user: User) {
   checkLogged(user);
 
-  if (!USE_BILLING) {
+  if (!BILLING_ACTIVE) {
     return;
   }
 
