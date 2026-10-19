@@ -1,20 +1,22 @@
 # Backend testing implementation plan
 
-Status: planned; not implemented.
+Status: step 1 implemented; steps 2–5 pending.
 
 Start with pipeline correctness, then add API and infrastructure coverage. Deliver the work in five small PRs, with PRs 1–2 forming the first milestone.
 
 ## Current constraints
 
-- `backend/package.json` has a placeholder `test` script and no test suite.
+- `backend/package.json` provides fast test, watch, coverage, and test typecheck
+  commands. Harness usage and isolation rules are documented in
+  [`backend/tests/README.md`](../backend/tests/README.md).
 - Production uses Node.js 22, TypeScript through `tsx`, ESM, and `baseUrl` imports such as `app/mongo` and `models/launch`.
 - Models use decorators and `class-transformer`; tests must preserve the runtime transformation behavior.
 - Importing `app/mongo` connects to MongoDB. Importing the core-kit Redis module connects to Redis. Queue construction and worker registration also happen during module loading.
 - `core-kit/env.ts` loads `.env`, so tests must establish controlled configuration before application imports.
 - `core-kit` is a git submodule. Keep changes in Piper where possible; any necessary shared-library change requires a separate submodule change.
-- CI currently builds the application image but has no backend test job.
+- CI runs the backend harness on Node.js 22 before building the application image.
 
-## 1. Establish the test harness
+## 1. Establish the test harness — implemented
 
 Recommended runner: **Vitest**. Its explicit module mock factories can replace infrastructure modules without executing the original imports. See the [Vitest module mocking documentation](https://vitest.dev/guide/mocking/modules.html).
 
@@ -24,12 +26,21 @@ Tasks:
 - Pin compatible dependency versions during implementation.
 - Configure isolated test settings before application imports and prevent development credentials from being loaded.
 - Replace infrastructure imports with explicit test doubles in fast tests; fail on unexpected external connections.
-- Add `test`, `test:watch`, and `test:coverage` scripts. These commands are planned and do not exist yet as working test commands.
+- Add `test`, `test:watch`, and `test:coverage` scripts.
 - Organize tests under `backend/tests/unit` and `backend/tests/integration`, with small shared fixtures and helpers.
-- Ensure test files participate in appropriate TypeScript and lint checks; the current backend TypeScript configuration excludes `tests`.
+- Ensure test files participate in appropriate TypeScript and lint checks.
 - Add a GitHub Actions test job with recursive submodule checkout and the same Node.js version as production. Make successful tests a prerequisite for publishing the image.
 
 Acceptance criteria: fast tests run without Docker, make no external connections, and exit cleanly both locally and in CI.
+
+Implementation: pinned Vitest 5.0.5, Vite 8.3.4, and V8 coverage; 10 smoke and
+isolation tests cover ESM/baseUrl/JSON imports, legacy decorators, real model
+transformation with an explicit Redis double, controlled environment loading, and
+blocked infrastructure/network access. `test:typecheck` checks tests and their
+imports separately from existing unrelated backend type errors. CI includes
+recursive submodule checkout, test lint/type checks, coverage artifacts, and a
+required dependency from the image build job. CI execution remains to be verified
+after pushing.
 
 ## 2. Cover data contracts and input handling
 

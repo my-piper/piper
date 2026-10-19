@@ -6,6 +6,7 @@
 **/cache
 **/tmp
 **/storage
+**/coverage
 **/*.pid
 
 *.safetensors

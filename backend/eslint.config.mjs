@@ -36,5 +36,19 @@ export default tseslint.config(
       "no-var": "error",
       eqeqeq: ["error", "always"],
     },
+  },
+  {
+    files: ["tests/**/*.ts", "vitest.config.ts"],
+    rules: {
+      // The installed ESLint/plugin versions require these defaults explicitly.
+      "@typescript-eslint/no-unused-expressions": [
+        "error",
+        {
+          allowShortCircuit: false,
+          allowTernary: false,
+          allowTaggedTemplates: false,
+        },
+      ],
+    },
   }
 );

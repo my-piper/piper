@@ -28,7 +28,12 @@ Backend (`cd backend`; TypeScript run directly via `tsx`, no build step; config 
 - `npm run sockets` — socket.io server (clients join rooms keyed by user id / launch id)
 - `npm run cli -- <cmd>` — admin CLI (`cli/`): `users add`, `env [set|remove]`, `modules [add|remove|update]`, `workers reboot`, `schemas compile`, `migrations …`, `debug server`
 - `npm run lint`, `npm run lint:fix`, `npm run format`, `npm run format:check`
-- There is no test suite.
+- `npm test`, `npm run test:watch`, `npm run test:coverage` — Vitest fast tests
+  without Docker; `npm run test:typecheck` checks test types. See
+  `backend/tests/README.md` for isolation and mocking rules.
+- Tests use preparation, action, and assertions separated by blank lines. Keep
+  model transformations real and provide explicit factories for infrastructure
+  mocks.
 
 Frontend (`cd frontend`, Angular 17 with `@angular/localize`):
 
