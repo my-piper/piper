@@ -70,6 +70,8 @@ Here's your improved version:
 
 ## Development
 
+Backend test implementation is planned in the [backend testing plan](docs/backend-testing-plan.md).
+
 ### 🛠️ Prerequisites
 
 - Docker Desktop 🐳

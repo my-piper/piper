@@ -1,0 +1,110 @@
+# Backend testing implementation plan
+
+Status: planned; not implemented.
+
+Start with pipeline correctness, then add API and infrastructure coverage. Deliver the work in five small PRs, with PRs 1–2 forming the first milestone.
+
+## Current constraints
+
+- `backend/package.json` has a placeholder `test` script and no test suite.
+- Production uses Node.js 22, TypeScript through `tsx`, ESM, and `baseUrl` imports such as `app/mongo` and `models/launch`.
+- Models use decorators and `class-transformer`; tests must preserve the runtime transformation behavior.
+- Importing `app/mongo` connects to MongoDB. Importing the core-kit Redis module connects to Redis. Queue construction and worker registration also happen during module loading.
+- `core-kit/env.ts` loads `.env`, so tests must establish controlled configuration before application imports.
+- `core-kit` is a git submodule. Keep changes in Piper where possible; any necessary shared-library change requires a separate submodule change.
+- CI currently builds the application image but has no backend test job.
+
+## 1. Establish the test harness
+
+Recommended runner: **Vitest**. Its explicit module mock factories can replace infrastructure modules without executing the original imports. See the [Vitest module mocking documentation](https://vitest.dev/guide/mocking/modules.html).
+
+Tasks:
+
+- Verify runner compatibility with Node.js 22, ESM, `baseUrl` imports, JSON imports, legacy decorators, and model transformations before committing to the configuration.
+- Pin compatible dependency versions during implementation.
+- Configure isolated test settings before application imports and prevent development credentials from being loaded.
+- Replace infrastructure imports with explicit test doubles in fast tests; fail on unexpected external connections.
+- Add `test`, `test:watch`, and `test:coverage` scripts. These commands are planned and do not exist yet as working test commands.
+- Organize tests under `backend/tests/unit` and `backend/tests/integration`, with small shared fixtures and helpers.
+- Ensure test files participate in appropriate TypeScript and lint checks; the current backend TypeScript configuration excludes `tests`.
+- Add a GitHub Actions test job with recursive submodule checkout and the same Node.js version as production. Make successful tests a prerequisite for publishing the image.
+
+Acceptance criteria: fast tests run without Docker, make no external connections, and exit cleanly both locally and in CI.
+
+## 2. Cover data contracts and input handling
+
+Prioritize behaviors used throughout pipeline execution:
+
+- Redis serialization and deserialization of booleans, numbers, strings, JSON, and `null` in `backend/utils/redis.ts`.
+- Model round trips through plain objects, including nested maps, dates, and exposed fields.
+- Required inputs, defaults, malformed JSON, and input/output conversion in `backend/utils/node.ts`.
+- Valid and invalid pipeline and launch-request schema fixtures using the production validators.
+
+Concrete regression candidate: `backend/packages/launches/launching.ts` selects pipeline input values with `launchRequest.inputs?.get(id) || input.default`. This replaces valid `false`, `0`, and empty-string values with defaults. `backend/packages/pipelines/pipeline-costs.ts` uses the same pattern for pipeline and node inputs.
+
+Write regression tests for intended behavior, including the distinction between absent values and valid falsy values. Decide the intended treatment of `null` explicitly. Keep confirmed defect fixes separate from harness setup, with their regression tests accompanying the fixes.
+
+Acceptance criteria: representative pipeline data survives validation, transformation, and serialization without losing values.
+
+## 3. Cover launch and node execution
+
+Keep domain logic real. Mock Redis, MongoDB, queues, Deno execution, storage, and notifications at their boundaries. Do not mock model conversion or the business logic under test.
+
+Prioritize:
+
+- Queue selection for all four execution types in `backend/packages/nodes/plan-node.ts`.
+- Launch defaults, input propagation, and selected starting nodes in `backend/packages/launches/launching.ts`.
+- Missing launch or node, interrupted launch, unmet inputs, and unfinished upstream flows.
+- Already processed and already running nodes.
+- Successful outputs and downstream scheduling.
+- `RepeatNode`, `NextNode`, execution errors, and lock/timer cleanup.
+- Environment precedence and decryption failures in `backend/jobs/process-node/environment.ts`.
+- Cost calculation and its error behavior in `backend/packages/pipelines/pipeline-costs.ts`.
+
+Extract callable handlers from worker registration only where necessary. Avoid a broad dependency-injection or application architecture rewrite. Use deterministic time and IDs, and restore mocks and timers after each test.
+
+Acceptance criteria: success and failure paths assert resulting state and scheduled work. Fast tests do not start real workers or leave timers and connections open.
+
+## 4. Add HTTP contract tests
+
+Exercise the Express app without importing the production `server.ts` entrypoint. Use an HTTP request helper such as Supertest, selecting a compatible version during implementation. Load only the routes needed by each suite and isolate route registration between suites.
+
+Cover:
+
+- Valid, invalid, expired, and revoked tokens.
+- Owner, admin, and unauthorized project operations.
+- Request validation and response serialization.
+- Error-to-status mapping in `backend/utils/http.ts`.
+- Billing enabled and disabled, plus insufficient-balance behavior. Exercise relevant environment modes explicitly because balance checks depend on them.
+
+Document existing API behavior first. Resolve ambiguous permission rules or status changes explicitly rather than silently changing the contract to match conventional expectations. Keep authentication and authorization logic real while controlling its storage dependencies.
+
+Acceptance criteria: representative project and launch routes have both allowed and rejected request cases, without starting the production server or unrelated services.
+
+## 5. Verify real infrastructure behavior
+
+Add a separate `test:integration` command using disposable MongoDB and Redis containers, including real BullMQ workers. Use dedicated test services rather than the development Compose stack and its persistent volumes.
+
+Cover:
+
+- Persisting and retrieving a launch.
+- Processing a small pipeline with deterministic Deno responses.
+- Retries, delayed jobs, duplicate delivery, locks, and scope concurrency.
+- Cleanup of queues, workers, connections, and test data, including after failures.
+
+Configure both the application Redis client and BullMQ's separate Redis connection. Isolate databases and queues between runs; run integration suites serially initially if shared state cannot yet be isolated reliably. Use readiness checks and bounded polling for asynchronous completion instead of fixed sleeps.
+
+Add a small smoke suite against the real Deno service afterward. Keep external AI providers stubbed. Kafka, ClickHouse, object storage, and socket delivery can receive dedicated integration coverage when their behaviors are explicitly in scope.
+
+Acceptance criteria: integration tests pass repeatedly without timing-dependent failures or leftover resources, locally and in CI.
+
+## Test conventions and scope
+
+- Structure tests as preparation, action, and assertions, separated by blank lines.
+- Assert observable behavior and contracts rather than reproducing implementation details.
+- Prefer small, readable fixtures for users, nodes, pipelines, and launches.
+- Keep real Redis and queue semantics in integration tests; elaborate in-memory substitutes should not become a second implementation of those services.
+- Track coverage initially, then introduce thresholds for covered modules as the suite grows. Exclude generated schemas and dependency/submodule internals from Piper's coverage targets.
+- Run the checks relevant to each PR and document its test command and acceptance criteria.
+
+The first milestone is PRs 1–2: a reliable CI harness and meaningful data-correctness coverage. Later PRs build on that foundation in the order above.
