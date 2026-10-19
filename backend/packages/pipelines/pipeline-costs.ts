@@ -60,7 +60,9 @@ export async function getCosts(
   const inputs = new Map<string, Primitive>();
   if (!!pipeline.inputs) {
     for (const [id, input] of pipeline.inputs) {
-      let value = launchRequest.inputs?.get(id) || input.default;
+      const requestedValue = launchRequest.inputs?.get(id);
+      const value =
+        requestedValue === undefined ? input.default : requestedValue;
       if (value !== undefined) {
         inputs.set(id, value);
         if (!!input.flows) {
@@ -102,7 +104,9 @@ export async function getCosts(
       })();
 
       for (const [key, input] of node.inputs) {
-        const value = inputs.get(key) || input.default;
+        const requestedValue = inputs.get(key);
+        const value =
+          requestedValue === undefined ? input.default : requestedValue;
         if (value !== undefined) {
           inputs.set(key, value);
         }

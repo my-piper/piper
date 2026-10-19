@@ -47,11 +47,27 @@ Structure tests as preparation, action, and assertions separated by blank lines.
 Mocks, environment/global stubs, and real timers are restored between tests. Set
 mock results in each test and close any resources created by the suite.
 
+Data contract suites in `tests/unit/contracts` cover Redis wire values, nested
+model maps and dates, exposed fields, and production pipeline/launch-request
+schema validation. Small reusable fixtures are in `tests/fixtures`. Suites in
+`tests/unit/utils` exercise real node input/output conversion with explicit
+storage, download, and Redis doubles. Launch and cost regressions assert the
+values written to Redis and passed to Deno while keeping domain logic real.
+
+Defaults apply only to absent or `undefined` values; `false`, `0`, and `""` are
+preserved. The JSON launch-request schema rejects `null`. Internal `null` values
+are preserved through model/Redis storage, prevent default substitution, and are
+treated as unfilled inputs by readiness and execution conversion. JSON text
+`"null"` is parsed as a JSON value and is distinct from an explicit null input.
+Conversion does not fill defaults itself. Launching still applies direct node
+defaults only to missing required inputs; pipeline inputs and cost estimation use
+their configured defaults for missing values.
+
 Coverage reports include Piper application modules, including uncovered modules,
 and exclude schemas, dependencies, submodule internals, test support, and process
 entry points. LCOV and HTML reports are written to `backend/coverage`; thresholds
-will be introduced as domain coverage grows. The initial smoke suite verifies the
-harness, so application coverage is intentionally small.
+will be introduced as domain coverage grows. Broader launch/node orchestration,
+HTTP contracts, and real infrastructure tests remain in later plan steps.
 
 CI checks the test types and lint, runs coverage on Node.js 22, uploads reports,
 and requires the backend test job to pass before building/publishing the image.

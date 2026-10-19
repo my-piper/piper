@@ -136,7 +136,9 @@ export async function run({
 
     // set inputs for nodes
     for (const [id, input] of pipeline.inputs) {
-      let value = launchRequest.inputs?.get(id) || input.default;
+      const requestedValue = launchRequest.inputs?.get(id);
+      const value =
+        requestedValue === undefined ? input.default : requestedValue;
       if (value !== undefined) {
         if (!!input.flows) {
           for (const [, flow] of input.flows) {

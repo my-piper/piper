@@ -65,7 +65,7 @@ export const multipleMapTransformer =
         const map = new Map<string, T>();
         const entries = Object.entries(value as { [key: string]: Object });
         for (const [key, val] of entries) {
-          const model = types[discriminator];
+          const model = types[val[discriminator]];
           map.set(key, toInstance(val, model));
         }
         return map;

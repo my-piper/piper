@@ -1,6 +1,6 @@
 # Backend testing implementation plan
 
-Status: step 1 implemented; steps 2–5 pending.
+Status: steps 1–2 implemented; steps 3–5 pending.
 
 Start with pipeline correctness, then add API and infrastructure coverage. Deliver the work in five small PRs, with PRs 1–2 forming the first milestone.
 
@@ -42,7 +42,7 @@ recursive submodule checkout, test lint/type checks, coverage artifacts, and a
 required dependency from the image build job. CI execution remains to be verified
 after pushing.
 
-## 2. Cover data contracts and input handling
+## 2. Cover data contracts and input handling — implemented
 
 Prioritize behaviors used throughout pipeline execution:
 
@@ -51,11 +51,34 @@ Prioritize behaviors used throughout pipeline execution:
 - Required inputs, defaults, malformed JSON, and input/output conversion in `backend/utils/node.ts`.
 - Valid and invalid pipeline and launch-request schema fixtures using the production validators.
 
-Concrete regression candidate: `backend/packages/launches/launching.ts` selects pipeline input values with `launchRequest.inputs?.get(id) || input.default`. This replaces valid `false`, `0`, and empty-string values with defaults. `backend/packages/pipelines/pipeline-costs.ts` uses the same pattern for pipeline and node inputs.
+Resolved regression: launch propagation and pipeline/node cost estimation used
+`value || input.default`, replacing valid `false`, `0`, and empty-string values
+with defaults. Defaults now apply only to absent or `undefined` values.
 
 Write regression tests for intended behavior, including the distinction between absent values and valid falsy values. Decide the intended treatment of `null` explicitly. Keep confirmed defect fixes separate from harness setup, with their regression tests accompanying the fixes.
 
 Acceptance criteria: representative pipeline data survives validation, transformation, and serialization without losing values.
+
+Implementation: 129 domain tests (139 total with the harness) cover Redis wire
+values, nested model maps/dates and exposed fields, required-input readiness,
+JSON and array conversion, media storage boundaries, production AJV validators
+with compiled schemas, and launch/cost input preservation. Regression tests
+reproduced the falsy/default defect before its fix. Model tests also exposed and
+fixed output-map deserialization selecting models by the discriminator name
+instead of each entry's discriminator value.
+
+Null policy: the JSON launch-request schema continues to reject `null`. Internal
+explicit `null` values are preserved in model maps and Redis, do not trigger a
+default, count as unfilled required inputs, and are omitted from converted
+execution/cost inputs. JSON text `"null"` remains a distinct supported JSON value.
+Optional direct node defaults retain their existing launch behavior: only missing
+required node inputs receive defaults at launch.
+
+Validation: run `npm test`, `npm run test:coverage`, `npm run test:typecheck`, and
+`npx --no-install eslint tests vitest.config.ts` in `backend`. Fast tests pass on
+Node.js 22 without Docker or external connections. Worker orchestration, cost
+arithmetic/error behavior, HTTP contracts, and real infrastructure remain in
+steps 3–5.
 
 ## 3. Cover launch and node execution
 

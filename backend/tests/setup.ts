@@ -16,7 +16,7 @@ vi.hoisted(() => {
     ENV: "test",
     TZ: "UTC",
     LOG_LEVEL: "silent",
-    LOG_PRETTY: "no",
+    LOG_PRETTY: "",
   });
 });
 
