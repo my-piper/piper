@@ -1,6 +1,6 @@
 # Backend testing implementation plan
 
-Status: steps 1–3 implemented; steps 4–5 pending.
+Status: steps 1–4 implemented; step 5 pending.
 
 Start with pipeline correctness, then add API and infrastructure coverage. Deliver the work in five small PRs, with PRs 1–2 forming the first milestone.
 
@@ -127,7 +127,7 @@ duplicate delivery, and scope concurrency remain integration work in step 5.
 The focused production lint check retains the same 17 existing rule violations
 as the original handler; source lint cleanup is outside this testing step.
 
-## 4. Add HTTP contract tests
+## 4. Add HTTP contract tests — implemented
 
 Exercise the Express app without importing the production `server.ts` entrypoint. Use an HTTP request helper such as Supertest, selecting a compatible version during implementation. Load only the routes needed by each suite and isolate route registration between suites.
 
@@ -142,6 +142,28 @@ Cover:
 Document existing API behavior first. Resolve ambiguous permission rules or status changes explicitly rather than silently changing the contract to match conventional expectations. Keep authentication and authorization logic real while controlling its storage dependencies.
 
 Acceptance criteria: representative project and launch routes have both allowed and rejected request cases, without starting the production server or unrelated services.
+
+Implementation: 80 HTTP tests (296 total) cover real JWT/bcrypt authentication,
+expired/invalid/revoked tokens, current user/role lookup, owner/admin project
+operations, request validation, model/response serialization, error mapping,
+project launches and interruption, and production/test/development billing modes.
+[The HTTP contract reference](backend-http-contracts.md) records current
+permission rules and status codes, including logged-in non-owner read/launch
+access and 400 responses for missing login/failed roles. Application behavior is
+unchanged in this step.
+
+Pinned Supertest 7.3.1 and its types 7.2.1 drive the real Express app with only the
+selected routes loaded. The HTTP helper reloads modules between tests, primes
+the real error decorators before asynchronous mock factories, and opens an
+ephemeral server on `127.0.0.1`. Network guards permit only that exact server port;
+other TCP destinations, TLS, and fetch remain blocked. Test servers close after
+success or failure, and harness tests verify route isolation and network limits.
+No production entry point, worker, or external service is started.
+
+Validation uses Node.js 22 with `npm test`, `npm run test:coverage`,
+`npm run test:typecheck`, test lint, and formatting. Restricted environments may
+need permission for local socket binding; this workspace's sandbox reports
+`listen EPERM` without that permission. GitHub Actions runs the same fast suite.
 
 ## 5. Verify real infrastructure behavior
 

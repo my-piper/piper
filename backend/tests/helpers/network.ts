@@ -24,7 +24,11 @@ export function blockNetwork() {
     ...args: unknown[]
   ) {
     const first = Array.isArray(args[0]) ? args[0][0] : args[0];
-    const destination = first as { host?: string; port?: number; path?: string };
+    const destination = first as {
+      host?: string;
+      port?: number;
+      path?: string;
+    };
     if (
       httpTestPort !== undefined &&
       destination?.host === "127.0.0.1" &&

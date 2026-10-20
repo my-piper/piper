@@ -1,5 +1,10 @@
 import { vi } from "vitest";
-import { HTTP_TEST_SECRET, HTTP_TEST_TIME, httpProjectFixture, httpUserFixture } from "../fixtures/http";
+import {
+  HTTP_TEST_SECRET,
+  HTTP_TEST_TIME,
+  httpProjectFixture,
+  httpUserFixture,
+} from "../fixtures/http";
 import { httpDoubles, resetHttpDoubles } from "./http-boundaries";
 
 export function httpScenario() {
@@ -19,10 +24,16 @@ export function httpScenario() {
   ]);
   const project = httpProjectFixture();
   const redisResponses = new Map<string, string>();
-  httpDoubles.users.findOne.mockImplementation(async ({ _id }) => users.get(_id) ?? null);
-  httpDoubles.projects.findOne.mockImplementation(async () => structuredClone(project));
+  httpDoubles.users.findOne.mockImplementation(
+    async ({ _id }) => users.get(_id) ?? null
+  );
+  httpDoubles.projects.findOne.mockImplementation(async () =>
+    structuredClone(project)
+  );
   httpDoubles.launches.findOne.mockResolvedValue(null);
-  httpDoubles.redis.get.mockImplementation(async (key) => redisResponses.get(key) ?? null);
+  httpDoubles.redis.get.mockImplementation(
+    async (key) => redisResponses.get(key) ?? null
+  );
 
   return { users, project, redisResponses };
 }

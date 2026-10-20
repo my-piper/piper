@@ -22,9 +22,18 @@ describe("HTTP test isolation", () => {
   it("blocks other destinations while allowing the test server", async () => {
     const context = await createHttpApp();
 
-    expect(() => net.connect({ host: "example.com", port: context.port })).toThrow(NETWORK_BLOCKED_MESSAGE);
-    expect(() => net.connect({ host: "127.0.0.1", port: context.port === 65535 ? 65534 : context.port + 1 })).toThrow(NETWORK_BLOCKED_MESSAGE);
-    await expect(fetch("https://example.com")).rejects.toThrow(NETWORK_BLOCKED_MESSAGE);
+    expect(() =>
+      net.connect({ host: "example.com", port: context.port })
+    ).toThrow(NETWORK_BLOCKED_MESSAGE);
+    expect(() =>
+      net.connect({
+        host: "127.0.0.1",
+        port: context.port === 65535 ? 65534 : context.port + 1,
+      })
+    ).toThrow(NETWORK_BLOCKED_MESSAGE);
+    await expect(fetch("https://example.com")).rejects.toThrow(
+      NETWORK_BLOCKED_MESSAGE
+    );
 
     const response = await context.request.get("/api/health").timeout(2000);
 

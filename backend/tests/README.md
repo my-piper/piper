@@ -40,8 +40,9 @@ Mock the exact boundary imported by the code under test. Return only the methods
 the scenario needs; avoid emulating entire services. Do not use automatic mocks
 or `importOriginal` on modules that connect during import. The harness smoke test
 demonstrates using the real Redis transformation helper with a client double.
-TCP, TLS, and fetch calls fail immediately, including connections to localhost.
-These guards are active during application imports and reinstalled before tests.
+TCP, TLS, and fetch calls fail immediately. These guards are active during
+application imports and reinstalled before tests. HTTP suites permit only their
+temporary `127.0.0.1` server's exact port; other localhost ports remain blocked.
 
 Structure tests as preparation, action, and assertions separated by blank lines.
 Mocks, environment/global stubs, and real timers are restored between tests. Set
@@ -71,6 +72,22 @@ decryption with test values. Suites changing billing/unit-cost settings reload
 application modules after stubbing configuration; import error constructors from
 that same module generation when asserting their types.
 
+HTTP suites in `tests/unit/http` use pinned Supertest against the real Express
+app without importing `server.ts`. `http-app.ts` reloads modules, initializes real
+error decorators before asynchronous mock factories, and loads only explicitly
+selected route files. It closes ephemeral loopback servers after each test.
+`http-boundaries.ts` controls storage/queue/Deno/reporting boundaries; JWT,
+bcrypt, authorization, validators, transformations, and launch logic remain real.
+`http-scenario.ts` selects controlled test secrets, users, time, and billing modes.
+Only `Date` is faked so HTTP request timers continue to run normally.
+
+See [the HTTP contract reference](../../docs/backend-http-contracts.md) for current
+permissions, statuses, token handling, and billing behavior. The workspace
+sandbox requires permission to bind temporary local sockets (`listen EPERM`
+otherwise); ordinary local/CI runs need no Docker or services. Every HTTP request
+has a bounded timeout, and the harness verifies that unrelated network access
+stays blocked and route registrations do not leak between app instances.
+
 Defaults apply only to absent or `undefined` values; `false`, `0`, and `""` are
 preserved. The JSON launch-request schema rejects `null`. Internal `null` values
 are preserved through model/Redis storage, prevent default substitution, and are
@@ -83,8 +100,8 @@ their configured defaults for missing values.
 Coverage reports include Piper application modules, including uncovered modules,
 and exclude schemas, dependencies, submodule internals, test support, and process
 entry points. LCOV and HTML reports are written to `backend/coverage`; thresholds
-will be introduced as domain coverage grows. HTTP contracts and real
-infrastructure tests remain in later plan steps.
+will be introduced as domain coverage grows. Real infrastructure tests remain in
+step 5 of the plan.
 
 CI checks the test types and lint, runs coverage on Node.js 22, uploads reports,
 and requires the backend test job to pass before building/publishing the image.

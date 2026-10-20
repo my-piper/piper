@@ -11,7 +11,9 @@ afterEach(async () => {
   servers.clear();
 });
 
-export async function createHttpApp(routes: Array<() => Promise<unknown>> = []) {
+export async function createHttpApp(
+  routes: Array<() => Promise<unknown>> = []
+) {
   vi.resetModules();
   // Initialize the real decorators before loading routes through async mocks.
   await import("core-kit/types/errors");
@@ -28,14 +30,23 @@ export async function createHttpApp(routes: Array<() => Promise<unknown>> = []) 
     });
   });
   const address = server.address();
-  if (!address || typeof address === "string") throw new Error("HTTP test server has no TCP address");
+  if (!address || typeof address === "string")
+    throw new Error("HTTP test server has no TCP address");
   allowHttpTestServer(address.port);
 
-  return { app, server, port: address.port, request: request(`http://127.0.0.1:${address.port}`), close: () => closeServer(server) };
+  return {
+    app,
+    server,
+    port: address.port,
+    request: request(`http://127.0.0.1:${address.port}`),
+    close: () => closeServer(server),
+  };
 }
 
 async function closeServer(server: Server) {
   if (!server.listening) return;
   server.closeAllConnections();
-  await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  await new Promise<void>((resolve, reject) =>
+    server.close((error) => (error ? reject(error) : resolve()))
+  );
 }
