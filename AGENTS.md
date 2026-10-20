@@ -18,6 +18,7 @@ Root (`Makefile`, reads optional `config.env`):
 - `make up` / `make down` / `make stop` — local infra via `tools/compose/compose.yaml` (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy)
 - `make mongo-migrate` / `make clickhouse-migrate` — apply migrations from `migrations/{mongo,clickhouse}`
 - `make mongo-migrate-add` / `make clickhouse-migrate-add` — create a new migration (interactive name prompt)
+- `make test` — backend test typecheck + Vitest fast tests; `make test-integration` runs the Docker-backed integration suite
 - `make schemas` — compile `backend/schemas/*.json` into `backend/schemas/compiled.json` and copy it to `frontend/src/schemas/compiled.json`. Run after editing any schema.
 
 Backend (`cd backend`; TypeScript run directly via `tsx`, no build step; config from `backend/.env`, template in `.env.template`):

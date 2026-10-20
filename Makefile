@@ -20,6 +20,13 @@ schemas:
 	npm run --prefix ./backend cli schemas compile
 	npm run --prefix ./frontend sync-schemas
 
+test:
+	${BACKEND} run test:typecheck
+	${BACKEND} test
+
+test-integration:
+	${BACKEND} run test:integration
+
 up:
 	docker compose ${COMPOSE_ARGS} up --remove-orphans
 
@@ -36,8 +43,8 @@ clickhouse-migrate-add:
 		echo "Migration name is required!"; \
 		exit 1; \
 	fi; \
-	npm run --prefix ./backend cli migrations clickhouse add $$migration_name 
- 
+	npm run --prefix ./backend cli migrations clickhouse add $$migration_name
+
 clickhouse-migrate:
 	npm run --prefix ./backend cli migrations clickhouse apply
 
@@ -48,7 +55,7 @@ mongo-migrate-add:
 		echo "Migration name is required!"; \
 		exit 1; \
 	fi; \
-	npm run --prefix ./backend cli migrations mongo add $$migration_name 
- 
+	npm run --prefix ./backend cli migrations mongo add $$migration_name
+
 mongo-migrate:
 	npm run --prefix ./backend cli migrations mongo apply
