@@ -38,7 +38,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["tests/**/*.ts", "vitest.config.ts"],
+    files: ["tests/**/*.ts", "vitest*.config.ts"],
     rules: {
       // The installed ESLint/plugin versions require these defaults explicitly.
       "@typescript-eslint/no-unused-expressions": [

@@ -5,6 +5,7 @@ import {
   LAUNCH_HEARTBEAT_EXPIRED,
 } from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
+import { DelayedError } from "core-kit/packages/queue";
 import redis, { readInstance } from "core-kit/packages/redis";
 import random from "lodash/random";
 import { Launch } from "models/launch";
@@ -46,22 +47,24 @@ queues.launches.run.process(async (runJob, job) => {
         await Promise.all(dead.map((id) => redis.lRem(scope.id, 0, id)));
       }
 
-      const position = queue.indexOf(runJob.launch);
+      const live = queue.filter((_, i) => heartbeats[i] !== 0);
+      const position = live.indexOf(runJob.launch);
       if (position !== -1) {
         logger.debug(`Position in queue ${position}`);
 
-        if (position >= scope.maxConcurrent - dead.length) {
+        if (position >= maxConcurrent) {
           logger.debug("Continue wait in scope queue");
           await job.moveToDelayed(
-            Date.now() + REPEAT_DELAY + random(1000, 3000)
+            Date.now() + REPEAT_DELAY + random(1000, 3000),
+            job.token
           );
-          return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
+          throw new DelayedError();
         }
       } else {
         logger.debug("Waiting in scope queue");
 
-        await job.moveToDelayed(Date.now() + 10000);
-        return RunLaunchJobResult.WAITING_IN_SCOPE_QUEUE;
+        await job.moveToDelayed(Date.now() + 10000, job.token);
+        throw new DelayedError();
       }
     } else {
       logger.debug(`Queue scope ${scope.id} is empty`);

@@ -31,6 +31,9 @@ Backend (`cd backend`; TypeScript run directly via `tsx`, no build step; config 
 - `npm test`, `npm run test:watch`, `npm run test:coverage` — Vitest fast tests
   without Docker; `npm run test:typecheck` checks test types. See
   `backend/tests/README.md` for isolation and mocking rules.
+- `npm run test:integration` — disposable MongoDB/Redis containers, real BullMQ
+  workers, and Deno smoke tests; requires Docker Compose v2. See
+  `backend/tests/integration/README.md` for service isolation and cleanup.
 - Tests use preparation, action, and assertions separated by blank lines. Keep
   model transformations real and provide explicit factories for infrastructure
   mocks.

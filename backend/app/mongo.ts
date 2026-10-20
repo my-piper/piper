@@ -4,7 +4,7 @@ import { MONGO_DB, MONGO_URL } from "../consts/core";
 
 const logger = createLogger("mongo");
 
-const mongo = new MongoClient(MONGO_URL);
+export const mongo = new MongoClient(MONGO_URL);
 const db = mongo.db(MONGO_DB);
 
 logger.debug("Connect to mongo");

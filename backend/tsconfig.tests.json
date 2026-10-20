@@ -4,6 +4,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["tests/**/*.ts", "vitest.config.ts"],
+  "include": ["tests/**/*.ts", "vitest*.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

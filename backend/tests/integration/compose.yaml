@@ -1,0 +1,35 @@
+services:
+  mongo:
+    image: mongo:8.0
+    ports:
+      - "127.0.0.1::27017"
+    tmpfs:
+      - /data/db
+      - /data/configdb
+    healthcheck:
+      test:
+        ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 1s
+      timeout: 5s
+      retries: 60
+
+  redis:
+    image: redis:7.2.5-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1::6379"
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 60
+
+  deno:
+    image: ghcr.io/my-piper/piper-deno:sha-fcfb6e9
+    ports:
+      - "127.0.0.1::80"
+    environment:
+      PER_WORKER_MEMORY_MB: "128"
+    mem_limit: 2g

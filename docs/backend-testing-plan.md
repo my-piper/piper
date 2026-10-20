@@ -1,6 +1,6 @@
 # Backend testing implementation plan
 
-Status: steps 1–4 implemented; step 5 pending.
+Status: steps 1–5 implemented.
 
 Start with pipeline correctness, then add API and infrastructure coverage. Deliver the work in five small PRs, with PRs 1–2 forming the first milestone.
 
@@ -165,7 +165,7 @@ Validation uses Node.js 22 with `npm test`, `npm run test:coverage`,
 need permission for local socket binding; this workspace's sandbox reports
 `listen EPERM` without that permission. GitHub Actions runs the same fast suite.
 
-## 5. Verify real infrastructure behavior
+## 5. Verify real infrastructure behavior — implemented
 
 Add a separate `test:integration` command using disposable MongoDB and Redis containers, including real BullMQ workers. Use dedicated test services rather than the development Compose stack and its persistent volumes.
 
@@ -181,6 +181,47 @@ Configure both the application Redis client and BullMQ's separate Redis connecti
 Add a small smoke suite against the real Deno service afterward. Keep external AI providers stubbed. Kafka, ClickHouse, object storage, and socket delivery can receive dedicated integration coverage when their behaviors are explicitly in scope.
 
 Acceptance criteria: integration tests pass repeatedly without timing-dependent failures or leftover resources, locally and in CI.
+
+Implementation: `npm run test:integration` starts a unique disposable Compose
+project with MongoDB, Redis, and the same pinned Deno service image as the
+development stack. Loopback ports and the Mongo database name are generated per
+run; application Redis and BullMQ use separate databases. Suites run serially
+with controlled configuration, blocked dotenv loading, restricted host
+connections, health checks, and bounded polling. No shared-library changes or
+additional dependencies were required. The application Mongo client now has a
+named export so teardown can close the real connection.
+
+Fourteen integration tests cover launch persistence/model retrieval, falsy input
+preservation, a two-node pipeline, completed and locked duplicate deliveries,
+BullMQ job-id deduplication, execution retries, RepeatNode delay/state, scope
+concurrency between two pipelines, delayed scope admission, stale-slot recovery,
+and resource cleanup after a worker failure. Three of these tests exercise the
+real Deno HTTP adapter/service: both isolation modes, results/logs, and exception
+mapping. Pipeline tests use deterministic Deno results and explicit factories for
+out-of-scope reporting/storage boundaries; transformations and domain logic stay
+real.
+
+Two regression tests failed before fixes in `jobs/run-launch.ts`: stale entries
+were removed without recalculating the remaining position, and returning normally
+after moving a job to delayed caused BullMQ missing-lock errors. The worker now
+checks position among live entries and throws `DelayedError` after delaying with
+the worker's lock token. Tests also fail on BullMQ infrastructure errors, which
+otherwise only appear on stderr.
+
+Teardown closes every application queue/worker and observer, drops the generated
+Mongo database, clears both Redis databases, and closes all clients. The outer
+runner removes its containers/volumes/network after success, failure, or handled
+interruption. The regression run verified failure cleanup. See
+[`backend/tests/integration/README.md`](../backend/tests/integration/README.md)
+for commands and recovery after an uncatchable process/daemon failure.
+
+Validation: all 296 fast tests pass with coverage on Node.js 22; test
+typechecking, test lint, and formatting pass. The 14 integration tests pass in
+two consecutive independent runs on Node.js 22, with no remaining test
+containers, networks, or named volumes. CI runs the same integration command in the
+required backend test job before image publication; execution in GitHub Actions
+remains to be verified after pushing. Kafka, ClickHouse, object storage, and socket
+delivery remain outside this step's scope.
 
 ## Test conventions and scope
 

@@ -22,7 +22,8 @@
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest run --coverage",
-    "test:typecheck": "tsc --project tsconfig.tests.json"
+    "test:typecheck": "tsc --project tsconfig.tests.json",
+    "test:integration": "node --import=tsx tests/integration/run.ts"
   },
   "keywords": [],
   "author": "",

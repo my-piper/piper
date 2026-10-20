@@ -8,12 +8,14 @@ npm test                 # Run fast tests once; no Docker or services required
 npm run test:watch       # Watch fast tests
 npm run test:coverage    # Run fast tests and write coverage/
 npm run test:typecheck   # Check tests, helpers, config, and imported application types
-npx --no-install eslint tests vitest.config.ts
+npx --no-install eslint tests vitest.config.ts vitest.integration.config.ts
+npm run test:integration  # Disposable Docker services and real Deno smoke tests
 ```
 
 Unit tests live in `tests/unit`. Shared setup and small helpers live in `tests` and
-`tests/helpers`. Infrastructure suites will live in `tests/integration` and are
-excluded from fast runs.
+`tests/helpers`. Infrastructure suites live in `tests/integration` and are
+excluded from fast runs. See [their README](integration/README.md) for isolation,
+service setup, and cleanup.
 
 The runner uses Piper's TypeScript settings, including `baseUrl`, JSON imports,
 and legacy decorators. Setup loads `reflect-metadata` before application models.
@@ -100,10 +102,10 @@ their configured defaults for missing values.
 Coverage reports include Piper application modules, including uncovered modules,
 and exclude schemas, dependencies, submodule internals, test support, and process
 entry points. LCOV and HTML reports are written to `backend/coverage`; thresholds
-will be introduced as domain coverage grows. Real infrastructure tests remain in
-step 5 of the plan.
+will be introduced as domain coverage grows. Real infrastructure tests run
+separately from coverage.
 
-CI checks the test types and lint, runs coverage on Node.js 22, uploads reports,
+CI checks the test types and lint, runs coverage and integration tests on Node.js 22, uploads reports,
 and requires the backend test job to pass before building/publishing the image.
 The focused typecheck avoids unrelated existing backend errors involving unused
 core-kit MySQL/Telegram dependencies and `packages/vm/utils`.

@@ -34,10 +34,14 @@ jobs:
         run: npm run test:typecheck
 
       - name: Lint test harness
-        run: npx --no-install eslint tests vitest.config.ts
+        run: npx --no-install eslint tests vitest.config.ts vitest.integration.config.ts
 
       - name: Run fast tests with coverage
         run: npm run test:coverage
+
+      - name: Run infrastructure and Deno smoke tests
+        run: npm run test:integration
+        timeout-minutes: 8
 
       - name: Upload coverage
         if: always()
