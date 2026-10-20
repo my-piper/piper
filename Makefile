@@ -12,10 +12,18 @@ FRONTEND=npm --prefix ./frontend
 .PHONY: lint lint-backend lint-frontend lint-fix
 
 install:
-	git submodule init
-	git submodule update
-	npm --prefix ./backend install
-	npm --prefix ./frontend install
+	@set -e; \
+	NVM_DIR="$${NVM_DIR:-$$HOME/.nvm}"; export NVM_DIR; \
+	if [ ! -s "$$NVM_DIR/nvm.sh" ]; then \
+		echo "nvm is required for make install: https://github.com/nvm-sh/nvm" >&2; \
+		exit 1; \
+	fi; \
+	. "$$NVM_DIR/nvm.sh" --no-use; \
+	nvm install; \
+	git submodule init; \
+	git submodule update; \
+	npm --prefix ./backend install; \
+	npm --prefix ./frontend install; \
 	npm --prefix ./translator install
 
 lint: lint-backend lint-frontend
