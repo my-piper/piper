@@ -42,10 +42,6 @@ record_pipelines_usage:
 update_packages:
 	npm run worker -- -w update_packages -h
 
-.PHONY: chrome
-chrome:
-	npm run chrome & socat TCP-LISTEN:9322,fork TCP:0.0.0.0:9222
-
 .PHONY: periodic
 periodic:
 	npm run periodic
@@ -58,14 +54,14 @@ oauth:
 metrics:
 	npm run metrics
 
-.PHONY: sockets 
+.PHONY: sockets
 sockets:
 	npm run sockets
 
-.PHONY: clickhouse-migrate 
+.PHONY: clickhouse-migrate
 clickhouse-migrate:
 	npm run cli migrations clickhouse apply
 
-.PHONY: mongo-migrate 
+.PHONY: mongo-migrate
 mongo-migrate:
 	npm run cli migrations mongo apply
