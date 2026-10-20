@@ -8,6 +8,7 @@ const logger = createLogger("plan-update-packages");
 
 export async function planUpdatePackages() {
   logger.info("Plan update packages");
+
   const packages = await loadRange(PACKAGES_UPDATES, NodePackageUpdates);
   for (const p of packages) {
     if (!!p.updated) {
@@ -18,5 +19,6 @@ export async function planUpdatePackages() {
       );
     }
   }
+
   await redis.del(PACKAGES_UPDATES);
 }
