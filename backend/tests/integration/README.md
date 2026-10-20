@@ -1,11 +1,12 @@
 # Backend integration tests
 
-Use Node.js 22 and a running Docker daemon with Docker Compose v2:
+Use Node.js 22 (see `.nvmrc`) and a running Docker daemon with Docker Compose v2:
 
 ```sh
 npm run test:integration
 npm run test:integration -- pipeline.test.ts --reporter=verbose
 npm run test:integration -- deno.test.ts
+npm run test:integration -- e2e.test.ts
 ```
 
 The command starts MongoDB, Redis, and the project's pinned Deno image from
@@ -32,6 +33,11 @@ isolation modes, serialized values, logs, and exception mapping. Scripts are loc
 and do not call external AI providers. Service readiness and job completion use
 bounded polling; delayed jobs are explicitly promoted after their delayed state
 has been asserted.
+
+The end-to-end suite runs the two-node fixture pipeline through real workers and
+real Deno without any execution double: it checks that falsy inputs survive the
+worker/Deno round trip into the pipeline output and node logs, and that a script
+exception is recorded as the node's error status without publishing an output.
 
 Suite teardown closes all application queues/workers and observer queues, drops
 the test database, clears both Redis databases, and closes all clients. A failure

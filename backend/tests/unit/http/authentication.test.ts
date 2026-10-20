@@ -29,8 +29,7 @@ describe("user-token authentication", () => {
 
     const response = await context.request
       .get("/identity")
-      .set("user-token", token)
-      .timeout(2000);
+      .set("user-token", token);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -60,8 +59,7 @@ describe("user-token authentication", () => {
 
       const response = await context.request
         .get("/identity")
-        .set("user-token", token)
-        .timeout(2000);
+        .set("user-token", token);
 
       expect(response.status).toBe(401);
       expect(response.text).toBe("Wrong user token");
@@ -75,8 +73,7 @@ describe("user-token authentication", () => {
 
     const response = await context.request
       .get("/identity")
-      .set("user-token", token)
-      .timeout(2000);
+      .set("user-token", token);
 
     expect(response.status).toBe(401);
   });
@@ -89,15 +86,14 @@ describe("user-token authentication", () => {
 
     const response = await context.request
       .get("/identity")
-      .set("user-token", token)
-      .timeout(2000);
+      .set("user-token", token);
 
     expect(response.status).toBe(200);
     expect(response.body.roles).toEqual([]);
   });
 
   it("retains the existing 400 response when no login is supplied", async () => {
-    const response = await context.request.get("/identity").timeout(2000);
+    const response = await context.request.get("/identity");
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
@@ -118,8 +114,7 @@ describe("api-token authentication", () => {
 
     const response = await context.request
       .get("/identity")
-      .set("api-token", token)
-      .timeout(2000);
+      .set("api-token", token);
 
     expect(response.status).toBe(200);
     expect(response.body._id).toBe("owner-user");
@@ -151,8 +146,7 @@ describe("api-token authentication", () => {
 
     const response = await context.request
       .get("/identity")
-      .set("api-token", token)
-      .timeout(2000);
+      .set("api-token", token);
 
     expect(response.status).toBe(401);
     expect(response.text).toBe("Wrong API token");
@@ -169,8 +163,7 @@ describe("api-token authentication", () => {
 
     const response = await context.request
       .get("/identity")
-      .set("api-token", token)
-      .timeout(2000);
+      .set("api-token", token);
 
     expect(response.status).toBe(401);
     expect(response.text).toBe("Wrong API token");
@@ -186,8 +179,7 @@ describe("api-token authentication", () => {
     const response = await context.request
       .get("/identity")
       .set("user-token", userToken())
-      .set("api-token", token)
-      .timeout(2000);
+      .set("api-token", token);
 
     expect(response.status).toBe(200);
     expect(response.body._id).toBe("admin-user");
@@ -203,8 +195,7 @@ describe("api-token authentication", () => {
     const response = await context.request
       .get("/identity")
       .set("user-token", "invalid")
-      .set("api-token", token)
-      .timeout(2000);
+      .set("api-token", token);
 
     expect(response.status).toBe(401);
     expect(response.text).toBe("Wrong user token");

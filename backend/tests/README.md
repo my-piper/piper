@@ -1,6 +1,8 @@
 # Backend tests
 
-Use Node.js 22.12 or newer (CI and production use Node.js 22), initialize the
+Use Node.js >=22.12 <25 (`.nvmrc` pins 22, as do CI and production; Node 25+
+removed `SlowBuffer`, which a JWT dependency still uses, and both Vitest configs
+refuse to start there), initialize the
 `core-kit` submodule, and run `npm ci` in `backend`.
 
 ```sh
@@ -9,7 +11,7 @@ npm run test:watch       # Watch fast tests
 npm run test:coverage    # Run fast tests and write coverage/
 npm run test:typecheck   # Check tests, helpers, config, and imported application types
 npx --no-install eslint tests vitest.config.ts vitest.integration.config.ts
-npm run test:integration  # Disposable Docker services and real Deno smoke tests
+npm run test:integration  # Disposable Docker services, real workers and real Deno
 ```
 
 Unit tests live in `tests/unit`. Shared setup and small helpers live in `tests` and
@@ -47,6 +49,10 @@ application imports and reinstalled before tests. HTTP suites permit only their
 temporary `127.0.0.1` server's exact port; other localhost ports remain blocked.
 
 Structure tests as preparation, action, and assertions separated by blank lines.
+Keep branching out of test bodies: give `it.each` rows explicit inputs and
+expected values (for example `{ headers, status }` or `{ fail, releasesLock }`).
+Do not pin suspected bugs as passing tests; use `it.fails` with the intended
+behavior and record the gap in the contract docs.
 Mocks, environment/global stubs, and real timers are restored between tests. Set
 mock results in each test and close any resources created by the suite.
 
@@ -87,7 +93,7 @@ See [the HTTP contract reference](../../docs/backend-http-contracts.md) for curr
 permissions, statuses, token handling, and billing behavior. The workspace
 sandbox requires permission to bind temporary local sockets (`listen EPERM`
 otherwise); ordinary local/CI runs need no Docker or services. Every HTTP request
-has a bounded timeout, and the harness verifies that unrelated network access
+has a bounded timeout (`HTTP_REQUEST_TIMEOUT`, set once on the harness agent), and the harness verifies that unrelated network access
 stays blocked and route registrations do not leak between app instances.
 
 Defaults apply only to absent or `undefined` values; `false`, `0`, and `""` are
@@ -101,8 +107,9 @@ their configured defaults for missing values.
 
 Coverage reports include Piper application modules, including uncovered modules,
 and exclude schemas, dependencies, submodule internals, test support, and process
-entry points. LCOV and HTML reports are written to `backend/coverage`; thresholds
-will be introduced as domain coverage grows. Real infrastructure tests run
+entry points. LCOV and HTML reports are written to `backend/coverage`. Global
+thresholds in `vitest.config.ts` sit just below current coverage and fail
+`npm run test:coverage` on regressions; raise them when adding suites. Real infrastructure tests run
 separately from coverage.
 
 CI checks the test types and lint, runs coverage and integration tests on Node.js 22, uploads reports,

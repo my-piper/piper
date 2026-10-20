@@ -246,6 +246,20 @@ export function checkBalance(user: User) {
   }
 }
 
+// Private projects look missing to everyone except their owner and admins.
+export function checkProjectAccess(
+  user: User,
+  project: { visibility?: string; createdBy?: { _id?: string } }
+) {
+  if (
+    project.visibility !== "public" &&
+    project.createdBy?._id !== user._id &&
+    !isAdmin(user)
+  ) {
+    throw new NotFoundError();
+  }
+}
+
 export function toModels<T>(arr: Object[], model: new () => T): T[] {
   return arr.map((o) => toInstance(o, model));
 }

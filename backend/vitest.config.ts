@@ -1,3 +1,4 @@
+import "./tests/node-version.ts";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -21,6 +22,8 @@ export default defineConfig({
         "{api,app,consts,enums,jobs,models,packages,transformers,utils}/**/*.ts",
       ],
       exclude: ["**/*.d.ts"],
+      // Floors just below current coverage; raise them as suites grow.
+      thresholds: { lines: 47, statements: 47, branches: 49, functions: 44 },
     },
   },
 });

@@ -4,6 +4,9 @@ import request from "supertest";
 import { afterEach, vi } from "vitest";
 import { allowHttpTestServer } from "./network";
 
+// Every request is bounded so a hung route fails the test instead of the run.
+export const HTTP_REQUEST_TIMEOUT = 2000;
+
 const servers = new Set<Server>();
 
 afterEach(async () => {
@@ -38,7 +41,9 @@ export async function createHttpApp(
     app,
     server,
     port: address.port,
-    request: request(`http://127.0.0.1:${address.port}`),
+    request: request
+      .agent(`http://127.0.0.1:${address.port}`)
+      .timeout(HTTP_REQUEST_TIMEOUT),
     close: () => closeServer(server),
   };
 }

@@ -76,5 +76,6 @@ afterAll(async () => {
     );
   }
   expect(redis.isOpen).toBe(false);
-  expect(connection.status).toBe("end");
+  // ioredis resolves quit() before it emits "end" and updates its status.
+  await vi.waitFor(() => expect(connection.status).toBe("end"));
 });

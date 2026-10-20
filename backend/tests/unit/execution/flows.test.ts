@@ -92,9 +92,16 @@ describe("downstream flow conversion and completion", () => {
     expect(doubles.metrics.finished).not.toHaveBeenCalled();
   });
 
-  it.each([null, "already filled"])(
-    "checks remaining pipeline outputs before completion: %s",
-    async (otherValue) => {
+  it.each([
+    { other: "missing", stored: {}, completions: 0 },
+    {
+      other: "already filled",
+      stored: { other: "already filled" },
+      completions: 1,
+    },
+  ])(
+    "checks remaining pipeline outputs before completion: $other",
+    async ({ stored, completions }) => {
       context.launch.pipeline.outputs.set(
         "other",
         toInstance(
@@ -105,20 +112,16 @@ describe("downstream flow conversion and completion", () => {
           PipelineOutput
         )
       );
-      if (otherValue !== null)
+      for (const [output, value] of Object.entries(stored))
         context.responses.set(
-          PIPELINE_OUTPUT(context.launch._id, "other"),
-          otherValue
+          PIPELINE_OUTPUT(context.launch._id, output),
+          value
         );
 
       await context.run();
 
-      expect(doubles.metrics.finished).toHaveBeenCalledTimes(
-        otherValue === null ? 0 : 1
-      );
-      expect(doubles.redis.lRem).toHaveBeenCalledTimes(
-        otherValue === null ? 0 : 1
-      );
+      expect(doubles.metrics.finished).toHaveBeenCalledTimes(completions);
+      expect(doubles.redis.lRem).toHaveBeenCalledTimes(completions);
     }
   );
 });

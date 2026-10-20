@@ -24,9 +24,18 @@ export function httpScenario() {
   ]);
   const project = httpProjectFixture();
   const redisResponses = new Map<string, string>();
-  httpDoubles.users.findOne.mockImplementation(
-    async ({ _id }) => users.get(_id) ?? null
-  );
+  // Match by ID or email and apply inclusive projections, as login and auth rely on both.
+  httpDoubles.users.findOne.mockImplementation(async (query, options) => {
+    const conditions = query.$or ?? [query];
+    const user = [...users.values()].find((candidate) =>
+      conditions.some(
+        ({ _id, email }) =>
+          (_id !== undefined && candidate._id === _id) ||
+          (email !== undefined && candidate.email === email)
+      )
+    );
+    return user ? applyProjection({ ...user }, options?.projection) : null;
+  });
   httpDoubles.projects.findOne.mockImplementation(async () =>
     structuredClone(project)
   );
@@ -36,4 +45,17 @@ export function httpScenario() {
   );
 
   return { users, project, redisResponses };
+}
+
+function applyProjection(
+  document: object,
+  projection?: Record<string, number>
+) {
+  if (!projection) return document;
+  return Object.fromEntries(
+    Object.entries(document).filter(
+      ([key]) =>
+        projection[key] === 1 || (key === "_id" && projection._id !== 0)
+    )
+  );
 }

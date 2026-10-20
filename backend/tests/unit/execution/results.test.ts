@@ -29,9 +29,9 @@ beforeEach(() => {
 });
 
 describe("node results and scheduling", () => {
-  it("persists successful outputs, fills downstream inputs, and finishes the pipeline", async () => {
-    const json = JSON.stringify({ enabled: false, count: 0 }, null, "  ");
+  const json = JSON.stringify({ enabled: false, count: 0 }, null, "  ");
 
+  it("marks the node done and persists its outputs", async () => {
     const result = await context.run();
 
     expect(result).toBe(NodeJobResult.NODE_PROCESSED);
@@ -46,6 +46,17 @@ describe("node results and scheduling", () => {
       JSON.stringify({ result: json })
     );
     expect(doubles.redis.setEx).toHaveBeenCalledWith(
+      NODE_PROCESSED_LOCK(context.launch._id, "echo_node"),
+      LAUNCH_EXPIRED,
+      "x"
+    );
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("fills the downstream input, resets its state, and plans it", async () => {
+    await context.run();
+
+    expect(doubles.redis.setEx).toHaveBeenCalledWith(
       NODE_INPUT(context.launch._id, "sink_node", "value"),
       LAUNCH_EXPIRED,
       json
@@ -53,15 +64,6 @@ describe("node results and scheduling", () => {
     expect(doubles.redis.sAdd).toHaveBeenCalledWith(
       NODE_FLOWS(context.launch._id, "sink_node"),
       "result_flow"
-    );
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_PROCESSED_LOCK(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      "x"
-    );
-    expect(doubles.plans.regular).toHaveBeenCalledExactlyOnceWith(
-      { launch: context.launch._id, node: "sink_node" },
-      { delay: 1000 }
     );
     for (const key of [
       NODE_STATUS,
@@ -73,6 +75,15 @@ describe("node results and scheduling", () => {
         key(context.launch._id, "sink_node")
       );
     }
+    expect(doubles.plans.regular).toHaveBeenCalledExactlyOnceWith(
+      { launch: context.launch._id, node: "sink_node" },
+      { delay: 1000 }
+    );
+  });
+
+  it("publishes the pipeline output, finishes the launch, and notifies", async () => {
+    await context.run();
+
     expect(doubles.redis.setEx).toHaveBeenCalledWith(
       PIPELINE_OUTPUT(context.launch._id, "result"),
       LAUNCH_EXPIRED,
@@ -97,7 +108,6 @@ describe("node results and scheduling", () => {
       "pipeline_done",
       expect.objectContaining({ launch: context.launch._id })
     );
-    expect(vi.getTimerCount()).toBe(0);
   });
 
   it("saves repeat state/progress and delays the same job without completing it", async () => {

@@ -173,37 +173,50 @@ describe("node execution lifecycle", () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
-  it.each(["execute", "lock", "status", "unlock", "heartbeat"])(
-    "cleans up timers after a failure in %s",
-    async (phase) => {
+  function failSetEx(key: (launch: string, node: string) => string) {
+    return (failure: Error) =>
+      doubles.redis.setEx.mockImplementation(async (written: string) => {
+        if (written === key(context.launch._id, "echo_node")) throw failure;
+      });
+  }
+
+  it.each([
+    {
+      phase: "execute",
+      fail: (failure: Error) => doubles.execute.mockRejectedValue(failure),
+      releasesLock: true,
+    },
+    {
+      phase: "lock",
+      fail: failSetEx(NODE_PROCESSING_LOCK),
+      releasesLock: false,
+    },
+    { phase: "status", fail: failSetEx(NODE_STATUS), releasesLock: true },
+    {
+      phase: "unlock",
+      fail: (failure: Error) => doubles.redis.del.mockRejectedValue(failure),
+      releasesLock: true,
+    },
+    {
+      phase: "heartbeat",
+      fail: (failure: Error) => doubles.redis.setEx.mockRejectedValue(failure),
+      releasesLock: false,
+    },
+  ])(
+    "cleans up timers after a failure in $phase",
+    async ({ phase, fail, releasesLock }) => {
       const failure = new Error(`${phase} failed`);
-      if (phase === "execute") doubles.execute.mockRejectedValue(failure);
-      if (phase === "lock" || phase === "status") {
-        doubles.redis.setEx.mockImplementation(async (key: string) => {
-          if (
-            key ===
-            (phase === "lock"
-              ? NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
-              : NODE_STATUS(context.launch._id, "echo_node"))
-          )
-            throw failure;
-        });
-      }
-      if (phase === "unlock") doubles.redis.del.mockRejectedValue(failure);
-      if (phase === "heartbeat") doubles.redis.setEx.mockRejectedValue(failure);
+      fail(failure);
 
       await expect(context.run()).rejects.toBe(failure);
 
       expect(vi.getTimerCount()).toBe(0);
-      if (phase === "lock" || phase === "heartbeat") {
-        expect(doubles.redis.del).not.toHaveBeenCalledWith(
-          NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
-        );
-      } else {
-        expect(doubles.redis.del).toHaveBeenCalledWith(
-          NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
-        );
-      }
+      expect(
+        doubles.redis.del.mock.calls.some(
+          ([key]) =>
+            key === NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
+        )
+      ).toBe(releasesLock);
     }
   );
 

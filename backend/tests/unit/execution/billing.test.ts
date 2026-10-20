@@ -34,36 +34,46 @@ describe("execution billing modes", () => {
     expect(doubles.plans.run).toHaveBeenCalledOnce();
   });
 
-  it.each(["yes", "no"])(
-    "records node usage with BILLING_ACTIVE=%s",
-    async (billing) => {
-      vi.stubEnv("BILLING_ACTIVE", billing);
-      const { default: handler } = await import(
-        "jobs/process-node/process-node-handler"
-      );
-      const context = nodeExecutionFixture();
-      doubles.execute.mockResolvedValue({
-        result: { __type: "next", costs: 3 },
-        logs: [],
-      });
+  it("records node usage with BILLING_ACTIVE=yes", async () => {
+    vi.stubEnv("BILLING_ACTIVE", "yes");
+    const { default: handler } = await import(
+      "jobs/process-node/process-node-handler"
+    );
+    const context = nodeExecutionFixture();
+    doubles.execute.mockResolvedValue({
+      result: { __type: "next", costs: 3 },
+      logs: [],
+    });
 
-      await handler(context.nodeJob, context.job as unknown as Job);
+    await handler(context.nodeJob, context.job as unknown as Job);
 
-      if (billing === "yes") {
-        expect(doubles.plans.usage).toHaveBeenCalledExactlyOnceWith(
-          expect.objectContaining({
-            launch: context.launch._id,
-            node: "Echo",
-            costs: 6,
-            processedAt: EXECUTION_TIME,
-          })
-        );
-      } else {
-        expect(doubles.plans.usage).not.toHaveBeenCalled();
-      }
-      expect(vi.getTimerCount()).toBe(0);
-    }
-  );
+    expect(doubles.plans.usage).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        launch: context.launch._id,
+        node: "Echo",
+        costs: 6,
+        processedAt: EXECUTION_TIME,
+      })
+    );
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("does not record node usage with BILLING_ACTIVE=no", async () => {
+    vi.stubEnv("BILLING_ACTIVE", "no");
+    const { default: handler } = await import(
+      "jobs/process-node/process-node-handler"
+    );
+    const context = nodeExecutionFixture();
+    doubles.execute.mockResolvedValue({
+      result: { __type: "next", costs: 3 },
+      logs: [],
+    });
+
+    await handler(context.nodeJob, context.job as unknown as Job);
+
+    expect(doubles.plans.usage).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
 
   it("records a pipeline estimate once when its outputs are completed", async () => {
     vi.stubEnv("BILLING_ACTIVE", "yes");

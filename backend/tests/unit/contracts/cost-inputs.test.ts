@@ -15,11 +15,38 @@ vi.mock("core-kit/packages/redis", () => ({
 }));
 vi.mock("app/storage", () => ({}));
 
+type Inputs = Record<string, unknown>;
+
 describe.each([
-  "pipeline script",
-  "node script with flows",
-  "node script with direct inputs",
-])("cost input contracts: %s", (mode) => {
+  {
+    mode: "pipeline script",
+    arrange: (pipeline: Pipeline) => {
+      pipeline.script = "function costs({ inputs }) { return 1; }";
+    },
+    request: (inputs: Inputs) => ({
+      inputs,
+      nodes: { echo_node: { inputs: {} } },
+    }),
+  },
+  {
+    mode: "node script with flows",
+    arrange: () => {},
+    request: (inputs: Inputs) => ({
+      inputs,
+      nodes: { echo_node: { inputs: {} } },
+    }),
+  },
+  {
+    mode: "node script with direct inputs",
+    arrange: (pipeline: Pipeline) => {
+      pipeline.inputs.clear();
+    },
+    request: (inputs: Inputs) => ({
+      inputs: {},
+      nodes: { echo_node: { inputs } },
+    }),
+  },
+])("cost input contracts: $mode", ({ arrange, request: requestBody }) => {
   it.each([
     {
       name: "falsy values",
@@ -43,20 +70,8 @@ describe.each([
     },
   ])("passes $name to the cost function", async ({ inputs, expected }) => {
     const pipeline = toInstance(pipelineFixture(), Pipeline);
-    const directInputs = mode === "node script with direct inputs";
-    if (mode === "pipeline script") {
-      pipeline.script = "function costs({ inputs }) { return 1; }";
-    }
-    if (directInputs) {
-      pipeline.inputs.clear();
-    }
-    const request = toInstance(
-      {
-        inputs: directInputs ? {} : inputs,
-        nodes: { echo_node: { inputs: directInputs ? inputs : {} } },
-      },
-      LaunchRequest
-    );
+    arrange(pipeline);
+    const request = toInstance(requestBody(inputs), LaunchRequest);
     execute.mockResolvedValue({ result: 1, logs: [] });
 
     await getCosts(pipeline, request, new User({ _id: "test-user" }));
@@ -77,12 +92,7 @@ describe.each([
     for (const input of pipeline.nodes.get("echo_node").inputs.values()) {
       delete input.default;
     }
-    if (mode === "pipeline script") {
-      pipeline.script = "function costs({ inputs }) { return 1; }";
-    }
-    if (mode === "node script with direct inputs") {
-      pipeline.inputs.clear();
-    }
+    arrange(pipeline);
     const request = toInstance({ inputs: {}, nodes: {} }, LaunchRequest);
     execute.mockResolvedValue({ result: 1, logs: [] });
 

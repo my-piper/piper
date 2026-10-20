@@ -119,9 +119,12 @@ describe("node readiness and duplicate execution", () => {
     }
   );
 
-  it.each(["move", "inclusive"])(
-    "allows a %s node without waiting for its upstream flow",
-    async (mode) => {
+  it.each([
+    { mode: "move", flowMode: "move", inclusive: [] },
+    { mode: "inclusive", flowMode: "wait", inclusive: ["echo_node"] },
+  ])(
+    "allows a $mode node without waiting for its upstream flow",
+    async ({ flowMode, inclusive }) => {
       context.launch.pipeline.flows.set(
         "upstream",
         toInstance(
@@ -130,15 +133,12 @@ describe("node readiness and duplicate execution", () => {
             output: "result",
             to: "echo_node",
             input: "enabled",
-            mode: "move",
+            mode: flowMode,
           },
           NodeFlow
         )
       );
-      if (mode === "inclusive") {
-        context.launch.pipeline.flows.get("upstream").mode = "wait";
-        context.launch.launchRequest.inclusive = { nodes: ["echo_node"] };
-      }
+      context.launch.launchRequest.inclusive = { nodes: inclusive };
       doubles.redis.sIsMember.mockResolvedValue(false);
 
       const result = await context.run();

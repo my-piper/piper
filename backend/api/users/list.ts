@@ -1,6 +1,7 @@
 import api from "app/api";
 import mongo from "app/mongo";
 import { toInstance, validate } from "core-kit/packages/transform";
+import escapeRegExp from "lodash/escapeRegExp";
 import { checkAdmin, handle } from "utils/http";
 import { UsersFilter } from "./models/users-filter";
 
@@ -19,7 +20,7 @@ api.get(
         {
           ...(!!search
             ? {
-                email: { $regex: new RegExp(search, "i") },
+                email: { $regex: new RegExp(escapeRegExp(search), "i") },
               }
             : {}),
           ...(!!cursor ? { cursor: { $lt: cursor } } : {}),

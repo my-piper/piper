@@ -28,7 +28,10 @@ queues.launches.inputs.set.process(async (job) => {
   }
   const inputs = new Map<string, LaunchInput>();
   for (const [id, input] of pipeline.inputs) {
-    let value = launchRequest.inputs?.get(id) || input.default;
+    let value = launchRequest.inputs?.get(id);
+    if (value === undefined) {
+      value = input.default;
+    }
     if (value !== undefined) {
       const { type, title, order } = input;
       inputs.set(

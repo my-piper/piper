@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
+import omit from "lodash/omit";
 import { User } from "models/user";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { checkAdmin, handle } from "utils/http";
@@ -33,6 +34,6 @@ api.patch(
 
     const plain = toPlain(update);
     await mongo.users.updateOne({ _id }, { $set: plain });
-    return plain;
+    return omit(plain, "password");
   })
 );

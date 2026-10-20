@@ -57,7 +57,7 @@ describe("HTTP error mapping", () => {
       })
     );
 
-    const response = await context.request.get("/error").timeout(2000);
+    const response = await context.request.get("/error");
 
     expect(response.status).toBe(status);
     if (body) expect(response.body).toEqual(body);
@@ -75,7 +75,7 @@ describe("HTTP error mapping", () => {
       })
     );
 
-    const response = await context.request.get("/error").timeout(2000);
+    const response = await context.request.get("/error");
 
     expect(response.status).toBe(500);
     expect(response.text).toBe(
@@ -96,10 +96,7 @@ describe("HTTP error mapping", () => {
       })
     );
 
-    const response = await context.request
-      .get("/error")
-      .redirects(0)
-      .timeout(2000);
+    const response = await context.request.get("/error").redirects(0);
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe(
@@ -116,7 +113,7 @@ describe("HTTP responses and injector", () => {
       handle(() => async () => value)
     );
 
-    const response = await context.request.get("/value").timeout(2000);
+    const response = await context.request.get("/value");
 
     expect(response.status).toBe(204);
     expect(response.text).toBe("");
@@ -129,7 +126,7 @@ describe("HTTP responses and injector", () => {
       handle(() => async () => ({ enabled: false, count: 0, text: "" }))
     );
 
-    const response = await context.request.get("/value").timeout(2000);
+    const response = await context.request.get("/value");
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ enabled: false, count: 0, text: "" });
@@ -148,7 +145,7 @@ describe("HTTP responses and injector", () => {
       })
     );
 
-    const response = await context.request.get("/value").timeout(2000);
+    const response = await context.request.get("/value");
 
     expect(response.status).toBe(202);
     expect(response.body).toEqual({ queued: true });
@@ -165,8 +162,7 @@ describe("HTTP responses and injector", () => {
       .get("/injector?language=ru")
       .set("language", "en")
       .set("Cookie", "language=de")
-      .set("cf-connecting-ip", "192.0.2.5")
-      .timeout(2000);
+      .set("cf-connecting-ip", "192.0.2.5");
 
     expect(response.body).toEqual({ language: "ru", ip: "192.0.2.5" });
   });
@@ -189,8 +185,7 @@ describe("HTTP responses and injector", () => {
 
     const response = await context.request
       .get("/role")
-      .set("user-token", userToken(user))
-      .timeout(2000);
+      .set("user-token", userToken(user));
 
     expect(response.status).toBe(status);
   });

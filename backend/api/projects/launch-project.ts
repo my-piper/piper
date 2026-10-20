@@ -13,7 +13,13 @@ import { Project } from "models/project";
 import { User } from "models/user";
 import { run } from "packages/launches/launching";
 import { getCosts } from "packages/pipelines";
-import { checkBalance, checkLogged, handle, toModel } from "utils/http";
+import {
+  checkBalance,
+  checkLogged,
+  checkProjectAccess,
+  handle,
+  toModel,
+} from "utils/http";
 
 const FLOAT_INCREMENT = `
 local key = KEYS[1]
@@ -51,11 +57,13 @@ api.post(
             pipeline: 1,
             launchRequest: 1,
             environment: 1,
+            visibility: 1,
           },
         }
       ),
       Project
     );
+    checkProjectAccess(currentUser, project);
 
     const {
       pipeline,

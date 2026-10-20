@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { launchRequestFixture, pipelineFixture } from "./pipeline";
 
@@ -11,9 +12,14 @@ export function userToken(id = "owner-user", options: jwt.SignOptions = {}) {
   });
 }
 
+export const HTTP_TEST_PASSWORD = "correct-password";
+// Low bcrypt cost keeps real hashing and comparison fast in tests.
+export const HTTP_TEST_PASSWORD_HASH = bcrypt.hashSync(HTTP_TEST_PASSWORD, 4);
+
 export function httpUserFixture(id = "owner-user", roles: string[] = []) {
   return {
     _id: id,
+    password: HTTP_TEST_PASSWORD_HASH,
     email: `${id}@example.com`,
     roles,
     balance: { remaining: 10 },

@@ -10,7 +10,7 @@ describe("HTTP test isolation", () => {
   it("uses the real Express middleware and closes its local test server", async () => {
     const context = await createHttpApp();
 
-    const response = await context.request.get("/api/health").timeout(2000);
+    const response = await context.request.get("/api/health");
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("I am alive");
@@ -35,7 +35,7 @@ describe("HTTP test isolation", () => {
       NETWORK_BLOCKED_MESSAGE
     );
 
-    const response = await context.request.get("/api/health").timeout(2000);
+    const response = await context.request.get("/api/health");
 
     expect(response.status).toBe(200);
   });
@@ -46,7 +46,7 @@ describe("HTTP test isolation", () => {
     await first.close();
 
     const second = await createHttpApp();
-    const response = await second.request.get("/only-first").timeout(2000);
+    const response = await second.request.get("/only-first");
 
     expect(response.status).toBe(404);
   });

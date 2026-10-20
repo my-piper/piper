@@ -1,3 +1,4 @@
+import "./tests/node-version.ts";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({

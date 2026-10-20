@@ -30,8 +30,7 @@ describe("project read and serialization contracts", () => {
 
     const response = await context.request
       .get("/api/projects/project-http")
-      .set("user-token", userToken())
-      .timeout(2000);
+      .set("user-token", userToken());
 
     expect(response.status).toBe(200);
     expect(response.body.createdAt).toBe("2025-01-01T00:00:00.000Z");
@@ -48,20 +47,35 @@ describe("project read and serialization contracts", () => {
     });
   });
 
-  it("documents that a logged-in non-owner can currently read a private project", async () => {
+  it.each([
+    ["owner-user", "private"],
+    ["admin-user", "private"],
+    ["other-user", "public"],
+  ])("lets %s read a %s project", async (user, visibility) => {
+    scenario.project.visibility = visibility;
+
     const response = await context.request
       .get("/api/projects/project-http")
-      .set("user-token", userToken("other-user"))
-      .timeout(2000);
+      .set("user-token", userToken(user));
 
     expect(response.status).toBe(200);
-    expect(response.body.createdBy._id).toBe("owner-user");
+    expect(response.body.pipeline).toEqual(pipelineFixture());
   });
 
+  it.each(["other-user", "engineer-user"])(
+    "hides a private project from %s as not found",
+    async (user) => {
+      const response = await context.request
+        .get("/api/projects/project-http")
+        .set("user-token", userToken(user));
+
+      expect(response.status).toBe(404);
+      expect(response.text).toBe("Not found");
+    }
+  );
+
   it("rejects an anonymous read before accessing project storage", async () => {
-    const response = await context.request
-      .get("/api/projects/project-http")
-      .timeout(2000);
+    const response = await context.request.get("/api/projects/project-http");
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("You aren't logged");
@@ -73,8 +87,7 @@ describe("project read and serialization contracts", () => {
 
     const response = await context.request
       .get("/api/projects/missing")
-      .set("user-token", userToken())
-      .timeout(2000);
+      .set("user-token", userToken());
 
     expect(response.status).toBe(404);
     expect(response.text).toBe("Not found");
@@ -100,8 +113,7 @@ describe("project creation and validation", () => {
     const response = await context.request
       .post("/api/projects")
       .set("user-token", userToken())
-      .send(body)
-      .timeout(2000);
+      .send(body);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -132,8 +144,7 @@ describe("project creation and validation", () => {
     const response = await context.request
       .post("/api/projects")
       .set("user-token", userToken())
-      .send({ title: "Invalid", pipeline })
-      .timeout(2000);
+      .send({ title: "Invalid", pipeline });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Project schema invalid");
@@ -146,8 +157,7 @@ describe("project creation and validation", () => {
       .post("/api/projects")
       .set("user-token", userToken())
       .set("Content-Type", "application/json")
-      .send('{"title":')
-      .timeout(2000);
+      .send('{"title":');
 
     expect(response.status).toBe(400);
     expect(httpDoubles.projects.insertOne).not.toHaveBeenCalled();
@@ -156,8 +166,7 @@ describe("project creation and validation", () => {
   it("rejects anonymous project creation", async () => {
     const response = await context.request
       .post("/api/projects")
-      .send({ title: "Project" })
-      .timeout(2000);
+      .send({ title: "Project" });
 
     expect(response.status).toBe(400);
     expect(httpDoubles.projects.insertOne).not.toHaveBeenCalled();
@@ -177,8 +186,7 @@ describe("project ownership and admin permissions", () => {
           order: 2,
           title: "ignored",
           createdBy: { _id: "client-user" },
-        })
-        .timeout(2000);
+        });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -209,8 +217,7 @@ describe("project ownership and admin permissions", () => {
       const response = await context.request
         .post("/api/projects/project-http")
         .set("user-token", userToken(user))
-        .send({ visibility: "public" })
-        .timeout(2000);
+        .send({ visibility: "public" });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("You aren't admin");
@@ -224,8 +231,7 @@ describe("project ownership and admin permissions", () => {
       const response = await context.request
         .post("/api/projects/project-http")
         .set("user-token", userToken())
-        .send(body)
-        .timeout(2000);
+        .send(body);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Pipeline schema invalid");
@@ -238,8 +244,7 @@ describe("project ownership and admin permissions", () => {
     async (user) => {
       const response = await context.request
         .delete("/api/projects/project-http")
-        .set("user-token", userToken(user))
-        .timeout(2000);
+        .set("user-token", userToken(user));
 
       expect(response.status).toBe(204);
       expect(response.text).toBe("");
@@ -254,8 +259,7 @@ describe("project ownership and admin permissions", () => {
     async (user) => {
       const response = await context.request
         .delete("/api/projects/project-http")
-        .set("user-token", userToken(user))
-        .timeout(2000);
+        .set("user-token", userToken(user));
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("You aren't admin");
@@ -268,8 +272,7 @@ describe("project ownership and admin permissions", () => {
 
     const response = await context.request
       .delete("/api/projects/missing")
-      .set("user-token", userToken())
-      .timeout(2000);
+      .set("user-token", userToken());
 
     expect(response.status).toBe(404);
     expect(httpDoubles.projects.deleteOne).not.toHaveBeenCalled();

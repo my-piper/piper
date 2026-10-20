@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: backend/.nvmrc
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
@@ -39,7 +39,7 @@ jobs:
       - name: Run fast tests with coverage
         run: npm run test:coverage
 
-      - name: Run infrastructure and Deno smoke tests
+      - name: Run infrastructure and end-to-end Deno tests
         run: npm run test:integration
         timeout-minutes: 8
 

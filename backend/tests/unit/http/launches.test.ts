@@ -4,10 +4,11 @@ import { httpScenario } from "../../helpers/http-scenario";
 import { HTTP_TEST_TIME, userToken } from "../../fixtures/http";
 import { beforeEach, describe, expect, it } from "vitest";
 
+let scenario: ReturnType<typeof httpScenario>;
 let context: Awaited<ReturnType<typeof createHttpApp>>;
 
 beforeEach(async () => {
-  httpScenario();
+  scenario = httpScenario();
   context = await createHttpApp([
     () => import("api/projects/launch-project"),
     () => import("api/launches/interrupt-launch"),
@@ -19,8 +20,7 @@ describe("project launch HTTP contract", () => {
     const response = await context.request
       .post("/api/projects/project-http/launch")
       .set("user-token", userToken())
-      .send({ inputs: { text: "override" } })
-      .timeout(2000);
+      .send({ inputs: { text: "override" } });
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -49,35 +49,51 @@ describe("project launch HTTP contract", () => {
     expect(httpDoubles.execute).not.toHaveBeenCalled();
   });
 
-  it("documents that a logged-in non-owner can currently launch a private project", async () => {
+  it.each([
+    ["admin-user", "private"],
+    ["other-user", "public"],
+  ])("lets %s launch a %s project", async (user, visibility) => {
+    scenario.project.visibility = visibility;
+
+    const response = await context.request
+      .post("/api/projects/project-http/launch")
+      .set("user-token", userToken(user))
+      .send({});
+
+    expect(response.status).toBe(200);
+    expect(response.body.launchedBy._id).toBe(user);
+    expect(httpDoubles.launches.insertOne).toHaveBeenCalledOnce();
+  });
+
+  it("hides a private project from a non-owner without launching it", async () => {
     const response = await context.request
       .post("/api/projects/project-http/launch")
       .set("user-token", userToken("other-user"))
-      .send({})
-      .timeout(2000);
+      .send({});
 
-    expect(response.status).toBe(200);
-    expect(response.body.launchedBy._id).toBe("other-user");
-    expect(response.body.project.createdBy._id).toBe("owner-user");
+    expect(response.status).toBe(404);
+    expect(httpDoubles.launches.insertOne).not.toHaveBeenCalled();
+    expect(httpDoubles.plans.rapid).not.toHaveBeenCalled();
   });
 
-  it.each(["anonymous", "invalid token"])(
-    "rejects an %s launch request",
-    async (kind) => {
-      const request = context.request
-        .post("/api/projects/project-http/launch")
-        .send({})
-        .timeout(2000);
-      if (kind === "invalid token") request.set("user-token", "invalid");
+  it.each([
+    { kind: "an anonymous", headers: {}, status: 400 },
+    {
+      kind: "an invalid token",
+      headers: { "user-token": "invalid" },
+      status: 401,
+    },
+  ])("rejects $kind launch request", async ({ headers, status }) => {
+    const response = await context.request
+      .post("/api/projects/project-http/launch")
+      .set(headers)
+      .send({});
 
-      const response = await request;
-
-      expect(response.status).toBe(kind === "anonymous" ? 400 : 401);
-      expect(httpDoubles.projects.findOne).not.toHaveBeenCalled();
-      expect(httpDoubles.launches.insertOne).not.toHaveBeenCalled();
-      expect(httpDoubles.plans.rapid).not.toHaveBeenCalled();
-    }
-  );
+    expect(response.status).toBe(status);
+    expect(httpDoubles.projects.findOne).not.toHaveBeenCalled();
+    expect(httpDoubles.launches.insertOne).not.toHaveBeenCalled();
+    expect(httpDoubles.plans.rapid).not.toHaveBeenCalled();
+  });
 
   it("rejects a launch for a missing project", async () => {
     httpDoubles.projects.findOne.mockResolvedValue(null);
@@ -85,8 +101,7 @@ describe("project launch HTTP contract", () => {
     const response = await context.request
       .post("/api/projects/missing/launch")
       .set("user-token", userToken())
-      .send({})
-      .timeout(2000);
+      .send({});
 
     expect(response.status).toBe(404);
     expect(httpDoubles.launches.insertOne).not.toHaveBeenCalled();
@@ -98,8 +113,7 @@ describe("project launch HTTP contract", () => {
       const response = await context.request
         .post("/api/projects/project-http/launch")
         .set("user-token", userToken())
-        .send(body)
-        .timeout(2000);
+        .send(body);
 
       expect(response.status).toBe(400);
       expect(httpDoubles.launches.insertOne).not.toHaveBeenCalled();
@@ -114,8 +128,7 @@ describe("project launch HTTP contract", () => {
     const response = await context.request
       .post("/api/projects/project-http/launch")
       .set("user-token", userToken())
-      .send({})
-      .timeout(2000);
+      .send({});
 
     expect(response.status).toBe(500);
     expect(httpDoubles.captureException).toHaveBeenCalledWith(failure);
@@ -129,8 +142,7 @@ describe("launch interruption contract", () => {
 
     const response = await context.request
       .post("/api/launches/launch-http/interrupt")
-      .set("user-token", userToken("other-user"))
-      .timeout(2000);
+      .set("user-token", userToken("other-user"));
 
     expect(response.status).toBe(204);
     expect(httpDoubles.redis.EXISTS).toHaveBeenCalledExactlyOnceWith(
@@ -146,17 +158,16 @@ describe("launch interruption contract", () => {
   it("rejects interruption of a missing launch", async () => {
     const response = await context.request
       .post("/api/launches/missing/interrupt")
-      .set("user-token", userToken())
-      .timeout(2000);
+      .set("user-token", userToken());
 
     expect(response.status).toBe(404);
     expect(httpDoubles.redis.setEx).not.toHaveBeenCalled();
   });
 
   it("rejects anonymous interruption before reading Redis", async () => {
-    const response = await context.request
-      .post("/api/launches/launch-http/interrupt")
-      .timeout(2000);
+    const response = await context.request.post(
+      "/api/launches/launch-http/interrupt"
+    );
 
     expect(response.status).toBe(400);
     expect(httpDoubles.redis.EXISTS).not.toHaveBeenCalled();

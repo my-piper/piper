@@ -4,7 +4,7 @@ import { HIDDEN_STRING } from "consts/core";
 import { toPlain } from "core-kit/packages/transform";
 import { Project } from "models/project";
 import { Primitive } from "types/primitive";
-import { checkLogged, handle, toModel } from "utils/http";
+import { checkLogged, checkProjectAccess, handle, toModel } from "utils/http";
 
 api.get(
   "/api/projects/:_id",
@@ -17,6 +17,7 @@ api.get(
       }),
       Project
     );
+    checkProjectAccess(currentUser, project);
 
     const { environment } = project;
     if (!!environment) {

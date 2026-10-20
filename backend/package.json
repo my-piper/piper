@@ -25,6 +25,9 @@
     "test:typecheck": "tsc --project tsconfig.tests.json",
     "test:integration": "node --import=tsx tests/integration/run.ts"
   },
+  "engines": {
+    "node": ">=22.12 <25"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

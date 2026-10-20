@@ -44,7 +44,8 @@ api.post(
 
     const { email, login: _id, password, code } = request;
 
-    if (code !== (await redis.get(CONFIRMATION_CODE_KEY(email)))) {
+    const expected = await redis.get(CONFIRMATION_CODE_KEY(email));
+    if (!expected || code !== expected) {
       throw new DataError("Wrong confirmation code");
     }
 
@@ -93,7 +94,10 @@ api.post(
       }
     }
 
-    return toPlain(new Authorization({ token: getToken(user), user }));
+    {
+      const user = new User({ _id, email });
+      return toPlain(new Authorization({ token: getToken(user), user }));
+    }
   })
 );
 

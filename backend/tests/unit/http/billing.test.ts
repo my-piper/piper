@@ -33,8 +33,7 @@ describe("launch balance checks across environment modes", () => {
       const response = await context.request
         .post("/api/projects/project-http/launch")
         .set("user-token", userToken())
-        .send({})
-        .timeout(2000);
+        .send({});
 
       expect(response.status).toBe(status);
       if (status === 400) {
@@ -74,8 +73,7 @@ describe("accrued balance tracking", () => {
       const response = await context.request
         .post("/api/projects/project-http/launch")
         .set("user-token", userToken())
-        .send({})
-        .timeout(2000);
+        .send({});
 
       expect(response.status).toBe(status);
       expect(httpDoubles.redis.evalSha).toHaveBeenCalledExactlyOnceWith(
@@ -106,8 +104,7 @@ describe("accrued balance tracking", () => {
     const response = await context.request
       .post("/api/projects/project-http/launch")
       .set("user-token", userToken())
-      .send({})
-      .timeout(2000);
+      .send({});
 
     expect(response.status).toBe(200);
     expect(httpDoubles.redis.evalSha).not.toHaveBeenCalled();
