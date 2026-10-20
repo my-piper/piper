@@ -10,7 +10,7 @@ npm test                 # Run fast tests once; no Docker or services required
 npm run test:watch       # Watch fast tests
 npm run test:coverage    # Run fast tests and write coverage/
 npm run test:typecheck   # Check tests, helpers, config, and imported application types
-npx --no-install eslint tests vitest.config.ts vitest.integration.config.ts
+npm run lint:tests
 npm run test:integration  # Disposable Docker services, real workers and real Deno
 ```
 

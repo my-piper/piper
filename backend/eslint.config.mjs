@@ -11,6 +11,11 @@ export default tseslint.config(
       "node_modules/**",
       "dist/**",
       "build/**",
+      "coverage/**",
+      "core-kit/**",
+      "cache/**",
+      "tmp/**",
+      "storage/**",
       "*.config.js",
       "*.config.mjs",
     ],
@@ -29,17 +34,6 @@ export default tseslint.config(
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-non-null-assertion": "warn",
-
-      // General rules
-      "no-console": "off",
-      "prefer-const": "error",
-      "no-var": "error",
-      eqeqeq: ["error", "always"],
-    },
-  },
-  {
-    files: ["tests/**/*.ts", "vitest*.config.ts"],
-    rules: {
       // The installed ESLint/plugin versions require these defaults explicitly.
       "@typescript-eslint/no-unused-expressions": [
         "error",
@@ -49,6 +43,12 @@ export default tseslint.config(
           allowTaggedTemplates: false,
         },
       ],
+
+      // General rules
+      "no-console": "off",
+      "prefer-const": "error",
+      "no-var": "error",
+      eqeqeq: ["error", "always"],
     },
   }
 );

@@ -13,6 +13,8 @@
     "test:watch": "ng test --watch=true",
     "test:typecheck": "tsc -p tsconfig.spec.json --noEmit",
     "test:coverage": "ng test --watch=false --progress=false --code-coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "lint:tests": "eslint tests karma.conf.cjs",
     "test:browser": "ng build --configuration production,browser-test && playwright test -c tests/browser/playwright.config.ts",
     "test:browser:run": "playwright test -c tests/browser/playwright.config.ts",

@@ -34,7 +34,7 @@ jobs:
         run: npm run test:typecheck
 
       - name: Lint test harness
-        run: npx --no-install eslint tests vitest.config.ts vitest.integration.config.ts
+        run: npm run lint:tests
 
       - name: Run fast tests with coverage
         run: npm run test:coverage

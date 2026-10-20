@@ -30,7 +30,7 @@ export class NodeJobsComponent extends UntilDestroyed {
     private socket: Socket,
     private http: HttpService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }
@@ -67,7 +67,7 @@ export class NodeJobsComponent extends UntilDestroyed {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as Object[]).map((e) => plainToInstance(NodeJob, e)))
+        map((arr) => (arr as Object[]).map((e) => plainToInstance(NodeJob, e))),
       )
       .subscribe({
         next: (jobs) => (this.jobs = jobs),

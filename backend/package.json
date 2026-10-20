@@ -17,6 +17,7 @@
     "cli": "node --import=tsx cli.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint:tests": "eslint tests vitest.config.ts vitest.integration.config.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",

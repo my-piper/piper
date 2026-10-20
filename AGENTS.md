@@ -15,6 +15,7 @@ The repo uses git submodules — clone with `--recurse-submodules` or run `make 
 Root (`Makefile`, reads optional `config.env`):
 
 - `make install` — init submodules and `npm install` backend, frontend, translator
+- `make lint` / `make lint-fix` — ESLint with the recommended `@typescript-eslint` rules for backend and frontend; `make lint-backend` / `make lint-frontend` run either package. Generated output and submodules are excluded.
 - `make up` / `make down` / `make stop` — local infra via `tools/compose/compose.yaml` (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy)
 - `make mongo-migrate` / `make clickhouse-migrate` — apply migrations from `migrations/{mongo,clickhouse}`
 - `make mongo-migrate-add` / `make clickhouse-migrate-add` — create a new migration (interactive name prompt)
@@ -45,6 +46,7 @@ Frontend (`cd frontend`, Angular 17 with `@angular/localize`):
 - `npm start` — dev server; app is reached through nginx at `http://localhost/`
 - `npm run build` — localized production build
 - `npm run i18n` — extract i18n strings to `src/locale/en.json`
+- `npm run lint` / `npm run lint:fix` — lint application and test code with ESLint and `@typescript-eslint`
 - `npm test` / `npm run test:watch` / `npm run test:coverage` — Jasmine + Karma
   unit and component suites in `tests/unit` and `tests/components` (headless
   Chrome, or `CHROME_BIN`); `npm run test:typecheck`, `npm run lint:tests`.

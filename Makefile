@@ -9,12 +9,26 @@ COMPOSE_ARGS=-f tools/compose/compose.yaml
 BACKEND=npm --prefix ./backend
 FRONTEND=npm --prefix ./frontend
 
+.PHONY: lint lint-backend lint-frontend lint-fix
+
 install:
 	git submodule init
 	git submodule update
 	npm --prefix ./backend install
 	npm --prefix ./frontend install
 	npm --prefix ./translator install
+
+lint: lint-backend lint-frontend
+
+lint-backend:
+	${BACKEND} run lint
+
+lint-frontend:
+	${FRONTEND} run lint
+
+lint-fix:
+	${BACKEND} run lint:fix
+	${FRONTEND} run lint:fix
 
 schemas:
 	npm run --prefix ./backend cli schemas compile
