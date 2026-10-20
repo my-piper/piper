@@ -54,6 +54,23 @@ schema validation. Small reusable fixtures are in `tests/fixtures`. Suites in
 storage, download, and Redis doubles. Launch and cost regressions assert the
 values written to Redis and passed to Deno while keeping domain logic real.
 
+Execution suites in `tests/unit/execution` cover planning, launch persistence and
+starting nodes, readiness guards, node results and downstream flows, repeat/next
+behavior, worker errors, environment precedence/decryption, billing, and costs.
+`tests/helpers/execution-boundaries.ts` supplies explicit MongoDB, Redis client,
+queue, Deno, storage, stream, and notification doubles. Import this helper first
+so its module factories are registered before application imports. Redis
+transformation/locking helpers remain real; read responses are configured per
+scenario and writes are asserted through spies. The helpers do not emulate Redis
+or BullMQ semantics.
+
+Use fixed launch/job IDs and fake time for execution tests. Heartbeat tests
+advance fake timers while Deno is pending and check that no timers remain after
+success, failure, or a late refresh. Environment tests use real encryption and
+decryption with test values. Suites changing billing/unit-cost settings reload
+application modules after stubbing configuration; import error constructors from
+that same module generation when asserting their types.
+
 Defaults apply only to absent or `undefined` values; `false`, `0`, and `""` are
 preserved. The JSON launch-request schema rejects `null`. Internal `null` values
 are preserved through model/Redis storage, prevent default substitution, and are
@@ -66,8 +83,8 @@ their configured defaults for missing values.
 Coverage reports include Piper application modules, including uncovered modules,
 and exclude schemas, dependencies, submodule internals, test support, and process
 entry points. LCOV and HTML reports are written to `backend/coverage`; thresholds
-will be introduced as domain coverage grows. Broader launch/node orchestration,
-HTTP contracts, and real infrastructure tests remain in later plan steps.
+will be introduced as domain coverage grows. HTTP contracts and real
+infrastructure tests remain in later plan steps.
 
 CI checks the test types and lint, runs coverage on Node.js 22, uploads reports,
 and requires the backend test job to pass before building/publishing the image.

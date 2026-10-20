@@ -1,6 +1,6 @@
 # Backend testing implementation plan
 
-Status: steps 1–2 implemented; steps 3–5 pending.
+Status: steps 1–3 implemented; steps 4–5 pending.
 
 Start with pipeline correctness, then add API and infrastructure coverage. Deliver the work in five small PRs, with PRs 1–2 forming the first milestone.
 
@@ -76,11 +76,10 @@ required node inputs receive defaults at launch.
 
 Validation: run `npm test`, `npm run test:coverage`, `npm run test:typecheck`, and
 `npx --no-install eslint tests vitest.config.ts` in `backend`. Fast tests pass on
-Node.js 22 without Docker or external connections. Worker orchestration, cost
-arithmetic/error behavior, HTTP contracts, and real infrastructure remain in
-steps 3–5.
+Node.js 22 without Docker or external connections. Execution coverage follows in
+step 3; HTTP contracts and real infrastructure remain in steps 4–5.
 
-## 3. Cover launch and node execution
+## 3. Cover launch and node execution — implemented
 
 Keep domain logic real. Mock Redis, MongoDB, queues, Deno execution, storage, and notifications at their boundaries. Do not mock model conversion or the business logic under test.
 
@@ -98,6 +97,35 @@ Prioritize:
 Extract callable handlers from worker registration only where necessary. Avoid a broad dependency-injection or application architecture rewrite. Use deterministic time and IDs, and restore mocks and timers after each test.
 
 Acceptance criteria: success and failure paths assert resulting state and scheduled work. Fast tests do not start real workers or leave timers and connections open.
+
+Implementation: 77 execution tests (216 total) in `backend/tests/unit/execution`
+cover all four node queues and execution timeouts, launch persistence and scoped
+scheduling, starting-node selection, readiness and duplicate guards, output flow
+conversion, pipeline completion, repeat/next behavior, logs and worker error
+reporting, environment precedence with real encryption/decryption, billing modes,
+and cost totals/errors. Fixtures use fixed time and IDs. Infrastructure factories
+mock only client boundaries; model conversion, Redis serialization helpers,
+environment resolution, and scheduling logic remain real.
+
+Four regressions reproduced heartbeat timers surviving lock/status/unlock
+failures or restarting after execution when an in-flight refresh completed late.
+The handler now covers heartbeat/lock/status setup with cleanup, stops the timer
+before attempting unlock, and prevents late refreshes from scheduling a new
+timer. A lock is released only after successful acquisition. The existing
+NextNode completion code moved into `jobs/process-node/complete-node.ts`, keeping
+both modules under 400 lines and preserving the default handler entry point.
+
+Cost contracts retain existing behavior: Deno/service execution failures return
+zero estimates; invalid structured costs, malformed inputs, and environment
+decryption failures propagate errors. An empty inclusive starting-node selection
+continues to schedule no nodes. Error notification/retry behavior is documented
+by tests without changing the worker's existing contract.
+
+Validation: fast tests and coverage pass on Node.js 22 without Docker; test
+typechecking, test lint, and formatting pass. Real BullMQ retries, locks,
+duplicate delivery, and scope concurrency remain integration work in step 5.
+The focused production lint check retains the same 17 existing rule violations
+as the original handler; source lint cleanup is outside this testing step.
 
 ## 4. Add HTTP contract tests
 
