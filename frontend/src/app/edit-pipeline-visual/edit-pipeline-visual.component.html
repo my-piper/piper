@@ -93,6 +93,7 @@
   >
     <a
       class="circle"
+      data-testid="add-node"
       [class.toggled]="drawlers.left"
       [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
     >
@@ -159,6 +160,7 @@
     >
       <button
         class="circle"
+        data-testid="run-pipeline"
         [class.busy]="
           progress.launching ||
           progress.interrupting ||
@@ -364,6 +366,7 @@
       class="node"
       [class.selected]="currentNode === node.value"
       *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
+      [attr.data-testid]="'node-' + node.key"
       [class.disabled]="userRole.admin | can: project.createdBy | async | not"
       #drag="appDragMove"
       [appDragMove]="{

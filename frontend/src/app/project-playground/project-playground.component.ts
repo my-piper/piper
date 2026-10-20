@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, Renderer2 } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  Renderer2,
+} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
@@ -15,14 +20,14 @@ import { SignalsService } from "src/services/signals.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/ui-kit/consts";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
-import { toPlain } from "src/utils/models";
+import { toInstance, toPlain } from "src/utils/models";
 
 @Component({
   selector: "app-project-playground",
   templateUrl: "./project-playground.component.html",
   styleUrls: ["./project-playground.component.scss"],
 })
-export class ProjectPlaygroundComponent {
+export class ProjectPlaygroundComponent implements OnDestroy {
   progress = { launching: false };
   error!: AppError;
 
@@ -49,7 +54,11 @@ export class ProjectPlaygroundComponent {
   ngOnInit() {
     this.route.data.subscribe(({ project }) => {
       this.project = project;
-      this.request = this.project.launchRequest;
+      // Playground edits must not leak into the project's stored request.
+      this.request = toInstance(
+        toPlain(this.project.launchRequest),
+        LaunchRequest,
+      );
       this.build();
     });
 
@@ -78,6 +87,10 @@ export class ProjectPlaygroundComponent {
     );
   }
 
+  ngOnDestroy() {
+    delete (window as unknown as { play?: unknown }).play;
+  }
+
   private fillRequest() {
     const { inputs } = this.form.getRawValue();
     assign(this.request, {
@@ -102,7 +115,7 @@ export class ProjectPlaygroundComponent {
           null,
           input.required ? [Validators.required] : [],
         );
-        const value = launchRequest.inputs?.get(k) || input.default;
+        const value = launchRequest.inputs?.get(k) ?? input.default;
         if (value != null) {
           control.setValue(value);
         }
@@ -152,7 +165,7 @@ export class ProjectPlaygroundComponent {
     const state: { [key: string]: Primitive } = {};
     if (pipeline.inputs) {
       for (const [k, input] of pipeline.inputs) {
-        const value = launchRequest.inputs?.get(k) || input.default;
+        const value = launchRequest.inputs?.get(k) ?? input.default;
         if (value !== undefined) {
           switch (input.type) {
             case "boolean":

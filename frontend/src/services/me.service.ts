@@ -11,8 +11,9 @@ import { LiveService } from "./live.service";
 
 @Injectable({ providedIn: "root" })
 export class MeManager {
-  subscriptions: { user: () => void } = {
+  subscriptions: { user: () => void; room: string | null } = {
     user: null,
+    room: null,
   };
 
   user$ = new BehaviorSubject<User | null>(
@@ -58,10 +59,18 @@ export class MeManager {
 
   private subscribe() {
     const { _id } = this.user;
+    // Reloading the same user (e.g. on balance updates) keeps its room.
+    if (this.subscriptions.room === _id) {
+      return;
+    }
+    this.unsubscribe();
     this.subscriptions.user = this.live.subscribe(_id);
+    this.subscriptions.room = _id;
   }
   private unsubscribe() {
     this.subscriptions.user?.();
+    this.subscriptions.user = null;
+    this.subscriptions.room = null;
   }
 
   private loadUser() {

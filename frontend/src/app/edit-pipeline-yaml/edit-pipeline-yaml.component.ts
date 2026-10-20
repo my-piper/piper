@@ -4,6 +4,8 @@ import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
 import { Project } from "src/models/project";
+import { Ajv } from "src/providers/ajv";
+import SCHEMAS from "src/schemas/compiled.json";
 import { ProjectManager } from "src/services/project.manager";
 import { toPlain } from "src/utils/models";
 import * as YAML from "yaml";
@@ -15,6 +17,7 @@ import * as YAML from "yaml";
 })
 export class EditPipelineYamlComponent implements OnInit {
   project!: Project;
+  error: Error | null = null;
 
   form = this.fb.group({
     pipeline: this.fb.control<string | null>(null, [Validators.required]),
@@ -25,7 +28,8 @@ export class EditPipelineYamlComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private ajv: Ajv,
   ) {}
 
   ngOnInit() {
@@ -45,22 +49,44 @@ export class EditPipelineYamlComponent implements OnInit {
         launchRequest: JSON.stringify(toPlain(launchRequest || {}), null, "  "),
         environment: JSON.stringify(toPlain(environment || {}), null, "  "),
       },
-      { emitEvent: false }
+      { emitEvent: false },
     );
   }
 
   save() {
+    // Parse and validate everything before touching the project, so an
+    // invalid edit never partially replaces the current graph.
+    let plain: { pipeline: object; launchRequest: object; environment: object };
+    try {
+      const { pipeline, launchRequest, environment } = this.form.getRawValue();
+      plain = {
+        pipeline: YAML.parse(<string>pipeline),
+        launchRequest: JSON.parse(<string>launchRequest),
+        environment: JSON.parse(<string>environment),
+      };
+    } catch (e) {
+      this.error = e as Error;
+      return;
+    }
+
+    const validate = this.ajv.compile(SCHEMAS.pipeline);
+    if (!validate(plain.pipeline)) {
+      const details = (validate.errors || []).map((e) =>
+        [e.instancePath || "/", e.message].join(" "),
+      );
+      this.error = new Error(
+        [
+          $localize`:@@message.pipeline_schema_invalid:Pipeline schema invalid`,
+          ...details,
+        ].join("\n"),
+      );
+      return;
+    }
+
+    this.error = null;
     const { pipeline, launchRequest, environment } = plainToInstance(
       Project,
-      (() => {
-        const { pipeline, launchRequest, environment } =
-          this.form.getRawValue();
-        return {
-          pipeline: YAML.parse(<string>pipeline),
-          launchRequest: JSON.parse(<string>launchRequest),
-          environment: JSON.parse(<string>environment),
-        };
-      })()
+      plain,
     );
 
     assign(this.project, {

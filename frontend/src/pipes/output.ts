@@ -1,6 +1,5 @@
 import { Pipe, PipeTransform } from "@angular/core";
-import { Node } from "src/models/node";
-import { Pipeline, PipelineInput, PipelineOutput } from "src/models/pipeline";
+import { Pipeline, PipelineOutput } from "src/models/pipeline";
 
 @Pipe({ name: "pipelineOutput" })
 export class PipelineOutputPipe implements PipeTransform {

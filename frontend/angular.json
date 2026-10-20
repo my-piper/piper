@@ -145,6 +145,12 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "browser-test": {
+              "outputPath": "dist-browser",
+              "localize": ["en", "ru"],
+              "sourceMap": true,
+              "budgets": []
             }
           },
           "defaultConfiguration": "production"
@@ -165,6 +171,33 @@
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "buildTarget": "frontend:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "tests/setup.ts",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing",
+              "@angular/localize/init"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.cjs",
+            "inlineStyleLanguage": "scss",
+            "include": [
+              "../tests/unit/**/*.spec.ts",
+              "../tests/components/**/*.spec.ts"
+            ],
+            "styles": [],
+            "assets": [],
+            "codeCoverageExclude": [
+              "src/ui-kit/**",
+              "src/schemas/**",
+              "src/locale/**",
+              "tests/**",
+              "node_modules/**"
+            ]
           }
         }
       }

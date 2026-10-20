@@ -1,0 +1,10 @@
+/* Fast unit/component suites (tests/README.md). Browser tests use tests/browser/tsconfig.json. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": ["jasmine", "@angular/localize"]
+  },
+  "include": ["src/**/*.d.ts", "tests/**/*.ts"],
+  "exclude": ["tests/browser/**"]
+}

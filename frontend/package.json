@@ -8,7 +8,15 @@
     "build": "ng build --localize",
     "sync-schemas": "cp ../backend/schemas/compiled.json ./src/schemas/compiled.json",
     "watch": "ng build --watch --configuration development",
-    "i18n": "npm run ng extract-i18n -- --output-path src/locale --out-file en.json --format json"
+    "i18n": "npm run ng extract-i18n -- --output-path src/locale --out-file en.json --format json",
+    "test": "ng test --watch=false --progress=false",
+    "test:watch": "ng test --watch=true",
+    "test:typecheck": "tsc -p tsconfig.spec.json --noEmit",
+    "test:coverage": "ng test --watch=false --progress=false --code-coverage",
+    "lint:tests": "eslint tests karma.conf.cjs",
+    "test:browser": "ng build --configuration production,browser-test && playwright test -c tests/browser/playwright.config.ts",
+    "test:browser:run": "playwright test -c tests/browser/playwright.config.ts",
+    "test:browser:typecheck": "tsc -p tests/browser/tsconfig.json"
   },
   "private": true,
   "dependencies": {
@@ -53,12 +61,26 @@
     "@angular/compiler-cli": "^17.3.2",
     "@angular/localize": "^17.3.2",
     "@eslint/js": "^9.10.0",
+    "@playwright/test": "1.63.0",
     "@types/eslint__js": "^8.42.3",
+    "@types/jasmine": "5.1.4",
     "@types/lodash": "^4.14.195",
     "@types/url-parse": "^1.4.11",
     "eslint": "^9.10.0",
+    "jasmine-core": "5.1.2",
+    "karma": "6.4.4",
+    "karma-chrome-launcher": "3.2.0",
+    "karma-coverage": "2.2.1",
+    "karma-jasmine": "5.1.0",
+    "karma-jasmine-html-reporter": "2.1.0",
     "prettier": "3.3.3",
+    "socket.io": "4.7.5",
     "typescript": "~5.4.3",
     "typescript-eslint": "^8.4.0"
+  },
+  "overrides": {
+    "karma-jasmine": {
+      "jasmine-core": "$jasmine-core"
+    }
   }
 }

@@ -185,6 +185,18 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
     this.logger.debug("Listen node events");
 
     this.subscriptions.launch = this.live.subscribe(this.launch._id);
+    this.listenEvents();
+    this.checkStatus();
+  }
+
+  private listening = false;
+
+  /** Socket listeners filter by the current launch, so they are set up once. */
+  private listenEvents() {
+    if (this.listening) {
+      return;
+    }
+    this.listening = true;
 
     this.socket
       .fromEvent<object>("node_running")
@@ -262,8 +274,6 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
           this.loadInputs();
         }
       });
-
-    this.checkStatus();
   }
 
   silent() {

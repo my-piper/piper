@@ -18,7 +18,8 @@ Root (`Makefile`, reads optional `config.env`):
 - `make up` / `make down` / `make stop` — local infra via `tools/compose/compose.yaml` (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy)
 - `make mongo-migrate` / `make clickhouse-migrate` — apply migrations from `migrations/{mongo,clickhouse}`
 - `make mongo-migrate-add` / `make clickhouse-migrate-add` — create a new migration (interactive name prompt)
-- `make test` — backend test typecheck + Vitest fast tests; `make test-integration` runs the Docker-backed integration suite
+- `make test` — backend test typecheck + Vitest fast tests, then `make test-frontend`; `make test-integration` runs the Docker-backed integration suite
+- `make test-frontend` — frontend test typecheck, test lint and Karma fast suite; `make test-frontend-browser` builds en+ru and runs the Playwright workflows
 - `make schemas` — compile `backend/schemas/*.json` into `backend/schemas/compiled.json` and copy it to `frontend/src/schemas/compiled.json`. Run after editing any schema.
 
 Backend (`cd backend`; TypeScript run directly via `tsx`, no build step; config from `backend/.env`, template in `.env.template`):
@@ -44,6 +45,14 @@ Frontend (`cd frontend`, Angular 17 with `@angular/localize`):
 - `npm start` — dev server; app is reached through nginx at `http://localhost/`
 - `npm run build` — localized production build
 - `npm run i18n` — extract i18n strings to `src/locale/en.json`
+- `npm test` / `npm run test:watch` / `npm run test:coverage` — Jasmine + Karma
+  unit and component suites in `tests/unit` and `tests/components` (headless
+  Chrome, or `CHROME_BIN`); `npm run test:typecheck`, `npm run lint:tests`.
+  Coverage floors live in `karma.conf.cjs`.
+- `npm run test:browser` — builds `dist-browser` (en, ru) and runs Playwright
+  workflows in `tests/browser` against fixture HTTP/Socket.IO peers (not
+  full-stack); needs `npx playwright install chromium`.
+- See `frontend/tests/README.md` for isolation, fixture and mocking rules.
 
 VS Code: the "-- all --" launch compound starts server, worker, periodic, sockets, cli and frontend together.
 

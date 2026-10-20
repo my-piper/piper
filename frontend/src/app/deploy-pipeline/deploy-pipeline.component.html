@@ -1,6 +1,6 @@
 <app-informer
   *ngIf="!!error"
-  [message]="error"
+  [message]="error.message"
   (ok)="error = null"
 ></app-informer>
 
@@ -58,7 +58,7 @@
       <td>
         <button
           class="circle small"
-          (click)="remove(d._id)"
+          (click)="remove(d)"
           [class.busy]="progress.removing[d._id]"
           [disabled]="progress.removing[d._id]"
         >

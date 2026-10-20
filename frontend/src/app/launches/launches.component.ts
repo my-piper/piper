@@ -71,7 +71,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
   ngOnInit() {
     this.listen();
 
-    this.signals.feed.subscribe((event) => {
+    this.signals.feed.pipe(takeUntil(this.destroyed$)).subscribe((event) => {
       if (event instanceof PipelineLaunchedSignal) {
         const { launch } = event;
         this.launches.unshift(launch);
@@ -106,8 +106,10 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
       .subscribe(({ launch, id, output }) => {
         for (const l of this.launches) {
           if (l._id === launch) {
+            // Outputs unknown to the listed launch are added, not dropped.
+            l.outputs ??= new Map();
             const o = l.outputs.get(id);
-            merge(o, output);
+            l.outputs.set(id, o ? merge(o, output) : output);
             this.cd.detectChanges();
           }
         }

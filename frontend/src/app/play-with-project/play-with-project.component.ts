@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { delay, map } from "rxjs";
+import { delay, map, takeUntil } from "rxjs";
 import { Project, ProjectSummary } from "src/models/project";
 import { PipelineLaunchedSignal } from "src/models/signals/launch";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { toInstance } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
@@ -14,7 +15,7 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   templateUrl: "./play-with-project.component.html",
   styleUrls: ["./play-with-project.component.scss"],
 })
-export class PlayWithProjectComponent {
+export class PlayWithProjectComponent extends UntilDestroyed {
   error!: Error;
 
   project!: Project;
@@ -28,7 +29,9 @@ export class PlayWithProjectComponent {
     private router: Router,
     private http: HttpService,
     private cd: ChangeDetectorRef
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit() {
     this.route.data.subscribe(({ project }) => {
@@ -37,7 +40,7 @@ export class PlayWithProjectComponent {
       this.loadSummary();
     });
 
-    this.signals.feed.subscribe((event) => {
+    this.signals.feed.pipe(takeUntil(this.destroyed$)).subscribe((event) => {
       if (event instanceof PipelineLaunchedSignal) {
         this.router.navigate(["./"], {
           relativeTo: this.route,

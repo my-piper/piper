@@ -2,12 +2,13 @@ import { ChangeDetectorRef, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
-import { delay, finalize, map } from "rxjs";
+import { delay, finalize, map, takeUntil } from "rxjs";
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
 import { Node } from "src/models/node";
 import { NodeJob } from "src/models/node-job";
 import { HttpService } from "src/services/http.service";
+import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { UI_DELAY } from "src/ui-kit/consts";
 
 @Component({
@@ -15,7 +16,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
   templateUrl: "./node-jobs.component.html",
   styleUrls: ["./node-jobs.component.scss"],
 })
-export class NodeJobsComponent {
+export class NodeJobsComponent extends UntilDestroyed {
   progress = { loading: false };
   error: Error;
 
@@ -30,24 +31,28 @@ export class NodeJobsComponent {
     private http: HttpService,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit() {
+    this.listen();
     this.route.data.subscribe(({ launch, node: { id, node } }) => {
       [this.launch, this.id, this.node] = [launch, id, node];
       this.load();
-      this.listen();
     });
   }
 
   private listen() {
-    this.socket.fromEvent<Object>("node_gonna_repeat").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      console.log("Load results for", launch, node);
-      if (node === this.id) {
-        this.load();
-      }
-    });
+    this.socket
+      .fromEvent<Object>("node_gonna_repeat")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data);
+        if (launch === this.launch?._id && node === this.id) {
+          this.load();
+        }
+      });
   }
 
   private load() {

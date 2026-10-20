@@ -11,7 +11,7 @@ export class CanPipe implements PipeTransform {
   constructor(private me: MeManager) {}
 
   transform(targetRole: UserRole, owner: User = null): Observable<boolean> {
-    if (!!this.can && this.owner?._id === owner._id) {
+    if (!!this.can && this.owner?._id === owner?._id) {
       return this.can;
     }
 

@@ -191,7 +191,8 @@ export class EditPipelineVisualComponent
   }
 
   private listen() {
-    this.live.subscribe(this.me.user._id);
+    const release = this.live.subscribe(this.me.user._id);
+    this.destroyed$.subscribe(() => release());
     this.socket
       .fromEvent<object>("pipeline_done")
       .pipe(takeUntil(this.destroyed$))
@@ -449,7 +450,7 @@ export class EditPipelineVisualComponent
 
     this.pipeline.inputs.set(key, input);
     const value = input.default;
-    if (value) {
+    if (value !== undefined && value !== null) {
       this.launchRequest.inputs ??= new Map<string, Primitive>();
       this.launchRequest.inputs.set(key, value);
     }
@@ -560,7 +561,7 @@ export class EditPipelineVisualComponent
         }
         break;
       default:
-        if (i.type !== i.type) {
+        if (o.type !== i.type) {
           return;
         }
     }
@@ -640,7 +641,32 @@ export class EditPipelineVisualComponent
   }
 
   removeNode(node: string) {
-    this.pipeline.nodes.delete(node);
+    const { nodes, flows, inputs, outputs, start } = this.pipeline;
+    nodes.delete(node);
+
+    // Drop references now: the template resolves flow ends through the
+    // `node` pipe, which throws for unknown nodes before sanitation runs.
+    for (const [id, flow] of flows) {
+      if (flow.from === node || flow.to === node) {
+        flows.delete(id);
+      }
+    }
+    for (const [, input] of inputs || []) {
+      for (const [id, flow] of input.flows || []) {
+        if (flow.to === node) {
+          input.flows.delete(id);
+        }
+      }
+    }
+    for (const [, output] of outputs || []) {
+      for (const [id, flow] of output.flows || []) {
+        if (flow.from === node) {
+          output.flows.delete(id);
+        }
+      }
+    }
+    start.nodes = start.nodes.filter((id) => id !== node);
+
     this.save();
 
     this.closeDrawler();

@@ -40,3 +40,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Browser workflow tests
+/dist-browser
+/test-results
+/playwright-report

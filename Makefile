@@ -23,6 +23,15 @@ schemas:
 test:
 	${BACKEND} run test:typecheck
 	${BACKEND} test
+	$(MAKE) test-frontend
+
+test-frontend:
+	${FRONTEND} run test:typecheck
+	${FRONTEND} run lint:tests
+	${FRONTEND} test
+
+test-frontend-browser:
+	${FRONTEND} run test:browser
 
 test-integration:
 	${BACKEND} run test:integration

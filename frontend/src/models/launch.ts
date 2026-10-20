@@ -1,7 +1,8 @@
-import { Expose, Type } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 import assign from "lodash/assign";
 import "reflect-metadata";
 import { Pipeline } from "src/models/pipeline";
+import { objectTransformer } from "src/transformers/object";
 import { PipelineIOType } from "src/types/pipeline";
 import { LaunchRequest } from "./launch-request";
 import { Project } from "./project";
@@ -126,7 +127,7 @@ export class StringData extends OutputData {
 
 export class JsonData extends OutputData {
   @Expose()
-  @Type(() => Object)
+  @Transform(objectTransformer)
   value: object;
 
   constructor(defs: Partial<StringData> = {}) {
@@ -220,7 +221,7 @@ export class LaunchInput {
       subTypes: [
         { value: BooleanData, name: "boolean" },
         { value: IntegerData, name: "integer" },
-        { value: FloatData, name: "integer" },
+        { value: FloatData, name: "float" },
         { value: StringData, name: "string" },
         { value: JsonData, name: "json" },
         { value: ImageData, name: "image" },
@@ -264,7 +265,7 @@ export class LaunchArtefact {
       subTypes: [
         { value: BooleanData, name: "boolean" },
         { value: IntegerData, name: "integer" },
-        { value: FloatData, name: "integer" },
+        { value: FloatData, name: "float" },
         { value: StringData, name: "string" },
         { value: JsonData, name: "json" },
         { value: ImageData, name: "image" },

@@ -133,12 +133,13 @@ export class DeployPipelineComponent implements OnInit {
       });
   }
 
-  remove(_id: string) {
+  remove({ _id, prefix, slug }: Deploy) {
     this.progress.removing[_id] = true;
     this.cd.detectChanges();
 
+    // DELETE /api/deploys/:prefix/:slug or /api/deploys/:slug (no prefix).
     this.http
-      .delete(`deploys/${_id}`)
+      .delete(["deploys", ...(prefix ? [prefix] : []), slug].join("/"))
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
@@ -148,7 +149,7 @@ export class DeployPipelineComponent implements OnInit {
       )
       .subscribe({
         next: () => this.load(),
-        error: (err) => (this.error = err.error),
+        error: (err) => (this.error = err),
       });
   }
 

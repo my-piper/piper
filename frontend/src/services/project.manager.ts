@@ -87,7 +87,7 @@ function sanitize(project: Project) {
       for (const [id, value] of nodeToLaunch.outputs) {
         const output = pipeline.nodes.get(node).outputs.get(id);
         if (!output) {
-          nodeToLaunch.inputs.delete(id);
+          nodeToLaunch.outputs.delete(id);
         }
       }
     }
@@ -107,7 +107,7 @@ function sanitize(project: Project) {
   for (const [id, output] of pipeline.outputs) {
     const { flows } = output;
     for (const [id, flow] of flows) {
-      if (!pipeline.nodes.has(flow.from)) {
+      if (!pipeline.nodes.get(flow.from)?.outputs.has(flow.output)) {
         flows.delete(id);
       }
     }
@@ -245,6 +245,7 @@ export class ProjectManager {
 
   set project(project: Project) {
     this._project = project;
+    this.resave = false;
     this.snapshots = {
       pipeline: null,
       launchRequest: null,
@@ -267,8 +268,16 @@ export class ProjectManager {
 
   lastUpdate = new Date();
 
+  // Project whose PATCH is in flight; `status` can turn "dirty" meanwhile.
+  private saving: Project | null = null;
+  // A save was requested while that PATCH was in flight.
+  private resave = false;
+
   constructor(private http: HttpService) {
     const update = (initiator: object | null) => {
+      if (!this.project) {
+        return;
+      }
       sanitize(this.project);
       this.updates.next(initiator);
     };
@@ -301,14 +310,20 @@ export class ProjectManager {
   private save() {
     logger.debug("Save project");
 
-    if (this.status.value === "saving") {
+    const { project } = this;
+    if (!project) {
+      return;
+    }
+
+    if (this.saving === project) {
+      this.resave = true;
       return;
     }
 
     const snapshots = {};
     const update = new PatchProject();
 
-    const { pipeline, launchRequest, environment } = this.project;
+    const { pipeline, launchRequest, environment } = project;
 
     if (!!pipeline) {
       const snapshot = toPlain(pipeline);
@@ -344,7 +359,8 @@ export class ProjectManager {
       return;
     }
 
-    const { _id: id, revision } = this.project;
+    const { _id: id, revision } = project;
+    this.saving = project;
     this.status.next("saving");
     this.http
       .patch(`projects/${id}/patch/${revision}`, update)
@@ -355,11 +371,27 @@ export class ProjectManager {
       .subscribe({
         next: ({ revision }) => {
           console.log(`Project saved with revision ${revision}`);
-          assign(this.project, { revision });
+          this.saving = null;
+          if (this.project !== project) {
+            return;
+          }
+
+          assign(project, { revision });
           assign(this.snapshots, snapshots);
-          this.status.next("saved");
+          if (this.resave) {
+            this.resave = false;
+            this.save();
+          } else if (this.status.value !== "dirty") {
+            this.status.next("saved");
+          }
         },
         error: (err) => {
+          this.saving = null;
+          if (this.project !== project) {
+            return;
+          }
+
+          this.resave = false;
           this.status.next("error");
           this.error.next(err);
         },

@@ -19,10 +19,17 @@ export class LiveService {
     }
 
     room.add(id);
+    let released = false;
     return () => {
+      // Releasing twice must not drop refs of the room's later subscribers.
+      if (released) {
+        return;
+      }
+      released = true;
+
       room.delete(id);
-      if (room.size <= 0) {
-        this.socket.emit("leave_room", id);
+      if (room.size <= 0 && this.rooms.get(name) === room) {
+        this.socket.emit("leave_room", name);
         this.rooms.delete(name);
       }
     };

@@ -2,12 +2,13 @@ import { ChangeDetectorRef, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
-import { delay, finalize, map, merge } from "rxjs";
+import { delay, finalize, map, merge, takeUntil } from "rxjs";
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
 import { Node } from "src/models/node";
 import { NodeLog } from "src/models/node-log";
 import { HttpService } from "src/services/http.service";
+import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { UI_DELAY } from "src/ui-kit/consts";
 
 @Component({
@@ -15,7 +16,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
   templateUrl: "./node-logs.component.html",
   styleUrls: ["./node-logs.component.scss"],
 })
-export class NodeLogsComponent {
+export class NodeLogsComponent extends UntilDestroyed {
   progress = { loading: false };
   error: Error;
 
@@ -30,13 +31,15 @@ export class NodeLogsComponent {
     private http: HttpService,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit() {
+    this.listen();
     this.route.data.subscribe(({ launch, node: { id, node } }) => {
       [this.launch, this.id, this.node] = [launch, id, node];
       this.load();
-      this.listen();
     });
   }
 
@@ -45,11 +48,12 @@ export class NodeLogsComponent {
       this.socket.fromEvent("node_gonna_repeat"),
       this.socket.fromEvent("node_error"),
       this.socket.fromEvent("node_done")
-    ).subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      console.log("Load logs for", launch, node);
-      if (node === this.id) this.load();
-    });
+    )
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
+        const { launch, node } = plainToInstance(PipelineEvent, data);
+        if (launch === this.launch?._id && node === this.id) this.load();
+      });
   }
 
   private load() {

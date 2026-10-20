@@ -38,13 +38,26 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
   }
 
   ngOnInit() {
+    this.listen();
     this.route.data.subscribe(({ project, launch, node: { id, node } }) => {
       [this.launch, this.id, this.node] = [launch, id, node];
+      this.joinRoom();
       this.loadInputs();
       this.loadOutputs();
       this.loadStatus();
-      this.listen();
     });
+  }
+
+  private joinRoom() {
+    // Join the new room before leaving the old one: no gap for one launch.
+    const previous = this.subscriptions.launch;
+    this.subscriptions.launch = this.live.subscribe(this.launch._id);
+    previous?.();
+  }
+
+  private isMine(data: Object) {
+    const { launch, node } = plainToInstance(PipelineEvent, data);
+    return launch === this.launch?._id && node === this.id;
   }
 
   override ngOnDestroy() {
@@ -53,14 +66,11 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
   }
 
   private listen() {
-    this.subscriptions.launch = this.live.subscribe(this.launch._id);
     this.socket
       .fromEvent<Object>("node_running")
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data: Object) => {
-        const { node } = plainToInstance(PipelineEvent, data);
-        if (node === this.id) {
-          console.log("Node is running", node);
+        if (this.isMine(data)) {
           this.loadStatus();
         }
       });
@@ -69,9 +79,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
       .fromEvent<Object>("node_done")
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        console.log("Load results for", launch, node);
-        if (node === this.id) {
+        if (this.isMine(data)) {
           this.loadStatus();
           this.loadOutputs();
         }
@@ -81,9 +89,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
       .fromEvent<Object>("node_not_ready")
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        console.log("Load results for", launch, node);
-        if (node === this.id) {
+        if (this.isMine(data)) {
           this.loadStatus();
           this.loadOutputs();
         }
@@ -93,9 +99,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
       .fromEvent<Object>("node_flow")
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        console.log("Load results for", launch, node);
-        if (node === this.id) {
+        if (this.isMine(data)) {
           this.loadInputs();
         }
       });

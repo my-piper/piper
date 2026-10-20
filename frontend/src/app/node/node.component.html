@@ -37,6 +37,7 @@
               trigger: 'click',
               position: 'left',
             }"
+            [attr.data-testid]="'input-port-' + i.id"
             (attached)="references.popover = $event"
             (mouseup)="pinTo(i.id)"
           ></button>
@@ -66,6 +67,7 @@
           trigger: 'click',
           position: 'right',
         }"
+        [attr.data-testid]="'output-port-' + o.key"
         (attached)="references.popover = $event"
         (mousedown)="pinFrom(o.key)"
       ></button>

@@ -57,7 +57,8 @@ export class EditPipelineInputComponent implements OnInit {
   }
 
   private build() {
-    const value = this.launchRequest.inputs?.get(this.id) || this.input.default;
+    const stored = this.launchRequest.inputs?.get(this.id);
+    const value = stored !== undefined ? stored : this.input.default;
     this.form.patchValue({ value });
   }
 
@@ -82,7 +83,11 @@ export class EditPipelineInputComponent implements OnInit {
         case "string[]":
         case "json":
         case "image":
-          if (!!value && value !== this.input.default) {
+          // Keep explicit 0 / "" when they differ from the default; an empty
+          // string only means "no value" when there is no default to override.
+          const hasDefault =
+            this.input.default !== undefined && this.input.default !== null;
+          if (value !== this.input.default && (value !== "" || hasDefault)) {
             inputs.set(this.id, value);
           } else {
             inputs.delete(this.id);
