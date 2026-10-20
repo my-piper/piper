@@ -57,37 +57,23 @@ process.on("SIGINT", interrupt);
 process.on("SIGTERM", interrupt);
 console.log(`Disposable integration services: ${project}`);
 
-const startAttempts = 3;
-
-// Services occasionally exit during CI startup, so print their logs and retry.
+// Print service logs before cleanup removes the failed containers.
 async function startServices() {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      await run("docker", [
-        ...composeArgs,
-        "up",
-        "-d",
-        "--quiet-pull",
-        "--wait",
-        "--wait-timeout",
-        "90",
-      ]);
-      return;
-    } catch (error) {
-      await run("docker", [...composeArgs, "logs", "--no-color"]).catch(
-        () => undefined
-      );
-      if (interrupted || attempt >= startAttempts) throw error;
-      console.error(
-        `Service startup failed (attempt ${attempt}/${startAttempts}), retrying`
-      );
-      await run("docker", [
-        ...composeArgs,
-        "down",
-        "--volumes",
-        "--remove-orphans",
-      ]);
-    }
+  try {
+    await run("docker", [
+      ...composeArgs,
+      "up",
+      "-d",
+      "--quiet-pull",
+      "--wait",
+      "--wait-timeout",
+      "90",
+    ]);
+  } catch (error) {
+    await run("docker", [...composeArgs, "logs", "--no-color"]).catch(
+      () => undefined
+    );
+    throw error;
   }
 }
 
