@@ -39,10 +39,11 @@ module.exports = function (config) {
         { type: "json-summary" },
       ],
       // Floors a few points under the baseline measured on 2026-10-20
-      // (docs/frontend-testing-plan.md, T008). Raise them as coverage grows;
+      // (docs/frontend-testing-plan.md, T008), global raised on 2026-10-22
+      // after the signup/node-inputs/environment/packages suites. Raise them as coverage grows;
       // lowering one needs a reason in the plan.
       check: {
-        global: { statements: 50, branches: 45, functions: 42, lines: 50 },
+        global: { statements: 56, branches: 50, functions: 48, lines: 56 },
         each: {
           statements: 0,
           branches: 0,
@@ -65,6 +66,27 @@ module.exports = function (config) {
             },
             "**/src/app/edit-pipeline-visual/edit-pipeline-visual.component.ts":
               { statements: 68, branches: 54, functions: 72, lines: 68 },
+            // Floors a few points under the coverage measured on 2026-10-22.
+            "**/src/app/signup/signup.component.ts": {
+              statements: 90,
+              branches: 50,
+              functions: 90,
+              lines: 90,
+            },
+            "**/src/app/edit-node-inputs/edit-node-inputs.component.ts": {
+              statements: 90,
+              branches: 80,
+              functions: 90,
+              lines: 90,
+            },
+            "**/src/app/edit-pipeline-environment/edit-pipeline-environment.component.ts":
+              { statements: 90, branches: 80, functions: 85, lines: 90 },
+            "**/src/app/node-packages/node-packages.component.ts": {
+              statements: 78,
+              branches: 55,
+              functions: 72,
+              lines: 78,
+            },
             "**/src/models/launch.ts": {
               statements: 80,
               branches: 70,

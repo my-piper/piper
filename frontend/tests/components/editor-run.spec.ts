@@ -11,6 +11,7 @@ import {
   USER_IDS,
 } from "../fixtures/plain";
 import { finish, setupEditor } from "../helpers/editor";
+import { expectConsoleError } from "../helpers/console";
 
 /**
  * Wire contracts: POST /api/projects/:_id/launch merges the body into the
@@ -120,6 +121,7 @@ describe("EditPipelineVisualComponent runs", () => {
   }));
 
   it("shows a launch failure and clears progress", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 400");
     const editor = setupEditor();
     const { element, controller, detectChanges } = editor;
 
@@ -168,6 +170,7 @@ describe("EditPipelineVisualComponent runs", () => {
   }));
 
   it("keeps the launch and shows the error when interrupting fails", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 404");
     const editor = setupEditor();
     const { element, controller, detectChanges } = editor;
     runButton(element).click();

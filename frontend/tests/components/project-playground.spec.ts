@@ -28,6 +28,7 @@ import {
 } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
+import { expectConsoleError } from "../helpers/console";
 
 /**
  * POST /api/projects/:_id/launch merges this body into the stored launch
@@ -202,6 +203,7 @@ describe("ProjectPlaygroundComponent", () => {
   }));
 
   it("shows launch errors with their details and resets progress", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 400");
     setup();
     const { status, statusText, body } = schemaInvalid();
 

@@ -1,5 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { resetPrerender } from "./config";
+import { guardConsole, takeConsoleProblems } from "./console";
 
 /**
  * Global per-spec isolation for the fast suites:
@@ -8,7 +9,8 @@ import { resetPrerender } from "./config";
  * - application traffic through fetch/XMLHttpRequest/WebSocket/EventSource is
  *   rejected and fails the spec that caused it (HttpClient requests must go
  *   through HttpTestingController, sockets through SocketDouble);
- * - elements a spec leaves attached to <body> after TestBed teardown fail it.
+ * - elements a spec leaves attached to <body> after TestBed teardown fail it;
+ * - console.error calls not declared with `expectConsoleError()` fail it.
  */
 
 // Same-origin paths the Karma runner and webpack chunk loader need.
@@ -97,6 +99,7 @@ function bodyElements(): Element[] {
 
 export function installIsolation() {
   guardNetwork();
+  guardConsole();
   const baseline = new Set(bodyElements());
 
   beforeEach(() => {
@@ -105,6 +108,7 @@ export function installIsolation() {
     clearCookies();
     resetPrerender();
     takeNetworkViolations();
+    takeConsoleProblems();
   });
 
   afterEach(() => {
@@ -124,6 +128,12 @@ export function installIsolation() {
           .map((e) => e.tagName.toLowerCase())
           .join(", ")}`,
       );
+    }
+
+    // Checked after teardown so errors logged while destroying count too.
+    const problems = takeConsoleProblems();
+    if (problems.length > 0) {
+      fail(problems.join("\n"));
     }
   });
 }

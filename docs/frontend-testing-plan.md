@@ -883,20 +883,32 @@ test-frontend` 281/281, `npm run test:coverage` 281/281 with floors met, four
 Deferred scope: full-stack browser tests against the real backend, browsers
 other than Chromium, mobile viewports, pixel snapshots.
 
-| Area      | Item                                                                                                                                                                                          | Found in   |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| Schema    | `launchRequest` schema declares `options.saveArtefacts`; models use `options.bucket` (and `additionalProperties: false`)                                                                      | T002       |
-| Models    | class-transformer drops Map keys colliding with `Map.prototype` (`size`, `get`, `keys`, …): such port names are lost                                                                          | T003       |
-| Autosave  | Revision conflicts are unrecoverable (no reload/merge); status stays `saving` after switching projects mid-save; unknown launch inputs not removed                                            | T003       |
-| HTTP      | `HttpService` sends a bogus `contentType` header                                                                                                                                              | T004       |
-| Signup    | `ng-hcaptcha` always rendered even when captcha is not required; no signup spec                                                                                                               | T004       |
-| Pipes     | `CanPipe` leaks a `user$` subscription per transform; two pipes named `includes` (NG0313)                                                                                                     | T004, T005 |
-| Tests     | Move `asJitPipes()` into `tests/setup.ts`; UiKitModule cannot load under JIT (pipes extending `UntilDestroyed`)                                                                               | T004, T005 |
-| i18n      | Translate `message.pipeline_schema_invalid`                                                                                                                                                   | T005       |
-| Editor    | `selectNode` host listener receives an undefined node; selectable directive and node-package editors untested                                                                                 | T005       |
-| Launch UI | LaunchesComponent `authorization._id`, `err.error`, anonymous `me.user._id` crash; NodeLogs/NodeJobs hidden errors; NodeComponent poll after destroy; `run()` does not trigger a pending save | T006       |
-| Routing   | Canvas route's `LaunchResolver` requests `GET /api/launches/<projectId>` (inherited `:id`)                                                                                                    | T007       |
-| Dev mode  | `ProjectComponent` throws NG0100 from its `child \| is:` class binding with `optimization: false`                                                                                             | T007       |
+| Area      | Item                                                                                                                                                                                                         | Found in         |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- |
+| Schema    | `launchRequest` schema declares `options.saveArtefacts`; models use `options.bucket` (and `additionalProperties: false`)                                                                                     | T002             |
+| Models    | class-transformer drops Map keys colliding with `Map.prototype` (`size`, `get`, `keys`, …): such port names are lost                                                                                         | T003             |
+| Autosave  | Revision conflicts are unrecoverable (no reload/merge); status stays `saving` after switching projects mid-save; unknown launch inputs not removed                                                           | T003             |
+| HTTP      | `HttpService` sends a bogus `contentType` header                                                                                                                                                             | T004             |
+| Signup    | `ng-hcaptcha` always rendered even when captcha is not required; no UI for `sendPassword`, so the password is optional and `POST /api/signup` can send `password: null`, which backend `bcrypt.hash` rejects | T004, 2026-10-22 |
+| Pipes     | `CanPipe` leaks a `user$` subscription per transform; two pipes named `includes` (NG0313)                                                                                                                    | T004, T005       |
+| Tests     | Move `asJitPipes()` into `tests/setup.ts`; UiKitModule cannot load under JIT (pipes extending `UntilDestroyed`)                                                                                              | T004, T005       |
+| i18n      | Translate `message.pipeline_schema_invalid`                                                                                                                                                                  | T005             |
+| Editor    | `selectNode` host listener receives an undefined node; selectable directive and node-package editors untested                                                                                                | T005             |
+| Launch UI | LaunchesComponent `authorization._id`, `err.error`, anonymous `me.user._id` crash; NodeLogs/NodeJobs hidden errors; NodeComponent poll after destroy; `run()` does not trigger a pending save                | T006             |
+| Routing   | Canvas route's `LaunchResolver` requests `GET /api/launches/<projectId>` (inherited `:id`)                                                                                                                   | T007             |
+| Backend   | `DELETE /api/node-packages/:_id` and package import only `checkLogged`; every other package route is `checkAdmin`                                                                                            | 2026-10-22       |
+| Env       | `EditPipelineEnvironmentComponent.clear()` leaves the form and pipeline-scoped variables unchanged                                                                                                           | 2026-10-22       |
+| Dev mode  | `ProjectComponent` throws NG0100 from its `child \| is:` class binding with `optimization: false`                                                                                                            | T007             |
+
+### 2026-10-22: console guard and coverage gaps
+
+- `helpers/console.ts`: an undeclared `console.error` fails the spec;
+  error-path specs declare it with `expectConsoleError()`.
+- New specs: signup, edit-node-inputs, edit-pipeline-environment,
+  node-packages (326 fast specs; global floor raised to 56/50/48/56).
+- Fixed with tests: edit-node-inputs dropped a stored/typed numeric `0` on
+  any save (`!!value`); edit-pipeline-environment never rendered save/clear
+  errors (no `<app-informer>`).
 
 ## Suggested next-agent assignment
 

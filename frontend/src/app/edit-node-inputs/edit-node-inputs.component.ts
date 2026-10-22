@@ -160,6 +160,13 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
           break;
         case "integer":
         case "float":
+          // 0 is a real value; only an emptied field falls back to the default.
+          if (value === null || value === undefined || value === "") {
+            inputs.delete(k);
+          } else {
+            inputs.set(k, value);
+          }
+          break;
         case "string":
         case "string[]":
         case "json":

@@ -19,6 +19,7 @@ import {
   PROJECT_B_ID,
   revisionConflict,
 } from "../../fixtures/plain";
+import { expectConsoleError } from "../../helpers/console";
 
 type Body = {
   pipeline?: Delta;
@@ -181,6 +182,7 @@ describe("ProjectManager autosave", () => {
 
   describe("failures", () => {
     it("keeps edits after a failed save and resends them on retry", fakeAsync(() => {
+      expectConsoleError("Process HTTP error 500");
       const { manager, controller, statuses } = setupProjectManager();
       const project = projectA();
       manager.project = project;
@@ -210,6 +212,7 @@ describe("ProjectManager autosave", () => {
     }));
 
     it("reports a revision conflict without advancing the revision or dropping edits", fakeAsync(() => {
+      expectConsoleError("Process HTTP error 400");
       const { manager, controller } = setupProjectManager();
       const project = projectA();
       manager.project = project;

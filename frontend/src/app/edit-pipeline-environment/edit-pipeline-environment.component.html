@@ -1,3 +1,9 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
 <p i18n="@@message.define_global_variables">
   You can override global variables for your pipeline here. In this case we
   won't bill you for execution of this pipeline.

@@ -28,6 +28,7 @@ import { finish } from "../helpers/editor";
 import { asJitPipes } from "../helpers/jit";
 import { editJson, JsonEditorStubComponent } from "../helpers/json-editor-stub";
 import { provideSocketDouble } from "../helpers/socket";
+import { expectConsoleError } from "../helpers/console";
 
 /**
  * Wire contracts:
@@ -197,6 +198,7 @@ describe("DeployPipelineComponent", () => {
   }));
 
   it("shows a deploy failure message and resets progress", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 400");
     setup();
     list([]);
 
@@ -251,6 +253,7 @@ describe("DeployPipelineComponent", () => {
   }));
 
   it("shows a removal failure and keeps the deploy listed", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 403");
     setup();
     list();
 

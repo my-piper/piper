@@ -52,7 +52,7 @@ check templates.
   are loaded as polyfills from `angular.json` before it.
 - `helpers/` — explicit infrastructure doubles: `config.ts` (PRERENDER/AppConfig,
   stored authorization), `socket.ts` (`SocketDouble` for ngx-socket-io),
-  `isolation.ts` (global guards).
+  `isolation.ts` (global guards), `console.ts` (`expectConsoleError`).
 - `fixtures/` — `plain.ts` wire payloads and `runtime-config.ts`, both free of
   Angular/Jasmine imports so the browser suite can share them; `models.ts`
   typed factories converting those payloads through the production
@@ -70,7 +70,13 @@ OAuth off, dummy base URL). After every spec the spec **fails** if it:
   request (only Karma's own `/_karma_webpack_/` and `/base/` paths are allowed) —
   use `provideHttpClientTesting()` + `HttpTestingController` (and call
   `verify()`), and `provideSocketDouble()` for sockets;
-- left elements attached to `<body>` after TestBed teardown.
+- left elements attached to `<body>` after TestBed teardown;
+- logged a `console.error` it did not declare with
+  `expectConsoleError(pattern)` from `helpers/console.ts`, or declared one that
+  was never logged. A string pattern matches a substring of the joined
+  arguments (an `Error` contributes its message), a RegExp is tested against
+  it, and one declaration covers repeats. `HttpService` logs every HTTP error
+  as `Process HTTP error <status> <body>`, so error-path specs declare it.
 
 `fakeAsync` already fails a spec that leaves timers queued. Jasmine runs specs
 in random order and fails specs without expectations.

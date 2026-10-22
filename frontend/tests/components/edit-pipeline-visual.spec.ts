@@ -16,6 +16,7 @@ import {
   outputPin,
   setupEditor,
 } from "../helpers/editor";
+import { expectConsoleError } from "../helpers/console";
 
 /** Debounce chain of ProjectManager.markDirty → PATCH (1000 + 3000 ms). */
 const AUTOSAVE = 4000;
@@ -303,6 +304,7 @@ describe("EditPipelineVisualComponent", () => {
     }));
 
     it("shows a visible error when the node cannot be loaded", fakeAsync(() => {
+      expectConsoleError("Process HTTP error 404");
       const project = projectA();
       const { editor, controller, detectChanges, element } = setupEditor({
         project,

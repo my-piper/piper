@@ -22,6 +22,7 @@ import { Languages } from "src/ui-kit/enums/languages";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 import { toInstance, toPlain } from "src/utils/models";
 import { provideTestConfig, TEST_BASE_URL } from "../helpers/config";
+import { expectConsoleError, takeConsoleProblems } from "../helpers/console";
 import { takeNetworkViolations } from "../helpers/isolation";
 import { provideSocketDouble, SocketDouble } from "../helpers/socket";
 
@@ -186,6 +187,38 @@ describe("test harness", () => {
 
       expect(body).toEqual({ _id: "u1" });
       controller.verify();
+    });
+  });
+
+  describe("console isolation", () => {
+    it("reports an undeclared console.error", () => {
+      console.error("Undeclared failure", 42);
+
+      const problems = takeConsoleProblems();
+
+      expect(problems).toEqual([
+        "Unexpected console.error: Undeclared failure 42",
+      ]);
+    });
+
+    it("accepts declared console errors, including repeats", () => {
+      expectConsoleError(/HTTP error 40\d/);
+
+      console.error("Process HTTP error 404", "Not found");
+      console.error("Process HTTP error 403", new Error("Forbidden"));
+      const problems = takeConsoleProblems();
+
+      expect(problems).toEqual([]);
+    });
+
+    it("reports a declared console.error that was never logged", () => {
+      expectConsoleError("Process HTTP error 500");
+
+      const problems = takeConsoleProblems();
+
+      expect(problems).toEqual([
+        "Expected console.error matching Process HTTP error 500 was not logged",
+      ]);
     });
   });
 
