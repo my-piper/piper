@@ -70,10 +70,10 @@
       >
         <app-icon class="icon" [icon]="'share'"></app-icon>
       </button>
-      <ng-template #projectSettingsPopover>
+      <ng-template #projectSettingsModal>
         <app-project-settings
           [project]="project"
-          (updated)="updated($event)"
+          (updated)="settingsUpdated($event)"
         ></app-project-settings>
       </ng-template>
       <button
@@ -81,9 +81,10 @@
         class="circle"
         data-testid="project-settings"
         title="Settings"
-        [appPopover]="{
-          trigger: 'click',
-          content: projectSettingsPopover,
+        [appModal]="{
+          title: 'Project settings',
+          maxWidth: '400px',
+          content: projectSettingsModal,
         }"
       >
         <app-icon class="icon" [icon]="'edit'"></app-icon>

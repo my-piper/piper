@@ -20,25 +20,33 @@
 <form [formGroup]="form">
   <fieldset>
     <label for="project-group">Group</label>
-    <input
+    <select
       id="project-group"
+      class="select-primary fluid"
+      formControlName="group"
+    >
+      <option [ngValue]="null">No group</option>
+      <option *ngFor="let g of groups" [ngValue]="g">{{ g }}</option>
+      <option [ngValue]="NEW_GROUP">+ New group…</option>
+    </select>
+  </fieldset>
+  <fieldset *ngIf="form.controls.group.value === NEW_GROUP">
+    <label for="project-new-group">New group</label>
+    <input
+      id="project-new-group"
       class="input-primary fluid"
       type="text"
-      formControlName="group"
-      placeholder="No group"
-      list="project-groups"
+      formControlName="newGroup"
+      placeholder="Group name"
       maxlength="100"
     />
-    <datalist id="project-groups">
-      <option *ngFor="let g of groups" [value]="g"></option>
-    </datalist>
   </fieldset>
   <footer>
     <button
       class="primary"
       type="button"
       [class.busy]="progress.saving"
-      [disabled]="progress.saving"
+      [disabled]="progress.saving || form.invalid"
       (click)="save()"
     >
       Save

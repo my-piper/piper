@@ -11,6 +11,7 @@ import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { ModalService } from "src/ui-kit/modal/modal.service";
 import { Languages } from "src/ui-kit/enums/languages";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
@@ -47,6 +48,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private cd: ChangeDetectorRef,
+    private modal: ModalService,
   ) {
     super();
   }
@@ -89,6 +91,11 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
 
   updated(project: Project) {
     assign(this.project, project);
+  }
+
+  settingsUpdated(project: Project) {
+    this.updated(project);
+    this.modal.close();
   }
 
   clone() {

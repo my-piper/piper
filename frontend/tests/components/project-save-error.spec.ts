@@ -30,6 +30,7 @@ import { CountdownPipe } from "src/ui-kit/pipes/countdown.pipe";
 import { I18nPipe } from "src/ui-kit/pipes/i18n.pipe";
 import { InvalidFieldPipe } from "src/ui-kit/pipes/invalid-field.pipe";
 import { LengthPipe } from "src/ui-kit/pipes/length.pipe";
+import { ModalDirective } from "src/ui-kit/modal/modal.directive";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 import { projectA } from "../fixtures/models";
@@ -57,6 +58,7 @@ describe("ProjectComponent save errors", () => {
         MeUserComponent,
         IconComponent,
         InformerComponent,
+        ModalDirective,
         PopoverDirective,
         CanPipe,
         IsPipe,

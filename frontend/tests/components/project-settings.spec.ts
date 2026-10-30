@@ -13,7 +13,7 @@ import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 
 /**
- * GET /api/projects/groups suggests existing groups and
+ * GET /api/projects/groups lists existing groups for the dropdown and
  * POST /api/projects/:_id/settings stores the trimmed group or null
  * (backend/api/projects/update-project-settings.ts).
  */
@@ -31,7 +31,7 @@ describe("ProjectSettingsComponent", () => {
     fixture = TestBed.createComponent(ProjectSettingsComponent);
     fixture.componentInstance.project = toInstance(
       { ...projectAPlain(), group },
-      Project
+      Project,
     );
     element = fixture.nativeElement;
     fixture.detectChanges();
@@ -39,60 +39,119 @@ describe("ProjectSettingsComponent", () => {
     fixture.detectChanges();
   }
 
-  function input(): HTMLInputElement {
-    return element.querySelector("input[formControlName=group]");
+  function select(): HTMLSelectElement {
+    return element.querySelector("select[formControlName=group]");
   }
 
-  function save(value: string) {
-    const field = input();
-    field.value = value;
-    field.dispatchEvent(new Event("input"));
-    element.querySelector<HTMLButtonElement>("footer button").click();
+  function pick(label: string) {
+    const field = select();
+    field.selectedIndex = Array.from(field.options).findIndex(
+      (o) => o.textContent.trim() === label,
+    );
+    field.dispatchEvent(new Event("change"));
+    fixture.detectChanges();
+  }
+
+  function newGroup(): HTMLInputElement {
+    return element.querySelector("input[formControlName=newGroup]");
+  }
+
+  function saveButton(): HTMLButtonElement {
+    return element.querySelector<HTMLButtonElement>("footer button");
+  }
+
+  function save() {
+    saveButton().click();
     return controller.expectOne(`/api/projects/${PROJECT_A_ID}/settings`);
   }
 
   afterEach(() => controller.verify());
 
-  it("shows the current group and suggests existing ones", fakeAsync(() => {
+  it("selects the current group among existing ones", fakeAsync(() => {
     setup("Marketing");
 
-    const options = element.querySelectorAll("datalist option");
-    expect(input().value).toBe("Marketing");
-    expect(Array.from(options).map((o) => o.getAttribute("value"))).toEqual([
-      "Marketing",
-      "Sales",
-    ]);
+    const options = Array.from(select().options).map((o) =>
+      o.textContent.trim(),
+    );
+    expect(options).toEqual(["No group", "Marketing", "Sales", "+ New group…"]);
+    expect(select().selectedOptions[0].textContent.trim()).toBe("Marketing");
+    expect(newGroup()).toBeNull();
     fixture.destroy();
     finish();
   }));
 
-  it("saves a trimmed group and emits the update", fakeAsync(() => {
+  it("keeps a current group missing from the suggestions", fakeAsync(() => {
+    setup("Legacy");
+
+    const options = Array.from(select().options).map((o) =>
+      o.textContent.trim(),
+    );
+    expect(options).toContain("Legacy");
+    expect(select().selectedOptions[0].textContent.trim()).toBe("Legacy");
+    fixture.destroy();
+    finish();
+  }));
+
+  it("saves a selected group and emits the update", fakeAsync(() => {
     setup();
     const emitted: Project[] = [];
     fixture.componentInstance.updated.subscribe((p) => emitted.push(p));
+    pick("Sales");
 
-    const request = save("  Sales ");
+    const request = save();
     request.flush({ group: "Sales" });
     tick(UI_DELAY);
 
     expect(request.request.method).toBe("POST");
     expect(request.request.body).toEqual(
-      jasmine.objectContaining({ group: "Sales" })
+      jasmine.objectContaining({ group: "Sales" }),
     );
     expect(emitted.map((p) => p.group)).toEqual(["Sales"]);
     fixture.destroy();
     finish();
   }));
 
-  it("removes the group when the field is cleared", fakeAsync(() => {
+  it("saves a trimmed new group", fakeAsync(() => {
     setup("Marketing");
+    pick("+ New group…");
+    newGroup().value = "  Support ";
+    newGroup().dispatchEvent(new Event("input"));
+    fixture.detectChanges();
 
-    const request = save("   ");
+    const request = save();
+    request.flush({ group: "Support" });
+    tick(UI_DELAY);
+
+    expect(request.request.body).toEqual(
+      jasmine.objectContaining({ group: "Support" }),
+    );
+    fixture.destroy();
+    finish();
+  }));
+
+  it("requires a name for a new group", fakeAsync(() => {
+    setup();
+    pick("+ New group…");
+    newGroup().value = "   ";
+    newGroup().dispatchEvent(new Event("input"));
+
+    fixture.detectChanges();
+
+    expect(saveButton().disabled).toBeTrue();
+    fixture.destroy();
+    finish();
+  }));
+
+  it("removes the group when no group is selected", fakeAsync(() => {
+    setup("Marketing");
+    pick("No group");
+
+    const request = save();
     request.flush({ group: null });
     tick(UI_DELAY);
 
     expect(request.request.body).toEqual(
-      jasmine.objectContaining({ group: null })
+      jasmine.objectContaining({ group: null }),
     );
     fixture.destroy();
     finish();
