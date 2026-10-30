@@ -17,6 +17,9 @@
       [size]="18"
       [appPopover]="{ content: descriptionPopover }"
     ></app-icon>
+    <button type="button" class="close with-icon only-icon" (click)="close()">
+      <app-icon class="icon" icon="close" [size]="18"></app-icon>
+    </button>
   </div>
 
   <form [formGroup]="form">

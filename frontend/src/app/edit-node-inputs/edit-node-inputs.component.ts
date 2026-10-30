@@ -257,6 +257,12 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
     );
   }
 
+  close() {
+    this.router.navigate([{ outlets: { right: null } }], {
+      relativeTo: this.route.parent,
+    });
+  }
+
   reset() {
     const { launchRequest } = this.project;
 
