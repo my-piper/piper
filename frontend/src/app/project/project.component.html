@@ -70,6 +70,24 @@
       >
         <app-icon class="icon" [icon]="'share'"></app-icon>
       </button>
+      <ng-template #projectSettingsPopover>
+        <app-project-settings
+          [project]="project"
+          (updated)="updated($event)"
+        ></app-project-settings>
+      </ng-template>
+      <button
+        *ngIf="userRole.admin | can: project.createdBy | async"
+        class="circle"
+        data-testid="project-settings"
+        title="Settings"
+        [appPopover]="{
+          trigger: 'click',
+          content: projectSettingsPopover,
+        }"
+      >
+        <app-icon class="icon" [icon]="'edit'"></app-icon>
+      </button>
       <div class="title" [formGroup]="form">
         <input
           [class.error]="form | invalidField: 'name'"

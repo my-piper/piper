@@ -17,6 +17,7 @@ beforeEach(async () => {
     () => import("api/projects/get-project"),
     () => import("api/projects/add-project"),
     () => import("api/projects/update-project"),
+    () => import("api/projects/update-project-settings"),
     () => import("api/projects/delete-project"),
   ]);
 });
@@ -230,35 +231,6 @@ describe("project ownership and admin permissions", () => {
     }
   );
 
-  it("moves a project to a trimmed group", async () => {
-    const response = await context.request
-      .post("/api/projects/project-http")
-      .set("user-token", userToken())
-      .send({ visibility: "private", group: "  Marketing " });
-
-    expect(response.status).toBe(200);
-    expect(response.body.group).toBe("Marketing");
-    expect(httpDoubles.projects.updateOne.mock.calls[0][1]).toEqual({
-      $set: expect.objectContaining({ group: "Marketing" }),
-    });
-  });
-
-  it.each(["", "   ", null])(
-    "removes a project from its group on %j",
-    async (group) => {
-      const response = await context.request
-        .post("/api/projects/project-http")
-        .set("user-token", userToken())
-        .send({ visibility: "private", group });
-
-      expect(response.status).toBe(200);
-      expect(response.body.group).toBeNull();
-      expect(httpDoubles.projects.updateOne.mock.calls[0][1]).toEqual({
-        $set: expect.objectContaining({ group: null }),
-      });
-    }
-  );
-
   it.each(["other-user", "engineer-user"])(
     "rejects project updates by %s",
     async (user) => {
@@ -430,6 +402,75 @@ describe("project groups", () => {
 
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("group", {});
+  });
+});
+
+describe("project settings", () => {
+  it.each(["owner-user", "admin-user"])(
+    "allows %s to move a project to a trimmed group",
+    async (user) => {
+      const response = await context.request
+        .post("/api/projects/project-http/settings")
+        .set("user-token", userToken(user))
+        .send({ group: "  Marketing ", visibility: "public" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        group: "Marketing",
+        updatedAt: HTTP_TEST_TIME.toISOString(),
+        updatedBy: { _id: user },
+      });
+      expect(httpDoubles.projects.updateOne).toHaveBeenCalledExactlyOnceWith(
+        { _id: "project-http" },
+        {
+          $set: {
+            group: "Marketing",
+            updatedAt: HTTP_TEST_TIME,
+            updatedBy: { _id: user },
+          },
+        }
+      );
+    }
+  );
+
+  it.each([{ group: "" }, { group: "   " }, { group: null }, {}])(
+    "removes a project from its group on %j",
+    async (body) => {
+      const response = await context.request
+        .post("/api/projects/project-http/settings")
+        .set("user-token", userToken())
+        .send(body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.group).toBeNull();
+      expect(httpDoubles.projects.updateOne.mock.calls[0][1]).toEqual({
+        $set: expect.objectContaining({ group: null }),
+      });
+    }
+  );
+
+  it.each([{ group: 42 }, { group: "x".repeat(101) }])(
+    "rejects invalid settings %j",
+    async (body) => {
+      const response = await context.request
+        .post("/api/projects/project-http/settings")
+        .set("user-token", userToken())
+        .send(body);
+
+      expect(response.status).toBe(400);
+      expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
+    }
+  );
+
+  it("rejects settings updates by other users", async () => {
+    const response = await context.request
+      .post("/api/projects/project-http/settings")
+      .set("user-token", userToken("other-user"))
+      .send({ group: "Marketing" });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("You aren't admin");
+    expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
   });
 });
 

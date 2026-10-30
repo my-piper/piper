@@ -43,16 +43,6 @@
         <span>Public</span>
       </label>
     </div>
-    <input
-      class="input-primary fluid"
-      type="text"
-      formControlName="group"
-      placeholder="Group"
-      list="project-groups"
-    />
-    <datalist id="project-groups">
-      <option *ngFor="let g of groups" [value]="g"></option>
-    </datalist>
     <ng-container *ngIf="visibilityControl.value !== 'private'">
       <input class="input-primary fluid" type="text" formControlName="slug" />
       <input

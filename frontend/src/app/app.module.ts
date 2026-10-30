@@ -109,6 +109,7 @@ import { EditPipelineEnvironmentComponent } from "./edit-pipeline-environment/ed
 import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipeline-readme.component";
 import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
 import { EditProjectComponent } from "./edit-project/edit-project.component";
+import { ProjectSettingsComponent } from "./project-settings/project-settings.component";
 import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refills.component";
 import { ExpensesComponent } from "./expenses/expenses.component";
 import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
@@ -254,6 +255,7 @@ import { UsersComponent } from "./users/users.component";
     PackagesUpdateErrorsCountPipe,
     EditPipelineDesignComponent,
     EditProjectComponent,
+    ProjectSettingsComponent,
     SelectableDirective,
     CanvasPanDirective,
     CanvasSelectDirective,

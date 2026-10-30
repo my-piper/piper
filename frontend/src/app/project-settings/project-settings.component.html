@@ -1,0 +1,47 @@
+<ng-template #errorTemplate>
+  <div class="informer errors">
+    <p>{{ error.message }}</p>
+    <ul>
+      <li *ngFor="let m of error?.details">{{ m }}</li>
+    </ul>
+    <p>Your data were not saved!</p>
+    <div class="stack justify-center">
+      <button class="primary" (click)="error = null">Ok</button>
+    </div>
+  </div>
+</ng-template>
+
+<app-informer
+  *ngIf="!!error"
+  [contentTemplate]="errorTemplate"
+  (ok)="error = null"
+></app-informer>
+
+<form [formGroup]="form">
+  <fieldset>
+    <label for="project-group">Group</label>
+    <input
+      id="project-group"
+      class="input-primary fluid"
+      type="text"
+      formControlName="group"
+      placeholder="No group"
+      list="project-groups"
+      maxlength="100"
+    />
+    <datalist id="project-groups">
+      <option *ngFor="let g of groups" [value]="g"></option>
+    </datalist>
+  </fieldset>
+  <footer>
+    <button
+      class="primary"
+      type="button"
+      [class.busy]="progress.saving"
+      [disabled]="progress.saving"
+      (click)="save()"
+    >
+      Save
+    </button>
+  </footer>
+</form>

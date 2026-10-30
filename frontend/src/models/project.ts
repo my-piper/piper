@@ -93,6 +93,16 @@ export class PatchProject {
   }
 }
 
+export class ProjectSettings {
+  @Expose()
+  @Type(() => String)
+  group!: string | null;
+
+  constructor(defs: Partial<ProjectSettings> = {}) {
+    assign(this, defs);
+  }
+}
+
 export class LaunchProject {
   @Expose()
   @Type(() => String)
