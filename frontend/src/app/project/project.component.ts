@@ -16,7 +16,6 @@ import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 import { getLabel } from "src/ui-kit/utils/i18n";
 import { toInstance } from "src/utils/models";
-import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
 @Component({
   selector: "app-project",
@@ -33,7 +32,6 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   pipeline!: Pipeline;
   project!: Project;
 
-  references: { popover: PopoverComponent | null } = { popover: null };
   child!: unknown;
 
   form = this.fb.group({

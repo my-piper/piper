@@ -13,10 +13,30 @@
 }
 
 .search {
+  position: relative;
   margin-left: auto;
+
+  // icon is a mask so it follows the theme text color
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: $gutter-small;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    background-color: currentColor;
+    mask-image: url(../../assets/icons/search.svg);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    opacity: 0.6;
+    pointer-events: none;
+  }
 
   input {
     width: 250px;
+    padding-left: calc(#{$gutter-small} + 18px + #{$gutter-small});
   }
 }
 

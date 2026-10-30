@@ -91,15 +91,16 @@
       <ul class="menu">
         <li>
           <a
+            class="with-icon"
             [class.active]="child | is: editPipelineVisualComponent"
             [routerLink]="['./']"
-            i18n="@@link.canvas"
+            ><app-icon class="icon left" [size]="18" icon="node"></app-icon
+            ><ng-container i18n="@@link.canvas">Canvas</ng-container></a
           >
-            Canvas
-          </a>
         </li>
         <li>
           <a
+            class="with-icon"
             [routerLink]="[
               {
                 outlets: {
@@ -112,7 +113,8 @@
             ]"
             routerLinkActive="active"
           >
-            <ng-container i18n="@@link.environment">Environment</ng-container>
+            <app-icon class="icon left" [size]="18" icon="password"></app-icon
+            ><ng-container i18n="@@link.environment">Environment</ng-container>
             <ng-container
               *ngIf="
                 (project.pipeline | pipelineEnvironment | async)?.properties
@@ -129,6 +131,7 @@
         </li>
         <li>
           <a
+            class="with-icon"
             [routerLink]="[
               {
                 outlets: {
@@ -140,11 +143,9 @@
               },
             ]"
             routerLinkActive="active"
-            (click)="references.popover?.hide()"
-            i18n="@@link.artefacts"
+            ><app-icon class="icon left" [size]="18" icon="archive"></app-icon
+            ><ng-container i18n="@@link.artefacts">Artefacts</ng-container></a
           >
-            Artefacts
-          </a>
         </li>
         <ng-container
           *ngIf="(project.pipeline.outputs | keyvalue | length) > 0"
@@ -163,6 +164,7 @@
         </ng-container>
         <li>
           <a
+            class="with-icon"
             [routerLink]="[
               {
                 outlets: {
@@ -174,13 +176,13 @@
               },
             ]"
             routerLinkActive="active"
-            i18n="@@link.deploy"
+            ><app-icon class="icon left" [size]="18" icon="upload"></app-icon
+            ><ng-container i18n="@@link.deploy">Deploy</ng-container></a
           >
-            Deploy
-          </a>
         </li>
         <li>
           <a
+            class="with-icon"
             [routerLink]="[
               {
                 outlets: {
@@ -192,14 +194,13 @@
               },
             ]"
             routerLinkActive="active"
-            (click)="references.popover?.hide()"
-            i18n="@@link.assets"
+            ><app-icon class="icon left" [size]="18" icon="image"></app-icon
+            ><ng-container i18n="@@link.assets">Assets</ng-container></a
           >
-            Assets
-          </a>
         </li>
         <li>
           <a
+            class="with-icon"
             [routerLink]="[
               {
                 outlets: {
@@ -211,10 +212,9 @@
               },
             ]"
             routerLinkActive="active"
-            i18n="@@link.launches"
+            ><app-icon class="icon left" [size]="18" icon="play"></app-icon
+            ><ng-container i18n="@@link.launches">Launches</ng-container></a
           >
-            Launches
-          </a>
         </li>
         <ng-container
           *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
@@ -224,6 +224,7 @@
           >
             <li>
               <a
+                class="with-icon"
                 [routerLink]="[
                   {
                     outlets: {
@@ -236,7 +237,12 @@
                 ]"
                 routerLinkActive="active"
               >
-                <ng-container i18n="@@link.updates">Updates</ng-container>
+                <app-icon
+                  class="icon left"
+                  [size]="18"
+                  icon="download"
+                ></app-icon
+                ><ng-container i18n="@@link.updates">Updates</ng-container>
                 <span class="badge">
                   {{ updates }}
                 </span>
@@ -245,121 +251,103 @@
           </ng-container>
         </ng-container>
         <li>
-          <ng-template #linksMenu>
-            <ul class="context-menu">
-              <li>
-                <a
-                  [routerLink]="[
-                    {
-                      outlets: {
-                        primary: ['design'],
-                        left: null,
-                        right: null,
-                        bottom: null,
-                      },
-                    },
-                  ]"
-                  routerLinkActive="active"
-                  (click)="references.popover?.hide()"
-                  i18n="@@link.design"
-                  >Design</a
-                >
-              </li>
-              <li>
-                <a
-                  [routerLink]="[
-                    {
-                      outlets: {
-                        primary: ['readme', 'edit'],
-                        left: null,
-                        right: null,
-                        bottom: null,
-                      },
-                    },
-                  ]"
-                  routerLinkActive="active"
-                  (click)="references.popover?.hide()"
-                  i18n="@@link.readme"
-                >
-                  README
-                </a>
-              </li>
-              <li>
-                <a
-                  [routerLink]="[
-                    {
-                      outlets: {
-                        primary: ['yaml'],
-                        left: null,
-                        right: null,
-                        bottom: null,
-                      },
-                    },
-                  ]"
-                  routerLinkActive="active"
-                  (click)="references.popover?.hide()"
-                >
-                  YAML
-                </a>
-              </li>
-              <li *ngIf="userRole.engineer | can | async">
-                <a
-                  [routerLink]="[
-                    {
-                      outlets: {
-                        primary: ['script'],
-                        left: null,
-                        right: null,
-                        bottom: null,
-                      },
-                    },
-                  ]"
-                  routerLinkActive="active"
-                  (click)="references.popover?.hide()"
-                  i18n="@@link.script"
-                >
-                  Script
-                </a>
-              </li>
-              <li *ngIf="userRole.admin | can | async">
-                <a
-                  [routerLink]="['messages']"
-                  routerLinkActive="active"
-                  (click)="references.popover?.hide()"
-                  i18n="@@link.messages"
-                >
-                  Messages
-                </a>
-              </li>
-              <li>
-                <a
-                  [routerLink]="[
-                    {
-                      outlets: {
-                        primary: ['tools'],
-                        left: null,
-                        right: null,
-                        bottom: null,
-                      },
-                    },
-                  ]"
-                  routerLinkActive="active"
-                  (click)="references.popover?.hide()"
-                  i18n="@@link.tools"
-                >
-                  Tools
-                </a>
-              </li>
-            </ul>
-          </ng-template>
-          <button
-            class="item with-icon"
-            [appPopover]="{ behavior: 'dropdown', content: linksMenu }"
-            (attached)="references.popover = $event"
+          <a
+            class="with-icon"
+            [routerLink]="[
+              {
+                outlets: {
+                  primary: ['design'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            ><app-icon class="icon left" [size]="18" icon="theme"></app-icon
+            ><ng-container i18n="@@link.design">Design</ng-container></a
           >
-            <app-icon class="icon left" icon="chevron-down"></app-icon>
-            <ng-container i18n="@@link.more">More</ng-container>
-          </button>
+        </li>
+        <li>
+          <a
+            class="with-icon"
+            [routerLink]="[
+              {
+                outlets: {
+                  primary: ['readme', 'edit'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            ><app-icon class="icon left" [size]="18" icon="text"></app-icon
+            ><ng-container i18n="@@link.readme">README</ng-container></a
+          >
+        </li>
+        <li>
+          <a
+            class="with-icon"
+            [routerLink]="[
+              {
+                outlets: {
+                  primary: ['yaml'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            ><app-icon class="icon left" [size]="18" icon="json"></app-icon
+            >YAML</a
+          >
+        </li>
+        <li *ngIf="userRole.engineer | can | async">
+          <a
+            class="with-icon"
+            [routerLink]="[
+              {
+                outlets: {
+                  primary: ['script'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            ><app-icon class="icon left" [size]="18" icon="edit"></app-icon
+            ><ng-container i18n="@@link.script">Script</ng-container></a
+          >
+        </li>
+        <li *ngIf="userRole.admin | can | async">
+          <a
+            class="with-icon"
+            [routerLink]="['messages']"
+            routerLinkActive="active"
+            ><app-icon class="icon left" [size]="18" icon="assistant"></app-icon
+            ><ng-container i18n="@@link.messages">Messages</ng-container></a
+          >
+        </li>
+        <li>
+          <a
+            class="with-icon"
+            [routerLink]="[
+              {
+                outlets: {
+                  primary: ['tools'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            ><app-icon class="icon left" [size]="18" icon="switcher"></app-icon
+            ><ng-container i18n="@@link.tools">Tools</ng-container></a
+          >
         </li>
       </ul>
     </nav>
