@@ -28,7 +28,13 @@ const doubles = vi.hoisted(() => ({
     usage: vi.fn(),
     run: vi.fn(),
   },
-  metrics: { outputs: vi.fn(), finished: vi.fn(), errors: vi.fn() },
+  metrics: {
+    outputs: vi.fn(),
+    finished: vi.fn(),
+    errors: vi.fn(),
+    nodeRuns: vi.fn(),
+    launchRuns: vi.fn(),
+  },
   execute: vi.fn(),
   notify: vi.fn(),
   insertOne: vi.fn(),
@@ -75,6 +81,10 @@ vi.mock("app/streams", () => ({
         finished: { send: doubles.metrics.finished },
       },
       errors: { send: doubles.metrics.errors },
+      runs: {
+        nodes: { send: doubles.metrics.nodeRuns },
+        launches: { send: doubles.metrics.launchRuns },
+      },
     },
   },
 }));
@@ -109,6 +119,7 @@ export function resetExecutionDoubles() {
   doubles.redis.get.mockResolvedValue(null);
   doubles.redis.GET.mockResolvedValue(null);
   doubles.redis.EXISTS.mockResolvedValue(0);
+  doubles.redis.set.mockResolvedValue("OK");
   doubles.redis.sIsMember.mockResolvedValue(true);
   doubles.redis.lRange.mockResolvedValue([]);
   doubles.bucket.mockReturnValue(null);

@@ -1,6 +1,23 @@
 # Run duration metrics plan
 
-**Status (2026-10-30): planned, not implemented.**
+**Status (2026-10-30): implemented** (helpers in
+`backend/jobs/process-node/run-metrics.ts`, migrations `000007_node_runs` and
+`000008_launch_runs`). Decisions made during implementation:
+
+- `project` is `project._id`; `pipeline` is `pipeline.name`.
+- `waitMs` is measured up to the start of the script. The first run waits from
+  `job.timestamp + opts.delay`. Repeats and retries store their due time in
+  `NODE_JOB_DUE` (`launch:<id>:nodes:<node>:jobs:<job>:due`), so a retry's wait
+  includes the BullMQ backoff.
+- `attempt` is BullMQ `attemptsMade` (0 for the first attempt), the same as in
+  `pipeline_errors`.
+- Each launch gets at most one `launch_runs` row: the first outcome claims
+  `LAUNCH_RUN_RECORDED` with `SET NX`.
+- `interrupted` is recorded by the next node job that sees the interrupt flag,
+  with the interrupt time as `finishedAt`. The API server has no Kafka producer.
+  A launch interrupted when no node job runs afterwards gets no row.
+- An unscoped launch gets `startedAt = launchedAt` at creation. A scoped launch
+  gets it in `kick()`, saved with `KEEPTTL`.
 
 Goal: collect statistics on pipeline (launch) and node run durations — wait
 time, execution time, repeats, retries and outcome — in ClickHouse, so they can

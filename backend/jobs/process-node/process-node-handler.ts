@@ -5,6 +5,7 @@ import {
   LAUNCH_HEARTBEAT_EXPIRED,
   LAUNCH_INTERRUPTED,
   NODE_FLOWS,
+  NODE_JOB_DUE,
   NODE_JOBS,
   NODE_LOGS,
   NODE_PROCESSED_LOCK,
@@ -45,6 +46,7 @@ import { PipelineEventType } from "types/pipeline";
 import { checkInputs, convertInputs, getNodeInputs } from "utils/node";
 import { getEnvironment } from "./environment";
 import { completeNode } from "./complete-node";
+import { getErrorResult, recordLaunchRun, recordNodeRun } from "./run-metrics";
 
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
 const RUN_FUNCTION_NAME = "run";
@@ -117,6 +119,15 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   if (await exists(LAUNCH_INTERRUPTED(nodeJob.launch))) {
     logger.debug("Launch has been interrupted");
+    const interrupted = await readInstance(LAUNCH(nodeJob.launch), Launch);
+    if (!!interrupted) {
+      const interruptedAt = await redis.get(LAUNCH_INTERRUPTED(nodeJob.launch));
+      await recordLaunchRun(
+        interrupted,
+        "interrupted",
+        !!interruptedAt ? new Date(interruptedAt) : new Date()
+      );
+    }
     return NodeJobResult.LAUNCH_INTERRUPTED;
   }
 
@@ -212,6 +223,9 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     }
   };
   let [results, logs]: [ExecutionResult, LogEntry[]] = [null, null];
+  const DUE = NODE_JOB_DUE(launch._id, nodeJob.node, job.id);
+  let run: Parameters<typeof recordNodeRun>[0] = null;
+  let finishedAt: number = null;
   try {
     await heartbeat();
 
@@ -227,6 +241,21 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     );
     notifyNode(nodeJob.node, "node_running");
 
+    const environment = await getEnvironment({
+      launch,
+      launchedBy: launch.launchedBy,
+      node,
+    });
+
+    const due = await redis.get(DUE);
+    run = {
+      launch,
+      node: nodeJob.node,
+      attempt: attemptsMade,
+      startedAt: new Date(),
+      dueAt: !!due ? Number(due) : job.timestamp + (job.opts.delay ?? 0),
+    };
+
     logger.debug("Run node script");
     results = await execute(
       node.script,
@@ -237,32 +266,30 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         },
         inputs: converted,
         state,
-        env: await (async () => {
-          const { launchedBy } = launch;
-          const environment = await getEnvironment({
-            launch,
-            launchedBy,
-            node,
-          });
-          return toPlain(environment);
-        })(),
+        env: toPlain(environment),
       },
       {
         timeout: getTimeout(node.execution),
         isolation: node.sign ? "none" : "process",
       }
     );
+    finishedAt = Date.now();
     logs = results.logs;
   } catch (e) {
+    finishedAt ??= Date.now();
     logger.error(e);
     logger.error("Error while processing");
 
+    const error = e instanceof ExecutionError ? e.typed() : e;
     if (e instanceof ExecutionError) {
       logs = e.logs;
-      throw e.typed();
     }
 
-    throw e;
+    if (!!run) {
+      await recordNodeRun(run, getErrorResult(error), finishedAt);
+    }
+
+    throw error;
   } finally {
     logger.debug("Clear heartbeat timer");
     heartbeatActive = false;
@@ -313,9 +340,14 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     logger.debug(`Node ${nodeJob.node} is going to repeat with delay ${delay}`);
     notifyNode(nodeJob.node, "node_gonna_repeat");
 
-    await job.moveToDelayed(Date.now() + (delay || 1000));
+    await recordNodeRun(run, "repeat", finishedAt);
+
+    const repeatAt = Date.now() + (delay || 1000);
+    await redis.setEx(DUE, LAUNCH_EXPIRED, String(repeatAt));
+    await job.moveToDelayed(repeatAt);
     throw new DelayedError();
   } else if (result?.["__type"] === "next") {
+    await recordNodeRun(run, "done", finishedAt);
     return completeNode({
       launch,
       nodeJob,
@@ -326,6 +358,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       notifyUser,
     });
   } else {
+    await recordNodeRun(run, "error", finishedAt);
     throw new Error(`Wrong handler results ${JSON.stringify(results)}`);
   }
 };

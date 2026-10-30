@@ -66,6 +66,29 @@ describe("launch persistence and scheduling", () => {
     expect(doubles.plans.rapid).not.toHaveBeenCalled();
   });
 
+  it("starts an unscoped launch when it is created", async () => {
+    const source = launchFixture();
+    source.scope.activated = false;
+
+    const launch = await run(source);
+
+    expect(launch.startedAt).toEqual(EXECUTION_TIME);
+    expect(doubles.redis.set).not.toHaveBeenCalled();
+  });
+
+  it("stores the start time of a scoped launch when it is kicked", async () => {
+    const launch = launchFixture();
+
+    await kick(launch);
+
+    expect(launch.startedAt).toEqual(EXECUTION_TIME);
+    expect(doubles.redis.set).toHaveBeenCalledExactlyOnceWith(
+      LAUNCH(launch._id),
+      JSON.stringify(toPlain(launch)),
+      { KEEPTTL: true }
+    );
+  });
+
   it("uses an inclusive starting-node selection", async () => {
     const launch = launchFixture();
     launch.launchRequest.inclusive = { nodes: ["sink_node"] };

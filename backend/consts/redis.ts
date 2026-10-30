@@ -20,6 +20,8 @@ export const LAUNCH_HEARTBEAT = (launch: string) =>
   `launch:${launch}:heartbeat`;
 export const LAUNCH_INTERRUPTED = (launch: string) =>
   `launch:${launch}:interrupted`;
+export const LAUNCH_RUN_RECORDED = (launch: string) =>
+  `launch:${launch}:run-recorded`;
 export const PIPELINE = (launch: string) => `launch:${launch}:pipeline`;
 
 export const NODE_INPUT = (
@@ -71,6 +73,9 @@ export const NODE_JOBS = (launch: string, node: string) =>
 
 export const NODE_FLOWS = (launch: string, node: string) =>
   `launch:${launch}:nodes:${node}:flows`;
+
+export const NODE_JOB_DUE = (launch: string, node: string, job: string) =>
+  `launch:${launch}:nodes:${node}:jobs:${job}:due`;
 
 export const GLOBAL_ENVIRONMENT_KEY = "environment";
 export const USER_ENVIRONMENT_KEY = (user: string) => `environment:${user}`;

@@ -27,6 +27,7 @@ import { PipelineEventType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import { convertOutputs } from "utils/node";
 import { toRedisValue } from "utils/redis";
+import { recordLaunchRun } from "./run-metrics";
 
 type PipelineNotifier = (event: PipelineEventType, payload?: object) => void;
 
@@ -297,6 +298,7 @@ export async function completeNode({
           finishedAt: processedAt,
           fromStart,
         });
+        await recordLaunchRun(launch, "done", processedAt);
 
         notifyUser(
           "pipeline_done",

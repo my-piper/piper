@@ -162,6 +162,8 @@ export async function run({
   const launch = new Launch({
     _id,
     launchedAt: now,
+    // a scoped launch starts once run_launch lets it through
+    startedAt: scope?.activated ? undefined : now,
     launchedBy,
     project,
     pipeline,
@@ -208,6 +210,13 @@ export async function run({
 }
 
 export async function kick(launch: Launch) {
+  if (!launch.startedAt) {
+    launch.startedAt = new Date();
+    await redis.set(LAUNCH(launch._id), JSON.stringify(toPlain(launch)), {
+      KEEPTTL: true,
+    });
+  }
+
   const {
     pipeline,
     launchRequest: { inclusive },

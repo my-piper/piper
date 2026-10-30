@@ -4,6 +4,7 @@ import { BASE_URL } from "consts/core";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,
+  NODE_JOB_DUE,
   NODE_STATUS,
   PIPELINE_ERRORS,
 } from "consts/redis";
@@ -25,6 +26,7 @@ import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { NodeStatus } from "models/node";
 import { PipelineEventType } from "types/pipeline";
+import { recordLaunchRun } from "./run-metrics";
 
 export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
   const logger = createLogger("process-node", {
@@ -87,11 +89,23 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
     queues.launches.errors.set.plan({ launch: launch._id });
   }
 
-  if (
+  const fatal =
     err instanceof FatalError ||
     err instanceof TimeoutError ||
-    err instanceof MemoryLimitError
-  ) {
+    err instanceof MemoryLimitError;
+
+  if (attemptsMade >= maxAttempts || fatal) {
+    await recordLaunchRun(launch, "error");
+  } else {
+    // the retry backoff is counted as wait time of the next run
+    await redis.setEx(
+      NODE_JOB_DUE(launch._id, nodeJob.node, job.id),
+      LAUNCH_EXPIRED,
+      String(Date.now())
+    );
+  }
+
+  if (fatal) {
     const key = PIPELINE_ERRORS(launch._id);
     await redis.lPush(key, err.message);
     await redis.expire(key, LAUNCH_EXPIRED);
