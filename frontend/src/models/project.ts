@@ -118,6 +118,10 @@ export class ProjectsFilter {
 
   @Expose()
   @Type(() => String)
+  tags?: string[];
+
+  @Expose()
+  @Type(() => String)
   search?: string;
 
   @Expose()

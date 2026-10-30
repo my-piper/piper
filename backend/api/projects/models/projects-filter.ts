@@ -1,10 +1,13 @@
 import {
+  arrayTransformer,
   Expose,
   IsEnum,
   IsOptional,
   Matches,
+  Transform,
   Type,
 } from "core-kit/packages/transform";
+import { IsString } from "class-validator";
 import { ProjectVisibility } from "enums/project-visibility";
 import assign from "lodash/assign";
 
@@ -24,6 +27,12 @@ export class ProjectsFilter {
   @Expose()
   @Type(() => String)
   tag: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  @Expose()
+  @Transform(arrayTransformer<string>())
+  tags: string[];
 
   @IsOptional()
   @Expose()

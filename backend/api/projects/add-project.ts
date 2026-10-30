@@ -27,6 +27,7 @@ api.post(
         return new User({ _id });
       })(),
       title,
+      tags: pipeline?.tags,
       visibility: "private",
       pipeline,
       launchRequest,

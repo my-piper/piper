@@ -12,6 +12,7 @@ beforeEach(async () => {
   scenario = httpScenario();
   context = await createHttpApp([
     () => import("api/projects/list"),
+    () => import("api/projects/tags/list-available-tags"),
     () => import("api/projects/get-project"),
     () => import("api/projects/add-project"),
     () => import("api/projects/update-project"),
@@ -136,6 +137,22 @@ describe("project creation and validation", () => {
         createdAt: HTTP_TEST_TIME,
       })
     );
+  });
+
+  it("copies pipeline tags to the project", async () => {
+    const pipeline = { ...pipelineFixture(), tags: ["image", "video"] };
+
+    const response = await context.request
+      .post("/api/projects")
+      .set("user-token", userToken())
+      .send({ title: "Tagged", pipeline });
+
+    expect(response.status).toBe(200);
+    expect(response.body.tags).toEqual(["image", "video"]);
+    expect(httpDoubles.projects.insertOne.mock.calls[0][0].tags).toEqual([
+      "image",
+      "video",
+    ]);
   });
 
   it("rejects an invalid nested pipeline using the production validator", async () => {
@@ -304,5 +321,63 @@ describe("project listing", () => {
     expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
       title: { $regex: /a\(b/i },
     });
+  });
+
+  it("filters projects having all selected tags", async () => {
+    const response = await context.request
+      .get("/api/projects")
+      .query({ tags: ["image", "video"] })
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
+      tags: { $all: ["image", "video"] },
+    });
+  });
+
+  it("accepts a single tag", async () => {
+    const response = await context.request
+      .get("/api/projects")
+      .query({ tags: "image" })
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
+      tags: { $all: ["image"] },
+    });
+  });
+
+  it("rejects non-string tags", async () => {
+    const response = await context.request
+      .get("/api/projects?tags[$ne]=image")
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(400);
+    expect(httpDoubles.projects.find).not.toHaveBeenCalled();
+  });
+});
+
+describe("available project tags", () => {
+  it("lists sorted tags of owned and public projects", async () => {
+    httpDoubles.projects.distinct.mockResolvedValue(["video", "", "image"]);
+
+    const response = await context.request
+      .get("/api/projects/tags/available")
+      .set("user-token", userToken("owner-user"));
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(["image", "video"]);
+    expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("tags", {
+      $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+    });
+  });
+
+  it("lists tags of all projects for admins", async () => {
+    const response = await context.request
+      .get("/api/projects/tags/available")
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("tags", {});
   });
 });

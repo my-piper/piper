@@ -16,7 +16,7 @@ api.get(
     const filter = toInstance(query, ProjectsFilter);
     await validate(filter);
 
-    const { visibility, category, tag, search, cursor, sort } = filter;
+    const { visibility, category, tag, tags, search, cursor, sort } = filter;
 
     return await mongo.projects
       .find(
@@ -26,6 +26,7 @@ api.get(
           ...(!!search
             ? { title: { $regex: new RegExp(escapeRegExp(search), "i") } }
             : {}),
+          ...(tags?.length > 0 ? { tags: { $all: tags } } : {}),
           ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
           ...(!!tag
             ? await (async () => {

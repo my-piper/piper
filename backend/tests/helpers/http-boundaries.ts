@@ -12,6 +12,7 @@ const httpDoubles = vi.hoisted(() => ({
   projects: {
     findOne: vi.fn(),
     find: vi.fn(),
+    distinct: vi.fn(),
     insertOne: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
@@ -117,6 +118,7 @@ export function resetHttpDoubles() {
   httpDoubles.projectsCursor.sort.mockReturnValue(httpDoubles.projectsCursor);
   httpDoubles.projectsCursor.limit.mockReturnValue(httpDoubles.projectsCursor);
   httpDoubles.projectsCursor.toArray.mockResolvedValue([]);
+  httpDoubles.projects.distinct.mockResolvedValue([]);
   httpDoubles.redis.get.mockResolvedValue(null);
   httpDoubles.redis.GET.mockResolvedValue(null);
   httpDoubles.redis.EXISTS.mockResolvedValue(0);

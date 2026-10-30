@@ -10,6 +10,7 @@ import { Project, ProjectsFilter } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI, UI_DELAY } from "src/ui-kit/consts";
+import { SelectMode } from "src/directives/selectable.directive";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
@@ -41,6 +42,7 @@ const TEST_REQUEST = {
 export class ProjectsComponent implements OnInit {
   ui = UI;
   userRole = UserRole;
+  selectMode = SelectMode;
 
   private _modal!: ImportProjectComponent;
 
@@ -65,10 +67,13 @@ export class ProjectsComponent implements OnInit {
 
   chunk: Project[] = [];
   projects: Project[] = [];
+  allTags: string[] = [];
 
   searchControl = this.fb.control<string>(null);
+  tagsControl = this.fb.control<string[]>([]);
   form = this.fb.group({
     search: this.searchControl,
+    tags: this.tagsControl,
   });
 
   private loading$!: Subscription;
@@ -82,11 +87,33 @@ export class ProjectsComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    this.loadTags();
     await this.load();
 
     this.searchControl.valueChanges
       .pipe(debounceTime(500))
       .subscribe(() => this.load());
+    this.tagsControl.valueChanges.subscribe(() => this.load());
+  }
+
+  private loadTags() {
+    this.http
+      .get("projects/tags/available")
+      .pipe(map((arr) => arr as string[]))
+      .subscribe({
+        next: (tags) => {
+          this.allTags = tags;
+          this.cd.detectChanges();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
+
+  toggleTag(tag: string) {
+    const tags = this.tagsControl.value ?? [];
+    this.tagsControl.setValue(
+      tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag]
+    );
   }
 
   private async load(cursor?: string) {
@@ -95,10 +122,17 @@ export class ProjectsComponent implements OnInit {
     this.cd.detectChanges();
 
     const search = this.searchControl.value?.trim();
+    const tags = this.tagsControl.value ?? [];
     this.loading$ = this.http
       .get(
         "projects",
-        toPlain(new ProjectsFilter({ cursor, ...(search ? { search } : {}) }))
+        toPlain(
+          new ProjectsFilter({
+            cursor,
+            ...(search ? { search } : {}),
+            ...(tags.length > 0 ? { tags } : {}),
+          })
+        )
       )
       .pipe(
         delay(UI_DELAY),

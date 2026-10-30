@@ -1,0 +1,27 @@
+[
+  {
+    "update": "projects",
+    "updates": [
+      {
+        "q": {
+          "tags": { "$exists": false },
+          "pipeline.tags": { "$exists": true }
+        },
+        "u": [{ "$set": { "tags": "$pipeline.tags" } }],
+        "multi": true
+      }
+    ]
+  },
+  {
+    "createIndexes": "projects",
+    "indexes": [
+      {
+        "name": "tags_asc",
+        "key": {
+          "tags": 1
+        },
+        "background": true
+      }
+    ]
+  }
+]

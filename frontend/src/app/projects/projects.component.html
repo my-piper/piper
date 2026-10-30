@@ -67,6 +67,21 @@
     </form>
   </header>
 
+  <form *ngIf="allTags.length > 0" class="tags" [formGroup]="form">
+    <button
+      *ngFor="let t of allTags"
+      type="button"
+      formControlName="tags"
+      [appSelectable]="{
+        value: t,
+        group: 'project-tags',
+        mode: selectMode.multiple
+      }"
+    >
+      #{{ t | i18n }}
+    </button>
+  </form>
+
   <table class="default">
     <thead>
       <th width="24px"></th>
@@ -122,7 +137,15 @@
           </a>
 
           <div *ngIf="p.tags as tags" class="stack">
-            <span class="tag" *ngFor="let t of tags">{{ t }}</span>
+            <button
+              *ngFor="let t of tags"
+              type="button"
+              class="tag"
+              [class.selected]="tagsControl.value?.includes(t)"
+              (click)="toggleTag(t)"
+            >
+              {{ t | i18n }}
+            </button>
           </div>
         </td>
         <td i18n-title="@@label.visibility" title="Visibility">

@@ -1,0 +1,6 @@
+[
+  {
+    "dropIndexes": "projects",
+    "index": "tags_asc"
+  }
+]

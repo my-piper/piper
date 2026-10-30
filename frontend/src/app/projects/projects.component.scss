@@ -1,4 +1,6 @@
+@import "src/ui-kit/styles/variables";
 @import "src/ui-kit/styles/mixins";
+@import "src/ui-kit/styles/reset";
 
 :host {
   display: block;
@@ -15,6 +17,36 @@
 
   input {
     width: 250px;
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $gutter-small;
+
+  button {
+    @include reset-button();
+    background: $control-background-color;
+    padding: $gutter-tiny $gutter-small;
+    border-radius: $corner-large;
+    font-size: 0.85em;
+    color: $primary-text-color;
+
+    &.selected {
+      background: $control-focus-background-color;
+      color: $strong-text-color;
+    }
+  }
+}
+
+button.tag {
+  @include reset-button();
+  cursor: pointer;
+
+  &.selected {
+    background: $control-focus-background-color;
+    color: $strong-text-color;
   }
 }
 
