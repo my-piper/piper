@@ -287,6 +287,11 @@
         stroke: rgba($flow-color, 0.85);
         fill: transparent;
         opacity: 0.85;
+
+        &.param {
+          stroke: $param-color;
+          stroke-dasharray: 8 5;
+        }
       }
     }
   }

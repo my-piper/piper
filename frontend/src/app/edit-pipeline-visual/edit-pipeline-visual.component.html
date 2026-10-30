@@ -728,6 +728,7 @@
           "
         />
         <path
+          class="param"
           *ngSwitchCase="'input'"
           [attr.d]="
             (pipeline | pipelineInput: flow.from).arrange
@@ -772,7 +773,7 @@
 
       <ng-container *ngFor="let i of pipeline.inputs | keyvalue">
         <path
-          class="flow"
+          class="flow param"
           *ngFor="let f of i.value.flows | keyvalue"
           [class.disabled]="
             mode !== 'project' ||
@@ -800,7 +801,7 @@
 
       <ng-container *ngFor="let o of pipeline.outputs | keyvalue">
         <path
-          class="flow"
+          class="flow param"
           *ngFor="let f of o.value.flows | keyvalue"
           [class.disabled]="
             mode !== 'project' ||
@@ -824,7 +825,7 @@
           "
         />
         <path
-          class="flow"
+          class="flow param"
           *ngIf="!!o.value.from"
           [class.disabled]="
             mode !== 'project' ||

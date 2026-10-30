@@ -7,8 +7,12 @@
   flex-direction: column;
   gap: $gutter-small;
   user-select: none;
-  background: with-alpha($node-background-color, 0.75);
-  border: 1px solid with-alpha($graphite-color-200, 0.5);
+  background: color-mix(
+    in srgb,
+    #{$param-color} 10%,
+    #{with-alpha($node-background-color, 0.75)}
+  );
+  border: 1px solid with-alpha($param-color, 0.6);
   border-radius: $corner-huge;
   padding: $gutter-big;
 
@@ -46,12 +50,12 @@
   width: 18px;
   height: 18px;
   aspect-ratio: 1;
-  background: $flow-color;
+  background: $param-color;
   border: 5px solid $node-background-color;
   border-radius: 50%;
 
   &:hover {
     background: $node-background-color;
-    border-color: $flow-color;
+    border-color: $param-color;
   }
 }
