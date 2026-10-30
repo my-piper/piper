@@ -139,6 +139,10 @@ export class ProjectsFilter {
   group?: string;
 
   @Expose()
+  @Type(() => Boolean)
+  ungrouped?: boolean;
+
+  @Expose()
   @Type(() => String)
   search?: string;
 

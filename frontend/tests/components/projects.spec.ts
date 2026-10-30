@@ -18,7 +18,8 @@ import { configureAppTestingModule, finish } from "../helpers/editor";
  * GET /api/projects?tags=… returns projects having all of them
  * (backend/api/projects/tags/list-available-tags.ts, backend/api/projects/list.ts).
  * GET /api/projects/groups lists groups of visible projects and
- * GET /api/projects?group=… returns projects of that group
+ * GET /api/projects?group=… returns projects of that group while
+ * GET /api/projects?ungrouped=true returns projects outside any group
  * (backend/api/projects/groups/list-groups.ts).
  */
 const UI_DELAY = 250;
@@ -110,55 +111,66 @@ describe("ProjectsComponent tags and groups", () => {
     finish();
   }));
 
-  it("lists groups with all projects selected initially", fakeAsync(() => {
+  it("lists folders above root projects outside any group", fakeAsync(() => {
     const list = setup();
 
-    const chips =
-      element.querySelectorAll<HTMLButtonElement>("nav.groups button");
-    expect(Array.from(chips).map((c) => c.textContent.trim())).toEqual([
-      "All",
+    const folders = element.querySelectorAll<HTMLAnchorElement>("tr.folder a");
+    expect(Array.from(folders).map((f) => f.textContent.trim())).toEqual([
       "Marketing",
       "Sales",
     ]);
-    expect(chips[0].classList).toContain("selected");
+    expect(list.request.params.get("ungrouped")).toBe("true");
     expect(list.request.params.has("group")).toBeFalse();
     fixture.destroy();
     finish();
   }));
 
-  it("filters by the selected group and back to all", fakeAsync(() => {
+  it("opens a folder and returns to the root", fakeAsync(() => {
     setup();
-    const chips =
-      element.querySelectorAll<HTMLButtonElement>("nav.groups button");
+    const folders = element.querySelectorAll<HTMLAnchorElement>("tr.folder a");
 
-    chips[2].click();
-    const selected = expectList();
-    answer(selected, []);
-    chips[0].click();
-    const cleared = expectList();
-    answer(cleared, [taggedProject()]);
+    folders[1].click();
+    tick();
+    const opened = expectList();
+    answer(opened, []);
+    const crumbs = element.querySelector("[data-testid=projects-breadcrumbs]");
+    const crumbsFolder = crumbs.querySelector(".folder")?.textContent.trim();
+    const foldersInside = element.querySelectorAll("tr.folder").length;
+    crumbs.querySelector<HTMLAnchorElement>("a").click();
+    tick();
+    const root = expectList();
+    answer(root, [taggedProject()]);
 
-    expect(selected.request.params.get("group")).toBe("Sales");
-    expect(cleared.request.params.has("group")).toBeFalse();
+    expect(opened.request.params.get("group")).toBe("Sales");
+    expect(opened.request.params.has("ungrouped")).toBeFalse();
+    expect(crumbsFolder).toBe("Sales");
+    expect(foldersInside).toBe(0);
+    expect(root.request.params.has("group")).toBeFalse();
+    expect(root.request.params.get("ungrouped")).toBe("true");
     fixture.destroy();
     finish();
   }));
 
-  it("toggles the group filter from a project row", fakeAsync(() => {
+  it("searches across folders and opens a folder from a result", fakeAsync(() => {
     setup();
-    const rowGroup = (): HTMLButtonElement =>
-      element.querySelector("td button.group");
+    const tag = element.querySelector<HTMLButtonElement>("form.tags button");
 
-    rowGroup().click();
-    const selected = expectList();
-    answer(selected, [taggedProject()]);
-    rowGroup().click();
-    const cleared = expectList();
-    answer(cleared, [taggedProject()]);
+    tag.click();
+    const found = expectList();
+    answer(found, [taggedProject()]);
+    const rowGroup =
+      element.querySelector<HTMLButtonElement>("td button.group");
+    const groupText = rowGroup.textContent.trim();
+    rowGroup.click();
+    tick();
+    const opened = expectList();
+    answer(opened, [taggedProject()]);
 
-    expect(selected.request.params.get("group")).toBe("Marketing");
-    expect(rowGroup().textContent.trim()).toBe("Marketing");
-    expect(cleared.request.params.has("group")).toBeFalse();
+    expect(found.request.params.has("ungrouped")).toBeFalse();
+    expect(found.request.params.has("group")).toBeFalse();
+    expect(groupText).toBe("Marketing");
+    expect(opened.request.params.get("group")).toBe("Marketing");
+    expect(opened.request.params.getAll("tags")).toEqual(["image"]);
     fixture.destroy();
     finish();
   }));

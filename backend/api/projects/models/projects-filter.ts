@@ -7,7 +7,7 @@ import {
   Transform,
   Type,
 } from "core-kit/packages/transform";
-import { IsString } from "class-validator";
+import { IsBoolean, IsString } from "class-validator";
 import { ProjectVisibility } from "enums/project-visibility";
 import assign from "lodash/assign";
 
@@ -38,6 +38,15 @@ export class ProjectsFilter {
   @IsString()
   @Expose()
   group: string;
+
+  // projects outside any group, like files at the root of a folder tree
+  @IsOptional()
+  @IsBoolean()
+  @Expose()
+  @Transform(({ value }) =>
+    value === "true" ? true : value === "false" ? false : value
+  )
+  ungrouped: boolean;
 
   @IsOptional()
   @Expose()

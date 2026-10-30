@@ -42,7 +42,17 @@
   }
 }
 
-.groups,
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: $gutter-tiny;
+  font-weight: $font-weight-bold;
+
+  .separator {
+    opacity: 0.6;
+  }
+}
+
 .tags,
 .row-tags {
   display: flex;
@@ -115,8 +125,24 @@ button.group {
   }
 }
 
-.groups button.group:first-child::before {
-  display: none;
+tr.folder a {
+  display: inline-flex;
+  align-items: center;
+  gap: $gutter-small;
+  font-weight: $font-weight-bold;
+
+  // icon is a mask so it follows the theme text color
+  &::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    background-color: currentColor;
+    mask-image: url(../../assets/icons/folder.svg);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    opacity: 0.8;
+  }
 }
 
 .row-tags button.tag,

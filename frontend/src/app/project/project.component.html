@@ -51,7 +51,12 @@
 <header>
   <div class="stack">
     <div class="stack align-center flex">
-      <a class="circle" data-testid="project-back" [routerLink]="['..']">
+      <a
+        class="circle"
+        data-testid="project-back"
+        [routerLink]="['..']"
+        [queryParams]="{ folder: project.group || null }"
+      >
         <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
       </a>
       <ng-template #shareProjectPopover>
@@ -90,6 +95,14 @@
         <app-icon class="icon" [icon]="'edit'"></app-icon>
       </button>
       <div class="title" [formGroup]="form">
+        <a
+          *ngIf="project.group"
+          class="folder"
+          data-testid="project-folder"
+          [routerLink]="['..']"
+          [queryParams]="{ folder: project.group }"
+          >{{ project.group }}</a
+        >
         <input
           [class.error]="form | invalidField: 'name'"
           formControlName="name"

@@ -3,7 +3,14 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import last from "lodash/last";
-import { Subscription, debounceTime, delay, finalize, map } from "rxjs";
+import {
+  Subscription,
+  debounceTime,
+  delay,
+  distinctUntilChanged,
+  finalize,
+  map,
+} from "rxjs";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
 import { Project, ProjectsFilter } from "src/models/project";
@@ -86,19 +93,49 @@ export class ProjectsComponent implements OnInit {
     private http: HttpService,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) {}
 
-  async ngOnInit() {
+  // the open folder lives in the URL, so returning from a project restores it
+  get folder(): string | null {
+    return this.groupControl.value;
+  }
+
+  // like a finder search: results come from every folder, not only the open one
+  get searching(): boolean {
+    return (
+      !!this.searchControl.value?.trim() ||
+      (this.tagsControl.value ?? []).length > 0
+    );
+  }
+
+  get folders(): string[] {
+    if (this.folder || (this.tagsControl.value ?? []).length > 0) {
+      return [];
+    }
+    const search = this.searchControl.value?.trim().toLowerCase();
+    return search
+      ? this.allGroups.filter((g) => g.toLowerCase().includes(search))
+      : this.allGroups;
+  }
+
+  ngOnInit() {
     this.loadTags();
     this.loadGroups();
-    await this.load();
 
+    this.route.queryParamMap
+      .pipe(
+        map((params) => params.get("folder") || null),
+        distinctUntilChanged(),
+      )
+      .subscribe((folder) => {
+        this.groupControl.setValue(folder, { emitEvent: false });
+        this.load();
+      });
     this.searchControl.valueChanges
       .pipe(debounceTime(500))
       .subscribe(() => this.load());
     this.tagsControl.valueChanges.subscribe(() => this.load());
-    this.groupControl.valueChanges.subscribe(() => this.load());
   }
 
   private loadGroups() {
@@ -114,10 +151,12 @@ export class ProjectsComponent implements OnInit {
       });
   }
 
-  selectGroup(group: string) {
-    this.groupControl.setValue(
-      group === this.groupControl.value ? null : group,
-    );
+  openFolder(folder: string | null) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { folder },
+      queryParamsHandling: "merge",
+    });
   }
 
   private loadTags() {
@@ -148,6 +187,8 @@ export class ProjectsComponent implements OnInit {
     const search = this.searchControl.value?.trim();
     const tags = this.tagsControl.value ?? [];
     const group = this.groupControl.value;
+    // the root folder holds only projects outside any group
+    const ungrouped = !group && !this.searching;
     this.loading$ = this.http
       .get(
         "projects",
@@ -157,6 +198,7 @@ export class ProjectsComponent implements OnInit {
             ...(search ? { search } : {}),
             ...(tags.length > 0 ? { tags } : {}),
             ...(group ? { group } : {}),
+            ...(ungrouped ? { ungrouped } : {}),
           }),
         ),
       )
@@ -242,6 +284,9 @@ export class ProjectsComponent implements OnInit {
   }
 
   back() {
-    this.router.navigate(["./"], { relativeTo: this.route });
+    this.router.navigate(["./"], {
+      relativeTo: this.route,
+      queryParamsHandling: "preserve",
+    });
   }
 }

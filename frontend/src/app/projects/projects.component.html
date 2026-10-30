@@ -5,6 +5,7 @@
       [hotKey]="'escape'"
       (hotKeyPressed)="back()"
       [routerLink]="['./']"
+      queryParamsHandling="preserve"
     >
       <app-icon class="icon right" icon="close"></app-icon>
       <span class="badge">ESC</span>
@@ -67,25 +68,23 @@
     </form>
   </header>
 
-  <nav *ngIf="allGroups.length > 0" class="groups">
-    <button
-      type="button"
-      class="group"
-      [class.selected]="!groupControl.value"
-      (click)="selectGroup(null)"
-      i18n="@@label.all"
+  <nav class="breadcrumbs" data-testid="projects-breadcrumbs">
+    <a
+      *ngIf="!!folder; else rootTemplate"
+      class="default"
+      [routerLink]="[]"
+      [queryParams]="{ folder: null }"
+      queryParamsHandling="merge"
+      i18n="@@link.pipelines"
+      >Pipelines</a
     >
-      All
-    </button>
-    <button
-      *ngFor="let g of allGroups"
-      type="button"
-      class="group"
-      [class.selected]="groupControl.value === g"
-      (click)="selectGroup(g)"
-    >
-      {{ g }}
-    </button>
+    <ng-template #rootTemplate>
+      <span i18n="@@link.pipelines">Pipelines</span>
+    </ng-template>
+    <ng-container *ngIf="!!folder">
+      <app-icon class="separator" icon="chevron-right" [size]="14"></app-icon>
+      <span class="folder">{{ folder }}</span>
+    </ng-container>
   </nav>
 
   <form *ngIf="allTags.length > 0" class="tags" [formGroup]="form">
@@ -114,6 +113,19 @@
       <th width="150px" i18n="@@label.updated">Updated</th>
     </thead>
     <tbody>
+      <tr *ngFor="let f of folders" class="folder">
+        <td></td>
+        <td colspan="5">
+          <a
+            class="default"
+            [routerLink]="[]"
+            [queryParams]="{ folder: f }"
+            queryParamsHandling="merge"
+          >
+            {{ f }}
+          </a>
+        </td>
+      </tr>
       <tr *ngFor="let p of projects; let i = index">
         <td>
           <ng-template #actionsTemplate>
@@ -154,13 +166,16 @@
             {{ p.title | i18n }}
           </a>
 
-          <div *ngIf="p.group || p.tags?.length" class="row-tags">
+          <div
+            *ngIf="(searching && p.group) || p.tags?.length"
+            class="row-tags"
+          >
             <button
-              *ngIf="p.group"
+              *ngIf="searching && p.group"
               type="button"
               class="group"
-              [class.selected]="groupControl.value === p.group"
-              (click)="selectGroup(p.group)"
+              [class.selected]="folder === p.group"
+              (click)="openFolder(p.group)"
             >
               {{ p.group }}
             </button>

@@ -372,6 +372,28 @@ describe("project groups", () => {
     });
   });
 
+  it("filters projects outside any group", async () => {
+    const response = await context.request
+      .get("/api/projects")
+      .query({ ungrouped: "true" })
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
+      group: null,
+    });
+  });
+
+  it("rejects a non-boolean ungrouped flag", async () => {
+    const response = await context.request
+      .get("/api/projects")
+      .query({ ungrouped: "yes" })
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(400);
+    expect(httpDoubles.projects.find).not.toHaveBeenCalled();
+  });
+
   it("rejects a non-string group", async () => {
     const response = await context.request
       .get("/api/projects?group[$ne]=Marketing")

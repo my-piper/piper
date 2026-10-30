@@ -20,6 +20,33 @@ header {
     flex-direction: column;
     flex: 1;
 
+    a.folder {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      gap: $gutter-tiny;
+      font-size: 0.85em;
+      color: inherit;
+      text-decoration: none;
+      opacity: 0.7;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      // icon is a mask so it follows the theme text color
+      &::before {
+        content: "";
+        width: 14px;
+        height: 14px;
+        background-color: currentColor;
+        mask-image: url(../../assets/icons/folder.svg);
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        mask-position: center;
+      }
+    }
+
     input {
       @include reset-input();
       font-size: $font-size-large;
