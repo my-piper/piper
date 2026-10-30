@@ -292,7 +292,7 @@
           stroke: $param-color;
           stroke-dasharray: 8 5;
 
-          &.output {
+          &.to-output {
             stroke: $output-color;
           }
         }

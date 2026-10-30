@@ -801,7 +801,7 @@
 
       <ng-container *ngFor="let o of pipeline.outputs | keyvalue">
         <path
-          class="flow param output"
+          class="flow param to-output"
           *ngFor="let f of o.value.flows | keyvalue"
           [class.disabled]="
             mode !== 'project' ||
@@ -825,7 +825,7 @@
           "
         />
         <path
-          class="flow param output"
+          class="flow param to-output"
           *ngIf="!!o.value.from"
           [class.disabled]="
             mode !== 'project' ||
