@@ -540,9 +540,30 @@ describe("EditPipelineVisualComponent", () => {
         new WheelEvent("wheel", { deltaY: -20, ctrlKey: true, bubbles: true }),
       );
 
-      expect(project.pipeline.layout.zoom).toBeCloseTo(1.2, 5);
-      expect(pane.style.transform).toBe("scale(1.2)");
+      // e^(20 × 0.01) ≈ 1.221
+      expect(project.pipeline.layout.zoom).toBe(1.221);
+      expect(pane.style.transform).toBe("scale(1.221)");
       expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("zooms from the toolbar and shows the zoom level", fakeAsync(() => {
+      const project = projectA();
+      const { element, fixture } = setupEditor({ project });
+      const button = (id: string) =>
+        element.querySelector(`[data-testid="${id}"]`) as HTMLButtonElement;
+
+      button("zoom-in").click();
+      fixture.detectChanges();
+      const zoomedIn = project.pipeline.layout.zoom;
+      const label = button("zoom-reset").textContent.trim();
+      button("zoom-reset").click();
+      fixture.detectChanges();
+
+      expect(zoomedIn).toBe(1.2);
+      expect(label).toBe("120%");
+      expect(project.pipeline.layout.zoom).toBe(1);
+      expect(button("zoom-reset").textContent.trim()).toBe("100%");
       finish();
     }));
   });

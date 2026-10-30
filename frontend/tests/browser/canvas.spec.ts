@@ -121,20 +121,50 @@ test("drags a node by canvas distance while zoomed", async ({
   const nodeTwo = page.getByTestId("node-node_two");
   await expect(nodeTwo).toBeVisible();
 
-  // Ctrl+wheel is PitchZoomDirective's pinch gesture: 1 - 50 * 0.01 = 0.5.
-  await page.mouse.move(400, 400);
-  await page.keyboard.down("Control");
-  await page.mouse.wheel(0, 50);
-  await page.keyboard.up("Control");
+  // The toolbar zooms out by one step: 1 / 1.2 ≈ 0.833.
+  await page.getByTestId("zoom-out").click();
+  await expect(page.getByTestId("zoom-reset")).toHaveText("83%");
   await expect(page.locator(".pane")).toHaveCSS(
     "transform",
-    "matrix(0.5, 0, 0, 0.5, 0, 0)",
+    "matrix(0.833, 0, 0, 0.833, 0, 0)",
   );
   await dragNode(page, nodeTwo, 100, 50);
   await expectSaved(page);
 
   const saved = storedPipeline(api);
-  expect(saved.layout.zoom).toBe(0.5);
-  // 100 × 50 screen px at zoom 0.5 is 200 × 100 canvas px from (560, 40).
-  expect(saved.nodes["node_two"].arrange).toEqual({ x: 760, y: 140 });
+  expect(saved.layout.zoom).toBe(0.833);
+  // 100 × 50 screen px at zoom 0.833 is 120 × 60 canvas px from (560, 40).
+  expect(saved.nodes["node_two"].arrange).toEqual({ x: 680, y: 100 });
+});
+
+test("pans by dragging the empty canvas and fits the pipeline", async ({
+  page,
+  open,
+  api,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeOne = page.getByTestId("node-node_one");
+  await nodeOne.locator("h2").click();
+  await expect(page).toHaveURL(/\(right:nodes\/node_one\)$/);
+  const canvas = page.locator(".nodes");
+  const box = await canvas.boundingBox();
+  const [x, y] = [box.x + 300, box.y + box.height - 150];
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x - 200, y - 120, { steps: 8 });
+  await page.mouse.up();
+  await expectSaved(page);
+
+  const scroll = await canvas.evaluate((e) => [e.scrollLeft, e.scrollTop]);
+  expect(scroll).toEqual([200, 120]);
+  expect(storedPipeline(api).layout).toEqual(
+    expect.objectContaining({ left: 200, top: 120 }),
+  );
+  // The click that ends a pan does not close the open drawer.
+  await expect(page).toHaveURL(/\(right:nodes\/node_one\)$/);
+
+  await page.getByTestId("zoom-fit").click();
+  await expect(nodeOne).toBeInViewport();
+  await expect(page.getByTestId("node-node_two")).toBeInViewport();
 });

@@ -5,6 +5,8 @@ import {
   TestBed,
   tick,
 } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { CanvasPanDirective } from "src/directives/canvas-pan.directive";
 import { DragCloneDirective } from "src/directives/drag-clone.directive";
 import { DragMoveDirective } from "src/directives/drag-move.directive";
 import { DropZoneDirective } from "src/directives/drop-zone.directive";
@@ -211,29 +213,51 @@ describe("canvas directives", () => {
       >
         <div
           class="content"
-          [pitchZoom]="{ zoom: zoom }"
+          style="position: relative"
+          [pitchZoom]="{ zoom: zoom, items: items }"
           (zoom)="zooms.push($event)"
         >
-          <div style="width: 2000px; height: 2000px"></div>
+          <div style="width: 4000px; height: 4000px"></div>
+          <div
+            class="item"
+            style="position: absolute; left: 1000px; top: 1000px; width: 200px; height: 100px"
+          ></div>
+          <div
+            class="item"
+            style="position: absolute; left: 2000px; top: 1200px; width: 200px; height: 100px"
+          ></div>
         </div>
       </div>`,
     })
     class HostComponent {
       zoom = 1;
+      items = "";
       zooms: number[] = [];
     }
 
     let fixture: ComponentFixture<HostComponent>;
     let content: HTMLElement;
 
-    function render(zoom = 1) {
+    function render(zoom = 1, items = "") {
       TestBed.configureTestingModule({
         declarations: [HostComponent, PitchZoomDirective],
       });
       fixture = TestBed.createComponent(HostComponent);
       fixture.componentInstance.zoom = zoom;
+      fixture.componentInstance.items = items;
       fixture.detectChanges();
       content = fixture.nativeElement.querySelector(".content");
+    }
+
+    function key(key: string, target: EventTarget = document.body) {
+      const event = new KeyboardEvent("keydown", {
+        key,
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      target.dispatchEvent(event);
+      return event;
     }
 
     function wheel(deltaY: number, ctrlKey = true) {
@@ -263,27 +287,86 @@ describe("canvas directives", () => {
       expect(fixture.componentInstance.zooms).toEqual([]);
     });
 
-    it("zooms in and out with ctrl+wheel", () => {
+    it("zooms exponentially with ctrl+wheel", () => {
       render();
 
       wheel(-20);
-      wheel(30);
+      wheel(20);
 
-      expect(fixture.componentInstance.zooms.map((z) => +z.toFixed(2))).toEqual(
-        [1.2, 0.9],
-      );
-      expect(content.style.transform).toBe("scale(0.9)");
+      expect(fixture.componentInstance.zooms).toEqual([1.221, 1]);
+      expect(content.style.transform).toBe("scale(1)");
     });
 
-    it("clamps zoom between 0.35 and 1.5 and stops emitting at the bounds", () => {
+    it("caps a single mouse wheel notch", () => {
       render();
 
-      wheel(-1000);
-      wheel(-10);
-      wheel(1000);
-      wheel(10);
+      wheel(-100);
 
-      expect(fixture.componentInstance.zooms).toEqual([1.5, 0.35]);
+      expect(fixture.componentInstance.zooms).toEqual([
+        +Math.exp(0.25).toFixed(3),
+      ]);
+    });
+
+    it("clamps zoom between 0.2 and 2 and stops emitting at the bounds", () => {
+      render(1.9);
+      const { zooms } = fixture.componentInstance;
+
+      wheel(-25);
+      wheel(-25);
+      for (let i = 0; i < 20; i++) {
+        wheel(25);
+      }
+
+      expect(zooms[0]).toBe(2);
+      expect(zooms.filter((z) => z === 2).length).toBe(1);
+      expect(zooms.at(-1)).toBe(0.2);
+      expect(zooms.filter((z) => z === 0.2).length).toBe(1);
+      expect(content.style.transform).toBe("scale(0.2)");
+    });
+
+    it("applies a zoom changed from outside after init", () => {
+      render();
+
+      fixture.componentInstance.zoom = 0.75;
+      fixture.detectChanges();
+
+      expect(content.style.transform).toBe("scale(0.75)");
+    });
+
+    it("zooms with ctrl+= / ctrl+- / ctrl+0 and leaves editable fields alone", () => {
+      render();
+      const input = document.createElement("input");
+      content.appendChild(input);
+
+      key("=");
+      key("-");
+      key("-");
+      key("0");
+      const typed = key("-", input);
+
+      expect(fixture.componentInstance.zooms).toEqual([1.2, 1, 0.833, 1]);
+      expect(typed.defaultPrevented).toBeFalse();
+    });
+
+    it("fits all items into the viewport, never above 100%", () => {
+      render(1, ".item");
+      const container = content.parentElement;
+      const directive = fixture.debugElement
+        .query(By.directive(PitchZoomDirective))
+        .injector.get(PitchZoomDirective);
+      const { clientWidth: w, clientHeight: h } = container;
+      // Items span 1000..2200 × 1000..1300 with 40px padding on each side.
+      const zoom = +Math.min((w - 80) / 1200, (h - 80) / 300, 1).toFixed(3);
+
+      directive.fit();
+
+      expect(fixture.componentInstance.zooms).toEqual([zoom]);
+      expect(
+        Math.abs(container.scrollLeft - (1000 * zoom - (w - 1200 * zoom) / 2)),
+      ).toBeLessThanOrEqual(1);
+      expect(
+        Math.abs(container.scrollTop - (1000 * zoom - (h - 300 * zoom) / 2)),
+      ).toBeLessThanOrEqual(1);
     });
 
     it("keeps the point under the cursor fixed while zooming", () => {
@@ -302,8 +385,135 @@ describe("canvas directives", () => {
         }),
       );
 
-      expect(container.scrollLeft).toBe(50);
-      expect(container.scrollTop).toBe(50);
+      // One wheel notch is capped at 25: 100 × e^0.25 - 100 ≈ 28.4.
+      expect(Math.abs(container.scrollLeft - 28.4)).toBeLessThanOrEqual(1);
+      expect(Math.abs(container.scrollTop - 28.4)).toBeLessThanOrEqual(1);
+    });
+  });
+
+  describe("CanvasPanDirective", () => {
+    @Component({
+      template: `<div
+        class="container"
+        style="width: 400px; height: 300px; overflow: auto"
+        [canvasPan]="{ ignore: '.node' }"
+        (click)="clicks = clicks + 1"
+      >
+        <div style="position: relative; width: 2000px; height: 2000px">
+          <div
+            class="node"
+            style="position: absolute; left: 0; top: 0; width: 100px; height: 100px"
+          ></div>
+          <div
+            class="empty"
+            style="position: absolute; left: 150px; top: 150px; width: 10px; height: 10px"
+          ></div>
+        </div>
+      </div>`,
+    })
+    class HostComponent {
+      clicks = 0;
+    }
+
+    let fixture: ComponentFixture<HostComponent>;
+    let container: HTMLElement;
+
+    function render() {
+      TestBed.configureTestingModule({
+        declarations: [HostComponent, CanvasPanDirective],
+      });
+      fixture = TestBed.createComponent(HostComponent);
+      fixture.detectChanges();
+      container = fixture.nativeElement.querySelector(".container");
+      container.scrollLeft = 500;
+      container.scrollTop = 500;
+    }
+
+    function press(
+      target: Element,
+      type: "pointerdown" | "pointermove" | "pointerup",
+      x: number,
+      y: number,
+      button = 0,
+    ) {
+      const event = new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        clientX: x,
+        clientY: y,
+        button,
+        pointerType: "mouse",
+        pointerId: 1,
+      });
+      target.dispatchEvent(event);
+      return event;
+    }
+
+    function drag(target: Element, dx: number, dy: number, button = 0) {
+      press(target, "pointerdown", 200, 200, button);
+      press(target, "pointermove", 200 + dx, 200 + dy, button);
+      press(target, "pointerup", 200 + dx, 200 + dy, button);
+    }
+
+    function space(type: "keydown" | "keyup") {
+      document.body.dispatchEvent(
+        new KeyboardEvent(type, { code: "Space", bubbles: true }),
+      );
+    }
+
+    it("pans by dragging empty space", () => {
+      render();
+
+      drag(fixture.nativeElement.querySelector(".empty"), -120, -80);
+
+      expect(container.scrollLeft).toBe(620);
+      expect(container.scrollTop).toBe(580);
+    });
+
+    it("does not pan from ignored elements", () => {
+      render();
+
+      drag(fixture.nativeElement.querySelector(".node"), -120, -80);
+
+      expect(container.scrollLeft).toBe(500);
+    });
+
+    it("pans from anywhere with the middle button or while Space is held", () => {
+      render();
+      const node = fixture.nativeElement.querySelector(".node");
+
+      drag(node, -100, 0, 1);
+      space("keydown");
+      fixture.detectChanges();
+      const ready = container.getAttribute("data-pan");
+      drag(node, 0, -100);
+      space("keyup");
+
+      expect(container.scrollLeft).toBe(600);
+      expect(container.scrollTop).toBe(600);
+      expect(ready).toBe("ready");
+    });
+
+    it("swallows the click that ends a pan but not a plain click", fakeAsync(() => {
+      render();
+      const empty = fixture.nativeElement.querySelector(".empty");
+
+      drag(empty, -50, 0);
+      empty.click();
+      tick();
+      press(empty, "pointerdown", 200, 200);
+      press(empty, "pointerup", 201, 200);
+      empty.click();
+
+      expect(fixture.componentInstance.clicks).toBe(1);
+    }));
+
+    it("ignores sub-threshold jitter", () => {
+      render();
+
+      drag(fixture.nativeElement.querySelector(".empty"), 2, 1);
+
+      expect(container.scrollLeft).toBe(500);
     });
   });
 

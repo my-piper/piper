@@ -24,6 +24,11 @@ import {
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { UI, UI_DELAY } from "src/consts/ui";
+import {
+  MAX_SCALE,
+  MIN_SCALE,
+  ZOOM_STEP,
+} from "src/directives/pitch-zoom.directive";
 import { AppConfig } from "src/models/app-config";
 import { Arrange } from "src/models/arrange";
 import { PipelineEvent } from "src/models/events";
@@ -73,6 +78,7 @@ export class EditPipelineVisualComponent
 {
   userRole = UserRole;
   ui = UI;
+  zoom = { min: MIN_SCALE, max: MAX_SCALE, step: ZOOM_STEP };
   selectNodeComponent = SelectNodeComponent;
   editNodeComponent = EditNodeComponent;
   editPipelineInputComponent = EditPipelineInputComponent;

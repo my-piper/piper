@@ -73,9 +73,57 @@
   </div>
 </div>
 
+<div class="zoom stack">
+  <button
+    class="circle small"
+    data-testid="zoom-out"
+    i18n-title="@@action.zoom_out"
+    title="Zoom out"
+    [disabled]="(pipeline.layout?.zoom || 1) <= zoom.min"
+    (click)="zoomRef.zoomBy(1 / zoom.step)"
+  >
+    <app-icon class="icon" icon="minus" [size]="18"></app-icon>
+  </button>
+  <button
+    class="transparent level"
+    data-testid="zoom-reset"
+    i18n-title="@@action.reset_zoom"
+    title="Reset zoom"
+    (click)="zoomRef.zoomTo(1)"
+  >
+    {{ pipeline.layout?.zoom || 1 | percent }}
+  </button>
+  <button
+    class="circle small"
+    data-testid="zoom-in"
+    i18n-title="@@action.zoom_in"
+    title="Zoom in"
+    [disabled]="(pipeline.layout?.zoom || 1) >= zoom.max"
+    (click)="zoomRef.zoomBy(zoom.step)"
+  >
+    <app-icon class="icon" icon="plus" [size]="18"></app-icon>
+  </button>
+  <button
+    class="circle small"
+    data-testid="zoom-fit"
+    i18n-title="@@action.fit_to_screen"
+    title="Fit to screen"
+    (click)="zoomRef.fit()"
+  >
+    <span class="icon fit">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path
+          d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"
+        />
+      </svg>
+    </span>
+  </button>
+</div>
+
 <div
   #nodesRef
   class="nodes"
+  [canvasPan]="{ ignore: '.node, .input, .output, .flow, .actions' }"
   [scrollInside]="{
     left: pipeline.layout?.left || 0,
     top: pipeline.layout?.top || 0,
@@ -169,10 +217,7 @@
         [disabled]="(launches | keyvalue).length > 0"
         (click)="!!launch ? interrupt() : run()"
       >
-        <app-icon
-          class="icon"
-          [icon]="!!launch ? 'stop' : 'play'"
-        ></app-icon>
+        <app-icon class="icon" [icon]="!!launch ? 'stop' : 'play'"></app-icon>
       </button>
     </div>
 
@@ -192,7 +237,11 @@
     #paneRef
     class="pane"
     dropZone
-    [pitchZoom]="{ zoom: pipeline.layout?.zoom || 1 }"
+    #zoomRef="pitchZoom"
+    [pitchZoom]="{
+      zoom: pipeline.layout?.zoom || 1,
+      items: '.node, .input, .output',
+    }"
     (drop)="
       addNode(
         $event.left / (pipeline.layout?.zoom || 1),
