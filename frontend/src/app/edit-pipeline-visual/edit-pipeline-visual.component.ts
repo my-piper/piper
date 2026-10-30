@@ -144,7 +144,7 @@ export class EditPipelineVisualComponent
   paneRef!: ElementRef<HTMLElement>;
 
   @ViewChild("gridRef")
-  gridRef!: ElementRef<HTMLElement>;
+  gridRef!: ElementRef<SVGRectElement>;
 
   constructor(
     private projectManager: ProjectManager,
@@ -927,10 +927,19 @@ export class EditPipelineVisualComponent
     this.projectManager.markDirty();
   }
 
+  /**
+   * A click on empty canvas space. Panning captures the pointer on the
+   * scroll container, so the click lands there rather than on the grid.
+   */
   @HostListener("click", ["$event"])
   clickOnGrid(event: MouseEvent) {
-    const { nativeElement: gridElement } = this.gridRef;
-    if (event.target === gridElement) {
+    const empty: (Element | null)[] = [
+      this.gridRef.nativeElement,
+      this.gridRef.nativeElement.ownerSVGElement,
+      this.paneRef.nativeElement,
+      this.nodesRef.nativeElement,
+    ];
+    if (empty.includes(event.target as Element)) {
       this.clearSelection();
       this.closeDrawler();
     }
