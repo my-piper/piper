@@ -55,7 +55,7 @@ export function appConfigFactory(): AppConfig {
         features: ["signup", "google_auth", "yandex_auth"],
       },
       baseUrl: location.origin,
-      appFooter: "<div>Pipelines builder 2025</div>",
+      appFooter: `<div>Pipelines builder ${new Date().getFullYear()}</div>`,
     }
   );
 }

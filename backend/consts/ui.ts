@@ -16,4 +16,4 @@ export const APP_FOOTER =
       return footer;
     }
     return null;
-  })()) || "<div>Pipelines builder 2025</div>";
+  })()) || `<div>Pipelines builder ${new Date().getFullYear()}</div>`;
