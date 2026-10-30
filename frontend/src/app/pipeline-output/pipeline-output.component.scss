@@ -5,10 +5,10 @@
   display: block;
   background: color-mix(
     in srgb,
-    #{$param-color} 10%,
+    #{$output-color} 10%,
     #{with-alpha($node-background-color, 0.75)}
   );
-  border: 1px solid with-alpha($param-color, 0.6);
+  border: 1px solid with-alpha($output-color, 0.6);
   border-radius: $corner-huge;
   padding: $gutter-big;
 
@@ -26,14 +26,14 @@
   width: 12px;
   height: 12px;
   aspect-ratio: 1;
-  background: $param-color;
+  background: $output-color;
   border: 2px solid rgba(black, 0.5);
   border-radius: 50%;
   box-sizing: border-box;
 
   &:hover {
     background: $node-background-color;
-    border-color: $param-color;
+    border-color: $output-color;
   }
 }
 

@@ -291,6 +291,10 @@
         &.param {
           stroke: $param-color;
           stroke-dasharray: 8 5;
+
+          &.output {
+            stroke: $output-color;
+          }
         }
       }
     }
