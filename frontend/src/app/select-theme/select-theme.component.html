@@ -1,0 +1,26 @@
+<div class="switcher" *ngIf="themes.mode$ | async as current">
+  <label
+    *ngFor="let mode of modes"
+    class="option"
+    [class.selected]="current === mode"
+  >
+    <input
+      type="radio"
+      name="theme"
+      [value]="mode"
+      [checked]="current === mode"
+      (change)="themes.setMode(mode)"
+    />
+    <ng-container [ngSwitch]="mode">
+      <ng-container *ngSwitchCase="'light'" i18n="@@label.theme_light"
+        >Light</ng-container
+      >
+      <ng-container *ngSwitchCase="'dark'" i18n="@@label.theme_dark"
+        >Dark</ng-container
+      >
+      <ng-container *ngSwitchCase="'system'" i18n="@@label.theme_system"
+        >System</ng-container
+      >
+    </ng-container>
+  </label>
+</div>

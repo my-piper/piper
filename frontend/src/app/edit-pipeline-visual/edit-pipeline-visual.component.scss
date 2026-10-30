@@ -70,7 +70,7 @@
   right: 0;
   bottom: 0;
   overflow: scroll;
-  background: gray;
+  background: var(--canvas-frame);
 
   > .actions {
     position: sticky;
@@ -78,7 +78,7 @@
     left: 5px;
     z-index: 2;
     width: fit-content;
-    background: rgba(black, 0.5);
+    background: with-alpha($header-background, 0.6);
     border-radius: 30px;
     padding: $gutter-big;
     backdrop-filter: blur(5px);
@@ -162,13 +162,13 @@
     left: 0;
     width: 5000px;
     height: 5000px;
-    background: black;
+    background: var(--canvas-background);
 
     > .flow {
       position: absolute;
       z-index: 1;
       transform: translate(-50%, -50%);
-      background: rgba($node-background-color, 0.5);
+      background: with-alpha($node-background-color, 0.5);
       backdrop-filter: blur(2px);
       border-radius: $corner-large;
       padding: $gutter-small;
@@ -191,6 +191,11 @@
       width: 100%;
       height: 100%;
       z-index: 0;
+
+      .dot {
+        fill: $strong-text-color;
+        opacity: 0.1;
+      }
 
       path {
         stroke-width: 3;

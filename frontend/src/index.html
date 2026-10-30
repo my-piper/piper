@@ -8,6 +8,17 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico?v=next" />
 
     <script>
+      (function () {
+        var mode = localStorage.getItem("theme");
+        var light =
+          mode === "light" ||
+          (mode !== "dark" &&
+            matchMedia("(prefers-color-scheme: light)").matches);
+        document.documentElement.dataset.theme = light ? "light" : "dark";
+      })();
+    </script>
+
+    <script>
       const PRERENDER = {};
       localStorage.setItem("prerender", JSON.stringify(PRERENDER));
     </script>

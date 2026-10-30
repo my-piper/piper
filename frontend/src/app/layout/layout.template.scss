@@ -10,10 +10,10 @@ header {
   align-items: center;
   margin-bottom: $gutter-normal;
   justify-content: space-between;
-  background-color: black;
+  background-color: $header-background;
   padding: $gutter-normal;
   gap: $gutter-normal;
-  border-bottom: 1px solid rgba($graphite-color-60, 0.1);
+  border-bottom: 1px solid with-alpha($graphite-color-60, 0.1);
 
   @include less-tablet() {
     flex-direction: column;
@@ -73,7 +73,7 @@ header {
 
           &:hover,
           &.active {
-            background-color: rgba($control-focus-background-color, 0.8);
+            background-color: with-alpha($control-focus-background-color, 0.8);
           }
         }
       }
@@ -82,15 +82,15 @@ header {
 
   ::ng-deep button.circle {
     .icon svg {
-      stroke: white !important;
+      stroke: $icon-color !important;
     }
 
-    background-color: rgba(white, 0.1);
+    background-color: with-alpha($strong-text-color, 0.1);
   }
 
   .me ::ng-deep {
     .remaining {
-      color: white;
+      color: $strong-text-color;
     }
   }
 }
@@ -104,7 +104,7 @@ main {
 
 footer {
   margin-top: $gutter-normal;
-  border-top: 1px solid rgba($graphite-color-60, 0.1);
+  border-top: 1px solid with-alpha($graphite-color-60, 0.1);
 
   > div {
     display: flex;

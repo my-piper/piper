@@ -66,7 +66,7 @@ form {
     }
 
     .json {
-      border: 1px solid silver;
+      border: 1px solid $graphite-color-75;
     }
 
     .select-asset {
@@ -75,7 +75,7 @@ form {
   }
 
   .editor {
-    border: 1px solid silver;
+    border: 1px solid $graphite-color-75;
     border-radius: 5px;
     overflow: hidden;
   }

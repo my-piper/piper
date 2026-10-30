@@ -6,6 +6,19 @@ export function redirect(authorization: Authorization) {
   <html>
           <head>
           <title>Redirecting...</title>
+          <script>
+              // Mirrors the frontend theme (THEME_KEY in frontend/src/consts/core.ts).
+              (function () {
+                  var mode = localStorage.getItem('theme');
+                  var light = mode === 'light' || (mode !== 'dark' && matchMedia('(prefers-color-scheme: light)').matches);
+                  document.documentElement.dataset.theme = light ? 'light' : 'dark';
+              })();
+          </script>
+          <style>
+              html { color-scheme: dark; }
+              html[data-theme='light'] { color-scheme: light; }
+              body { font-family: sans-serif; }
+          </style>
           </head>
           <body>
               <script>

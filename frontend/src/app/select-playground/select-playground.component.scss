@@ -26,7 +26,7 @@ form {
     flex-direction: column;
     gap: $gutter-tiny;
     align-items: center;
-    background-color: rgba($color: $control-background-color, $alpha: 0.25);
+    background-color: with-alpha($control-background-color, 0.25);
     padding: $gutter-small;
     border-radius: $corner-small;
     font-size: 0.85em;
@@ -34,11 +34,11 @@ form {
     color: $primary-text-color;
 
     &:hover {
-      background-color: rgba($color: $control-background-color, $alpha: 0.5);
+      background-color: with-alpha($control-background-color, 0.5);
     }
 
     &.selected {
-      background-color: rgba($color: $control-background-color, $alpha: 0.65);
+      background-color: with-alpha($control-background-color, 0.65);
       border-color: $control-background-color;
     }
 
@@ -75,7 +75,7 @@ form {
 
     &.selected {
       background: $control-focus-background-color;
-      color: white;
+      color: $strong-text-color;
     }
   }
 }
@@ -128,7 +128,7 @@ form {
           bottom: 0;
           left: 0;
           display: none;
-          color: white;
+          color: $strong-text-color;
           padding: $gutter-small;
         }
 

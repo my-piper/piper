@@ -22,6 +22,7 @@ import { PipelineOutputComponent } from "src/app/pipeline-output/pipeline-output
 import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
 import { SelectNodeComponent } from "src/app/select-node/select-node.component";
+import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { AutoScrollDirective } from "src/directives/auto-scroll";
 import { CopyToClipboardDirective } from "src/directives/copy-clipboard.directive";
 import { DragCloneDirective } from "src/directives/drag-clone.directive";
@@ -77,6 +78,7 @@ import { YamlPipe } from "src/pipes/yaml";
 import { Ajv, ajvFactory } from "src/providers/ajv";
 import { appConfigFactory } from "src/providers/app-config";
 import { ScrollTopListener } from "src/providers/scroll-top.listener";
+import { applyMonacoTheme, ThemeManager } from "src/services/theme.service";
 import { baseHrefFactory } from "src/ui-kit/providers/base-href";
 import {
   CURRENT_LANGUAGE,
@@ -174,6 +176,7 @@ import { UsersComponent } from "./users/users.component";
     OutputIndexPipe,
     InputIndexOfPipe,
     SelectNodeComponent,
+    SelectThemeComponent,
     EditNodeComponent,
     IsPipe,
     NodeStateComponent,
@@ -285,7 +288,7 @@ import { UsersComponent } from "./users/users.component";
     BrowserModule,
     RouterModule,
     ReactiveFormsModule,
-    MonacoEditorModule.forRoot(),
+    MonacoEditorModule.forRoot({ onMonacoLoad: () => applyMonacoTheme() }),
     SocketIoModule.forRoot({
       url: "/",
       options: { transports: ["websocket"] },
@@ -324,7 +327,7 @@ import { UsersComponent } from "./users/users.component";
     {
       provide: APP_INITIALIZER,
       useFactory: () => () => {},
-      deps: [ScrollTopListener],
+      deps: [ScrollTopListener, ThemeManager],
       multi: true,
     },
   ],

@@ -17,7 +17,7 @@ ul {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    border-bottom: 1px dashed silver;
+    border-bottom: 1px dashed $graphite-color-75;
     padding: 5px;
 
     >b {

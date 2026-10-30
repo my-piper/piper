@@ -6,15 +6,26 @@
 
 <div class="app-container">
   <div class="frame">
+    <ng-template #selectThemePopover>
+      <app-select-theme></app-select-theme>
+    </ng-template>
     <ng-template #selectLanguagePopover>
       <app-select-language></app-select-language>
     </ng-template>
-    <button
-      class="select-language circle"
-      [appPopover]="{ content: selectLanguagePopover, trigger: 'click' }"
-    >
-      <app-icon class="icon" icon="lang"></app-icon>
-    </button>
+    <div class="frame-actions stack small">
+      <button
+        class="circle"
+        [appPopover]="{ content: selectThemePopover, trigger: 'click' }"
+      >
+        <app-icon class="icon" icon="theme"></app-icon>
+      </button>
+      <button
+        class="circle"
+        [appPopover]="{ content: selectLanguagePopover, trigger: 'click' }"
+      >
+        <app-icon class="icon" icon="lang"></app-icon>
+      </button>
+    </div>
 
     <div class="stack vertical align-center">
       <img width="60px" height="60px" src="assets/app-logo-square.svg?v=next" />

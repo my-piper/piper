@@ -7,8 +7,8 @@
   flex-direction: column;
   gap: $gutter-small;
   user-select: none;
-  background: rgba($node-background-color, 0.75);
-  border: 1px solid rgba($graphite-color-200, 0.5);
+  background: with-alpha($node-background-color, 0.75);
+  border: 1px solid with-alpha($graphite-color-200, 0.5);
   border-radius: $corner-huge;
   padding: $gutter-big;
 

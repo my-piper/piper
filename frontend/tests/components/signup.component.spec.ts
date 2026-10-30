@@ -19,6 +19,7 @@ import { InvalidFieldPipe } from "src/ui-kit/pipes/invalid-field.pipe";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 import { GetUrlPipe } from "src/ui-kit/select-language/get-url-by-lang.pipe";
+import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { SelectLanguageComponent } from "src/ui-kit/select-language/select-language.component";
 import { authorizationPlain } from "../fixtures/plain";
 import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
@@ -45,6 +46,7 @@ async function render(config: Partial<PlainAppConfig> = {}) {
       InformerComponent,
       PopoverDirective,
       SelectLanguageComponent,
+      SelectThemeComponent,
       InvalidFieldPipe,
       IncludesPipe,
       GetUrlPipe,
