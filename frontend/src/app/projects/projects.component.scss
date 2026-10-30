@@ -255,3 +255,22 @@ tr:not(.folder) td.tree {
 .updated {
   line-height: 1em;
 }
+
+// row actions stay quiet until the row is hovered or the button focused
+td.actions {
+  text-align: right;
+
+  button.circle {
+    opacity: 0.4;
+    transition: opacity 150ms ease-in-out;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+    }
+  }
+}
+
+tr:hover td.actions button.circle {
+  opacity: 1;
+}

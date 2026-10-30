@@ -86,44 +86,14 @@
 
   <table class="default">
     <thead>
-      <th width="24px"></th>
       <th i18n="@@label.title">Title</th>
       <th width="24px"></th>
       <th width="24px" i18n="@@label.ver">Ver.</th>
       <th width="150px" i18n="@@label.created">Created</th>
       <th width="150px" i18n="@@label.updated">Updated</th>
+      <th width="24px"></th>
     </thead>
     <ng-template #projectCellsTemplate let-p>
-      <td>
-        <ng-template #actionsTemplate>
-          <ul class="context-menu" [class.busy]="progress.deleting">
-            <li>
-              <button (click)="remove(p)">
-                <app-icon
-                  class="icon left"
-                  icon="delete"
-                  [size]="18"
-                ></app-icon>
-                <span i18n="@@action.delete">Delete</span>
-              </button>
-            </li>
-          </ul>
-        </ng-template>
-        <button
-          class="circle"
-          [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-          [disabled]="userRole.admin | can: p.createdBy | async | not"
-          (attached)="references.popover = $event"
-        >
-          <app-icon
-            class="icon"
-            [icon]="
-              (userRole.admin | can: p.createdBy | async) ? 'menu' : 'lock'
-            "
-            [size]="18"
-          ></app-icon>
-        </button>
-      </td>
       <td i18n-title="@@label.title" title="Title" class="title tree">
         <div class="tree-label">
           <app-icon class="kind" icon="node" [size]="20"></app-icon>
@@ -170,6 +140,32 @@
         <div>{{ p.updatedBy?._id }}</div>
         <small>{{ p.updatedAt | date: "short" }}</small>
       </td>
+      <td class="actions">
+        <ng-template #actionsTemplate>
+          <ul class="context-menu" [class.busy]="progress.deleting">
+            <li>
+              <button (click)="remove(p)">
+                <app-icon
+                  class="icon left"
+                  icon="delete"
+                  [size]="18"
+                ></app-icon>
+                <span i18n="@@action.delete">Delete</span>
+              </button>
+            </li>
+          </ul>
+        </ng-template>
+        <button
+          *ngIf="userRole.admin | can: p.createdBy | async"
+          class="circle"
+          i18n-title="@@action.delete"
+          title="Delete"
+          [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+          (attached)="references.popover = $event"
+        >
+          <app-icon class="icon" icon="delete" [size]="18"></app-icon>
+        </button>
+      </td>
     </ng-template>
     <ng-template #folderTemplate let-f let-depth="depth">
       <!-- the whole row toggles; the button keeps it reachable from the keyboard -->
@@ -179,8 +175,7 @@
         [style.--depth]="depth"
         (click)="toggleFolder(f)"
       >
-        <td></td>
-        <td colspan="5" class="tree">
+        <td colspan="6" class="tree">
           <button
             type="button"
             class="folder"
@@ -224,8 +219,7 @@
           *ngIf="f.more && !f.loading"
           [style.--depth]="depth + 1"
         >
-          <td></td>
-          <td colspan="5" class="tree">
+          <td colspan="6" class="tree">
             <button
               type="button"
               class="primary"
