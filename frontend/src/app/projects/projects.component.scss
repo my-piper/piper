@@ -114,11 +114,18 @@ button.group {
   }
 }
 
+// every tree row lines up as [indent][toggle][icon][label], so a child
+// always starts to the right of its parent and icons share one column
+$tree-toggle: 16px;
+$tree-icon: 20px;
+$tree-gap: $gutter-small;
+$tree-step: calc(#{$tree-toggle} + #{$tree-gap});
+
 button.folder {
   @include reset-button();
   display: flex;
   align-items: center;
-  gap: $gutter-small;
+  gap: $tree-gap;
   width: 100%;
   cursor: pointer;
   font-weight: $font-weight-bold;
@@ -135,8 +142,9 @@ button.folder {
   &::after {
     content: "";
     order: -1;
-    width: 20px;
-    height: 20px;
+    flex-shrink: 0;
+    width: $tree-icon;
+    height: $tree-icon;
     background-color: currentColor;
     mask-image: url(../../assets/icons/folder.svg);
     mask-size: contain;
@@ -155,8 +163,32 @@ button.folder {
   }
 }
 
-tr.folder.expanded button.folder .chevron {
-  transform: rotate(90deg);
+tr.folder {
+  cursor: pointer;
+
+  td {
+    padding-top: $gutter-small;
+    padding-bottom: $gutter-small;
+  }
+
+  &:hover td {
+    background: with-alpha($graphite-color-60, 0.08);
+  }
+
+  &.expanded button.folder .chevron {
+    transform: rotate(90deg);
+  }
+}
+
+.tree-label {
+  display: flex;
+  align-items: center;
+  gap: $tree-gap;
+
+  .kind {
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
 }
 
 // nested rows unfold under their folder
@@ -171,14 +203,12 @@ tr.nested {
   animation: unfold 150ms ease-out;
 }
 
-// each tree level indents by one step and draws a guide line, like a finder tree
-$tree-step: 24px;
-
 td.tree {
   @include wider-tablet() {
     position: relative;
     padding-left: calc(10px + var(--depth, 0) * #{$tree-step});
 
+    // a guide line runs under each ancestor's chevron
     &::before {
       content: "";
       position: absolute;
@@ -188,12 +218,26 @@ td.tree {
       width: calc(var(--depth, 0) * #{$tree-step});
       background: repeating-linear-gradient(
         to right,
-        transparent 0 6px,
-        $control-background-color 6px 7px,
-        transparent 7px #{$tree-step}
+        transparent 0 calc(#{$tree-toggle} / 2 - 1px),
+        $control-background-color calc(#{$tree-toggle} / 2 - 1px)
+          calc(#{$tree-toggle} / 2),
+        transparent calc(#{$tree-toggle} / 2) #{$tree-step}
       );
       pointer-events: none;
     }
+  }
+}
+
+// pipelines have no toggle, so they skip its slot to keep icons aligned
+tr:not(.folder) td.tree {
+  @include wider-tablet() {
+    padding-left: calc(
+      10px + var(--depth, 0) * #{$tree-step} + #{$tree-step}
+    );
+  }
+
+  .row-tags {
+    margin-left: calc(#{$tree-icon} + #{$tree-gap});
   }
 }
 

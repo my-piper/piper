@@ -125,13 +125,16 @@
         </button>
       </td>
       <td i18n-title="@@label.title" title="Title" class="title tree">
-        <a
-          class="default"
-          [routerLink]="[p.slug || p._id]"
-          [state]="{ scroll: 'top' }"
-        >
-          {{ p.title | i18n }}
-        </a>
+        <div class="tree-label">
+          <app-icon class="kind" icon="node" [size]="20"></app-icon>
+          <a
+            class="default"
+            [routerLink]="[p.slug || p._id]"
+            [state]="{ scroll: 'top' }"
+          >
+            {{ p.title | i18n }}
+          </a>
+        </div>
 
         <div *ngIf="(searching && p.group) || p.tags?.length" class="row-tags">
           <button
@@ -169,19 +172,24 @@
       </td>
     </ng-template>
     <ng-template #folderTemplate let-f let-depth="depth">
-      <tr class="folder" [class.expanded]="f.expanded" [style.--depth]="depth">
+      <!-- the whole row toggles; the button keeps it reachable from the keyboard -->
+      <tr
+        class="folder"
+        [class.expanded]="f.expanded"
+        [style.--depth]="depth"
+        (click)="toggleFolder(f)"
+      >
         <td></td>
         <td colspan="5" class="tree">
           <button
             type="button"
             class="folder"
             [attr.aria-expanded]="f.expanded"
-            (click)="toggleFolder(f)"
           >
             <app-icon
               class="chevron"
               icon="chevron-right"
-              [size]="14"
+              [size]="16"
             ></app-icon>
             <span class="name">{{ f.name }}</span>
             <span class="count">{{ f.total }}</span>
