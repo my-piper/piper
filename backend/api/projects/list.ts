@@ -1,6 +1,7 @@
 import api from "app/api";
 import mongo from "app/mongo";
 import { toInstance, validate } from "core-kit/packages/transform";
+import escapeRegExp from "lodash/escapeRegExp";
 import { UserRole } from "models/user";
 import { checkLogged, checkRoles, handle } from "utils/http";
 import { ProjectsFilter } from "./models/projects-filter";
@@ -15,13 +16,16 @@ api.get(
     const filter = toInstance(query, ProjectsFilter);
     await validate(filter);
 
-    const { visibility, category, tag, cursor, sort } = filter;
+    const { visibility, category, tag, search, cursor, sort } = filter;
 
     return await mongo.projects
       .find(
         {
           ...(!!visibility ? { visibility } : {}),
           ...(!!category ? { "category._id": category } : {}),
+          ...(!!search
+            ? { title: { $regex: new RegExp(escapeRegExp(search), "i") } }
+            : {}),
           ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
           ...(!!tag
             ? await (async () => {

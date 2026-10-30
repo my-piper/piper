@@ -1,8 +1,9 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import last from "lodash/last";
-import { delay, finalize, map } from "rxjs";
+import { Subscription, debounceTime, delay, finalize, map } from "rxjs";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
 import { Project, ProjectsFilter } from "src/models/project";
@@ -65,23 +66,40 @@ export class ProjectsComponent implements OnInit {
   chunk: Project[] = [];
   projects: Project[] = [];
 
+  searchControl = this.fb.control<string>(null);
+  form = this.fb.group({
+    search: this.searchControl,
+  });
+
+  private loading$!: Subscription;
+
   constructor(
     private router: Router,
     private http: HttpService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private fb: FormBuilder
   ) {}
 
   async ngOnInit() {
     await this.load();
+
+    this.searchControl.valueChanges
+      .pipe(debounceTime(500))
+      .subscribe(() => this.load());
   }
 
   private async load(cursor?: string) {
+    this.loading$?.unsubscribe();
     this.progress.loading = true;
     this.cd.detectChanges();
 
-    this.http
-      .get("projects", toPlain(new ProjectsFilter({ cursor })))
+    const search = this.searchControl.value?.trim();
+    this.loading$ = this.http
+      .get(
+        "projects",
+        toPlain(new ProjectsFilter({ cursor, ...(search ? { search } : {}) }))
+      )
       .pipe(
         delay(UI_DELAY),
         finalize(() => {

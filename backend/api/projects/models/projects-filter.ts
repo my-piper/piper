@@ -26,6 +26,11 @@ export class ProjectsFilter {
   tag: string;
 
   @IsOptional()
+  @Expose()
+  @Type(() => String)
+  search: string;
+
+  @IsOptional()
   @Matches(/^[A-Za-z0-9]{26}$/)
   @Expose()
   @Type(() => String)

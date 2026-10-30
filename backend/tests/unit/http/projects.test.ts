@@ -11,6 +11,7 @@ let context: Awaited<ReturnType<typeof createHttpApp>>;
 beforeEach(async () => {
   scenario = httpScenario();
   context = await createHttpApp([
+    () => import("api/projects/list"),
     () => import("api/projects/get-project"),
     () => import("api/projects/add-project"),
     () => import("api/projects/update-project"),
@@ -276,5 +277,32 @@ describe("project ownership and admin permissions", () => {
 
     expect(response.status).toBe(404);
     expect(httpDoubles.projects.deleteOne).not.toHaveBeenCalled();
+  });
+});
+
+describe("project listing", () => {
+  it("filters owned and public projects by case-insensitive title search", async () => {
+    const response = await context.request
+      .get("/api/projects")
+      .query({ search: "Image" })
+      .set("user-token", userToken("owner-user"));
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
+      title: { $regex: /Image/i },
+      $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+    });
+  });
+
+  it("treats search text literally", async () => {
+    const response = await context.request
+      .get("/api/projects")
+      .query({ search: "a(b" })
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
+      title: { $regex: /a\(b/i },
+    });
   });
 });

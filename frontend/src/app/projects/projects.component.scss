@@ -10,6 +10,14 @@
   gap: $gutter-normal;
 }
 
+.search {
+  margin-left: auto;
+
+  input {
+    width: 250px;
+  }
+}
+
 .version {
   display: flex;
   justify-content: right;

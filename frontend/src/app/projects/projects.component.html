@@ -56,6 +56,15 @@
     >
       Import
     </a>
+    <form class="search" [formGroup]="form">
+      <input
+        class="input-primary"
+        formControlName="search"
+        type="search"
+        placeholder="Search"
+        i18n-placeholder="@@label.search"
+      />
+    </form>
   </header>
 
   <table class="default">
