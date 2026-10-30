@@ -42,6 +42,7 @@
   }
 }
 
+.groups,
 .tags,
 .row-tags {
   display: flex;
@@ -76,7 +77,50 @@ button.tag {
   }
 }
 
-.row-tags button.tag {
+button.group {
+  @include reset-button();
+  display: inline-flex;
+  align-items: center;
+  gap: $gutter-tiny;
+  cursor: pointer;
+  padding: $gutter-tiny $gutter-normal;
+  border: 1px solid $control-background-color;
+  border-radius: $corner-large;
+  font-size: 0.85em;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: $primary-text-color;
+
+  // icon is a mask so it follows the theme text color
+  &::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    background-color: currentColor;
+    mask-image: url(../../assets/icons/folder.svg);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    opacity: 0.6;
+  }
+
+  &:hover {
+    background: $control-background-color;
+  }
+
+  &.selected {
+    background: $control-focus-background-color;
+    border-color: $control-focus-background-color;
+    color: $strong-text-color;
+  }
+}
+
+.groups button.group:first-child::before {
+  display: none;
+}
+
+.row-tags button.tag,
+.row-tags button.group {
   font-size: 0.75em;
 }
 

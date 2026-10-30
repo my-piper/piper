@@ -39,6 +39,10 @@ export class Project {
 
   @Expose()
   @Type(() => String)
+  group?: string;
+
+  @Expose()
+  @Type(() => String)
   revision!: string;
 
   @Expose()

@@ -46,12 +46,14 @@ api.post(
       );
     }
 
-    const { visibility, slug, order } = request;
+    const { visibility, slug, order, group } = request;
 
     const update = new Project({
       visibility,
       slug,
       order,
+      // undefined keeps the group, empty value removes it
+      ...(group !== undefined ? { group: group?.trim() || null } : {}),
       updatedBy: (() => {
         const { _id } = currentUser;
         return new User({ _id });

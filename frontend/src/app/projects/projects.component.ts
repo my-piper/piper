@@ -68,12 +68,15 @@ export class ProjectsComponent implements OnInit {
   chunk: Project[] = [];
   projects: Project[] = [];
   allTags: string[] = [];
+  allGroups: string[] = [];
 
   searchControl = this.fb.control<string>(null);
   tagsControl = this.fb.control<string[]>([]);
+  groupControl = this.fb.control<string>(null);
   form = this.fb.group({
     search: this.searchControl,
     tags: this.tagsControl,
+    group: this.groupControl,
   });
 
   private loading$!: Subscription;
@@ -88,12 +91,33 @@ export class ProjectsComponent implements OnInit {
 
   async ngOnInit() {
     this.loadTags();
+    this.loadGroups();
     await this.load();
 
     this.searchControl.valueChanges
       .pipe(debounceTime(500))
       .subscribe(() => this.load());
     this.tagsControl.valueChanges.subscribe(() => this.load());
+    this.groupControl.valueChanges.subscribe(() => this.load());
+  }
+
+  private loadGroups() {
+    this.http
+      .get("projects/groups")
+      .pipe(map((arr) => arr as string[]))
+      .subscribe({
+        next: (groups) => {
+          this.allGroups = groups;
+          this.cd.detectChanges();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
+
+  selectGroup(group: string) {
+    this.groupControl.setValue(
+      group === this.groupControl.value ? null : group,
+    );
   }
 
   private loadTags() {
@@ -112,7 +136,7 @@ export class ProjectsComponent implements OnInit {
   toggleTag(tag: string) {
     const tags = this.tagsControl.value ?? [];
     this.tagsControl.setValue(
-      tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag]
+      tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag],
     );
   }
 
@@ -123,6 +147,7 @@ export class ProjectsComponent implements OnInit {
 
     const search = this.searchControl.value?.trim();
     const tags = this.tagsControl.value ?? [];
+    const group = this.groupControl.value;
     this.loading$ = this.http
       .get(
         "projects",
@@ -131,8 +156,9 @@ export class ProjectsComponent implements OnInit {
             cursor,
             ...(search ? { search } : {}),
             ...(tags.length > 0 ? { tags } : {}),
-          })
-        )
+            ...(group ? { group } : {}),
+          }),
+        ),
       )
       .pipe(
         delay(UI_DELAY),
@@ -141,8 +167,8 @@ export class ProjectsComponent implements OnInit {
           this.cd.detectChanges();
         }),
         map((arr) =>
-          (arr as Object[]).map((plain) => toInstance(plain, Project))
-        )
+          (arr as Object[]).map((plain) => toInstance(plain, Project)),
+        ),
       )
       .subscribe({
         next: (projects) => {
@@ -182,7 +208,7 @@ export class ProjectsComponent implements OnInit {
           this.references?.popover?.hide();
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Project, json as Object))
+        map((json) => plainToInstance(Project, json as Object)),
       )
       .subscribe({
         next: (project) => {
@@ -204,7 +230,7 @@ export class ProjectsComponent implements OnInit {
           this.progress.deleting = false;
           this.references?.popover?.hide();
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {

@@ -67,6 +67,27 @@
     </form>
   </header>
 
+  <nav *ngIf="allGroups.length > 0" class="groups">
+    <button
+      type="button"
+      class="group"
+      [class.selected]="!groupControl.value"
+      (click)="selectGroup(null)"
+      i18n="@@label.all"
+    >
+      All
+    </button>
+    <button
+      *ngFor="let g of allGroups"
+      type="button"
+      class="group"
+      [class.selected]="groupControl.value === g"
+      (click)="selectGroup(g)"
+    >
+      {{ g }}
+    </button>
+  </nav>
+
   <form *ngIf="allTags.length > 0" class="tags" [formGroup]="form">
     <button
       *ngFor="let t of allTags"
@@ -133,7 +154,16 @@
             {{ p.title | i18n }}
           </a>
 
-          <div *ngIf="p.tags?.length" class="row-tags">
+          <div *ngIf="p.group || p.tags?.length" class="row-tags">
+            <button
+              *ngIf="p.group"
+              type="button"
+              class="group"
+              [class.selected]="groupControl.value === p.group"
+              (click)="selectGroup(p.group)"
+            >
+              {{ p.group }}
+            </button>
             <button
               *ngFor="let t of p.tags"
               type="button"

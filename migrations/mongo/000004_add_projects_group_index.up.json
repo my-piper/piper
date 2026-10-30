@@ -1,0 +1,14 @@
+[
+  {
+    "createIndexes": "projects",
+    "indexes": [
+      {
+        "name": "group_asc",
+        "key": {
+          "group": 1
+        },
+        "background": true
+      }
+    ]
+  }
+]

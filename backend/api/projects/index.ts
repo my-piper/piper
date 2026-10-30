@@ -1,4 +1,5 @@
 import "./categories";
+import "./groups";
 import "./organize-projects";
 import "./tags";
 

@@ -214,6 +214,17 @@ export class ApiFixture {
       );
     });
 
+    // backend/api/projects/groups/list-groups.ts: distinct sorted groups
+    this.on("GET", "/api/projects/groups", ({ user }) => {
+      const groups = [...this.projects.values()].map(
+        (p) => p["group"] as string | undefined,
+      );
+      return (
+        this.requireUser(user) ??
+        ok([...new Set(groups)].filter(Boolean).sort())
+      );
+    });
+
     // backend/api/projects/get-project.ts: matches `_id` or `slug`, masks
     // string environment variables with HIDDEN_STRING (consts/core.ts).
     this.on("GET", "/api/projects/:id", ({ params, user }) => {

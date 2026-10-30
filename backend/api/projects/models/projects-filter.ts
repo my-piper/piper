@@ -35,6 +35,11 @@ export class ProjectsFilter {
   tags: string[];
 
   @IsOptional()
+  @IsString()
+  @Expose()
+  group: string;
+
+  @IsOptional()
   @Expose()
   @Type(() => String)
   search: string;

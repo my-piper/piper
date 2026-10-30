@@ -17,14 +17,17 @@ import { configureAppTestingModule, finish } from "../helpers/editor";
  * GET /api/projects/tags/available lists tags of visible projects and
  * GET /api/projects?tags=… returns projects having all of them
  * (backend/api/projects/tags/list-available-tags.ts, backend/api/projects/list.ts).
+ * GET /api/projects/groups lists groups of visible projects and
+ * GET /api/projects?group=… returns projects of that group
+ * (backend/api/projects/groups/list-groups.ts).
  */
 const UI_DELAY = 250;
 
 function taggedProject() {
-  return { ...projectAPlain(), tags: ["image", "video"] };
+  return { ...projectAPlain(), tags: ["image", "video"], group: "Marketing" };
 }
 
-describe("ProjectsComponent tags", () => {
+describe("ProjectsComponent tags and groups", () => {
   let fixture: ComponentFixture<ProjectsComponent>;
   let controller: HttpTestingController;
   let element: HTMLElement;
@@ -50,6 +53,7 @@ describe("ProjectsComponent tags", () => {
     controller
       .expectOne("/api/projects/tags/available")
       .flush(["image", "video"]);
+    controller.expectOne("/api/projects/groups").flush(["Marketing", "Sales"]);
     const list = expectList();
     answer(list, [taggedProject()]);
     return list;
@@ -102,6 +106,59 @@ describe("ProjectsComponent tags", () => {
 
     expect(selected.request.params.getAll("tags")).toEqual(["image"]);
     expect(cleared.request.params.has("tags")).toBeFalse();
+    fixture.destroy();
+    finish();
+  }));
+
+  it("lists groups with all projects selected initially", fakeAsync(() => {
+    const list = setup();
+
+    const chips =
+      element.querySelectorAll<HTMLButtonElement>("nav.groups button");
+    expect(Array.from(chips).map((c) => c.textContent.trim())).toEqual([
+      "All",
+      "Marketing",
+      "Sales",
+    ]);
+    expect(chips[0].classList).toContain("selected");
+    expect(list.request.params.has("group")).toBeFalse();
+    fixture.destroy();
+    finish();
+  }));
+
+  it("filters by the selected group and back to all", fakeAsync(() => {
+    setup();
+    const chips =
+      element.querySelectorAll<HTMLButtonElement>("nav.groups button");
+
+    chips[2].click();
+    const selected = expectList();
+    answer(selected, []);
+    chips[0].click();
+    const cleared = expectList();
+    answer(cleared, [taggedProject()]);
+
+    expect(selected.request.params.get("group")).toBe("Sales");
+    expect(cleared.request.params.has("group")).toBeFalse();
+    fixture.destroy();
+    finish();
+  }));
+
+  it("toggles the group filter from a project row", fakeAsync(() => {
+    setup();
+    const rowGroup = (): HTMLButtonElement =>
+      element.querySelector("td button.group");
+
+    rowGroup().click();
+    const selected = expectList();
+    answer(selected, [taggedProject()]);
+    rowGroup().click();
+    const cleared = expectList();
+    answer(cleared, [taggedProject()]);
+
+    expect(selected.request.params.get("group")).toBe("Marketing");
+    expect(rowGroup().textContent.trim()).toBe("Marketing");
+    expect(cleared.request.params.has("group")).toBeFalse();
     fixture.destroy();
     finish();
   }));

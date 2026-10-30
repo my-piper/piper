@@ -31,6 +31,10 @@
         "type": "string"
       }
     },
+    "group": {
+      "type": ["string", "null"],
+      "maxLength": 100
+    },
     "visibility": {
       "type": "string",
       "title": "Visibility",

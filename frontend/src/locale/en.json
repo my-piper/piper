@@ -136,6 +136,7 @@
     "message.request_node": "If you can't find node what you need, you can",
     "link.request_node": " request node ",
     "label.search": "Search",
+    "label.all": "All",
     "label.select_app": "Select app",
     "label.theme_light": "Light",
     "label.theme_dark": "Dark",

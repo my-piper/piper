@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
@@ -23,7 +24,7 @@ import { toInstance } from "src/utils/models";
   templateUrl: "./edit-project.component.html",
   styleUrls: ["./edit-project.component.scss"],
 })
-export class EditProjectComponent {
+export class EditProjectComponent implements OnInit {
   origin = location.origin;
   userRole = UserRole;
 
@@ -33,6 +34,7 @@ export class EditProjectComponent {
 
   progress = { saving: false };
   error!: AppError;
+  groups: string[] = [];
 
   @Input()
   set project(project: Project) {
@@ -53,6 +55,7 @@ export class EditProjectComponent {
     visibility: this.visibilityControl,
     slug: this.fb.control<string>(null),
     order: this.fb.control<number>(0),
+    group: this.fb.control<string>(null),
   });
 
   constructor(
@@ -61,9 +64,23 @@ export class EditProjectComponent {
     private cd: ChangeDetectorRef
   ) {}
 
+  ngOnInit() {
+    this.http
+      .get("projects/groups")
+      .pipe(map((arr) => arr as string[]))
+      .subscribe({
+        next: (groups) => {
+          this.groups = groups;
+          this.cd.detectChanges();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
+
   private build() {
-    const { title, visibility, slug, order } = this.project;
+    const { title, visibility, slug, order, group } = this.project;
     this.form.patchValue({
+      group: group ?? null,
       visibility,
       slug:
         slug || getLabel(title, Languages.en).toLowerCase().replace(/\s/g, "-"),
@@ -80,8 +97,13 @@ export class EditProjectComponent {
     this.progress.saving = true;
     this.cd.detectChanges();
 
-    const { visibility, slug, order } = this.form.getRawValue();
-    const request = new Project({ visibility, slug, order });
+    const { visibility, slug, order, group } = this.form.getRawValue();
+    const request = new Project({
+      visibility,
+      slug,
+      order,
+      group: group?.trim() || null,
+    });
     this.http
       .post(`projects/${this.project._id}`, request)
       .pipe(
@@ -90,7 +112,7 @@ export class EditProjectComponent {
           this.progress.saving = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, Project))
+        map((json) => toInstance(json as object, Project)),
       )
       .subscribe({
         next: (project) => this.updated.emit(project),

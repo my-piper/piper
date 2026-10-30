@@ -13,6 +13,7 @@ beforeEach(async () => {
   context = await createHttpApp([
     () => import("api/projects/list"),
     () => import("api/projects/tags/list-available-tags"),
+    () => import("api/projects/groups/list-groups"),
     () => import("api/projects/get-project"),
     () => import("api/projects/add-project"),
     () => import("api/projects/update-project"),
@@ -229,6 +230,35 @@ describe("project ownership and admin permissions", () => {
     }
   );
 
+  it("moves a project to a trimmed group", async () => {
+    const response = await context.request
+      .post("/api/projects/project-http")
+      .set("user-token", userToken())
+      .send({ visibility: "private", group: "  Marketing " });
+
+    expect(response.status).toBe(200);
+    expect(response.body.group).toBe("Marketing");
+    expect(httpDoubles.projects.updateOne.mock.calls[0][1]).toEqual({
+      $set: expect.objectContaining({ group: "Marketing" }),
+    });
+  });
+
+  it.each(["", "   ", null])(
+    "removes a project from its group on %j",
+    async (group) => {
+      const response = await context.request
+        .post("/api/projects/project-http")
+        .set("user-token", userToken())
+        .send({ visibility: "private", group });
+
+      expect(response.status).toBe(200);
+      expect(response.body.group).toBeNull();
+      expect(httpDoubles.projects.updateOne.mock.calls[0][1]).toEqual({
+        $set: expect.objectContaining({ group: null }),
+      });
+    }
+  );
+
   it.each(["other-user", "engineer-user"])(
     "rejects project updates by %s",
     async (user) => {
@@ -354,6 +384,52 @@ describe("project listing", () => {
 
     expect(response.status).toBe(400);
     expect(httpDoubles.projects.find).not.toHaveBeenCalled();
+  });
+});
+
+describe("project groups", () => {
+  it("filters projects by group", async () => {
+    const response = await context.request
+      .get("/api/projects")
+      .query({ group: "Marketing" })
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
+      group: "Marketing",
+    });
+  });
+
+  it("rejects a non-string group", async () => {
+    const response = await context.request
+      .get("/api/projects?group[$ne]=Marketing")
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(400);
+    expect(httpDoubles.projects.find).not.toHaveBeenCalled();
+  });
+
+  it("lists sorted groups of owned and public projects", async () => {
+    httpDoubles.projects.distinct.mockResolvedValue(["Sales", null, "Ads"]);
+
+    const response = await context.request
+      .get("/api/projects/groups")
+      .set("user-token", userToken("owner-user"));
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(["Ads", "Sales"]);
+    expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("group", {
+      $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+    });
+  });
+
+  it("lists groups of all projects for admins", async () => {
+    const response = await context.request
+      .get("/api/projects/groups")
+      .set("user-token", userToken("admin-user"));
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("group", {});
   });
 });
 
