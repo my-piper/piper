@@ -71,11 +71,12 @@
     <button
       *ngFor="let t of allTags"
       type="button"
+      class="tag"
       formControlName="tags"
       [appSelectable]="{
         value: t,
         group: 'project-tags',
-        mode: selectMode.multiple
+        mode: selectMode.multiple,
       }"
     >
       #{{ t | i18n }}
@@ -123,11 +124,7 @@
             ></app-icon>
           </button>
         </td>
-        <td
-          i18n-title="@@label.title"
-          title="Title"
-          class="stack justify-between"
-        >
+        <td i18n-title="@@label.title" title="Title" class="title">
           <a
             class="default"
             [routerLink]="[p.slug || p._id]"
@@ -136,15 +133,15 @@
             {{ p.title | i18n }}
           </a>
 
-          <div *ngIf="p.tags as tags" class="stack">
+          <div *ngIf="p.tags?.length" class="row-tags">
             <button
-              *ngFor="let t of tags"
+              *ngFor="let t of p.tags"
               type="button"
               class="tag"
               [class.selected]="tagsControl.value?.includes(t)"
               (click)="toggleTag(t)"
             >
-              {{ t | i18n }}
+              #{{ t | i18n }}
             </button>
           </div>
         </td>
