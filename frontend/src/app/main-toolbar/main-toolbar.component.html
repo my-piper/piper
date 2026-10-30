@@ -1,0 +1,87 @@
+<header>
+  <div class="left">
+    <a class="logo" [href]="appConfig.siteUrl">
+      <div class="beta">beta</div>
+      <img height="25px" src="assets/app-logo.svg?v=next" />
+    </a>
+
+    <ul>
+      <li *ngIf="userRole.admin | can | async">
+        <a
+          [routerLink]="['/', 'packages']"
+          [state]="{ scroll: 'top' }"
+          routerLinkActive="active"
+          i18n="@@link.node_packages"
+          >Node packages</a
+        >
+      </li>
+      <li>
+        <a
+          [routerLink]="['/', 'projects']"
+          [state]="{ scroll: 'top' }"
+          routerLinkActive="active"
+          i18n="@@link.pipelines"
+          >Pipelines</a
+        >
+      </li>
+      <li>
+        <a
+          [routerLink]="['/', 'play']"
+          [state]="{ scroll: 'top' }"
+          routerLinkActive="active"
+          i18n="@@link.apps"
+          >Apps</a
+        >
+      </li>
+      <li>
+        <a
+          [routerLink]="['/', 'launches']"
+          [state]="{ scroll: 'top' }"
+          routerLinkActive="active"
+          i18n="@@link.launches"
+          >Launches</a
+        >
+      </li>
+      <li>
+        <a
+          [routerLink]="['/', 'assets']"
+          [state]="{ scroll: 'top' }"
+          routerLinkActive="active"
+          i18n="@@link.assets"
+          >Assets</a
+        >
+      </li>
+      <li *ngIf="userRole.admin | can | async">
+        <a
+          [routerLink]="['/', 'users']"
+          [state]="{ scroll: 'top' }"
+          routerLinkActive="active"
+          i18n="@@link.users"
+          >Users</a
+        >
+      </li>
+    </ul>
+  </div>
+
+  <div class="stack small align-center">
+    <app-me-user class="me"></app-me-user>
+    <ng-template #selectThemePopover>
+      <app-select-theme></app-select-theme>
+    </ng-template>
+    <button
+      class="circle"
+      [appPopover]="{ content: selectThemePopover, trigger: 'click' }"
+    >
+      <app-icon class="icon" icon="theme" [size]="20"></app-icon>
+    </button>
+    <ng-template #selectLanguagePopover>
+      <app-select-language></app-select-language>
+    </ng-template>
+    <button
+      class="circle"
+      [appPopover]="{ content: selectLanguagePopover, trigger: 'click' }"
+    >
+      <app-icon class="icon" icon="lang" [size]="20"></app-icon>
+    </button>
+  </div>
+</header>

@@ -26,7 +26,10 @@ async function openPlayground(
   // First visit shows the README (ShouldCheckReadmeGuard), then launches.
   await open("/en/play/project-aaaa");
   await expect(page).toHaveURL(/\/en\/play\/project-aaaa\/readme$/);
-  await page.getByRole("link", { name: "Launches" }).click();
+  await page
+    .locator("app-play-with-project")
+    .getByRole("link", { name: "Launches" })
+    .click();
   await expect(page).toHaveURL(/\/en\/play\/project-aaaa$/);
 }
 

@@ -11,7 +11,7 @@
   gap: $gutter-big;
   padding: $gutter-normal;
   box-sizing: border-box;
-  min-height: 100vh;
+  flex: 1;
 
   @include less-tablet() {
     grid-template-columns: 1fr;
@@ -26,14 +26,14 @@ header {
   grid-area: header;
 
   display: grid;
-  grid-template-columns: max-content auto max-content;
-  grid-template-areas: "actions title me";
+  grid-template-columns: max-content auto;
+  grid-template-areas: "actions title";
   align-items: flex-start;
   gap: $gutter-big;
 
   @include for-mobile() {
     grid-template-columns: 1fr;
-    grid-template-areas: "actions me" "title title";
+    grid-template-areas: "actions" "title";
   }
 
   .actions {
@@ -47,10 +47,6 @@ header {
       margin: 0;
       line-height: 1em;
     }
-  }
-
-  .me {
-    grid-area: me;
   }
 }
 
