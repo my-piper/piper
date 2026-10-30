@@ -77,73 +77,54 @@
         }
 
         button.json-editor-btn-edit_properties,
-        button.json-editor-btn-collapse {
+        button.json-editor-btn-collapse,
+        button.json-editor-btn-delete,
+        button.json-editor-btn-moveup,
+        button.json-editor-btn-movedown {
             @extend %button-circle;
             display: inline-flex;
+            color: $button-text-color;
 
             span {
                 display: none;
             }
 
+            // icons are masks so they follow the theme text color
             &::after {
                 content: "";
-                background-size: contain;
-                background-repeat: no-repeat;
                 width: 16px;
                 height: 16px;
-            }
-        }
-
-        button.json-editor-btn-edit_properties {
-            &::after {
-                background-image: url(../../assets/icons/context-menu.svg);
-            }
-        }
-
-        button.json-editor-btn-collapse {
-            &::after {
-                background-image: url(../../assets/icons/folder.svg);
+                background-color: currentColor;
+                mask-size: contain;
+                mask-repeat: no-repeat;
+                mask-position: center;
             }
         }
 
         button.json-editor-btn-delete,
         button.json-editor-btn-moveup,
         button.json-editor-btn-movedown {
-            @extend %button-circle;
             margin: 0 $gutter-small $gutter-normal 0;
-            display: inline-flex;
-
-            span {
-                display: none;
-            }
-
-            &:after {
-                background-size: contain;
-                background-repeat: no-repeat;
-                width: 16px;
-                height: 16px;
-            }
         }
 
-        button.json-editor-btn-delete {
-            &:after {
-                content: "";
-                background-image: url(../../assets/icons/delete.svg);
-            }
+        button.json-editor-btn-edit_properties::after {
+            mask-image: url(../../assets/icons/context-menu.svg);
         }
 
-        button.json-editor-btn-moveup {
-            &:after {
-                content: "";
-                background-image: url(../../assets/icons/chevron-up.svg);
-            }
+        button.json-editor-btn-collapse::after {
+            mask-image: url(../../assets/icons/folder.svg);
         }
 
-        button.json-editor-btn-movedown {
-            &:after {
-                content: "";
-                background-image: url(../../assets/icons/chevron-down.svg);
-            }
+        button.json-editor-btn-delete::after {
+            mask-image: url(../../assets/icons/delete.svg);
+        }
+
+        button.json-editor-btn-moveup::after {
+            mask-image: url(../../assets/icons/chevron-up.svg);
+        }
+
+        button.json-editor-btn-movedown::after {
+            mask-image: url(../../assets/icons/chevron-down.svg);
         }
 
         button.json-editor-btn-add {
