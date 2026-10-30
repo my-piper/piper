@@ -23,7 +23,8 @@ function isEditable(target: EventTarget | null) {
 /**
  * Pans a scroll container by dragging: left button on empty space (anything
  * not matching `ignore`), middle button anywhere, or Space + left button
- * anywhere. A pan that moved swallows the click that follows it.
+ * anywhere. Shift + left button on empty space is left to the selection
+ * marquee. A pan that moved swallows the click that follows it.
  */
 @Directive({ selector: "[canvasPan]" })
 export class CanvasPanDirective implements OnDestroy {
@@ -80,7 +81,8 @@ export class CanvasPanDirective implements OnDestroy {
     const target = event.target as Element;
     const middle = event.button === 1;
     const left =
-      event.button === 0 && (this.space || !target.closest(this.ignore));
+      event.button === 0 &&
+      (this.space || (!event.shiftKey && !target.closest(this.ignore)));
     if (!middle && !left) {
       return;
     }

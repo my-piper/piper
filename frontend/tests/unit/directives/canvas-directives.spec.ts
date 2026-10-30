@@ -7,6 +7,10 @@ import {
 } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { CanvasPanDirective } from "src/directives/canvas-pan.directive";
+import {
+  CanvasSelectDirective,
+  SelectArea,
+} from "src/directives/canvas-select.directive";
 import { DragCloneDirective } from "src/directives/drag-clone.directive";
 import { DragMoveDirective } from "src/directives/drag-move.directive";
 import { DropZoneDirective } from "src/directives/drop-zone.directive";
@@ -514,6 +518,168 @@ describe("canvas directives", () => {
       drag(fixture.nativeElement.querySelector(".empty"), 2, 1);
 
       expect(container.scrollLeft).toBe(500);
+    });
+
+    it("leaves Shift + drag on empty space to the selection marquee", () => {
+      render();
+      const empty = fixture.nativeElement.querySelector(".empty");
+
+      empty.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          bubbles: true,
+          clientX: 200,
+          clientY: 200,
+          button: 0,
+          shiftKey: true,
+          pointerType: "mouse",
+          pointerId: 1,
+        }),
+      );
+      press(empty, "pointermove", 100, 100);
+      press(empty, "pointerup", 100, 100);
+
+      expect(container.scrollLeft).toBe(500);
+    });
+  });
+
+  describe("CanvasSelectDirective", () => {
+    @Component({
+      template: `<div
+        class="pane"
+        style="position: absolute; left: 0; top: 0; width: 800px; height: 600px; transform-origin: 0 0"
+        [style.transform]="'scale(' + zoom + ')'"
+        [canvasSelect]="{ ignore: '.node', zoom: zoom, disabled: disabled }"
+        (selectStart)="starts = starts + 1"
+        (selecting)="areas.push($event)"
+        (click)="clicks = clicks + 1"
+      >
+        <div
+          class="node"
+          style="position: absolute; left: 0; top: 0; width: 100px; height: 100px"
+        ></div>
+        <div
+          class="empty"
+          style="position: absolute; left: 200px; top: 200px; width: 10px; height: 10px"
+        ></div>
+      </div>`,
+    })
+    class HostComponent {
+      zoom = 1;
+      disabled = false;
+      starts = 0;
+      clicks = 0;
+      areas: SelectArea[] = [];
+    }
+
+    let fixture: ComponentFixture<HostComponent>;
+    let host: HostComponent;
+    let pane: HTMLElement;
+
+    function render(changes: Partial<HostComponent> = {}) {
+      TestBed.configureTestingModule({
+        declarations: [HostComponent, CanvasSelectDirective],
+      });
+      fixture = TestBed.createComponent(HostComponent);
+      host = fixture.componentInstance;
+      Object.assign(host, changes);
+      fixture.detectChanges();
+      pane = fixture.nativeElement.querySelector(".pane");
+    }
+
+    function press(
+      target: Element,
+      type: "pointerdown" | "pointermove" | "pointerup",
+      x: number,
+      y: number,
+      shiftKey = true,
+    ) {
+      target.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          clientX: x,
+          clientY: y,
+          button: 0,
+          shiftKey,
+          pointerType: "mouse",
+          pointerId: 1,
+        }),
+      );
+    }
+
+    function marquee() {
+      return pane.querySelector(".marquee") as HTMLElement | null;
+    }
+
+    it("emits client bounds and draws a marquee in canvas units", () => {
+      render({ zoom: 2 });
+      const empty = pane.querySelector(".empty");
+      const { left, top } = pane.getBoundingClientRect();
+
+      press(empty, "pointerdown", left + 300, top + 200);
+      press(empty, "pointermove", left + 100, top + 400);
+      const drawn = marquee();
+
+      expect(host.starts).toBe(1);
+      expect(host.areas).toEqual([
+        {
+          left: left + 100,
+          top: top + 200,
+          right: left + 300,
+          bottom: top + 400,
+        },
+      ]);
+      expect(drawn.style.left).toBe("50px");
+      expect(drawn.style.top).toBe("100px");
+      expect(drawn.style.width).toBe("100px");
+      expect(drawn.style.height).toBe("100px");
+    });
+
+    it("removes the marquee and swallows the click that ends it", fakeAsync(() => {
+      render();
+      const empty = pane.querySelector(".empty") as HTMLElement;
+
+      press(empty, "pointerdown", 200, 200);
+      press(empty, "pointermove", 260, 260);
+      press(empty, "pointerup", 260, 260);
+      empty.click();
+      tick();
+      empty.click();
+
+      expect(marquee()).toBeNull();
+      expect(host.clicks).toBe(1);
+    }));
+
+    it("needs Shift, empty space and an enabled canvas", () => {
+      render();
+      const empty = pane.querySelector(".empty");
+      const node = pane.querySelector(".node");
+
+      press(empty, "pointerdown", 200, 200, false);
+      press(empty, "pointermove", 260, 260, false);
+      press(empty, "pointerup", 260, 260, false);
+      press(node, "pointerdown", 10, 10);
+      press(node, "pointermove", 60, 60);
+      press(node, "pointerup", 60, 60);
+      host.disabled = true;
+      fixture.detectChanges();
+      press(empty, "pointerdown", 200, 200);
+      press(empty, "pointermove", 260, 260);
+      press(empty, "pointerup", 260, 260);
+
+      expect(host.areas).toEqual([]);
+      expect(marquee()).toBeNull();
+    });
+
+    it("removes the marquee when destroyed mid-selection", () => {
+      render();
+      const empty = pane.querySelector(".empty");
+      press(empty, "pointerdown", 200, 200);
+      press(empty, "pointermove", 260, 260);
+
+      fixture.destroy();
+
+      expect(marquee()).toBeNull();
     });
   });
 

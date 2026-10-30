@@ -43,7 +43,7 @@ export class DragMoveDirective {
   private zoom: number = 1;
 
   private disabled = false;
-  private dragged = false;
+  dragged = false;
 
   @Input("appDragMove")
   set config({

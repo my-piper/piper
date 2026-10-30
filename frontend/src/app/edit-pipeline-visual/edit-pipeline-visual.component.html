@@ -242,6 +242,13 @@
       zoom: pipeline.layout?.zoom || 1,
       items: '.node, .input, .output',
     }"
+    [canvasSelect]="{
+      ignore: '.node, .input, .output, .flow, .actions',
+      zoom: pipeline.layout?.zoom || 1,
+      disabled: mode !== 'project',
+    }"
+    (selectStart)="startAreaSelection()"
+    (selecting)="selectArea($event)"
     (drop)="
       addNode(
         $event.left / (pipeline.layout?.zoom || 1),
@@ -413,8 +420,10 @@
     <div
       class="node"
       [class.selected]="currentNode === node.value"
+      [class.picked]="selection.has(node.key)"
       *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
       [attr.data-testid]="'node-' + node.key"
+      [attr.data-node]="node.key"
       [class.disabled]="userRole.admin | can: project.createdBy | async | not"
       #drag="appDragMove"
       [appDragMove]="{
@@ -422,8 +431,8 @@
         zoom: pipeline.layout?.zoom || 1,
         disabled: mode !== 'project',
       }"
-      (moving)="nodeMoving(node.value, $event)"
-      (moved)="nodeMoved(node.value, $event)"
+      (moving)="nodeMoving(node.key, node.value, $event)"
+      (moved)="nodeMoved(node.key, node.value, $event)"
     >
       <ng-template #nodeCostsTemplate>
         <div
@@ -549,7 +558,9 @@
         (takeOutInput)="takeOutPipelineInput($event)"
         (takeOutOutput)="takeOutPipelineOutput($event)"
         (click)="
-          mode !== 'scheme' ? selectNode($event, node.key, node.value) : null
+          mode !== 'scheme' && !drag.dragged
+            ? selectNode($event, node.key, node.value)
+            : null
         "
       ></app-node>
     </div>

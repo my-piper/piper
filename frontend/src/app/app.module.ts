@@ -32,6 +32,7 @@ import { ImageFallbackDirective } from "src/directives/image-fall-back.directive
 import { ImageSizeDirective } from "src/directives/image-size";
 import { InspectDirective } from "src/directives/inspect";
 import { CanvasPanDirective } from "src/directives/canvas-pan.directive";
+import { CanvasSelectDirective } from "src/directives/canvas-select.directive";
 import { PitchZoomDirective } from "src/directives/pitch-zoom.directive";
 import { ScrollInsideDirective } from "src/directives/scroll-inside.directive";
 import { SelectableDirective } from "src/directives/selectable.directive";
@@ -255,6 +256,7 @@ import { UsersComponent } from "./users/users.component";
     EditProjectComponent,
     SelectableDirective,
     CanvasPanDirective,
+    CanvasSelectDirective,
     PitchZoomDirective,
     MultiplyPipe,
     CanPipe,

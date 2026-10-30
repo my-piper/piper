@@ -569,6 +569,118 @@ describe("EditPipelineVisualComponent", () => {
   });
 
   describe("selection and drawers", () => {
+    function shiftPointer(
+      target: Element,
+      type: "pointerdown" | "pointermove" | "pointerup",
+      { x, y }: { x: number; y: number },
+    ) {
+      target.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          clientX: x,
+          clientY: y,
+          button: 0,
+          shiftKey: true,
+          pointerType: "mouse",
+          pointerId: 1,
+        }),
+      );
+    }
+
+    function nodeBox(element: HTMLElement, id: string) {
+      return element.querySelector(`.node[data-node="${id}"]`) as HTMLElement;
+    }
+
+    it("selects nodes touched by a Shift + drag marquee", fakeAsync(() => {
+      const { element, detectChanges, router } = setupEditor();
+      const grid = element.querySelector(".pane > svg rect");
+      const one = nodeBox(element, "node_one").getBoundingClientRect();
+      const two = nodeBox(element, "node_two").getBoundingClientRect();
+      const from = {
+        x: Math.min(one.left, two.left) - 5,
+        y: Math.min(one.top, two.top) - 5,
+      };
+      const to = {
+        x: Math.max(one.right, two.right) + 5,
+        y: Math.max(one.bottom, two.bottom) + 5,
+      };
+
+      shiftPointer(grid, "pointerdown", from);
+      shiftPointer(grid, "pointermove", to);
+      shiftPointer(grid, "pointerup", to);
+      detectChanges();
+      tick();
+
+      expect(nodeBox(element, "node_one").classList).toContain("picked");
+      expect(nodeBox(element, "node_two").classList).toContain("picked");
+      expect(router.url).toBe(EDITOR_URL);
+      finish();
+    }));
+
+    it("toggles a node with Shift + click without opening its drawer", fakeAsync(() => {
+      const { element, detectChanges, router } = setupEditor();
+      const title = nodeElement(element, "node_two").querySelector("h2");
+      const click = () =>
+        title.dispatchEvent(
+          new MouseEvent("click", { bubbles: true, shiftKey: true }),
+        );
+
+      click();
+      detectChanges();
+      const picked = nodeBox(element, "node_two").classList.contains("picked");
+      click();
+      detectChanges();
+      tick();
+
+      expect(picked).toBeTrue();
+      expect(nodeBox(element, "node_two").classList).not.toContain("picked");
+      expect(router.url).toBe(EDITOR_URL);
+      finish();
+    }));
+
+    it("moves selected nodes together and clears the selection on Escape", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges, manager } = setupEditor({ project });
+      const { nodes } = project.pipeline;
+      const shiftClick = (id: string) =>
+        nodeElement(element, id)
+          .querySelector("h2")
+          .dispatchEvent(
+            new MouseEvent("click", { bubbles: true, shiftKey: true }),
+          );
+      shiftClick("node_one");
+      shiftClick("node_two");
+      detectChanges();
+      const before = {
+        one: { ...nodes.get("node_one").arrange },
+        two: { ...nodes.get("node_two").arrange },
+      };
+      const title = nodeElement(element, "node_one").querySelector("h2");
+      const start = title.getBoundingClientRect();
+
+      mouse(title, "mousedown", { x: start.left + 5, y: start.top + 5 });
+      tick(100);
+      mouse(document, "mousemove", { x: start.left + 48, y: start.top + 64 });
+      mouse(document, "mouseup", { x: start.left + 48, y: start.top + 64 });
+      detectChanges();
+      tick(100);
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+      detectChanges();
+
+      const one = nodes.get("node_one").arrange;
+      const two = nodes.get("node_two").arrange;
+      expect(one.x - before.one.x).not.toBe(0);
+      expect(two.x - before.two.x).toBe(one.x - before.one.x);
+      expect(two.y - before.two.y).toBe(one.y - before.one.y);
+      expect(nodeBox(element, "node_two").style.left).toBe(`${two.x}px`);
+      expect(nodeBox(element, "node_one").classList).not.toContain("picked");
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
     it("opens the node drawer when a node is clicked", fakeAsync(() => {
       const { element, router } = setupEditor();
 

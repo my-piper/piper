@@ -24,6 +24,7 @@ import {
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { UI, UI_DELAY } from "src/consts/ui";
+import { SelectArea } from "src/directives/canvas-select.directive";
 import {
   MAX_SCALE,
   MIN_SCALE,
@@ -121,6 +122,10 @@ export class EditPipelineVisualComponent
   pipeline!: Pipeline;
   launchRequest!: LaunchRequest;
   currentNode!: Node;
+
+  /** Nodes picked with the marquee or Shift/Cmd + click; they move together. */
+  selection = new Set<string>();
+  private selectionBase = new Set<string>();
 
   flow: { type: "node" | "input"; from?: string; output?: string } | null =
     null;
@@ -228,14 +233,79 @@ export class EditPipelineVisualComponent
     this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
-  nodeMoving(node: Node, { x, y }: Point) {
-    assign(node.arrange, { x, y });
+  nodeMoving(id: string, node: Node, { x, y }: Point) {
+    if (!this.selection.has(id)) {
+      this.selection.clear();
+    }
+    this.moveSelection(id, node, { x, y });
     this.cd.detectChanges();
   }
 
-  nodeMoved(node: Node, { x, y }: Point) {
-    assign(node.arrange, { x, y });
+  nodeMoved(id: string, node: Node, { x, y }: Point) {
+    this.moveSelection(id, node, { x, y });
     this.save();
+  }
+
+  /** Moves the dragged node and shifts the other selected nodes along. */
+  private moveSelection(id: string, node: Node, { x, y }: Point) {
+    const [dx, dy] = [x - node.arrange.x, y - node.arrange.y];
+    assign(node.arrange, { x, y });
+    for (const key of this.selection) {
+      const other = this.pipeline.nodes.get(key);
+      if (key !== id && other) {
+        assign(other.arrange, {
+          x: other.arrange.x + dx,
+          y: other.arrange.y + dy,
+        });
+      }
+    }
+  }
+
+  startAreaSelection() {
+    this.selectionBase = new Set(this.selection);
+  }
+
+  /** Selects nodes touched by the marquee on top of those picked before it. */
+  selectArea({ left, top, right, bottom }: SelectArea) {
+    const selection = new Set(this.selectionBase);
+    const elements =
+      this.paneRef.nativeElement.querySelectorAll<HTMLElement>(
+        ".node[data-node]",
+      );
+    for (const element of Array.from(elements)) {
+      const rect = element.getBoundingClientRect();
+      if (
+        rect.left < right &&
+        rect.right > left &&
+        rect.top < bottom &&
+        rect.bottom > top
+      ) {
+        selection.add(element.dataset["node"]);
+      }
+    }
+    this.selection = selection;
+    this.cd.detectChanges();
+  }
+
+  toggleSelection(id: string) {
+    if (this.selection.has(id)) {
+      this.selection.delete(id);
+    } else {
+      this.selection.add(id);
+    }
+    this.cd.detectChanges();
+  }
+
+  clearSelection() {
+    if (this.selection.size > 0) {
+      this.selection.clear();
+      this.cd.detectChanges();
+    }
+  }
+
+  @HostListener("document:keydown.escape")
+  escape() {
+    this.clearSelection();
   }
 
   inputMoving(input: PipelineInput, { x, y }: Point) {
@@ -649,6 +719,7 @@ export class EditPipelineVisualComponent
   removeNode(node: string) {
     const { nodes, flows, inputs, outputs, start } = this.pipeline;
     nodes.delete(node);
+    this.selection.delete(node);
 
     // Drop references now: the template resolves flow ends through the
     // `node` pipe, which throws for unknown nodes before sanitation runs.
@@ -796,6 +867,16 @@ export class EditPipelineVisualComponent
       return;
     }
 
+    if (event.shiftKey || event.metaKey || event.ctrlKey) {
+      if (id && this.mode === "project") {
+        this.toggleSelection(id);
+      }
+      return;
+    }
+    if (id) {
+      this.clearSelection();
+    }
+
     if (this.currentNode !== node) {
       const launch = this.launches[id] || this.launch;
       if (launch) {
@@ -847,6 +928,7 @@ export class EditPipelineVisualComponent
   clickOnGrid(event: MouseEvent) {
     const { nativeElement: gridElement } = this.gridRef;
     if (event.target === gridElement) {
+      this.clearSelection();
       this.closeDrawler();
     }
   }

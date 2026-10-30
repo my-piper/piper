@@ -181,6 +181,11 @@
     position: absolute;
     z-index: 1;
 
+    &.picked app-node {
+      outline: 2px solid $primary-color;
+      outline-offset: 3px;
+    }
+
     &.disabled {
       .actions {
         display: none;
@@ -209,6 +214,15 @@
     width: 5000px;
     height: 5000px;
     background: var(--canvas-background);
+
+    // CanvasSelectDirective appends it outside the template.
+    ::ng-deep .marquee {
+      position: absolute;
+      z-index: 2;
+      pointer-events: none;
+      border: 1px solid $primary-color;
+      background: with-alpha($primary-color, 0.1);
+    }
 
     > .flow {
       position: absolute;
