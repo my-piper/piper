@@ -14,6 +14,7 @@ beforeEach(async () => {
     () => import("api/projects/list"),
     () => import("api/projects/tags/list-available-tags"),
     () => import("api/projects/groups/list-groups"),
+    () => import("api/projects/groups/list-group-counts"),
     () => import("api/projects/get-project"),
     () => import("api/projects/add-project"),
     () => import("api/projects/update-project"),
@@ -414,6 +415,29 @@ describe("project groups", () => {
     expect(response.body).toEqual(["Ads", "Sales"]);
     expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("group", {
       $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+    });
+  });
+
+  it("counts projects per group of owned and public projects", async () => {
+    httpDoubles.projectsAggregation.toArray.mockResolvedValue([
+      { group: "Ads", count: 2 },
+      { group: "Sales", count: 1 },
+    ]);
+
+    const response = await context.request
+      .get("/api/projects/groups/counts")
+      .set("user-token", userToken("owner-user"));
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      { group: "Ads", count: 2 },
+      { group: "Sales", count: 1 },
+    ]);
+    expect(httpDoubles.projects.aggregate.mock.calls[0][0][0]).toEqual({
+      $match: {
+        group: { $nin: [null, ""] },
+        $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+      },
     });
   });
 

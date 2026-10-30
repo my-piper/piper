@@ -3,14 +3,7 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import last from "lodash/last";
-import {
-  Subscription,
-  debounceTime,
-  delay,
-  distinctUntilChanged,
-  finalize,
-  map,
-} from "rxjs";
+import { Subscription, debounceTime, delay, finalize, map } from "rxjs";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
 import { Project, ProjectsFilter } from "src/models/project";
@@ -21,6 +14,14 @@ import { SelectMode } from "src/directives/selectable.directive";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
+import {
+  Folder,
+  FolderCount,
+  buildFolders,
+  findFolder,
+  matchFolder,
+  removeFromFolders,
+} from "./folders";
 import { ImportProjectComponent } from "./import/import-project.component";
 const TEST_PIPELINE = `
 name: New project
@@ -75,15 +76,13 @@ export class ProjectsComponent implements OnInit {
   chunk: Project[] = [];
   projects: Project[] = [];
   allTags: string[] = [];
-  allGroups: string[] = [];
+  allFolders: Folder[] = [];
 
   searchControl = this.fb.control<string>(null);
   tagsControl = this.fb.control<string[]>([]);
-  groupControl = this.fb.control<string>(null);
   form = this.fb.group({
     search: this.searchControl,
     tags: this.tagsControl,
-    group: this.groupControl,
   });
 
   private loading$!: Subscription;
@@ -96,12 +95,7 @@ export class ProjectsComponent implements OnInit {
     private fb: FormBuilder,
   ) {}
 
-  // the open folder lives in the URL, so returning from a project restores it
-  get folder(): string | null {
-    return this.groupControl.value;
-  }
-
-  // like a finder search: results come from every folder, not only the open one
+  // like a finder search: results come from every folder
   get searching(): boolean {
     return (
       !!this.searchControl.value?.trim() ||
@@ -109,54 +103,118 @@ export class ProjectsComponent implements OnInit {
     );
   }
 
-  get folders(): string[] {
-    if (this.folder || (this.tagsControl.value ?? []).length > 0) {
-      return [];
-    }
-    const search = this.searchControl.value?.trim().toLowerCase();
-    return search
-      ? this.allGroups.filter((g) => g.toLowerCase().includes(search))
-      : this.allGroups;
+  get folderSearch(): string {
+    return this.searchControl.value?.trim().toLowerCase() ?? "";
+  }
+
+  get folders(): Folder[] {
+    return (this.tagsControl.value ?? []).length > 0
+      ? []
+      : this.visibleFolders(this.allFolders);
+  }
+
+  visibleFolders(folders: Folder[]): Folder[] {
+    const search = this.folderSearch;
+    return search ? folders.filter((f) => matchFolder(f, search)) : folders;
+  }
+
+  // a search unfolds the branches leading to matching folders
+  showChildren(folder: Folder): boolean {
+    return folder.expanded || this.folderSearch.length > 0;
   }
 
   ngOnInit() {
     this.loadTags();
-    this.loadGroups();
+    // a project page links back with its folder to open
+    this.loadFolders(this.route.snapshot.queryParamMap.get("folder"));
+    this.load();
 
-    this.route.queryParamMap
-      .pipe(
-        map((params) => params.get("folder") || null),
-        distinctUntilChanged(),
-      )
-      .subscribe((folder) => {
-        this.groupControl.setValue(folder, { emitEvent: false });
-        this.load();
-      });
     this.searchControl.valueChanges
       .pipe(debounceTime(500))
       .subscribe(() => this.load());
     this.tagsControl.valueChanges.subscribe(() => this.load());
   }
 
-  private loadGroups() {
+  private loadFolders(expanded: string | null) {
     this.http
-      .get("projects/groups")
-      .pipe(map((arr) => arr as string[]))
+      .get("projects/groups/counts")
+      .pipe(map((arr) => arr as FolderCount[]))
       .subscribe({
-        next: (groups) => {
-          this.allGroups = groups;
+        next: (counts) => {
+          this.allFolders = buildFolders(counts);
+          if (expanded) {
+            this.expandTo(expanded);
+          }
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
       });
   }
 
-  openFolder(folder: string | null) {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { folder },
-      queryParamsHandling: "merge",
-    });
+  toggleFolder(folder: Folder) {
+    folder.expanded = !folder.expanded;
+    if (folder.expanded && folder.more && folder.projects.length === 0) {
+      this.loadFolder(folder);
+    }
+    this.cd.detectChanges();
+  }
+
+  loadFolder(folder: Folder) {
+    folder.loading$?.unsubscribe();
+    folder.loading = true;
+    this.cd.detectChanges();
+
+    const cursor = last(folder.projects)?.cursor;
+    folder.loading$ = this.http
+      .get(
+        "projects",
+        toPlain(
+          new ProjectsFilter({
+            group: folder.group,
+            ...(cursor ? { cursor } : {}),
+          }),
+        ),
+      )
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          folder.loading = false;
+          this.cd.detectChanges();
+        }),
+        map((arr) =>
+          (arr as Object[]).map((plain) => toInstance(plain, Project)),
+        ),
+      )
+      .subscribe({
+        next: (projects) => {
+          folder.projects.push(...projects);
+          // stop paging when the count went stale
+          if (projects.length === 0) {
+            folder.count = folder.projects.length;
+          }
+          this.cd.detectChanges();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
+
+  // shows a search result in place: drops the filters and opens its folder
+  revealFolder(group: string) {
+    this.form.setValue({ search: null, tags: [] }, { emitEvent: false });
+    this.load();
+    this.expandTo(group);
+  }
+
+  private expandTo(group: string) {
+    for (
+      let folder = findFolder(this.allFolders, group);
+      folder;
+      folder = folder.parent
+    ) {
+      if (!folder.expanded) {
+        this.toggleFolder(folder);
+      }
+    }
   }
 
   private loadTags() {
@@ -186,9 +244,8 @@ export class ProjectsComponent implements OnInit {
 
     const search = this.searchControl.value?.trim();
     const tags = this.tagsControl.value ?? [];
-    const group = this.groupControl.value;
-    // the root folder holds only projects outside any group
-    const ungrouped = !group && !this.searching;
+    // outside a search the list holds only projects outside any folder
+    const ungrouped = !this.searching;
     this.loading$ = this.http
       .get(
         "projects",
@@ -197,7 +254,6 @@ export class ProjectsComponent implements OnInit {
             cursor,
             ...(search ? { search } : {}),
             ...(tags.length > 0 ? { tags } : {}),
-            ...(group ? { group } : {}),
             ...(ungrouped ? { ungrouped } : {}),
           }),
         ),
@@ -260,7 +316,7 @@ export class ProjectsComponent implements OnInit {
       });
   }
 
-  remove(index: number, { _id }: Project) {
+  remove({ _id }: Project) {
     this.progress.deleting = true;
     this.cd.detectChanges();
 
@@ -276,7 +332,8 @@ export class ProjectsComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.projects.splice(index, 1);
+          this.projects = this.projects.filter((p) => p._id !== _id);
+          this.allFolders = removeFromFolders(this.allFolders, _id);
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),

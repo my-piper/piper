@@ -68,25 +68,6 @@
     </form>
   </header>
 
-  <nav class="breadcrumbs" data-testid="projects-breadcrumbs">
-    <a
-      *ngIf="!!folder; else rootTemplate"
-      class="default"
-      [routerLink]="[]"
-      [queryParams]="{ folder: null }"
-      queryParamsHandling="merge"
-      i18n="@@link.pipelines"
-      >Pipelines</a
-    >
-    <ng-template #rootTemplate>
-      <span i18n="@@link.pipelines">Pipelines</span>
-    </ng-template>
-    <ng-container *ngIf="!!folder">
-      <app-icon class="separator" icon="chevron-right" [size]="14"></app-icon>
-      <span class="folder">{{ folder }}</span>
-    </ng-container>
-  </nav>
-
   <form *ngIf="allTags.length > 0" class="tags" [formGroup]="form">
     <button
       *ngFor="let t of allTags"
@@ -112,98 +93,156 @@
       <th width="150px" i18n="@@label.created">Created</th>
       <th width="150px" i18n="@@label.updated">Updated</th>
     </thead>
-    <tbody>
-      <tr *ngFor="let f of folders" class="folder">
-        <td></td>
-        <td colspan="5">
-          <a
-            class="default"
-            [routerLink]="[]"
-            [queryParams]="{ folder: f }"
-            queryParamsHandling="merge"
-          >
-            {{ f }}
-          </a>
-        </td>
-      </tr>
-      <tr *ngFor="let p of projects; let i = index">
-        <td>
-          <ng-template #actionsTemplate>
-            <ul class="context-menu" [class.busy]="progress.deleting">
-              <li>
-                <button (click)="remove(i, p)">
-                  <app-icon
-                    class="icon left"
-                    icon="delete"
-                    [size]="18"
-                  ></app-icon>
-                  <span i18n="@@action.delete">Delete</span>
-                </button>
-              </li>
-            </ul>
-          </ng-template>
+    <ng-template #projectCellsTemplate let-p>
+      <td>
+        <ng-template #actionsTemplate>
+          <ul class="context-menu" [class.busy]="progress.deleting">
+            <li>
+              <button (click)="remove(p)">
+                <app-icon
+                  class="icon left"
+                  icon="delete"
+                  [size]="18"
+                ></app-icon>
+                <span i18n="@@action.delete">Delete</span>
+              </button>
+            </li>
+          </ul>
+        </ng-template>
+        <button
+          class="circle"
+          [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+          [disabled]="userRole.admin | can: p.createdBy | async | not"
+          (attached)="references.popover = $event"
+        >
+          <app-icon
+            class="icon"
+            [icon]="
+              (userRole.admin | can: p.createdBy | async) ? 'menu' : 'lock'
+            "
+            [size]="18"
+          ></app-icon>
+        </button>
+      </td>
+      <td i18n-title="@@label.title" title="Title" class="title tree">
+        <a
+          class="default"
+          [routerLink]="[p.slug || p._id]"
+          [state]="{ scroll: 'top' }"
+        >
+          {{ p.title | i18n }}
+        </a>
+
+        <div *ngIf="(searching && p.group) || p.tags?.length" class="row-tags">
           <button
-            class="circle"
-            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-            [disabled]="userRole.admin | can: p.createdBy | async | not"
-            (attached)="references.popover = $event"
+            *ngIf="searching && p.group"
+            type="button"
+            class="group"
+            (click)="revealFolder(p.group)"
+          >
+            {{ p.group }}
+          </button>
+          <button
+            *ngFor="let t of p.tags"
+            type="button"
+            class="tag"
+            [class.selected]="tagsControl.value?.includes(t)"
+            (click)="toggleTag(t)"
+          >
+            #{{ t | i18n }}
+          </button>
+        </div>
+      </td>
+      <td i18n-title="@@label.visibility" title="Visibility">
+        <app-icon *ngIf="p.visibility === 'public'" icon="share"></app-icon>
+      </td>
+      <td class="version">
+        {{ p.pipeline.version }}
+      </td>
+      <td class="created" i18n-title="@@label.created" title="Created">
+        <div>{{ p.createdBy?._id }}</div>
+        <small>{{ p.createdAt | date }}</small>
+      </td>
+      <td class="updated" i18n-title="@@label.updated" title="Updated">
+        <div>{{ p.updatedBy?._id }}</div>
+        <small>{{ p.updatedAt | date: "short" }}</small>
+      </td>
+    </ng-template>
+    <ng-template #folderTemplate let-f let-depth="depth">
+      <tr class="folder" [class.expanded]="f.expanded" [style.--depth]="depth">
+        <td></td>
+        <td colspan="5" class="tree">
+          <button
+            type="button"
+            class="folder"
+            [attr.aria-expanded]="f.expanded"
+            (click)="toggleFolder(f)"
           >
             <app-icon
-              class="icon"
-              [icon]="
-                (userRole.admin | can: p.createdBy | async) ? 'menu' : 'lock'
-              "
-              [size]="18"
+              class="chevron"
+              icon="chevron-right"
+              [size]="14"
             ></app-icon>
+            <span class="name">{{ f.name }}</span>
+            <span class="count">{{ f.total }}</span>
           </button>
         </td>
-        <td i18n-title="@@label.title" title="Title" class="title">
-          <a
-            class="default"
-            [routerLink]="[p.slug || p._id]"
-            [state]="{ scroll: 'top' }"
-          >
-            {{ p.title | i18n }}
-          </a>
-
-          <div
-            *ngIf="(searching && p.group) || p.tags?.length"
-            class="row-tags"
-          >
+      </tr>
+      <ng-container *ngIf="showChildren(f)">
+        <ng-container *ngFor="let c of visibleFolders(f.children)">
+          <ng-container
+            *ngTemplateOutlet="
+              folderTemplate;
+              context: { $implicit: c, depth: depth + 1 }
+            "
+          ></ng-container>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="f.expanded">
+        <tr
+          *ngFor="let p of f.projects"
+          class="nested"
+          [style.--depth]="depth + 1"
+        >
+          <ng-container
+            *ngTemplateOutlet="projectCellsTemplate; context: { $implicit: p }"
+          ></ng-container>
+        </tr>
+        <tr class="loading" *ngIf="f.loading">
+          <td colspan="6"></td>
+        </tr>
+        <tr
+          class="nested more"
+          *ngIf="f.more && !f.loading"
+          [style.--depth]="depth + 1"
+        >
+          <td></td>
+          <td colspan="5" class="tree">
             <button
-              *ngIf="searching && p.group"
               type="button"
-              class="group"
-              [class.selected]="folder === p.group"
-              (click)="openFolder(p.group)"
+              class="primary"
+              (click)="loadFolder(f)"
+              i18n="@@link.more"
             >
-              {{ p.group }}
+              More
             </button>
-            <button
-              *ngFor="let t of p.tags"
-              type="button"
-              class="tag"
-              [class.selected]="tagsControl.value?.includes(t)"
-              (click)="toggleTag(t)"
-            >
-              #{{ t | i18n }}
-            </button>
-          </div>
-        </td>
-        <td i18n-title="@@label.visibility" title="Visibility">
-          <app-icon *ngIf="p.visibility === 'public'" icon="share"></app-icon>
-        </td>
-        <td class="version">
-          {{ p.pipeline.version }}
-        </td>
-        <td class="created" i18n-title="@@label.created" title="Created">
-          <div>{{ p.createdBy?._id }}</div>
-          <small>{{ p.createdAt | date }}</small>
-        </td>
-        <td class="updated" i18n-title="@@label.updated" title="Updated">
-          <div>{{ p.updatedBy?._id }}</div>
-          <small>{{ p.updatedAt | date: "short" }}</small>
-        </td>
+          </td>
+        </tr>
+      </ng-container>
+    </ng-template>
+    <tbody>
+      <ng-container *ngFor="let f of folders">
+        <ng-container
+          *ngTemplateOutlet="
+            folderTemplate;
+            context: { $implicit: f, depth: 0 }
+          "
+        ></ng-container>
+      </ng-container>
+      <tr *ngFor="let p of projects">
+        <ng-container
+          *ngTemplateOutlet="projectCellsTemplate; context: { $implicit: p }"
+        ></ng-container>
       </tr>
       <tr class="loading" *ngIf="progress.loading">
         <td colspan="6"></td>

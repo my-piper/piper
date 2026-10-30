@@ -17,10 +17,10 @@ import { configureAppTestingModule, finish } from "../helpers/editor";
  * GET /api/projects/tags/available lists tags of visible projects and
  * GET /api/projects?tags=… returns projects having all of them
  * (backend/api/projects/tags/list-available-tags.ts, backend/api/projects/list.ts).
- * GET /api/projects/groups lists groups of visible projects and
+ * GET /api/projects/groups/counts counts visible projects per group and
  * GET /api/projects?group=… returns projects of that group while
  * GET /api/projects?ungrouped=true returns projects outside any group
- * (backend/api/projects/groups/list-groups.ts).
+ * (backend/api/projects/groups/list-group-counts.ts).
  */
 const UI_DELAY = 250;
 
@@ -54,7 +54,10 @@ describe("ProjectsComponent tags and groups", () => {
     controller
       .expectOne("/api/projects/tags/available")
       .flush(["image", "video"]);
-    controller.expectOne("/api/projects/groups").flush(["Marketing", "Sales"]);
+    controller.expectOne("/api/projects/groups/counts").flush([
+      { group: "Marketing", count: 1 },
+      { group: "Sales", count: 3 },
+    ]);
     const list = expectList();
     answer(list, [taggedProject()]);
     return list;
@@ -111,13 +114,18 @@ describe("ProjectsComponent tags and groups", () => {
     finish();
   }));
 
-  it("lists folders above root projects outside any group", fakeAsync(() => {
+  it("lists folders with counts above root projects", fakeAsync(() => {
     const list = setup();
 
-    const folders = element.querySelectorAll<HTMLAnchorElement>("tr.folder a");
-    expect(Array.from(folders).map((f) => f.textContent.trim())).toEqual([
-      "Marketing",
-      "Sales",
+    const folders = element.querySelectorAll("tr.folder");
+    expect(
+      Array.from(folders).map((f) => [
+        f.querySelector(".name").textContent.trim(),
+        f.querySelector(".count").textContent.trim(),
+      ]),
+    ).toEqual([
+      ["Marketing", "1"],
+      ["Sales", "3"],
     ]);
     expect(list.request.params.get("ungrouped")).toBe("true");
     expect(list.request.params.has("group")).toBeFalse();
@@ -125,52 +133,99 @@ describe("ProjectsComponent tags and groups", () => {
     finish();
   }));
 
-  it("opens a folder and returns to the root", fakeAsync(() => {
+  it("expands a folder in place and pages through it", fakeAsync(() => {
     setup();
-    const folders = element.querySelectorAll<HTMLAnchorElement>("tr.folder a");
+    const toggle = (): HTMLButtonElement =>
+      element.querySelectorAll<HTMLButtonElement>("button.folder")[1];
 
-    folders[1].click();
-    tick();
+    toggle().click();
     const opened = expectList();
-    answer(opened, []);
-    const crumbs = element.querySelector("[data-testid=projects-breadcrumbs]");
-    const crumbsFolder = crumbs.querySelector(".folder")?.textContent.trim();
-    const foldersInside = element.querySelectorAll("tr.folder").length;
-    crumbs.querySelector<HTMLAnchorElement>("a").click();
-    tick();
-    const root = expectList();
-    answer(root, [taggedProject()]);
+    answer(opened, [{ ...projectAPlain(), group: "Sales", cursor: "c1" }]);
+    const nested = element.querySelectorAll("tr.nested:not(.more)").length;
+    element.querySelector<HTMLButtonElement>("tr.more button").click();
+    const more = expectList();
+    answer(more, []);
+    const moreAfterEmpty = element.querySelectorAll("tr.more").length;
+    toggle().click();
+    fixture.detectChanges();
 
     expect(opened.request.params.get("group")).toBe("Sales");
     expect(opened.request.params.has("ungrouped")).toBeFalse();
-    expect(crumbsFolder).toBe("Sales");
-    expect(foldersInside).toBe(0);
-    expect(root.request.params.has("group")).toBeFalse();
-    expect(root.request.params.get("ungrouped")).toBe("true");
+    expect(nested).toBe(1);
+    expect(more.request.params.get("cursor")).toBe("c1");
+    expect(moreAfterEmpty).toBe(0);
+    expect(element.querySelectorAll("tr.nested").length).toBe(0);
+    expect(toggle().getAttribute("aria-expanded")).toBe("false");
     fixture.destroy();
     finish();
   }));
 
-  it("searches across folders and opens a folder from a result", fakeAsync(() => {
+  it("searches across folders and reveals a result in its folder", fakeAsync(() => {
     setup();
     const tag = element.querySelector<HTMLButtonElement>("form.tags button");
 
     tag.click();
     const found = expectList();
     answer(found, [taggedProject()]);
+    const folders = element.querySelectorAll("tr.folder").length;
     const rowGroup =
       element.querySelector<HTMLButtonElement>("td button.group");
     const groupText = rowGroup.textContent.trim();
     rowGroup.click();
-    tick();
-    const opened = expectList();
+    const root = controller.expectOne(
+      (r) => r.url === "/api/projects" && r.params.has("ungrouped"),
+    );
+    const opened = controller.expectOne(
+      (r) => r.url === "/api/projects" && r.params.get("group") === "Marketing",
+    );
+    answer(root, []);
     answer(opened, [taggedProject()]);
 
     expect(found.request.params.has("ungrouped")).toBeFalse();
-    expect(found.request.params.has("group")).toBeFalse();
+    expect(folders).toBe(0);
     expect(groupText).toBe("Marketing");
-    expect(opened.request.params.get("group")).toBe("Marketing");
-    expect(opened.request.params.getAll("tags")).toEqual(["image"]);
+    expect(root.request.params.get("ungrouped")).toBe("true");
+    expect(root.request.params.has("tags")).toBeFalse();
+    expect(element.querySelectorAll("tr.nested").length).toBe(1);
+    fixture.destroy();
+    finish();
+  }));
+
+  it("nests folders by path and unfolds them level by level", fakeAsync(() => {
+    seedAuthorization(userPlain("owner"));
+    configureAppTestingModule();
+    controller = TestBed.inject(HttpTestingController);
+    fixture = TestBed.createComponent(ProjectsComponent);
+    element = fixture.nativeElement;
+    fixture.detectChanges();
+    controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
+    controller.expectOne("/api/projects/tags/available").flush([]);
+    controller
+      .expectOne("/api/projects/groups/counts")
+      .flush([{ group: "Marketing/Video", count: 2 }]);
+    answer(expectList(), []);
+    const names = () =>
+      Array.from(element.querySelectorAll("tr.folder")).map((f) => [
+        f.querySelector(".name").textContent.trim(),
+        f.querySelector(".count").textContent.trim(),
+        (f as HTMLElement).style.getPropertyValue("--depth"),
+      ]);
+
+    const collapsed = names();
+    element.querySelector<HTMLButtonElement>("button.folder").click();
+    const unfolded = names();
+    element.querySelectorAll<HTMLButtonElement>("button.folder")[1].click();
+    const opened = expectList();
+    answer(opened, [{ ...projectAPlain(), group: "Marketing/Video" }]);
+
+    expect(collapsed).toEqual([["Marketing", "2", "0"]]);
+    expect(unfolded).toEqual([
+      ["Marketing", "2", "0"],
+      ["Video", "2", "1"],
+    ]);
+    expect(opened.request.params.get("group")).toBe("Marketing/Video");
+    const nested = element.querySelector<HTMLElement>("tr.nested");
+    expect(nested.style.getPropertyValue("--depth")).toBe("2");
     fixture.destroy();
     finish();
   }));

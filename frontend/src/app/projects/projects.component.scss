@@ -42,17 +42,6 @@
   }
 }
 
-.breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: $gutter-tiny;
-  font-weight: $font-weight-bold;
-
-  .separator {
-    opacity: 0.6;
-  }
-}
-
 .tags,
 .row-tags {
   display: flex;
@@ -125,15 +114,27 @@ button.group {
   }
 }
 
-tr.folder a {
-  display: inline-flex;
+button.folder {
+  @include reset-button();
+  display: flex;
   align-items: center;
   gap: $gutter-small;
+  width: 100%;
+  cursor: pointer;
   font-weight: $font-weight-bold;
+  color: inherit;
+  text-align: left;
+
+  .chevron {
+    order: -2;
+    opacity: 0.6;
+    transition: transform 150ms ease-in-out;
+  }
 
   // icon is a mask so it follows the theme text color
-  &::before {
+  &::after {
     content: "";
+    order: -1;
     width: 20px;
     height: 20px;
     background-color: currentColor;
@@ -142,6 +143,57 @@ tr.folder a {
     mask-repeat: no-repeat;
     mask-position: center;
     opacity: 0.8;
+  }
+
+  .count {
+    padding: 0 $gutter-small;
+    border-radius: $corner-huge;
+    background: $control-background-color;
+    font-size: 0.75em;
+    font-weight: normal;
+    opacity: 0.8;
+  }
+}
+
+tr.folder.expanded button.folder .chevron {
+  transform: rotate(90deg);
+}
+
+// nested rows unfold under their folder
+tr.nested {
+  @keyframes unfold {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  animation: unfold 150ms ease-out;
+}
+
+// each tree level indents by one step and draws a guide line, like a finder tree
+$tree-step: 24px;
+
+td.tree {
+  @include wider-tablet() {
+    position: relative;
+    padding-left: calc(10px + var(--depth, 0) * #{$tree-step});
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 10px;
+      width: calc(var(--depth, 0) * #{$tree-step});
+      background: repeating-linear-gradient(
+        to right,
+        transparent 0 6px,
+        $control-background-color 6px 7px,
+        transparent 7px #{$tree-step}
+      );
+      pointer-events: none;
+    }
   }
 }
 

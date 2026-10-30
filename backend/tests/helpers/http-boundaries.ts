@@ -13,11 +13,13 @@ const httpDoubles = vi.hoisted(() => ({
     findOne: vi.fn(),
     find: vi.fn(),
     distinct: vi.fn(),
+    aggregate: vi.fn(),
     insertOne: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
   },
   projectsCursor: { sort: vi.fn(), limit: vi.fn(), toArray: vi.fn() },
+  projectsAggregation: { toArray: vi.fn() },
   launches: { findOne: vi.fn(), insertOne: vi.fn() },
   redis: {
     get: vi.fn(),
@@ -99,6 +101,7 @@ export function resetHttpDoubles() {
     ...Object.values(httpDoubles.usersCursor),
     ...Object.values(httpDoubles.projects),
     ...Object.values(httpDoubles.projectsCursor),
+    ...Object.values(httpDoubles.projectsAggregation),
     ...Object.values(httpDoubles.launches),
     ...Object.values(httpDoubles.redis),
     ...Object.values(httpDoubles.plans),
@@ -119,6 +122,10 @@ export function resetHttpDoubles() {
   httpDoubles.projectsCursor.limit.mockReturnValue(httpDoubles.projectsCursor);
   httpDoubles.projectsCursor.toArray.mockResolvedValue([]);
   httpDoubles.projects.distinct.mockResolvedValue([]);
+  httpDoubles.projects.aggregate.mockReturnValue(
+    httpDoubles.projectsAggregation
+  );
+  httpDoubles.projectsAggregation.toArray.mockResolvedValue([]);
   httpDoubles.redis.get.mockResolvedValue(null);
   httpDoubles.redis.GET.mockResolvedValue(null);
   httpDoubles.redis.EXISTS.mockResolvedValue(0);
