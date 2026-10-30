@@ -204,6 +204,16 @@ export class ApiFixture {
         this.requireUser(user) ?? ok(clone([...this.projects.values()])),
     );
 
+    // backend/api/projects/tags/list-available-tags.ts: distinct sorted tags
+    this.on("GET", "/api/projects/tags/available", ({ user }) => {
+      const tags = [...this.projects.values()].flatMap(
+        (p) => (p["tags"] as string[] | undefined) ?? [],
+      );
+      return (
+        this.requireUser(user) ?? ok([...new Set(tags)].filter(Boolean).sort())
+      );
+    });
+
     // backend/api/projects/get-project.ts: matches `_id` or `slug`, masks
     // string environment variables with HIDDEN_STRING (consts/core.ts).
     this.on("GET", "/api/projects/:id", ({ params, user }) => {
