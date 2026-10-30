@@ -96,6 +96,24 @@
   }
 }
 
+// Rendered inside the popover, outside the component host.
+::ng-deep .canvas-hint {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: $gutter-small $gutter-normal;
+  margin: 0;
+  font-size: 13px;
+
+  dt {
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+    opacity: 0.8;
+  }
+}
+
 .nodes {
   display: block;
   position: absolute;
@@ -157,6 +175,12 @@
     &.disabled {
       pointer-events: none;
     }
+  }
+
+  .input.picked app-pipeline-input,
+  .output.picked app-pipeline-output {
+    outline: 2px solid $primary-color;
+    outline-offset: 3px;
   }
 
   .input {

@@ -168,3 +168,75 @@ test("pans by dragging the empty canvas and fits the pipeline", async ({
   await expect(nodeOne).toBeInViewport();
   await expect(page.getByTestId("node-node_two")).toBeInViewport();
 });
+
+test("selects nodes with a Shift marquee and toggles them with Shift + click", async ({
+  page,
+  open,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeOne = page.getByTestId("node-node_one");
+  const nodeTwo = page.getByTestId("node-node_two");
+  await expect(nodeOne).toBeVisible();
+  const [one, two] = [await nodeOne.boundingBox(), await nodeTwo.boundingBox()];
+  const start = [
+    Math.min(one.x, two.x) - 20,
+    Math.min(one.y, two.y) - 20,
+  ] as const;
+  const end = [
+    Math.max(one.x + one.width, two.x + two.width) + 20,
+    Math.max(one.y + one.height, two.y + two.height) + 20,
+  ] as const;
+
+  await page.keyboard.down("Shift");
+  await page.mouse.move(...start);
+  await page.mouse.down();
+  await page.mouse.move(...end, { steps: 8 });
+  await page.mouse.up();
+  await page.keyboard.up("Shift");
+
+  await expect(nodeOne).toHaveClass(/picked/);
+  await expect(nodeTwo).toHaveClass(/picked/);
+
+  await nodeOne.locator("h2").click({ modifiers: ["Shift"] });
+
+  await expect(nodeOne).not.toHaveClass(/picked/);
+  await expect(nodeTwo).toHaveClass(/picked/);
+});
+
+test("picks pipeline outputs with nodes and moves them together", async ({
+  page,
+  open,
+  api,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeTwo = page.getByTestId("node-node_two");
+  const output = page.locator(".output").filter({ hasText: "Result" });
+  await expect(nodeTwo).toBeVisible();
+  const [node, result] = [
+    await nodeTwo.boundingBox(),
+    await output.boundingBox(),
+  ];
+
+  await page.keyboard.down("Shift");
+  await page.mouse.move(node.x - 20, result.y + 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    result.x + result.width + 20,
+    node.y + node.height + 20,
+    { steps: 8 },
+  );
+  await page.mouse.up();
+  await page.keyboard.up("Shift");
+
+  await expect(nodeTwo).toHaveClass(/picked/);
+  await expect(output).toHaveClass(/picked/);
+
+  await dragNode(page, nodeTwo, 100, 60);
+  await expectSaved(page);
+
+  const saved = storedPipeline(api) as Graph & {
+    outputs: Record<string, { arrange: { x: number; y: number } }>;
+  };
+  expect(saved.nodes["node_two"].arrange).toEqual({ x: 660, y: 100 });
+  expect(saved.outputs["result"].arrange).toEqual({ x: 1000, y: 100 });
+});

@@ -123,7 +123,10 @@ export class EditPipelineVisualComponent
   launchRequest!: LaunchRequest;
   currentNode!: Node;
 
-  /** Nodes picked with the marquee or Shift/Cmd + click; they move together. */
+  /**
+   * Nodes, inputs and outputs picked with the marquee or Shift/Cmd + click,
+   * keyed `node:<id>`, `input:<id>` or `output:<id>`; they move together.
+   */
   selection = new Set<string>();
   private selectionBase = new Set<string>();
 
@@ -233,45 +236,51 @@ export class EditPipelineVisualComponent
     this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
-  nodeMoving(id: string, node: Node, { x, y }: Point) {
-    if (!this.selection.has(id)) {
+  itemMoving(key: string, arrange: Point, { x, y }: Point) {
+    if (!this.selection.has(key)) {
       this.selection.clear();
     }
-    this.moveSelection(id, node, { x, y });
+    this.moveSelection(key, arrange, { x, y });
     this.cd.detectChanges();
   }
 
-  nodeMoved(id: string, node: Node, { x, y }: Point) {
-    this.moveSelection(id, node, { x, y });
+  itemMoved(key: string, arrange: Point, { x, y }: Point) {
+    this.moveSelection(key, arrange, { x, y });
     this.save();
   }
 
-  /** Moves the dragged node and shifts the other selected nodes along. */
-  private moveSelection(id: string, node: Node, { x, y }: Point) {
-    const [dx, dy] = [x - node.arrange.x, y - node.arrange.y];
-    assign(node.arrange, { x, y });
-    for (const key of this.selection) {
-      const other = this.pipeline.nodes.get(key);
-      if (key !== id && other) {
-        assign(other.arrange, {
-          x: other.arrange.x + dx,
-          y: other.arrange.y + dy,
-        });
+  /** Moves the dragged item and shifts the other selected items along. */
+  private moveSelection(key: string, arrange: Point, { x, y }: Point) {
+    const [dx, dy] = [x - arrange.x, y - arrange.y];
+    assign(arrange, { x, y });
+    for (const other of this.selection) {
+      const position = other !== key ? this.arrangeOf(other) : null;
+      if (position) {
+        assign(position, { x: position.x + dx, y: position.y + dy });
       }
     }
+  }
+
+  /** Canvas position of a selected item by its selection key. */
+  private arrangeOf(key: string): Point | undefined {
+    const at = key.indexOf(":");
+    const [type, id] = [key.slice(0, at), key.slice(at + 1)];
+    const { nodes, inputs, outputs } = this.pipeline;
+    const items = { node: nodes, input: inputs, output: outputs }[type] as
+      | Map<string, { arrange: Point }>
+      | undefined;
+    return items?.get(id)?.arrange;
   }
 
   startAreaSelection() {
     this.selectionBase = new Set(this.selection);
   }
 
-  /** Selects nodes touched by the marquee on top of those picked before it. */
+  /** Selects items touched by the marquee on top of those picked before it. */
   selectArea({ left, top, right, bottom }: SelectArea) {
     const selection = new Set(this.selectionBase);
     const elements =
-      this.paneRef.nativeElement.querySelectorAll<HTMLElement>(
-        ".node[data-node]",
-      );
+      this.paneRef.nativeElement.querySelectorAll<HTMLElement>("[data-pick]");
     for (const element of Array.from(elements)) {
       const rect = element.getBoundingClientRect();
       if (
@@ -280,7 +289,7 @@ export class EditPipelineVisualComponent
         rect.top < bottom &&
         rect.bottom > top
       ) {
-        selection.add(element.dataset["node"]);
+        selection.add(element.dataset["pick"]);
       }
     }
     this.selection = selection;
@@ -296,6 +305,18 @@ export class EditPipelineVisualComponent
     this.cd.detectChanges();
   }
 
+  /** Shift/Cmd + click on a pipeline input or output toggles it. */
+  togglePick(event: MouseEvent, key: string) {
+    const target = event.target as HTMLElement;
+    if (
+      this.mode === "project" &&
+      (event.shiftKey || event.metaKey || event.ctrlKey) &&
+      !target.closest("a, button, input, textarea, select")
+    ) {
+      this.toggleSelection(key);
+    }
+  }
+
   clearSelection() {
     if (this.selection.size > 0) {
       this.selection.clear();
@@ -306,26 +327,6 @@ export class EditPipelineVisualComponent
   @HostListener("document:keydown.escape")
   escape() {
     this.clearSelection();
-  }
-
-  inputMoving(input: PipelineInput, { x, y }: Point) {
-    assign(input.arrange, { x, y });
-    this.cd.detectChanges();
-  }
-
-  inputMoved(input: PipelineInput, { x, y }: Point) {
-    assign(input.arrange, { x, y });
-    this.save();
-  }
-
-  outputMoving(output: NodeOutput, { x, y }: Point) {
-    assign(output.arrange, { x, y });
-    this.cd.detectChanges();
-  }
-
-  outputMoved(output: NodeOutput, { x, y }: Point) {
-    assign(output.arrange, { x, y });
-    this.save();
   }
 
   private save() {
@@ -705,12 +706,14 @@ export class EditPipelineVisualComponent
 
   removeOutput(output: string) {
     this.pipeline.outputs.delete(output);
+    this.selection.delete(`output:${output}`);
     this.cd.detectChanges();
     this.save();
   }
 
   removeInput(input: string) {
     this.pipeline.inputs.delete(input);
+    this.selection.delete(`input:${input}`);
 
     this.cd.detectChanges();
     this.save();
@@ -719,7 +722,7 @@ export class EditPipelineVisualComponent
   removeNode(node: string) {
     const { nodes, flows, inputs, outputs, start } = this.pipeline;
     nodes.delete(node);
-    this.selection.delete(node);
+    this.selection.delete(`node:${node}`);
 
     // Drop references now: the template resolves flow ends through the
     // `node` pipe, which throws for unknown nodes before sanitation runs.
@@ -869,7 +872,7 @@ export class EditPipelineVisualComponent
 
     if (event.shiftKey || event.metaKey || event.ctrlKey) {
       if (id && this.mode === "project") {
-        this.toggleSelection(id);
+        this.toggleSelection(`node:${id}`);
       }
       return;
     }

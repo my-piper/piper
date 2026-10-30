@@ -118,6 +118,37 @@
       </svg>
     </span>
   </button>
+  <ng-template #canvasHintTemplate>
+    <dl class="canvas-hint" data-testid="canvas-hint">
+      <dt i18n="@@label.canvas_hint_pan">Pan</dt>
+      <dd i18n="@@message.canvas_hint_pan">
+        Drag empty space, middle button or Space + drag
+      </dd>
+      <dt i18n="@@label.canvas_hint_zoom">Zoom</dt>
+      <dd i18n="@@message.canvas_hint_zoom">
+        Ctrl/⌘ + wheel, Ctrl/⌘ + plus/minus, Ctrl/⌘ + 0 to reset, Shift + 1 to
+        fit
+      </dd>
+      <ng-container *ngIf="mode === 'project'">
+        <dt i18n="@@label.canvas_hint_select">Select</dt>
+        <dd i18n="@@message.canvas_hint_select">
+          Shift + drag empty space, Shift/Ctrl/⌘ + click to add or remove, Esc
+          to clear
+        </dd>
+        <dt i18n="@@label.canvas_hint_move">Move</dt>
+        <dd i18n="@@message.canvas_hint_move">
+          Drag any selected item to move the whole selection
+        </dd>
+      </ng-container>
+    </dl>
+  </ng-template>
+  <button
+    class="circle small"
+    data-testid="canvas-hint-toggle"
+    [appPopover]="{ content: canvasHintTemplate, maxWidth: '320px' }"
+  >
+    <app-icon class="icon" icon="help" [size]="18"></app-icon>
+  </button>
 </div>
 
 <div
@@ -265,6 +296,8 @@
         (userRole.admin | can: project.createdBy | async | not)
       "
       *ngFor="let input of pipeline.inputs | keyvalue"
+      [class.picked]="selection.has('input:' + input.key)"
+      [attr.data-pick]="'input:' + input.key"
       #drag="appDragMove"
       [appDragMove]="{
         anchorX: 1,
@@ -272,8 +305,9 @@
         position: { x: input.value.arrange.x, y: input.value.arrange.y },
         zoom: pipeline.layout?.zoom || 1,
       }"
-      (moving)="inputMoving(input.value, $event)"
-      (moved)="inputMoved(input.value, $event)"
+      (moving)="itemMoving('input:' + input.key, input.value.arrange, $event)"
+      (moved)="itemMoved('input:' + input.key, input.value.arrange, $event)"
+      (click)="!drag.dragged ? togglePick($event, 'input:' + input.key) : null"
     >
       <ng-template #actionsTemplate>
         <ul class="context-menu">
@@ -379,13 +413,21 @@
         (userRole.admin | can: project.createdBy | async | not)
       "
       *ngFor="let output of pipeline.outputs | keyvalue"
+      [class.picked]="selection.has('output:' + output.key)"
+      [attr.data-pick]="'output:' + output.key"
+      #drag="appDragMove"
       [appDragMove]="{
         anchorY: 0.5,
         position: { x: output.value.arrange.x, y: output.value.arrange.y },
         zoom: pipeline.layout?.zoom || 1,
       }"
-      (moving)="outputMoving(output.value, $event)"
-      (moved)="outputMoved(output.value, $event)"
+      (moving)="
+        itemMoving('output:' + output.key, output.value.arrange, $event)
+      "
+      (moved)="itemMoved('output:' + output.key, output.value.arrange, $event)"
+      (click)="
+        !drag.dragged ? togglePick($event, 'output:' + output.key) : null
+      "
     >
       <app-pipeline-output
         [id]="output.key"
@@ -420,10 +462,11 @@
     <div
       class="node"
       [class.selected]="currentNode === node.value"
-      [class.picked]="selection.has(node.key)"
+      [class.picked]="selection.has('node:' + node.key)"
       *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
       [attr.data-testid]="'node-' + node.key"
       [attr.data-node]="node.key"
+      [attr.data-pick]="'node:' + node.key"
       [class.disabled]="userRole.admin | can: project.createdBy | async | not"
       #drag="appDragMove"
       [appDragMove]="{
@@ -431,8 +474,8 @@
         zoom: pipeline.layout?.zoom || 1,
         disabled: mode !== 'project',
       }"
-      (moving)="nodeMoving(node.key, node.value, $event)"
-      (moved)="nodeMoved(node.key, node.value, $event)"
+      (moving)="itemMoving('node:' + node.key, node.value.arrange, $event)"
+      (moved)="itemMoved('node:' + node.key, node.value.arrange, $event)"
     >
       <ng-template #nodeCostsTemplate>
         <div
