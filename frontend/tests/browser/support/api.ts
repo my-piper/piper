@@ -196,13 +196,16 @@ export class ApiFixture {
     // backend/api/me/get-me.ts
     this.on("GET", "/api/me", ({ user }) => this.requireUser(user) ?? ok(user));
 
-    // backend/api/projects/list.ts (array, PAGE_SIZE ignored here)
-    this.on(
-      "GET",
-      "/api/projects",
-      ({ user }) =>
-        this.requireUser(user) ?? ok(clone([...this.projects.values()])),
-    );
+    // backend/api/projects/list.ts (array, PAGE_SIZE ignored here):
+    // `group` picks one folder, `ungrouped=true` the projects outside any
+    this.on("GET", "/api/projects", ({ query, user }) => {
+      const group = query.get("group");
+      const ungrouped = query.get("ungrouped") === "true";
+      const projects = [...this.projects.values()].filter((p) =>
+        group ? p["group"] === group : ungrouped ? !p["group"] : true,
+      );
+      return this.requireUser(user) ?? ok(clone(projects));
+    });
 
     // backend/api/projects/tags/list-available-tags.ts: distinct sorted tags
     this.on("GET", "/api/projects/tags/available", ({ user }) => {
@@ -246,6 +249,26 @@ export class ApiFixture {
       return (
         this.requireUser(user) ??
         ok([...new Set(groups)].filter(Boolean).sort())
+      );
+    });
+
+    // backend/api/projects/groups/list-group-counts.ts: projects per group,
+    // sorted by group. Registered after `:id` so the static path wins.
+    this.on("GET", "/api/projects/groups/counts", ({ user }) => {
+      const counts = new Map<string, number>();
+      for (const p of this.projects.values()) {
+        const group = p["group"] as string | undefined;
+        if (group) {
+          counts.set(group, (counts.get(group) ?? 0) + 1);
+        }
+      }
+      return (
+        this.requireUser(user) ??
+        ok(
+          [...counts.keys()]
+            .sort()
+            .map((group) => ({ group, count: counts.get(group) })),
+        )
       );
     });
 
