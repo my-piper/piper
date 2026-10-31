@@ -175,8 +175,9 @@
         [style.--depth]="depth"
         (click)="toggleFolder(f)"
       >
-        <td colspan="6" class="tree">
+        <td colspan="5" class="tree">
           <button
+            *ngIf="!f.renaming"
             type="button"
             class="folder"
             [attr.aria-expanded]="f.expanded"
@@ -188,6 +189,37 @@
             ></app-icon>
             <span class="name">{{ f.name }}</span>
             <span class="count">{{ f.total }}</span>
+          </button>
+          <!-- "/" in the new name moves the folder to another parent -->
+          <div
+            *ngIf="f.renaming"
+            class="folder rename"
+            [class.busy]="progress.renaming"
+            (click)="$event.stopPropagation()"
+          >
+            <input
+              #nameInput
+              class="input-primary"
+              aria-label="Folder name"
+              i18n-aria-label="@@label.folder_name"
+              [value]="f.name"
+              [disabled]="progress.renaming"
+              (keydown.enter)="rename(f, nameInput.value)"
+              (keydown.escape)="cancelRename(f)"
+              (blur)="cancelRename(f)"
+            />
+          </div>
+        </td>
+        <td class="actions">
+          <button
+            *ngIf="!f.renaming"
+            type="button"
+            class="circle rename"
+            i18n-title="@@action.rename"
+            title="Rename"
+            (click)="$event.stopPropagation(); startRename(f)"
+          >
+            <app-icon class="icon" icon="edit" [size]="18"></app-icon>
           </button>
         </td>
       </tr>

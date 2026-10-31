@@ -14,6 +14,7 @@ const httpDoubles = vi.hoisted(() => ({
     find: vi.fn(),
     distinct: vi.fn(),
     aggregate: vi.fn(),
+    bulkWrite: vi.fn(),
     insertOne: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),

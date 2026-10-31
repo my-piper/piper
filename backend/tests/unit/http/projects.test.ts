@@ -15,6 +15,7 @@ beforeEach(async () => {
     () => import("api/projects/tags/list-available-tags"),
     () => import("api/projects/groups/list-groups"),
     () => import("api/projects/groups/list-group-counts"),
+    () => import("api/projects/groups/rename-group"),
     () => import("api/projects/get-project"),
     () => import("api/projects/add-project"),
     () => import("api/projects/update-project"),
@@ -448,6 +449,82 @@ describe("project groups", () => {
 
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("group", {});
+  });
+
+  it("renames a folder with its subfolders in owned projects", async () => {
+    httpDoubles.projectsCursor.toArray.mockResolvedValue([
+      { _id: "a", group: "Marketing" },
+      { _id: "b", group: "Marketing / Video" },
+    ]);
+
+    const response = await context.request
+      .post("/api/projects/groups/rename")
+      .set("user-token", userToken("owner-user"))
+      .send({ from: "Marketing", to: " Sales/Ads " });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ renamed: 2 });
+    const [filter] = httpDoubles.projects.find.mock.calls[0];
+    expect(filter["createdBy._id"]).toBe("owner-user");
+    expect(filter.group.$regex.test("Marketing/Video")).toBe(true);
+    expect(filter.group.$regex.test("Marketing2")).toBe(false);
+    expect(httpDoubles.projects.bulkWrite).toHaveBeenCalledExactlyOnceWith([
+      {
+        updateOne: {
+          filter: { _id: "a" },
+          update: { $set: { group: "Sales/Ads" } },
+        },
+      },
+      {
+        updateOne: {
+          filter: { _id: "b" },
+          update: { $set: { group: "Sales/Ads/Video" } },
+        },
+      },
+    ]);
+  });
+
+  it("renames folders of all projects for admins", async () => {
+    const response = await context.request
+      .post("/api/projects/groups/rename")
+      .set("user-token", userToken("admin-user"))
+      .send({ from: "Marketing", to: "Sales" });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ renamed: 0 });
+    expect(httpDoubles.projects.find.mock.calls[0][0]).not.toHaveProperty(
+      "createdBy._id"
+    );
+    expect(httpDoubles.projects.bulkWrite).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { from: "Marketing", to: " / " },
+    { from: "Marketing", to: "Marketing/Video" },
+    { from: "Marketing" },
+    { from: { $ne: "" }, to: "Sales" },
+  ])("rejects an invalid rename %j", async (body) => {
+    const response = await context.request
+      .post("/api/projects/groups/rename")
+      .set("user-token", userToken("owner-user"))
+      .send(body);
+
+    expect(response.status).toBe(400);
+    expect(httpDoubles.projects.bulkWrite).not.toHaveBeenCalled();
+  });
+
+  it("rejects a rename making a group too long", async () => {
+    httpDoubles.projectsCursor.toArray.mockResolvedValue([
+      { _id: "a", group: `Marketing/${"x".repeat(90)}` },
+    ]);
+
+    const response = await context.request
+      .post("/api/projects/groups/rename")
+      .set("user-token", userToken("owner-user"))
+      .send({ from: "Marketing", to: "y".repeat(20) });
+
+    expect(response.status).toBe(400);
+    expect(httpDoubles.projects.bulkWrite).not.toHaveBeenCalled();
   });
 });
 

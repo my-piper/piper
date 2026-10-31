@@ -231,9 +231,7 @@ td.tree {
 // pipelines have no toggle, so they skip its slot to keep icons aligned
 tr:not(.folder) td.tree {
   @include wider-tablet() {
-    padding-left: calc(
-      10px + var(--depth, 0) * #{$tree-step} + #{$tree-step}
-    );
+    padding-left: calc(10px + var(--depth, 0) * #{$tree-step} + #{$tree-step});
   }
 
   .row-tags {
@@ -273,4 +271,30 @@ td.actions {
 
 tr:hover td.actions button.circle {
   opacity: 1;
+}
+
+// inline rename keeps the folder icon so the row does not jump
+.folder.rename {
+  display: flex;
+  align-items: center;
+  gap: $tree-gap;
+  padding-left: calc(#{$tree-toggle} + #{$tree-gap});
+
+  &::before {
+    content: "";
+    flex-shrink: 0;
+    width: $tree-icon;
+    height: $tree-icon;
+    background-color: currentColor;
+    mask-image: url(../../assets/icons/folder.svg);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    opacity: 0.8;
+  }
+
+  input {
+    flex: 1;
+    max-width: 300px;
+  }
 }

@@ -145,6 +145,8 @@
     "link.request_node": " request node ",
     "label.search": "Search",
     "label.all": "All",
+    "action.rename": "Rename",
+    "label.folder_name": "Folder name",
     "label.select_app": "Select app",
     "label.theme_light": "Light",
     "label.theme_dark": "Dark",

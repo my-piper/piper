@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
@@ -16,9 +23,11 @@ import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import {
   Folder,
+  FOLDER_SEPARATOR,
   FolderCount,
   buildFolders,
   findFolder,
+  findFolderByPath,
   matchFolder,
   removeFromFolders,
 } from "./folders";
@@ -55,9 +64,17 @@ export class ProjectsComponent implements OnInit {
   private _modal!: ImportProjectComponent;
 
   error!: Error;
-  progress = { loading: false, creating: false, deleting: false };
+  progress = {
+    loading: false,
+    creating: false,
+    deleting: false,
+    renaming: false,
+  };
 
   references: { popover: PopoverComponent } = { popover: null };
+
+  @ViewChildren("nameInput")
+  nameInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
   set modal(modal: ImportProjectComponent) {
     this._modal = modal;
@@ -135,7 +152,8 @@ export class ProjectsComponent implements OnInit {
     this.tagsControl.valueChanges.subscribe(() => this.load());
   }
 
-  private loadFolders(expanded: string | null) {
+  // expands a folder by its stored group or, after a rename, by its path
+  private loadFolders(expanded: string | null, path?: string) {
     this.http
       .get("projects/groups/counts")
       .pipe(map((arr) => arr as FolderCount[]))
@@ -143,7 +161,9 @@ export class ProjectsComponent implements OnInit {
         next: (counts) => {
           this.allFolders = buildFolders(counts);
           if (expanded) {
-            this.expandTo(expanded);
+            this.expandTo(findFolder(this.allFolders, expanded));
+          } else if (path) {
+            this.expandTo(findFolderByPath(this.allFolders, path));
           }
           this.cd.detectChanges();
         },
@@ -202,19 +222,65 @@ export class ProjectsComponent implements OnInit {
   revealFolder(group: string) {
     this.form.setValue({ search: null, tags: [] }, { emitEvent: false });
     this.load();
-    this.expandTo(group);
+    this.expandTo(findFolder(this.allFolders, group));
   }
 
-  private expandTo(group: string) {
-    for (
-      let folder = findFolder(this.allFolders, group);
-      folder;
-      folder = folder.parent
-    ) {
+  private expandTo(folder: Folder | undefined) {
+    for (; folder; folder = folder.parent) {
       if (!folder.expanded) {
         this.toggleFolder(folder);
       }
     }
+  }
+
+  startRename(folder: Folder) {
+    folder.renaming = true;
+    this.cd.detectChanges();
+    const input = this.nameInputs.first?.nativeElement;
+    input?.focus();
+    input?.select();
+  }
+
+  cancelRename(folder: Folder) {
+    if (!this.progress.renaming) {
+      folder.renaming = false;
+      this.cd.detectChanges();
+    }
+  }
+
+  rename(folder: Folder, name: string) {
+    name = name.trim();
+    if (!name || name === folder.name) {
+      this.cancelRename(folder);
+      return;
+    }
+
+    const to = folder.parent
+      ? `${folder.parent.path}${FOLDER_SEPARATOR}${name}`
+      : name;
+    this.progress.renaming = true;
+    this.cd.detectChanges();
+
+    this.http
+      .post("projects/groups/rename", { from: folder.path, to })
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.renaming = false;
+          folder.renaming = false;
+          this.cd.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.loadFolders(null, folder.expanded ? to : undefined);
+          // search results show the group of every project
+          if (this.searching) {
+            this.load();
+          }
+        },
+        error: (err) => (this.error = err),
+      });
   }
 
   private loadTags() {

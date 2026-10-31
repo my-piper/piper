@@ -191,6 +191,59 @@ describe("ProjectsComponent tags and groups", () => {
     finish();
   }));
 
+  it("renames a folder inline and reloads the tree", fakeAsync(() => {
+    setup();
+    const renameButtons = () =>
+      element.querySelectorAll<HTMLButtonElement>("tr.folder button.rename");
+    const nameInput = () =>
+      element.querySelector<HTMLInputElement>("tr.folder .rename input");
+
+    renameButtons()[1].click();
+    fixture.detectChanges();
+    const initial = nameInput().value;
+    nameInput().value = " Deals ";
+    nameInput().dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    const rename = controller.expectOne("/api/projects/groups/rename");
+    rename.flush({ renamed: 3 });
+    tick(UI_DELAY);
+    controller.expectOne("/api/projects/groups/counts").flush([
+      { group: "Deals", count: 3 },
+      { group: "Marketing", count: 1 },
+    ]);
+    fixture.detectChanges();
+
+    expect(initial).toBe("Sales");
+    expect(rename.request.method).toBe("POST");
+    expect(rename.request.body).toEqual({ from: "Sales", to: "Deals" });
+    expect(nameInput()).toBeNull();
+    expect(
+      Array.from(element.querySelectorAll("tr.folder .name")).map((n) =>
+        n.textContent.trim(),
+      ),
+    ).toEqual(["Deals", "Marketing"]);
+    fixture.destroy();
+    finish();
+  }));
+
+  it("cancels a folder rename on escape", fakeAsync(() => {
+    setup();
+    element.querySelector<HTMLButtonElement>("tr.folder button.rename").click();
+    fixture.detectChanges();
+    const input = element.querySelector<HTMLInputElement>(
+      "tr.folder .rename input",
+    );
+
+    input.value = "Other";
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    fixture.detectChanges();
+
+    controller.expectNone("/api/projects/groups/rename");
+    expect(element.querySelector("tr.folder .rename input")).toBeNull();
+    expect(element.querySelectorAll("tr.nested").length).toBe(0);
+    fixture.destroy();
+    finish();
+  }));
+
   it("nests folders by path and unfolds them level by level", fakeAsync(() => {
     seedAuthorization(userPlain("owner"));
     configureAppTestingModule();

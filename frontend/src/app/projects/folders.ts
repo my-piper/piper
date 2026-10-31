@@ -9,6 +9,7 @@ export const FOLDER_SEPARATOR = "/";
 export class Folder {
   expanded = false;
   loading = false;
+  renaming = false;
   projects: Project[] = [];
   children: Folder[] = [];
   loading$?: Subscription;
@@ -72,6 +73,20 @@ export function findFolder(
   for (const folder of folders) {
     const found =
       folder.group === group ? folder : findFolder(folder.children, group);
+    if (found) {
+      return found;
+    }
+  }
+  return undefined;
+}
+
+export function findFolderByPath(
+  folders: Folder[],
+  path: string,
+): Folder | undefined {
+  for (const folder of folders) {
+    const found =
+      folder.path === path ? folder : findFolderByPath(folder.children, path);
     if (found) {
       return found;
     }
