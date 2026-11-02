@@ -53,7 +53,6 @@ export async function getEnvironment({
       switch (v.scope) {
         case "global": {
           const value = environment.user?.variables?.get(k);
-          console.log(environment.user);
           if (value !== undefined) {
             env.variables.set(k, value);
             env.scope.set(k, "user");
