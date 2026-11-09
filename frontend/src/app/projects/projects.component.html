@@ -89,6 +89,9 @@
       <th i18n="@@label.title">Title</th>
       <th width="24px"></th>
       <th width="24px" i18n="@@label.ver">Ver.</th>
+      <th width="130px" class="runs" i18n="@@label.runs_last_30_days">
+        Runs · 30d
+      </th>
       <th width="150px" i18n="@@label.created">Created</th>
       <th width="150px" i18n="@@label.updated">Updated</th>
       <th width="24px"></th>
@@ -131,6 +134,25 @@
       </td>
       <td class="version">
         {{ p.pipeline.version }}
+      </td>
+      <td class="runs" data-testid="project-runs">
+        <ng-container *ngIf="stats.get(p._id) as st; else noRunsTemplate">
+          <div>
+            {{ st.runs | number }}
+            <span
+              class="rate"
+              i18n-title="@@label.success_rate"
+              title="Success rate"
+              >· {{ st.successRate | percent: "1.0-0" }}</span
+            >
+          </div>
+          <small i18n-title="@@label.avg_duration" title="Avg duration">{{
+            st.avgDurationMs | runDuration
+          }}</small>
+        </ng-container>
+        <ng-template #noRunsTemplate>
+          <span class="none">—</span>
+        </ng-template>
       </td>
       <td class="created" i18n-title="@@label.created" title="Created">
         <div>{{ p.createdBy?._id }}</div>
@@ -175,7 +197,7 @@
         [style.--depth]="depth"
         (click)="toggleFolder(f)"
       >
-        <td colspan="5" class="tree">
+        <td colspan="6" class="tree">
           <button
             *ngIf="!f.renaming"
             type="button"
@@ -244,14 +266,14 @@
           ></ng-container>
         </tr>
         <tr class="loading" *ngIf="f.loading">
-          <td colspan="6"></td>
+          <td colspan="7"></td>
         </tr>
         <tr
           class="nested more"
           *ngIf="f.more && !f.loading"
           [style.--depth]="depth + 1"
         >
-          <td colspan="6" class="tree">
+          <td colspan="7" class="tree">
             <button
               type="button"
               class="primary"
@@ -279,7 +301,7 @@
         ></ng-container>
       </tr>
       <tr class="loading" *ngIf="progress.loading">
-        <td colspan="6"></td>
+        <td colspan="7"></td>
       </tr>
     </tbody>
   </table>

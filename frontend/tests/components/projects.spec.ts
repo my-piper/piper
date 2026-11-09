@@ -9,8 +9,9 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ProjectsComponent } from "src/app/projects/projects.component";
-import { projectAPlain, userPlain } from "../fixtures/plain";
+import { PROJECT_A_ID, projectAPlain, userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
+import { expectConsoleError } from "../helpers/console";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 
 /**
@@ -21,6 +22,8 @@ import { configureAppTestingModule, finish } from "../helpers/editor";
  * GET /api/projects?group=… returns projects of that group while
  * GET /api/projects?ungrouped=true returns projects outside any group
  * (backend/api/projects/groups/list-group-counts.ts).
+ * GET /api/projects/stats?projects=… summarises the last 30 days of runs per
+ * visible project (backend/api/projects/stats/list-projects-stats.ts).
  */
 const UI_DELAY = 250;
 
@@ -63,7 +66,15 @@ describe("ProjectsComponent tags and groups", () => {
     return list;
   }
 
-  afterEach(() => controller.verify());
+  function expectStats(): TestRequest[] {
+    return controller.match((r) => r.url === "/api/projects/stats");
+  }
+
+  afterEach(() => {
+    // every loaded page asks for its run stats
+    expectStats();
+    controller.verify();
+  });
 
   it("lists available tags without filtering initially", fakeAsync(() => {
     const list = setup();
@@ -279,6 +290,53 @@ describe("ProjectsComponent tags and groups", () => {
     expect(opened.request.params.get("group")).toBe("Marketing/Video");
     const nested = element.querySelector<HTMLElement>("tr.nested");
     expect(nested.style.getPropertyValue("--depth")).toBe("2");
+    fixture.destroy();
+    finish();
+  }));
+
+  it("shows 30-day run stats of each loaded project", fakeAsync(() => {
+    setup();
+    const [stats] = expectStats();
+
+    stats.flush([
+      {
+        project: PROJECT_A_ID,
+        runs: 12,
+        succeeded: 9,
+        failed: 2,
+        interrupted: 1,
+        successRate: 0.75,
+        avgDurationMs: 4200,
+        lastRunAt: "2026-11-09T10:00:00.000Z",
+      },
+    ]);
+    fixture.detectChanges();
+
+    expect(stats.request.params.getAll("projects")).toEqual([PROJECT_A_ID]);
+    const cell = element.querySelector<HTMLElement>(
+      "tr:not(.folder) [data-testid=project-runs]",
+    );
+    expect(
+      cell.querySelector("div").textContent.replace(/\s+/g, " ").trim(),
+    ).toBe("12 · 75%");
+    expect(cell.querySelector("small").textContent.trim()).toBe("4.2s");
+    fixture.destroy();
+    finish();
+  }));
+
+  it("leaves the run stats empty when they fail to load", fakeAsync(() => {
+    setup();
+    const [stats] = expectStats();
+    expectConsoleError("Process HTTP error 500");
+
+    stats.flush("boom", { status: 500, statusText: "Server Error" });
+    fixture.detectChanges();
+
+    const cell = element.querySelector<HTMLElement>(
+      "tr:not(.folder) [data-testid=project-runs]",
+    );
+    expect(cell.textContent.trim()).toBe("—");
+    expect(element.querySelector("app-informer")).toBeNull();
     fixture.destroy();
     finish();
   }));

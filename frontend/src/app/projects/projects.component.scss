@@ -254,6 +254,18 @@ tr:not(.folder) td.tree {
   line-height: 1em;
 }
 
+.runs {
+  line-height: 1em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+
+  .rate,
+  small,
+  .none {
+    color: $graphite-color-100;
+  }
+}
+
 // row actions stay quiet until the row is hovered or the button focused
 td.actions {
   text-align: right;

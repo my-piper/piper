@@ -1,0 +1,268 @@
+@import "src/ui-kit/styles/variables";
+@import "src/ui-kit/styles/mixins";
+
+// status colors, validated for colorblind separation against each page background
+:host {
+  --stats-succeeded: #12a874;
+  --stats-failed: #e04a35;
+  --stats-interrupted: #7d7d88;
+
+  display: block;
+  padding: $gutter-huge;
+  @include vertical-stack($gutter-huge);
+}
+
+:host-context([data-theme="light"]) {
+  --stats-succeeded: #0e9f6e;
+  --stats-failed: #e5432d;
+  --stats-interrupted: #8a8a96;
+}
+
+h2,
+h3 {
+  margin: 0;
+  color: $strong-text-color;
+}
+
+h3 small {
+  margin-left: $gutter-normal;
+  color: $graphite-color-100;
+  font-weight: normal;
+  font-size: $font-size-small;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $gutter-normal;
+  flex-wrap: wrap;
+}
+
+.periods {
+  display: flex;
+  padding: $gutter-tiny;
+  border: 1px solid $button-border-color;
+  border-radius: $corner-large;
+  background: $button-background-color;
+}
+
+button.period {
+  padding: $gutter-small $gutter-large;
+  border: none;
+  border-radius: $corner-base;
+  background: transparent;
+  color: $graphite-color-100;
+  font-size: $button-font-size;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: $button-hover-text-color;
+  }
+
+  &.selected {
+    background: $button-toggled-background-color;
+    color: $strong-text-color;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.error {
+  color: $error-color;
+}
+
+.empty {
+  color: $graphite-color-100;
+}
+
+.busy {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: $gutter-large;
+  margin-bottom: $gutter-huge;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-small;
+  padding: $gutter-large;
+  border: 1px solid $graphite-color-300;
+  border-radius: $corner-large;
+
+  small,
+  .hint {
+    color: $graphite-color-100;
+    font-size: $font-size-small;
+  }
+
+  strong {
+    color: $strong-text-color;
+    font-size: $font-size-huge;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+i.succeeded,
+i.failed,
+i.interrupted {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 $gutter-small 0 $gutter-normal;
+  border-radius: $corner-small;
+}
+
+i.succeeded,
+.bar .succeeded {
+  background: var(--stats-succeeded);
+}
+
+i.failed,
+.bar .failed {
+  background: var(--stats-failed);
+}
+
+i.interrupted,
+.bar .interrupted {
+  background: var(--stats-interrupted);
+}
+
+.chart {
+  margin-bottom: $gutter-huge;
+
+  > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $gutter-normal;
+    margin-bottom: $gutter-large;
+  }
+}
+
+.legend {
+  display: flex;
+  gap: $gutter-normal;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: $graphite-color-75;
+  font-size: $font-size-small;
+
+  li {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.plot {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 160px;
+  padding-top: $gutter-large;
+  border-bottom: 1px solid $graphite-color-200;
+
+  .max {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: $graphite-color-100;
+    font-size: $font-size-tiny;
+  }
+}
+
+// the whole column is the hover target, wider than its bar
+.day {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    background: with-alpha($graphite-color-300, 0.6);
+
+    .tooltip {
+      display: block;
+    }
+  }
+}
+
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  max-width: 24px;
+  height: 100%;
+  justify-content: flex-end;
+
+  > div {
+    min-height: 2px;
+  }
+
+  > div:first-child {
+    border-radius: 4px 4px 0 0;
+  }
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + #{$gutter-small});
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
+  padding: $gutter-normal $gutter-large;
+  border: $overlay-border;
+  border-radius: $corner-base;
+  background: $overlay-background;
+  color: $primary-text-color;
+  font-size: $font-size-small;
+  white-space: nowrap;
+  pointer-events: none;
+
+  i.succeeded {
+    margin-left: 0;
+  }
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: $gutter-small;
+  color: $graphite-color-100;
+  font-size: $font-size-tiny;
+}
+
+table {
+  margin-top: $gutter-normal;
+
+  th.number,
+  td.number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // headers sit right above their values, cells use the table's 10px padding
+  th.number {
+    padding-right: 10px;
+  }
+
+  small {
+    color: $graphite-color-100;
+  }
+}

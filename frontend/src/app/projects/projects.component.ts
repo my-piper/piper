@@ -14,6 +14,7 @@ import { Subscription, debounceTime, delay, finalize, map } from "rxjs";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
 import { Project, ProjectsFilter } from "src/models/project";
+import { ProjectRunsSummary } from "src/models/project-stats";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI, UI_DELAY } from "src/ui-kit/consts";
@@ -94,6 +95,8 @@ export class ProjectsComponent implements OnInit {
   projects: Project[] = [];
   allTags: string[] = [];
   allFolders: Folder[] = [];
+  // runs of the last 30 days; projects without runs have no entry
+  stats = new Map<string, ProjectRunsSummary>();
 
   searchControl = this.fb.control<string>(null);
   tagsControl = this.fb.control<string[]>([]);
@@ -208,6 +211,7 @@ export class ProjectsComponent implements OnInit {
       .subscribe({
         next: (projects) => {
           folder.projects.push(...projects);
+          this.loadStats(projects);
           // stop paging when the count went stale
           if (projects.length === 0) {
             folder.count = folder.projects.length;
@@ -341,9 +345,39 @@ export class ProjectsComponent implements OnInit {
           }
           this.chunk = projects;
           this.projects.push(...projects);
+          this.loadStats(projects);
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
+      });
+  }
+
+  // stats are a hint: a failure leaves the column empty instead of an error
+  private loadStats(projects: Project[]) {
+    const ids = projects.map(({ _id }) => _id);
+    if (ids.length === 0) {
+      return;
+    }
+
+    this.http
+      .get("projects/stats", { projects: ids } as unknown as {
+        [key: string]: string;
+      })
+      .pipe(
+        map((arr) =>
+          (arr as object[]).map((plain) =>
+            toInstance(plain, ProjectRunsSummary),
+          ),
+        ),
+      )
+      .subscribe({
+        next: (stats) => {
+          for (const summary of stats) {
+            this.stats.set(summary.project, summary);
+          }
+          this.cd.detectChanges();
+        },
+        error: () => {},
       });
   }
 

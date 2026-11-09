@@ -42,6 +42,7 @@ import { CanPipe } from "src/pipes/can";
 import { CenterPipe } from "src/pipes/center";
 import { CurvePipe } from "src/pipes/curve";
 import { DurationPipe } from "src/pipes/duration";
+import { RunDurationPipe } from "src/pipes/run-duration";
 import { FirstPipe } from "src/pipes/first";
 import { GroupListPipe } from "src/pipes/group-list";
 import { GroupNodesPipe } from "src/pipes/group-nodes";
@@ -145,6 +146,7 @@ import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
 import { ProjectArtefactsComponent } from "./project-artefacts/project-artefacts.component";
+import { ProjectStatsComponent } from "./project-stats/project-stats.component";
 import { ProjectAssetsComponent } from "./project-assets/project-assets.component";
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectPlaygroundComponent } from "./project-playground/project-playground.component";
@@ -200,6 +202,7 @@ import { UsersComponent } from "./users/users.component";
     PipelineToolsComponent,
     PipelineFinishedMetricPipe,
     DurationPipe,
+    RunDurationPipe,
     LoginComponent,
     SigupComponent,
     AppLayoutComponent,
@@ -287,6 +290,7 @@ import { UsersComponent } from "./users/users.component";
     AutoScrollDirective,
     PipelineEnvironmentPipe,
     ProjectArtefactsComponent,
+    ProjectStatsComponent,
     InputFlowsPipe,
     LaunchHeartbeatPipe,
     ObjectPathsPipe,

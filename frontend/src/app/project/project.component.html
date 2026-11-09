@@ -249,6 +249,25 @@
             ><ng-container i18n="@@link.launches">Launches</ng-container></a
           >
         </li>
+        <li>
+          <a
+            class="with-icon"
+            data-testid="project-stats-tab"
+            [routerLink]="[
+              {
+                outlets: {
+                  primary: ['stats'],
+                  left: null,
+                  right: null,
+                  bottom: null,
+                },
+              },
+            ]"
+            routerLinkActive="active"
+            ><app-icon class="icon left" [size]="18" icon="number"></app-icon
+            ><ng-container i18n="@@link.stats">Stats</ng-container></a
+          >
+        </li>
         <ng-container
           *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
         >

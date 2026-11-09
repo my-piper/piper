@@ -280,6 +280,38 @@ export class ApiFixture {
     // backend/api/projects/get-project-summary.ts
     this.on("GET", "/api/projects/:id/summary", () => ok({ comments: 0 }));
 
+    // backend/api/projects/stats/list-projects-stats.ts: no recorded runs,
+    // so projects have no entry. Registered after `:id` so the static path wins.
+    this.on(
+      "GET",
+      "/api/projects/stats",
+      ({ user }) => this.requireUser(user) ?? ok([]),
+    );
+
+    // backend/api/projects/stats/get-project-stats.ts: a period without runs.
+    this.on(
+      "GET",
+      "/api/projects/:id/stats",
+      ({ query, user }) =>
+        this.requireUser(user) ??
+        ok({
+          days: Number(query.get("days") ?? 30),
+          runs: 0,
+          succeeded: 0,
+          failed: 0,
+          interrupted: 0,
+          successRate: null,
+          avgDurationMs: null,
+          lastRunAt: null,
+          p50DurationMs: null,
+          p95DurationMs: null,
+          maxDurationMs: null,
+          avgQueuedMs: null,
+          daily: [],
+          nodes: [],
+        }),
+    );
+
     // backend/api/projects/patch-project.ts
     this.on(
       "PATCH",

@@ -75,6 +75,7 @@ import { PlaygroundComponent } from "./playground/playground.component";
 import { ProjectArtefactsComponent } from "./project-artefacts/project-artefacts.component";
 import { ProjectAssetsComponent } from "./project-assets/project-assets.component";
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
+import { ProjectStatsComponent } from "./project-stats/project-stats.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { LoginComponent } from "./signin/login.component";
@@ -334,6 +335,10 @@ const routes: Routes = [
             },
           },
         ],
+      },
+      {
+        path: "stats",
+        component: ProjectStatsComponent,
       },
       {
         path: "node-updates",
