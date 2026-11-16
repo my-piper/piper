@@ -179,7 +179,6 @@
     "action.remove": "Удалить",
     "message.no_user_variables": "У вас пока нет переменных.",
     "action.add_variable": "Добавить переменную",
-    "message.stored_value_leave_empty": "Сохранено, оставьте пустым, чтобы не менять",
-    "link.my_environment": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Моё окружение"
+    "message.stored_value_leave_empty": "Сохранено, оставьте пустым, чтобы не менять"
   }
 }

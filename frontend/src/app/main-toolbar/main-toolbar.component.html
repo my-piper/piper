@@ -51,6 +51,15 @@
           >Assets</a
         >
       </li>
+      <li>
+        <a
+          [routerLink]="['/', 'me', 'environment']"
+          [state]="{ scroll: 'top' }"
+          routerLinkActive="active"
+          i18n="@@link.environment"
+          >Environment</a
+        >
+      </li>
       <li *ngIf="userRole.admin | can | async">
         <a
           [routerLink]="['/', 'users']"
