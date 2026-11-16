@@ -113,28 +113,30 @@ async function launchChild(
   deploy: Deploy
 ) {
   const { project, pipeline, environment, scope } = deploy;
-  await run({
-    _id,
-    launchedBy: new User({ _id: parent.launchedBy._id }),
-    project: new Project({
-      _id: project._id,
-      title: project.title,
-      createdBy: project.createdBy,
-    }),
-    pipeline,
-    launchRequest: toInstance(
-      merge(toPlain(deploy.launchRequest ?? new LaunchRequest()), {
-        inputs: request.inputs ?? {},
+  await run(
+    {
+      launchedBy: new User({ _id: parent.launchedBy._id }),
+      project: new Project({
+        _id: project._id,
+        title: project.title,
+        createdBy: project.createdBy,
       }),
-      LaunchRequest
-    ),
-    environment,
-    scope,
-    parent: parent._id,
-    depth: (parent.depth || 0) + 1,
-    options: new LaunchOptions({ notify: parent.options?.notify ?? false }),
-    comment: `Child of launch ${parent._id} node ${node}`,
-  });
+      pipeline,
+      launchRequest: toInstance(
+        merge(toPlain(deploy.launchRequest ?? new LaunchRequest()), {
+          inputs: request.inputs ?? {},
+        }),
+        LaunchRequest
+      ),
+      environment,
+      scope,
+      parent: parent._id,
+      depth: (parent.depth || 0) + 1,
+      options: new LaunchOptions({ notify: parent.options?.notify ?? false }),
+      comment: `Child of launch ${parent._id} node ${node}`,
+    },
+    { id: _id }
+  );
 }
 
 /**

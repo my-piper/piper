@@ -22,8 +22,6 @@ describe("launch persistence and scheduling", () => {
   it("persists a launch, initializes output metadata, and starts configured nodes", async () => {
     const source = launchFixture();
     source.scope.activated = false;
-    // a stored launch as a request: run() generates the id unless one is given
-    source._id = undefined;
 
     const launch = await run(source);
 

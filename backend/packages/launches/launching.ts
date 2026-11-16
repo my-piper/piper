@@ -49,19 +49,22 @@ import { download, extFromMime } from "utils/web";
 
 const logger = createLogger("utils/launch");
 
-export async function run({
-  _id = sid(),
-  launchedBy,
-  pipeline,
-  launchRequest,
-  environment,
-  scope,
-  options,
-  project,
-  parent,
-  depth,
-  comment,
-}: Partial<Launch>): Promise<Launch> {
+export async function run(
+  {
+    launchedBy,
+    pipeline,
+    launchRequest,
+    environment,
+    scope,
+    options,
+    project,
+    parent,
+    depth,
+    comment,
+  }: Partial<Launch>,
+  // a preset id lets a caller record the launch before it starts
+  { id: _id = sid() }: { id?: string } = {}
+): Promise<Launch> {
   const outputs = new Map<string, LaunchArtefact>();
   if (pipeline.outputs) {
     for (const [key, { type, title, order }] of pipeline.outputs) {
