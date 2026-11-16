@@ -12,13 +12,13 @@
   </p>
 
   <form [formGroup]="form">
-    <table *ngIf="variables.length > 0">
+    <table class="default" *ngIf="variables.length > 0">
       <thead>
         <tr>
           <th i18n="@@label.name">Name</th>
           <th i18n="@@label.type">Type</th>
           <th i18n="@@label.value">Value</th>
-          <th></th>
+          <th width="48px"></th>
         </tr>
       </thead>
       <tbody formArrayName="variables">
@@ -27,25 +27,25 @@
           *ngFor="let variable of variables.controls; let i = index"
           [formGroupName]="i"
         >
-          <td>
+          <td title="Name" i18n-title="@@label.name">
             <input
-              class="key"
+              class="key input-primary fluid"
               [class.error]="variable.controls.key.invalid"
               formControlName="key"
               [readOnly]="variable.controls.stored.value"
               placeholder="API_KEY"
             />
           </td>
-          <td>
-            <select class="type" formControlName="type">
+          <td title="Type" i18n-title="@@label.type">
+            <select class="type select-primary" formControlName="type">
               <option value="string" i18n="@@label.string">String</option>
               <option value="number" i18n="@@label.number">Number</option>
               <option value="boolean" i18n="@@label.boolean">Boolean</option>
             </select>
           </td>
-          <td>
+          <td title="Value" i18n-title="@@label.value">
             <input
-              class="value"
+              class="value input-primary fluid"
               [class.error]="variable.errors?.['valueType']"
               formControlName="value"
               [type]="
@@ -62,13 +62,14 @@
           <td>
             <button
               type="button"
-              class="remove delete-button"
+              class="remove transparent"
               [class.busy]="progress.removing[variable.controls.key.value]"
               [disabled]="progress.removing[variable.controls.key.value]"
               (click)="remove(i)"
-              i18n="@@action.remove"
+              title="Remove"
+              i18n-title="@@action.remove"
             >
-              Remove
+              <app-icon class="icon" icon="delete" [size]="18"></app-icon>
             </button>
           </td>
         </tr>
@@ -79,8 +80,9 @@
     </p>
 
     <footer class="stack horizontal justify-between">
-      <button type="button" (click)="add()" i18n="@@action.add_variable">
-        Add variable
+      <button type="button" class="primary with-icon" (click)="add()">
+        <app-icon class="icon left" icon="add"></app-icon>
+        <ng-container i18n="@@action.add_variable">Add variable</ng-container>
       </button>
       <button
         type="button"

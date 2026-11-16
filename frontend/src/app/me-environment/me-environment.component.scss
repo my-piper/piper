@@ -5,30 +5,25 @@
   display: block;
 }
 
+.app-container {
+  @include vertical-stack();
+}
+
+h1,
+p {
+  margin: 0;
+}
+
 form {
   @include vertical-stack();
+}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th {
-    text-align: left;
-    font-weight: normal;
-    opacity: 0.7;
-  }
-
+table.default {
   td {
-    padding: $gutter-small 0;
+    vertical-align: middle;
   }
 
-  input,
-  select {
+  .type {
     width: 100%;
-  }
-
-  input.error {
-    border-color: $error-color;
   }
 }
