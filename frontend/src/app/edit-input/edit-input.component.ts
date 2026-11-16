@@ -80,6 +80,12 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
   @Input()
   enum: Primitive[] = [];
 
+  // Enum options are rendered only for string and string[] inputs, whose
+  // values are strings; the nsfw, groupList and split pipes rely on that.
+  get stringEnum(): string[] {
+    return this.enum as string[];
+  }
+
   @Input()
   freeform: boolean;
 

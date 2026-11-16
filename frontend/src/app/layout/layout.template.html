@@ -5,5 +5,5 @@
 </main>
 
 <footer *ngIf="appConfig.ui.appFooter as footer">
-  <div [innerHTML]="footer | i18n: { mode: 'multiline' }"></div>
+  <div [innerHTML]="footer | i18n"></div>
 </footer>

@@ -28,7 +28,7 @@ export async function importPackage(source: string) {
   let json: object;
   try {
     json = YAML.parse(yaml);
-  } catch (e) {
+  } catch {
     throw new DataError("YAML parse error");
   }
 

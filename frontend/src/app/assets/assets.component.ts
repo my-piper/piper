@@ -1,7 +1,6 @@
 import {
   ChangeDetectorRef,
   Component,
-  ElementRef,
   EventEmitter,
   HostBinding,
   Input,
@@ -13,6 +12,7 @@ import { last } from "lodash";
 import first from "lodash/first";
 import { debounceTime, delay, finalize, map } from "rxjs";
 import { Asset, AssetsFilter } from "src/models/assets";
+import { DisplayError } from "src/models/errors";
 import { Project } from "src/models/project";
 import { AssetImportedSignal } from "src/models/signals/asset";
 import { UserRole } from "src/models/user";
@@ -35,7 +35,7 @@ export class AssetsComponent implements OnInit {
 
   private _filter!: AssetsFilter;
 
-  error!: Error;
+  error!: DisplayError;
   progress: {
     loading: boolean;
     uploading: boolean;
@@ -82,7 +82,6 @@ export class AssetsComponent implements OnInit {
     private signals: SignalsService,
     private fb: FormBuilder,
     private cd: ChangeDetectorRef,
-    public hostRef: ElementRef,
   ) {}
 
   ngOnInit() {

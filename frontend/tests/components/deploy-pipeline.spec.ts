@@ -116,12 +116,7 @@ describe("DeployPipelineComponent", () => {
 
     const value = fixture.componentInstance.form.getRawValue().deploy;
 
-    // the editor fills the optional scope with its defaults
-    expect(value).toEqual({
-      prefix: USER_IDS.owner,
-      slug: "project-a-v1",
-      scope: { id: "", activated: false, maxConcurrent: 0 },
-    });
+    expect(value).toEqual({ prefix: USER_IDS.owner, slug: "project-a-v1" });
     finish();
   }));
 
@@ -133,11 +128,7 @@ describe("DeployPipelineComponent", () => {
 
     const value = fixture.componentInstance.form.getRawValue().deploy;
 
-    expect(value).toEqual({
-      prefix: "team",
-      slug: "stored",
-      scope: { id: "", activated: false, maxConcurrent: 0 },
-    });
+    expect(value).toEqual({ prefix: "team", slug: "stored" });
     finish();
   }));
 

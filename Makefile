@@ -49,6 +49,7 @@ test:
 
 test-frontend:
 	${FRONTEND} run test:typecheck
+	${FRONTEND} run typecheck:templates
 	${FRONTEND} run lint:tests
 	${FRONTEND} test
 

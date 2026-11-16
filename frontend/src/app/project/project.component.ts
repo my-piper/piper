@@ -5,6 +5,7 @@ import assign from "lodash/assign";
 import { debounceTime, delay, finalize, map, takeUntil } from "rxjs";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { AppConfig } from "src/models/app-config";
+import { DisplayError } from "src/models/errors";
 import { Pipeline } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
@@ -28,7 +29,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   editPipelineVisualComponent = EditPipelineVisualComponent;
 
   progress = { launching: false, cloning: false };
-  error: Error;
+  error: DisplayError;
 
   pipeline!: Pipeline;
   project!: Project;

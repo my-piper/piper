@@ -82,7 +82,7 @@
             Inputs are not filled yet.
           </ng-container>
         </ng-template>
-        <ng-conatiner
+        <ng-container
           *ngIf="l.inputs | keyvalue | orderBy: ['value.order'] as inputs"
         >
           <ul *ngIf="inputs.length > 0; else noInputs" class="inputs">
@@ -98,7 +98,7 @@
               </div>
             </li>
           </ul>
-        </ng-conatiner>
+        </ng-container>
       </ng-template>
       <div class="stack horizontal align-center">
         <button class="transparent" [appPopover]="{ content: inputsPopover }">
@@ -113,8 +113,11 @@
           ></app-spinner>
         </ng-container>
       </div>
+      <!-- name who started a launch, unless it is the current user -->
       <span
-        *ngIf="l.launchedBy?._id === config.authorization._id"
+        *ngIf="
+          !!l.launchedBy && l.launchedBy._id !== config.authorization?.user?._id
+        "
         class="launched-by"
       >
         by {{ l.launchedBy?.name }} |
@@ -127,6 +130,6 @@
 
 <div
   *ngIf="chunk.length > 0 && !progress.loading"
-  [inViewport]
+  inViewport
   (visible)="loadMore()"
 ></div>

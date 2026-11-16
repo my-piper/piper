@@ -6,9 +6,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
  * inputs and ControlValueAccessor contract, rendered as a JSON textarea.
  * `disable` is exposed as a data attribute so specs can assert permissions.
  *
- * Like the real editor (`use_default_values`), it fills every property the
- * schema declares but the value lacks with its type's default (`0`, `false`,
- * `""`, `{}`, `[]`) and reports the filled value as a change.
+ * Like the real editor (`use_default_values`), it fills every property it
+ * shows but the value lacks with its type's default (`0`, `false`, `""`,
+ * `{}`, `[]`) and reports the filled value as a change. With the
+ * `required_only` feature (the default) it shows only required properties
+ * and those the value already has.
  */
 @Component({
   selector: "app-json-editor",
@@ -35,7 +37,7 @@ export class JsonEditorStubComponent implements ControlValueAccessor {
   disable: string[] = [];
 
   @Input()
-  features: string[] = [];
+  features: string[] = ["collapse", "required_only"];
 
   text = "";
 
@@ -43,7 +45,11 @@ export class JsonEditorStubComponent implements ControlValueAccessor {
   onTouched: () => void = () => {};
 
   writeValue(value: object | null): void {
-    const filled = withDefaults(this.schema, value ?? null);
+    const filled = withDefaults(
+      this.schema,
+      value ?? null,
+      this.features.includes("required_only"),
+    );
     this.text = JSON.stringify(filled);
     if (this.text !== JSON.stringify(value ?? null)) {
       // the real editor reports its defaults once it is ready
@@ -68,12 +74,17 @@ export class JsonEditorStubComponent implements ControlValueAccessor {
 type Schema = {
   type?: string | string[];
   properties?: Record<string, Schema>;
+  required?: string[];
   default?: unknown;
   enum?: unknown[];
 };
 
 /** Mirrors json-editor's `getDefault` with `use_default_values: true`. */
-function withDefaults(schema: Schema | undefined, value: unknown): unknown {
+function withDefaults(
+  schema: Schema | undefined,
+  value: unknown,
+  requiredOnly: boolean,
+): unknown {
   if (!schema) {
     return value;
   }
@@ -94,7 +105,7 @@ function withDefaults(schema: Schema | undefined, value: unknown): unknown {
       case "string":
         return "";
       case "object":
-        return withDefaults(schema, {});
+        return withDefaults(schema, {}, requiredOnly);
       case "array":
         return [];
       case "null":
@@ -106,7 +117,17 @@ function withDefaults(schema: Schema | undefined, value: unknown): unknown {
   if (schema.properties && value !== null && typeof value === "object") {
     const filled = { ...(value as Record<string, unknown>) };
     for (const [key, property] of Object.entries(schema.properties)) {
-      const child = withDefaults(property, filled[key]);
+      // `display_required_only` shows (and fills) only required properties
+      // and those the value already has
+      if (
+        requiredOnly &&
+        !(key in filled) &&
+        !(schema.required || []).includes(key)
+      ) {
+        continue;
+      }
+
+      const child = withDefaults(property, filled[key], requiredOnly);
       if (child !== undefined) {
         filled[key] = child;
       }

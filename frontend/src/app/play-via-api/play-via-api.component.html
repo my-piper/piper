@@ -61,7 +61,7 @@
             <td i18n="@@label.default">Default</td>
             <td>
               <ng-container [ngSwitch]="i.value.type">
-                <ng-container *ngSwitchCase="boolean">
+                <ng-container *ngSwitchCase="'boolean'">
                   <code>{{ i.value.default ? "true" : "false" }}</code>
                 </ng-container>
                 <ng-container *ngSwitchDefault="">

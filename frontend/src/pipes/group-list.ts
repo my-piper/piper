@@ -4,10 +4,7 @@ const GROUP_NAME_REGEX = /<(.*?)>/g;
 
 @Pipe({ name: "groupList" })
 export class GroupListPipe implements PipeTransform {
-  transform(
-    list: string[],
-    _tag: string
-  ): { name: string; options: string[] }[] {
+  transform(list: string[]): { name: string; options: string[] }[] {
     const orphan: string[] = [];
 
     const groups: { [key: string]: string[] } = {};

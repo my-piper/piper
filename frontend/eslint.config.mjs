@@ -29,9 +29,6 @@ export default tseslint.config(
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
-          // `const { omitted, ...rest } = x` drops a field on purpose
-          ignoreRestSiblings: true,
-          caughtErrors: "none",
         },
       ],
       // Keep compatibility with ESLint versions that require explicit defaults.

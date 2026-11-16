@@ -94,16 +94,6 @@ export async function run({
         }
       }
     }
-
-    if (node.outputs) {
-      const outputs = {};
-      for (const [key] of node.outputs) {
-        const value = launchRequest.nodes?.get(id)?.outputs?.get(key);
-        if (value !== undefined) {
-          outputs[key] = value;
-        }
-      }
-    }
   }
 
   // set nodes inputs from request pipeline inputs

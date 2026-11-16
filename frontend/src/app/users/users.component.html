@@ -125,7 +125,7 @@
   </table>
   <div
     *ngIf="chunk.length > 0 && !progress.loading"
-    [inViewport]
+    inViewport
     (visible)="loadMore()"
   ></div>
 </div>

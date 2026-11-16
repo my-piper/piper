@@ -116,7 +116,7 @@ export class EditPipelineVisualComponent
   state: "default" | "flow" = "default";
   subscriptions: Subscription[] = [];
 
-  mode: "project" | "launch" = "project";
+  mode: "project" | "launch" | "scheme" = "project";
 
   project!: Project;
   pipeline!: Pipeline;

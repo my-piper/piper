@@ -29,9 +29,6 @@ export default tseslint.config(
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
-          // `const { omitted, ...rest } = x` drops a field on purpose
-          ignoreRestSiblings: true,
-          caughtErrors: "none",
         },
       ],
       "@typescript-eslint/explicit-function-return-type": "off",
@@ -51,7 +48,7 @@ export default tseslint.config(
       "no-console": "off",
       "prefer-const": "error",
       "no-var": "error",
-      eqeqeq: ["error", "always", { null: "ignore" }],
+      eqeqeq: ["error", "always"],
     },
   },
   {

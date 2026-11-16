@@ -122,8 +122,8 @@
           <ul *ngIf="node.tags as tags" class="tags">
             <li
               *ngFor="let t of tags"
-              [class.cheap]="(t | i18n: 'en') === 'cheap'"
-              [class.free]="(t | i18n: 'en') === 'free'"
+              [class.cheap]="(t | i18n: languages.en) === 'cheap'"
+              [class.free]="(t | i18n: languages.en) === 'free'"
             >
               #{{ t | i18n }}
             </li>

@@ -4,6 +4,7 @@ import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
 import last from "lodash/last";
 import { delay, finalize, map, merge } from "rxjs";
+import { DisplayError } from "src/models/errors";
 import { User, UserRole, UsersFilter } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
@@ -21,7 +22,7 @@ export class UsersComponent {
 
   private _modal!: EditUserComponent;
 
-  error!: Error;
+  error!: DisplayError;
   progress = { loading: false, deleting: false };
 
   references: { popover: PopoverComponent } = { popover: null };

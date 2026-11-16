@@ -30,7 +30,7 @@
     <pre *ngSwitchCase="'json'">{{ data.value | json }}</pre>
     <ng-container *ngSwitchCase="'image'">
       <img
-        [imageFallback]
+        imageFallback
         [imageSize]="{ width: data.width, height: data.height }"
         [src]="
           mode == 'card' ? (data.url | proxyImage: { width: 500 }) : data.url
@@ -57,7 +57,7 @@
         <img
           *ngIf="active?.index == i"
           [imageSize]="{ width: image.width, height: image.height }"
-          [imageFallback]
+          imageFallback
           [src]="
             mode == 'card'
               ? (image.url | proxyImage: { width: 500 })
@@ -128,7 +128,7 @@
           >
             <img
               *ngIf="o.value.data as data; else imageIconTemplate"
-              [imageFallback]
+              imageFallback
               [src]="data.url | proxyImage: { width: 100 }"
             />
           </button>
@@ -150,7 +150,7 @@
             (click)="activate(o.key)"
           >
             <img
-              [imageFallback]
+              imageFallback
               [src]="data.poster | proxyImage: { width: 100 }"
             />
           </button>
@@ -164,7 +164,7 @@
               (click)="activate(o.key, i)"
             >
               <img
-                [imageFallback]
+                imageFallback
                 [src]="image.url | proxyImage: { width: 100 }"
               />
             </button>

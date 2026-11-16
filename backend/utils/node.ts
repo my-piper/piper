@@ -57,7 +57,7 @@ export const convertInputs =
       if (value !== undefined && value !== null) {
         try {
           converted[key] = convertInput(value, input.type);
-        } catch (e) {
+        } catch {
           throw new DataError(`Can't convert input [${key}]`, {
             input: key,
             value,

@@ -8,10 +8,12 @@ import {
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { debounceTime, delay, finalize, map } from "rxjs";
+import { DisplayError } from "src/models/errors";
 import { Node, NodesFilter } from "src/models/node";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/ui-kit/consts";
+import { Languages } from "src/ui-kit/enums/languages";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 
@@ -22,11 +24,12 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
 })
 export class SelectNodeComponent implements OnInit, AfterViewInit {
   userRole = UserRole;
+  languages = Languages;
 
   progress: { loading: boolean } = {
     loading: false,
   };
-  error: Error;
+  error: DisplayError;
 
   nodes: Node[] = [];
   references: { popover: PopoverComponent } = { popover: null };

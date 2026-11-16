@@ -43,7 +43,11 @@
     <video autoplay muted [volume]="0" [src]="value"></video>
   </a>
   <ng-container *ngSwitchCase="'image[]'">
-    <a *ngFor="let image of value | split: '|'" [href]="image" target="_blank">
+    <a
+      *ngFor="let image of joinedImages | split: '|'"
+      [href]="image"
+      target="_blank"
+    >
       <img [imageSize]="image" [src]="image" />
     </a>
   </ng-container>

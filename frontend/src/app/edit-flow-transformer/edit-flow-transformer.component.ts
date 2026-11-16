@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { assign } from "lodash";
 import { LaunchRequest } from "src/models/launch-request";
-import { NodeInput } from "src/models/node";
+import { Node } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
 import { Project } from "src/models/project";
 import { ProjectManager } from "src/services/project.manager";
@@ -37,10 +37,10 @@ export class EditFlowTransformerComponent implements OnInit {
   }
 
   @Input()
-  from!: { id: string; node: NodeInput };
+  from!: { id: string; node: Node };
 
   @Input()
-  to!: { id: string; node: NodeInput };
+  to!: { id: string; node: Node };
 
   indexControl = this.fb.control<number>(0);
   pathControl = this.fb.control<string>(null);

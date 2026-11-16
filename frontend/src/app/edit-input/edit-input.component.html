@@ -152,7 +152,7 @@
       <div class="drag-zone" i18n="@@label.drop_here">Drop here...</div>
       <img
         *ngIf="valueControl.value as url; else uploadImage"
-        [imageFallback]
+        imageFallback
         [imageSize]="url"
         [src]="url | proxyImage: { width: 500 }"
       />
@@ -175,14 +175,14 @@
 
         <ng-template #defaultTemplate>
           <img
-            [imageFallback]
+            imageFallback
             [imageSize]="url"
             [src]="url | proxyImage: { width: 250 }"
           />
         </ng-template>
         <img
           *ngIf="compact; else defaultTemplate"
-          [imageFallback]
+          imageFallback
           [src]="url | proxyImage: { width: 250 }"
         />
       </div>
@@ -282,7 +282,7 @@
   </ng-container>
 
   <ng-container *ngSwitchCase="'string[]'">
-    <container *ngFor="let g of enum | nsfw | groupList">
+    <ng-container *ngFor="let g of stringEnum | nsfw | groupList">
       <label>{{ g.name }}</label>
       <div class="switcher">
         <ng-container *ngFor="let o of g.options">
@@ -296,7 +296,7 @@
           </label>
         </ng-container>
       </div>
-    </container>
+    </ng-container>
   </ng-container>
 
   <ng-container *ngSwitchDefault>
@@ -310,8 +310,8 @@
           [attr.list]="id"
         />
         <datalist [id]="id">
-          <ng-container *ngFor="let g of enum | nsfw | groupList">
-            <optgroup [value]="g.name | i18n">
+          <ng-container *ngFor="let g of stringEnum | nsfw | groupList">
+            <optgroup>
               <ng-container *ngFor="let o of g.options">
                 <option *ngIf="o | split: '|' as x" [value]="x[0]">
                   {{ x[1] ? (x[1] | i18n) : x[0] }}
@@ -337,7 +337,7 @@
               </option>
             </ng-container>
           </ng-template>
-          <ng-container *ngFor="let g of enum | nsfw | groupList">
+          <ng-container *ngFor="let g of stringEnum | nsfw | groupList">
             <ng-container *ngIf="g.name; else withoutGroupTemplate">
               <optgroup [label]="g.name | i18n">
                 <ng-container

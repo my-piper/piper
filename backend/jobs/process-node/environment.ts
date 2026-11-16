@@ -73,7 +73,7 @@ export async function getEnvironment({
 
     try {
       decrypt(env);
-    } catch (e) {
+    } catch {
       throw new FatalError("Can't decrypt environment");
     }
   }

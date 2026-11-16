@@ -25,7 +25,7 @@
     <ng-container *ngIf="o.data as data" [ngSwitch]="o.type">
       <img
         *ngSwitchCase="'image'"
-        [imageFallback]
+        imageFallback
         [inspect]="{ type: 'image', url: data.url, disabled: mode == 'select' }"
         [src]="data.url | proxyImage: { width: 300 }"
         [class.vertical]="data.height > data.width"
@@ -35,7 +35,7 @@
       <ng-container *ngSwitchCase="'image[]'">
         <img
           *ngFor="let image of data.images"
-          [imageFallback]
+          imageFallback
           [inspect]="{
             type: 'image',
             url: image.url,

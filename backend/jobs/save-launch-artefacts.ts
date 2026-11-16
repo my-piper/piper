@@ -27,7 +27,7 @@ queues.launches.artefacts.save.process(async (job) => {
   const { project, launchRequest, launchedBy } = launch;
 
   const value = await redis.get(NODE_OUTPUTS(launch._id, job.node));
-  if (value == null) {
+  if (value === null) {
     logger.error("Node outputs not found");
     return;
   }

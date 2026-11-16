@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import last from "lodash/last";
 import { Subscription, debounceTime, delay, finalize, map } from "rxjs";
+import { DisplayError } from "src/models/errors";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
 import { Project, ProjectsFilter } from "src/models/project";
@@ -64,7 +65,7 @@ export class ProjectsComponent implements OnInit {
 
   private _modal!: ImportProjectComponent;
 
-  error!: Error;
+  error!: DisplayError;
   progress = {
     loading: false,
     creating: false,

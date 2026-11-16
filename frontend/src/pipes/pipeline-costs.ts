@@ -32,7 +32,7 @@ export class PipelineCostsPipe
 
   transform(
     project: string,
-    launchRequest: LaunchRequest | null,
+    launchRequest: LaunchRequest | null = null,
   ): Observable<PipelineCosts | null> {
     const update = () => {
       this.http

@@ -31,7 +31,7 @@ queues.launches.outputs.set.process(async (job) => {
   }
 
   const value = await redis.get(PIPELINE_OUTPUT(launch._id, job.output));
-  if (value == null) {
+  if (value === null) {
     logger.error("Output has no value");
     return;
   }
