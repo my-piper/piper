@@ -1,0 +1,97 @@
+<app-informer
+  *ngIf="!!error"
+  [message]="error.message"
+  (ok)="error = null"
+></app-informer>
+
+<div class="app-container">
+  <h1 i18n="@@label.my_environment">My environment</h1>
+  <p i18n="@@message.user_environment_explained">
+    Variables here are shared by all your projects. A project uses them for
+    every variable it leaves empty.
+  </p>
+
+  <form [formGroup]="form">
+    <table *ngIf="variables.length > 0">
+      <thead>
+        <tr>
+          <th i18n="@@label.name">Name</th>
+          <th i18n="@@label.type">Type</th>
+          <th i18n="@@label.value">Value</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody formArrayName="variables">
+        <tr
+          class="variable"
+          *ngFor="let variable of variables.controls; let i = index"
+          [formGroupName]="i"
+        >
+          <td>
+            <input
+              class="key"
+              [class.error]="variable.controls.key.invalid"
+              formControlName="key"
+              [readOnly]="variable.controls.stored.value"
+              placeholder="API_KEY"
+            />
+          </td>
+          <td>
+            <select class="type" formControlName="type">
+              <option value="string" i18n="@@label.string">String</option>
+              <option value="number" i18n="@@label.number">Number</option>
+              <option value="boolean" i18n="@@label.boolean">Boolean</option>
+            </select>
+          </td>
+          <td>
+            <input
+              class="value"
+              [class.error]="variable.errors?.['valueType']"
+              formControlName="value"
+              [type]="
+                variable.controls.type.value === 'string' ? 'password' : 'text'
+              "
+              [placeholder]="
+                variable.controls.stored.value &&
+                variable.controls.type.value === 'string'
+                  ? storedPlaceholder
+                  : ''
+              "
+            />
+          </td>
+          <td>
+            <button
+              type="button"
+              class="remove delete-button"
+              [class.busy]="progress.removing[variable.controls.key.value]"
+              [disabled]="progress.removing[variable.controls.key.value]"
+              (click)="remove(i)"
+              i18n="@@action.remove"
+            >
+              Remove
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="variables.length === 0" i18n="@@message.no_user_variables">
+      You have no variables yet.
+    </p>
+
+    <footer class="stack horizontal justify-between">
+      <button type="button" (click)="add()" i18n="@@action.add_variable">
+        Add variable
+      </button>
+      <button
+        type="button"
+        class="primary"
+        [class.busy]="progress.saving"
+        [disabled]="form.invalid || progress.saving"
+        (click)="save()"
+        i18n="@@action.save"
+      >
+        Save
+      </button>
+    </footer>
+  </form>
+</div>

@@ -52,6 +52,10 @@ permission rules; permission/status changes need an explicit contract decision.
 - Reading projects serializes nested maps and dates and omits unexposed fields.
   Environment strings are returned as `[encrypted]`; booleans and numbers retain
   their values.
+- The User Environment (`/api/me/environment`) is read with `GET`, merged with
+  `PUT` (values equal to `[encrypted]` keep the stored value), cleared with
+  `DELETE`, and loses a single variable with `DELETE /api/me/environment/:key`
+  (204, also when nothing is stored). All require a logged-in user.
 - Launching merges the saved launch request with the request body and runs model
   validation before initializing/scheduling the launch. Falsy inputs survive the
   HTTP-to-model-to-Redis path. Responses omit the pipeline and include the merged

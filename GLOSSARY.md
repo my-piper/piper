@@ -41,3 +41,25 @@ _Avoid_: Sandbox, test run
 **Launch**:
 One run of a Pipeline. It records the Project or Deploy it was started from, and it keeps its own copy of the Pipeline, so later edits do not change it.
 _Avoid_: Run, execution, job
+
+### Configuration
+
+**Environment**:
+Named values that Nodes read when they run, such as API keys and endpoints. A Node declares each Variable it needs and the scope it is read from.
+_Avoid_: Env, config, settings
+
+**Variable**:
+One named value in an Environment.
+_Avoid_: Env var, setting, key
+
+**User Environment**:
+The Variables a user shares across all of their Projects. It fills Project Variables the Project leaves empty and overrides the Platform Environment.
+_Avoid_: Global environment, shared environment
+
+**Platform Environment**:
+The Variables an admin provides for every user.
+_Avoid_: Global environment, system environment
+
+**Project Environment**:
+The Variables set on one Project. They override the User Environment and are frozen into each Deploy.
+_Avoid_: Pipeline environment, local environment

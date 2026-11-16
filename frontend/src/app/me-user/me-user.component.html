@@ -63,6 +63,17 @@
           </ng-container>
         </button>
       </li>
+      <li>
+        <a
+          [routerLink]="['/me', 'environment']"
+          routerLinkActive="active"
+          (click)="references.popover?.hide()"
+          i18n="@@link.my_environment"
+        >
+          <app-icon class="icon left" [icon]="'lock'"></app-icon>
+          My environment
+        </a>
+      </li>
       <ng-container *ngIf="!!config.billing.url">
         <li>
           <a

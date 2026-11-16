@@ -11,6 +11,8 @@ import { Primitive } from "src/types/primitive";
 import { mapTo } from "src/utils/models";
 import { Arrange } from "./arrange";
 
+export type EnvironmentScope = "global" | "user" | "pipeline";
+
 export class NodeEnvironment {
   @Expose()
   @Type(() => String)
@@ -26,7 +28,7 @@ export class NodeEnvironment {
 
   @Expose()
   @Type(() => String)
-  scope: "global" | "user" | "pipeline";
+  scope: EnvironmentScope;
 
   constructor(defs: Partial<NodeEnvironment>) {
     assign(this, defs);
@@ -407,13 +409,13 @@ export class Node {
           v.inputs.sort(
             (a, b) =>
               (a.input.order ?? DEFAULT_ORDER) -
-              (b.input.order ?? DEFAULT_ORDER)
+              (b.input.order ?? DEFAULT_ORDER),
           );
           sorted.push({ id: k, group: v });
         }
         sorted.sort(
           (a, b) =>
-            (a.group.order ?? DEFAULT_ORDER) - (b.group.order ?? DEFAULT_ORDER)
+            (a.group.order ?? DEFAULT_ORDER) - (b.group.order ?? DEFAULT_ORDER),
         );
         return sorted;
       })(),

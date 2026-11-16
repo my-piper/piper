@@ -121,7 +121,15 @@ I/O values are typed (`boolean`, `integer`, `float`, `string`, `string[]`, `json
 - When a project is patched, a node whose signature no longer matches is rejected, unless the user is an engineer, in which case it is re-signed.
 - At execution time, signed nodes run with `isolation: "none"`; unsigned nodes run with `isolation: "process"` in the Deno sandbox.
 
-Environment variables are resolved per node in `jobs/process-node/environment.ts`. Each variable's scope (`global`, `user`, `pipeline`) controls where it is read from: global and user environments live in Redis, the pipeline environment comes from the launch. Secrets are stored encrypted (`packages/environment/crypt-environment.ts`) and masked in API responses.
+Environment variables are resolved per node in `jobs/process-node/environment.ts`. Each variable's scope (`global`, `user`, `pipeline`) controls where it is read from, first match wins:
+
+| Scope | Lookup order |
+| --- | --- |
+| `global` | User Environment → Platform Environment |
+| `user` | User Environment |
+| `pipeline` | Project Environment (from the launch) → User Environment |
+
+The Platform Environment (admin, `/api/environment`, CLI `env`) and each User Environment (`/api/me/environment`, page `/me/environment`) live in Redis and are read live, so changing a shared value reaches every Deploy at once. The User Environment is that of the user who started the launch (for a Deploy, the API caller). The Project Environment is frozen into each Launch and Deploy. Secrets are stored encrypted (`packages/environment/crypt-environment.ts`) and masked in API responses.
 
 ## Launch lifecycle
 

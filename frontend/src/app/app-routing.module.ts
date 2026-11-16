@@ -56,6 +56,7 @@ import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usa
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
+import { MeEnvironmentComponent } from "./me-environment/me-environment.component";
 import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
 import { NodeInputsComponent } from "./node-inputs/node-inputs.component";
@@ -499,6 +500,14 @@ const routes: Routes = [
         path: "assets",
         component: AssetsComponent,
         canActivate: [SigninNeededGuard],
+      },
+      {
+        path: "me/environment",
+        component: MeEnvironmentComponent,
+        canActivate: [SigninNeededGuard],
+        resolve: {
+          environment: MeEnvironmentResolver,
+        },
       },
       {
         path: "launches",

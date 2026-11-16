@@ -10,6 +10,17 @@ import { User } from "models/user";
 import { decrypt } from "packages/environment/crypt-environment";
 import { Primitive } from "types/primitive";
 
+/**
+ * Where a variable of each scope is read from, first match wins: the user
+ * environment overrides the platform one and fills what the project leaves
+ * empty.
+ */
+const LOOKUP_ORDER: Record<EnvironmentScope, EnvironmentScope[]> = {
+  global: ["user", "global"],
+  user: ["user"],
+  pipeline: ["pipeline", "user"],
+};
+
 export async function getEnvironment({
   launch,
   launchedBy,
@@ -50,36 +61,11 @@ export async function getEnvironment({
     }
 
     for (const [k, v] of node.environment) {
-      switch (v.scope) {
-        case "global": {
-          const value = environment.user?.variables?.get(k);
-          console.log(environment.user);
-          if (value !== undefined) {
-            env.variables.set(k, value);
-            env.scope.set(k, "user");
-          } else {
-            const value = environment.global?.variables?.get(k);
-            if (value !== undefined) {
-              env.variables.set(k, value);
-              env.scope.set(k, "global");
-            }
-          }
-          break;
-        }
-        case "user": {
-          const value = environment.user?.variables?.get(k);
-          if (value !== undefined) {
-            env.variables.set(k, value);
-            env.scope.set(k, "user");
-          }
-          break;
-        }
-        case "pipeline": {
-          const value = environment.pipeline?.variables?.get(k);
-          if (value !== undefined) {
-            env.variables.set(k, value);
-            env.scope.set(k, "pipeline");
-          }
+      for (const source of LOOKUP_ORDER[v.scope] || []) {
+        const value = environment[source]?.variables?.get(k);
+        if (value !== undefined) {
+          env.variables.set(k, value);
+          env.scope.set(k, source);
           break;
         }
       }

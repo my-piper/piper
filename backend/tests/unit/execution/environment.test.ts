@@ -94,6 +94,68 @@ describe("node environment precedence and decryption", () => {
     expect(launch.environment.variables.get("text")).not.toBe("");
   });
 
+  it("fills project variables the project leaves empty from the user environment", async () => {
+    const launch = launchFixture();
+    const node = launch.pipeline.nodes.get("echo_node");
+    node.environment = new Map(
+      Object.entries({
+        token: toInstance({ scope: "pipeline" }, NodeEnvironment),
+        endpoint: toInstance({ scope: "pipeline" }, NodeEnvironment),
+        unset: toInstance({ scope: "pipeline" }, NodeEnvironment),
+      })
+    );
+    const global = encryptedEnvironment({ unset: "platform must not leak" });
+    const user = encryptedEnvironment({
+      token: "user token",
+      endpoint: "user endpoint",
+    });
+    launch.environment = encryptedEnvironment({ endpoint: "project endpoint" });
+    doubles.redis.get.mockImplementation(async (key) =>
+      key === GLOBAL_ENVIRONMENT_KEY
+        ? JSON.stringify(toPlain(global))
+        : key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
+          ? JSON.stringify(toPlain(user))
+          : null
+    );
+
+    const environment = await getEnvironment({
+      launch,
+      node,
+      launchedBy: launch.launchedBy,
+    });
+
+    expect(toPlain(environment)).toEqual({
+      variables: { token: "user token", endpoint: "project endpoint" },
+      scope: { token: "user", endpoint: "pipeline" },
+    });
+  });
+
+  it("fills project variables from the user environment when the launch has no environment", async () => {
+    const launch = launchFixture();
+    const node = launch.pipeline.nodes.get("echo_node");
+    node.environment = new Map([
+      ["token", toInstance({ scope: "pipeline" }, NodeEnvironment)],
+    ]);
+    launch.environment = undefined;
+    const user = encryptedEnvironment({ token: "user token" });
+    doubles.redis.get.mockImplementation(async (key) =>
+      key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
+        ? JSON.stringify(toPlain(user))
+        : null
+    );
+
+    const environment = await getEnvironment({
+      launch,
+      node,
+      launchedBy: launch.launchedBy,
+    });
+
+    expect(toPlain(environment)).toEqual({
+      variables: { token: "user token" },
+      scope: { token: "user" },
+    });
+  });
+
   it("returns an empty environment without storage reads when no variables are declared", async () => {
     const launch = launchFixture();
 

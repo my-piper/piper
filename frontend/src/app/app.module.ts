@@ -110,6 +110,7 @@ import { EditPipelineEnvironmentComponent } from "./edit-pipeline-environment/ed
 import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipeline-readme.component";
 import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
 import { EditProjectComponent } from "./edit-project/edit-project.component";
+import { MeEnvironmentComponent } from "./me-environment/me-environment.component";
 import { ProjectSettingsComponent } from "./project-settings/project-settings.component";
 import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refills.component";
 import { ExpensesComponent } from "./expenses/expenses.component";
@@ -272,6 +273,7 @@ import { UsersComponent } from "./users/users.component";
     PipelineNodeUpdatesPipe,
     MeUserComponent,
     ExpensesComponent,
+    MeEnvironmentComponent,
     PipelineUsagesComponent,
     BalanceRefillsComponent,
     PlayViaApiComponent,

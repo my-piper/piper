@@ -166,6 +166,20 @@
     "message.no_node_runs": "Запусков нод не записано.",
     "label.avg_wait": "Ср. ожидание",
     "label.runs_last_30_days": "Запуски · 30д",
-    "link.stats": "Статистика"
+    "link.stats": "Статистика",
+    "message.project_environment_inherits": "Пустые переменные берутся из {$START_LINK}вашего окружения{$CLOSE_LINK}, общего для всех ваших проектов.",
+    "label.inherited_from_user_environment": "Унаследовано из вашего окружения:",
+    "label.my_environment": "Моё окружение",
+    "message.user_environment_explained": "Эти переменные общие для всех ваших проектов. Проект использует их для каждой переменной, которую оставил пустой.",
+    "label.name": "Имя",
+    "label.value": "Значение",
+    "label.string": "Строка",
+    "label.number": "Число",
+    "label.boolean": "Логическое",
+    "action.remove": "Удалить",
+    "message.no_user_variables": "У вас пока нет переменных.",
+    "action.add_variable": "Добавить переменную",
+    "message.stored_value_leave_empty": "Сохранено, оставьте пустым, чтобы не менять",
+    "link.my_environment": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Моё окружение"
   }
 }

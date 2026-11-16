@@ -10,7 +10,7 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute, provideRouter } from "@angular/router";
+import { ActivatedRoute, provideRouter, RouterLink } from "@angular/router";
 import { of } from "rxjs";
 import { EditPipelineEnvironmentComponent } from "src/app/edit-pipeline-environment/edit-pipeline-environment.component";
 import { Environment } from "src/models/environment";
@@ -35,7 +35,8 @@ import { editJson, JsonEditorStubComponent } from "../helpers/json-editor-stub";
  * Wire contracts (backend/api/environment):
  * - GET /api/me/environment → `{ variables }` (MeEnvironmentResolver);
  * - PUT /api/me/environment `{ variables }` merges into the user environment;
- * - DELETE /api/me/environment drops it.
+ * - the project tab never deletes the user environment; its Clear drops only
+ *   the project's own variables.
  * Pipeline-scoped variables live in `project.environment` and reach the
  * backend through the regular project autosave.
  */
@@ -79,7 +80,12 @@ describe("EditPipelineEnvironmentComponent", () => {
     asJitPipes(TickerPipe, PipelineEnvironmentPipe);
     TestBed.configureTestingModule({
       declarations: [EditPipelineEnvironmentComponent, PipelineEnvironmentPipe],
-      imports: [ReactiveFormsModule, UiKitModule, JsonEditorStubComponent],
+      imports: [
+        ReactiveFormsModule,
+        RouterLink,
+        UiKitModule,
+        JsonEditorStubComponent,
+      ],
       providers: [
         provideTestConfig(),
         provideRouter([]),
@@ -194,19 +200,66 @@ describe("EditPipelineEnvironmentComponent", () => {
     finish();
   }));
 
-  it("clears the user environment", fakeAsync(() => {
-    setup();
+  it("leaves project variables the project doesn't set to the user environment", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.variables.delete("RETRIES");
+    setup(project, userEnvironment({ OPENAI_KEY: "sk-user", RETRIES: 9 }));
 
-    button("Clear").click();
+    expect(editorValue()).toEqual({
+      variables: { OPENAI_KEY: "sk-user", API_URL: "http://dummy.piper.test" },
+    });
+    expect(element.querySelector(".inherited").textContent).toContain(
+      "RETRIES",
+    );
+    finish();
+  }));
+
+  it("doesn't store emptied variables so they inherit", fakeAsync(() => {
+    const project = setup();
+    editJson(element, {
+      variables: { OPENAI_KEY: "sk-user", API_URL: "", RETRIES: null },
+    });
+    fixture.detectChanges();
+
+    button("Save").click();
     const request = controller.expectOne(ENVIRONMENT_URL);
-    const busy = button("Clear").classList.contains("busy");
     request.flush(null);
     settle();
 
-    expect(request.request.method).toBe("DELETE");
-    expect(busy).toBeTrue();
-    expect(button("Clear").classList).not.toContain("busy");
-    expect(element.querySelector("app-informer")).toBeNull();
+    expect(request.request.body).toEqual({
+      variables: { OPENAI_KEY: "sk-user" },
+    });
+    expect(toPlain(project.environment)).toEqual({ variables: {} });
+    finish();
+  }));
+
+  it("keeps inheriting a variable the editor filled with its default", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.variables.delete("RETRIES");
+    setup(project, userEnvironment({ RETRIES: 9 }));
+    editJson(element, { variables: { API_URL: "", RETRIES: 0 } });
+    fixture.detectChanges();
+
+    button("Save").click();
+    controller.expectOne(ENVIRONMENT_URL).flush(null);
+    settle();
+
+    expect(toPlain(project.environment)).toEqual({ variables: {} });
+    finish();
+  }));
+
+  it("clears only the project's own variables", fakeAsync(() => {
+    const project = setup();
+
+    button("Clear").click();
+    fixture.detectChanges();
+
+    controller.expectNone(ENVIRONMENT_URL);
+    expect(toPlain(project.environment)).toEqual({ variables: {} });
+    expect(manager.status.value).toBe("dirty");
+    expect(editorValue()).toEqual({
+      variables: { OPENAI_KEY: "sk-user", API_URL: "http://user.piper.test" },
+    });
     finish();
   }));
 });

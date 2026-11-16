@@ -9,6 +9,12 @@
   won't bill you for execution of this pipeline.
 </p>
 
+<p i18n="@@message.project_environment_inherits">
+  Variables you leave empty are taken from
+  <a [routerLink]="['/me', 'environment']">your environment</a>, shared by all
+  your projects.
+</p>
+
 <ng-template #noVariablesTemplate>
   <p i18n="@@message.no_environment_variables">
     No one node has require environment variables.
@@ -30,6 +36,12 @@
         [features]="[]"
       ></app-json-editor>
     </fieldset>
+    <p class="inherited" *ngIf="inheritedKeys.length > 0">
+      <ng-container i18n="@@label.inherited_from_user_environment"
+        >Inherited from your environment:</ng-container
+      >
+      {{ inheritedKeys.join(", ") }}
+    </p>
     <footer class="stack horizontal justify-between">
       <button
         class="primary"
@@ -40,13 +52,7 @@
       >
         Save
       </button>
-      <button
-        class="delete-button"
-        [class.busy]="progress.deleting"
-        [disabled]="progress.deleting"
-        (click)="clear()"
-        i18n="@@action.clear"
-      >
+      <button class="delete-button" (click)="clear()" i18n="@@action.clear">
         Clear
       </button>
     </footer>
