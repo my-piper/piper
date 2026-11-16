@@ -315,7 +315,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
   private loadOutputs() {
     return this.http.get(`launches/${this.launch._id}/${this.id}/outputs`).pipe(
-      catchError((err) => of(null)),
+      catchError(() => of(null)),
       map((obj) => obj as NodeOutputs),
     );
   }

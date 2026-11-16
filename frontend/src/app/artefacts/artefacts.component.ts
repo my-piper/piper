@@ -73,7 +73,7 @@ export class ArtefactsComponent extends UntilDestroyed {
           this.cd.detectChanges();
         }),
         map((arr) =>
-          (arr as Object[]).map((e) => plainToInstance(LaunchArtefact, e))
+          (arr as object[]).map((e) => plainToInstance(LaunchArtefact, e))
         )
       )
       .subscribe({

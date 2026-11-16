@@ -11,20 +11,20 @@ logger.debug("Connect to mongo");
 mongo.connect();
 
 export default {
-  users: db.collection<Object & { _id: string }>("users"),
-  launches: db.collection<Object & { _id: string }>("launches"),
-  launchArtefacts: db.collection<Object & { _id: string }>("launchArtefacts"),
-  projects: db.collection<Object & { _id: string }>("projects"),
-  deploys: db.collection<Object & { _id: string }>("deploys"),
-  projectCategories: db.collection<Object & { _id: string }>(
+  users: db.collection<object & { _id: string }>("users"),
+  launches: db.collection<object & { _id: string }>("launches"),
+  launchArtefacts: db.collection<object & { _id: string }>("launchArtefacts"),
+  projects: db.collection<object & { _id: string }>("projects"),
+  deploys: db.collection<object & { _id: string }>("deploys"),
+  projectCategories: db.collection<object & { _id: string }>(
     "projectCategories"
   ),
-  projectTags: db.collection<Object & { _id: string }>("projectTags"),
-  projectComments: db.collection<Object & { _id: string }>("projectComments"),
-  buckets: db.collection<Object & { _id: string }>("buckets"),
-  assets: db.collection<Object & { _id: string }>("assets"),
-  batches: db.collection<Object & { _id: string }>("batches"),
-  nodes: db.collection<Object & { _id: string }>("nodes"),
-  nodePackages: db.collection<Object & { _id: string }>("nodePackages"),
-  chatMessages: db.collection<Object & { _id: string }>("chatMessages"),
+  projectTags: db.collection<object & { _id: string }>("projectTags"),
+  projectComments: db.collection<object & { _id: string }>("projectComments"),
+  buckets: db.collection<object & { _id: string }>("buckets"),
+  assets: db.collection<object & { _id: string }>("assets"),
+  batches: db.collection<object & { _id: string }>("batches"),
+  nodes: db.collection<object & { _id: string }>("nodes"),
+  nodePackages: db.collection<object & { _id: string }>("nodePackages"),
+  chatMessages: db.collection<object & { _id: string }>("chatMessages"),
 };

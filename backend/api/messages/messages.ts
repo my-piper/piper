@@ -22,10 +22,10 @@ api.get(
               .select()
               .from("pipeline_messages")
               .orderBy("createdAt desc");
-            if (!!launch) {
+            if (launch) {
               query = query.where({ launch });
             }
-            if (!!project) {
+            if (project) {
               query = query.where({ project });
             }
             return query.toString();

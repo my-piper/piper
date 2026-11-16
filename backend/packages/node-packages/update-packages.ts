@@ -11,7 +11,7 @@ export async function planUpdatePackages() {
 
   const packages = await loadRange(PACKAGES_UPDATES, NodePackageUpdates);
   for (const p of packages) {
-    if (!!p.updated) {
+    if (p.updated) {
       logger.info(`Plan update package ${p.current._id}`);
       await queues.packages.update.plan(
         { nodePackage: p.updated },

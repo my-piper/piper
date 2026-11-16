@@ -54,7 +54,7 @@ export class PlayWithProjectComponent extends UntilDestroyed {
       .get(`projects/${this.project._id}/summary`)
       .pipe(
         delay(UI_DELAY),
-        map((json) => toInstance(json as Object, ProjectSummary))
+        map((json) => toInstance(json as object, ProjectSummary))
       )
       .subscribe({
         next: (summary) => {

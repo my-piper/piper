@@ -13,7 +13,7 @@ api.get(
     checkAdmin(currentUser);
 
     const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
-    if (!!json) {
+    if (json) {
       const environment = toInstance(JSON.parse(json), Environment);
       const { variables } = environment;
       for (const [k, v] of variables || new Map<string, Primitive>()) {

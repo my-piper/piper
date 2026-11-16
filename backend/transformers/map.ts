@@ -10,7 +10,7 @@ export const objectsMapTransformer =
     value,
     type,
   }: {
-    value: { [key: string]: Object | Map<string, T> } | Map<string, T>;
+    value: { [key: string]: object | Map<string, T> } | Map<string, T>;
     type: TransformationType;
   }) => {
     switch (type) {
@@ -23,7 +23,7 @@ export const objectsMapTransformer =
           return value;
         }
         const map = new Map<string, T>();
-        const entries = Object.entries(value as { [key: string]: Object });
+        const entries = Object.entries(value as { [key: string]: object });
         for (const [key, val] of entries) {
           map.set(key, toInstance(val, model));
         }
@@ -33,7 +33,7 @@ export const objectsMapTransformer =
         if (value === null || value === undefined) {
           return value;
         }
-        const obj: { [key: string]: Object } = {};
+        const obj: { [key: string]: object } = {};
         for (const [key, val] of value as Map<string, T>) {
           obj[key] = toPlain(val);
         }
@@ -50,7 +50,7 @@ export const multipleMapTransformer =
     value,
     type,
   }: {
-    value: { [key: string]: Object } | Map<string, T>;
+    value: { [key: string]: object } | Map<string, T>;
     type: TransformationType;
   }) => {
     switch (type) {
@@ -63,7 +63,7 @@ export const multipleMapTransformer =
         }
 
         const map = new Map<string, T>();
-        const entries = Object.entries(value as { [key: string]: Object });
+        const entries = Object.entries(value as { [key: string]: object });
         for (const [key, val] of entries) {
           const model = types[val[discriminator]];
           map.set(key, toInstance(val, model));
@@ -74,7 +74,7 @@ export const multipleMapTransformer =
         if (value === null || value === undefined) {
           return value;
         }
-        const obj: { [key: string]: Object } = {};
+        const obj: { [key: string]: object } = {};
         for (const [key, val] of value as Map<string, T>) {
           obj[key] = toPlain(val);
           for (const type of Object.keys(types)) {

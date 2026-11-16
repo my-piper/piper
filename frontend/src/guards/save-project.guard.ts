@@ -8,7 +8,7 @@ import { ProjectManager } from "src/services/project.manager";
 export class SaveProjectGuard implements CanDeactivate<ProjectComponent> {
   constructor(private projectManager: ProjectManager) {}
 
-  canDeactivate(component: ProjectComponent): Observable<boolean> {
+  canDeactivate(_component: ProjectComponent): Observable<boolean> {
     const save = defer(() => {
       this.projectManager.kick();
       return this.projectManager.status.pipe(

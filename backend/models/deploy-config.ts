@@ -10,7 +10,7 @@ import { RunScope } from "./run-scope";
 
 export class DeployConfig {
   @IsOptional()
-  @Matches(/^[a-z0-9\-\_\.]{3,15}$/)
+  @Matches(/^[a-z0-9_.-]{3,15}$/)
   @Expose()
   @Type(() => String)
   prefix!: string;

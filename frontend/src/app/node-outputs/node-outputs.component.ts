@@ -39,7 +39,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
 
   ngOnInit() {
     this.listen();
-    this.route.data.subscribe(({ project, launch, node: { id, node } }) => {
+    this.route.data.subscribe(({ launch, node: { id, node } }) => {
       [this.launch, this.id, this.node] = [launch, id, node];
       this.joinRoom();
       this.loadInputs();
@@ -55,7 +55,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
     previous?.();
   }
 
-  private isMine(data: Object) {
+  private isMine(data: object) {
     const { launch, node } = plainToInstance(PipelineEvent, data);
     return launch === this.launch?._id && node === this.id;
   }
@@ -67,26 +67,16 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
 
   private listen() {
     this.socket
-      .fromEvent<Object>("node_running")
+      .fromEvent<object>("node_running")
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((data: Object) => {
+      .subscribe((data: object) => {
         if (this.isMine(data)) {
           this.loadStatus();
         }
       });
 
     this.socket
-      .fromEvent<Object>("node_done")
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe((data) => {
-        if (this.isMine(data)) {
-          this.loadStatus();
-          this.loadOutputs();
-        }
-      });
-
-    this.socket
-      .fromEvent<Object>("node_not_ready")
+      .fromEvent<object>("node_done")
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
         if (this.isMine(data)) {
@@ -96,7 +86,17 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
       });
 
     this.socket
-      .fromEvent<Object>("node_flow")
+      .fromEvent<object>("node_not_ready")
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((data) => {
+        if (this.isMine(data)) {
+          this.loadStatus();
+          this.loadOutputs();
+        }
+      });
+
+    this.socket
+      .fromEvent<object>("node_flow")
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
         if (this.isMine(data)) {

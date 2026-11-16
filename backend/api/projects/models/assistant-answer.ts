@@ -84,7 +84,7 @@ export class ChatMessage {
   changes!: PipelineChange[];
 
   @Expose()
-  @Transform(arrayTransformer<Object>())
+  @Transform(arrayTransformer<object>())
   completions!: ChatCompletionMessage[];
 }
 

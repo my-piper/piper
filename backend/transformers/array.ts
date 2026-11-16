@@ -10,7 +10,7 @@ export const arrayTransformer =
           return value;
         }
 
-        return !!value ? [value] : [];
+        return value ? [value] : [];
       default:
         throw new Error("It is not supported");
     }

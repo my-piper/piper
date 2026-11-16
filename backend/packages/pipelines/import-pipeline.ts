@@ -52,7 +52,7 @@ export async function importPipeline(user: User, source: string) {
       launchRequest: null,
     };
 
-    if (!!chunk2) {
+    if (chunk2) {
       const launchRequest = JSON.parse(chunk2) as object;
       const validate = ajv.compile(SCHEMAS.launchRequest);
       if (!validate(launchRequest)) {

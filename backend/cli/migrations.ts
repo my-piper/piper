@@ -19,12 +19,12 @@ async function runInShell(cmd: string[]) {
   try {
     const { stdout, stderr } = await run(cmd.join(" "));
     const err = stderr?.trim();
-    if (!!err) {
+    if (err) {
       logger.info(err);
     }
 
     const out = stdout?.trim();
-    if (!!out) {
+    if (out) {
       logger.info(out);
     }
   } catch (error: any) {

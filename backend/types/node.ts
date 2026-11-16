@@ -7,7 +7,7 @@ export type InputOptions = {
   required?: boolean;
 };
 
-export type OutputOptions = {};
+export type OutputOptions = Record<string, never>;
 
 export class RepeatNode {
   @Expose()

@@ -61,7 +61,7 @@ export class EditPackageComponent implements OnInit {
   }
 
   private build() {
-    if (!!this.nodePackage) {
+    if (this.nodePackage) {
       this.form.patchValue({
         nodePackage: toPlain(this.nodePackage),
       });
@@ -75,7 +75,7 @@ export class EditPackageComponent implements OnInit {
     const { nodePackage } = this.form.getRawValue();
     this.http
       .post(
-        !!this.nodePackage
+        this.nodePackage
           ? `node-packages/${this.nodePackage._id}`
           : "node-packages",
         toPlain(nodePackage)
@@ -86,11 +86,11 @@ export class EditPackageComponent implements OnInit {
           this.progress.saving = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(NodePackage, json as Object))
+        map((json) => plainToInstance(NodePackage, json as object))
       )
       .subscribe({
         next: (nodePackage) => {
-          if (!!this.nodePackage) {
+          if (this.nodePackage) {
             this.saved.emit(nodePackage);
           } else {
             this.added.emit(nodePackage);

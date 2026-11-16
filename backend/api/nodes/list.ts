@@ -15,7 +15,7 @@ api.get(
     return await mongo.nodes
       .find(
         {
-          ...(!!search
+          ...(search
             ? {
                 title: { $regex: new RegExp(search, "i") },
               }

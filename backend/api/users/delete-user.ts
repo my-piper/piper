@@ -5,7 +5,7 @@ import { checkAdmin, handle } from "utils/http";
 
 api.delete(
   "/api/users/:_id",
-  handle(({ currentUser }) => async ({ params: { _id } }, res) => {
+  handle(({ currentUser }) => async ({ params: { _id } }, _res) => {
     checkAdmin(currentUser);
 
     const { deletedCount } = await mongo.users.deleteOne({ _id });

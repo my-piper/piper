@@ -26,7 +26,7 @@ api.get(
             .where({ user: currentUser._id })
             .orderBy("cursor desc")
             .limit(PAGE_LIMIT);
-          if (!!cursor) {
+          if (cursor) {
             query = query.where(sql.lt("cursor", cursor));
           }
           return query.toString();

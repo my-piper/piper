@@ -28,7 +28,7 @@ api.patch(
     const update = new User(request);
 
     const { password } = update;
-    if (!!password) {
+    if (password) {
       assign(update, { password: await bcrypt.hash(password, 10) });
     }
 

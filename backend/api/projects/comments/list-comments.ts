@@ -15,7 +15,7 @@ api.get(
     const { cursor } = filter;
 
     return await mongo.projectComments
-      .find({ project, ...(!!cursor ? { _id: { $lt: cursor } } : {}) })
+      .find({ project, ...(cursor ? { _id: { $lt: cursor } } : {}) })
       .sort({ _id: -1 })
       .limit(20)
       .toArray();

@@ -70,7 +70,7 @@ export class AssistantComponent implements OnInit {
           this.cd.detectChanges();
         }),
         map((json) =>
-          (json as object[]).map((j: Object) => toInstance(j, ChatMessage)),
+          (json as object[]).map((j: object) => toInstance(j, ChatMessage)),
         ),
       )
       .subscribe((messages) => {
@@ -109,12 +109,12 @@ export class AssistantComponent implements OnInit {
           this.progress.sending = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, ChatMessage)),
+        map((json) => toInstance(json as object, ChatMessage)),
       )
       .subscribe((message) => {
         this.messages.push(message);
         const { changes } = message;
-        if (!!changes) {
+        if (changes) {
           const {
             pipeline: { layout, nodes, flows },
           } = this.project;
@@ -154,10 +154,11 @@ export class AssistantComponent implements OnInit {
               case "remove_node":
                 nodes.delete(data.id);
                 break;
-              case "add_flow":
+              case "add_flow": {
                 const flow = toInstance(data.json, NodeFlow);
                 flows.set(data.id, flow);
                 break;
+              }
             }
           }
 

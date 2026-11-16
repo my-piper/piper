@@ -26,7 +26,7 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
   set url(url: string | Size) {
     this._url = url;
     this.removeBadge();
-    if (!!url) {
+    if (url) {
       this.createBadge();
       this.loadImageSize();
     }

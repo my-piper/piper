@@ -85,12 +85,12 @@ export class AppConfig {
   authorization$ = new BehaviorSubject<Authorization | null>(
     (() => {
       const json = localStorage.getItem(AUTHORIZATION_KEY);
-      return !!json ? plainToInstance(Authorization, JSON.parse(json)) : null;
+      return json ? plainToInstance(Authorization, JSON.parse(json)) : null;
     })()
   );
 
   set authorization(authorization: Authorization | null) {
-    if (!!authorization) {
+    if (authorization) {
       localStorage.setItem(
         AUTHORIZATION_KEY,
         JSON.stringify(toPlain(authorization))

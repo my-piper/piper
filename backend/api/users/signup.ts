@@ -39,7 +39,7 @@ api.post(
       throw new DataError("Signup has been disabled");
     }
 
-    const request = toInstance(body as Object, SignupRequest);
+    const request = toInstance(body as object, SignupRequest);
     await validate(request);
 
     const { email, login: _id, password, code } = request;
@@ -108,7 +108,7 @@ api.post(
       throw new DataError("Signup has been disabled");
     }
 
-    const request = toInstance(body as Object, ConfirmEmailRequest);
+    const request = toInstance(body as object, ConfirmEmailRequest);
     await validate(request);
 
     const { email, captcha } = request;

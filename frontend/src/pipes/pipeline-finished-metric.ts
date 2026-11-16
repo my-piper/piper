@@ -13,7 +13,7 @@ export class PipelineFinishedMetricPipe implements PipeTransform {
       .get(`launches/${launch}/metrics/finished`)
       .pipe(
         map((json) =>
-          !!json ? plainToInstance(PipelineFinishedMetric, json) : null
+          json ? plainToInstance(PipelineFinishedMetric, json) : null
         )
       );
   }

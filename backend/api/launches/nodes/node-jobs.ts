@@ -19,7 +19,7 @@ api.get(
       if (!json) {
         throw new DataError("Launch is not found");
       }
-      return toInstance(JSON.parse(json) as Object, Launch);
+      return toInstance(JSON.parse(json) as object, Launch);
     })();
 
     const { pipeline } = launch;

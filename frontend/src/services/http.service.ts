@@ -23,7 +23,7 @@ import {
 
 const USER_TOKEN_HEADER = "user-token";
 
-type BodyType = string | Object | Object[];
+type BodyType = string | object | object[];
 
 interface HttpOptions {
   headers?: { [key: string]: string };
@@ -55,7 +55,7 @@ export class HttpService {
         if (status == 400) {
           const err =
             typeof error === "object"
-              ? plainToInstance(DataError, error as Object)
+              ? plainToInstance(DataError, error as object)
               : new DataError(error);
           return err;
         } else if (status == 401) {
@@ -114,7 +114,7 @@ export class HttpService {
 
   post(
     path: string,
-    data: {} | string | null = null,
+    data: object | string | null = null,
     options?: HttpOptions
   ): Observable<BodyType> {
     return this.http
@@ -126,7 +126,7 @@ export class HttpService {
 
   patch(
     path: string,
-    data: {} | FormData | string | null = null,
+    data: object | FormData | string | null = null,
     options?: HttpOptions
   ): Observable<BodyType> {
     return this.http
@@ -138,7 +138,7 @@ export class HttpService {
 
   put(
     path: string,
-    data: {} | FormData | string | null = null,
+    data: object | FormData | string | null = null,
     options?: HttpOptions
   ): Observable<BodyType> {
     return this.http
@@ -158,7 +158,7 @@ export class HttpService {
 
   getRequestOptions(
     { params, headers, responseType }: HttpOptions = {},
-    data?: string | FormData | Object
+    data?: string | FormData | object
   ) {
     const options = {
       // withCredentials: true,
@@ -168,10 +168,10 @@ export class HttpService {
       headers: {
         ...headers,
         ...(() =>
-          !!this.config.authorization
+          this.config.authorization
             ? { [USER_TOKEN_HEADER]: this.config.authorization.token }
             : {})(),
-        ...(!!data
+        ...(data
           ? (() => {
               if (typeof data == "string") {
                 return {
@@ -186,7 +186,7 @@ export class HttpService {
           : {}),
       },
       ...(() => {
-        return !!params
+        return params
           ? { params: new HttpParams({ fromObject: params }) }
           : {};
       })(),

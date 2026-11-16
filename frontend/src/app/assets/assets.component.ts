@@ -146,7 +146,7 @@ export class AssetsComponent implements OnInit {
       {
         ...this.filter,
         ...this.form.getRawValue(),
-        ...(!!cursor ? { cursor } : {}),
+        ...(cursor ? { cursor } : {}),
       },
       AssetsFilter,
     );
@@ -160,7 +160,7 @@ export class AssetsComponent implements OnInit {
           this.cd.detectChanges();
         }),
         map((arr) =>
-          (arr as Object[]).map((plain) => toInstance(plain, Asset)),
+          (arr as object[]).map((plain) => toInstance(plain, Asset)),
         ),
       )
       .subscribe({
@@ -175,7 +175,7 @@ export class AssetsComponent implements OnInit {
 
   loadMore() {
     const asset = last(this.assets);
-    if (!!asset) {
+    if (asset) {
       this.load(asset.cursor);
     }
   }
@@ -186,13 +186,13 @@ export class AssetsComponent implements OnInit {
 
     const t = target as HTMLInputElement;
     const file = first(t.files);
-    let formData = new FormData();
-    if (!!this.project) {
+    const formData = new FormData();
+    if (this.project) {
       formData.append("project", this.project._id);
     }
 
     const { folder } = this.form.getRawValue();
-    if (!!folder) {
+    if (folder) {
       formData.append("folder", folder);
     }
     formData.append("file", file);
@@ -205,7 +205,7 @@ export class AssetsComponent implements OnInit {
           this.progress.uploading = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Asset)),
+        map((json) => toInstance(json as object, Asset)),
       )
       .subscribe({
         next: (asset) => {

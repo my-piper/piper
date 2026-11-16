@@ -13,13 +13,13 @@ export class LaunchesResolver implements Resolve<{ [key: string]: Launch }> {
 
   resolve(route: ActivatedRouteSnapshot) {
     const { launches: qs } = route.params;
-    if (!!qs) {
+    if (qs) {
       const ids = parse(qs.replace(/:/g, "="), { delimiter: "," });
       return forkJoin(
         mapValues(ids, (id) =>
           this.http
             .get(`launches/${id}`)
-            .pipe(map((plain) => plainToInstance(Launch, plain as Object)))
+            .pipe(map((plain) => plainToInstance(Launch, plain as object)))
         )
       );
     } else {

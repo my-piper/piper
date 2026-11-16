@@ -14,9 +14,9 @@ const commands = new Command("env")
   .argument("[user]")
   .action(async (user?: string) => {
     const json = await redis.get(
-      !!user ? USER_ENVIRONMENT_KEY(user) : GLOBAL_ENVIRONMENT_KEY
+      user ? USER_ENVIRONMENT_KEY(user) : GLOBAL_ENVIRONMENT_KEY
     );
-    const environment = !!json
+    const environment = json
       ? toInstance(JSON.parse(json), Environment)
       : new Environment({
           variables: new Map<string, Primitive>(),
@@ -40,7 +40,7 @@ commands
     encrypt(environment);
 
     const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
-    const global = !!json
+    const global = json
       ? toInstance(JSON.parse(json), Environment)
       : new Environment({
           variables: new Map<string, Primitive>(),
@@ -55,7 +55,7 @@ commands
 commands.command("remove <name>").action(async (name: string) => {
   console.log(`Remove variable ${name}`);
   const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
-  const environment = !!json
+  const environment = json
     ? toInstance(JSON.parse(json), Environment)
     : new Environment({
         variables: new Map<string, Primitive>(),

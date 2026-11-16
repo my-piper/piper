@@ -20,7 +20,7 @@ export async function add(data: Partial<User>): Promise<User> {
   }
 
   const { password } = user;
-  if (!!password) {
+  if (password) {
     assign(user, { password: await bcrypt.hash(password, 10) });
   }
 

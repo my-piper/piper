@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { CustomJSONSchema7 } from "types/json-schema";
 
-export async function loadSchema(schema: Object): Promise<CustomJSONSchema7> {
+export async function loadSchema(schema: object): Promise<CustomJSONSchema7> {
   return dereference(schema as CustomJSONSchema7, {
     resolve: {
       local: {
@@ -13,7 +13,7 @@ export async function loadSchema(schema: Object): Promise<CustomJSONSchema7> {
           const filePath = path.join(
             process.cwd(),
             "schemas",
-            url.replace(/^local\:\/\//, "")
+            url.replace(/^local:\/\//, "")
           );
           return JSON.parse(await readFile(filePath, "utf-8"));
         },

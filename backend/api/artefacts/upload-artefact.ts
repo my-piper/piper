@@ -20,7 +20,7 @@ api.post(
 
     const file = await new Promise<File>((done, reject) => {
       upload(req, res, (error) => {
-        if (!!error) {
+        if (error) {
           reject(new DataError("Can't upload file"));
         }
         done(req["file"]);
@@ -30,7 +30,8 @@ api.post(
       throw new DataError("Can't upload file");
     }
 
-    let { mimetype: mimeType, buffer } = file;
+    const { mimetype: mimeType } = file;
+    let { buffer } = file;
 
     const ext = extFromMime(mimeType);
 

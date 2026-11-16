@@ -14,19 +14,19 @@ export class ArtefactsFilter {
   @Type(() => String)
   type?: string;
 
-  @Matches(/^[a-z0-9\-]{5,30}$/)
+  @Matches(/^[a-z0-9-]{5,30}$/)
   @IsOptional()
   @Expose()
   @Type(() => String)
   project?: string;
 
-  @Matches(/^[a-z0-9\-]{5,30}$/)
+  @Matches(/^[a-z0-9-]{5,30}$/)
   @IsOptional()
   @Expose()
   @Type(() => String)
   launch?: string;
 
-  @Matches(/^[a-z0-9\-\_]{5,60}$/)
+  @Matches(/^[a-z0-9_-]{5,60}$/)
   @IsOptional()
   @Expose()
   @Type(() => String)

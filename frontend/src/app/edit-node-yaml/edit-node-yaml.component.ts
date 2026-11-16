@@ -45,7 +45,6 @@ export class EditNodeYamlComponent implements OnInit {
   }
 
   private save() {
-    const { pipeline } = this.project;
     const { node: yaml } = this.form.getRawValue();
     const node = plainToInstance(Node, YAML.parse(<string>yaml));
     assign(this.node, node);

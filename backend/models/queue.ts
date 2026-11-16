@@ -1,7 +1,7 @@
 import { Expose, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 
-export class RepeatJob<T extends Object> {
+export class RepeatJob<T extends object> {
   job: T;
   delay: number;
 

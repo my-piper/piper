@@ -26,7 +26,7 @@ export class PipelineNodeUpdatesPipe
         .get(`projects/${project}/check-node-updates`)
         .pipe(
           map((json) =>
-            !!json ? plainToInstance(PipelineNodeUpdates, json) : null,
+            json ? plainToInstance(PipelineNodeUpdates, json) : null,
           ),
         )
         .subscribe((updates) => {

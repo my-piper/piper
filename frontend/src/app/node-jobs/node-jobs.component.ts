@@ -45,7 +45,7 @@ export class NodeJobsComponent extends UntilDestroyed {
 
   private listen() {
     this.socket
-      .fromEvent<Object>("node_gonna_repeat")
+      .fromEvent<object>("node_gonna_repeat")
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
@@ -67,7 +67,7 @@ export class NodeJobsComponent extends UntilDestroyed {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as Object[]).map((e) => plainToInstance(NodeJob, e))),
+        map((arr) => (arr as object[]).map((e) => plainToInstance(NodeJob, e))),
       )
       .subscribe({
         next: (jobs) => (this.jobs = jobs),

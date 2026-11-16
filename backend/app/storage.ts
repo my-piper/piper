@@ -18,7 +18,7 @@ async function upload(
 }
 
 async function getKey(data: Buffer, fileName: string | null = null) {
-  return !!fileName
+  return fileName
     ? (() => {
         const createdAt = new Date();
         const [y, m, d] = [

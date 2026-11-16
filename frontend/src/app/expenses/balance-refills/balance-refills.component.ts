@@ -35,7 +35,7 @@ export class BalanceRefillsComponent implements OnInit {
 
   loadMore() {
     const refill = last(this.refills);
-    if (!!refill) {
+    if (refill) {
       this.load(refill.cursor);
     }
   }
@@ -49,7 +49,7 @@ export class BalanceRefillsComponent implements OnInit {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) =>
+          (arr as object[]).map((plain) =>
             plainToInstance(BalanceRefill, plain)
           )
         ),

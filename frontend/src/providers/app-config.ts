@@ -10,7 +10,7 @@ export class Prerender {
   config?: AppConfig;
 }
 
-declare var PRERENDER: Prerender;
+declare let PRERENDER: Prerender;
 const PRERENDER_KEY = "prerender";
 
 export function appConfigFactory(): AppConfig {
@@ -19,12 +19,12 @@ export function appConfigFactory(): AppConfig {
       PRERENDER ||
       (() => {
         const json = localStorage.getItem(PRERENDER_KEY);
-        if (!!json) {
+        if (json) {
           return JSON.parse(json);
         }
         return null;
       })();
-    if (!!json) {
+    if (json) {
       return toInstance(json, Prerender);
     }
 

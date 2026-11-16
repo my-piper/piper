@@ -73,7 +73,7 @@ export class LoginComponent implements OnInit {
           this.progress.login = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Authorization))
+        map((json) => toInstance(json as object, Authorization))
       )
       .subscribe({
         next: (authorization) => {

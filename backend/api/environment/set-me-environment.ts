@@ -17,7 +17,7 @@ api.put(
     await validate(update);
 
     const json = await redis.get(USER_ENVIRONMENT_KEY(currentUser._id));
-    const environment = !!json
+    const environment = json
       ? toInstance(JSON.parse(json), Environment)
       : new Environment({
           variables: new Map<string, Primitive>(),

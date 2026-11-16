@@ -15,17 +15,17 @@ export class ImageProxyPipe implements PipeTransform {
     const { width, height, format } = assign({ offset: 0, scale: 0.15 }, defs);
     const chunks = ["/xyz"];
 
-    if (!!width) {
+    if (width) {
       chunks.push(`width:${width}`);
     }
 
-    if (!!height) {
+    if (height) {
       chunks.push(`height:${height}`);
     }
 
     const url = /^\//.test(src) ? `local://${src}` : src;
 
     chunks.push(trimEnd(Base64.encode(url), "="));
-    return chunks.join("/") + (!!format ? `.${format}` : "");
+    return chunks.join("/") + (format ? `.${format}` : "");
   }
 }

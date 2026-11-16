@@ -19,14 +19,14 @@ export class MeManager {
   user$ = new BehaviorSubject<User | null>(
     (() => {
       const json = localStorage.getItem(USER_KEY);
-      return !!json ? plainToInstance(User, JSON.parse(json)) : null;
+      return json ? plainToInstance(User, JSON.parse(json)) : null;
     })()
   );
 
   private set user(user: User | null) {
     this.user$.next(user);
 
-    if (!!user) {
+    if (user) {
       localStorage.setItem(USER_KEY, JSON.stringify(toPlain(user)));
       this.subscribe();
     } else {
@@ -45,14 +45,14 @@ export class MeManager {
     private http: HttpService
   ) {
     this.config.authorization$.subscribe((authorization) => {
-      if (!!authorization) {
+      if (authorization) {
         this.loadUser();
       } else {
         this.user = null;
       }
     });
     this.live.socket
-      .fromEvent<Object>("user_balance_updated")
+      .fromEvent<object>("user_balance_updated")
       .pipe(map((json) => plainToInstance(BalanceUpdatedEvent, json)))
       .subscribe(() => this.loadUser());
   }

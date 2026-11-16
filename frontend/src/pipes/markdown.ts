@@ -21,7 +21,7 @@ export class MarkdownPipe implements PipeTransform {
   ): Observable<SafeHtml> {
     return new Observable<string | SafeHtml>((subscriber) => {
       const content = (() => {
-        if (/^http\:\/\//.test(markdown)) {
+        if (/^http:\/\//.test(markdown)) {
           const url = markdown;
           return this.http.get<string>(url, { responseType: "text" as "json" });
         }

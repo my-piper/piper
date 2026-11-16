@@ -12,6 +12,6 @@ export class MeEnvironmentResolver implements Resolve<Environment> {
   resolve() {
     return this.http
       .get("me/environment")
-      .pipe(map((plain) => plainToInstance(Environment, plain as Object)));
+      .pipe(map((plain) => plainToInstance(Environment, plain as object)));
   }
 }

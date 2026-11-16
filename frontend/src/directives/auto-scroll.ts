@@ -19,7 +19,7 @@ export class AutoScrollDirective implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (!!this.observer) {
+    if (this.observer) {
       this.observer.disconnect();
     }
   }

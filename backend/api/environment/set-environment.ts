@@ -17,7 +17,7 @@ api.put(
     await validate(update);
 
     const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
-    const environment = !!json
+    const environment = json
       ? toInstance(JSON.parse(json), Environment)
       : new Environment({
           variables: new Map<string, Primitive>(),

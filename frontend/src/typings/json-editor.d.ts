@@ -1,7 +1,6 @@
 declare module "@json-editor/json-editor" {
-  interface JSONEditorOptions {
-    // Define the properties of JSONEditorOptions here
-  }
+  // Options are not typed yet; any object is accepted.
+  type JSONEditorOptions = object;
 
   class JSONEditor {
     constructor(element: HTMLElement, options: JSONEditorOptions);

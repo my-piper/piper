@@ -5,7 +5,7 @@ export const CHROME_USER_DIR =
 export const CHROME_REMOTE_POST =
   (() => {
     const port = process.env["CHROME_REMOTE_POST"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return 0;
@@ -13,7 +13,7 @@ export const CHROME_REMOTE_POST =
 export const CHROME_SERVICE_POST =
   (() => {
     const port = process.env["CHROME_SERVICE_POST"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return 0;

@@ -68,9 +68,9 @@ export class SigupComponent implements OnInit {
     }
 
     this.emailControl.valueChanges.subscribe((email) => {
-      if (!!email) {
+      if (email) {
         const [login] = email.split("@");
-        if (!!login) {
+        if (login) {
           this.loginControl.setValue(login.slice(0, 14));
         }
       }
@@ -125,7 +125,7 @@ export class SigupComponent implements OnInit {
           this.progress.signup = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Authorization, json as Object))
+        map((json) => plainToInstance(Authorization, json as object))
       )
       .subscribe({
         next: (authorization) => {

@@ -66,7 +66,7 @@ queues.launches.artefacts.save.process(async (job) => {
       launch: launch._id,
       node: job.node,
       filledAt: new Date(),
-      launchedBy: !!launchedBy
+      launchedBy: launchedBy
         ? (() => {
             const { _id } = launchedBy;
             return new User({ _id });

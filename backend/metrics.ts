@@ -36,7 +36,7 @@ app.get("/metrics", async (req, res) => {
 const PORT =
   (() => {
     const port = env["METRICS_PORT"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return 0;

@@ -68,7 +68,7 @@ queues.launches.outputs.set.process(async (job) => {
     project: project._id,
     launch: launch._id,
     filledAt: new Date(),
-    launchedBy: !!launchedBy
+    launchedBy: launchedBy
       ? (() => {
           const { _id } = launchedBy;
           return new User({ _id });
@@ -99,7 +99,7 @@ queues.launches.outputs.set.process(async (job) => {
     },
   ]);
 
-  if (!!launchedBy) {
+  if (launchedBy) {
     const event = mapTo(
       {
         launch: launch._id,

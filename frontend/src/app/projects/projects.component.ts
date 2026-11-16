@@ -79,7 +79,7 @@ export class ProjectsComponent implements OnInit {
 
   set modal(modal: ImportProjectComponent) {
     this._modal = modal;
-    if (!!modal) {
+    if (modal) {
       modal.imported.subscribe((project) => {
         this.projects.unshift(project);
         this.cd.detectChanges();
@@ -205,7 +205,7 @@ export class ProjectsComponent implements OnInit {
           this.cd.detectChanges();
         }),
         map((arr) =>
-          (arr as Object[]).map((plain) => toInstance(plain, Project)),
+          (arr as object[]).map((plain) => toInstance(plain, Project)),
         ),
       )
       .subscribe({
@@ -335,7 +335,7 @@ export class ProjectsComponent implements OnInit {
           this.cd.detectChanges();
         }),
         map((arr) =>
-          (arr as Object[]).map((plain) => toInstance(plain, Project)),
+          (arr as object[]).map((plain) => toInstance(plain, Project)),
         ),
       )
       .subscribe({
@@ -383,7 +383,7 @@ export class ProjectsComponent implements OnInit {
 
   loadMore() {
     const project = last(this.projects);
-    if (!!project) {
+    if (project) {
       this.load(project.cursor);
     }
   }
@@ -406,7 +406,7 @@ export class ProjectsComponent implements OnInit {
           this.references?.popover?.hide();
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Project, json as Object)),
+        map((json) => plainToInstance(Project, json as object)),
       )
       .subscribe({
         next: (project) => {

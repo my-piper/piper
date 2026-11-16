@@ -21,7 +21,7 @@ api.get(
           ? {}
           : { "launchedBy._id": currentUser._id }),
         ...(() => (parent !== "null" ? { parent } : { parent: null }))(),
-        ...(() => (!!project ? { "project._id": project } : {}))(),
+        ...(() => (project ? { "project._id": project } : {}))(),
         ...(() => (cursor ? { cursor: { $lt: cursor } } : {}))(),
       })
       .sort({ launchedAt: -1 })

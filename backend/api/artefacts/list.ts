@@ -23,9 +23,9 @@ api.get(
           ? {}
           : { "launchedBy._id": currentUser._id }),
         ...(() => (type ? { type } : {}))(),
-        ...(!!project ? { project } : {}),
-        ...(!!launch ? { launch } : {}),
-        ...(!!node ? { node } : {}),
+        ...(project ? { project } : {}),
+        ...(launch ? { launch } : {}),
+        ...(node ? { node } : {}),
         ...(() => (cursor ? { cursor: { $lt: cursor } } : {}))(),
       })
       .sort({ cursor: -1 })

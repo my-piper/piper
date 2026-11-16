@@ -10,7 +10,7 @@ export class SigninNeededGuard implements CanActivate {
   ) {}
 
   canActivate(): boolean | UrlTree {
-    return !!this.config.authorization
+    return this.config.authorization
       ? true
       : this.router.createUrlTree(["login"]);
   }

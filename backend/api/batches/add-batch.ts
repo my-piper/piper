@@ -12,7 +12,7 @@ api.post(
   handle(({ currentUser }) => async (req) => {
     checkLogged(currentUser);
 
-    const request = toInstance(req.body as Object, AddBatchRequest);
+    const request = toInstance(req.body as object, AddBatchRequest);
     await validate(request);
 
     const { title } = request;

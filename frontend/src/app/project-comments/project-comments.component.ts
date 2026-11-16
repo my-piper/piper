@@ -65,7 +65,7 @@ export class ProjectCommentsComponent {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) => toInstance(plain, ProjectComment))
+          (arr as object[]).map((plain) => toInstance(plain, ProjectComment))
         ),
         finalize(() => {
           this.progress.loading = false;
@@ -84,7 +84,7 @@ export class ProjectCommentsComponent {
 
   loadMore() {
     const comment = last(this.comments);
-    if (!!comment) {
+    if (comment) {
       this.loadComments(comment._id);
     }
   }

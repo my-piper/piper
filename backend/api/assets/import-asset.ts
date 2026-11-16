@@ -18,7 +18,7 @@ api.post(
   handle(({ currentUser }) => async ({ body }: Request) => {
     checkLogged(currentUser);
 
-    const request = toInstance(body as Object, ImportAsset);
+    const request = toInstance(body as object, ImportAsset);
     await validate(request);
 
     const { url } = request;

@@ -62,7 +62,7 @@ export async function completeNode({
   logger.debug(`Node behavior is ${behavior}`);
 
   let converted: { [key: string]: Primitive } = {};
-  if (!!outputs) {
+  if (outputs) {
     converted = await convertOutputs({
       launch,
       node: nodeJob.node,
@@ -76,7 +76,7 @@ export async function completeNode({
       JSON.stringify(converted)
     );
 
-    if (!!launchRequest.options?.bucket) {
+    if (launchRequest.options?.bucket) {
       await queues.launches.artefacts.save.plan({
         launch: launch._id,
         node: nodeJob.node,
@@ -89,7 +89,7 @@ export async function completeNode({
     await lock(PROCESSED_LOCK, LAUNCH_EXPIRED);
   }
 
-  if (!!reset) {
+  if (reset) {
     const { inputs } = reset;
     logger.debug("Reset inputs for node");
     for (const i of inputs) {
@@ -106,10 +106,10 @@ export async function completeNode({
   notifyNode(nodeJob.node, "node_done");
 
   const related = new Set<string>();
-  if (!!pipeline.flows) {
+  if (pipeline.flows) {
     for (const [id, flow] of pipeline.flows) {
       if (flow.from === nodeJob.node) {
-        let value = converted[flow.output];
+        const value = converted[flow.output];
         if (value !== undefined) {
           related.add(flow.to);
           logger.debug(
@@ -130,7 +130,7 @@ export async function completeNode({
           switch (flow.transformer?.type) {
             case "json": {
               const { path } = flow.transformer;
-              if (!!path) {
+              if (path) {
                 let json: object = null;
 
                 try {
@@ -181,7 +181,7 @@ export async function completeNode({
               switch (output.type) {
                 case "image[]":
                   switch (input.type) {
-                    case "image":
+                    case "image": {
                       const {
                         transformer: { index },
                       } = flow;
@@ -190,6 +190,7 @@ export async function completeNode({
                         array[Math.min(array.length - 1, index)] || null;
                       await setNodeInputValue(element);
                       break;
+                    }
                   }
                   break;
               }
@@ -221,7 +222,7 @@ export async function completeNode({
     }
   }
 
-  if (!!kicks) {
+  if (kicks) {
     for (const kick of kicks) {
       await plan(kick, pipeline.nodes.get(kick), launch._id, { delay });
     }
@@ -230,11 +231,11 @@ export async function completeNode({
   const { launchedAt } = launch;
   const processedAt = new Date();
 
-  if (!!pipeline.outputs) {
+  if (pipeline.outputs) {
     let total = 0,
       filled = 0;
     for (const [key, output] of pipeline.outputs) {
-      if (!!output.flows) {
+      if (output.flows) {
         for (const [, flow] of output.flows) {
           if (flow.from === nodeJob.node) {
             const value = converted[flow.output];
@@ -272,7 +273,7 @@ export async function completeNode({
 
     if (filled > 0) {
       for (const [key, output] of pipeline.outputs) {
-        if (!!output.flows) {
+        if (output.flows) {
           for (const [, flow] of output.flows) {
             if (flow.from !== nodeJob.node) {
               const value = await redis.get(PIPELINE_OUTPUT(launch._id, key));
@@ -286,7 +287,7 @@ export async function completeNode({
       logger.info(`Filled ${filled} from ${total} in pipeline outputs`);
       if (filled >= total) {
         const { scope, launchedBy } = launch;
-        if (!!scope) {
+        if (scope) {
           logger.info(`Remove launch from scope ${scope.id}`);
           await redis.lRem(scope.id, 0, launch._id);
         }

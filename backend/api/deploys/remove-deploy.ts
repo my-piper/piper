@@ -14,7 +14,7 @@ const remove = handle(
       }
 
       await redis.del(DEPLOY(slug, prefix));
-      const _id = [...(!!prefix ? [prefix] : []), slug].join("_");
+      const _id = [...(prefix ? [prefix] : []), slug].join("_");
       await mongo.deploys.deleteOne({ _id });
       return null;
     }

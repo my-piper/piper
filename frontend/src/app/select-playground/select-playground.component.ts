@@ -81,7 +81,7 @@ export class SelectPlaygroundComponent {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) =>
+          (arr as object[]).map((plain) =>
             plainToInstance(PipelineCategory, plain)
           )
         ),
@@ -137,7 +137,7 @@ export class SelectPlaygroundComponent {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) => plainToInstance(Project, plain))
+          (arr as object[]).map((plain) => plainToInstance(Project, plain))
         ),
         finalize(() => {
           this.progress.loading.projects = false;

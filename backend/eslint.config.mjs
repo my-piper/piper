@@ -29,6 +29,9 @@ export default tseslint.config(
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
+          // `const { omitted, ...rest } = x` drops a field on purpose
+          ignoreRestSiblings: true,
+          caughtErrors: "none",
         },
       ],
       "@typescript-eslint/explicit-function-return-type": "off",
@@ -48,7 +51,25 @@ export default tseslint.config(
       "no-console": "off",
       "prefer-const": "error",
       "no-var": "error",
-      eqeqeq: ["error", "always"],
+      eqeqeq: ["error", "always", { null: "ignore" }],
+    },
+  },
+  {
+    // A focused test silently skips the rest of the suite in CI.
+    files: ["tests/**"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.name=/^f(describe|it)$/]",
+          message:
+            "Commit the whole suite: replace fdescribe/fit with describe/it.",
+        },
+        {
+          selector: "MemberExpression[property.name='only']",
+          message: "Commit the whole suite: remove .only.",
+        },
+      ],
     },
   }
 );

@@ -9,7 +9,7 @@ const logger = createLogger("oauth");
 const PORT =
   (() => {
     const port = env["OAUTH_PORT"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return 0;

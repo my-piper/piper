@@ -13,11 +13,11 @@ export class LaunchesFilterResolver implements Resolve<LaunchesFilter> {
       ...this.filter,
       ...(() => {
         const { _id } = (route.parent.data["project"] as Project) || {};
-        return !!_id ? { project: _id } : {};
+        return _id ? { project: _id } : {};
       })(),
       ...(() => {
         const { _id } = (route.parent.data["launch"] as Launch) || {};
-        return !!_id ? { parent: _id } : {};
+        return _id ? { parent: _id } : {};
       })(),
     });
   }
@@ -29,7 +29,7 @@ export class NestedLaunchesFilterResolver implements Resolve<LaunchesFilter> {
     return new LaunchesFilter({
       ...(() => {
         const { _id } = (route.parent.data["launch"] as Launch) || {};
-        return !!_id ? { parent: _id } : {};
+        return _id ? { parent: _id } : {};
       })(),
     });
   }
@@ -49,7 +49,7 @@ export class ProjectPlaygroundLaunchesFilterResolver
       })(),
       ...(() => {
         const { _id } = (route.parent.data["project"] as Project) || {};
-        return !!_id ? { project: _id } : {};
+        return _id ? { project: _id } : {};
       })(),
     });
   }

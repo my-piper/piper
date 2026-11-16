@@ -39,7 +39,7 @@ export class PipelineMessagesComponent implements OnInit {
 
   listen() {
     this.socket
-      .fromEvent<Object>("pipeline_message")
+      .fromEvent<object>("pipeline_message")
       .subscribe(() => this.load());
   }
 
@@ -56,8 +56,8 @@ export class PipelineMessagesComponent implements OnInit {
           this.cd.detectChanges();
         }),
         map((arr) =>
-          (arr as Object[]).map((e) =>
-            plainToInstance(PipelineMessage, e as Object)
+          (arr as object[]).map((e) =>
+            plainToInstance(PipelineMessage, e as object)
           )
         )
       )

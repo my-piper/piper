@@ -47,12 +47,12 @@ export function getPipelineEnvironment(pipeline: Pipeline) {
 
   const { variables } = schema.properties;
   for (const [, node] of pipeline.nodes) {
-    if (!!node.environment) {
+    if (node.environment) {
       for (const [key, { title, type, description }] of node.environment) {
         variables.properties[key] = {
           title,
           type,
-          description: !!description
+          description: description
             ? (marked.parse(description) as string)
             : null,
           options: {

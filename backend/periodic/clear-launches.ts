@@ -4,7 +4,7 @@ import subDays from "date-fns/subDays";
 
 const MAX_STORE_LAUNCH_DAYS = (() => {
   const value = process.env["MAX_STORE_LAUNCH_DAYS"];
-  if (!!value) {
+  if (value) {
     return parseInt(value);
   }
   return 7;

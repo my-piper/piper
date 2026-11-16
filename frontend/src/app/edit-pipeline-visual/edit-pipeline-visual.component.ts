@@ -457,7 +457,7 @@ export class EditPipelineVisualComponent
     }
     if (!isEmpty(this.launches)) {
       const launches = mapValues(this.launches, (l) => l._id);
-      const qs = stringify(launches, { delimiter: "," }).replace(/\=/g, ":");
+      const qs = stringify(launches, { delimiter: "," }).replace(/=/g, ":");
       assign(params, { launches: qs });
     }
 

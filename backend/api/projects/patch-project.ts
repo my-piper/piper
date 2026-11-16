@@ -34,7 +34,7 @@ api.patch(
     await validate(request);
 
     const project = toModel(
-      await mongo.projects.findOne<{ pipeline: Object }>(
+      await mongo.projects.findOne<{ pipeline: object }>(
         {
           _id,
         },
@@ -42,9 +42,9 @@ api.patch(
           projection: {
             revision: 1,
             createdBy: 1,
-            ...(!!request.pipeline ? { pipeline: 1 } : {}),
-            ...(!!request.launchRequest ? { launchRequest: 1 } : {}),
-            ...(!!request.environment ? { environment: 1 } : {}),
+            ...(request.pipeline ? { pipeline: 1 } : {}),
+            ...(request.launchRequest ? { launchRequest: 1 } : {}),
+            ...(request.environment ? { environment: 1 } : {}),
           },
         }
       ),
@@ -72,7 +72,7 @@ api.patch(
       updatedAt: new Date(),
     });
 
-    if (!!request.pipeline) {
+    if (request.pipeline) {
       const forPatch = toPlain(project.pipeline);
       patch(forPatch, request.pipeline);
 
@@ -118,7 +118,7 @@ api.patch(
       });
     }
 
-    if (!!request.launchRequest) {
+    if (request.launchRequest) {
       const forPatch = toPlain(
         project.launchRequest ??
           new LaunchRequest({
@@ -134,11 +134,11 @@ api.patch(
       assign(update, { launchRequest: patched });
     }
 
-    if (!!request.environment) {
+    if (request.environment) {
       const forPatch = toPlain(
         (() => {
           const { environment } = project;
-          if (!!environment) {
+          if (environment) {
             decrypt(environment);
             return environment;
           }

@@ -13,10 +13,12 @@ api.get(
 
     try {
       const { pipeline } = (await launching.getPlain(_id)) as {
-        pipeline: Object;
+        pipeline: object;
       };
       assign(launch, { pipeline });
-    } catch (e) {}
+    } catch {
+      // pipeline is optional in the response
+    }
 
     return launch;
   })

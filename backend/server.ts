@@ -141,7 +141,7 @@ process.on("uncaughtException", (error) => {
   sentry.captureException(error);
 });
 
-process.on("unhandledRejection", (reason, promise) => {
+process.on("unhandledRejection", (reason, _promise) => {
   logger.error("Unhandled rejection");
   logger.error(reason);
   sentry.captureException(reason);
@@ -150,7 +150,7 @@ process.on("unhandledRejection", (reason, promise) => {
 export const PORT =
   (() => {
     const port = env["SERVER_PORT"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return 0;

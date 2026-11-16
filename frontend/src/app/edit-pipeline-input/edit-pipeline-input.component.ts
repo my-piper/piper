@@ -68,7 +68,7 @@ export class EditPipelineInputComponent implements OnInit {
     const { value } = this.form.getRawValue();
     if (value !== null) {
       switch (this.input.type) {
-        case "boolean":
+        case "boolean": {
           const val = !!value;
           if (val !== this.input.default) {
             inputs.set(this.id, val);
@@ -77,12 +77,13 @@ export class EditPipelineInputComponent implements OnInit {
           }
 
           break;
+        }
         case "integer":
         case "float":
         case "string":
         case "string[]":
         case "json":
-        case "image":
+        case "image": {
           // Keep explicit 0 / "" when they differ from the default; an empty
           // string only means "no value" when there is no default to override.
           const hasDefault =
@@ -93,6 +94,7 @@ export class EditPipelineInputComponent implements OnInit {
             inputs.delete(this.id);
           }
           break;
+        }
         default:
           inputs.set(this.id, value);
       }

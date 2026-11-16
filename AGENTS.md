@@ -45,7 +45,8 @@ Frontend (`cd frontend`, Angular 17 with `@angular/localize`):
 
 - `npm start` — dev server; app is reached through nginx at `http://localhost/`
 - `npm run build` — localized production build
-- `npm run i18n` — extract i18n strings to `src/locale/en.json`
+- `npm run i18n` — extract i18n strings to `src/locale/en.json`; `npm run i18n:check` (CI) fails on a stale `en.json` or an id reused with different text
+- `npm run typecheck:templates` — strict template type check, which `ng build` skips; reports only templates changed against HEAD (`-- --all` for every existing error)
 - `npm run lint` / `npm run lint:fix` — lint application and test code with ESLint and `@typescript-eslint`
 - `npm test` / `npm run test:watch` / `npm run test:coverage` — Jasmine + Karma
   unit and component suites in `tests/unit` and `tests/components` (headless

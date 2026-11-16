@@ -50,7 +50,7 @@ export class ImportProjectComponent {
           this.progress.importing = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Project))
+        map((json) => toInstance(json as object, Project))
       )
       .subscribe({
         next: (project) => {

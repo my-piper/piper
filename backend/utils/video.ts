@@ -15,7 +15,7 @@ export async function getSize(buffer: Buffer): Promise<Size> {
     ffmpeg()
       .input(input)
       .ffprobe((err: Error | null, metadata) => {
-        if (!!err) {
+        if (err) {
           reject(err);
           return;
         }
@@ -23,7 +23,7 @@ export async function getSize(buffer: Buffer): Promise<Size> {
         const videoStream = metadata.streams.find(
           (stream) => stream.codec_type === "video"
         );
-        if (!!videoStream) {
+        if (videoStream) {
           const { width, height } = videoStream;
           resolve({ width, height });
         } else {

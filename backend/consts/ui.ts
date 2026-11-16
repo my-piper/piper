@@ -8,7 +8,7 @@ export const YANDEX_AUTH = env["YANDEX_AUTH"] === "yes";
 export const APP_FOOTER =
   (await (async () => {
     const footer = env["APP_FOOTER"];
-    if (!!footer) {
+    if (footer) {
       if (/^http/.test(footer)) {
         const { data } = await axios(footer);
         return data;

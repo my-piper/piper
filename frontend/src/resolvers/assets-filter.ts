@@ -9,7 +9,7 @@ export class AssetsFilterResolver implements Resolve<AssetsFilter> {
     return new AssetsFilter({
       ...(() => {
         const { _id } = (route.parent.data["project"] as Project) || {};
-        return !!_id ? { project: _id } : {};
+        return _id ? { project: _id } : {};
       })(),
     });
   }

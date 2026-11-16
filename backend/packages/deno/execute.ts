@@ -32,10 +32,11 @@ export async function execute(
       switch (err.response?.status) {
         case 400:
           throw new Error(err.response.data.error);
-        case 422:
+        case 422: {
           const e = toInstance(err.response.data, ExecutionError);
           Object.setPrototypeOf(e, ExecutionError.prototype);
           throw e;
+        }
       }
     }
     throw err;

@@ -58,7 +58,7 @@ queues.launches.inputs.set.process(async (job) => {
     { $set: toPlain(new Launch({ inputs })) }
   );
 
-  if (!!launchedBy) {
+  if (launchedBy) {
     const event = new SetLaunchInputsEvent({
       launch: launch._id,
       inputs,

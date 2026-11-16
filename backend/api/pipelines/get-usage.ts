@@ -4,7 +4,7 @@ import { checkLogged, handle } from "utils/http";
 
 api.get(
   "/api/pipelines/usage",
-  handle(({ currentUser }) => async ({ params: { launch } }) => {
+  handle(({ currentUser }) => async ({ params: { launch: _launch } }) => {
     checkLogged(currentUser);
 
     return await (

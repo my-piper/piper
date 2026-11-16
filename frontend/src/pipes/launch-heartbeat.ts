@@ -34,7 +34,7 @@ export class LaunchHeartbeatPipe
     const load = () => {
       this.http
         .get(`launches/${launch}/heartbeat`, null, { responseType: "text" })
-        .pipe(map((date) => (!!date ? new Date(date as string) : null)))
+        .pipe(map((date) => (date ? new Date(date as string) : null)))
         .subscribe((date) => this.current.next(date));
     };
 
@@ -46,7 +46,7 @@ export class LaunchHeartbeatPipe
 
       this.subscriptions.launch = this.live.subscribe(launch);
       this.live.socket
-        .fromEvent<Object>("launch_heartbeat")
+        .fromEvent<object>("launch_heartbeat")
         .pipe(
           takeUntil(this.destroyed$),
           map((json) => toInstance(json, HeartbeatEvent))

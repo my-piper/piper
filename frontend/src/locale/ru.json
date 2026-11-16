@@ -179,6 +179,9 @@
     "action.remove": "Удалить",
     "message.no_user_variables": "У вас пока нет переменных.",
     "action.add_variable": "Добавить переменную",
-    "message.stored_value_leave_empty": "Сохранено, оставьте пустым, чтобы не менять"
+    "message.stored_value_leave_empty": "Сохранено, оставьте пустым, чтобы не менять",
+    "message.no_artefacts_found": "Артефакты не найдены.",
+    "message.no_node_updates": "В узлах из каталога нет обновлений.",
+    "action.edit_with_shortcut": "(E) Редактировать"
   }
 }

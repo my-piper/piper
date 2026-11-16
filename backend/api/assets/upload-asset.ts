@@ -25,7 +25,7 @@ api.post(
 
     await new Promise<void>((done, reject) => {
       upload(req, res, (error) => {
-        if (!!error) {
+        if (error) {
           reject(new DataError("Can't upload file"));
         }
         done();
@@ -51,7 +51,7 @@ api.post(
 
     const _id = sid();
     const fileName = [
-      ...(!!folder ? [folder] : []),
+      ...(folder ? [folder] : []),
       isAdmin(currentUser)
         ? file.originalname || [_id, format].join(".")
         : [_id, format].join("."),

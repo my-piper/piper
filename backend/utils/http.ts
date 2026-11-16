@@ -56,7 +56,7 @@ export const handle =
     {
       const language = (() => {
         const param = req.query[LANGUAGE_QUERY_PARAM];
-        if (!!param) {
+        if (param) {
           return param as string;
         }
 
@@ -82,18 +82,18 @@ export const handle =
           return null;
         }
       })();
-      if (!!language) {
+      if (language) {
         assign(injector, { language });
       }
     }
 
     {
       const header = req.headers[USER_TOKEN_HEADER];
-      if (!!header) {
+      if (header) {
         const token = header as string;
         try {
           const decoded = jwt.verify(token, JWT_SECRET);
-          const { _id } = toInstance(decoded as Object, User);
+          const { _id } = toInstance(decoded as object, User);
           const user = toModel(
             await mongo.users.findOne(
               { _id },
@@ -120,11 +120,11 @@ export const handle =
 
     {
       const header = req.headers[API_TOKEN_HEADER];
-      if (!!header) {
+      if (header) {
         const token = header as string;
         try {
           const decoded = jwt.verify(token, JWT_SECRET);
-          const { _id } = toInstance(decoded as Object, User);
+          const { _id } = toInstance(decoded as object, User);
 
           {
             const hash = await redis.get(USER_API_TOKEN_KEY(_id));
@@ -170,7 +170,11 @@ export const handle =
       } else if (answer !== undefined) {
         logger.debug("Send answer");
         res.set(NO_CACHE_HEADERS);
-        !!answer ? res.status(200).send(answer) : res.status(204).send();
+        if (answer) {
+          res.status(200).send(answer);
+        } else {
+          res.status(204).send();
+        }
       }
     } catch (e) {
       logger.error(e);
@@ -178,7 +182,7 @@ export const handle =
         const { details } = e;
         res
           .status(400)
-          .send(!!details ? { message: e.message, ...toPlain(e) } : e.message);
+          .send(details ? { message: e.message, ...toPlain(e) } : e.message);
       } else if (e instanceof UnauthorizedError) {
         res.status(401).send(e.message);
       } else if (e instanceof NotFoundError) {
@@ -260,11 +264,11 @@ export function checkProjectAccess(
   }
 }
 
-export function toModels<T>(arr: Object[], model: new () => T): T[] {
+export function toModels<T>(arr: object[], model: new () => T): T[] {
   return arr.map((o) => toInstance(o, model));
 }
 
-export function toModel<T>(obj: Object | null, model: new () => T): T {
+export function toModel<T>(obj: object | null, model: new () => T): T {
   if (!obj) {
     throw new NotFoundError();
   }

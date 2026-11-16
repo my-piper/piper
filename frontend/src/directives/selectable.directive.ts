@@ -24,7 +24,7 @@ class Config {
   group!: string;
 
   constructor(defs: any = null) {
-    if (!!defs) {
+    if (defs) {
       assign(this, defs);
     }
   }
@@ -103,7 +103,7 @@ export class SelectableDirective implements OnInit, ControlValueAccessor {
   }
 
   writeValue(value: any | any[]) {
-    this.state = !!value ? (Array.isArray(value) ? value : [value]) : [];
+    this.state = value ? (Array.isArray(value) ? value : [value]) : [];
   }
 
   setDisabledState(disabled: boolean) {
@@ -118,9 +118,9 @@ export class SelectableDirective implements OnInit, ControlValueAccessor {
     }
 
     switch (mode) {
-      case SelectMode.single:
+      case SelectMode.single: {
         const current = this.state.length > 0 ? this.state[0] : null;
-        if (!!current) {
+        if (current) {
           const same = isEqual(current, value);
           if (same) {
             return;
@@ -132,7 +132,8 @@ export class SelectableDirective implements OnInit, ControlValueAccessor {
           this.onChange(value);
         }
         break;
-      case SelectMode.multiple:
+      }
+      case SelectMode.multiple: {
         const index = this.state.findIndex((e) => isEqual(e, value));
         if (index !== -1) {
           this.state.splice(index, 1);
@@ -141,6 +142,7 @@ export class SelectableDirective implements OnInit, ControlValueAccessor {
         }
         this.onChange(this.state);
         break;
+      }
     }
     this.hub.emit(this.config.group, this.state);
   }

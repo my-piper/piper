@@ -28,7 +28,7 @@ export async function checkUpdates(_id: string) {
   });
 
   const { url } = nodePackage;
-  if (!!url) {
+  if (url) {
     try {
       logger.info(`Load YAML from ${url}`);
       const { data: yaml } = await axios.get(url, {

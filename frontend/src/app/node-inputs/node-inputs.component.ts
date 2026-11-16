@@ -31,7 +31,7 @@ export class NodeInputsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project, launch, node: { id, node } }) => {
+    this.route.data.subscribe(({ launch, node: { id, node } }) => {
       [this.launch, this.id, this.node] = [launch, id, node];
       this.loadInputs();
       this.loadOutputs();
@@ -41,7 +41,7 @@ export class NodeInputsComponent implements OnInit {
   }
 
   private listen() {
-    this.socket.fromEvent<Object>("node_running").subscribe((data: Object) => {
+    this.socket.fromEvent<object>("node_running").subscribe((data: object) => {
       const { node } = plainToInstance(PipelineEvent, data);
       if (node === this.id) {
         console.log("Node is running", node);
@@ -49,7 +49,7 @@ export class NodeInputsComponent implements OnInit {
       }
     });
 
-    this.socket.fromEvent<Object>("node_done").subscribe((data) => {
+    this.socket.fromEvent<object>("node_done").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
       console.log("Load results for", launch, node);
       if (node === this.id) {
@@ -58,7 +58,7 @@ export class NodeInputsComponent implements OnInit {
       }
     });
 
-    this.socket.fromEvent<Object>("node_not_ready").subscribe((data) => {
+    this.socket.fromEvent<object>("node_not_ready").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
       console.log("Load results for", launch, node);
       if (node === this.id) {
@@ -67,7 +67,7 @@ export class NodeInputsComponent implements OnInit {
       }
     });
 
-    this.socket.fromEvent<Object>("node_flow").subscribe((data) => {
+    this.socket.fromEvent<object>("node_flow").subscribe((data) => {
       const { launch, node } = plainToInstance(PipelineEvent, data);
       console.log("Load results for", launch, node);
       if (node === this.id) {

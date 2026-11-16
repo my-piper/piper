@@ -13,7 +13,7 @@ export class ShouldCheckReadmeGuard implements CanActivate {
 
   canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    _state: RouterStateSnapshot
   ): boolean | UrlTree {
     const { id } = route.params;
     const key = `readme-${id}`;

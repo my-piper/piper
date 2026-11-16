@@ -60,7 +60,7 @@ export async function run({
   comment,
 }: Partial<Launch>): Promise<Launch> {
   const outputs = new Map<string, LaunchArtefact>();
-  if (!!pipeline.outputs) {
+  if (pipeline.outputs) {
     for (const [key, { type, title, order }] of pipeline.outputs) {
       outputs.set(
         key,
@@ -73,14 +73,12 @@ export async function run({
     }
   }
 
-  const { inclusive } = launchRequest;
-
   const _id = sid();
 
   // set inputs for nodes
   for (const [id, node] of pipeline.nodes) {
     logger.debug(`Node ${id}`);
-    if (!!node.inputs) {
+    if (node.inputs) {
       for (const [key, input] of node.inputs) {
         const save = (value: Primitive) =>
           redis.setEx(
@@ -97,9 +95,9 @@ export async function run({
       }
     }
 
-    if (!!node.outputs) {
+    if (node.outputs) {
       const outputs = {};
-      for (const [key, input] of node.outputs) {
+      for (const [key] of node.outputs) {
         const value = launchRequest.nodes?.get(id)?.outputs?.get(key);
         if (value !== undefined) {
           outputs[key] = value;
@@ -109,7 +107,7 @@ export async function run({
   }
 
   // set nodes inputs from request pipeline inputs
-  if (!!pipeline.inputs) {
+  if (pipeline.inputs) {
     // convert launch requests inputs
     for (const [id, { type }] of pipeline.inputs) {
       const { inputs } = launchRequest;
@@ -117,7 +115,7 @@ export async function run({
         const value = inputs.get(id);
         switch (type) {
           case "image":
-          case "video":
+          case "video": {
             const url = value as string;
             if (url?.startsWith("data")) {
               const { typeFull, buffer } = dataUriToBuffer(url);
@@ -128,6 +126,7 @@ export async function run({
               );
             }
             break;
+          }
           default:
           //
         }
@@ -140,7 +139,7 @@ export async function run({
       const value =
         requestedValue === undefined ? input.default : requestedValue;
       if (value !== undefined) {
-        if (!!input.flows) {
+        if (input.flows) {
           for (const [, flow] of input.flows) {
             const to = pipeline.nodes.get(flow.to).inputs.get(flow.input);
             await redis.setEx(
@@ -202,7 +201,7 @@ export async function run({
     await kick(launch);
   }
 
-  if (!!pipeline.inputs) {
+  if (pipeline.inputs) {
     queues.launches.inputs.set.plan({ launch: _id }, { delay: 2000 });
   }
 
@@ -227,12 +226,12 @@ export async function kick(launch: Launch) {
   }
 }
 
-export async function getPlain(id: string): Promise<Object> {
+export async function getPlain(id: string): Promise<object> {
   const json = await redis.get(LAUNCH(id));
   if (!json) {
     throw new NotFoundError(`Launch ${id} is not found`);
   }
-  return JSON.parse(json) as Object;
+  return JSON.parse(json) as object;
 }
 
 export async function get(id: string): Promise<Launch> {
@@ -246,7 +245,7 @@ export async function state(id: string): Promise<LaunchState> {
 
   const outputs = new Map<string, Primitive>();
 
-  if (!!pipeline.outputs) {
+  if (pipeline.outputs) {
     for (const [key, output] of pipeline.outputs) {
       const value = await redis.get(PIPELINE_OUTPUT(launch._id, key));
       if (value !== null) {
@@ -276,8 +275,8 @@ export async function data(id: string): Promise<LaunchData> {
 
   const outputs = new Map<string, LaunchArtefact>();
 
-  if (!!pipeline.outputs) {
-    for (const [key, output] of pipeline.outputs) {
+  if (pipeline.outputs) {
+    for (const [key] of pipeline.outputs) {
       const value = await redis.get(PIPELINE_OUTPUT_DATA(launch._id, key));
       if (value !== null) {
         const json = JSON.parse(value);
@@ -315,16 +314,17 @@ export async function getIOData(
       return new StringData({
         value: value as string,
       });
-    case "string[]":
+    case "string[]": {
       const values = (value as string).split("|");
       return new StringData({
         value: values.join(", "),
       });
+    }
     case "json":
       return new JsonData({
         value: JSON.parse(value as string),
       });
-    case "image":
+    case "image": {
       const url = value as string;
       const { data } = await download(url);
       const { ext } = await getFileInfo(data);
@@ -334,13 +334,14 @@ export async function getIOData(
       return new ImageData({
         format: ext,
         url:
-          storage.bucket(url) != bucket
+          storage.bucket(url) !== (bucket ?? null)
             ? await storage.output(data, fileName)
             : url,
         width,
         height,
       });
-    case "image[]":
+    }
+    case "image[]": {
       const images = [];
       const urls = (value as string).split("|");
       let index = 0;
@@ -353,7 +354,7 @@ export async function getIOData(
           new ImageData({
             format: ext,
             url:
-              storage.bucket(url) != bucket
+              storage.bucket(url) !== (bucket ?? null)
                 ? await storage.output(data, fileName)
                 : url,
             width,
@@ -364,6 +365,7 @@ export async function getIOData(
       return new ImagesData({
         images,
       });
+    }
     case "video": {
       const url = value as string;
       const { data } = await download(url);
@@ -385,7 +387,7 @@ export async function getIOData(
 
       return new VideoData({
         url:
-          storage.bucket(url) != bucket
+          storage.bucket(url) !== (bucket ?? null)
             ? await storage.output(data, fileName.video)
             : url,
         poster: await storage.output(poster, fileName.poster),

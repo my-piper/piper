@@ -7,9 +7,9 @@ import { DatabaseList } from "./models/database";
 
 api.get(
   "/api/dms/databases",
-  handle(() => async (req: Request) => {
+  handle(() => async (_req: Request) => {
     const { data } = await nocodb.get("meta/workspaces/wdd0aiuk/bases");
-    const { list } = toInstance(data as Object, DatabaseList);
+    const { list } = toInstance(data as object, DatabaseList);
     return toPlain(list);
   })
 );

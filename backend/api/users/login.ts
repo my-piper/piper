@@ -12,7 +12,7 @@ import { UserCredentials } from "./models/user-credentials";
 api.post(
   "/api/login",
   handle(() => async ({ body }) => {
-    const request = toInstance(body as Object, UserCredentials);
+    const request = toInstance(body as object, UserCredentials);
     await validate(request);
 
     const { identity, password } = request;

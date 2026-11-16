@@ -50,10 +50,11 @@ export class LaunchOutputsComponent {
 
   startDrag(event: DragEvent, output: LaunchArtefact) {
     switch (output.type) {
-      case "image":
+      case "image": {
         const image = output.data as ImageData;
         event.dataTransfer.setData("text/uri", image.url);
         break;
+      }
     }
   }
 }

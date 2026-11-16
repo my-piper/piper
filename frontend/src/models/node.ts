@@ -381,8 +381,8 @@ export class Node {
     this.groups ??= mapTo({ inputs: {} }, NodeGroups);
 
     for (const [k, v] of this.inputs) {
-      if (!!v.group) {
-        let group = groups.get(v.group);
+      if (v.group) {
+        const group = groups.get(v.group);
         if (!group) {
           const g = this.groups.inputs.get(v.group);
           if (!g) {

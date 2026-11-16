@@ -25,7 +25,7 @@ export class NodeInLaunchComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project, launch, node: { id, node } }) => {
+    this.route.data.subscribe(({ launch, node: { id, node } }) => {
       [this.launch, this.id, this.node] = [launch, id, node];
       this.cd.detectChanges();
     });

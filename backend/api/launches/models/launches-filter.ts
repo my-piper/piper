@@ -8,7 +8,7 @@ export class LaunchesFilter {
   @Type(() => String)
   parent?: string;
 
-  @Matches(/^[a-z0-9\-]{5,30}$/)
+  @Matches(/^[a-z0-9-]{5,30}$/)
   @IsOptional()
   @Expose()
   @Type(() => String)

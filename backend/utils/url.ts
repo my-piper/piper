@@ -1,5 +1,5 @@
-export function stringifyParams(obj: Object) {
-  let params = [];
+export function stringifyParams(obj: object) {
+  const params = [];
   Object.keys(obj).forEach((key) => {
     const isObject = typeof obj[key] === "object";
     const isArray = isObject && obj[key]?.length >= 0;

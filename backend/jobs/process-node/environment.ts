@@ -34,7 +34,7 @@ export async function getEnvironment({
     scope: new Map<string, EnvironmentScope>(),
     variables: new Map<string, Primitive>(),
   });
-  if (!!node.environment) {
+  if (node.environment) {
     const environment: {
       global?: Environment;
       user?: Environment;
@@ -44,7 +44,7 @@ export async function getEnvironment({
     // global environment
     {
       const global = await readInstance(GLOBAL_ENVIRONMENT_KEY, Environment);
-      if (!!global) {
+      if (global) {
         assign(environment, { global });
       }
     }
@@ -55,7 +55,7 @@ export async function getEnvironment({
         USER_ENVIRONMENT_KEY(launchedBy._id),
         Environment
       );
-      if (!!user) {
+      if (user) {
         assign(environment, { user });
       }
     }

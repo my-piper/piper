@@ -79,7 +79,7 @@ export class DeployPipelineComponent implements OnInit {
       getLabel(title, Languages.en).toLowerCase().replace(/\s/g, "-") + "-v1";
 
     this.form.patchValue({
-      deploy: !!deploy
+      deploy: deploy
         ? toPlain(deploy)
         : {
             prefix: this.me.user._id,
@@ -100,7 +100,7 @@ export class DeployPipelineComponent implements OnInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as Object[]).map((e) => toInstance(e, Deploy)))
+        map((arr) => (arr as object[]).map((e) => toInstance(e, Deploy)))
       )
       .subscribe((deploys) => (this.deploys = deploys));
   }

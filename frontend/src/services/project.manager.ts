@@ -23,7 +23,7 @@ import { HttpService } from "./http.service";
 const logger = createLogger("project_manager", LogLevel.debug);
 
 function sanitize(project: Project) {
-  const { pipeline, launchRequest, environment } = project;
+  const { pipeline, launchRequest } = project;
 
   // TODO: check groups for inputs/outputs exists
   // TODO: reset from launch request inputs what has pipeline input flows
@@ -74,7 +74,7 @@ function sanitize(project: Project) {
       continue;
     }
 
-    if (!!nodeToLaunch.inputs) {
+    if (nodeToLaunch.inputs) {
       for (const [id, value] of nodeToLaunch.inputs) {
         const input = pipeline.nodes.get(node).inputs.get(id);
         if (!input || value === input.default) {
@@ -83,8 +83,8 @@ function sanitize(project: Project) {
       }
     }
 
-    if (!!nodeToLaunch.outputs) {
-      for (const [id, value] of nodeToLaunch.outputs) {
+    if (nodeToLaunch.outputs) {
+      for (const [id] of nodeToLaunch.outputs) {
         const output = pipeline.nodes.get(node).outputs.get(id);
         if (!output) {
           nodeToLaunch.outputs.delete(id);
@@ -150,7 +150,7 @@ function sanitize(project: Project) {
       switch (flow.transformer?.type) {
         case "json": {
           const { path } = flow.transformer;
-          if (!!path) {
+          if (path) {
             let json: object = null;
 
             try {
@@ -201,7 +201,7 @@ function sanitize(project: Project) {
           switch (output.type) {
             case "image[]":
               switch (input.type) {
-                case "image":
+                case "image": {
                   const {
                     transformer: { index },
                   } = flow;
@@ -210,6 +210,7 @@ function sanitize(project: Project) {
                     array[Math.min(array.length - 1, index)] || null;
                   setNodeInputValue(element);
                   break;
+                }
               }
               break;
           }
@@ -229,9 +230,9 @@ type SaveStatus = "dirty" | "saving" | "saved" | "error";
 export class ProjectManager {
   _project: Project | null = null;
   snapshots: {
-    pipeline: Object | null;
-    launchRequest: Object | null;
-    environment: Object | null;
+    pipeline: object | null;
+    launchRequest: object | null;
+    environment: object | null;
   } = {
     pipeline: null,
     launchRequest: null,
@@ -252,7 +253,7 @@ export class ProjectManager {
       environment: null,
     };
 
-    if (!!project) {
+    if (project) {
       const { pipeline, launchRequest, environment } = project;
       this.snapshots = {
         pipeline: toPlain(pipeline),
@@ -325,28 +326,28 @@ export class ProjectManager {
 
     const { pipeline, launchRequest, environment } = project;
 
-    if (!!pipeline) {
+    if (pipeline) {
       const snapshot = toPlain(pipeline);
       const changes = diff(this.snapshots.pipeline, snapshot);
-      if (!!changes) {
+      if (changes) {
         assign(snapshots, { pipeline: snapshot });
         assign(update, { pipeline: changes });
       }
     }
-    if (!!launchRequest) {
+    if (launchRequest) {
       const snapshot = toPlain(launchRequest);
       const changes = diff(this.snapshots.launchRequest, snapshot);
-      if (!!changes) {
+      if (changes) {
         assign(snapshots, { launchRequest: snapshot });
         assign(update, {
           launchRequest: changes,
         });
       }
     }
-    if (!!environment) {
+    if (environment) {
       const snapshot = toPlain(environment);
       const changes = diff(this.snapshots.environment, snapshot);
-      if (!!changes) {
+      if (changes) {
         assign(snapshots, { environment: snapshot });
         assign(update, {
           environment: changes,

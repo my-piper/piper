@@ -10,7 +10,7 @@ const PAGE_SIZE = 20;
 
 api.get(
   "/api/projects",
-  handle(({ currentUser, language }) => async ({ query }) => {
+  handle(({ currentUser }) => async ({ query }) => {
     checkLogged(currentUser);
 
     const filter = toInstance(query, ProjectsFilter);
@@ -31,15 +31,15 @@ api.get(
     return await mongo.projects
       .find(
         {
-          ...(!!visibility ? { visibility } : {}),
-          ...(!!category ? { "category._id": category } : {}),
-          ...(!!search
+          ...(visibility ? { visibility } : {}),
+          ...(category ? { "category._id": category } : {}),
+          ...(search
             ? { title: { $regex: new RegExp(escapeRegExp(search), "i") } }
             : {}),
           ...(tags?.length > 0 ? { tags: { $all: tags } } : {}),
           ...(group ? { group } : ungrouped ? { group: null } : {}),
-          ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
-          ...(!!tag
+          ...(cursor ? { cursor: { $lt: cursor } } : {}),
+          ...(tag
             ? await (async () => {
                 const ids = await mongo.projectTags
                   .aggregate([

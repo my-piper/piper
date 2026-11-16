@@ -36,7 +36,7 @@ api.post(
     for (const project of projects) {
       // category
       const { category, tags } = project.pipeline;
-      if (!!category) {
+      if (category) {
         const { _id } = category;
         assign(category, {
           projects: projects.filter((p) => p.pipeline.category?._id === _id)

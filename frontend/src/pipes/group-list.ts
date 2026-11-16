@@ -1,18 +1,18 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-const GROUP_NAME_REGEX = /\<(.*?)\>/g;
+const GROUP_NAME_REGEX = /<(.*?)>/g;
 
 @Pipe({ name: "groupList" })
 export class GroupListPipe implements PipeTransform {
   transform(
     list: string[],
-    tag: string
+    _tag: string
   ): { name: string; options: string[] }[] {
     const orphan: string[] = [];
 
     const groups: { [key: string]: string[] } = {};
     list.forEach((item) => {
-      const matches = [...item.matchAll(/\<(.*?)\>/g)];
+      const matches = [...item.matchAll(/<(.*?)>/g)];
       if (matches.length > 0) {
         const title = item.replaceAll(GROUP_NAME_REGEX, "").trim();
         matches.forEach((match) => {

@@ -153,8 +153,8 @@
 </ng-container>
 
 <footer class="stack justify-between">
-  <button submitButton class="primary" (click)="reset()" i18n="@@action.reset">
-    Reset
+  <button submitButton class="primary" (click)="reset()">
+    <ng-container i18n="@@action.reset">Reset</ng-container>
   </button>
 
   <ng-template #toolsPopover>
@@ -166,7 +166,7 @@
             [icon]="node.locked ? 'lock' : 'lock'"
             [size]="16"
           ></app-icon>
-          <ng-container i18n="@@action.edit">(E)dit</ng-container>
+          <ng-container i18n="@@action.edit_with_shortcut">(E)dit</ng-container>
         </a>
       </li>
       <li>

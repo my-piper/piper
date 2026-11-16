@@ -238,8 +238,8 @@ export class PipelineCosts {
 
   convert() {
     this.pipeline *= UNIT_COST;
-    if (!!this.nodes) {
-      for (const [id, node] of this.nodes) {
+    if (this.nodes) {
+      for (const [, node] of this.nodes) {
         node.costs *= UNIT_COST;
       }
     }
@@ -249,7 +249,7 @@ export class PipelineCosts {
 
   update() {
     this.total = this.pipeline;
-    if (!!this.nodes) {
+    if (this.nodes) {
       this.total += [...this.nodes.values()].reduce(
         (costs, n) => costs + n.costs,
         0,

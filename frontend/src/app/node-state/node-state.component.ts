@@ -19,7 +19,7 @@ export class NodeStateComponent extends UntilDestroyed implements OnInit {
   id!: string;
   node!: Node;
 
-  state: Object;
+  state: object;
 
   constructor(
     private socket: Socket,
@@ -40,7 +40,7 @@ export class NodeStateComponent extends UntilDestroyed implements OnInit {
 
   private listen() {
     this.socket
-      .fromEvent<Object>("node_gonna_repeat")
+      .fromEvent<object>("node_gonna_repeat")
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
@@ -54,7 +54,7 @@ export class NodeStateComponent extends UntilDestroyed implements OnInit {
     this.http
       .get(`launches/${this.launch._id}/nodes/${this.id}/state`)
       .subscribe((state) => {
-        this.state = state;
+        this.state = state as object;
         this.cd.detectChanges();
       });
   }

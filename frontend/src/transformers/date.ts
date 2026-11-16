@@ -15,7 +15,7 @@ export const dateTransformer =
     switch (type) {
       case TransformationType.PLAIN_TO_CLASS: {
         const source = value as string | null;
-        if (!!source) {
+        if (source) {
           const date = parse(source, dateFormat, new Date());
           return isValid(date) ? date : null;
         }

@@ -36,7 +36,7 @@ export class NodePackagesComponent extends UntilDestroyed {
 
   set modal(modal: EditPackageComponent | ImportPackageComponent) {
     this._modal = modal;
-    if (!!modal) {
+    if (modal) {
       if (modal instanceof EditPackageComponent) {
         modal.added.subscribe((nodePackage) =>
           this.packages.unshift(nodePackage)
@@ -112,7 +112,7 @@ export class NodePackagesComponent extends UntilDestroyed {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) => plainToInstance(NodePackage, plain))
+          (arr as object[]).map((plain) => plainToInstance(NodePackage, plain))
         ),
         finalize(() => {
           this.progress.loading.packages = false;

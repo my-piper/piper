@@ -83,7 +83,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
   private listen() {
     this.subscriptions.user = this.live.subscribe(this.me.user._id);
     this.live.socket
-      .fromEvent<Object>("set_inputs")
+      .fromEvent<object>("set_inputs")
       .pipe(
         takeUntil(this.destroyed$),
         map((json) => plainToInstance(SetLaunchInputsEvent, json))
@@ -98,7 +98,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
       });
 
     this.live.socket
-      .fromEvent<Object>("set_output")
+      .fromEvent<object>("set_output")
       .pipe(
         takeUntil(this.destroyed$),
         map((json) => plainToInstance(SetLaunchOutputEvent, json))
@@ -115,7 +115,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
         }
       });
     this.live.socket
-      .fromEvent<Object>("set_errors")
+      .fromEvent<object>("set_errors")
       .pipe(
         takeUntil(this.destroyed$),
         map((json) => plainToInstance(SetLaunchErrorsEvent, json))
@@ -148,7 +148,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as Object[]).map((e) => plainToInstance(Launch, e)))
+        map((arr) => (arr as object[]).map((e) => plainToInstance(Launch, e)))
       )
       .subscribe({
         next: (launches) => {
@@ -162,7 +162,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
 
   loadMore() {
     const launch = last(this.launches);
-    if (!!launch) {
+    if (launch) {
       this.load(launch.cursor);
     }
   }

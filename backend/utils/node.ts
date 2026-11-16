@@ -48,7 +48,11 @@ export const convertInputs =
   ({ node, pipeline }: { node?: Node; pipeline?: Pipeline }) =>
   (inputs: { [key: string]: Primitive } | Map<string, Primitive>) => {
     const converted: NodeInputs = {};
-    for (const [key, input] of pipeline?.inputs || node?.inputs) {
+    const config = pipeline?.inputs || node?.inputs;
+    if (!config) {
+      throw new TypeError("Inputs config is not iterable");
+    }
+    for (const [key, input] of config) {
       const value = inputs instanceof Map ? inputs.get(key) : inputs[key];
       if (value !== undefined && value !== null) {
         try {
@@ -85,7 +89,7 @@ export const getNodeStatus =
   ({ launch }: { launch: Launch }) =>
   async (node: string): Promise<NodeStatus | null> => {
     const json = await redis.get(NODE_STATUS(launch._id, node));
-    return !!json ? plainToClass(NodeStatus, JSON.parse(json) as Object) : null;
+    return json ? plainToClass(NodeStatus, JSON.parse(json) as object) : null;
   };
 
 export type InputsReadiness = {
@@ -151,7 +155,7 @@ export const convertOutputs =
       };
 
       const saveUri = async (url: string) => {
-        if (storage.bucket(url) == bucket) {
+        if (storage.bucket(url) === (bucket ?? null)) {
           return url;
         }
 

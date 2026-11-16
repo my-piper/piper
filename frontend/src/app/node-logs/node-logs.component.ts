@@ -68,7 +68,7 @@ export class NodeLogsComponent extends UntilDestroyed {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as Object[]).map((e) => plainToInstance(NodeLog, e)))
+        map((arr) => (arr as object[]).map((e) => plainToInstance(NodeLog, e)))
       )
       .subscribe({
         next: (logs) => (this.logs = logs),

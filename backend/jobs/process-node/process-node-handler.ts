@@ -120,12 +120,12 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   if (await exists(LAUNCH_INTERRUPTED(nodeJob.launch))) {
     logger.debug("Launch has been interrupted");
     const interrupted = await readInstance(LAUNCH(nodeJob.launch), Launch);
-    if (!!interrupted) {
+    if (interrupted) {
       const interruptedAt = await redis.get(LAUNCH_INTERRUPTED(nodeJob.launch));
       await recordLaunchRun(
         interrupted,
         "interrupted",
-        !!interruptedAt ? new Date(interruptedAt) : new Date()
+        interruptedAt ? new Date(interruptedAt) : new Date()
       );
     }
     return NodeJobResult.LAUNCH_INTERRUPTED;
@@ -165,7 +165,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
             // go ahead
             continue;
           case "wait":
-          default:
+          default: {
             const ready = await redis.sIsMember(
               NODE_FLOWS(launch._id, nodeJob.node),
               id
@@ -177,6 +177,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
               return NodeJobResult.NODE_FLOWS_NOT_READY_YET;
             }
             continue;
+          }
         }
       }
     }
@@ -253,7 +254,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       node: nodeJob.node,
       attempt: attemptsMade,
       startedAt: new Date(),
-      dueAt: !!due ? Number(due) : job.timestamp + (job.opts.delay ?? 0),
+      dueAt: due ? Number(due) : job.timestamp + (job.opts.delay ?? 0),
     };
 
     logger.debug("Run node script");
@@ -285,7 +286,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       logs = e.logs;
     }
 
-    if (!!run) {
+    if (run) {
       await recordNodeRun(run, getErrorResult(error), finishedAt);
     }
 
@@ -319,7 +320,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   if (result?.["__type"] === "repeat") {
     const { delay, progress, state } = toInstance(result as object, RepeatNode);
-    if (!!state) {
+    if (state) {
       await saveObject(
         NODE_STATE(launch._id, nodeJob.node),
         state,
@@ -327,7 +328,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       );
     }
 
-    if (!!progress) {
+    if (progress) {
       logger.debug(progress);
       await saveInstance(
         NODE_PROGRESS(launch._id, nodeJob.node),

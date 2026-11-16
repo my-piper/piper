@@ -12,7 +12,7 @@ export class ImportAsset {
   @Type(() => String)
   url?: string;
 
-  @Matches(/^[a-z0-9\-]{5,30}$/)
+  @Matches(/^[a-z0-9-]{5,30}$/)
   @IsOptional()
   @Expose()
   @Type(() => String)

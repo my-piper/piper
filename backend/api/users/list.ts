@@ -18,12 +18,12 @@ api.get(
     return await mongo.users
       .find(
         {
-          ...(!!search
+          ...(search
             ? {
                 email: { $regex: new RegExp(escapeRegExp(search), "i") },
               }
             : {}),
-          ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
+          ...(cursor ? { cursor: { $lt: cursor } } : {}),
         },
         {
           projection: {

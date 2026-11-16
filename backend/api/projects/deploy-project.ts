@@ -59,7 +59,7 @@ api.post(
 
     const plain = toPlain(deploy);
     await mongo.deploys.updateOne(
-      { _id: [...(!!prefix ? [prefix] : []), slug].join("_") },
+      { _id: [...(prefix ? [prefix] : []), slug].join("_") },
       { $set: plain as { _id: string } },
       { upsert: true }
     );

@@ -6,7 +6,7 @@ import { debounceTime, delay, finalize, map, takeUntil } from "rxjs";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { AppConfig } from "src/models/app-config";
 import { Pipeline } from "src/models/pipeline";
-import { LaunchProject, Project } from "src/models/project";
+import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
@@ -101,8 +101,6 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   clone() {
     this.progress.cloning = true;
     this.cd.detectChanges();
-
-    const request = new LaunchProject();
 
     this.http
       .post(`projects/${this.project._id}/clone`)

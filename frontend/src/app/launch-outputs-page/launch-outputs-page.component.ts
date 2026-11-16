@@ -17,7 +17,7 @@ export class LaunchOutputsPageComponent {
   ngOnInit(): void {
     this.route.data.subscribe(({ launch }) => (this.launch = launch));
     this.route.queryParams.subscribe(({ id, index }) =>
-      !!id ? (this.active = { id, index }) : null
+      id ? (this.active = { id, index }) : null
     );
   }
 }

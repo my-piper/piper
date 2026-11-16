@@ -29,7 +29,7 @@ export class SignupRequest {
   @Type(() => String)
   email!: string;
 
-  @Matches(/^[a-z0-9\-\_\.]{3,15}$/)
+  @Matches(/^[a-z0-9_.-]{3,15}$/)
   @Expose()
   @Type(() => String)
   login!: string;

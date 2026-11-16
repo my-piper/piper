@@ -34,7 +34,7 @@ io.attach(server);
 export const PORT =
   (() => {
     const port = process.env["SOCKETS_PORT"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return 0;

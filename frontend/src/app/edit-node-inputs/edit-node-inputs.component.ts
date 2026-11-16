@@ -154,10 +154,11 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
       const value = inputGroup.get("value").value as Primitive;
       switch (input.type) {
-        case "boolean":
+        case "boolean": {
           const val = value as boolean;
           inputs.set(k, val);
           break;
+        }
         case "integer":
         case "float":
           // 0 is a real value; only an emptied field falls back to the default.
@@ -171,7 +172,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
         case "string[]":
         case "json":
         case "image":
-          if (!!value) {
+          if (value) {
             inputs.set(k, value);
           } else {
             inputs.delete(k);

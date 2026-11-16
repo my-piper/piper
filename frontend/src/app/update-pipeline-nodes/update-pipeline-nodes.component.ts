@@ -59,7 +59,7 @@ export class UpdatePipelineNodesComponent implements OnInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, PipelineNodeUpdates))
+        map((json) => toInstance(json as object, PipelineNodeUpdates))
       )
       .subscribe((updates) => (this.nodeUpdates = updates));
   }

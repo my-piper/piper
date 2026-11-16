@@ -32,7 +32,7 @@ export class EditUserComponent implements OnInit {
 
   set user(user: User) {
     this._user = user;
-    if (!!user) {
+    if (user) {
       this.form.patchValue({ user });
     }
   }
@@ -95,11 +95,11 @@ export class EditUserComponent implements OnInit {
           this.progress.saving = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, User))
+        map((json) => toInstance(json as object, User))
       )
       .subscribe({
         next: (user) => {
-          if (!!this.user) {
+          if (this.user) {
             this.saved.emit(user);
           } else {
             this.added.emit(user);

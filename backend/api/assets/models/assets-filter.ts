@@ -8,7 +8,7 @@ import {
 import assign from "lodash/assign";
 
 export class AssetsFilter {
-  @Matches(/^[a-z0-9\-]{5,30}$/)
+  @Matches(/^[a-z0-9-]{5,30}$/)
   @IsOptional()
   @Expose()
   @Type(() => String)
@@ -20,7 +20,7 @@ export class AssetsFilter {
   @Type(() => String)
   type?: "image" | "archive" | "audio" | "video";
 
-  @Matches(/^[a-z0-9\-]{5,30}$/)
+  @Matches(/^[a-z0-9-]{5,30}$/)
   @IsOptional()
   @Expose()
   @Type(() => String)

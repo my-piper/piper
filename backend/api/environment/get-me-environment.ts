@@ -13,7 +13,7 @@ api.get(
     checkLogged(currentUser);
 
     const json = await redis.get(USER_ENVIRONMENT_KEY(currentUser._id));
-    if (!!json) {
+    if (json) {
       const environment = toInstance(JSON.parse(json), Environment);
       const { variables } = environment;
       for (const [k, v] of variables || new Map<string, Primitive>()) {

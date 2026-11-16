@@ -31,7 +31,7 @@ queues.launches.errors.set.process(async (setErrorsJob) => {
     })
   );
   const { launchedBy } = launch;
-  if (!!launchedBy) {
+  if (launchedBy) {
     notify(launchedBy._id, "set_errors", event);
   }
 });

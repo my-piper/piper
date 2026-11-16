@@ -22,10 +22,10 @@ api.get(
             ? {}
             : { "createdBy._id": currentUser._id };
         })(),
-        ...(() => (!!type ? { type } : {}))(),
-        ...(() => (!!project ? { project } : {}))(),
-        ...(() => (!!folder ? { folder } : {}))(),
-        ...(!!cursor ? { cursor: { $lt: cursor } } : {}),
+        ...(() => (type ? { type } : {}))(),
+        ...(() => (project ? { project } : {}))(),
+        ...(() => (folder ? { folder } : {}))(),
+        ...(cursor ? { cursor: { $lt: cursor } } : {}),
       })
       .sort({ createdAt: -1 })
       .limit(30)

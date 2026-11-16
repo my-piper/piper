@@ -244,10 +244,10 @@ const shutdown = async () => {
 
   await redis.disconnect();
 
-  if (!!health) {
+  if (health) {
     await new Promise<void>((resolve, reject) => {
       health.close((err) => {
-        if (!!err) {
+        if (err) {
           reject(err);
         } else {
           logger.info("Health check has stopped");
@@ -266,7 +266,7 @@ process.on("uncaughtException", (error) => {
   sentry.captureException(error);
 });
 
-process.on("unhandledRejection", (reason, promise) => {
+process.on("unhandledRejection", (reason, _promise) => {
   logger.error("Unhandled rejection");
   logger.error(reason);
   sentry.captureException(reason);
@@ -292,7 +292,7 @@ if (options.health) {
   const PORT =
     (() => {
       const port = process.env["WORKER_PORT"];
-      if (!!port) {
+      if (port) {
         return parseInt(port);
       }
       return 0;

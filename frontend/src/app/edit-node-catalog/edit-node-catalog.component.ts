@@ -80,7 +80,7 @@ export class EditNodeCatalogComponent implements OnInit {
 
   private save() {
     const { catalog: json } = this.form.getRawValue();
-    if (!!json) {
+    if (json) {
       const catalog = toInstance(json, NodeCatalog);
       assign(this.node, { catalog });
     } else {

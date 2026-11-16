@@ -28,7 +28,7 @@ export class UsersComponent {
 
   set modal(modal: EditUserComponent) {
     this._modal = modal;
-    if (!!modal) {
+    if (modal) {
       modal.added.subscribe((user) => this.users.unshift(user));
       modal.saved.subscribe((user) => {
         const index = this.users.findIndex((u) => u._id === user._id);
@@ -75,7 +75,7 @@ export class UsersComponent {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) => plainToInstance(User, plain)),
+          (arr as object[]).map((plain) => plainToInstance(User, plain)),
         ),
         finalize(() => {
           this.progress.loading = false;
@@ -94,7 +94,7 @@ export class UsersComponent {
 
   loadMore() {
     const user = last(this.users);
-    if (!!user) {
+    if (user) {
       this.load(user.cursor);
     }
   }

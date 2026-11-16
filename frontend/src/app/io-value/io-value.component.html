@@ -16,12 +16,8 @@
   <ng-container *ngSwitchCase="'string'">
     <ng-container [ngSwitch]="io.format">
       <div class="stack vertical small" *ngSwitchCase="'code'">
-        <button
-          [copyToClipboard]="value"
-          class="primary small"
-          i18n="@@action.copy"
-        >
-          Copy
+        <button [copyToClipboard]="value" class="primary small">
+          <ng-container i18n="@@action.copy">Copy</ng-container>
         </button>
         <ngx-monaco-editor
           [options]="{

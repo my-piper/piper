@@ -130,7 +130,7 @@ export class InputFlowsPipe
 export class OutputIndexPipe implements PipeTransform {
   transform(node: Node, name: string): number {
     const keys = [];
-    for (const [key, output] of node.outputs) {
+    for (const [key] of node.outputs) {
       keys.push(key);
     }
     keys.sort();

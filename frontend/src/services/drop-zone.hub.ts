@@ -24,7 +24,7 @@ export class DropZoneHub {
     for (const e of hints) {
       const hint = e as HTMLElement;
       const directive = this.zones.get(hint as HTMLElement);
-      if (!!directive) {
+      if (directive) {
         const { x, y } = viewportToElementContentBox(hint, left, top);
         directive.drop.emit({ top: y, left: x, payload });
       }

@@ -9,8 +9,6 @@ export async function withTempContext(action: (tmpFolder: string) => void) {
   try {
     await fs.mkdir(tmpFolder, { recursive: true });
     await action(tmpFolder);
-  } catch (e) {
-    throw e;
   } finally {
     await fs.rm(tmpFolder, { recursive: true });
   }

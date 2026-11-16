@@ -71,7 +71,7 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
         toPlain(
           mapTo(
             {
-              ...(!!search ? { search } : {}),
+              ...(search ? { search } : {}),
             },
             NodesFilter
           )
@@ -83,7 +83,7 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as Object[]).map((e) => toInstance(e, Node)))
+        map((arr) => (arr as object[]).map((e) => toInstance(e, Node)))
       )
       .subscribe({
         next: (nodes) => {

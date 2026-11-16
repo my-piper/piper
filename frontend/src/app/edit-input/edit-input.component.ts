@@ -110,7 +110,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
 
   @ViewChild("inputRef")
   set inputRef(inputRef: ElementRef<HTMLElement>) {
-    if (!!inputRef) {
+    if (inputRef) {
       setTimeout(() => inputRef.nativeElement.focus(), 1);
     }
   }
@@ -137,12 +137,13 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
             case "boolean":
               return !!value;
             case "string[]":
-            case "image[]":
+            case "image[]": {
               const values = (value as string[]) || [];
               if (values.length <= 0) {
                 return null;
               }
               return values.join("|");
+            }
             default:
               return value;
           }
@@ -160,7 +161,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
             return !!value;
           case "string[]":
           case "image[]":
-            return !!value ? (value as string).split("|") : [];
+            return value ? (value as string).split("|") : [];
           default:
             return value;
         }
@@ -193,10 +194,11 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
   setValue(value: Primitive) {
     switch (this.type) {
       case "string[]":
-      case "image[]":
+      case "image[]": {
         const items = this.valueControl.value as string[];
         this.valueControl.setValue([...items, value as string]);
         break;
+      }
       default:
         this.valueControl.setValue(value);
     }
@@ -245,7 +247,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
     this.progress.uploading = true;
     this.cd.detectChanges();
 
-    let formData = new FormData();
+    const formData = new FormData();
     formData.append("file", file);
 
     this.http
@@ -256,7 +258,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
           this.progress.uploading = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Artefact, json as Object))
+        map((json) => plainToInstance(Artefact, json as object))
       )
       .subscribe({
         next: ({ url }) => {
@@ -285,7 +287,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
     this.cd.detectChanges();
 
     const data = event.dataTransfer.getData("text/uri");
-    if (!!data) {
+    if (data) {
       this.setValue(data);
       return;
     }

@@ -20,11 +20,11 @@ async function run(
   { environment, inputs }: { environment?: Environment; inputs: NodeInputs }
 ): Promise<number | object> {
   try {
-    const { result, logs } = await execute(
+    const { result } = await execute(
       script,
       COSTS_FUNCTION,
       {
-        ...(!!environment ? { env: toPlain(environment) } : {}),
+        ...(environment ? { env: toPlain(environment) } : {}),
         inputs,
       },
       { timeout: 5_000, isolation: "none" }
@@ -58,14 +58,14 @@ export async function getCosts(
   };
 
   const inputs = new Map<string, Primitive>();
-  if (!!pipeline.inputs) {
+  if (pipeline.inputs) {
     for (const [id, input] of pipeline.inputs) {
       const requestedValue = launchRequest.inputs?.get(id);
       const value =
         requestedValue === undefined ? input.default : requestedValue;
       if (value !== undefined) {
         inputs.set(id, value);
-        if (!!input.flows) {
+        if (input.flows) {
           for (const [, flow] of input.flows) {
             const inputs = getNodeInputs(flow.to);
             inputs.set(flow.input, value);
@@ -77,7 +77,7 @@ export async function getCosts(
 
   const costs = new PipelineCosts({ pipeline: 0 });
 
-  if (!!pipeline.script) {
+  if (pipeline.script) {
     assign(costs, {
       pipeline: (await run(pipeline.script, {
         inputs: convertInputs({ pipeline })(inputs),

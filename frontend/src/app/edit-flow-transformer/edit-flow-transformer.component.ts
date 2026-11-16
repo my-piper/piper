@@ -78,7 +78,7 @@ export class EditFlowTransformerComponent implements OnInit {
     const value = this.launchRequest.nodes
       .get(this.from.id)
       ?.outputs.get(this.flow.output) as string;
-    if (!!value) {
+    if (value) {
       const array = value.split("|");
       if (index >= array.length - 1) {
         return;

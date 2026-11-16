@@ -13,6 +13,6 @@ export class LaunchResolver implements Resolve<Launch> {
     const { id, launch } = route.params;
     return this.http
       .get(`launches/${launch || id}`)
-      .pipe(map((plain) => plainToInstance(Launch, plain as Object)));
+      .pipe(map((plain) => plainToInstance(Launch, plain as object)));
   }
 }

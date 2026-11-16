@@ -14,6 +14,6 @@ export class UserResolver implements Resolve<User> {
 
     return this.http
       .get(`users/${user}`)
-      .pipe(map((json) => toInstance(json as Object, User)));
+      .pipe(map((json) => toInstance(json as object, User)));
   }
 }

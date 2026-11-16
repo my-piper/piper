@@ -37,13 +37,13 @@ export async function identify(
 
   if (!user) {
     const [username] = email.split("@");
-    let ids = [username];
+    const ids = [username];
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
       ids.push([username, sid(2)].join(""));
     }
 
     for (let i = 0; i < ids.length; i++) {
-      let _id = ids[i];
+      const _id = ids[i];
 
       user = new User({
         _id,

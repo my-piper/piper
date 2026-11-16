@@ -20,7 +20,7 @@ api.get(
     checkProjectAccess(currentUser, project);
 
     const { environment } = project;
-    if (!!environment) {
+    if (environment) {
       const { variables } = environment;
       for (const [k, v] of variables || new Map<string, Primitive>()) {
         switch (typeof v) {

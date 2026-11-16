@@ -6,7 +6,7 @@ import { User } from "models/user";
 export const MIN_BALANCE =
   (() => {
     const port = env["RATE_LIMIT_MIN_BALANCE"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return null;
@@ -15,7 +15,7 @@ export const MIN_BALANCE =
 export const WINDOW_SIZE_IN_SECONDS =
   (() => {
     const port = env["RATE_LIMIT_WINDOW_SIZE"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return null;
@@ -24,7 +24,7 @@ export const WINDOW_SIZE_IN_SECONDS =
 export const MAX_REQUESTS =
   (() => {
     const port = env["RATE_LIMIT_MAX_REQUESTS"];
-    if (!!port) {
+    if (port) {
       return parseInt(port);
     }
     return null;

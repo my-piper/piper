@@ -70,7 +70,7 @@ export class PlayViaApiComponent {
           this.progress.generating = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as Object, Authorization))
+        map((json) => toInstance(json as object, Authorization))
       )
       .subscribe({
         next: (authorization) => {

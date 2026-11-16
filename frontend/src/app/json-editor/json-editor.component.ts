@@ -115,7 +115,7 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (!!this.editor) {
+    if (this.editor) {
       this.editor.destroy();
     }
   }

@@ -35,7 +35,7 @@ export class PipelineUsagesComponent implements OnInit {
 
   loadMore() {
     const usage = last(this.usages);
-    if (!!usage) {
+    if (usage) {
       this.load(usage.cursor);
     }
   }
@@ -49,7 +49,7 @@ export class PipelineUsagesComponent implements OnInit {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as Object[]).map((plain) =>
+          (arr as object[]).map((plain) =>
             plainToInstance(PipelineUsage, plain)
           )
         ),

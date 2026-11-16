@@ -205,8 +205,13 @@ describe("EditPipelineEnvironmentComponent", () => {
     project.environment.variables.delete("RETRIES");
     setup(project, userEnvironment({ OPENAI_KEY: "sk-user", RETRIES: 9 }));
 
+    // the user value isn't copied in; the editor shows its own default
     expect(editorValue()).toEqual({
-      variables: { OPENAI_KEY: "sk-user", API_URL: "http://dummy.piper.test" },
+      variables: {
+        OPENAI_KEY: "sk-user",
+        API_URL: "http://dummy.piper.test",
+        RETRIES: 0,
+      },
     });
     expect(element.querySelector(".inherited").textContent).toContain(
       "RETRIES",
@@ -237,8 +242,7 @@ describe("EditPipelineEnvironmentComponent", () => {
     const project = projectWithEnvironment();
     project.environment.variables.delete("RETRIES");
     setup(project, userEnvironment({ RETRIES: 9 }));
-    editJson(element, { variables: { API_URL: "", RETRIES: 0 } });
-    fixture.detectChanges();
+    tick();
 
     button("Save").click();
     controller.expectOne(ENVIRONMENT_URL).flush(null);
@@ -258,7 +262,11 @@ describe("EditPipelineEnvironmentComponent", () => {
     expect(toPlain(project.environment)).toEqual({ variables: {} });
     expect(manager.status.value).toBe("dirty");
     expect(editorValue()).toEqual({
-      variables: { OPENAI_KEY: "sk-user", API_URL: "http://user.piper.test" },
+      variables: {
+        OPENAI_KEY: "sk-user",
+        API_URL: "http://user.piper.test",
+        RETRIES: 0,
+      },
     });
     finish();
   }));
