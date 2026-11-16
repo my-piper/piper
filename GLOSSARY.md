@@ -42,6 +42,14 @@ _Avoid_: Sandbox, test run
 One run of a Pipeline. It records the Project or Deploy it was started from, and it keeps its own copy of the Pipeline, so later edits do not change it.
 _Avoid_: Run, execution, job
 
+**Child Launch**:
+A Launch that a Node of another Launch started from a Deploy. It runs for the same user and is part of its Parent Launch: it fails the Node that started it, and stops when its Parent Launch is interrupted.
+_Avoid_: Nested launch, sub-pipeline, sub-launch
+
+**Parent Launch**:
+The Launch whose Node started a Child Launch.
+_Avoid_: Outer launch, root launch
+
 ### Configuration
 
 **Environment**:

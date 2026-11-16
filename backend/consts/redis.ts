@@ -59,6 +59,10 @@ export const PIPELINE_ERRORS = (launch: string) => `launch:${launch}:errors`;
 export const NODE_STATE = (launch: string, node: string) =>
   `launch:${launch}:nodes:${node}:state`;
 
+// child launches a node started, keyed by the script's own name for each child
+export const NODE_CHILDREN = (launch: string, node: string) =>
+  `launch:${launch}:nodes:${node}:children`;
+
 export const NODE_PROGRESS = (launch: string, node: string) =>
   `launch:${launch}:nodes:${node}:progress`;
 

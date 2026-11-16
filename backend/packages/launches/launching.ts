@@ -6,13 +6,14 @@ import { BASE_URL } from "consts/core";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,
+  LAUNCH_INTERRUPTED,
   NODE_INPUT,
   PIPELINE_ERRORS,
   PIPELINE_OUTPUT,
   PIPELINE_OUTPUT_DATA,
 } from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
-import redis from "core-kit/packages/redis";
+import redis, { setValue } from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { dataUriToBuffer } from "data-uri-to-buffer";
@@ -48,17 +49,22 @@ import { download, extFromMime } from "utils/web";
 
 const logger = createLogger("utils/launch");
 
-export async function run({
-  launchedBy,
-  pipeline,
-  launchRequest,
-  environment,
-  scope,
-  options,
-  project,
-  parent,
-  comment,
-}: Partial<Launch>): Promise<Launch> {
+export async function run(
+  {
+    launchedBy,
+    pipeline,
+    launchRequest,
+    environment,
+    scope,
+    options,
+    project,
+    parent,
+    depth,
+    comment,
+  }: Partial<Launch>,
+  // a preset id lets a caller record the launch before it starts
+  { id: _id = sid() }: { id?: string } = {}
+): Promise<Launch> {
   const outputs = new Map<string, LaunchArtefact>();
   if (pipeline.outputs) {
     for (const [key, { type, title, order }] of pipeline.outputs) {
@@ -72,8 +78,6 @@ export async function run({
       );
     }
   }
-
-  const _id = sid();
 
   // set inputs for nodes
   for (const [id, node] of pipeline.nodes) {
@@ -159,6 +163,7 @@ export async function run({
     launchRequest,
     environment,
     parent: parent || null,
+    depth: depth || 0,
     scope,
     options,
     costs,
@@ -213,6 +218,19 @@ export async function kick(launch: Launch) {
 
   for (const node of inclusive?.nodes || launch.pipeline.start.nodes) {
     await plan(node, pipeline.nodes.get(node), launch._id);
+  }
+}
+
+// interrupts the launch and, recursively, every child launch it started
+export async function interrupt(id: string): Promise<void> {
+  await setValue(
+    LAUNCH_INTERRUPTED(id),
+    new Date().toISOString(),
+    LAUNCH_EXPIRED
+  );
+  const children = await mongo.launches.distinct("_id", { parent: id });
+  for (const child of children) {
+    await interrupt(child);
   }
 }
 

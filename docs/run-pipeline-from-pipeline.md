@@ -8,24 +8,65 @@ All claims cite the source at the time of writing (`main`, after commit
 
 ## Short answer
 
-- The JS API you remember is `require("@piper/node").nested.run(slug, request)`
-  plus `nested.state(id)`. It is defined in
-  `backend/jobs/process-node/context.ts:107-140`, but **it is dead code**: since
-  commit `3146562` ("feat: move script execution to deno") node scripts run in
-  the remote Deno sandbox. That commit removed the `createContext` import from the
-  handler, and nothing in `backend/` imports `context.ts` any more.
-  `context.ts:20` also imports `packages/vm/utils`, which no longer exists.
-- In the current runtime, the only way for a node script to start another
-  pipeline is to call Piper's own HTTP API from the script with `fetch`:
-  `POST /api/[:prefix/]:slug/launch` for a deployed pipeline, or
-  `POST /api/projects/:id/launch` for a project. You authenticate with an
-  `api-token` header and then poll `GET /api/launches/:id/state` for outputs.
-- No shipped "run sub-pipeline" node type exists in this repo. Node packages
-  live in the external `my-piper/piper-nodes` repo, which this note did not check.
+- **Use a Child Launch.** A node script returns
+  `{ __type: "launch", launches: [{ key, deploy: { prefix, slug }, inputs }] }`.
+  The backend starts each child from the Deploy, and on every later run passes
+  `children.<key> = { launch, status, outputs }` into the script. The script then
+  returns `repeat` until `status` is `"finished"`, and then `next`. See section 0
+  and [ADR 0001](adr/0001-child-launches-by-returned-instruction.md). The sandbox
+  needs no token and never calls Piper.
+- The old `require("@piper/node").nested.run` API
+  (`backend/jobs/process-node/context.ts`) was dead code once scripts moved to
+  the Deno sandbox in `3146562`. It has now been deleted. Neither `piper-deno`
+  (a stateless function runner) nor `piper-nodes/utils/node.js` (`next`,
+  `repeat`, errors) offered a replacement.
+- Piper's public HTTP API (section 2) is still the way to launch a pipeline
+  from **outside** Piper. Inside a node, prefer Child Launches.
 
-## 1. The (legacy) in-process JS API: `@piper/node` → `nested`
+## 0. Child Launches
 
-Defined in `backend/jobs/process-node/context.ts`:
+Implemented in `backend/packages/launches/child-launches.ts` and
+`backend/jobs/process-node/process-node-handler.ts`.
+
+```js
+import { next, repeat } from "https://cdn.jsdelivr.net/gh/my-piper/piper-nodes@main/utils/node.js";
+
+export async function run({ inputs, children }) {
+  const child = children?.summary;
+  if (!child) {
+    return {
+      __type: "launch",
+      launches: [{
+        key: "summary",
+        deploy: { prefix: "<userId>", slug: "my-child" },
+        inputs: { prompt: inputs.prompt },   // pipeline inputs, merged over the deploy's
+      }],
+      delay: 3000,                            // when to run this node again
+    };
+  }
+  if (child.status !== "finished") return repeat({ delay: 3000 });
+  return next({ outputs: { result: child.outputs.result } });
+}
+```
+
+| Rule | Behaviour |
+| --- | --- |
+| Source | Only a Deploy, resolved by `prefix` and `slug`. It must declare pipeline outputs, and it must not share the parent's activated concurrency scope (that could deadlock). Otherwise the node fails fatally. |
+| Validation | Every request in one instruction is checked (depth, deploy, outputs, scope, fan-out, billing) before any child starts, so a bad request never leaves earlier siblings running. |
+| Fan-out | At most 10 children per node. |
+| Identity and billing | The child runs as the parent's `launchedBy`. When billing is active, the user's balance and rate limits are checked once per instruction, as for an HTTP deploy launch. |
+| Idempotency | `key -> childId` is saved in `NODE_CHILDREN` **before** the child starts. A key that already has a child is never launched again, so retries don't start duplicates. If starting the child throws, the child is interrupted and the key released, so the retry can start it. |
+| `children` payload | `{ [key]: { launch, status: "running" \| "finished", outputs } }`. A child is `finished` when every pipeline output is filled. Pipeline outputs only, with `json` parsed. Failed children never reach the script (see Failure). |
+| Failure | If a child has errors, or its launch is missing or expired, the node's other children are interrupted and the parent node fails with a fatal (non-retried) error before its script runs. |
+| Depth | `Launch.depth` is 0 for a user's launch and parent + 1 for a child. More than 3 levels fails the node fatally. |
+| Interruption | `POST /api/launches/:id/interrupt` interrupts the launch and its children recursively. Children started while their parent was being interrupted are interrupted right after they start. |
+| Loops | A node re-planned by a flow forgets its children, as it forgets its `state`. |
+| UI | Children carry `parent`, so they appear in the parent launch's "nested" tab. |
+
+## 1. The (deleted) in-process JS API: `@piper/node` → `nested`
+
+Formerly defined in `backend/jobs/process-node/context.ts`, now deleted. It is
+kept here for history:
 
 | API | Signature | Behaviour |
 | --- | --- | --- |
@@ -62,11 +103,11 @@ What still works: the `parent` field. `launches.run()` stores `parent`
 `GET /api/launches?parent=<id>` lists children (`api/launches/list.ts:16,23`).
 The UI has a "nested" tab under a launch that uses this filter
 (`frontend/src/app/app-routing.module.ts:240-246`,
-`frontend/src/resolvers/launches-filter.ts:19-20`). Only the dead `nested.run`
-ever set `parent` (`context.ts:133`). The HTTP launch endpoints never do
+`frontend/src/resolvers/launches-filter.ts:19-20`). Child Launches (section 0) set
+`parent`, as the deleted `nested.run` did. The HTTP launch endpoints never do
 (`api/deploys/launch-deploy.ts:38-55`, `api/projects/launch-project.ts:107-123`).
 
-## 2. The working path: calling Piper's HTTP API from a node script
+## 2. From outside Piper: the HTTP API
 
 ### Endpoints
 
@@ -189,9 +230,9 @@ either kicks it or queues a `run_launch` job. It returns right away
   The project launch instead accrues the estimated cost against a short-lived
   Redis balance when `TRACK_BALANCE` is set (`launch-project.ts:81-105`). Each
   child launch is costed as its own launch (`launching.ts:157-159`).
-- **Recursion and loop guards.** None found. Apart from the `parent` field,
-  which is only stored and filtered on, grep finds no depth or recursion checks
-  in `jobs/` or `packages/`. A pipeline that launches its own deploy would keep
+- **Recursion and loop guards.** Child Launches are capped at 3 levels by
+  `Launch.depth` (section 0). Launches started through the HTTP API carry no
+  depth. A node that calls the HTTP API to launch its own deploy would still keep
   spawning launches, bounded only by balance, rate limits and scope
   concurrency. **(inference)**
 - **Network reachability.** The script must reach the Piper API from inside the
@@ -201,7 +242,7 @@ either kicks it or queues a `run_launch` job. It returns right away
   sandbox does support `fetch`: the assistant's example node uses it
   (`api/projects/assistant/consts.ts:54-65`).
 
-## 4. Minimal worked example
+## 4. Worked example: polling the HTTP API from a node (superseded by section 0)
 
 This is built only from the facts above. Assumptions:
 
@@ -275,8 +316,7 @@ Notes on the example:
 
 ## Open questions
 
-- Does the `piper-deno` image or `piper-nodes/utils/node.js` provide its own
-  `nested` helper? Their source is outside this repo and needs checking there.
-- Should `nested.run` be restored in the Deno world? It would need a backend
-  callback endpoint and a way to pass a launch-scoped credential into the
-  sandbox. Neither exists today.
+- Should `piper-nodes/utils/node.js` gain a `launch(...)` helper next to `next`
+  and `repeat`? That is a follow-up in that repo.
+- Should a finished child wake its parent node at once, instead of the parent
+  polling on its `delay`?

@@ -33,7 +33,8 @@ queues, Deno, and reporting use explicit test doubles.
 Project read and launch handlers return 404 for a private project unless the
 current user is its owner or an admin; public projects are readable and
 launchable by any logged-in user. Launch interruption checks live-launch existence without an
-owner lookup. Project update/delete handlers reject other users, including
+owner lookup, then also interrupts every Child Launch (a launch whose `parent` is
+this launch), recursively. Project update/delete handlers reject other users, including
 engineers without an admin role, with 400 and `You aren't admin`. Missing projects
 and interruption of absent launches return 404. These tests record the existing
 permission rules; permission/status changes need an explicit contract decision.
