@@ -41,7 +41,8 @@ import {
   ExecutionResult,
   LogEntry,
 } from "packages/deno";
-import { NodeJobResult, RepeatNode } from "types/node";
+import { readChildren, startChildren } from "packages/launches/child-launches";
+import { LaunchChildrenNode, NodeJobResult, RepeatNode } from "types/node";
 import { PipelineEventType } from "types/pipeline";
 import { checkInputs, convertInputs, getNodeInputs } from "utils/node";
 import { getEnvironment } from "./environment";
@@ -257,6 +258,8 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       dueAt: due ? Number(due) : job.timestamp + (job.opts.delay ?? 0),
     };
 
+    const children = await readChildren(launch._id, nodeJob.node);
+
     logger.debug("Run node script");
     results = await execute(
       node.script,
@@ -268,6 +271,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
         inputs: converted,
         state,
         env: toPlain(environment),
+        ...(children ? { children } : {}),
       },
       {
         timeout: getTimeout(node.execution),
@@ -318,7 +322,31 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   const { result } = results;
 
-  if (result?.["__type"] === "repeat") {
+  const delayNode = async (delay: number): Promise<never> => {
+    const repeatAt = Date.now() + (delay || 1000);
+    await redis.setEx(DUE, LAUNCH_EXPIRED, String(repeatAt));
+    await job.moveToDelayed(repeatAt);
+    throw new DelayedError();
+  };
+
+  if (result?.["__type"] === "launch") {
+    const { launches, delay } = toInstance(
+      result as object,
+      LaunchChildrenNode
+    );
+
+    logger.debug(`Node ${nodeJob.node} starts ${launches.length} children`);
+    try {
+      await startChildren(launch, nodeJob.node, launches);
+    } catch (e) {
+      await recordNodeRun(run, getErrorResult(e), finishedAt);
+      throw e;
+    }
+
+    notifyNode(nodeJob.node, "node_gonna_repeat");
+    await recordNodeRun(run, "repeat", finishedAt);
+    return delayNode(delay);
+  } else if (result?.["__type"] === "repeat") {
     const { delay, progress, state } = toInstance(result as object, RepeatNode);
     if (state) {
       await saveObject(
@@ -342,11 +370,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     notifyNode(nodeJob.node, "node_gonna_repeat");
 
     await recordNodeRun(run, "repeat", finishedAt);
-
-    const repeatAt = Date.now() + (delay || 1000);
-    await redis.setEx(DUE, LAUNCH_EXPIRED, String(repeatAt));
-    await job.moveToDelayed(repeatAt);
-    throw new DelayedError();
+    return delayNode(delay);
   } else if (result?.["__type"] === "next") {
     await recordNodeRun(run, "done", finishedAt);
     return completeNode({

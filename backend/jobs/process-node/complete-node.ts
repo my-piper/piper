@@ -7,6 +7,7 @@ import {
   NODE_INPUT,
   NODE_OUTPUTS,
   NODE_PROCESSED_LOCK,
+  NODE_CHILDREN,
   NODE_PROGRESS,
   NODE_STATE,
   NODE_STATUS,
@@ -214,6 +215,7 @@ export async function completeNode({
       notifyNode(node, "node_flow");
       await redis.del(NODE_STATUS(launch._id, node));
       await redis.del(NODE_STATE(launch._id, node));
+      await redis.del(NODE_CHILDREN(launch._id, node));
       await redis.del(NODE_PROGRESS(launch._id, node));
       await unlock(NODE_PROCESSED_LOCK(launch._id, node));
 

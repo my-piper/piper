@@ -155,6 +155,40 @@ describe("launch interruption contract", () => {
     );
   });
 
+  it("interrupts child launches recursively", async () => {
+    httpDoubles.redis.EXISTS.mockResolvedValue(1);
+    httpDoubles.launches.distinct
+      .mockResolvedValueOnce(["child-1"])
+      .mockResolvedValueOnce(["grandchild-1"]);
+
+    const response = await context.request
+      .post("/api/launches/launch-http/interrupt")
+      .set("user-token", userToken("other-user"));
+
+    expect(response.status).toBe(204);
+    expect(httpDoubles.launches.distinct).toHaveBeenCalledWith("_id", {
+      parent: "child-1",
+    });
+    expect(httpDoubles.redis.setEx).toHaveBeenNthCalledWith(
+      1,
+      "launch:launch-http:interrupted",
+      604800,
+      HTTP_TEST_TIME.toISOString()
+    );
+    expect(httpDoubles.redis.setEx).toHaveBeenNthCalledWith(
+      2,
+      "launch:child-1:interrupted",
+      604800,
+      HTTP_TEST_TIME.toISOString()
+    );
+    expect(httpDoubles.redis.setEx).toHaveBeenNthCalledWith(
+      3,
+      "launch:grandchild-1:interrupted",
+      604800,
+      HTTP_TEST_TIME.toISOString()
+    );
+  });
+
   it("rejects interruption of a missing launch", async () => {
     const response = await context.request
       .post("/api/launches/missing/interrupt")

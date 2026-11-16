@@ -317,6 +317,11 @@ export class Launch {
   @Type(() => String)
   parent: string;
 
+  // 0 for a launch started by a user, parent depth + 1 for a child launch
+  @Expose()
+  @Type(() => Number)
+  depth: number;
+
   @Expose()
   @Type(() => String)
   comment: string;

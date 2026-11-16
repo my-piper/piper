@@ -38,6 +38,7 @@ const doubles = vi.hoisted(() => ({
   execute: vi.fn(),
   notify: vi.fn(),
   insertOne: vi.fn(),
+  distinct: vi.fn(),
   artefact: vi.fn(),
   bucket: vi.fn(),
   captureException: vi.fn(),
@@ -93,7 +94,9 @@ vi.mock("core-kit/packages/sentry", () => ({
   default: { captureException: doubles.captureException },
 }));
 vi.mock("app/mongo", () => ({
-  default: { launches: { insertOne: doubles.insertOne } },
+  default: {
+    launches: { insertOne: doubles.insertOne, distinct: doubles.distinct },
+  },
 }));
 vi.mock("app/storage", () => ({
   artefact: doubles.artefact,
@@ -109,6 +112,7 @@ export function resetExecutionDoubles() {
     doubles.execute,
     doubles.notify,
     doubles.insertOne,
+    doubles.distinct,
     doubles.artefact,
     doubles.bucket,
     doubles.captureException,
@@ -122,6 +126,7 @@ export function resetExecutionDoubles() {
   doubles.redis.set.mockResolvedValue("OK");
   doubles.redis.sIsMember.mockResolvedValue(true);
   doubles.redis.lRange.mockResolvedValue([]);
+  doubles.distinct.mockResolvedValue([]);
   doubles.bucket.mockReturnValue(null);
   doubles.execute.mockResolvedValue({
     result: {

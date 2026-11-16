@@ -47,6 +47,10 @@ export class Launch {
   parent: string;
 
   @Expose()
+  @Type(() => Number)
+  depth: number;
+
+  @Expose()
   @Type(() => String)
   comment: string;
 

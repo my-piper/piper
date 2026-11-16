@@ -23,6 +23,42 @@ export class RepeatNode {
   delay?: number;
 }
 
+export class ChildDeploy {
+  @Expose()
+  @Type(() => String)
+  slug!: string;
+
+  @Expose()
+  @Type(() => String)
+  prefix?: string;
+}
+
+export class ChildLaunchRequest {
+  // the script's own name for this child, unique within the node
+  @Expose()
+  @Type(() => String)
+  key!: string;
+
+  @Expose()
+  @Type(() => ChildDeploy)
+  deploy!: ChildDeploy;
+
+  // pipeline inputs, merged over the deploy's launch request
+  @Expose()
+  @Transform(objectTransformer)
+  inputs?: object;
+}
+
+export class LaunchChildrenNode {
+  @Expose()
+  @Type(() => ChildLaunchRequest)
+  launches!: ChildLaunchRequest[];
+
+  @Expose()
+  @Type(() => Number)
+  delay?: number;
+}
+
 export class ResetInputs {
   @Expose()
   @Type(() => String)
