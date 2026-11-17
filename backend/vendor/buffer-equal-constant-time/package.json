@@ -1,0 +1,7 @@
+{
+  "name": "buffer-equal-constant-time",
+  "version": "1.0.1-piper.0",
+  "description": "Drop-in for buffer-equal-constant-time@1.0.1 without SlowBuffer, which Node 25 removed",
+  "main": "index.js",
+  "license": "BSD-3-Clause"
+}

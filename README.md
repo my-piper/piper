@@ -75,7 +75,7 @@ Backend test implementation is planned in the [backend testing plan](docs/backen
 ### 🛠️ Prerequisites
 
 - Docker Desktop 🐳
-- Node.js 22
+- Node.js 26
 - VS code or alternative IDE
 - [golang-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 

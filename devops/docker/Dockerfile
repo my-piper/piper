@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:26-trixie
 
 ENV MIGRATE_VERSION=v4.18.3
 
@@ -19,6 +19,7 @@ WORKDIR /app
 
 COPY ./backend/package-lock.json ./backend/package-lock.json
 COPY ./backend/package.json ./backend/package.json
+COPY ./backend/vendor ./backend/vendor
 COPY ./frontend/package-lock.json ./frontend/package-lock.json
 COPY ./frontend/package.json ./frontend/package.json
 

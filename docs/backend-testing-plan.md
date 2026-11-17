@@ -9,12 +9,12 @@ Start with pipeline correctness, then add API and infrastructure coverage. Deliv
 - `backend/package.json` provides fast test, watch, coverage, and test typecheck
   commands. Harness usage and isolation rules are documented in
   [`backend/tests/README.md`](../backend/tests/README.md).
-- Production uses Node.js 22, TypeScript through `tsx`, ESM, and `baseUrl` imports such as `app/mongo` and `models/launch`.
+- Production uses Node.js 26, TypeScript through `tsx`, ESM, and `baseUrl` imports such as `app/mongo` and `models/launch`.
 - Models use decorators and `class-transformer`; tests must preserve the runtime transformation behavior.
 - Importing `app/mongo` connects to MongoDB. Importing the core-kit Redis module connects to Redis. Queue construction and worker registration also happen during module loading.
 - `core-kit/env.ts` loads `.env`, so tests must establish controlled configuration before application imports.
 - `core-kit` is a git submodule. Keep changes in Piper where possible; any necessary shared-library change requires a separate submodule change.
-- CI runs the backend harness on Node.js 22 before building the application image.
+- CI runs the backend harness on Node.js 26 before building the application image.
 
 ## 1. Establish the test harness — implemented
 

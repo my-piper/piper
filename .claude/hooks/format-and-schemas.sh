@@ -27,8 +27,8 @@ case "$file" in
   "$root"/backend/schemas/compiled.json) ;;
   "$root"/backend/schemas/*.json)
     major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
-    if [ "$major" -ge 25 ] || [ "$major" -lt 22 ]; then
-      echo "Schema changed but compiled.json was NOT regenerated: backend needs Node 22 (found $(node -v 2>/dev/null)). Run 'make schemas' on Node 22 before committing." >&2
+    if [ "$major" -ne 26 ]; then
+      echo "Schema changed but compiled.json was NOT regenerated: backend needs Node 26 (found $(node -v 2>/dev/null)). Run 'make schemas' on Node 26 before committing." >&2
       exit 2
     fi
     if ! out=$(make -C "$root" schemas 2>&1); then

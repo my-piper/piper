@@ -65,7 +65,7 @@ Out of scope for this first suite:
   node/result components react to launch/node events and issue follow-up reads.
 - [build.yml](../.github/workflows/build.yml) gates image building on backend
   tests only. [Makefile](../Makefile) also runs backend tests only. The
-  [Dockerfile](../devops/docker/Dockerfile) builds the frontend with Node 22.
+  [Dockerfile](../devops/docker/Dockerfile) built the frontend with Node 22 at the time (now Node 26).
 - `frontend/src/ui-kit` is a submodule: test Piper's use of its public behavior,
   keep fixtures/helpers in Piper, and do not silently change its revision.
 
@@ -872,8 +872,8 @@ local is done):**
   exit 0 (backend 34 files, 404 passed + 1 expected fail; frontend 281/281) and
   `make test-frontend-browser` 13/13 in 35 s. Node 26.12.0 — `make
 test-frontend` 281/281, `npm run test:coverage` 281/281 with floors met, four
-  browser runs 13/13. `make test` refuses Node 26 by design (backend requires
-  Node `>=22.12 <25`).
+  browser runs 13/13. `make test` refused Node 26 by design then (backend required
+  Node `>=22.12 <25`; since the Node 26 upgrade it requires 26).
 - Blocker: the CI workflow has not run — nothing is pushed. First push must
   confirm the `frontend-tests` job (Playwright system deps on ubuntu-24.04,
   Chrome sandbox flags, durations) before T008 can be marked DONE.
