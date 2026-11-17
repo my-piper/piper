@@ -1,5 +1,8 @@
 import { APP_BASE_HREF, DOCUMENT } from "@angular/common";
-import { HttpClientModule } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
@@ -307,7 +310,6 @@ import { UsersComponent } from "./users/users.component";
       url: "/",
       options: { transports: ["websocket"] },
     }),
-    HttpClientModule,
     UiKitModule,
     NgHcaptchaModule.forRoot(),
   ],
@@ -337,13 +339,13 @@ import { UsersComponent } from "./users/users.component";
       useFactory: dateLocaleFactory,
       deps: [CURRENT_LANGUAGE],
     },
-
     {
       provide: APP_INITIALIZER,
       useFactory: () => () => {},
       deps: [ScrollTopListener, ThemeManager],
       multi: true,
     },
+    provideHttpClient(withInterceptorsFromDi()),
   ],
 })
 export class AppModule {}

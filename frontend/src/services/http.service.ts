@@ -43,7 +43,7 @@ export class HttpService {
   constructor(
     private http: HttpClient,
     private config: AppConfig,
-    private router: Router
+    private router: Router,
   ) {}
 
   private processError({ status, error }: HttpErrorResponse): Error {
@@ -77,7 +77,7 @@ export class HttpService {
           return new InternalError(error);
         } else {
           return new InternalError(
-            "SERVICE_OFFLINE|Our service temporarily unavailable"
+            "SERVICE_OFFLINE|Our service temporarily unavailable",
           );
         }
     }
@@ -97,13 +97,13 @@ export class HttpService {
           console.error("Can't recognize error type", httpError);
           return throwError(() => httpError);
         }
-      })
+      }),
     );
 
   get(
     path: string,
     params: { [key: string]: number | string } = {},
-    options?: HttpOptions
+    options?: HttpOptions,
   ): Observable<BodyType> {
     return this.http
       .get<
@@ -115,7 +115,7 @@ export class HttpService {
   post(
     path: string,
     data: object | string | null = null,
-    options?: HttpOptions
+    options?: HttpOptions,
   ): Observable<BodyType> {
     return this.http
       .post<
@@ -127,7 +127,7 @@ export class HttpService {
   patch(
     path: string,
     data: object | FormData | string | null = null,
-    options?: HttpOptions
+    options?: HttpOptions,
   ): Observable<BodyType> {
     return this.http
       .patch<
@@ -139,7 +139,7 @@ export class HttpService {
   put(
     path: string,
     data: object | FormData | string | null = null,
-    options?: HttpOptions
+    options?: HttpOptions,
   ): Observable<BodyType> {
     return this.http
       .put<
@@ -158,7 +158,7 @@ export class HttpService {
 
   getRequestOptions(
     { params, headers, responseType }: HttpOptions = {},
-    data?: string | FormData | object
+    data?: string | FormData | object,
   ) {
     const options = {
       // withCredentials: true,
@@ -186,9 +186,7 @@ export class HttpService {
           : {}),
       },
       ...(() => {
-        return params
-          ? { params: new HttpParams({ fromObject: params }) }
-          : {};
+        return params ? { params: new HttpParams({ fromObject: params }) } : {};
       })(),
     };
 
