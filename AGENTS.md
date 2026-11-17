@@ -41,7 +41,7 @@ Backend (`cd backend`; TypeScript run directly via `tsx`, no build step; config 
   model transformations real and provide explicit factories for infrastructure
   mocks.
 
-Frontend (`cd frontend`, Angular 17 with `@angular/localize`):
+Frontend (`cd frontend`, Angular 22 with `@angular/localize`):
 
 - `npm start` — dev server; app is reached through nginx at `http://localhost/`
 - `npm run build` — localized production build
@@ -86,7 +86,7 @@ JSON Schemas in `backend/schemas/` (pipeline, node, node-package, project, flow,
 
 ### Frontend
 
-Angular 17 app in `frontend/src`: feature components in `app/`, HTTP layer in `services/`, route data via `resolvers/`, models mirroring backend classes in `models/` (also `class-transformer`). Runtime config (billing, captcha, auth features, URLs) is injected by the backend into `window.PRERENDER`. Routes are language-prefixed (`/:language/...`); the backend serves each locale's built `index.html`.
+Angular 22 app in `frontend/src`: feature components in `app/`, HTTP layer in `services/`, route data via `resolvers/`, models mirroring backend classes in `models/` (also `class-transformer`). Runtime config (billing, captcha, auth features, URLs) is injected by the backend into `window.PRERENDER`. Routes are language-prefixed (`/:language/...`); the backend serves each locale's built `index.html`.
 
 ### Deployment
 

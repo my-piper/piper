@@ -56,4 +56,12 @@ beforeEach(() => {
   });
 });
 
+// The app's index.html always sets <base href>, from which APP_BASE_HREF is
+// derived; Karma's context page has none, so provide the root one.
+if (!document.querySelector("base")) {
+  const base = document.createElement("base");
+  base.href = "/";
+  document.head.prepend(base);
+}
+
 installIsolation();

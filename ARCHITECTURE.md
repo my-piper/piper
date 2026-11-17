@@ -41,7 +41,7 @@ This document describes how the system is put together. For setup and commands s
 |---|---|
 | `backend/` | Node.js/TypeScript backend: all server-side processes share this codebase |
 | `backend/core-kit/` | Submodule: shared infra (env, logger, queue, redis, stream, io, server, transform, clickhouse, mailer, i18n, errors) |
-| `frontend/` | Angular 17 SPA, localized with `@angular/localize` |
+| `frontend/` | Angular 22 SPA, localized with `@angular/localize` |
 | `frontend/src/ui-kit/` | Submodule: shared Angular UI components |
 | `translator/` | Submodule: tool for translating locale files |
 | `migrations/` | Mongo (JSON index definitions) and ClickHouse (SQL) migrations |
@@ -231,7 +231,7 @@ Billing is enabled with `BILLING_ACTIVE=yes` (`consts/billing.ts`).
 - The backend validates imports and assistant output with AJV (`app/ajv.ts`). The frontend uses the same schemas for the JSON/YAML editors.
 
 ## Frontend
-Angular 17 module-based app (`frontend/src`):
+Angular 22 module-based app (`frontend/src`):
 - `app/` — feature components:
   - project list and projects;
   - the visual pipeline editor (`edit-pipeline-*`, `edit-node-*`, `edit-flow-transformer`);
