@@ -11,6 +11,7 @@ import { toPlain } from "src/utils/models";
   selector: "app-pipeline-tools",
   templateUrl: "./pipeline-tools.component.html",
   styleUrls: ["./pipeline-tools.component.scss"],
+  standalone: false,
 })
 export class PipelineToolsComponent {
   progress: {
@@ -29,7 +30,7 @@ export class PipelineToolsComponent {
     private fb: FormBuilder,
     private http: HttpService,
     private cd: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {

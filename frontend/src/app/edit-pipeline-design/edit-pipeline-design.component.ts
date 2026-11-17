@@ -15,6 +15,7 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-pipeline-design",
   templateUrl: "./edit-pipeline-design.component.html",
   styleUrls: ["./edit-pipeline-design.component.scss"],
+  standalone: false,
 })
 export class EditPipelineDesignComponent implements OnInit {
   schemas = (() => {
@@ -58,7 +59,7 @@ export class EditPipelineDesignComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
@@ -110,7 +111,7 @@ export class EditPipelineDesignComponent implements OnInit {
       (() => {
         const { pipeline } = this.form.getRawValue();
         return pipeline;
-      })()
+      })(),
     );
 
     assign(this.project, { title: name });

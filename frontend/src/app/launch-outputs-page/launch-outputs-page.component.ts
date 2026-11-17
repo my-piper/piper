@@ -6,6 +6,7 @@ import { Launch } from "src/models/launch";
   selector: "app-launch-outputs-page",
   templateUrl: "./launch-outputs-page.component.html",
   styleUrls: ["./launch-outputs-page.component.scss"],
+  standalone: false,
 })
 export class LaunchOutputsPageComponent {
   launch!: Launch;
@@ -17,7 +18,7 @@ export class LaunchOutputsPageComponent {
   ngOnInit(): void {
     this.route.data.subscribe(({ launch }) => (this.launch = launch));
     this.route.queryParams.subscribe(({ id, index }) =>
-      id ? (this.active = { id, index }) : null
+      id ? (this.active = { id, index }) : null,
     );
   }
 }

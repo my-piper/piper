@@ -11,6 +11,7 @@ import { ProjectManager } from "src/services/project.manager";
   selector: "app-edit-node-app",
   templateUrl: "./edit-node-app.component.html",
   styleUrls: ["./edit-node-app.component.scss"],
+  standalone: false,
 })
 export class EditNodeAppComponent implements OnInit {
   project!: Project;
@@ -25,7 +26,7 @@ export class EditNodeAppComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {

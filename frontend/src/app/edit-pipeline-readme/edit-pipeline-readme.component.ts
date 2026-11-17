@@ -10,6 +10,7 @@ import { PipelineReadmeComponent } from "../pipeline-readme/pipeline-readme.comp
   selector: "app-edit-pipeline-readme",
   templateUrl: "./edit-pipeline-readme.component.html",
   styleUrls: ["./edit-pipeline-readme.component.scss"],
+  standalone: false,
 })
 export class EditPipelineReadmeComponent implements OnInit {
   project!: Project;
@@ -23,7 +24,7 @@ export class EditPipelineReadmeComponent implements OnInit {
     private projectManager: ProjectManager,
     private route: ActivatedRoute,
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) {}
 
   ngOnInit() {
@@ -41,7 +42,7 @@ export class EditPipelineReadmeComponent implements OnInit {
       {
         readme,
       },
-      { emitEvent: false }
+      { emitEvent: false },
     );
   }
 

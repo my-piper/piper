@@ -5,6 +5,7 @@ import { MeManager } from "src/services/me.service";
   selector: "app-expenses",
   templateUrl: "./expenses.component.html",
   styleUrls: ["./expenses.component.scss"],
+  standalone: false,
 })
 export class ExpensesComponent {
   constructor(public me: MeManager) {}

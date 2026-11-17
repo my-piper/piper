@@ -37,7 +37,6 @@ function segments(...paths: string[]) {
 }
 
 @Component({
-  standalone: true,
   imports: [RouterOutlet],
   template: `<h1>{{ project?.title }}</h1>
     <router-outlet name="right"></router-outlet>`,

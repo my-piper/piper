@@ -5,6 +5,7 @@ import { PipelineOutput } from "src/models/pipeline";
   selector: "app-pipeline-output",
   templateUrl: "./pipeline-output.component.html",
   styleUrls: ["./pipeline-output.component.scss"],
+  standalone: false,
 })
 export class PipelineOutputComponent {
   @Input()

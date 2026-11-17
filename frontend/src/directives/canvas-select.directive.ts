@@ -29,7 +29,10 @@ export type SelectArea = {
  * changes. The host may be scaled: pass the same `zoom`. A marquee that moved
  * swallows the click that follows it.
  */
-@Directive({ selector: "[canvasSelect]" })
+@Directive({
+  selector: "[canvasSelect]",
+  standalone: false,
+})
 export class CanvasSelectDirective implements OnDestroy {
   private ignore = INTERACTIVE;
   private zoom = 1;

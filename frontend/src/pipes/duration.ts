@@ -11,12 +11,15 @@ const shortEnLocale = {
     formatDistanceLocale[token].replace("{{count}}", `${count}`),
 };
 
-@Pipe({ name: "duration" })
+@Pipe({
+  name: "duration",
+  standalone: false,
+})
 export class DurationPipe implements PipeTransform {
   transform(seconds: number): string {
     return formatDuration(
       intervalToDuration({ start: 0, end: seconds * 1000 }),
-      { format: ["hours", "minutes", "seconds"], locale: shortEnLocale }
+      { format: ["hours", "minutes", "seconds"], locale: shortEnLocale },
     );
   }
 }

@@ -9,6 +9,7 @@ import { ProjectManager } from "src/services/project.manager";
   selector: "app-edit-pipeline-script",
   templateUrl: "./edit-pipeline-script.component.html",
   styleUrls: ["./edit-pipeline-script.component.scss"],
+  standalone: false,
 })
 export class EditPipelineScriptComponent implements OnInit {
   pipeline!: Pipeline;
@@ -20,7 +21,7 @@ export class EditPipelineScriptComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {

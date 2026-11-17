@@ -18,6 +18,7 @@ import { getMergedData } from "../utils/route";
   selector: "app-assistant",
   templateUrl: "./assistant.component.html",
   styleUrls: ["./assistant.component.scss"],
+  standalone: false,
 })
 export class AssistantComponent implements OnInit {
   error!: Error;

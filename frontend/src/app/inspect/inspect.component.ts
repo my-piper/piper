@@ -4,6 +4,7 @@ import { Component, Input } from "@angular/core";
   selector: "app-inspect",
   templateUrl: "./inspect.component.html",
   styleUrls: ["./inspect.component.scss"],
+  standalone: false,
 })
 export class InspectComponent {
   @Input()

@@ -26,6 +26,7 @@ import { getLabel } from "src/ui-kit/utils/i18n";
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
   private _value: object;
@@ -56,7 +57,7 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
 
   constructor(
     @Inject(CURRENT_LANGUAGE) private language: Languages,
-    private hostRef: ElementRef
+    private hostRef: ElementRef,
   ) {}
 
   writeValue(value: object) {

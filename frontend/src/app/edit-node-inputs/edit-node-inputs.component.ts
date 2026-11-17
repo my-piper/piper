@@ -27,6 +27,7 @@ const logger = createLogger("edit_node_inputs", LogLevel.debug);
   selector: "app-edit-node-inputs",
   templateUrl: "./edit-node-inputs.component.html",
   styleUrls: ["./edit-node-inputs.component.scss"],
+  standalone: false,
 })
 export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   userRole = UserRole;

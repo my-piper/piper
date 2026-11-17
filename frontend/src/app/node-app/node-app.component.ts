@@ -23,6 +23,7 @@ import { toInstance, toPlain } from "src/utils/models";
   templateUrl: "./node-app.component.html",
   styleUrls: ["./node-app.component.scss"],
   encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class NodeAppComponent {
   userRole = UserRole;

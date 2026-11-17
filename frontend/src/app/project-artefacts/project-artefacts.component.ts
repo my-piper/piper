@@ -6,6 +6,7 @@ import { Project } from "src/models/project";
   selector: "app-project-artefacts",
   templateUrl: "./project-artefacts.component.html",
   styleUrls: ["./project-artefacts.component.scss"],
+  standalone: false,
 })
 export class ProjectArtefactsComponent {
   project!: Project;

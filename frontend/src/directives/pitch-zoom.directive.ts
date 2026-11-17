@@ -39,6 +39,7 @@ type Origin = { clientX: number; clientY: number };
 @Directive({
   selector: "[pitchZoom]",
   exportAs: "pitchZoom",
+  standalone: false,
 })
 export class PitchZoomDirective {
   zoom = 1;

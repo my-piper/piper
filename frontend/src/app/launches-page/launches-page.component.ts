@@ -7,6 +7,7 @@ import { LaunchOutputsComponent } from "../launch-outputs/launch-outputs.compone
   selector: "app-launches-page",
   templateUrl: "./launches-page.component.html",
   styleUrls: ["./launches-page.component.scss"],
+  standalone: false,
 })
 export class LaunchesPageComponent {
   modal!: LaunchOutputsComponent;
@@ -15,7 +16,7 @@ export class LaunchesPageComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {

@@ -14,6 +14,7 @@ import { ImageData, Launch, LaunchArtefact } from "src/models/launch";
   selector: "app-launch-outputs",
   templateUrl: "./launch-outputs.component.html",
   styleUrls: ["./launch-outputs.component.scss"],
+  standalone: false,
 })
 export class LaunchOutputsComponent {
   private _launch: Launch;

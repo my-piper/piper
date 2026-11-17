@@ -15,6 +15,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
   selector: "app-node-jobs",
   templateUrl: "./node-jobs.component.html",
   styleUrls: ["./node-jobs.component.scss"],
+  standalone: false,
 })
 export class NodeJobsComponent extends UntilDestroyed {
   progress = { loading: false };

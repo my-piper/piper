@@ -2,11 +2,14 @@ import { Pipe, PipeTransform } from "@angular/core";
 import { Base64 } from "js-base64";
 import { assign, trimEnd } from "lodash";
 
-@Pipe({ name: "proxyImage" })
+@Pipe({
+  name: "proxyImage",
+  standalone: false,
+})
 export class ImageProxyPipe implements PipeTransform {
   transform(
     src: string,
-    defs: { width?: number; height?: number; format?: string } = {}
+    defs: { width?: number; height?: number; format?: string } = {},
   ): string {
     if (!src) {
       return null;

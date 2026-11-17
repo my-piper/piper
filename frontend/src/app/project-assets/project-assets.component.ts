@@ -6,13 +6,14 @@ import { Project } from "src/models/project";
   selector: "app-project-assets",
   templateUrl: "./project-assets.component.html",
   styleUrls: ["./project-assets.component.scss"],
+  standalone: false,
 })
 export class ProjectAssetsComponent implements OnInit {
   project!: Project;
 
   constructor(
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {

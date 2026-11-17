@@ -21,12 +21,13 @@ import { NsfwDisclaimer } from "../nsfw-disclaimer/nsfw-disclaimer.component";
   selector: "app-me-user",
   templateUrl: "./me-user.component.html",
   styleUrls: ["./me-user.component.scss"],
+  standalone: false,
 })
 export class MeUserComponent implements OnInit {
   references: { popover?: PopoverComponent } = { popover: null };
 
   nsfwControl = this.fb.control<boolean>(
-    localStorage.getItem("nsfw") === "allow"
+    localStorage.getItem("nsfw") === "allow",
   );
   form = this.fb.group({
     nsfw: this.nsfwControl,
@@ -41,7 +42,7 @@ export class MeUserComponent implements OnInit {
     private modal: ModalService,
     private cfr: ComponentFactoryResolver,
     private router: Router,
-    private http: HttpService
+    private http: HttpService,
   ) {}
 
   ngOnInit(): void {

@@ -41,6 +41,7 @@ function valueMatchesType(group: AbstractControl): ValidationErrors | null {
   selector: "app-me-environment",
   templateUrl: "./me-environment.component.html",
   styleUrls: ["./me-environment.component.scss"],
+  standalone: false,
 })
 export class MeEnvironmentComponent implements OnInit {
   progress: { saving: boolean; removing: { [key: string]: boolean } } = {

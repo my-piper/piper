@@ -21,6 +21,7 @@ import { PlayViaApiComponent } from "../play-via-api/play-via-api.component";
   selector: "app-deploy-pipeline",
   templateUrl: "./deploy-pipeline.component.html",
   styleUrls: ["./deploy-pipeline.component.scss"],
+  standalone: false,
 })
 export class DeployPipelineComponent implements OnInit {
   schemas = SCHEMAS;
@@ -54,7 +55,7 @@ export class DeployPipelineComponent implements OnInit {
     private http: HttpService,
     private route: ActivatedRoute,
     private router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -100,7 +101,7 @@ export class DeployPipelineComponent implements OnInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as object[]).map((e) => toInstance(e, Deploy)))
+        map((arr) => (arr as object[]).map((e) => toInstance(e, Deploy))),
       )
       .subscribe((deploys) => (this.deploys = deploys));
   }
@@ -125,7 +126,7 @@ export class DeployPipelineComponent implements OnInit {
         finalize(() => {
           this.progress.deploying = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => this.load(),
@@ -145,7 +146,7 @@ export class DeployPipelineComponent implements OnInit {
         finalize(() => {
           this.progress.removing[_id] = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => this.load(),

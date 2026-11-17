@@ -14,6 +14,7 @@ type Size = { width: number; height: number };
 
 @Directive({
   selector: "[imageSize]",
+  standalone: false,
 })
 export class ImageSizeDirective implements OnInit, OnDestroy {
   private badge!: HTMLDivElement | null;
@@ -38,7 +39,7 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
 
   constructor(
     private hostRef: ElementRef<HTMLImageElement>,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) {}
 
   ngOnInit() {
@@ -80,7 +81,7 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
         this.renderer.setProperty(
           this.badge,
           "textContent",
-          `${width} × ${height}`
+          `${width} × ${height}`,
         );
         this.updatePosition();
       });
@@ -90,7 +91,7 @@ export class ImageSizeDirective implements OnInit, OnDestroy {
       this.renderer.setProperty(
         this.badge,
         "textContent",
-        `${width} × ${height}`
+        `${width} × ${height}`,
       );
       this.updatePosition();
     }

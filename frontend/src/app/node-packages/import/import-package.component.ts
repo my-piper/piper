@@ -15,6 +15,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
   selector: "app-import-package",
   templateUrl: "./import-package.component.html",
   styleUrls: ["./import-package.component.scss"],
+  standalone: false,
 })
 export class ImportPackageComponent {
   progress = { importing: false };
@@ -32,7 +33,7 @@ export class ImportPackageComponent {
     private http: HttpService,
     private router: Router,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   import() {
@@ -47,7 +48,7 @@ export class ImportPackageComponent {
         finalize(() => {
           this.progress.importing = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {

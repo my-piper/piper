@@ -26,6 +26,7 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-project-playground",
   templateUrl: "./project-playground.component.html",
   styleUrls: ["./project-playground.component.scss"],
+  standalone: false,
 })
 export class ProjectPlaygroundComponent implements OnDestroy {
   progress = { launching: false };

@@ -27,6 +27,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
   selector: "app-assets",
   templateUrl: "./assets.component.html",
   styleUrls: ["./assets.component.scss"],
+  standalone: false,
 })
 export class AssetsComponent implements OnInit {
   userRole = UserRole;

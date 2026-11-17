@@ -17,6 +17,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-import-project",
   templateUrl: "./import-project.component.html",
   styleUrls: ["./import-project.component.scss"],
+  standalone: false,
 })
 export class ImportProjectComponent {
   progress = { importing: false };
@@ -31,7 +32,7 @@ export class ImportProjectComponent {
     private http: HttpService,
     private router: Router,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   @Output()
@@ -50,7 +51,7 @@ export class ImportProjectComponent {
           this.progress.importing = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, Project))
+        map((json) => toInstance(json as object, Project)),
       )
       .subscribe({
         next: (project) => {

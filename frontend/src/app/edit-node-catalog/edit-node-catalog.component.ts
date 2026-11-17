@@ -18,6 +18,7 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-edit-node-catalog",
   templateUrl: "./edit-node-catalog.component.html",
   styleUrls: ["./edit-node-catalog.component.scss"],
+  standalone: false,
 })
 export class EditNodeCatalogComponent implements OnInit {
   schemas = SCHEMAS;
@@ -39,7 +40,7 @@ export class EditNodeCatalogComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -99,7 +100,7 @@ export class EditNodeCatalogComponent implements OnInit {
         finalize(() => {
           this.progress.publishing = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {},

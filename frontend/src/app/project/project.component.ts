@@ -23,6 +23,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-project",
   templateUrl: "./project.component.html",
   styleUrls: ["./project.component.scss"],
+  standalone: false,
 })
 export class ProjectComponent extends UntilDestroyed implements OnInit {
   userRole = UserRole;

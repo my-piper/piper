@@ -27,7 +27,10 @@ export function formatRunDuration(ms: number | null | undefined): string {
   return `${hours}h ${`${minutes}`.padStart(2, "0")}m`;
 }
 
-@Pipe({ name: "runDuration" })
+@Pipe({
+  name: "runDuration",
+  standalone: false,
+})
 export class RunDurationPipe implements PipeTransform {
   transform(ms: number | null | undefined): string {
     return formatRunDuration(ms);

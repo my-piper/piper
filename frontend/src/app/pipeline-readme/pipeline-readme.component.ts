@@ -6,6 +6,7 @@ import { Project } from "src/models/project";
   selector: "pipeline-readme",
   templateUrl: "./pipeline-readme.component.html",
   styleUrls: ["./pipeline-readme.component.scss"],
+  standalone: false,
 })
 export class PipelineReadmeComponent implements OnInit {
   project!: Project;

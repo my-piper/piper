@@ -35,6 +35,7 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   selector: "app-node",
   templateUrl: "./node.component.html",
   styleUrls: ["./node.component.scss"],
+  standalone: false,
 })
 export class NodeComponent extends UntilDestroyed implements OnDestroy {
   private _launch!: Launch;

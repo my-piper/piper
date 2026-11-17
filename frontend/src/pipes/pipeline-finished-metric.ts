@@ -4,7 +4,10 @@ import { map, Observable } from "rxjs";
 import { PipelineFinishedMetric } from "src/models/pipeline-finished-metric";
 import { HttpService } from "src/services/http.service";
 
-@Pipe({ name: "pipelineFinishedMetric" })
+@Pipe({
+  name: "pipelineFinishedMetric",
+  standalone: false,
+})
 export class PipelineFinishedMetricPipe implements PipeTransform {
   constructor(private http: HttpService) {}
 
@@ -13,8 +16,8 @@ export class PipelineFinishedMetricPipe implements PipeTransform {
       .get(`launches/${launch}/metrics/finished`)
       .pipe(
         map((json) =>
-          json ? plainToInstance(PipelineFinishedMetric, json) : null
-        )
+          json ? plainToInstance(PipelineFinishedMetric, json) : null,
+        ),
       );
   }
 }

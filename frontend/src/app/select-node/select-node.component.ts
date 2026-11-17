@@ -21,6 +21,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
   selector: "app-select-node",
   templateUrl: "./select-node.component.html",
   styleUrls: ["./select-node.component.scss"],
+  standalone: false,
 })
 export class SelectNodeComponent implements OnInit, AfterViewInit {
   userRole = UserRole;
@@ -47,7 +48,7 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -76,9 +77,9 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
             {
               ...(search ? { search } : {}),
             },
-            NodesFilter
-          )
-        )
+            NodesFilter,
+          ),
+        ),
       )
       .pipe(
         delay(UI_DELAY),
@@ -86,7 +87,7 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as object[]).map((e) => toInstance(e, Node)))
+        map((arr) => (arr as object[]).map((e) => toInstance(e, Node))),
       )
       .subscribe({
         next: (nodes) => {

@@ -33,6 +33,7 @@ export function fillDays(
   selector: "app-project-stats",
   templateUrl: "./project-stats.component.html",
   styleUrls: ["./project-stats.component.scss"],
+  standalone: false,
 })
 export class ProjectStatsComponent implements OnInit {
   periods = STATS_PERIODS;

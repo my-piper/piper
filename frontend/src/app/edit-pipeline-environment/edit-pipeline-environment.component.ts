@@ -18,6 +18,7 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-pipeline-environment",
   templateUrl: "./edit-pipeline-environment.component.html",
   styleUrls: ["./edit-pipeline-environment.component.scss"],
+  standalone: false,
 })
 export class EditPipelineEnvironmentComponent implements OnInit {
   progress = { saving: false };

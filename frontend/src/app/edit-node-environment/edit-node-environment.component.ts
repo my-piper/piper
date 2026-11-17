@@ -13,6 +13,7 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-node-environment",
   templateUrl: "./edit-node-environment.component.html",
   styleUrls: ["./edit-node-environment.component.scss"],
+  standalone: false,
 })
 export class EditNodeEnvironmentComponent implements OnInit {
   schemas = SCHEMAS;
@@ -29,7 +30,7 @@ export class EditNodeEnvironmentComponent implements OnInit {
     private projectManager: ProjectManager,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {

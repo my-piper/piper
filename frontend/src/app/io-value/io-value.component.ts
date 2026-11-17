@@ -12,6 +12,7 @@ type NodeIO = Pick<NodeInput | NodeOutput, "type"> &
   selector: "app-io-value",
   templateUrl: "./io-value.component.html",
   styleUrls: ["./io-value.component.scss"],
+  standalone: false,
 })
 export class IoValueComponent {
   @Input()

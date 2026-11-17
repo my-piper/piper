@@ -11,6 +11,7 @@ import { PopoverComponent } from "src/ui-kit/popover/popover.component";
   selector: "app-select-playground-page",
   templateUrl: "./select-playground-page.component.html",
   styleUrls: ["./select-playground-page.component.scss"],
+  standalone: false,
 })
 export class SelectPlaygroundPageComponent implements OnInit {
   userRole = UserRole;
@@ -28,7 +29,7 @@ export class SelectPlaygroundPageComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -48,7 +49,7 @@ export class SelectPlaygroundPageComponent implements OnInit {
           this.cd.detectChanges();
 
           this.references.popover?.hide();
-        })
+        }),
       )
       .subscribe({
         next: () => null,

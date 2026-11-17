@@ -22,6 +22,7 @@ import { mapTo, toPlain } from "src/utils/models";
   selector: "app-select-playground",
   templateUrl: "./select-playground.component.html",
   styleUrls: ["./select-playground.component.scss"],
+  standalone: false,
 })
 export class SelectPlaygroundComponent {
   userRole = UserRole;
@@ -57,7 +58,7 @@ export class SelectPlaygroundComponent {
   constructor(
     private http: HttpService,
     private cd: ChangeDetectorRef,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) {}
 
   async ngOnInit() {
@@ -82,13 +83,13 @@ export class SelectPlaygroundComponent {
         delay(UI_DELAY),
         map((arr) =>
           (arr as object[]).map((plain) =>
-            plainToInstance(PipelineCategory, plain)
-          )
+            plainToInstance(PipelineCategory, plain),
+          ),
         ),
         finalize(() => {
           this.progress.loading.categories = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (categories) => {
@@ -111,7 +112,7 @@ export class SelectPlaygroundComponent {
           this.progress.loading.tags = false;
           this.cd.detectChanges();
         }),
-        map((arr) => arr as string[])
+        map((arr) => arr as string[]),
       )
       .subscribe({
         next: (tags) => {
@@ -137,12 +138,12 @@ export class SelectPlaygroundComponent {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as object[]).map((plain) => plainToInstance(Project, plain))
+          (arr as object[]).map((plain) => plainToInstance(Project, plain)),
         ),
         finalize(() => {
           this.progress.loading.projects = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (projects) => {

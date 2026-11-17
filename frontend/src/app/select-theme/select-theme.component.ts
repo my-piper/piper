@@ -5,6 +5,7 @@ import { ThemeManager, ThemeMode } from "src/services/theme.service";
   selector: "app-select-theme",
   templateUrl: "./select-theme.component.html",
   styleUrls: ["./select-theme.component.scss"],
+  standalone: false,
 })
 export class SelectThemeComponent {
   modes: ThemeMode[] = ["light", "dark", "system"];

@@ -6,6 +6,7 @@ import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
   selector: "app-nsfw-disclaimer",
   templateUrl: "./nsfw-disclaimer.component.html",
   styleUrls: ["./nsfw-disclaimer.component.scss"],
+  standalone: false,
 })
 export class NsfwDisclaimer {
   languages = Languages;

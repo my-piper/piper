@@ -14,6 +14,7 @@ import * as YAML from "yaml";
   selector: "app-edit-pipeline-yaml",
   templateUrl: "./edit-pipeline-yaml.component.html",
   styleUrls: ["./edit-pipeline-yaml.component.scss"],
+  standalone: false,
 })
 export class EditPipelineYamlComponent implements OnInit {
   project!: Project;

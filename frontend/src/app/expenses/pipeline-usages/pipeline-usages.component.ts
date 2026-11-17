@@ -13,6 +13,7 @@ import { PipelineUsagesFilter } from "./models";
   selector: "app-pipeline-usages",
   templateUrl: "./pipeline-usages.component.html",
   styleUrls: ["./pipeline-usages.component.scss"],
+  standalone: false,
 })
 export class PipelineUsagesComponent implements OnInit {
   ui = UI;
@@ -26,7 +27,7 @@ export class PipelineUsagesComponent implements OnInit {
 
   constructor(
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
@@ -50,13 +51,13 @@ export class PipelineUsagesComponent implements OnInit {
         delay(UI_DELAY),
         map((arr) =>
           (arr as object[]).map((plain) =>
-            plainToInstance(PipelineUsage, plain)
-          )
+            plainToInstance(PipelineUsage, plain),
+          ),
         ),
         finalize(() => {
           this.progress.loading = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (usages) => {

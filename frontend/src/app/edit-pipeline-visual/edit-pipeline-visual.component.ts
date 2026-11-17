@@ -72,6 +72,7 @@ function salt() {
   selector: "app-edit-pipeline-visual",
   templateUrl: "./edit-pipeline-visual.component.html",
   styleUrls: ["./edit-pipeline-visual.component.scss"],
+  standalone: false,
 })
 export class EditPipelineVisualComponent
   extends UntilDestroyed

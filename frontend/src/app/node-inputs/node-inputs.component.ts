@@ -13,6 +13,7 @@ import { NodeInputs, NodeOutputs } from "src/types/node";
   selector: "app-node-inputs",
   templateUrl: "./node-inputs.component.html",
   styleUrls: ["./node-inputs.component.scss"],
+  standalone: false,
 })
 export class NodeInputsComponent implements OnInit {
   launch: Launch;
@@ -27,7 +28,7 @@ export class NodeInputsComponent implements OnInit {
     private socket: Socket,
     private http: HttpService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {

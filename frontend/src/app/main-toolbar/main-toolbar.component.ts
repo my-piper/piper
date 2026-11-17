@@ -6,6 +6,7 @@ import { UserRole } from "src/models/user";
   selector: "app-main-toolbar",
   templateUrl: "./main-toolbar.component.html",
   styleUrls: ["./main-toolbar.component.scss"],
+  standalone: false,
 })
 export class MainToolbarComponent {
   userRole = UserRole;

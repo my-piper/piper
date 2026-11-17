@@ -20,6 +20,7 @@ import { ArtefactsFilter } from "./models";
   selector: "app-artefacts",
   templateUrl: "./artefacts.component.html",
   styleUrls: ["./artefacts.component.scss"],
+  standalone: false,
 })
 export class ArtefactsComponent extends UntilDestroyed {
   private _filter!: ArtefactsFilter;
@@ -51,7 +52,7 @@ export class ArtefactsComponent extends UntilDestroyed {
 
   constructor(
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }
@@ -73,8 +74,8 @@ export class ArtefactsComponent extends UntilDestroyed {
           this.cd.detectChanges();
         }),
         map((arr) =>
-          (arr as object[]).map((e) => plainToInstance(LaunchArtefact, e))
-        )
+          (arr as object[]).map((e) => plainToInstance(LaunchArtefact, e)),
+        ),
       )
       .subscribe({
         next: (artefacts) => {

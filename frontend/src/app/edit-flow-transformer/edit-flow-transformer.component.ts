@@ -11,6 +11,7 @@ import { ProjectManager } from "src/services/project.manager";
   selector: "app-edit-flow-transformer",
   templateUrl: "./edit-flow-transformer.component.html",
   styleUrls: ["./edit-flow-transformer.component.scss"],
+  standalone: false,
 })
 export class EditFlowTransformerComponent implements OnInit {
   _flow!: NodeFlow;

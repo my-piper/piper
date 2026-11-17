@@ -16,6 +16,7 @@ import { EditUserComponent } from "./edit/edit-user.component";
   selector: "app-users",
   templateUrl: "./users.component.html",
   styleUrls: ["./users.component.scss"],
+  standalone: false,
 })
 export class UsersComponent {
   userRole = UserRole;

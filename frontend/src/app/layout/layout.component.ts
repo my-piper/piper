@@ -5,6 +5,7 @@ import { AppConfig } from "src/models/app-config";
   selector: "app-layout",
   templateUrl: "./layout.template.html",
   styleUrls: ["./layout.template.scss"],
+  standalone: false,
 })
 export class AppLayoutComponent {
   constructor(public appConfig: AppConfig) {}

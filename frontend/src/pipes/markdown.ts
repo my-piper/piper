@@ -7,17 +7,20 @@ import { Languages } from "src/ui-kit/enums/languages";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 import { getLabel } from "src/ui-kit/utils/i18n";
 
-@Pipe({ name: "markdown" })
+@Pipe({
+  name: "markdown",
+  standalone: false,
+})
 export class MarkdownPipe implements PipeTransform {
   constructor(
     @Inject(CURRENT_LANGUAGE) private language: Languages,
     private http: HttpClient,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
   ) {}
 
   transform(
     markdown: string,
-    { safe }: { safe: boolean } = { safe: true }
+    { safe }: { safe: boolean } = { safe: true },
   ): Observable<SafeHtml> {
     return new Observable<string | SafeHtml>((subscriber) => {
       const content = (() => {

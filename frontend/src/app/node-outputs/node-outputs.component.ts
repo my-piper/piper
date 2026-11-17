@@ -15,6 +15,7 @@ import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
   selector: "app-node-outputs",
   templateUrl: "./node-outputs.component.html",
   styleUrls: ["./node-outputs.component.scss"],
+  standalone: false,
 })
 export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
   launch: Launch;
@@ -32,7 +33,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
     private socket: Socket,
     private http: HttpService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }

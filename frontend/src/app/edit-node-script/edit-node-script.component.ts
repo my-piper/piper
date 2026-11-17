@@ -16,6 +16,7 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-edit-node-script",
   templateUrl: "./edit-node-script.component.html",
   styleUrls: ["./edit-node-script.component.scss"],
+  standalone: false,
 })
 export class EditNodeScriptComponent implements OnInit {
   nodeExecution = NodeExecution;
@@ -37,7 +38,7 @@ export class EditNodeScriptComponent implements OnInit {
     private http: HttpService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -69,7 +70,7 @@ export class EditNodeScriptComponent implements OnInit {
           this.progress.formatting = false;
           this.cd.detectChanges();
         }),
-        map((script) => script as string)
+        map((script) => script as string),
       )
       .subscribe({
         next: (script) => {
@@ -91,7 +92,7 @@ export class EditNodeScriptComponent implements OnInit {
         ...toPlain(this.node),
         script,
       },
-      Node
+      Node,
     );
 
     this.http
@@ -102,7 +103,7 @@ export class EditNodeScriptComponent implements OnInit {
           this.progress.saving = false;
           this.cd.detectChanges();
         }),
-        map((sign) => sign as string)
+        map((sign) => sign as string),
       )
       .subscribe({
         next: (sign) => {

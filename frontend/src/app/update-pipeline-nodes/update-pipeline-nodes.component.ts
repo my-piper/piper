@@ -13,6 +13,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-update-pipeline-nodes",
   templateUrl: "./update-pipeline-nodes.component.html",
   styleUrls: ["./update-pipeline-nodes.component.scss"],
+  standalone: false,
 })
 export class UpdatePipelineNodesComponent implements OnInit {
   ui = UI;
@@ -37,7 +38,7 @@ export class UpdatePipelineNodesComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -59,7 +60,7 @@ export class UpdatePipelineNodesComponent implements OnInit {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, PipelineNodeUpdates))
+        map((json) => toInstance(json as object, PipelineNodeUpdates)),
       )
       .subscribe((updates) => (this.nodeUpdates = updates));
   }

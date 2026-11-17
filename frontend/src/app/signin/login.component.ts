@@ -21,6 +21,7 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-login",
   templateUrl: "./login.component.html",
   styleUrls: ["./login.component.scss"],
+  standalone: false,
 })
 export class LoginComponent implements OnInit {
   progress = { login: false };
@@ -40,7 +41,7 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpService,
     private router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -50,7 +51,7 @@ export class LoginComponent implements OnInit {
           identity: "admin",
           password: "",
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
   }
@@ -73,7 +74,7 @@ export class LoginComponent implements OnInit {
           this.progress.login = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, Authorization))
+        map((json) => toInstance(json as object, Authorization)),
       )
       .subscribe({
         next: (authorization) => {

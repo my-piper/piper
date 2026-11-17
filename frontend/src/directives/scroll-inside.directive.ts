@@ -10,7 +10,10 @@ import {
 type Config = { left: number; top: number; disabled: boolean };
 type Position = { left: number; top: number };
 
-@Directive({ selector: "[scrollInside]" })
+@Directive({
+  selector: "[scrollInside]",
+  standalone: false,
+})
 export class ScrollInsideDirective {
   private disabled = false;
   private suppressNextScroll = false;

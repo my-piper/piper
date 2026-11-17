@@ -22,6 +22,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-edit-project",
   templateUrl: "./edit-project.component.html",
   styleUrls: ["./edit-project.component.scss"],
+  standalone: false,
 })
 export class EditProjectComponent {
   origin = location.origin;
@@ -47,7 +48,7 @@ export class EditProjectComponent {
   updated = new EventEmitter<Project>();
 
   visibilityControl = this.fb.control<ProjectVisibility>(
-    ProjectVisibility.private
+    ProjectVisibility.private,
   );
   form = this.fb.group({
     visibility: this.visibilityControl,
@@ -58,7 +59,7 @@ export class EditProjectComponent {
   constructor(
     private fb: FormBuilder,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   private build() {
@@ -90,7 +91,7 @@ export class EditProjectComponent {
           this.progress.saving = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, Project))
+        map((json) => toInstance(json as object, Project)),
       )
       .subscribe({
         next: (project) => this.updated.emit(project),

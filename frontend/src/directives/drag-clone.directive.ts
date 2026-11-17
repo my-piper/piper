@@ -13,6 +13,7 @@ import { DropZoneHub } from "src/services/drop-zone.hub";
 
 @Directive({
   selector: "[dragClone]",
+  standalone: false,
 })
 export class DragCloneDirective implements OnDestroy {
   @HostBinding("style.touchAction")
@@ -37,7 +38,7 @@ export class DragCloneDirective implements OnDestroy {
   constructor(
     private dropZoneHub: DropZoneHub,
     private hostRef: ElementRef<HTMLElement>,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) {}
 
   @HostListener("pointerdown", ["$event"])
@@ -128,7 +129,7 @@ export class DragCloneDirective implements OnDestroy {
     if (this.clonedElement?.parentElement) {
       this.renderer.removeChild(
         this.clonedElement.parentElement,
-        this.clonedElement
+        this.clonedElement,
       );
     }
     this.dragging = false;

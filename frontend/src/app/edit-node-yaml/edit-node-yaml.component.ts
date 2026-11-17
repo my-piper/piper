@@ -13,6 +13,7 @@ import * as YAML from "yaml";
   selector: "app-edit-node-yaml",
   templateUrl: "./edit-node-yaml.component.html",
   styleUrls: ["./edit-node-yaml.component.scss"],
+  standalone: false,
 })
 export class EditNodeYamlComponent implements OnInit {
   project!: Project;
@@ -26,7 +27,7 @@ export class EditNodeYamlComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {

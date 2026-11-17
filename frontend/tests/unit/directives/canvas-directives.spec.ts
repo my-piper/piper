@@ -77,6 +77,7 @@ describe("canvas directives", () => {
           <button>action</button>
         </div>
       </div>`,
+      standalone: false,
     })
     class HostComponent {
       zoom = 1;
@@ -232,6 +233,7 @@ describe("canvas directives", () => {
           ></div>
         </div>
       </div>`,
+      standalone: false,
     })
     class HostComponent {
       zoom = 1;
@@ -414,6 +416,7 @@ describe("canvas directives", () => {
           ></div>
         </div>
       </div>`,
+      standalone: false,
     })
     class HostComponent {
       clicks = 0;
@@ -562,6 +565,7 @@ describe("canvas directives", () => {
           style="position: absolute; left: 200px; top: 200px; width: 10px; height: 10px"
         ></div>
       </div>`,
+      standalone: false,
     })
     class HostComponent {
       zoom = 1;
@@ -699,6 +703,7 @@ describe("canvas directives", () => {
           style="position: fixed; left: 200px; top: 100px; width: 300px; height: 200px"
           (drop)="drops.push($event)"
         ></div>`,
+      standalone: false,
     })
     class HostComponent {
       zone = true;

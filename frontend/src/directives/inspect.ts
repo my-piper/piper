@@ -22,6 +22,7 @@ const ICON = `
 
 @Directive({
   selector: "[inspect]",
+  standalone: false,
 })
 export class InspectDirective implements OnInit, OnDestroy {
   private parent: HTMLElement | null = null;
@@ -59,7 +60,7 @@ export class InspectDirective implements OnInit, OnDestroy {
     private modal: ModalService,
     private cfr: ComponentFactoryResolver,
     private hostRef: ElementRef<HTMLElement>,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) {}
 
   ngOnInit() {

@@ -16,6 +16,7 @@ import { UI } from "src/ui-kit/consts";
   selector: "app-pipeline-input",
   templateUrl: "./pipeline-input.component.html",
   styleUrls: ["./pipeline-input.component.scss"],
+  standalone: false,
 })
 export class PipelineInputComponent {
   ui = UI;

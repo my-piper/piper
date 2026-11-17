@@ -9,6 +9,7 @@ import { UserRole } from "src/models/user";
   selector: "app-edit-node",
   templateUrl: "./edit-node.component.html",
   styleUrls: ["./edit-node.component.scss"],
+  standalone: false,
 })
 export class EditNodeComponent {
   userRole = UserRole;

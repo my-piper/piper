@@ -20,6 +20,7 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-package",
   templateUrl: "./edit-package.component.html",
   styleUrls: ["./edit-package.component.scss"],
+  standalone: false,
 })
 export class EditPackageComponent implements OnInit {
   schemas = SCHEMAS;
@@ -50,7 +51,7 @@ export class EditPackageComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -78,7 +79,7 @@ export class EditPackageComponent implements OnInit {
         this.nodePackage
           ? `node-packages/${this.nodePackage._id}`
           : "node-packages",
-        toPlain(nodePackage)
+        toPlain(nodePackage),
       )
       .pipe(
         delay(UI_DELAY),
@@ -86,7 +87,7 @@ export class EditPackageComponent implements OnInit {
           this.progress.saving = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(NodePackage, json as object))
+        map((json) => plainToInstance(NodePackage, json as object)),
       )
       .subscribe({
         next: (nodePackage) => {

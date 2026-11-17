@@ -18,7 +18,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
 import { mapTo, toPlain } from "src/utils/models";
 
 export function passwordMatchValidator(
-  form: AbstractControl
+  form: AbstractControl,
 ): ValidationErrors | null {
   const password = form.get("password")?.value;
   const confirmPassword = form.get("confirmPassword")?.value;
@@ -33,6 +33,7 @@ export function passwordMatchValidator(
   selector: "app-change-password",
   templateUrl: "./change-password.component.html",
   styleUrls: ["./change-password.component.scss"],
+  standalone: false,
 })
 export class ChangePasswordComponent {
   progress = { changing: false };
@@ -52,13 +53,13 @@ export class ChangePasswordComponent {
         Validators.minLength(6),
       ]),
     },
-    { validators: passwordMatchValidator }
+    { validators: passwordMatchValidator },
   );
 
   constructor(
     private fb: FormBuilder,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   changePassword() {
@@ -78,7 +79,7 @@ export class ChangePasswordComponent {
         finalize(() => {
           this.progress.changing = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => this.changed.emit(),

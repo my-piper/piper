@@ -21,6 +21,7 @@ const NEW_GROUP = "\u0000new";
   selector: "app-project-settings",
   templateUrl: "./project-settings.component.html",
   styleUrls: ["./project-settings.component.scss"],
+  standalone: false,
 })
 export class ProjectSettingsComponent implements OnInit {
   readonly NEW_GROUP = NEW_GROUP;
