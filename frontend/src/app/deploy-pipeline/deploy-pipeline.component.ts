@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import assign from "lodash/assign";
@@ -21,6 +26,7 @@ import { PlayViaApiComponent } from "../play-via-api/play-via-api.component";
   selector: "app-deploy-pipeline",
   templateUrl: "./deploy-pipeline.component.html",
   styleUrls: ["./deploy-pipeline.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class DeployPipelineComponent implements OnInit {

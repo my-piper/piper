@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { delay, finalize } from "rxjs";
 import { Project } from "src/models/project";
@@ -11,6 +16,7 @@ import { PopoverComponent } from "src/ui-kit/popover/popover.component";
   selector: "app-select-playground-page",
   templateUrl: "./select-playground-page.component.html",
   styleUrls: ["./select-playground-page.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class SelectPlaygroundPageComponent implements OnInit {

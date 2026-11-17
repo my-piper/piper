@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
@@ -13,6 +13,7 @@ import * as YAML from "yaml";
   selector: "app-edit-node-yaml",
   templateUrl: "./edit-node-yaml.component.html",
   styleUrls: ["./edit-node-yaml.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditNodeYamlComponent implements OnInit {

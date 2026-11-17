@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { assign, merge } from "lodash";
 import last from "lodash/last";
@@ -25,6 +31,7 @@ import { mapTo, toPlain } from "src/utils/models";
   selector: "app-launches",
   templateUrl: "./launches.component.html",
   styleUrls: ["./launches.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class LaunchesComponent extends UntilDestroyed implements OnDestroy {

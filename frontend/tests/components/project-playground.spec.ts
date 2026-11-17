@@ -1,5 +1,5 @@
 import { HttpTestingController } from "@angular/common/http/testing";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -281,7 +281,11 @@ describe("ProjectPlaygroundComponent", () => {
   }));
 });
 
-@Component({ standalone: true, template: "<p>launches</p>" })
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: "<p>launches</p>",
+})
 class LaunchesOutletStubComponent {}
 
 describe("PlayWithProjectComponent", () => {

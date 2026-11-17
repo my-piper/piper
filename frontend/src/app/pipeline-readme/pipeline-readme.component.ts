@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Project } from "src/models/project";
 
@@ -6,6 +6,7 @@ import { Project } from "src/models/project";
   selector: "pipeline-readme",
   templateUrl: "./pipeline-readme.component.html",
   styleUrls: ["./pipeline-readme.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class PipelineReadmeComponent implements OnInit {

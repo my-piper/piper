@@ -5,6 +5,7 @@ import {
   ElementRef,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { debounceTime, delay, finalize, map } from "rxjs";
@@ -21,6 +22,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
   selector: "app-select-node",
   templateUrl: "./select-node.component.html",
   styleUrls: ["./select-node.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class SelectNodeComponent implements OnInit, AfterViewInit {

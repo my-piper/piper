@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -15,6 +16,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
   selector: "app-import-package",
   templateUrl: "./import-package.component.html",
   styleUrls: ["./import-package.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ImportPackageComponent {

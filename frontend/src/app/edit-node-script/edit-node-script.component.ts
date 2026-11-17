@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
@@ -16,6 +21,7 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-edit-node-script",
   templateUrl: "./edit-node-script.component.html",
   styleUrls: ["./edit-node-script.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditNodeScriptComponent implements OnInit {

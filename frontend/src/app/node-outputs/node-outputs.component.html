@@ -7,6 +7,9 @@
     [class.filled]="outputs?.[o.key]"
   >
     <b>{{ o.value.title | i18n }}</b>
-    <app-io-value [io]="o.value" [value]="outputs?.[o.key]"></app-io-value>
+    <app-io-value
+      [io]="o.value"
+      [value]="$safeNavigationMigration(outputs?.[o.key])"
+    ></app-io-value>
   </li>
 </ul>

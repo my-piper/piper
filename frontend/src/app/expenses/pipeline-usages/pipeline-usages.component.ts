@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import last from "lodash/last";
 import { delay, finalize, map } from "rxjs";
@@ -13,6 +18,7 @@ import { PipelineUsagesFilter } from "./models";
   selector: "app-pipeline-usages",
   templateUrl: "./pipeline-usages.component.html",
   styleUrls: ["./pipeline-usages.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class PipelineUsagesComponent implements OnInit {

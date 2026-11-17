@@ -1,4 +1,9 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import {
+  Component,
+  Inject,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { merge } from "lodash";
@@ -27,6 +32,7 @@ const logger = createLogger("edit_node_inputs", LogLevel.debug);
   selector: "app-edit-node-inputs",
   templateUrl: "./edit-node-inputs.component.html",
   styleUrls: ["./edit-node-inputs.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {

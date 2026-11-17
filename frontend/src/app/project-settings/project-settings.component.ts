@@ -5,6 +5,7 @@ import {
   Input,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { delay, finalize, map } from "rxjs";
@@ -21,6 +22,7 @@ const NEW_GROUP = "\u0000new";
   selector: "app-project-settings",
   templateUrl: "./project-settings.component.html",
   styleUrls: ["./project-settings.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ProjectSettingsComponent implements OnInit {

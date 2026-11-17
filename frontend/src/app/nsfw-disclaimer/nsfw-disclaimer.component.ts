@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Inject, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Inject,
+  Output,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { Languages } from "src/ui-kit/enums/languages";
 import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
 
@@ -6,6 +12,7 @@ import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
   selector: "app-nsfw-disclaimer",
   templateUrl: "./nsfw-disclaimer.component.html",
   styleUrls: ["./nsfw-disclaimer.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class NsfwDisclaimer {

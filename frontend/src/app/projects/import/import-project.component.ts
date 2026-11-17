@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -17,6 +18,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-import-project",
   templateUrl: "./import-project.component.html",
   styleUrls: ["./import-project.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ImportProjectComponent {

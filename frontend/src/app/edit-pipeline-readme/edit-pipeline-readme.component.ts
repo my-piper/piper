@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import assign from "lodash/assign";
@@ -10,6 +10,7 @@ import { PipelineReadmeComponent } from "../pipeline-readme/pipeline-readme.comp
   selector: "app-edit-pipeline-readme",
   templateUrl: "./edit-pipeline-readme.component.html",
   styleUrls: ["./edit-pipeline-readme.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditPipelineReadmeComponent implements OnInit {

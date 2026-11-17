@@ -272,7 +272,10 @@
           *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
         >
           <ng-container
-            *ngIf="(nodeUpdates?.updates | keyvalue).length as updates"
+            *ngIf="
+              ($safeNavigationMigration(nodeUpdates?.updates) | keyvalue)
+                .length as updates
+            "
           >
             <li>
               <a

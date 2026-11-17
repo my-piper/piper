@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
@@ -15,6 +20,7 @@ import { toPlain } from "src/utils/models";
   selector: "app-pipeline-messages",
   templateUrl: "./pipeline-messages.component.html",
   styleUrls: ["./pipeline-messages.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class PipelineMessagesComponent implements OnInit {

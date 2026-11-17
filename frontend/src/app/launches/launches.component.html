@@ -90,7 +90,12 @@
               <b>{{ i.value.title | i18n }}:</b>
               <div class="value" [ngSwitch]="i.value.type">
                 <ng-container *ngSwitchCase="'image'">
-                  <img [src]="i.value.data?.url | proxyImage: { width: 100 }" />
+                  <img
+                    [src]="
+                      $safeNavigationMigration(i.value.data?.url)
+                        | proxyImage: { width: 100 }
+                    "
+                  />
                 </ng-container>
                 <ng-container *ngSwitchDefault>
                   {{ i.value.data?.value }}

@@ -5,6 +5,7 @@ import {
   HostBinding,
   Input,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { LaunchRequest } from "src/models/launch-request";
 import { PipelineInput } from "src/models/pipeline";
@@ -16,6 +17,7 @@ import { UI } from "src/ui-kit/consts";
   selector: "app-pipeline-input",
   templateUrl: "./pipeline-input.component.html",
   styleUrls: ["./pipeline-input.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class PipelineInputComponent {

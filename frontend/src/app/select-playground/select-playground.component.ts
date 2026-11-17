@@ -4,6 +4,7 @@ import {
   EventEmitter,
   Input,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { plainToInstance } from "class-transformer";
@@ -22,6 +23,7 @@ import { mapTo, toPlain } from "src/utils/models";
   selector: "app-select-playground",
   templateUrl: "./select-playground.component.html",
   styleUrls: ["./select-playground.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class SelectPlaygroundComponent {

@@ -6,6 +6,7 @@ import {
   Input,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { last } from "lodash";
@@ -27,6 +28,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
   selector: "app-assets",
   templateUrl: "./assets.component.html",
   styleUrls: ["./assets.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class AssetsComponent implements OnInit {

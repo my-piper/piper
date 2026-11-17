@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
 import { AppConfig } from "src/models/app-config";
@@ -15,6 +19,7 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-play-via-api",
   templateUrl: "./play-via-api.component.html",
   styleUrls: ["./play-via-api.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class PlayViaApiComponent {

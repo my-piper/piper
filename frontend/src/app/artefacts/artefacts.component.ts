@@ -5,6 +5,7 @@ import {
   HostBinding,
   Input,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { delay, finalize, map } from "rxjs";
@@ -20,6 +21,7 @@ import { ArtefactsFilter } from "./models";
   selector: "app-artefacts",
   templateUrl: "./artefacts.component.html",
   styleUrls: ["./artefacts.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ArtefactsComponent extends UntilDestroyed {

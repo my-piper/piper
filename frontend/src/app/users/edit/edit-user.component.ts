@@ -4,6 +4,7 @@ import {
   EventEmitter,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -20,6 +21,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-edit-user",
   templateUrl: "./edit-user.component.html",
   styleUrls: ["./edit-user.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditUserComponent implements OnInit {

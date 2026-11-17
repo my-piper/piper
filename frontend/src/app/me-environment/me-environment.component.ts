@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -41,6 +46,7 @@ function valueMatchesType(group: AbstractControl): ValidationErrors | null {
   selector: "app-me-environment",
   templateUrl: "./me-environment.component.html",
   styleUrls: ["./me-environment.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class MeEnvironmentComponent implements OnInit {

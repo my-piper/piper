@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
@@ -15,6 +19,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
   selector: "app-node-jobs",
   templateUrl: "./node-jobs.component.html",
   styleUrls: ["./node-jobs.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class NodeJobsComponent extends UntilDestroyed {

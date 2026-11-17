@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
@@ -9,6 +9,7 @@ import { ProjectManager } from "src/services/project.manager";
   selector: "app-edit-pipeline-script",
   templateUrl: "./edit-pipeline-script.component.html",
   styleUrls: ["./edit-pipeline-script.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditPipelineScriptComponent implements OnInit {

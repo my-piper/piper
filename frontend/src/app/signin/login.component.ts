@@ -4,6 +4,7 @@ import {
   EventEmitter,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -21,6 +22,7 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-login",
   templateUrl: "./login.component.html",
   styleUrls: ["./login.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class LoginComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Launch } from "src/models/launch";
 
@@ -6,6 +6,7 @@ import { Launch } from "src/models/launch";
   selector: "app-launch-outputs-page",
   templateUrl: "./launch-outputs-page.component.html",
   styleUrls: ["./launch-outputs-page.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class LaunchOutputsPageComponent {

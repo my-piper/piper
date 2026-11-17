@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { delay, map, takeUntil } from "rxjs";
 import { Project, ProjectSummary } from "src/models/project";
@@ -14,6 +18,7 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   selector: "app-play-with-project",
   templateUrl: "./play-with-project.component.html",
   styleUrls: ["./play-with-project.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class PlayWithProjectComponent extends UntilDestroyed {

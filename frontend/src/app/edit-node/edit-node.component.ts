@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UI } from "src/consts/ui";
 import { Node } from "src/models/node";
@@ -9,6 +9,7 @@ import { UserRole } from "src/models/user";
   selector: "app-edit-node",
   templateUrl: "./edit-node.component.html",
   styleUrls: ["./edit-node.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditNodeComponent {

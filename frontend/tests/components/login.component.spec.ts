@@ -1,4 +1,4 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -48,7 +48,7 @@ async function render(config: Partial<PlainAppConfig> = {}) {
     providers: [
       provideTestConfig(config),
       provideRouter([]),
-      provideHttpClient(),
+      provideHttpClient(withXhr()),
       provideHttpClientTesting(),
       { provide: CURRENT_LANGUAGE, useValue: Languages.en },
     ],

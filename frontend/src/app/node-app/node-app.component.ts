@@ -4,6 +4,7 @@ import {
   ElementRef,
   Renderer2,
   ViewEncapsulation,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
@@ -23,6 +24,7 @@ import { toInstance, toPlain } from "src/utils/models";
   templateUrl: "./node-app.component.html",
   styleUrls: ["./node-app.component.scss"],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class NodeAppComponent {

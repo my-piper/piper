@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
@@ -13,6 +18,7 @@ import { NodeInputs, NodeOutputs } from "src/types/node";
   selector: "app-node-inputs",
   templateUrl: "./node-inputs.component.html",
   styleUrls: ["./node-inputs.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class NodeInputsComponent implements OnInit {

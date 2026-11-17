@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, Inject, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import assign from "lodash/assign";
@@ -23,6 +29,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-project",
   templateUrl: "./project.component.html",
   styleUrls: ["./project.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ProjectComponent extends UntilDestroyed implements OnInit {

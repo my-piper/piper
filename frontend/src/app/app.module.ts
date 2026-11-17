@@ -2,6 +2,7 @@ import { APP_BASE_HREF } from "@angular/common";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from "@angular/common/http";
 import { APP_INITIALIZER, NgModule, DOCUMENT } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -345,7 +346,7 @@ import { UsersComponent } from "./users/users.component";
       deps: [ScrollTopListener, ThemeManager],
       multi: true,
     },
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
   ],
 })
 export class AppModule {}

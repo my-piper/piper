@@ -5,6 +5,7 @@ import {
   OnInit,
   QueryList,
   ViewChildren,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -57,6 +58,7 @@ const TEST_REQUEST = {
   selector: "app-projects",
   templateUrl: "./projects.component.html",
   styleUrls: ["./projects.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ProjectsComponent implements OnInit {

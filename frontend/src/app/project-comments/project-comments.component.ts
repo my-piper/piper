@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { last } from "lodash";
@@ -19,6 +23,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
   selector: "app-project-comments",
   templateUrl: "./project-comments.component.html",
   styleUrls: ["./project-comments.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ProjectCommentsComponent {

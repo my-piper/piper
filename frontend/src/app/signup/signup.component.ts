@@ -4,6 +4,7 @@ import {
   EventEmitter,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -22,6 +23,7 @@ import { ConfirmEmailRequest, SignupRequest } from "./models";
   selector: "app-signup",
   templateUrl: "./signup.component.html",
   styleUrls: ["./signup.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class SigupComponent implements OnInit {

@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
@@ -15,6 +20,7 @@ import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
   selector: "app-node-outputs",
   templateUrl: "./node-outputs.component.html",
   styleUrls: ["./node-outputs.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class NodeOutputsComponent extends UntilDestroyed implements OnInit {

@@ -4,6 +4,7 @@ import {
   EventEmitter,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -20,6 +21,7 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-package",
   templateUrl: "./edit-package.component.html",
   styleUrls: ["./edit-package.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditPackageComponent implements OnInit {

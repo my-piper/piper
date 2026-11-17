@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Project } from "src/models/project";
 
@@ -6,6 +11,7 @@ import { Project } from "src/models/project";
   selector: "app-project-assets",
   templateUrl: "./project-assets.component.html",
   styleUrls: ["./project-assets.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ProjectAssetsComponent implements OnInit {

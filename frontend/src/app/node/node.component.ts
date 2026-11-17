@@ -6,6 +6,7 @@ import {
   Input,
   OnDestroy,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
@@ -35,6 +36,7 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   selector: "app-node",
   templateUrl: "./node.component.html",
   styleUrls: ["./node.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class NodeComponent extends UntilDestroyed implements OnDestroy {

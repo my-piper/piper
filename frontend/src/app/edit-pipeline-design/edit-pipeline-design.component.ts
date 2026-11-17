@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
@@ -15,6 +15,7 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-pipeline-design",
   templateUrl: "./edit-pipeline-design.component.html",
   styleUrls: ["./edit-pipeline-design.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditPipelineDesignComponent implements OnInit {

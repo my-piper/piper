@@ -337,7 +337,7 @@
       <app-pipeline-input
         [id]="input.key"
         [input]="input.value"
-        [value]="launchRequest.inputs?.get(input.key)"
+        [value]="$safeNavigationMigration(launchRequest.inputs?.get(input.key))"
         [project]="project"
         [launchRequest]="launchRequest"
         [attr.disabled]="drag.dragged"
@@ -481,7 +481,9 @@
         <div
           class="node-costs"
           *ngLet="
-            (project._id | pipelineCosts | async)?.nodes?.get(node.key) as costs
+            $safeNavigationMigration(
+              (project._id | pipelineCosts | async)?.nodes?.get(node.key)
+            ) as costs
           "
         >
           <ng-template #noCostsTemplate>
@@ -582,15 +584,23 @@
         [node]="node.value"
         [inputs]="
           (!!launches[node.key]
-            ? launches[node.key].launchRequest.nodes.get(node.key)?.inputs
-            : launchRequest.nodes.get(node.key)?.inputs
+            ? $safeNavigationMigration(
+                launches[node.key].launchRequest.nodes.get(node.key)?.inputs
+              )
+            : $safeNavigationMigration(
+                launchRequest.nodes.get(node.key)?.inputs
+              )
           ) | mapToPlain
         "
         [outputs]="
           (['project', 'scheme'] | includes: mode)
             ? !!launches[node.key]
-              ? launches[node.key].launchRequest.nodes.get(node.key)?.outputs
-              : (launchRequest.nodes.get(node.key)?.outputs | mapToPlain)
+              ? $safeNavigationMigration(
+                  launches[node.key].launchRequest.nodes.get(node.key)?.outputs
+                )
+              : ($safeNavigationMigration(
+                  launchRequest.nodes.get(node.key)?.outputs
+                ) | mapToPlain)
             : null
         "
         [launch]="launch || launches[node.key]"

@@ -1,4 +1,4 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -27,7 +27,7 @@ export function setupProjectManager() {
     providers: [
       provideTestConfig(),
       provideRouter([]),
-      provideHttpClient(),
+      provideHttpClient(withXhr()),
       provideHttpClientTesting(),
     ],
   });

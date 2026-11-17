@@ -1,4 +1,4 @@
-import { HttpClient, provideHttpClient } from "@angular/common/http";
+import { HttpClient, provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -32,7 +32,7 @@ describe("test harness", () => {
       providers: [
         provideTestConfig(),
         provideRouter([]),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
       ],
     });
@@ -152,7 +152,9 @@ describe("test harness", () => {
     });
 
     it("rejects HttpClient traffic that bypasses HttpTestingController", () => {
-      TestBed.configureTestingModule({ providers: [provideHttpClient()] });
+      TestBed.configureTestingModule({
+        providers: [provideHttpClient(withXhr())],
+      });
       const errors: unknown[] = [];
 
       TestBed.inject(HttpClient)
@@ -175,7 +177,7 @@ describe("test harness", () => {
 
     it("keeps HttpTestingController-backed requests verifiable", () => {
       TestBed.configureTestingModule({
-        providers: [provideHttpClient(), provideHttpClientTesting()],
+        providers: [provideHttpClient(withXhr()), provideHttpClientTesting()],
       });
       const controller = TestBed.inject(HttpTestingController);
       let body: unknown = null;

@@ -4,6 +4,7 @@ import {
   EventEmitter,
   Input,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { delay, finalize, map } from "rxjs";
@@ -22,6 +23,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-edit-project",
   templateUrl: "./edit-project.component.html",
   styleUrls: ["./edit-project.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditProjectComponent {

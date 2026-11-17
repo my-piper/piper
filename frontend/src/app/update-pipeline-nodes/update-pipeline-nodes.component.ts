@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
@@ -13,6 +18,7 @@ import { toInstance } from "src/utils/models";
   selector: "app-update-pipeline-nodes",
   templateUrl: "./update-pipeline-nodes.component.html",
   styleUrls: ["./update-pipeline-nodes.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class UpdatePipelineNodesComponent implements OnInit {

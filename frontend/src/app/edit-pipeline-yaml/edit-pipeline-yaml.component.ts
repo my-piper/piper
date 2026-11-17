@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
@@ -14,6 +14,7 @@ import * as YAML from "yaml";
   selector: "app-edit-pipeline-yaml",
   templateUrl: "./edit-pipeline-yaml.component.html",
   styleUrls: ["./edit-pipeline-yaml.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditPipelineYamlComponent implements OnInit {

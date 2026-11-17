@@ -5,6 +5,7 @@ import {
   HostListener,
   OnDestroy,
   ViewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { assign, isEmpty, mapValues, random } from "lodash";
@@ -72,6 +73,7 @@ function salt() {
   selector: "app-edit-pipeline-visual",
   templateUrl: "./edit-pipeline-visual.component.html",
   styleUrls: ["./edit-pipeline-visual.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditPipelineVisualComponent

@@ -1,9 +1,9 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import {
   ComponentFixture,
   discardPeriodicTasks,
@@ -31,7 +31,11 @@ import { asJitPipes } from "./jit";
 import { provideSocketDouble, SocketDouble } from "./socket";
 
 /** Placeholder for routed drawers; the editor's own template stays real. */
-@Component({ standalone: true, template: "<p>outlet</p>" })
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: "<p>outlet</p>",
+})
 export class OutletStubComponent {}
 
 export const EDITOR_URL = "/project";
@@ -58,7 +62,7 @@ export function configureAppTestingModule(routes: Routes = []) {
     imports: [AppModule],
     providers: [
       provideTestConfig(),
-      provideHttpClient(),
+      provideHttpClient(withXhr()),
       provideHttpClientTesting(),
       provideSocketDouble(),
       provideRouter(routes),

@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize } from "rxjs";
 import { AppError } from "src/models/errors";
@@ -10,6 +15,7 @@ import { UI_DELAY } from "src/ui-kit/consts";
   selector: "app-export-package",
   templateUrl: "./export-package.component.html",
   styleUrls: ["./export-package.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ExportPackageComponent implements OnInit {

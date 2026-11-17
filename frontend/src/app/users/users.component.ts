@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
@@ -16,6 +20,7 @@ import { EditUserComponent } from "./edit/edit-user.component";
   selector: "app-users",
   templateUrl: "./users.component.html",
   styleUrls: ["./users.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class UsersComponent {
