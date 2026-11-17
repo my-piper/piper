@@ -93,6 +93,11 @@ Check only the ones the diff touches.
 - New behavior in `api/`, `jobs/` or `packages/` has a test in
   `backend/tests/unit/` following `backend/tests/README.md`. Report missing
   tests, but do not treat this as more severe than a correctness issue.
+- **Adapted tests.** When the diff edits an existing test's inputs or fixtures
+  in the same change as the code it covers, treat the edit as evidence that
+  behaviour changed for other callers too. Grep every production and
+  `backend/tests/integration` caller that passes the same shape, and report
+  `high` unless each one is shown to be unaffected.
 
 ## Verify before reporting
 

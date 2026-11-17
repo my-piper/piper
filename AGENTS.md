@@ -10,6 +10,8 @@ The repo uses git submodules — clone with `--recurse-submodules` or run `make 
 - `frontend/src/ui-kit` — shared Angular UI components.
 - `translator` — i18n translation tool.
 
+Sibling checkouts, when present next to this repo: `../piper-deno` is the sandbox runtime that executes node scripts; `../piper-nodes` is the node catalog and its `utils/node.js` helpers (`next`, `repeat`, errors).
+
 ## Commands
 
 Root (`Makefile`, reads optional `config.env`):

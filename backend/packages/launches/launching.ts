@@ -243,7 +243,7 @@ export async function getPlain(id: string): Promise<object> {
 }
 
 export async function get(id: string): Promise<Launch> {
-  return toInstance(getPlain(id), Launch);
+  return toInstance(await getPlain(id), Launch);
 }
 
 export async function state(id: string): Promise<LaunchState> {
