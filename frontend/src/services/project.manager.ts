@@ -15,7 +15,7 @@ import {
 import { NodeToLaunch } from "src/models/launch-request";
 import { PatchProject, Project } from "src/models/project";
 import { Primitive } from "src/types/primitive";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { createLogger, LogLevel } from "src/utils/logger";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import { HttpService } from "./http.service";

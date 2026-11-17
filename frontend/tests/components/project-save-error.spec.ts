@@ -22,17 +22,17 @@ import { IsPipe } from "src/pipes/is";
 import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
-import { Languages } from "src/ui-kit/enums/languages";
+import { UI_DELAY } from "src/consts/ui";
+import { Languages } from "src/enums/languages";
 import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
-import { CountdownPipe } from "src/ui-kit/pipes/countdown.pipe";
-import { I18nPipe } from "src/ui-kit/pipes/i18n.pipe";
-import { InvalidFieldPipe } from "src/ui-kit/pipes/invalid-field.pipe";
-import { LengthPipe } from "src/ui-kit/pipes/length.pipe";
+import { CountdownPipe } from "src/pipes/countdown.pipe";
+import { I18nPipe } from "src/pipes/i18n.pipe";
+import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
+import { LengthPipe } from "src/pipes/length.pipe";
 import { ModalDirective } from "src/ui-kit/modal/modal.directive";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
-import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { projectA } from "../fixtures/models";
 import {
   PATCH_PROJECT_URL,

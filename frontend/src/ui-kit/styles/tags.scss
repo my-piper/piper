@@ -1,0 +1,10 @@
+@import "variables";
+
+.tag {
+    display: inline-flex;
+    padding: $gutter-tiny $gutter-small;
+    border-radius: $corner-base;
+    border: 1px solid $primary-text-color;
+    line-height: 1;
+    font-size: $font-size-small;
+}

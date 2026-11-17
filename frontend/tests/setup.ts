@@ -15,7 +15,7 @@ import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
 import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
-import { TickerPipe } from "src/ui-kit/pipes/ticker.pipe";
+import { TickerPipe } from "src/pipes/ticker.pipe";
 import { installIsolation } from "./helpers/isolation";
 import { asJitPipes } from "./helpers/jit";
 

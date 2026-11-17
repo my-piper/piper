@@ -17,12 +17,12 @@ import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { ModalService } from "src/ui-kit/modal/modal.service";
-import { Languages } from "src/ui-kit/enums/languages";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
-import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
-import { getLabel } from "src/ui-kit/utils/i18n";
+import { Languages } from "src/enums/languages";
+import { UntilDestroyed } from "src/utils/until-destroyed";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { getLabel } from "src/utils/i18n";
 import { toInstance } from "src/utils/models";
 
 @Component({

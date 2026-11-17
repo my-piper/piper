@@ -5,7 +5,7 @@ import { Node } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
 import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 
 @Pipe({
   name: "node",

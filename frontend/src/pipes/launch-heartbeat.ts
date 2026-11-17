@@ -4,7 +4,7 @@ import { BehaviorSubject } from "rxjs/internal/BehaviorSubject";
 import { HeartbeatEvent } from "src/models/events";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 import { createLogger, LogLevel } from "src/utils/logger";
 import { toInstance } from "src/utils/models";
 

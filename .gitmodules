@@ -1,6 +1,3 @@
-[submodule "frontend/src/ui-kit"]
-	path = frontend/src/ui-kit
-	url = git@github.com:my-piper/piper-ui-kit.git
 [submodule "translator"]
 	path = translator
 	url = git@github.com:my-piper/translator.git

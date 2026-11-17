@@ -4,7 +4,7 @@ import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { AppComponent } from "src/app/app.component";
 import { NodePackagesComponent } from "src/app/node-packages/node-packages.component";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { Plain, userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";

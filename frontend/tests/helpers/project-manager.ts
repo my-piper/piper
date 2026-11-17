@@ -7,7 +7,7 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { provideTestConfig } from "./config";
 
 /** Debounce from `markDirty` to the delayed sanitize/update. */

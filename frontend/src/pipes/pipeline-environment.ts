@@ -2,7 +2,7 @@ import { OnDestroy, Pipe, PipeTransform } from "@angular/core";
 import { BehaviorSubject, takeUntil } from "rxjs";
 import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 import {
   getPipelineEnvironment,
   PipelineEnvironment,

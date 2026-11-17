@@ -15,12 +15,12 @@ import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
 import { Primitive } from "src/types/primitive";
-import { UI } from "src/ui-kit/consts";
-import { Languages } from "src/ui-kit/enums/languages";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UI } from "src/consts/ui";
+import { Languages } from "src/enums/languages";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
-import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
-import { getLabel } from "src/ui-kit/utils/i18n";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { getLabel } from "src/utils/i18n";
 import { createLogger, LogLevel } from "src/utils/logger";
 import { mapTo, toPlain } from "src/utils/models";
 

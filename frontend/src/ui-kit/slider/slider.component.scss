@@ -1,0 +1,51 @@
+@import 'src/ui-kit/styles/variables';
+@import 'src/ui-kit/styles/mixins';
+
+:host {
+  display: flex;
+  align-items: center;
+}
+
+input[type=range] {
+  flex: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 2px;
+  background: $control-border-color;
+
+  &:hover {
+    background: $control-highlight-border-color;
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: $control-border-color;
+    border-radius: $control-border-radius;
+    border: 1px solid transparent;
+    cursor: pointer;
+
+    &:hover {
+      border-color: $control-highlight-border-color;
+    }
+  }
+}
+
+input[type=number] {
+  padding: $gutter-small $gutter-normal;
+  margin-left: $gutter-small;
+  border: 1px solid $control-border-color;
+  border-radius: $corner-base;
+  width: 80px;
+  text-align: right;
+  background: $control-background-color;
+  color: $control-text-color;
+
+  &:hover,
+  &:focus {
+    outline: none;
+    background: $control-focus-background-color;
+  }
+}

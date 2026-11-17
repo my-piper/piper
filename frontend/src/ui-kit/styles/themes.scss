@@ -1,0 +1,53 @@
+// Runtime color tokens. The active theme is set on <html data-theme="...">
+// by ThemeService; dark is the default when the attribute is missing.
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --graphite-50: #eaeaea;
+  --graphite-60: #d5d4d4;
+  --graphite-75: #aaaaaa;
+  --graphite-100: #878787;
+  --graphite-200: #535353;
+  --graphite-300: #303030;
+  --graphite-400: #222222;
+  --graphite-500: #1d1d1d;
+
+  --primary-dark: #00d1d1;
+  --page-background: #0e0e13;
+  --header-background: #000000;
+  --inverse-background: #ffffff;
+  --strong-text: #ffffff;
+  --icon-color: #ffffff;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 10l4 4 4-4' stroke='%23aaaaaa' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+  --node-background: #111111;
+  --canvas-background: #000000;
+  --canvas-frame: #808080;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --graphite-50: #1a1a1f;
+  --graphite-60: #26262c;
+  --graphite-75: #4f4f57;
+  --graphite-100: #77777f;
+  --graphite-200: #c6c6cc;
+  --graphite-300: #dedee3;
+  --graphite-400: #ececf0;
+  --graphite-500: #f5f5f7;
+
+  --primary-dark: #008c8c;
+  --page-background: #f7f7f9;
+  --header-background: #ffffff;
+  --inverse-background: #26262c;
+  --strong-text: #000000;
+  --icon-color: #26262c;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 10l4 4 4-4' stroke='%234f4f57' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+  --node-background: #ffffff;
+  --canvas-background: #eeeef2;
+  --canvas-frame: #d5d5db;
+}

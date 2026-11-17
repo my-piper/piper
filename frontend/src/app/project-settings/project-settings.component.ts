@@ -12,7 +12,7 @@ import { delay, finalize, map } from "rxjs";
 import { AppError } from "src/models/errors";
 import { Project, ProjectSettings } from "src/models/project";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { toInstance } from "src/utils/models";
 
 // option value that can never collide with a real group name

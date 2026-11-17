@@ -12,9 +12,9 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { JSONEditor } from "@json-editor/json-editor";
 import { isEqual } from "lodash";
-import { Languages } from "src/ui-kit/enums/languages";
-import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
-import { getLabel } from "src/ui-kit/utils/i18n";
+import { Languages } from "src/enums/languages";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { getLabel } from "src/utils/i18n";
 
 @Component({
   selector: "app-json-editor",

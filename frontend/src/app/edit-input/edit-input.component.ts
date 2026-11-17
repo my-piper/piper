@@ -20,7 +20,7 @@ import { delay, finalize, map } from "rxjs";
 import { Artefact } from "src/models/artefacts";
 import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { ModalService } from "../../ui-kit/modal/modal.service";
 
 const COMPACT_LENGTH = 3;

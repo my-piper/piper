@@ -7,7 +7,6 @@ Piper is a visual AI pipeline builder: users compose pipelines of nodes on a can
 The repo uses git submodules — clone with `--recurse-submodules` or run `make install`:
 
 - `backend/core-kit` — shared infra library (env, logger, queue, redis, stream, io, server, transform, clickhouse, mailer, …). Imported as `core-kit/...`.
-- `frontend/src/ui-kit` — shared Angular UI components.
 - `translator` — i18n translation tool.
 
 Sibling checkouts, when present next to this repo: `../piper-deno` is the sandbox runtime that executes node scripts; `../piper-nodes` is the node catalog and its `utils/node.js` helpers (`next`, `repeat`, errors).
@@ -17,7 +16,7 @@ Sibling checkouts, when present next to this repo: `../piper-deno` is the sandbo
 Root (`Makefile`, reads optional `config.env`):
 
 - `make install` — init submodules and `npm install` backend, frontend, translator
-- `make lint` / `make lint-fix` — ESLint with the recommended `@typescript-eslint` rules for backend and frontend; `make lint-backend` / `make lint-frontend` run either package. Generated output and submodules are excluded.
+- `make lint` / `make lint-fix` — ESLint with the recommended `@typescript-eslint` rules for backend and frontend; `make lint-backend` / `make lint-frontend` run either package. Generated output, submodules and the legacy `frontend/src/ui-kit` are excluded.
 - `make up` / `make down` / `make stop` — local infra via `tools/compose/compose.yaml` (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy)
 - `make mongo-migrate` / `make clickhouse-migrate` — apply migrations from `migrations/{mongo,clickhouse}`
 - `make mongo-migrate-add` / `make clickhouse-migrate-add` — create a new migration (interactive name prompt)
@@ -89,6 +88,8 @@ JSON Schemas in `backend/schemas/` (pipeline, node, node-package, project, flow,
 ### Frontend
 
 Angular 22 app in `frontend/src`: feature components in `app/`, HTTP layer in `services/`, route data via `resolvers/`, models mirroring backend classes in `models/` (also `class-transformer`). Runtime config (billing, captcha, auth features, URLs) is injected by the backend into `window.PRERENDER`. Routes are language-prefixed (`/:language/...`); the backend serves each locale's built `index.html`.
+
+`src/ui-kit` holds the legacy UI components and styles that Taiga UI is replacing (#92). Don't add new components there; shared pipes, directives and providers live in the app's own `pipes/`, `directives/` and `providers/`.
 
 ### Deployment
 

@@ -1,0 +1,48 @@
+<ng-container *ngIf="opened">
+  <div
+    class="ui-modal"
+    [ngStyle]="{
+      'max-width': options.maxWidth,
+      width: options.width,
+    }"
+  >
+    <header>
+      <h1>{{ options.title | i18n }}</h1>
+      <button
+        *ngIf="!options.hold"
+        class="close primary"
+        (click)="close('user')"
+      >
+        <app-icon class="icon right" icon="close"></app-icon>
+        <span class="badge">ESC</span>
+      </button>
+    </header>
+    <div
+      class="content"
+      [ngStyle]="{
+        'max-height': options.maxHeight,
+      }"
+    >
+      <ng-container #container>
+        <ng-container *ngIf="!!contentTemplate">
+          <ng-container
+            *ngTemplateOutlet="
+              contentTemplate;
+              context: { close: close.bind(this) }
+            "
+          ></ng-container>
+        </ng-container>
+      </ng-container>
+    </div>
+    <ng-container *ngIf="!!options.footer">
+      <ng-container
+        *ngTemplateOutlet="options.footer; context: { close: close.bind(this) }"
+      ></ng-container>
+    </ng-container>
+  </div>
+
+  <div
+    class="overlay"
+    (click)="!options.hold && options.closeOutside ? close('user') : null"
+  ></div>
+</ng-container>

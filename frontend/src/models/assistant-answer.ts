@@ -1,5 +1,5 @@
 import { Expose, Transform, Type } from "class-transformer";
-import { objectTransformer } from "src/ui-kit/transformers";
+import { objectTransformer } from "src/transformers/object";
 
 export class AssistantRequest {
   @Expose()

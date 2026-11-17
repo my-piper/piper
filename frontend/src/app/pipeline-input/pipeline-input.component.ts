@@ -11,7 +11,7 @@ import { LaunchRequest } from "src/models/launch-request";
 import { PipelineInput } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { Primitive } from "src/types/primitive";
-import { UI } from "src/ui-kit/consts";
+import { UI } from "src/consts/ui";
 
 @Component({
   selector: "app-pipeline-input",

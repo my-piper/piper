@@ -12,7 +12,7 @@ import { AppError } from "src/models/errors";
 import { LaunchRequest } from "src/models/launch-request";
 import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { toInstance, toPlain } from "src/utils/models";
 
 @Component({

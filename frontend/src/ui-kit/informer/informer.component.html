@@ -1,0 +1,8 @@
+<ng-container
+  *ngTemplateOutlet="contentTemplate || defaultContentTemplate"
+></ng-container>
+
+<ng-template #defaultContentTemplate>
+  <p>{{ message }}</p>
+  <button #okRef class="primary-button" (click)="ok.emit()">OK</button>
+</ng-template>

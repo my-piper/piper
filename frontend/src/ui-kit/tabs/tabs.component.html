@@ -1,0 +1,22 @@
+<ng-template #defaultTitleTemplate let-title="title">
+  {{ title | i18n }}
+</ng-template>
+
+<ul class="stack small">
+  <ng-container *ngFor="let tab of tabs; let i = index">
+    <li *ngIf="!tab.hidden" [attr.data-cy]="tab.selector">
+      <a [class.active]="i == active" (click)="activate(i)">
+        <ng-container
+          *ngTemplateOutlet="
+            tab.titleTemplate || defaultTitleTemplate;
+            context: { title: tab.title }
+          "
+        ></ng-container>
+      </a>
+    </li>
+  </ng-container>
+</ul>
+
+<div class="content">
+  <ng-container *ngTemplateOutlet="tabs[active].content"></ng-container>
+</div>

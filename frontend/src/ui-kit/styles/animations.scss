@@ -1,0 +1,44 @@
+.fade-in {
+  opacity: 0;
+  animation: fade-in-animation 250ms ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fade-in-animation {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@mixin busy-animation() {
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    backdrop-filter: blur(5px);
+  }
+
+  &:before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    margin-left: -10px;
+    border-radius: 50%;
+    border-top: 2px solid $primary-dark-color;
+    border-right: 2px solid transparent;
+    animation: spinner 0.6s linear infinite;
+  }
+}

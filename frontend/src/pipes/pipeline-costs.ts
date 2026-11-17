@@ -7,7 +7,7 @@ import { LaunchRequestChangedSignal } from "src/models/signals/launch-request";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { SignalsService } from "src/services/signals.service";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 import { toPlain } from "src/utils/models";
 
 @Pipe({

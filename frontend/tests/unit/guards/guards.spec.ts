@@ -23,7 +23,7 @@ import { ShouldCheckReadmeGuard } from "src/guards/pipeline-readme";
 import { SaveProjectGuard } from "src/guards/save-project.guard";
 import { SigninNeededGuard } from "src/guards/signin.guard";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { projectA } from "../../fixtures/models";
 import {
   PATCH_PROJECT_URL,

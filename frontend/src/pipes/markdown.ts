@@ -3,9 +3,9 @@ import { Inject, Pipe, PipeTransform } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import * as marked from "marked";
 import { Observable, of } from "rxjs";
-import { Languages } from "src/ui-kit/enums/languages";
-import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
-import { getLabel } from "src/ui-kit/utils/i18n";
+import { Languages } from "src/enums/languages";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { getLabel } from "src/utils/i18n";
 
 @Pipe({
   name: "markdown",

@@ -19,7 +19,7 @@ import { Project, ProjectsFilter } from "src/models/project";
 import { ProjectRunsSummary } from "src/models/project-stats";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
-import { UI, UI_DELAY } from "src/ui-kit/consts";
+import { UI, UI_DELAY } from "src/consts/ui";
 import { SelectMode } from "src/directives/selectable.directive";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
