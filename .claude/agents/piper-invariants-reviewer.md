@@ -1,6 +1,6 @@
 ---
 name: piper-invariants-reviewer
-description: Read-only reviewer that checks the current git changes against Piper's cross-file invariants (queue registration, Redis keys and TTLs, class-transformer boundaries, route guards, schema compilation, billing gates, backend/frontend model parity). Use before committing backend or schema changes, alongside a general code review.
+description: Read-only reviewer that checks the current git changes against Piper's cross-file invariants (queue registration, Redis keys and TTLs, class-transformer boundaries, route guards, schema compilation, billing gates, backend/frontend model parity, Dockerfile COPY for file:/vendor dependencies). Use before committing backend or schema changes, alongside a general code review.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -87,6 +87,20 @@ Check only the ones the diff touches.
 - Every `NNNNNN_name.up.*` has a matching `.down.*` that reverses it.
 - ClickHouse columns added to stream-fed tables match the Kafka stream
   payloads declared in `backend/app/streams.ts`.
+
+### Dependency packaging (`backend/`, `frontend/` `package.json`, `vendor/`, `devops/docker/Dockerfile`)
+
+The Docker image runs `npm ci` after copying only the manifests and the paths
+listed before it, so anything `npm ci` resolves from disk must be copied first.
+
+- When the diff adds a `file:` dependency, an `overrides` entry pointing at a
+  local path, or anything under `backend/vendor/` or `frontend/vendor/`,
+  `devops/docker/Dockerfile` has a `COPY` of that path **before** the
+  `RUN npm --prefix ... ci` line, and `.dockerignore` does not exclude it.
+  Without it `npm ci` fails in the image build, or (for `overrides`) the image
+  installs a different tree than the lockfile you tested.
+- `allowScripts` pins and lockfile versions are checked mechanically by
+  `tools/check-install-scripts.sh` in CI; do not re-check them here.
 
 ### Tests
 
