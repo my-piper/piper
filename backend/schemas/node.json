@@ -439,11 +439,6 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "title": {
-            "title": "Title",
-            "type": "string",
-            "pattern": "^[\\w\\s]{5,40}$"
-          },
           "description": {
             "title": "Description",
             "type": "string"
@@ -462,7 +457,7 @@
             }
           }
         },
-        "required": ["title", "type", "scope"]
+        "required": ["type", "scope"]
       }
     }
   }

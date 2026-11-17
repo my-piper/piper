@@ -10,71 +10,18 @@
     Variables here are shared by all your projects. A project uses them for
     every variable it leaves empty.
   </p>
+  <p i18n="@@message.own_keys_not_billed">
+    When a node uses your own value for a key we'd otherwise provide, we don't
+    bill you for that service.
+  </p>
 
   <form [formGroup]="form">
-    <table class="default" *ngIf="variables.length > 0">
-      <thead>
-        <tr>
-          <th i18n="@@label.name">Name</th>
-          <th i18n="@@label.type">Type</th>
-          <th i18n="@@label.value">Value</th>
-          <th width="48px"></th>
-        </tr>
-      </thead>
-      <tbody formArrayName="variables">
-        <tr
-          class="variable"
-          *ngFor="let variable of variables.controls; let i = index"
-          [formGroupName]="i"
-        >
-          <td title="Name" i18n-title="@@label.name">
-            <input
-              class="key input-primary fluid"
-              [class.error]="variable.controls.key.invalid"
-              formControlName="key"
-              [readOnly]="variable.controls.stored.value"
-              placeholder="API_KEY"
-            />
-          </td>
-          <td title="Type" i18n-title="@@label.type">
-            <select class="type select-primary" formControlName="type">
-              <option value="string" i18n="@@label.string">String</option>
-              <option value="number" i18n="@@label.number">Number</option>
-              <option value="boolean" i18n="@@label.boolean">Boolean</option>
-            </select>
-          </td>
-          <td title="Value" i18n-title="@@label.value">
-            <input
-              class="value input-primary fluid"
-              [class.error]="variable.errors?.['valueType']"
-              formControlName="value"
-              [type]="
-                variable.controls.type.value === 'string' ? 'password' : 'text'
-              "
-              [placeholder]="
-                variable.controls.stored.value &&
-                variable.controls.type.value === 'string'
-                  ? storedPlaceholder
-                  : ''
-              "
-            />
-          </td>
-          <td>
-            <button
-              type="button"
-              class="remove transparent"
-              [class.busy]="progress.removing[variable.controls.key.value]"
-              [disabled]="progress.removing[variable.controls.key.value]"
-              (click)="remove(i)"
-              title="Remove"
-              i18n-title="@@action.remove"
-            >
-              <app-icon class="icon" icon="delete" [size]="18"></app-icon>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <app-environment-variables
+      [variables]="variables"
+      [removable]="true"
+      [removing]="progress.removing"
+      (remove)="remove($event)"
+    ></app-environment-variables>
     <p *ngIf="variables.length === 0" i18n="@@message.no_user_variables">
       You have no variables yet.
     </p>

@@ -57,6 +57,9 @@ permission rules; permission/status changes need an explicit contract decision.
   `PUT` (values equal to `[encrypted]` keep the stored value), cleared with
   `DELETE`, and loses a single variable with `DELETE /api/me/environment/:key`
   (204, also when nothing is stored). All require a logged-in user.
+- `GET /api/environment/keys` returns `{ keys: string[] }`: the names of the
+  Platform Environment's variables, never their values (`{ keys: [] }` when
+  nothing is stored). Requires a logged-in user; anonymous requests get 400.
 - Launching merges the saved launch request with the request body and runs model
   validation before initializing/scheduling the launch. Falsy inputs survive the
   HTTP-to-model-to-Redis path. Responses omit the pipeline and include the merged

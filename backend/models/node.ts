@@ -16,10 +16,6 @@ import { Arrange } from "./arrange";
 export class NodeEnvironment {
   @Expose()
   @Type(() => String)
-  title: string;
-
-  @Expose()
-  @Type(() => String)
   description: string;
 
   @Expose()

@@ -16,10 +16,6 @@ export type EnvironmentScope = "global" | "user" | "pipeline";
 export class NodeEnvironment {
   @Expose()
   @Type(() => String)
-  title: string;
-
-  @Expose()
-  @Type(() => String)
   description: string;
 
   @Expose()

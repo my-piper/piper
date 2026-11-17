@@ -2,7 +2,7 @@ import { httpDoubles } from "../../helpers/http-boundaries";
 import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { userToken } from "../../fixtures/http";
-import { USER_ENVIRONMENT_KEY } from "consts/redis";
+import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { Environment } from "models/environment";
 import { decrypt, encrypt } from "packages/environment/crypt-environment";
@@ -69,5 +69,41 @@ describe("user environment variable removal", () => {
 
     expect(response.status).toBe(400);
     expect(httpDoubles.redis.set).not.toHaveBeenCalled();
+  });
+});
+
+describe("platform environment keys", () => {
+  it("lists the names the platform provides without their values", async () => {
+    const environment = toInstance(
+      { variables: { OPENAI_KEY: "sk-platform", RETRIES: 3 } },
+      Environment
+    );
+    encrypt(environment);
+    redisResponses.set(
+      GLOBAL_ENVIRONMENT_KEY,
+      JSON.stringify(toPlain(environment))
+    );
+
+    const response = await context.request
+      .get("/api/environment/keys")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ keys: ["OPENAI_KEY", "RETRIES"] });
+  });
+
+  it("lists nothing when the platform has no environment", async () => {
+    const response = await context.request
+      .get("/api/environment/keys")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ keys: [] });
+  });
+
+  it("rejects anonymous requests", async () => {
+    const response = await context.request.get("/api/environment/keys");
+
+    expect(response.status).toBe(400);
   });
 });

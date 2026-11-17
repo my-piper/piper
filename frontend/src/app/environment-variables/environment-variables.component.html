@@ -1,0 +1,85 @@
+<table class="default" *ngIf="variables.length > 0">
+  <thead>
+    <tr>
+      <th i18n="@@label.name">Name</th>
+      <th i18n="@@label.type">Type</th>
+      <th i18n="@@label.value">Value</th>
+      <th *ngIf="removable" width="48px"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr
+      class="variable"
+      *ngFor="let variable of variables.controls; let i = index"
+      [formGroup]="variable"
+    >
+      <ng-container *ngIf="variable.controls.meta.value as meta">
+        <td title="Name" i18n-title="@@label.name">
+          <input
+            class="key input-primary fluid"
+            [class.error]="variable.controls.key.invalid"
+            formControlName="key"
+            [readOnly]="meta.stored || meta.fixed"
+            placeholder="API_KEY"
+          />
+          <small
+            class="description"
+            *ngIf="meta.description"
+            [innerHTML]="meta.description"
+          ></small>
+        </td>
+        <td title="Type" i18n-title="@@label.type">
+          <select class="type select-primary" formControlName="type">
+            <option value="string" i18n="@@label.string">String</option>
+            <option value="number" i18n="@@label.number">Number</option>
+            <option value="boolean" i18n="@@label.boolean">Boolean</option>
+          </select>
+        </td>
+        <td title="Value" i18n-title="@@label.value">
+          <input
+            class="value input-primary fluid"
+            [class.error]="variable.errors?.['valueType']"
+            formControlName="value"
+            [readOnly]="meta.readonly"
+            [type]="
+              variable.controls.type.value === 'string' ? 'password' : 'text'
+            "
+            [placeholder]="placeholder(meta, variable.controls.type.value)"
+          />
+          <small
+            class="inherited"
+            *ngIf="meta.inherited && !variable.controls.value.value"
+            [ngSwitch]="meta.inherited.source"
+          >
+            <ng-container
+              *ngSwitchCase="'user'"
+              i18n="@@label.source_user_environment"
+              >Your environment</ng-container
+            >
+            <ng-container
+              *ngSwitchCase="'platform'"
+              i18n="@@label.source_platform"
+              >Platform</ng-container
+            >
+            <ng-container *ngSwitchDefault i18n="@@label.not_set"
+              >Not set</ng-container
+            >
+          </small>
+        </td>
+        <td *ngIf="removable">
+          <button
+            type="button"
+            class="remove transparent"
+            [class.busy]="removing[variable.controls.key.value]"
+            [disabled]="removing[variable.controls.key.value]"
+            (click)="remove.emit(i)"
+            title="Remove"
+            i18n-title="@@action.remove"
+          >
+            <app-icon class="icon" icon="delete" [size]="18"></app-icon>
+          </button>
+        </td>
+      </ng-container>
+    </tr>
+  </tbody>
+</table>

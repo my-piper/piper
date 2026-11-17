@@ -12,6 +12,7 @@ import {
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { of } from "rxjs";
+import { EnvironmentVariablesComponent } from "src/app/environment-variables/environment-variables.component";
 import { MeEnvironmentComponent } from "src/app/me-environment/me-environment.component";
 import { Environment } from "src/models/environment";
 import { UI_DELAY } from "src/consts/ui";
@@ -46,7 +47,7 @@ describe("MeEnvironmentComponent", () => {
   ) {
     asJitPipes(TickerPipe);
     TestBed.configureTestingModule({
-      declarations: [MeEnvironmentComponent],
+      declarations: [MeEnvironmentComponent, EnvironmentVariablesComponent],
       imports: [ReactiveFormsModule, UiKitModule],
       providers: [
         provideTestConfig(),

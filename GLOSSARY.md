@@ -57,7 +57,7 @@ Named values that Nodes read when they run, such as API keys and endpoints. A No
 _Avoid_: Env, config, settings
 
 **Variable**:
-One named value in an Environment.
+One value in an Environment, made of a name, a type (string, number or boolean) and the value itself. A Variable has no title of its own.
 _Avoid_: Env var, setting, key
 
 **User Environment**:
@@ -71,3 +71,7 @@ _Avoid_: Global environment, system environment
 **Project Environment**:
 The Variables set on one Project. They override the User Environment and are frozen into each Deploy.
 _Avoid_: Pipeline environment, local environment
+
+**Inherited Variable**:
+A Variable a Project's Nodes declare but the Project doesn't set, so its value is read from the User Environment or the Platform Environment.
+_Avoid_: Default variable, fallback

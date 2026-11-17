@@ -3,32 +3,29 @@ import { BehaviorSubject, takeUntil } from "rxjs";
 import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
 import { UntilDestroyed } from "src/utils/until-destroyed";
-import {
-  getPipelineEnvironment,
-  PipelineEnvironment,
-} from "src/utils/pipeline";
+import { DeclaredVariables, getDeclaredVariables } from "src/utils/pipeline";
 
 @Pipe({
-  name: "pipelineEnvironment",
+  name: "declaredVariables",
   standalone: false,
 })
-export class PipelineEnvironmentPipe
+export class DeclaredVariablesPipe
   extends UntilDestroyed
   implements PipeTransform, OnDestroy
 {
-  value: BehaviorSubject<PipelineEnvironment> | null = null;
+  value: BehaviorSubject<DeclaredVariables> | null = null;
 
   constructor(private projectManager: ProjectManager) {
     super();
   }
 
-  transform(pipeline: Pipeline): BehaviorSubject<PipelineEnvironment> {
+  transform(pipeline: Pipeline): BehaviorSubject<DeclaredVariables> {
     const update = () => {
-      this.value.next(getPipelineEnvironment(pipeline));
+      this.value.next(getDeclaredVariables(pipeline));
     };
 
     if (!this.value) {
-      this.value = new BehaviorSubject<PipelineEnvironment>(null);
+      this.value = new BehaviorSubject<DeclaredVariables>(null);
       this.projectManager.updates
         .pipe(takeUntil(this.destroyed$))
         .subscribe(() => update());

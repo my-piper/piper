@@ -6,7 +6,7 @@ import { InputFlowsPipe, OutputIndexPipe } from "src/pipes/node";
 import { PipelineInputPipe } from "src/pipes/input";
 import { MeManager } from "src/services/me.service";
 import { ProjectManager } from "src/services/project.manager";
-import { getPipelineEnvironment } from "src/utils/pipeline";
+import { getDeclaredVariables } from "src/utils/pipeline";
 import { toInstance } from "src/utils/models";
 import { smallGraph, user } from "../../fixtures/models";
 import { smallGraphPipeline } from "../../fixtures/plain";
@@ -29,40 +29,37 @@ function projectManagerDouble() {
 }
 
 describe("domain pipes", () => {
-  describe("getPipelineEnvironment", () => {
-    it("builds a required variables schema from every node environment", () => {
+  describe("getDeclaredVariables", () => {
+    it("collects the variables every node declares", () => {
       const plain = smallGraphPipeline() as {
         nodes: Record<string, Record<string, unknown>>;
       };
       plain.nodes["node_one"]["environment"] = {
         OPENAI_KEY: {
-          title: "OpenAI key",
           type: "string",
-          description: "Get it **here**",
+          description: "Get it here",
           scope: "user",
         },
       };
       plain.nodes["node_two"]["environment"] = {
-        RETRIES: { title: "Retries", type: "integer", scope: "pipeline" },
+        RETRIES: { type: "integer", scope: "pipeline" },
       };
 
-      const schema = getPipelineEnvironment(toInstance(plain, Pipeline));
-      const { variables } = schema.properties;
+      const variables = getDeclaredVariables(toInstance(plain, Pipeline));
 
-      expect(variables.required).toEqual(["OPENAI_KEY", "RETRIES"]);
-      expect(variables.properties["OPENAI_KEY"].type).toBe("string");
-      expect(variables.properties["OPENAI_KEY"].description).toContain(
-        "<strong>here</strong>",
-      );
-      expect(variables.properties["RETRIES"].description).toBeNull();
-      expect(variables.additionalProperties).toBe(false);
+      expect([...variables.keys()]).toEqual(["OPENAI_KEY", "RETRIES"]);
+      expect(variables.get("OPENAI_KEY")).toMatchObject({
+        type: "string",
+        description: "Get it here",
+        scope: "user",
+      });
+      expect(variables.get("RETRIES").scope).toBe("pipeline");
     });
 
-    it("returns an empty variables schema when no node declares environment", () => {
-      const schema = getPipelineEnvironment(smallGraph());
+    it("returns nothing when no node declares environment", () => {
+      const variables = getDeclaredVariables(smallGraph());
 
-      expect(schema.properties.variables.required).toEqual([]);
-      expect(schema.properties.variables.properties).toEqual({});
+      expect(variables.size).toBe(0);
     });
   });
 

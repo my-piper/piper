@@ -1,60 +1,36 @@
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
-
-<p i18n="@@message.define_global_variables">
-  You can override global variables for your pipeline here. In this case we
-  won't bill you for execution of this pipeline.
-</p>
-
-<p i18n="@@message.project_environment_inherits">
-  Variables you leave empty are taken from
-  <a [routerLink]="['/me', 'environment']">your environment</a>, shared by all
-  your projects.
+<p i18n="@@message.project_environment_explained">
+  Set the variables this pipeline's nodes read. A variable you leave empty is
+  taken from <a [routerLink]="['/me', 'environment']">your environment</a>,
+  shared by all your projects; greyed out variables can only be set there.
 </p>
 
 <ng-template #noVariablesTemplate>
   <p i18n="@@message.no_environment_variables">
-    No one node has require environment variables.
+    No node in this pipeline needs environment variables.
   </p>
 </ng-template>
 
-<ng-container *ngIf="project.pipeline | pipelineEnvironment | async as schema">
-  <form
-    *ngIf="
-      (schema.properties.variables.properties | keyvalue).length > 0;
-      else noVariablesTemplate
-    "
-    [formGroup]="form"
-  >
-    <fieldset>
-      <app-json-editor
-        [schema]="schema"
-        formControlName="environment"
-        [features]="[]"
-      ></app-json-editor>
-    </fieldset>
-    <p class="inherited" *ngIf="inheritedKeys.length > 0">
-      <ng-container i18n="@@label.inherited_from_user_environment"
-        >Inherited from your environment:</ng-container
-      >
-      {{ inheritedKeys.join(", ") }}
-    </p>
-    <footer class="stack horizontal justify-between">
-      <button
-        class="primary"
-        [class.busy]="progress.saving"
-        [disabled]="form.invalid || progress.saving"
-        (click)="save()"
-        i18n="@@action.save"
-      >
-        Save
-      </button>
-      <button class="delete-button" (click)="clear()" i18n="@@action.clear">
-        Clear
-      </button>
-    </footer>
-  </form>
-</ng-container>
+<form *ngIf="variables.length > 0; else noVariablesTemplate" [formGroup]="form">
+  <app-environment-variables
+    [variables]="variables"
+  ></app-environment-variables>
+  <footer class="stack horizontal justify-between">
+    <button
+      type="button"
+      class="primary"
+      [disabled]="form.invalid"
+      (click)="save()"
+      i18n="@@action.save"
+    >
+      Save
+    </button>
+    <button
+      type="button"
+      class="delete-button"
+      (click)="clear()"
+      i18n="@@action.clear"
+    >
+      Clear
+    </button>
+  </footer>
+</form>

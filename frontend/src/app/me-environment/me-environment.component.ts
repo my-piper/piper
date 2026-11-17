@@ -4,14 +4,8 @@ import {
   OnInit,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import {
-  AbstractControl,
-  FormBuilder,
-  ValidationErrors,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { HIDDEN_STRING } from "src/consts/core";
 import { plainToInstance } from "class-transformer";
 import { delay, finalize, map, switchMap } from "rxjs";
 import { Environment } from "src/models/environment";
@@ -19,25 +13,13 @@ import { AppError } from "src/models/errors";
 import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/consts/ui";
+import {
+  parseValue,
+  VariableGroup,
+  variableGroup,
+  variableType,
+} from "src/utils/environment";
 import { toPlain } from "src/utils/models";
-
-type VariableType = "string" | "number" | "boolean";
-
-/** A value must parse as its type; empty is always allowed (keep / unset). */
-function valueMatchesType(group: AbstractControl): ValidationErrors | null {
-  const { type, value } = group.value as { type: VariableType; value: string };
-  if (value === "") {
-    return null;
-  }
-  switch (type) {
-    case "number":
-      return Number.isFinite(Number(value)) ? null : { valueType: true };
-    case "boolean":
-      return value === "true" || value === "false" ? null : { valueType: true };
-    default:
-      return null;
-  }
-}
 
 /**
  * The user environment: variables shared by all of the user's projects.
@@ -55,9 +37,8 @@ export class MeEnvironmentComponent implements OnInit {
     removing: {},
   };
   error!: AppError;
-  storedPlaceholder = $localize`:@@message.stored_value_leave_empty:Stored, leave empty to keep`;
 
-  variables = this.fb.array<ReturnType<typeof this.variableGroup>>([]);
+  variables = this.fb.array<VariableGroup>([]);
   form = this.fb.group({ variables: this.variables });
 
   constructor(
@@ -71,37 +52,15 @@ export class MeEnvironmentComponent implements OnInit {
     this.route.data.subscribe(({ environment }) => this.build(environment));
   }
 
-  private variableGroup({
-    key = "",
-    type = "string" as VariableType,
-    value = "",
-    stored = false,
-  } = {}) {
-    return this.fb.group(
-      {
-        key: this.fb.control(key, [
-          Validators.required,
-          Validators.pattern(/^[A-Za-z_][A-Za-z0-9_]*$/),
-        ]),
-        type: this.fb.control<VariableType>(type),
-        value: this.fb.control(value),
-        stored: this.fb.control(stored),
-      },
-      { validators: valueMatchesType },
-    );
-  }
-
   private build(environment: Environment | null) {
     this.variables.clear();
     for (const [key, value] of environment?.variables || []) {
-      const type = typeof value as VariableType;
       this.variables.push(
-        this.variableGroup({
+        variableGroup(this.fb, {
           key,
-          type,
-          // stored strings are never sent back: leave empty to keep them
-          value: value === HIDDEN_STRING ? "" : String(value),
-          stored: true,
+          type: variableType(typeof value),
+          value,
+          meta: { stored: true },
         }),
       );
     }
@@ -109,11 +68,14 @@ export class MeEnvironmentComponent implements OnInit {
   }
 
   add() {
-    this.variables.push(this.variableGroup());
+    this.variables.push(variableGroup(this.fb));
   }
 
   remove(index: number) {
-    const { key, stored } = this.variables.at(index).getRawValue();
+    const {
+      key,
+      meta: { stored },
+    } = this.variables.at(index).getRawValue();
     if (!stored) {
       this.variables.removeAt(index);
       return;
@@ -152,7 +114,7 @@ export class MeEnvironmentComponent implements OnInit {
       if (value === "") {
         continue;
       }
-      environment.variables.set(key, parse(type, value));
+      environment.variables.set(key, parseValue(type, value));
     }
 
     this.progress.saving = true;
@@ -172,16 +134,5 @@ export class MeEnvironmentComponent implements OnInit {
         next: (environment) => this.build(environment),
         error: (err) => (this.error = err),
       });
-  }
-}
-
-function parse(type: VariableType, value: string): Primitive {
-  switch (type) {
-    case "number":
-      return Number(value);
-    case "boolean":
-      return value === "true";
-    default:
-      return value;
   }
 }
