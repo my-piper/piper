@@ -89,5 +89,8 @@
     "karma-jasmine": {
       "jasmine-core": "$jasmine-core"
     }
+  },
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0"
   }
 }

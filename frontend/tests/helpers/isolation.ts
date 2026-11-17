@@ -13,8 +13,8 @@ import { guardConsole, takeConsoleProblems } from "./console";
  * - console.error calls not declared with `expectConsoleError()` fail it.
  */
 
-// Same-origin paths the Karma runner and webpack chunk loader need.
-const ALLOWED_PATHS = [/^\/_karma_webpack_\//, /^\/base\//, /^\/absolute\//];
+// Same-origin paths the Karma runner needs.
+const ALLOWED_PATHS = [/^\/base\//, /^\/absolute\//];
 
 const violations: string[] = [];
 

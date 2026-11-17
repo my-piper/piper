@@ -16,9 +16,8 @@ behaviour is covered separately by `backend/tests`.
 ## Prerequisites
 
 - Node and the frontend lockfile: `npm ci` in `frontend/`. Development and CI
-  use Node 22 (Dockerfile); the harness was also verified on Node 26. Angular
-  17.3's published matrix lists Node 18/20 only, so Node 22+ is a tested
-  deviation, not an officially supported combination.
+  use Node 22 (`frontend/.nvmrc`, Dockerfile); Angular 22 requires
+  `^22.22.3 || ^24.15.0` (`engines` in `package.json`).
 - A Chrome or Chromium binary for Karma. `karma-chrome-launcher` finds a system
   Chrome; otherwise set `CHROME_BIN`, e.g. to Playwright's Chromium
   (`npx playwright install chromium`).
@@ -46,10 +45,13 @@ check templates.
 
 ## Layout
 
-- `setup.ts` — Karma entry: `reflect-metadata`, TestBed environment
-  (`errorOnUnknownElements`/`errorOnUnknownProperties`, destroy after each), and
-  the isolation layer. `zone.js`, `zone.js/testing` and `@angular/localize/init`
-  are loaded as polyfills from `angular.json` before it.
+- `setup.ts` — Karma entry: TestBed environment
+  (`errorOnUnknownElements`/`errorOnUnknownProperties`, destroy after each,
+  zone.js change detection and `ng-reflect-*` attributes like the app), the
+  JIT shadowing of pipes that extend `UntilDestroyed` (add new ones there), a
+  root `<base href>`, and the isolation layer. `zone.js`, `zone.js/testing`,
+  `@angular/localize/init` and `reflect-metadata` are loaded as polyfills from
+  `angular.json` before it.
 - `helpers/` — explicit infrastructure doubles: `config.ts` (PRERENDER/AppConfig,
   stored authorization), `socket.ts` (`SocketDouble` for ngx-socket-io),
   `isolation.ts` (global guards), `console.ts` (`expectConsoleError`).
@@ -67,7 +69,7 @@ Before every spec: `localStorage`, `sessionStorage` and cookies are cleared and
 OAuth off, dummy base URL). After every spec the spec **fails** if it:
 
 - issued an application `fetch`/`XMLHttpRequest`/`WebSocket`/`EventSource`
-  request (only Karma's own `/_karma_webpack_/` and `/base/` paths are allowed) —
+  request (only Karma's own `/base/` and `/absolute/` paths are allowed) —
   use `provideHttpClientTesting()` + `HttpTestingController` (and call
   `verify()`), and `provideSocketDouble()` for sockets;
 - left elements attached to `<body>` after TestBed teardown;
