@@ -26,7 +26,7 @@ import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 import { ModalService } from "src/ui-kit/modal/modal.service";
 import { createLogger } from "src/utils/logger";
 import { toInstance } from "src/utils/models";

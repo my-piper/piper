@@ -9,8 +9,8 @@ import { Project, ProjectSummary } from "src/models/project";
 import { PipelineLaunchedSignal } from "src/models/signals/launch";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
-import { UI_DELAY } from "src/ui-kit/consts";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UI_DELAY } from "src/consts/ui";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 import { toInstance } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 

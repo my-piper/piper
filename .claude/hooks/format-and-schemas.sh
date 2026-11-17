@@ -9,7 +9,7 @@ file=$(jq -r '.tool_input.file_path // empty')
 root="${CLAUDE_PROJECT_DIR:-$(git -C "$(dirname "$file")" rev-parse --show-toplevel)}"
 
 case "$file" in
-  "$root"/backend/core-kit/* | "$root"/frontend/src/ui-kit/* | */node_modules/*) exit 0 ;;
+  "$root"/backend/core-kit/* | */node_modules/*) exit 0 ;;
   "$root"/backend/*) pkg="$root/backend" ;;
   "$root"/frontend/*) pkg="$root/frontend" ;;
   *) pkg="" ;;

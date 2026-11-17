@@ -1,0 +1,44 @@
+%reset-button {
+  font-family: $primary-font-family;
+  border: none;
+  background: transparent;
+  background-color: transparent;
+  font-size: 1rem;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@mixin reset-div() {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+}
+
+@mixin reset-link() {
+  text-decoration: none;
+}
+
+@mixin reset-button() {
+  font-family: $primary-font-family;
+  border: none;
+  background: transparent;
+  background-color: transparent;
+  font-size: 1rem;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+@mixin reset-input() {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  outline: none;
+  color: $primary-text-color;
+}

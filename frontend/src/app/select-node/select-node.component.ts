@@ -13,8 +13,8 @@ import { DisplayError } from "src/models/errors";
 import { Node, NodesFilter } from "src/models/node";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
-import { Languages } from "src/ui-kit/enums/languages";
+import { UI_DELAY } from "src/consts/ui";
+import { Languages } from "src/enums/languages";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 

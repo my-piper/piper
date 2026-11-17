@@ -14,7 +14,7 @@ import { Node } from "src/models/node";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { toInstance, toPlain } from "src/utils/models";
 
 @Component({

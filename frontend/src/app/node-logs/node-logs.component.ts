@@ -12,8 +12,8 @@ import { Launch } from "src/models/launch";
 import { Node } from "src/models/node";
 import { NodeLog } from "src/models/node-log";
 import { HttpService } from "src/services/http.service";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UntilDestroyed } from "src/utils/until-destroyed";
+import { UI_DELAY } from "src/consts/ui";
 
 @Component({
   selector: "app-node-logs",

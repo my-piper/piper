@@ -11,7 +11,7 @@ import { PipelineNodeUpdates } from "src/models/node";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UI, UI_DELAY } from "src/ui-kit/consts";
+import { UI, UI_DELAY } from "src/consts/ui";
 import { toInstance } from "src/utils/models";
 
 @Component({

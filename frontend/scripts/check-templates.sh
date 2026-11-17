@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Strict template type check (unknown elements and properties, binding and pipe
 # argument types) that `ng build` skips because tsconfig.json sets
-# fullTemplateTypeCheck: false. src/ui-kit is a submodule with its own repo,
-# so its errors are left to it, as with lint.
+# fullTemplateTypeCheck: false. src/ui-kit holds the legacy UI components that
+# Taiga UI replaces (issue 92), so its errors are skipped, as with lint.
 set -uo pipefail
 
 raw=$(npx --no-install ngc -p tsconfig.templates.json --noEmit 2>&1)

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Socket } from "ngx-socket-io";
-import { sid } from "src/ui-kit/utils/string";
+import { sid } from "src/utils/string";
 
 @Injectable({ providedIn: "root" })
 export class LiveService {

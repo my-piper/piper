@@ -14,8 +14,8 @@ import { NodeFlow } from "src/models/node-flow";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
-import { sid } from "src/ui-kit/utils/string";
+import { UI_DELAY } from "src/consts/ui";
+import { sid } from "src/utils/string";
 import { toInstance, toPlain } from "src/utils/models";
 import { getMergedData } from "../utils/route";
 

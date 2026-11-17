@@ -1,0 +1,57 @@
+@import 'src/ui-kit/styles/mixins';
+@import 'src/ui-kit/styles/variables';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: $gutter-normal;
+
+  @include wider-mobile() {
+    &.centered {
+      ul {
+        justify-content: center;
+      }
+    }
+  }
+
+  @include for-mobile() {
+    ul li:not(:last-child) {
+      margin-bottom: $gutter-small;
+    }
+  }
+}
+
+ul {
+  list-style: none;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+
+  li {
+    position: relative;
+
+    a {
+      display: inline-block;
+      user-select: none;
+      cursor: pointer;
+      border-radius: $corner-base;
+      padding: $gutter-small $gutter-normal;
+      color: $primary-text-color;
+      transition: all .1s;
+
+      &:hover {
+        background-color: $control-background-color;
+      }
+
+      &.active {
+        background-color: $control-background-color;
+      }
+    }
+  }
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

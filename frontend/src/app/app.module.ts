@@ -86,15 +86,12 @@ import { Ajv, ajvFactory } from "src/providers/ajv";
 import { appConfigFactory } from "src/providers/app-config";
 import { ScrollTopListener } from "src/providers/scroll-top.listener";
 import { applyMonacoTheme, ThemeManager } from "src/services/theme.service";
-import { baseHrefFactory } from "src/ui-kit/providers/base-href";
+import { baseHrefFactory } from "src/providers/base-href";
 import {
   CURRENT_LANGUAGE,
   currentLangFactory,
-} from "src/ui-kit/providers/current-language";
-import {
-  DATE_LOCALE,
-  dateLocaleFactory,
-} from "src/ui-kit/providers/date-locale";
+} from "src/providers/current-language";
+import { DATE_LOCALE, dateLocaleFactory } from "src/providers/date-locale";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { AppComponent } from "./app.component";
 import { ArtefactsComponent } from "./artefacts/artefacts.component";

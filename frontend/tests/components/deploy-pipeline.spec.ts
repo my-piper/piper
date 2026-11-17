@@ -16,9 +16,9 @@ import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline
 import { Project } from "src/models/project";
 import { CanPipe } from "src/pipes/can";
 import { ProjectManager } from "src/services/project.manager";
-import { Languages } from "src/ui-kit/enums/languages";
-import { TickerPipe } from "src/ui-kit/pipes/ticker.pipe";
-import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
+import { Languages } from "src/enums/languages";
+import { TickerPipe } from "src/pipes/ticker.pipe";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { deploysPlain } from "../fixtures/launch-results";
 import { projectA } from "../fixtures/models";

@@ -23,7 +23,7 @@ import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { ProjectManager } from "src/services/project.manager";
-import { TickerPipe } from "src/ui-kit/pipes/ticker.pipe";
+import { TickerPipe } from "src/pipes/ticker.pipe";
 import { projectA } from "../fixtures/models";
 import { userPlain, UserKind } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "./config";

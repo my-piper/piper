@@ -18,7 +18,7 @@ import { Environment } from "src/models/environment";
 import { AppError } from "src/models/errors";
 import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { toPlain } from "src/utils/models";
 
 type VariableType = "string" | "number" | "boolean";

@@ -42,7 +42,7 @@ This document describes how the system is put together. For setup and commands s
 | `backend/` | Node.js/TypeScript backend: all server-side processes share this codebase |
 | `backend/core-kit/` | Submodule: shared infra (env, logger, queue, redis, stream, io, server, transform, clickhouse, mailer, i18n, errors) |
 | `frontend/` | Angular 22 SPA, localized with `@angular/localize` |
-| `frontend/src/ui-kit/` | Submodule: shared Angular UI components |
+| `frontend/src/ui-kit/` | Legacy UI components and styles, being replaced by Taiga UI (#92) |
 | `translator/` | Submodule: tool for translating locale files |
 | `migrations/` | Mongo (JSON index definitions) and ClickHouse (SQL) migrations |
 | `tools/compose/` | Local infra: docker compose and nginx config |
