@@ -51,7 +51,6 @@ import { FirstPipe } from "src/pipes/first";
 import { GroupListPipe } from "src/pipes/group-list";
 import { GroupNodesPipe } from "src/pipes/group-nodes";
 import { ImageProxyPipe } from "src/pipes/image-proxy";
-import { IncludesPipe } from "src/pipes/includes";
 import { PipelineInputPipe } from "src/pipes/input";
 import { IsPipe } from "src/pipes/is";
 import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
@@ -78,7 +77,6 @@ import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { PlainPipe } from "src/pipes/plain";
 import { PositionPipe } from "src/pipes/position";
 import { ShiftPipe } from "src/pipes/shift";
-import { SlicePipe } from "src/pipes/slice";
 import { SplitPipe } from "src/pipes/split";
 import { ValuesPipe } from "src/pipes/values";
 import { YamlPipe } from "src/pipes/yaml";
@@ -179,7 +177,6 @@ import { UsersComponent } from "./users/users.component";
     ShiftPipe,
     MapToPlainPipe,
     PlainPipe,
-    IncludesPipe,
     AssetsComponent,
     OutputIndexPipe,
     InputIndexOfPipe,
@@ -196,7 +193,6 @@ import { UsersComponent } from "./users/users.component";
     EditInputComponent,
     EditPipelineInputComponent,
     SplitPipe,
-    SlicePipe,
     ImageProxyPipe,
     MarkdownPipe,
     LaunchOutputsComponent,

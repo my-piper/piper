@@ -159,7 +159,7 @@
           <ng-container *ngIf="o.value.data as data">
             <button
               #buttonRef
-              *ngFor="let image of data.images | slice: 10; let i = index"
+              *ngFor="let image of data.images | slice: 0 : 10; let i = index"
               [class.active]="active?.id == o.key && active?.index == i"
               (click)="activate(o.key, i)"
             >
