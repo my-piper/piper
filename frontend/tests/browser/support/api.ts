@@ -1,6 +1,6 @@
 import { BrowserContext, Request, Route } from "@playwright/test";
 import Ajv from "ajv";
-import { patch } from "jsondiffpatch";
+import { patch } from "jsondiffpatch/with-text-diffs";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import {

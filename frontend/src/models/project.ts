@@ -1,5 +1,5 @@
 import { Expose, Type } from "class-transformer";
-import { Delta } from "jsondiffpatch";
+import { Delta } from "jsondiffpatch/with-text-diffs";
 import assign from "lodash/assign";
 import { ProjectVisibility } from "src/enums/project-visibility";
 import { LaunchRequest } from "src/models/launch-request";

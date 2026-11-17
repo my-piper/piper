@@ -3,7 +3,7 @@ import api from "app/api";
 import mongo from "app/mongo";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { DataError, NotFoundError } from "core-kit/types/errors";
-import { patch } from "jsondiffpatch";
+import { patch } from "jsondiffpatch/with-text-diffs";
 import assign from "lodash/assign";
 import { Environment } from "models/environment";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";

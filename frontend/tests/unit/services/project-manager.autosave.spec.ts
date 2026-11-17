@@ -1,6 +1,6 @@
 import { HttpTestingController } from "@angular/common/http/testing";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
-import { Delta, patch } from "jsondiffpatch";
+import { Delta, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
 import { DataError, InternalError } from "src/models/errors";
 import { Project } from "src/models/project";

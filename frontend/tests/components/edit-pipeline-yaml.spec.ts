@@ -11,7 +11,7 @@ import {
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { cloneDeep } from "lodash";
-import { patch } from "jsondiffpatch";
+import { patch } from "jsondiffpatch/with-text-diffs";
 import { of } from "rxjs";
 import { EditPipelineYamlComponent } from "src/app/edit-pipeline-yaml/edit-pipeline-yaml.component";
 import { SubmitButtonDirective } from "src/directives/submit-button.directive";
