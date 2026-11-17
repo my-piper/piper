@@ -98,6 +98,7 @@
     "label.my_environment": "My environment",
     "message.user_environment_explained": " Variables here are shared by all your projects. A project uses them for every variable it leaves empty. ",
     "message.own_keys_not_billed": " When a node uses your own value for a key we'd otherwise provide, we don't bill you for that service. ",
+    "message.duplicate_variable_name": " Two variables can't share a name. To swap names, save one rename first. ",
     "message.no_user_variables": " You have no variables yet. ",
     "action.add_variable": "Add variable",
     "label.refill_balance": "Refill balance:",

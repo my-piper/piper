@@ -57,7 +57,7 @@ Named values that Nodes read when they run, such as API keys and endpoints. A No
 _Avoid_: Env, config, settings
 
 **Variable**:
-One value in an Environment, made of a name, a type (string, number or boolean) and the value itself. A Variable has no title of its own.
+One value in an Environment, made of a name, a type (string, number or boolean) and the value itself. A Variable has no title of its own. Renaming a Variable keeps its value; no two Variables in one Environment share a name.
 _Avoid_: Env var, setting, key
 
 **User Environment**:

@@ -22,6 +22,7 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { toInstance } from "src/utils/models";
 import { provideTestConfig } from "../helpers/config";
+import { expectConsoleError } from "../helpers/console";
 import { finish } from "../helpers/editor";
 import { asJitPipes } from "../helpers/jit";
 
@@ -115,7 +116,7 @@ describe("MeEnvironmentComponent", () => {
     ]);
     expect(
       (row(0).querySelector("input.key") as HTMLInputElement).readOnly,
-    ).toBe(true);
+    ).toBe(false);
     finish();
   }));
 
@@ -158,8 +159,96 @@ describe("MeEnvironmentComponent", () => {
     finish();
   }));
 
+  it("renames a stored variable and keeps its secret", fakeAsync(() => {
+    setup();
+
+    type(row(0).querySelector("input.key"), "OPENAI_API_KEY");
+    button("Save").click();
+    const rename = controller.expectOne(`${ENVIRONMENT_URL}/OPENAI_KEY/rename`);
+    rename.flush(null);
+    const put = controller.expectOne(ENVIRONMENT_URL);
+    put.flush(null);
+    settle();
+    controller.expectOne(ENVIRONMENT_URL).flush({
+      variables: { OPENAI_API_KEY: "[encrypted]", RETRIES: 3, DEBUG: true },
+    });
+    fixture.detectChanges();
+
+    expect(rename.request.method).toBe("POST");
+    expect(rename.request.body).toEqual({ name: "OPENAI_API_KEY" });
+    expect(put.request.body).toEqual({
+      variables: { RETRIES: 3, DEBUG: true },
+    });
+    expect(rows().map(({ key }) => key)).toEqual([
+      "OPENAI_API_KEY",
+      "RETRIES",
+      "DEBUG",
+    ]);
+    finish();
+  }));
+
+  it("doesn't save two variables with the same name", fakeAsync(() => {
+    setup();
+
+    type(row(1).querySelector("input.key"), "OPENAI_KEY");
+
+    expect(button("Save").disabled).toBe(true);
+    finish();
+  }));
+
+  it("doesn't rename onto a name another row still has stored", fakeAsync(() => {
+    setup();
+
+    type(row(0).querySelector("input.key"), "RETRIES");
+    type(row(1).querySelector("input.key"), "OPENAI_KEY");
+
+    expect(button("Save").disabled).toBe(true);
+    expect(element.querySelector(".duplicate-name")).not.toBeNull();
+    finish();
+  }));
+
+  it("retries a save without repeating renames that already landed", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 500");
+    setup();
+    type(row(0).querySelector("input.key"), "OPENAI_API_KEY");
+    type(row(1).querySelector("input.key"), "MAX_RETRIES");
+
+    button("Save").click();
+    controller.expectOne(`${ENVIRONMENT_URL}/OPENAI_KEY/rename`).flush(null);
+    controller
+      .expectOne(`${ENVIRONMENT_URL}/RETRIES/rename`)
+      .flush("failed", { status: 500, statusText: "Server Error" });
+    settle();
+    button("Save").click();
+    const retry = controller.expectOne(`${ENVIRONMENT_URL}/RETRIES/rename`);
+    retry.flush(null);
+    controller.expectOne(ENVIRONMENT_URL).flush(null);
+    settle();
+    controller.expectOne(ENVIRONMENT_URL).flush({
+      variables: { OPENAI_API_KEY: "[encrypted]", MAX_RETRIES: 3, DEBUG: true },
+    });
+
+    expect(retry.request.body).toEqual({ name: "MAX_RETRIES" });
+    controller.expectNone(`${ENVIRONMENT_URL}/OPENAI_KEY/rename`);
+    finish();
+  }));
+
   it("removes a stored variable", fakeAsync(() => {
     setup();
+
+    (row(0).querySelector("button.remove") as HTMLButtonElement).click();
+    const request = controller.expectOne(`${ENVIRONMENT_URL}/OPENAI_KEY`);
+    request.flush(null);
+    settle();
+
+    expect(request.request.method).toBe("DELETE");
+    expect(rows().map(({ key }) => key)).toEqual(["RETRIES", "DEBUG"]);
+    finish();
+  }));
+
+  it("removes a stored variable by its stored name after an unsaved rename", fakeAsync(() => {
+    setup();
+    type(row(0).querySelector("input.key"), "OPENAI_API_KEY");
 
     (row(0).querySelector("button.remove") as HTMLButtonElement).click();
     const request = controller.expectOne(`${ENVIRONMENT_URL}/OPENAI_KEY`);

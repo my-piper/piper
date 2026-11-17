@@ -19,7 +19,7 @@
             class="key input-primary fluid"
             [class.error]="variable.controls.key.invalid"
             formControlName="key"
-            [readOnly]="meta.stored || meta.fixed"
+            [readOnly]="meta.fixed"
             placeholder="API_KEY"
           />
           <small
@@ -70,8 +70,12 @@
           <button
             type="button"
             class="remove transparent"
-            [class.busy]="removing[variable.controls.key.value]"
-            [disabled]="removing[variable.controls.key.value]"
+            [class.busy]="
+              removing[meta.storedName ?? variable.controls.key.value]
+            "
+            [disabled]="
+              removing[meta.storedName ?? variable.controls.key.value]
+            "
             (click)="remove.emit(i)"
             title="Remove"
             i18n-title="@@action.remove"

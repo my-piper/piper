@@ -1,5 +1,6 @@
 import {
   AbstractControl,
+  FormArray,
   FormBuilder,
   ValidationErrors,
   Validators,
@@ -16,6 +17,8 @@ export type VariableSource = "user" | "platform" | "none";
 export interface VariableMeta {
   /** The value is stored server-side: an empty input keeps it. */
   stored: boolean;
+  /** The name the value is stored under, when the row can be renamed. */
+  storedName?: string;
   /** Name and type come from a Node declaration. */
   fixed: boolean;
   /** The value can't be set here. */
@@ -95,6 +98,21 @@ export function variableGroup(
 }
 
 export type VariableGroup = ReturnType<typeof variableGroup>;
+
+/**
+ * No two rows of an Environment may share a name, and a row may not take a
+ * name another row still has stored: that rename has to be saved first.
+ */
+export function uniqueNames(array: AbstractControl): ValidationErrors | null {
+  const rows = (array as FormArray<VariableGroup>).getRawValue();
+  const taken = rows.some(({ key }, i) =>
+    rows.some(
+      (other, j) =>
+        i !== j && (other.key === key || other.meta.storedName === key),
+    ),
+  );
+  return taken ? { duplicateName: true } : null;
+}
 
 export function parseValue(type: VariableType, value: string): Primitive {
   switch (type) {
