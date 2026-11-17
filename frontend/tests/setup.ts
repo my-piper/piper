@@ -3,12 +3,20 @@
 // reflect-metadata must be evaluated before any decorated model is imported.
 import "reflect-metadata";
 
-import { getTestBed } from "@angular/core/testing";
+import { provideNgReflectAttributes } from "@angular/core";
+import { getTestBed, TestBed } from "@angular/core/testing";
 import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting,
 } from "@angular/platform-browser-dynamic/testing";
+import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
+import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
+import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
+import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
+import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
+import { TickerPipe } from "src/ui-kit/pipes/ticker.pipe";
 import { installIsolation } from "./helpers/isolation";
+import { asJitPipes } from "./helpers/jit";
 
 getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
@@ -19,5 +27,28 @@ getTestBed().initTestEnvironment(
     errorOnUnknownProperties: true,
   },
 );
+
+// Every pipe that extends the UntilDestroyed directive base inherits a
+// standalone `ɵdir`. Since Angular 20 the JIT dependency tracker treats a
+// module declaring such a pipe as poisoned and caches an empty scope, so the
+// shadowing must happen before any spec computes a module scope.
+asJitPipes(
+  TickerPipe,
+  NodePipe,
+  InputIndexOfPipe,
+  InputFlowsPipe,
+  PipelineCostsPipe,
+  LaunchHeartbeatPipe,
+  PipelineEnvironmentPipe,
+  PipelineNodeUpdatesPipe,
+);
+
+// Angular 20 stopped emitting `ng-reflect-*` attributes in dev mode; some
+// specs still locate inputs by them.
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [provideNgReflectAttributes()],
+  });
+});
 
 installIsolation();

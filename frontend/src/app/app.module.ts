@@ -1,9 +1,9 @@
-import { APP_BASE_HREF, DOCUMENT } from "@angular/common";
+import { APP_BASE_HREF } from "@angular/common";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { APP_INITIALIZER, NgModule } from "@angular/core";
+import { APP_INITIALIZER, NgModule, DOCUMENT } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
