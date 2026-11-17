@@ -16,8 +16,10 @@ import { provideRouter, Router, Routes } from "@angular/router";
 import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
+import { NodeComponent } from "src/app/node/node.component";
 import { Project } from "src/models/project";
 import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
+import { componentOf } from "./component";
 import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
 import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
@@ -145,7 +147,7 @@ export function setupEditor({
 
 export function nodeElement(element: HTMLElement, id: string): HTMLElement {
   const node = Array.from(element.querySelectorAll("app-node")).find(
-    (e) => e.getAttribute("ng-reflect-id") === id,
+    (e) => componentOf<NodeComponent>(e)?.id === id,
   ) as HTMLElement;
   if (!node) {
     throw new Error(`Node ${id} is not rendered`);

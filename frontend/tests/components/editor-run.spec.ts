@@ -1,6 +1,7 @@
 import { HttpRequest } from "@angular/common/http";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { Launch } from "src/models/launch";
+import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { LiveService } from "src/services/live.service";
 import { launchResponsePlain } from "../fixtures/launch-results";
 import {
@@ -10,6 +11,7 @@ import {
   SOCKET_EVENTS,
   USER_IDS,
 } from "../fixtures/plain";
+import { componentOf } from "../helpers/component";
 import { finish, setupEditor } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
 
@@ -31,7 +33,7 @@ function runButton(element: HTMLElement): HTMLButtonElement {
   const actions = element.querySelector("div.actions.stack:not(.align-center)");
   return Array.from(actions.querySelectorAll("button.circle")).find((b) =>
     ["play", "stop"].includes(
-      b.querySelector("app-icon")?.getAttribute("ng-reflect-icon"),
+      componentOf<IconComponent>(b.querySelector("app-icon"))?.icon,
     ),
   ) as HTMLButtonElement;
 }
@@ -86,9 +88,8 @@ describe("EditPipelineVisualComponent runs", () => {
     expect(editor.editor.progress.launching).toBe(false);
     expect(editor.router.url).toContain(`launch=${LAUNCH_ID}`);
     expect(
-      runButton(element)
-        .querySelector("app-icon")
-        .getAttribute("ng-reflect-icon"),
+      componentOf<IconComponent>(runButton(element).querySelector("app-icon"))
+        ?.icon,
     ).toBe("stop");
     controller.verify();
     finish();
