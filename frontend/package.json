@@ -11,6 +11,7 @@
     "i18n": "npm run ng extract-i18n -- --output-path src/locale --out-file en.json --format json",
     "i18n:check": "scripts/check-i18n.sh",
     "test": "ng test --watch=false --progress=false",
+    "test:agent": "ng test --watch=false --progress=false --reporters=agent",
     "test:watch": "ng test --watch=true",
     "test:typecheck": "tsc -p tsconfig.spec.json --noEmit",
     "typecheck:templates": "scripts/check-templates.sh",
