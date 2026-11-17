@@ -28,6 +28,9 @@ install:
 
 lint: lint-backend lint-frontend
 
+check-node-version:
+	./tools/check-node-version.sh
+
 lint-backend:
 	${BACKEND} run lint
 

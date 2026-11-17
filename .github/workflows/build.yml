@@ -25,6 +25,9 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
+      - name: Check Node version pins match .nvmrc
+        run: ../tools/check-node-version.sh
+
       - name: Install backend dependencies
         run: npm ci
         env:
@@ -131,6 +134,10 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Read Node version
+        id: node
+        run: echo "version=$(cat .nvmrc)" >> "$GITHUB_OUTPUT"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -155,6 +162,7 @@ jobs:
         with:
           context: .
           file: devops/docker/Dockerfile
+          build-args: NODE_VERSION=${{ steps.node.outputs.version }}
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

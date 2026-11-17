@@ -1,4 +1,7 @@
-FROM node:26-trixie
+# Node major comes from .nvmrc: CI passes it as a build arg, and
+# tools/check-node-version.sh keeps this default in sync for local builds.
+ARG NODE_VERSION=26
+FROM node:${NODE_VERSION}-trixie
 
 ENV MIGRATE_VERSION=v4.18.3
 

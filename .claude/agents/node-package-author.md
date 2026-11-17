@@ -65,7 +65,7 @@ runs in the Deno sandbox service (`backend/packages/deno/execute.ts`).
    services with real credentials. If Deno is not reachable, say so and skip
    this step.
 
-Backend scripts need Node.js 26. If `node -v` reports another major version,
+Backend scripts need the Node.js major in `.nvmrc`. If `node -v` reports another major version,
 stop and report it.
 
 ## Report

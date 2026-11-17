@@ -16,7 +16,7 @@ Sibling checkouts, when present next to this repo: `../piper-deno` is the sandbo
 Root (`Makefile`, reads optional `config.env`):
 
 - `make install` — init submodules and `npm install` backend, frontend, translator
-- Node 26 / npm 11: dependency install scripts run only when listed in `allowScripts` in that package's `package.json` (keys pinned to the locked version). After adding or upgrading a package with install scripts (native modules, esbuild), run `npm install-scripts ls` and `npm install-scripts approve <pkg>`.
+- Node (major in `.nvmrc`, the single source: `backend/.nvmrc` and `frontend/.nvmrc` link to it, CI passes it to the Dockerfile, and `make check-node-version` checks `engines` and the Dockerfile default) / npm 11: dependency install scripts run only when listed in `allowScripts` in that package's `package.json` (keys pinned to the locked version). After adding or upgrading a package with install scripts (native modules, esbuild), run `npm install-scripts ls` and `npm install-scripts approve <pkg>`.
 - `make lint` / `make lint-fix` — ESLint with the recommended `@typescript-eslint` rules for backend and frontend; `make lint-backend` / `make lint-frontend` run either package. Generated output, submodules and the legacy `frontend/src/ui-kit` are excluded.
 - `make up` / `make down` / `make stop` — local infra via `tools/compose/compose.yaml` (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy)
 - `make mongo-migrate` / `make clickhouse-migrate` — apply migrations from `migrations/{mongo,clickhouse}`

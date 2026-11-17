@@ -32,7 +32,7 @@ before writing.
    `tests/helpers/job-boundaries.ts`, following `backend/tests/README.md`.
    Cover the success path and one failure.
 
-Then run, from `backend/` on Node 26:
+Then run, from `backend/` on the Node major in `.nvmrc`:
 
 ```sh
 npx vitest run tests/unit/jobs/<kebab-name>.test.ts
