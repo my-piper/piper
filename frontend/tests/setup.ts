@@ -4,10 +4,7 @@
 // imported), zone.js/testing and @angular/localize/init, and initializes
 // TestBed with errorOnUnknownElements/errorOnUnknownProperties and
 // destroy-after-each teardown.
-import {
-  provideNgReflectAttributes,
-  provideZoneChangeDetection,
-} from "@angular/core";
+import { provideZoneChangeDetection } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
 import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
@@ -38,13 +35,12 @@ asJitPipes(
   PipelineNodeUpdatesPipe,
 );
 
-// Angular 20 stopped emitting `ng-reflect-*` attributes in dev mode; some
-// specs still locate inputs by them. Since Angular 21 TestBed defaults to
-// zoneless change detection; the app bootstraps with zone.js (src/main.ts),
-// so the specs do too.
+// Since Angular 21 TestBed defaults to zoneless change detection; the app
+// bootstraps with zone.js (src/main.ts), so the specs do too. Locate
+// components by input value with `componentOf` (helpers/component.ts).
 beforeEach(() => {
   TestBed.configureTestingModule({
-    providers: [provideNgReflectAttributes(), provideZoneChangeDetection()],
+    providers: [provideZoneChangeDetection()],
   });
 });
 

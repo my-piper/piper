@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { AppComponent } from "src/app/app.component";
+import { EditInputComponent } from "src/app/edit-input/edit-input.component";
 import { PlayWithProjectComponent } from "src/app/play-with-project/play-with-project.component";
 import { ProjectPlaygroundComponent } from "src/app/project-playground/project-playground.component";
 import { Launch } from "src/models/launch";
@@ -26,6 +27,7 @@ import {
   smallGraphPipeline,
   userPlain,
 } from "../fixtures/plain";
+import { componentOf } from "../helpers/component";
 import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
@@ -105,9 +107,10 @@ describe("ProjectPlaygroundComponent", () => {
   }
 
   function field(id: string): HTMLInputElement {
-    return element.querySelector(
-      `app-edit-input[ng-reflect-id="${id}"] input, app-edit-input[ng-reflect-id="${id}"] textarea`,
+    const host = Array.from(element.querySelectorAll("app-edit-input")).find(
+      (e) => componentOf<EditInputComponent>(e)?.id === id,
     );
+    return host?.querySelector("input, textarea");
   }
 
   function type(id: string, value: string) {

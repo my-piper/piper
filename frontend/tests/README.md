@@ -49,7 +49,7 @@ check templates.
 
 - `setup.ts` — Vitest setup file (`setupFiles` in `angular.json`): the
   ProxyZone for every spec and hook (`helpers/proxy-zone.ts`), zone.js change
-  detection and `ng-reflect-*` attributes like the app, the JIT shadowing of
+  detection like the app, the JIT shadowing of
   pipes that extend `UntilDestroyed` (add new ones there), a root
   `<base href>`, and the isolation layer. Before it, `ng test` loads the
   polyfills of the `test` build configuration (`zone.js`, `reflect-metadata`),
@@ -61,6 +61,7 @@ check templates.
 - `helpers/` — explicit infrastructure doubles: `config.ts` (PRERENDER/AppConfig,
   stored authorization), `socket.ts` (`SocketDouble` for ngx-socket-io),
   `isolation.ts` (global guards), `console.ts` (`expectConsoleError`),
+  `component.ts` (`componentOf`: find a component by input value),
   `proxy-zone.ts` (runs specs in a zone.js ProxyZone, as zone.js does for Jasmine).
 - `fixtures/` — `plain.ts` wire payloads and `runtime-config.ts`, both free of
   Angular/test-runner imports so the browser suite can share them; `models.ts`
