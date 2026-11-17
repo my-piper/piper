@@ -13,52 +13,23 @@ Sibling checkouts, when present next to this repo: `../piper-deno` is the sandbo
 
 ## Commands
 
-Root (`Makefile`, reads optional `config.env`):
+Scripts live in the root `Makefile` (reads optional `config.env`) and in `backend/package.json` / `frontend/package.json`; read them there. This section only adds what they can't tell you.
 
-- `make install` — init submodules, enable the git hooks in `.githooks` (`core.hooksPath`) and `npm install` backend, frontend, translator. The pre-commit hook runs `tools/check-lockfile.sh` (`npm ci --dry-run`), the install-script and denied-dependency checks for each package whose `package.json`/lockfile is staged.
-- Node (major in `.nvmrc`, the single source: `backend/.nvmrc` and `frontend/.nvmrc` link to it, CI passes it to the Dockerfile, and `make check-node-version` checks `engines` and the Dockerfile default) / npm 11: dependency install scripts run only when listed in `allowScripts` in that package's `package.json` (keys pinned to the locked version). After adding or upgrading a package with install scripts (native modules, esbuild), run `npm install-scripts ls` and `npm install-scripts approve <pkg>`. Pins are exact on purpose (supply-chain review on every bump); `make check-install-scripts` and CI fail while any pin is stale, because npm itself only warns and skips the script.
-- `make lint` / `make lint-fix` — ESLint with the recommended `@typescript-eslint` rules for backend and frontend; `make lint-backend` / `make lint-frontend` run either package. Generated output, submodules and the legacy `frontend/src/ui-kit` are excluded.
-- `make up` / `make down` / `make stop` — local infra via `tools/compose/compose.yaml` (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy)
-- `make mongo-migrate` / `make clickhouse-migrate` — apply migrations from `migrations/{mongo,clickhouse}`
-- `make mongo-migrate-add` / `make clickhouse-migrate-add` — create a new migration (interactive name prompt)
-- `make test` — backend test typecheck + Vitest fast tests, then `make test-frontend`; `make test-integration` runs the Docker-backed integration suite
-- `make test-frontend` — frontend test typecheck, template typecheck, test lint and Vitest fast suite; `make test-frontend-browser` builds en+ru and runs the Playwright workflows
-- `make schemas` — compile `backend/schemas/*.json` into `backend/schemas/compiled.json` and copy it to `frontend/src/schemas/compiled.json`. Run after editing any schema.
+Setup and environment:
 
-Backend (`cd backend`; TypeScript run directly via `tsx`, no build step; config from `backend/.env`, template in `.env.template`):
+- `make install` initializes the submodules, enables the git hooks in `.githooks` (`core.hooksPath`) and installs backend, frontend and translator. The pre-commit hook checks staged `package.json`/lockfile pairs with `tools/check-lockfile.sh` (`npm ci --dry-run`), the install-script and the denied-dependency checks.
+- Node: the major in `.nvmrc` is the single source (`backend/.nvmrc` and `frontend/.nvmrc` link to it, CI passes it to the Dockerfile; `make check-node-version` checks `engines` and the Dockerfile default).
+- npm 11 runs dependency install scripts only when listed in `allowScripts` in that package's `package.json`, pinned to the locked version. After adding or upgrading a package with install scripts (native modules, esbuild), run `npm install-scripts ls` and `npm install-scripts approve <pkg>`. Pins are exact on purpose (supply-chain review on every bump); `make check-install-scripts` and CI fail while any pin is stale, because npm itself only warns and skips the script.
+- Backend runs TypeScript directly via `tsx` (no build step), configured by `backend/.env` (template `.env.template`). Local infra (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy) comes from `make up` (`tools/compose/compose.yaml`); the frontend dev server is reached through nginx at `http://localhost/`.
+- After editing any `backend/schemas/*.json`, run `make schemas`.
+- Lint covers backend and frontend application and test code; generated output, submodules and the legacy `frontend/src/ui-kit` are excluded.
 
-- `npm run server` — HTTP API (+ serves the built frontend and injects `PRERENDER` config into `index.html`)
-- `npm run worker` — BullMQ workers; select subsets with `npm run worker -- -w process_rapid_nodes run_launches` (worker ids are the keys of the `Workers` map in `worker.ts`), `-h` adds a health endpoint
-- `npm run periodic` — periodic tasks (`periodic/`)
-- `npm run sockets` — socket.io server (clients join rooms keyed by user id / launch id)
-- `npm run cli -- <cmd>` — admin CLI (`cli/`): `users add`, `env [set|remove]`, `modules [add|remove|update]`, `workers reboot`, `schemas compile`, `migrations …`, `debug server`
-- `npm run lint`, `npm run lint:fix`, `npm run format`, `npm run format:check`
-- `npm test`, `npm run test:watch`, `npm run test:coverage` — Vitest fast tests
-  without Docker; `npm run test:typecheck` checks test types. See
-  `backend/tests/README.md` for isolation and mocking rules.
-- `npm run test:integration` — disposable MongoDB/Redis containers, real BullMQ
-  workers, and Deno smoke tests; requires Docker Compose v2. See
-  `backend/tests/integration/README.md` for service isolation and cleanup.
-- Tests use preparation, action, and assertions separated by blank lines. Keep
-  model transformations real and provide explicit factories for infrastructure
-  mocks.
+Tests:
 
-Frontend (`cd frontend`, Angular 22 with `@angular/localize`):
-
-- `npm start` — dev server; app is reached through nginx at `http://localhost/`
-- `npm run build` — localized production build
-- `npm run i18n` — extract i18n strings to `src/locale/en.json`; `npm run i18n:check` (CI) fails on a stale `en.json` or an id reused with different text
-- `npm run typecheck:templates` (CI) — strict template type check, which `ng build` skips (`src/ui-kit` excluded)
-- `npm run lint` / `npm run lint:fix` — lint application and test code with ESLint and `@typescript-eslint`
-- `npm test` / `npm run test:watch` / `npm run test:coverage` — Vitest
-  (browser mode, headless Playwright Chromium via `@angular/build:unit-test`)
-  unit and component suites in `tests/unit` and `tests/components`;
-  `npm run test:typecheck`, `npm run lint:tests`. Coverage floors and runner
-  settings live in `vitest.config.ts`.
-- `npm run test:browser` — builds `dist-browser` (en, ru) and runs Playwright
-  workflows in `tests/browser` against fixture HTTP/Socket.IO peers (not
-  full-stack); needs `npx playwright install chromium`.
-- See `frontend/tests/README.md` for isolation, fixture and mocking rules.
+- Backend fast tests (`npm test`) need no Docker; integration tests (`npm run test:integration`) start disposable MongoDB/Redis containers, real BullMQ workers and Deno smoke tests, and need Docker Compose v2. Rules: `backend/tests/README.md` and `backend/tests/integration/README.md`.
+- Frontend fast suites (`tests/unit`, `tests/components`) run in Vitest browser mode on Playwright's Chromium; the Playwright workflows (`tests/browser`) run against fixture HTTP/Socket.IO peers, not the full stack. Both need `npx playwright install chromium`. Running, focusing and rules: `frontend/tests/README.md`.
+- `ng build` skips strict template type checks; CI runs them separately (`typecheck:templates`), as well as `i18n:check` for a stale `en.json`.
+- Tests separate preparation, action and assertions with blank lines, keep model transformations real and use explicit factories for infrastructure mocks.
 
 VS Code: the "-- all --" launch compound starts server, worker, periodic, sockets, cli and frontend together.
 
@@ -66,7 +37,7 @@ VS Code: the "-- all --" launch compound starts server, worker, periodic, socket
 
 ### Backend process model
 
-Several separate entrypoints share one codebase: `server.ts`, `worker.ts`, `periodic.ts`, `sockets.ts`, `oauth.ts`, `metrics.ts`, `chrome.ts`, `cli.ts`. Imports use `baseUrl: ./` (e.g. `app/mongo`, `models/launch`, `consts/redis`).
+Several separate entrypoints share one codebase: `server.ts`, `worker.ts`, `periodic.ts`, `sockets.ts`, `oauth.ts`, `metrics.ts`, `chrome.ts`, `cli.ts`. `npm run worker -- -w <ids>` runs a subset of workers (ids are the keys of the `Workers` map in `worker.ts`; `-h` adds a health endpoint); the admin CLI (`npm run cli -- <cmd>`, `cli/`) manages users, environment, modules, migrations and schema compilation. Imports use `baseUrl: ./` (e.g. `app/mongo`, `models/launch`, `consts/redis`).
 
 - **API**: each file in `api/**` registers routes as a side effect on the shared express app (`app/api` → `core-kit/packages/server`); `server.ts` imports each `api/<area>/index.ts`. Handlers are wrapped with `handle(({ currentUser, language }) => async (req, res) => ...)` from `utils/http.ts`, which resolves auth (`user-token` / `api-token` headers) and maps `core-kit` error types to HTTP statuses. A route's return value is sent as the response; use the guards in the same file (`checkLogged`, `checkAdmin`, `checkEngineer`, `checkRoles`, `checkBalance`) and `toModel`/`toModels`/`toPlain`.
 - **Models**: classes in `models/` use `class-transformer` decorators (`@Expose`, `@Type`) via `core-kit/packages/transform` (`toInstance`, `toPlain`, `mapTo`). Data crossing Redis, Mongo, queues and HTTP is always converted through these.
