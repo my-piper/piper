@@ -16,9 +16,9 @@ import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
 import { MeManager } from "src/services/me.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
-import { Languages } from "src/ui-kit/enums/languages";
-import { getLabel } from "src/ui-kit/utils/i18n";
+import { UI_DELAY } from "src/consts/ui";
+import { Languages } from "src/enums/languages";
+import { getLabel } from "src/utils/i18n";
 import { toInstance, toPlain } from "src/utils/models";
 import { PlayViaApiComponent } from "../play-via-api/play-via-api.component";
 

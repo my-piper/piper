@@ -1,0 +1,25 @@
+@import 'src/ui-kit/styles/variables';
+@import 'src/ui-kit/styles/reset';
+
+:host {
+  display: block;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: $gutter-normal;
+
+  a {
+    @include reset-link();
+    padding: $gutter-small $gutter-normal;
+    border-radius: $corner-small;
+
+    &.active {
+      background-color: $control-background-color;
+    }
+  }
+}

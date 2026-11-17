@@ -14,9 +14,9 @@ import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
-import { Languages } from "src/ui-kit/enums/languages";
-import { getLabel } from "src/ui-kit/utils/i18n";
+import { UI_DELAY } from "src/consts/ui";
+import { Languages } from "src/enums/languages";
+import { getLabel } from "src/utils/i18n";
 import { toInstance } from "src/utils/models";
 
 @Component({

@@ -1,0 +1,80 @@
+@import "variables";
+
+@mixin for-mobile() {
+    @media only screen and (max-width: 425px) {
+        @content;
+    }
+}
+
+@mixin wider-mobile() {
+    @media only screen and (min-width: 426px) {
+        @content;
+    }
+}
+
+@mixin less-tablet() {
+    @media only screen and (max-width: 768px) {
+        @content;
+    }
+}
+
+@mixin for-tablet() {
+    @media only screen and (min-width: 680px) and (max-width: 768px) {
+        @content;
+    }
+}
+
+@mixin wider-tablet() {
+    @media only screen and (min-width: 769px) {
+        @content;
+    }
+}
+
+@mixin for-desktop() {
+    @media only screen and (max-width: 1440px) {
+        @content;
+    }
+}
+
+@mixin wider-desktop() {
+    @media only screen and (min-width: 1441px) {
+        @content;
+    }
+}
+
+@keyframes glowing {
+    0% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 400% 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
+}
+
+@mixin vertical-stack($gutter: $gutter-normal) {
+    display: flex;
+    flex-direction: column;
+    gap: $gutter;
+}
+
+@mixin horizontal-stack($gutter: $gutter-normal) {
+    display: flex;
+    gap: $gutter;
+}
+
+@mixin placeholder() {
+    background-image: linear-gradient(45deg,
+            rgba(240, 240, 240, 0.5) 25%,
+            rgba(224, 224, 224, 0.5) 25%,
+            rgba(224, 224, 224, 0.5) 50%,
+            rgba(240, 240, 240, 0.5) 50%,
+            rgba(240, 240, 240, 0.5) 75%,
+            rgba(224, 224, 224, 0.5) 75%,
+            rgba(224, 224, 224, 0.5));
+    background-size: 40px 40px;
+}

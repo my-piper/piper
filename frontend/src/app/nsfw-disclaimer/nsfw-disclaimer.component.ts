@@ -5,8 +5,8 @@ import {
   Output,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import { Languages } from "src/ui-kit/enums/languages";
-import { CURRENT_LANGUAGE } from "src/ui-kit/providers/current-language";
+import { Languages } from "src/enums/languages";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
 
 @Component({
   selector: "app-nsfw-disclaimer",

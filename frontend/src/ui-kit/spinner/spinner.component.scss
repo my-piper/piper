@@ -1,0 +1,90 @@
+@import '../styles/variables';
+
+@mixin spinner-size($size) {
+  width: $size;
+  min-width: $size;
+  height: $size;
+  min-height: $size;
+  line-height: $size;
+}
+
+$sizes: (
+  small: 16px,
+  normal: 24px,
+  large: 32px
+);
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+@keyframes spinner-dash1 {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dashoffset: 90;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes spinner-dash2 {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dashoffset: 90;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes spinner-rotate {
+  0% {
+    transform: rotate(0turn);
+  }
+
+  50% {
+    transform: rotate(1.05turn);
+  }
+
+  100% {
+    transform: rotate(2turn);
+  }
+}
+
+svg {
+  animation: spinner-rotate 1.5s linear infinite;
+  width: 100%;
+  height: 100%;
+
+  @each $size, $map in $sizes {
+    &[data-size='#{$size}'] {
+      @include spinner-size($map);
+    }
+  }
+
+
+  .stroke-spinner1 {
+    stroke-dasharray: 90;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    animation: spinner-dash1 1.5s ease-in-out infinite;
+  }
+
+  .stroke-spinner2 {
+    stroke-dasharray: 90;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    animation: spinner-dash2 1.5s ease-in-out infinite;
+  }
+}

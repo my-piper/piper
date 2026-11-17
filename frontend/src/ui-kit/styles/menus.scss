@@ -1,0 +1,164 @@
+@import "reset";
+@import "variables";
+@import "animations";
+@import "mixins";
+
+.menu {
+    @include horizontal-stack();
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+
+        button {
+            @include reset-button();
+        }
+
+        a {
+            @include reset-link();
+        }
+
+        button,
+        a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: $link-text-color;
+            font-size: $button-font-size;
+            line-height: 1.45em;
+            padding: $gutter-small $gutter-normal;
+            border-radius: $corner-large;
+
+            &.with-icon {
+
+                .icon {
+                    svg {
+                        stroke: $link-text-color;
+                    }
+
+                    &.left {
+                        margin-right: $gutter-small;
+                    }
+
+                    &.right {
+                        margin-left: $gutter-small;
+                    }
+                }
+            }
+
+            &.active {
+                background-color: $graphite-color-400;
+            }
+
+            .badge {
+                margin-left: $gutter-tiny;
+
+                &::before {
+                    content: '|';
+                    padding: 0 $gutter-small 0 0;
+                }
+
+                &.success {
+                    background: rgba($color: $success-color, $alpha: .5);
+                }
+            }
+        }
+    }
+}
+
+.context-menu {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+
+    &.busy {
+        &:before {
+            content: "";
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: with-alpha($overlay-background, .5);
+            backdrop-filter: blur(2px);
+        }
+
+        &:after {
+            content: "";
+            box-sizing: border-box;
+            position: absolute;
+            z-index: 2;
+            top: calc(50% - 10px);
+            left: calc(50% - 10px);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border-top: 2px solid $strong-text-color;
+            border-right: 2px solid transparent;
+            animation: spinner 0.6s linear infinite;
+        }
+    }
+
+    li {
+        line-height: 1.5rem;
+
+        button {
+            @include reset-button();
+        }
+
+        a {
+            @include reset-link();
+        }
+
+        button,
+        a {
+            display: flex;
+            align-items: center;
+            position: relative;
+            color: $primary-text-color;
+            font-size: $button-font-size;
+            padding: $gutter-small;
+            white-space: nowrap;
+            cursor: pointer;
+            width: 100%;
+
+            &.busy {
+                @include busy-animation();
+            }
+
+            .icon {
+                svg {
+                    stroke: $primary-text-color;
+                }
+
+                &.right {
+                    margin-left: $gutter-small;
+                }
+
+                &.left {
+                    margin-right: $gutter-small;
+                }
+            }
+
+            &:not(:disabled) {
+
+                &:hover,
+                &.active {
+                    color: $button-hover-text-color;
+
+                    .icon svg {
+                        stroke: $button-hover-text-color;
+                    }
+                }
+            }
+        }
+    }
+}

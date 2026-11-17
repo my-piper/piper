@@ -4,7 +4,7 @@ import { BehaviorSubject, filter, map, Observable, takeUntil } from "rxjs";
 import { PipelineNodeUpdates } from "src/models/node";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 
 @Pipe({
   name: "pipelineNodeUpdates",

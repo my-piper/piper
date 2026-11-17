@@ -15,7 +15,7 @@ import { AppConfig } from "src/models/app-config";
 import { Authorization } from "src/models/authorisation";
 import { AppError } from "src/models/errors";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { mapTo, toPlain } from "src/utils/models";
 import { ConfirmEmailRequest, SignupRequest } from "./models";
 

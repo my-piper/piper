@@ -15,7 +15,7 @@ import { PipelineCategory } from "src/models/pipeline-category";
 import { Project, ProjectsFilter } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { valuable } from "src/utils/assign";
 import { mapTo, toPlain } from "src/utils/models";
 

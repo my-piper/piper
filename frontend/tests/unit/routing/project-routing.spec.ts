@@ -22,7 +22,7 @@ import { Project } from "src/models/project";
 import { NodeFromProjectResolver } from "src/resolvers/node";
 import { ProjectResolver } from "src/resolvers/project";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import {
   PATCH_PROJECT_URL,
   patchResponsePlain,

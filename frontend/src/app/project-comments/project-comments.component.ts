@@ -15,7 +15,7 @@ import {
   ProjectCommentsFilter,
 } from "src/models/project";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 

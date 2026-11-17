@@ -22,8 +22,8 @@ import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { MeManager } from "src/services/me.service";
 import { SignalsService } from "src/services/signals.service";
-import { UI_DELAY } from "src/ui-kit/consts";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UI_DELAY } from "src/consts/ui";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { mapTo, toPlain } from "src/utils/models";
 

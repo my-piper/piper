@@ -15,7 +15,7 @@ import { Authorization } from "src/models/authorisation";
 import { AppError } from "src/models/errors";
 import { UserCredentials } from "src/models/user-credentials";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { toInstance, toPlain } from "src/utils/models";
 
 @Component({

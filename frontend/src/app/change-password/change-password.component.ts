@@ -15,7 +15,7 @@ import { delay, finalize } from "rxjs";
 import { ChangePasswordRequest } from "src/models/change-password-request";
 import { AppError } from "src/models/errors";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { mapTo, toPlain } from "src/utils/models";
 
 export function passwordMatchValidator(

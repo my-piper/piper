@@ -12,7 +12,7 @@ import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
 import { Node } from "src/models/node";
 import { HttpService } from "src/services/http.service";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 
 @Component({
   selector: "app-node-state",

@@ -1,0 +1,36 @@
+:host {
+  display: inline-flex;
+
+  &[data-stroke="1"] {
+    svg.stroke {
+      stroke-width: 1px;
+    }
+  }
+
+  &[data-stroke="1.5"] {
+    svg.stroke {
+      stroke-width: 1.5px;
+    }
+  }
+
+  &[data-stroke="2"] {
+    svg.stroke {
+      stroke-width: 2px;
+    }
+  }
+
+  &[data-stroke="3"] {
+    svg.stroke {
+      stroke-width: 3px;
+    }
+  }
+
+  &.block {
+    display: block;
+  }
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+}

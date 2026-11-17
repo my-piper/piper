@@ -1,0 +1,99 @@
+$yellow-color-50: #fff8eb;
+$yellow-color-75: #ffe3ad;
+$yellow-color-100: #fed88c;
+$yellow-color-200: #fdba38;
+$yellow-color-300: #febb38;
+$yellow-color-400: #b28327;
+$yellow-color-500: #f57f24;
+
+$red-color: #f95741;
+
+// Theme-dependent colors resolve at runtime; values live in themes.scss.
+$graphite-color-50: var(--graphite-50);
+$graphite-color-60: var(--graphite-60);
+$graphite-color-75: var(--graphite-75);
+$graphite-color-100: var(--graphite-100);
+$graphite-color-200: var(--graphite-200);
+$graphite-color-300: var(--graphite-300);
+$graphite-color-400: var(--graphite-400);
+$graphite-color-500: var(--graphite-500);
+
+$strong-text-color: var(--strong-text);
+$icon-color: var(--icon-color);
+$header-background: var(--header-background);
+$inverse-background: var(--inverse-background);
+
+// rgba() for both static Sass colors and runtime CSS variables.
+@function with-alpha($color, $alpha) {
+  @if type-of($color) == "color" {
+    @return rgba($color, $alpha);
+  }
+
+  @return unquote("color-mix(in srgb, #{$color} #{percentage($alpha)}, transparent)");
+}
+
+$primary-color: rgb(0, 102, 255);
+$primary-dark-color: var(--primary-dark);
+$primary-light-color: #324a5f;
+
+$green-color: #18e09a;
+$success-color: $green-color;
+$accent-color: orange;
+$error-color: rgba($red-color, 0.75);
+
+$primary-text-color: $graphite-color-50;
+$active-text-color: $graphite-color-300;
+$secondary-text-color: $graphite-color-400;
+
+$corner-small: 2px;
+$corner-base: 4px;
+$corner-large: 8px;
+$corner-huge: 16px;
+
+$primary-background-color: silver;
+
+$font-size-tiny: 12px;
+$font-size-small: 13px;
+$font-size-normal: 14px;
+$font-size-base: 14px;
+$font-size-big: 16px;
+$font-size-large: 18px;
+$font-size-huge: 22px;
+$font-weight-bold: bold;
+
+$gutter-base: 2px;
+$gutter-none: 0;
+$gutter-tiny: $gutter-base;
+$gutter-small: $gutter-base * 2;
+$gutter-normal: $gutter-base * 4;
+$gutter-big: $gutter-base * 5;
+$gutter-large: $gutter-base * 6;
+$gutter-huge: $gutter-base * 8;
+
+$primary-font-family: "Inter", sans-serif;
+$monospace-font-family: monospace;
+$primary-text-color: $graphite-color-60;
+
+$link-text-color: $primary-text-color;
+
+$shadow-normal: none;
+$page-background: var(--page-background);
+
+$overlay-background: $graphite-color-300;
+$overlay-border-color: $graphite-color-200;
+$overlay-border: 1px solid $overlay-border-color;
+
+$control-text-color: $primary-text-color;
+$control-border-radius: $corner-base;
+$control-border-color: $graphite-color-200;
+$control-highlight-border-color: $graphite-color-75;
+$control-background-color: $graphite-color-400;
+$control-focus-background-color: $graphite-color-300;
+
+$button-background-color: with-alpha($graphite-color-400, 0.55);
+$button-hover-background-color: $graphite-color-300;
+$button-toggled-background-color: $graphite-color-200;
+$button-border-color: $control-border-color;
+$button-font-size: $font-size-small;
+$button-text-color: $graphite-color-50;
+$button-hover-text-color: $strong-text-color;

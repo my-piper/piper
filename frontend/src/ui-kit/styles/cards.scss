@@ -1,0 +1,78 @@
+@import "variables";
+@import "reset";
+
+.cards {
+  display: grid;
+  gap: $gutter-big;
+  grid-template-columns: 1fr;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  background: $control-background-color;
+  color: $primary-text-color;
+  position: relative;
+
+  &.disabled {
+    opacity: .75;
+    pointer-events: none;
+  }
+
+  header {
+    margin: $gutter-small 0;
+
+    h2 {
+      margin: 0;
+      padding: 0 $gutter-tiny;
+      font-size: 16px;
+      text-align: center;
+      vertical-align: middle;
+
+      .icon {
+        margin-right: 5px;
+        display: inline-block;
+      }
+    }
+
+    button.actions {
+      @include reset-button();
+      position: absolute;
+      z-index: 5;
+      top: -$gutter-small;
+      left: -$gutter-small;
+      padding: $gutter-tiny;
+      border-radius: $corner-base;
+      cursor: pointer;
+      border: 1px solid $button-border-color;
+      background-color: $button-background-color;
+      display: flex;
+      align-items: center;
+
+      .icon {
+        display: block;
+      }
+
+      &:hover {
+        background: $button-hover-background-color;
+      }
+    }
+  }
+
+  article {
+    position: relative;
+    padding: $gutter-normal;
+    flex: 1;
+
+    h3 {
+      font-size: 1.2rem;
+      margin: $gutter-small 0;
+    }
+  }
+
+  footer {
+    padding: $gutter-small;
+    font-size: $font-size-small;
+  }
+}

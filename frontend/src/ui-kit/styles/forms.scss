@@ -1,0 +1,187 @@
+@import "variables";
+@import "mixins";
+@import "defs/forms";
+
+form {
+  .errors {
+    font-size: $font-size-small;
+    color: $error-color;
+  }
+}
+
+.input-primary {
+  @extend %input-primary;
+
+  &.error {
+    border-color: $error-color;
+  }
+
+  &.fluid {
+    width: 100%;
+  }
+}
+
+.select-primary {
+  @extend %select-primary;
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+
+  label {
+    font-size: $font-size-small;
+    font-weight: bold;
+  }
+}
+
+.checkbox {
+  position: relative;
+
+  input[type="checkbox"] {
+    visibility: hidden;
+    display: none;
+  }
+
+  *,
+  .checkbox ::after,
+  .checkbox ::before {
+    box-sizing: border-box;
+  }
+
+  .switch {
+    position: relative;
+    display: block;
+    width: 40px;
+    height: 24px;
+    flex-shrink: 0;
+
+    // Visually hidden but still focusable for keyboard users.
+    input[type="checkbox"] {
+      display: block;
+      visibility: visible;
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+  }
+
+  .slider {
+    position: absolute;
+    inset: 0;
+    border: 1px solid $control-border-color;
+    border-radius: 12px;
+    background-color: $control-background-color;
+    transition: background-color 0.2s, border-color 0.2s;
+
+    &:before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: $graphite-color-100;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s, background-color 0.2s;
+    }
+  }
+
+  input:checked + .slider {
+    background-color: $primary-dark-color;
+    border-color: $primary-dark-color;
+
+    &:before {
+      transform: translateX(16px);
+      background-color: #ffffff;
+    }
+  }
+
+  input:focus-visible + .slider {
+    outline: 2px solid $primary-dark-color;
+    outline-offset: 2px;
+  }
+
+  input:disabled + .slider {
+    opacity: 0.5;
+  }
+}
+
+.switcher {
+  border-radius: $corner-base;
+  display: flex;
+  background: $control-background-color;
+  width: fit-content;
+  box-sizing: border-box;
+  border: 4px solid $control-background-color;
+  overflow: hidden;
+  gap: $gutter-tiny;
+
+  &.disabled {
+    pointer-events: none;
+    opacity: .85;
+  }
+
+  &.fluid {
+    width: 100%;
+  }
+
+  &.with-icon {
+    label.option {
+      padding: $gutter-small $gutter-normal;
+    }
+  }
+
+  label.option {
+    border-radius: $corner-base;
+    padding: $gutter-normal;
+    color: $primary-text-color;
+    font-size: $font-size-base;
+    line-height: 1;
+    box-sizing: border-box;
+    white-space: nowrap;
+    position: relative;
+    flex: 1;
+    text-align: center;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color .3s;
+
+    app-icon svg {
+      stroke: $accent-color;
+    }
+
+    @include for-mobile() {
+      font-size: $font-size-normal;
+      padding: $gutter-small;
+      width: 100%;
+    }
+
+    &:has(input:checked),
+    &.selected {
+      color: $strong-text-color;
+      background-color: $control-focus-background-color;
+    }
+
+    input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+  }
+}

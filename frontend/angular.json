@@ -108,7 +108,6 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/ui-kit/assets",
               {
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor",

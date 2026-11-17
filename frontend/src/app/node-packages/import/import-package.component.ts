@@ -10,7 +10,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { delay, finalize } from "rxjs";
 import { AppError } from "src/models/errors";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 
 @Component({
   selector: "app-import-package",

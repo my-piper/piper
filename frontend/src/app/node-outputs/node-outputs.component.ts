@@ -14,7 +14,7 @@ import { Node, NodeStatus } from "src/models/node";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
-import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
+import { UntilDestroyed } from "src/utils/until-destroyed";
 
 @Component({
   selector: "app-node-outputs",

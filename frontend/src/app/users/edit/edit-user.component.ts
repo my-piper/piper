@@ -13,8 +13,8 @@ import { AppError } from "src/models/errors";
 import { User, UserRole } from "src/models/user";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
-import { sid } from "src/ui-kit/utils/string";
+import { UI_DELAY } from "src/consts/ui";
+import { sid } from "src/utils/string";
 import { toInstance } from "src/utils/models";
 
 @Component({

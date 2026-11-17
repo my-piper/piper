@@ -1,4 +1,4 @@
-import { Expose, Type } from "src/ui-kit/transformers";
+import { Expose, Type } from "class-transformer";
 
 export class ArtefactsFilter {
   @Expose()

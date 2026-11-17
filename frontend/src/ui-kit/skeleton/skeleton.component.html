@@ -1,0 +1,12 @@
+<ng-container [ngSwitch]="type">
+  <div
+    class="cards"
+    *ngSwitchCase="'cards'"
+    [style.grid-template-columns]="'repeat(' + cols + ', 1fr)'"
+  >
+    <div *ngFor="let l of cols * rows | mockArray"></div>
+  </div>
+  <div class="lines" *ngSwitchDefault>
+    <div *ngFor="let l of lines | mockArray"></div>
+  </div>
+</ng-container>

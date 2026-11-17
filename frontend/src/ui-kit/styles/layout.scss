@@ -1,0 +1,150 @@
+.app-container {
+    display: block;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 0 $gutter-big;
+}
+
+@media only screen and (max-width: 768px) {
+    .app-container {
+        width: 100%;
+        padding: 0 $gutter-small;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .app-container {
+        width: 90%;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    .app-container {
+        width: 80%;
+    }
+}
+
+.stack {
+    display: flex;
+    gap: $gutter-normal;
+
+    &.none {
+        gap: 0;
+    }
+
+    &.tiny {
+        gap: $gutter-tiny;
+    }
+
+    &.small {
+        gap: $gutter-small;
+    }
+
+    &.big {
+        gap: $gutter-big;
+    }
+
+    &.large {
+        gap: $gutter-large;
+    }
+
+    &.huge {
+        gap: $gutter-huge;
+    }
+
+    &.wrap {
+        flex-wrap: wrap;
+    }
+
+    &.vertical {
+        flex-direction: column;
+    }
+
+    &.flex {
+        flex: 1;
+    }
+}
+
+.stack,
+.grid {
+    &.align-center {
+        align-items: center;
+    }
+
+    &.align-end {
+        align-items: flex-end;
+    }
+
+    &.align-start {
+        align-items: start;
+    }
+
+    &.align-baseline {
+        align-items: baseline;
+    }
+
+    &.align-stretch {
+        align-items: stretch;
+    }
+
+    &.justify-center {
+        justify-content: center;
+    }
+
+    &.justify-start {
+        justify-content: flex-start;
+    }
+
+    &.justify-end {
+        justify-content: end;
+    }
+
+    &.justify-between {
+        justify-content: space-between;
+    }
+
+    &.justify-around {
+        justify-content: space-around;
+    }
+
+    &.justify-evenly {
+        justify-content: space-evenly;
+    }
+}
+
+@keyframes spinner-animation {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.busy-block {
+    position: relative;
+
+    &:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: rgba(black, 0.1);
+    }
+
+    &:before {
+        content: "";
+        box-sizing: border-box;
+        position: absolute;
+        z-index: 1;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin-top: -10px;
+        margin-left: -10px;
+        border-radius: 50%;
+        border-top: 2px solid $strong-text-color;
+        border-right: 2px solid transparent;
+        animation: spinner-animation 0.5s linear infinite;
+    }
+}

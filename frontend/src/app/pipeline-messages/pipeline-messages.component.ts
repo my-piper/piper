@@ -13,7 +13,7 @@ import {
   PipelineMessagesFilter,
 } from "src/models/pipeline-message";
 import { HttpService } from "src/services/http.service";
-import { UI_DELAY } from "src/ui-kit/consts";
+import { UI_DELAY } from "src/consts/ui";
 import { toPlain } from "src/utils/models";
 
 @Component({
