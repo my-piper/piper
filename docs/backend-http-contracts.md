@@ -56,7 +56,10 @@ permission rules; permission/status changes need an explicit contract decision.
 - The User Environment (`/api/me/environment`) is read with `GET`, merged with
   `PUT` (values equal to `[encrypted]` keep the stored value), cleared with
   `DELETE`, and loses a single variable with `DELETE /api/me/environment/:key`
-  (204, also when nothing is stored). All require a logged-in user.
+  (204, also when nothing is stored). `POST /api/me/environment/:key/rename`
+  with `{ name }` moves the stored value to the new name (204); it answers 400
+  for a name that isn't `^[A-Za-z_][A-Za-z0-9_]*$` or that another variable
+  already has, and 404 when `:key` isn't stored. All require a logged-in user.
 - `GET /api/environment/keys` returns `{ keys: string[] }`: the names of the
   Platform Environment's variables, never their values (`{ keys: [] }` when
   nothing is stored). Requires a logged-in user; anonymous requests get 400.

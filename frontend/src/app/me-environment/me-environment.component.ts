@@ -7,7 +7,17 @@ import {
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
-import { delay, finalize, map, switchMap } from "rxjs";
+import {
+  concat,
+  delay,
+  finalize,
+  last,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 import { Environment } from "src/models/environment";
 import { AppError } from "src/models/errors";
 import { HttpService } from "src/services/http.service";
@@ -15,6 +25,7 @@ import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/consts/ui";
 import {
   parseValue,
+  uniqueNames,
   VariableGroup,
   variableGroup,
   variableType,
@@ -38,7 +49,7 @@ export class MeEnvironmentComponent implements OnInit {
   };
   error!: AppError;
 
-  variables = this.fb.array<VariableGroup>([]);
+  variables = this.fb.array<VariableGroup>([], { validators: uniqueNames });
   form = this.fb.group({ variables: this.variables });
 
   constructor(
@@ -60,7 +71,7 @@ export class MeEnvironmentComponent implements OnInit {
           key,
           type: variableType(typeof value),
           value,
-          meta: { stored: true },
+          meta: { stored: true, storedName: key },
         }),
       );
     }
@@ -72,11 +83,10 @@ export class MeEnvironmentComponent implements OnInit {
   }
 
   remove(index: number) {
-    const {
-      key,
-      meta: { stored },
-    } = this.variables.at(index).getRawValue();
-    if (!stored) {
+    const { meta } = this.variables.at(index).getRawValue();
+    // an unsaved rename doesn't move the stored value
+    const key = meta.storedName;
+    if (!key) {
       this.variables.removeAt(index);
       return;
     }
@@ -95,7 +105,7 @@ export class MeEnvironmentComponent implements OnInit {
       .subscribe({
         next: () => {
           const current = this.variables.controls.findIndex(
-            (control) => control.getRawValue().key === key,
+            (control) => control.getRawValue().meta.storedName === key,
           );
           if (current >= 0) {
             this.variables.removeAt(current);
@@ -105,11 +115,29 @@ export class MeEnvironmentComponent implements OnInit {
       });
   }
 
+  /** Once it lands, the row's value is stored under the new name. */
+  private rename(index: number, from: string, to: string) {
+    return this.http
+      .post(`me/environment/${encodeURIComponent(from)}/rename`, { name: to })
+      .pipe(
+        tap(() => {
+          const { meta } = this.variables.at(index).controls;
+          meta.setValue({ ...meta.value, storedName: to });
+        }),
+      );
+  }
+
   save() {
     const environment = new Environment({
       variables: new Map<string, Primitive>(),
     });
-    for (const { key, type, value } of this.variables.getRawValue()) {
+    const renames: Observable<unknown>[] = [];
+    for (const [i, { key, type, value, meta }] of this.variables
+      .getRawValue()
+      .entries()) {
+      if (meta.storedName && meta.storedName !== key) {
+        renames.push(this.rename(i, meta.storedName, key));
+      }
       // empty keeps the stored value, whatever the type
       if (value === "") {
         continue;
@@ -119,9 +147,11 @@ export class MeEnvironmentComponent implements OnInit {
 
     this.progress.saving = true;
     this.cd.detectChanges();
-    this.http
-      .put("me/environment", toPlain(environment))
+    // renames run one by one before the values land under the new names
+    concat(...renames, of(null))
       .pipe(
+        last(),
+        switchMap(() => this.http.put("me/environment", toPlain(environment))),
         delay(UI_DELAY),
         switchMap(() => this.http.get("me/environment")),
         map((plain) => plainToInstance(Environment, plain as object)),

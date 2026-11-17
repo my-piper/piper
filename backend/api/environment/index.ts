@@ -3,5 +3,6 @@ import "./get-environment";
 import "./get-environment-keys";
 import "./get-me-environment";
 import "./remove-me-variable";
+import "./rename-me-variable";
 import "./set-environment";
 import "./set-me-environment";
