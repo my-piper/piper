@@ -1,6 +1,6 @@
 ---
 name: piper-invariants-reviewer
-description: Read-only reviewer that checks the current git changes against Piper's cross-file invariants (queue registration, Redis keys and TTLs, class-transformer boundaries, route guards, schema compilation, billing gates, backend/frontend model parity, Dockerfile COPY for file:/vendor dependencies). Use before committing backend or schema changes, alongside a general code review.
+description: Read-only reviewer that checks the current git changes against Piper's cross-file invariants (queue registration, Redis keys and TTLs, class-transformer boundaries, route guards, schema compilation, billing gates, backend/frontend model parity, Dockerfile COPY for file:/vendor dependencies, CODING_STANDARDS.md rules). Use before committing backend, schema or frontend-test changes, alongside a general code review.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -112,6 +112,13 @@ listed before it, so anything `npm ci` resolves from disk must be copied first.
   behaviour changed for other callers too. Grep every production and
   `backend/tests/integration` caller that passes the same shape, and report
   `high` unless each one is shown to be unaffected.
+
+### Coding standards (`CODING_STANDARDS.md`)
+
+When the diff touches a path a section of `CODING_STANDARDS.md` names (for
+example `frontend/tests/**` or `frontend/vitest.config.ts`), read that section
+and check every rule in it. Report a broken rule as `medium` unless its
+consequence fits `high`.
 
 ## Verify before reporting
 
