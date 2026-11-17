@@ -3,6 +3,10 @@ import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { HTTP_TEST_TIME, userToken } from "../../fixtures/http";
 import { pipelineFixture, launchRequestFixture } from "../../fixtures/pipeline";
+import { toInstance, toPlain } from "core-kit/packages/transform";
+import { diff } from "jsondiffpatch/with-text-diffs";
+import { Environment } from "models/environment";
+import { decrypt, encrypt } from "packages/environment/crypt-environment";
 import { beforeEach, describe, expect, it } from "vitest";
 
 let scenario: ReturnType<typeof httpScenario>;
@@ -21,6 +25,7 @@ beforeEach(async () => {
     () => import("api/projects/update-project"),
     () => import("api/projects/update-project-settings"),
     () => import("api/projects/delete-project"),
+    () => import("api/projects/patch-project"),
   ]);
 });
 
@@ -619,5 +624,113 @@ describe("available project tags", () => {
 
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("tags", {});
+  });
+});
+
+describe("project environment patch", () => {
+  function storeProjectEnvironment(variables: object, visible?: string[]) {
+    const environment = toInstance({ variables, visible }, Environment);
+    encrypt(environment);
+    Object.assign(scenario.project, { environment: toPlain(environment) });
+  }
+
+  /** The Project Environment written to MongoDB, decrypted. */
+  function writtenEnvironment() {
+    const [, { $set }] = httpDoubles.projects.updateOne.mock.calls[0];
+    const environment = toInstance($set.environment, Environment);
+    decrypt(environment);
+    return {
+      variables: Object.fromEntries(environment.variables),
+      visible: environment.visible,
+    };
+  }
+
+  it.each([
+    {
+      name: "drops the value of a Secret Variable made visible without a new value",
+      sent: "[encrypted]",
+      stored: undefined,
+      visible: [],
+    },
+    {
+      name: "keeps the new value of a Secret Variable made visible",
+      sent: "sk-new",
+      stored: "sk-new",
+      visible: ["OPENAI_KEY"],
+    },
+  ])("$name", async ({ sent, stored, visible }) => {
+    storeProjectEnvironment({ OPENAI_KEY: "sk-project", RETRIES: 3 });
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(
+      { variables: { OPENAI_KEY: "[encrypted]", RETRIES: 3 } },
+      { variables: { OPENAI_KEY: sent, RETRIES: 3 }, visible: ["OPENAI_KEY"] }
+    );
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    expect(writtenEnvironment()).toEqual({
+      variables: { OPENAI_KEY: stored, RETRIES: 3 },
+      visible,
+    });
+  });
+
+  it("doesn't reveal a secret edited in place by a text delta", async () => {
+    const secret = `sk-project-${"a".repeat(70)}`;
+    storeProjectEnvironment({ OPENAI_KEY: secret });
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = {
+      variables: { OPENAI_KEY: ["@@ -0,0 +1,1 @@\n+x\n", 0, 2] },
+      visible: [["OPENAI_KEY"]],
+    };
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    expect(writtenEnvironment().variables.OPENAI_KEY).not.toContain(secret);
+  });
+
+  it("keeps a stored secret the delta doesn't touch", async () => {
+    storeProjectEnvironment({ OPENAI_KEY: "sk-project", RETRIES: 3 });
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(
+      { variables: { OPENAI_KEY: "[encrypted]", RETRIES: 3 } },
+      { variables: { OPENAI_KEY: "[encrypted]", RETRIES: 4 } }
+    );
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    expect(writtenEnvironment()).toEqual({
+      variables: { OPENAI_KEY: "sk-project", RETRIES: 4 },
+      visible: undefined,
+    });
+  });
+
+  it("shows a Visible Variable when the project is read", async () => {
+    storeProjectEnvironment(
+      { OPENAI_KEY: "sk-project", BASE_URL: "https://a" },
+      ["BASE_URL"]
+    );
+
+    const response = await context.request
+      .get("/api/projects/project-http")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(200);
+    expect(response.body.environment.variables).toEqual({
+      OPENAI_KEY: "[encrypted]",
+      BASE_URL: "https://a",
+    });
+    expect(response.body.environment.visible).toEqual(["BASE_URL"]);
   });
 });

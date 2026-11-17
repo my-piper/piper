@@ -17,6 +17,8 @@ export type VariableSource = "user" | "platform" | "none";
 export interface VariableMeta {
   /** The value is stored server-side: an empty input keeps it. */
   stored: boolean;
+  /** The stored value belongs to a Secret Variable, so it isn't shown. */
+  storedSecret: boolean;
   /** The name the value is stored under, when the row can be renamed. */
   storedName?: string;
   /** Name and type come from a Node declaration. */
@@ -65,16 +67,18 @@ export function variableGroup(
     key = "",
     type = "string" as VariableType,
     value = null as Primitive | null,
+    secret = true,
     meta = {} as Partial<VariableMeta>,
   } = {},
 ) {
   const full: VariableMeta = {
     stored: false,
+    storedSecret: false,
     fixed: false,
     readonly: false,
     ...meta,
   };
-  const hidden = value === HIDDEN_STRING;
+  const storedSecret = value === HIDDEN_STRING;
   return fb.group(
     {
       key: fb.control(key, [
@@ -82,15 +86,23 @@ export function variableGroup(
         Validators.pattern(/^[A-Za-z_][A-Za-z0-9_]*$/),
       ]),
       type: fb.control<VariableType>({ value: type, disabled: full.fixed }),
+      // only string Variables can be secret; off makes a Visible Variable
+      secret: fb.nonNullable.control({
+        value: secret,
+        disabled: full.readonly,
+      }),
       // stored strings are never sent back: leave empty to keep them
       value: fb.control({
         value:
-          value === null || value === undefined || hidden ? "" : String(value),
+          value === null || value === undefined || storedSecret
+            ? ""
+            : String(value),
         disabled: full.readonly,
       }),
       meta: fb.control<VariableMeta>({
         ...full,
-        stored: full.stored || hidden,
+        stored: full.stored || storedSecret,
+        storedSecret,
       }),
     },
     { validators: valueMatchesType },
@@ -123,4 +135,13 @@ export function parseValue(type: VariableType, value: string): Primitive {
     default:
       return value;
   }
+}
+
+/** Names of the rows saved as Visible Variables. */
+export function visibleNames(
+  rows: ReturnType<VariableGroup["getRawValue"]>[],
+): string[] {
+  return rows
+    .filter(({ type, secret }) => type === "string" && !secret)
+    .map(({ key }) => key);
 }

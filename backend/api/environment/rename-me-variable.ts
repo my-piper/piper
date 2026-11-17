@@ -31,6 +31,9 @@ api.post(
     }
     variables.set(name, variables.get(key));
     variables.delete(key);
+    environment.visible = environment.visible?.map((visible) =>
+      visible === key ? name : visible
+    );
     await redis.set(
       USER_ENVIRONMENT_KEY(currentUser._id),
       JSON.stringify(toPlain(environment))

@@ -30,14 +30,22 @@ export class EnvironmentVariablesComponent {
   private texts = {
     stored: $localize`:@@label.stored:Stored`,
     storedPlaceholder: $localize`:@@message.stored_value_leave_empty:Stored, leave empty to keep`,
+    storedSecretDropped: $localize`:@@message.stored_secret_dropped_on_save:The stored value is dropped on save`,
   };
 
-  placeholder({ stored, readonly, inherited }: VariableMeta, type: string) {
+  placeholder(
+    { stored, storedSecret, readonly, inherited }: VariableMeta,
+    type: string,
+    secret: boolean,
+  ) {
     if (inherited && inherited.source !== "none") {
       const { value } = inherited;
       return value === undefined || value === HIDDEN_STRING
         ? this.texts.stored
         : String(value);
+    }
+    if (storedSecret && !secret && !readonly && type === "string") {
+      return this.texts.storedSecretDropped;
     }
     if (stored && !readonly && type === "string") {
       return this.texts.storedPlaceholder;

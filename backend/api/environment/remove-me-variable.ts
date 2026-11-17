@@ -17,6 +17,7 @@ api.delete(
 
     const environment = toInstance(JSON.parse(json), Environment);
     environment.variables?.delete(key);
+    environment.visible = environment.visible?.filter((name) => name !== key);
     await redis.set(
       USER_ENVIRONMENT_KEY(currentUser._id),
       JSON.stringify(toPlain(environment))

@@ -20,6 +20,7 @@ import {
   variableGroup,
   VariableMeta,
   variableType,
+  visibleNames,
 } from "src/utils/environment";
 import { getDeclaredVariables } from "src/utils/pipeline";
 
@@ -63,6 +64,7 @@ export class EditPipelineEnvironmentComponent implements OnInit {
   private build() {
     this.variables.clear();
     const own = this.project.environment?.variables;
+    const visible = new Set(this.project.environment?.visible ?? []);
     for (const [key, declaration] of getDeclaredVariables(
       this.project.pipeline,
     )) {
@@ -72,6 +74,7 @@ export class EditPipelineEnvironmentComponent implements OnInit {
           key,
           type: variableType(declaration.type),
           value: editable ? (own?.get(key) ?? null) : null,
+          secret: !visible.has(key),
           meta: {
             fixed: true,
             readonly: !editable,
@@ -110,18 +113,20 @@ export class EditPipelineEnvironmentComponent implements OnInit {
 
   save() {
     const variables = new Map<string, Primitive>();
-    for (const { key, type, value, meta } of this.variables.getRawValue()) {
-      if (meta.readonly) {
-        continue;
-      }
+    const rows = this.variables
+      .getRawValue()
+      .filter(({ meta }) => !meta.readonly);
+    for (const { key, type, value, secret, meta } of rows) {
       if (value !== "") {
         variables.set(key, parseValue(type, value));
-      } else if (meta.stored) {
+      } else if (meta.storedSecret && secret) {
         // the stored secret is kept: the project diff leaves it untouched
         variables.set(key, HIDDEN_STRING);
       }
+      // a stored secret made visible without a new value is dropped
     }
-    this.apply(new Environment({ variables }));
+    const visible = visibleNames(rows).filter((key) => variables.has(key));
+    this.apply(new Environment({ variables, visible }));
   }
 
   /** Drops the project's own variables; the user environment is untouched. */
