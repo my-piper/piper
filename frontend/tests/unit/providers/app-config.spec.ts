@@ -21,7 +21,7 @@ describe("app config", () => {
 
       expect(config).toBeInstanceOf(AppConfig);
       expect(config.billing).toBeInstanceOf(BillingConfig);
-      expect(config.billing.active).toBeTrue();
+      expect(config.billing.active).toBe(true);
       expect(config.ui).toBeInstanceOf(UiConfig);
       expect(config.ui.features).toEqual(["signup"]);
       expect(config.baseUrl).toBe(TEST_BASE_URL);
@@ -33,8 +33,8 @@ describe("app config", () => {
       const config = appConfigFactory();
 
       expect(config.ui.features).toEqual([]);
-      expect(config.captcha.required).toBeFalse();
-      expect(config.billing.active).toBeFalse();
+      expect(config.captcha.required).toBe(false);
+      expect(config.billing.active).toBe(false);
     });
 
     it("falls back to the prerender copy in localStorage", () => {

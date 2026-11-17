@@ -68,7 +68,11 @@ describe("MeEnvironmentComponent", () => {
     fixture.detectChanges();
   }
 
-  function rows(): { key: string; type: string; value: string }[] {
+  function rows(): {
+    key: string;
+    type: string;
+    value: string;
+  }[] {
     return Array.from(element.querySelectorAll("tr.variable")).map((row) => ({
       key: (row.querySelector("input.key") as HTMLInputElement).value,
       type: (row.querySelector("select.type") as HTMLSelectElement).value,
@@ -110,7 +114,7 @@ describe("MeEnvironmentComponent", () => {
     ]);
     expect(
       (row(0).querySelector("input.key") as HTMLInputElement).readOnly,
-    ).toBeTrue();
+    ).toBe(true);
     finish();
   }));
 
@@ -204,8 +208,8 @@ describe("MeEnvironmentComponent", () => {
     type(row(0).querySelector("input.value"), "4");
     type(row(1).querySelector("input.value"), "yes");
 
-    expect(numberInvalid).toBeTrue();
-    expect(button("Save").disabled).toBeTrue();
+    expect(numberInvalid).toBe(true);
+    expect(button("Save").disabled).toBe(true);
     finish();
   }));
 
@@ -216,7 +220,7 @@ describe("MeEnvironmentComponent", () => {
 
     type(row(0).querySelector("input.key"), "bad key");
 
-    expect(button("Save").disabled).toBeTrue();
+    expect(button("Save").disabled).toBe(true);
     finish();
   }));
 });

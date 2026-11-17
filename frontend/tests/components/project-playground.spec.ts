@@ -73,7 +73,9 @@ describe("ProjectPlaygroundComponent", () => {
   let controller: HttpTestingController;
   let element: HTMLElement;
 
-  let routeData: BehaviorSubject<{ project: Project }>;
+  let routeData: BehaviorSubject<{
+    project: Project;
+  }>;
 
   function create(project: Project) {
     routeData.next({ project });
@@ -135,7 +137,7 @@ describe("ProjectPlaygroundComponent", () => {
       note: null,
     });
     expect(field("topic").value).toBe("Cats");
-    expect(field("flag").checked).toBeFalse();
+    expect(field("flag").checked).toBe(false);
     expect(field("count").value).toBe("0");
     finish();
   }));
@@ -163,7 +165,7 @@ describe("ProjectPlaygroundComponent", () => {
     type("topic", "");
     runButton().click();
 
-    expect(runButton().disabled).toBeTrue();
+    expect(runButton().disabled).toBe(true);
     expect(controller.match((r) => r.url.endsWith("/launch")).length).toBe(0);
     finish();
   }));
@@ -192,8 +194,8 @@ describe("ProjectPlaygroundComponent", () => {
       label: "",
       note: null,
     });
-    expect(busy).toBeTrue();
-    expect(runButton().classList.contains("busy")).toBeFalse();
+    expect(busy).toBe(true);
+    expect(runButton().classList.contains("busy")).toBe(false);
     const launched = signals.find(
       (s) => s instanceof PipelineLaunchedSignal,
     ) as PipelineLaunchedSignal;
@@ -217,7 +219,7 @@ describe("ProjectPlaygroundComponent", () => {
     const informer = element.querySelector("app-informer");
     expect(informer.textContent).toContain("Pipeline schema invalid");
     expect(informer.textContent).toContain("must have required property");
-    expect(fixture.componentInstance.progress.launching).toBeFalse();
+    expect(fixture.componentInstance.progress.launching).toBe(false);
     finish();
   }));
 
@@ -271,12 +273,22 @@ describe("ProjectPlaygroundComponent", () => {
 
   it("removes its window.play hook when destroyed", fakeAsync(() => {
     setup();
-    const hook = (window as unknown as { play?: unknown }).play;
+    const hook = (
+      window as unknown as {
+        play?: unknown;
+      }
+    ).play;
 
     fixture.destroy();
 
     expect(typeof hook).toBe("function");
-    expect((window as unknown as { play?: unknown }).play).toBeUndefined();
+    expect(
+      (
+        window as unknown as {
+          play?: unknown;
+        }
+      ).play,
+    ).toBeUndefined();
     finish();
   }));
 });
@@ -339,7 +351,7 @@ describe("PlayWithProjectComponent", () => {
     tick(UI_DELAY);
     router.navigateByUrl(`/play/${PROJECT_A_ID}`);
     tick();
-    const navigate = spyOn(router, "navigate").and.callThrough();
+    const navigate = vi.spyOn(router, "navigate");
 
     TestBed.inject(SignalsService).emit(
       new PipelineLaunchedSignal(toInstance(launchResponsePlain(), Launch)),
@@ -347,7 +359,7 @@ describe("PlayWithProjectComponent", () => {
     tick();
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate.calls.mostRecent().args[0]).toEqual(["./"]);
+    expect(vi.mocked(navigate).mock.lastCall[0]).toEqual(["./"]);
     finish();
   }));
 
@@ -357,7 +369,7 @@ describe("PlayWithProjectComponent", () => {
     tick(UI_DELAY);
     router.navigateByUrl("/elsewhere");
     tick();
-    const navigate = spyOn(router, "navigate").and.callThrough();
+    const navigate = vi.spyOn(router, "navigate");
 
     TestBed.inject(SignalsService).emit(
       new PipelineLaunchedSignal(toInstance(launchResponsePlain(), Launch)),

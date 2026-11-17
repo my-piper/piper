@@ -73,10 +73,10 @@ describe("ProjectManager graph sanitation", () => {
 
       sanitized(project);
 
-      expect(project.pipeline.inputs.has("topic")).toBeFalse();
-      expect(project.launchRequest.inputs.has("topic")).toBeFalse();
+      expect(project.pipeline.inputs.has("topic")).toBe(false);
+      expect(project.launchRequest.inputs.has("topic")).toBe(false);
       expect(project.launchRequest.inputs.get("zero")).toBe(0);
-      expect(project.launchRequest.inputs.get("off")).toBeFalse();
+      expect(project.launchRequest.inputs.get("off")).toBe(false);
       expect(project.launchRequest.inputs.get("empty")).toBe("");
     }));
   });
@@ -88,7 +88,7 @@ describe("ProjectManager graph sanitation", () => {
 
       sanitized(project);
 
-      expect(project.pipeline.outputs.has("result")).toBeFalse();
+      expect(project.pipeline.outputs.has("result")).toBe(false);
     }));
 
     it("removes flows from deleted output ports", fakeAsync(() => {
@@ -146,9 +146,9 @@ describe("ProjectManager graph sanitation", () => {
       sanitized(project);
 
       expect(launchInputs(project, "node_one").get("temperature")).toBe(0);
-      expect(two.has("flag")).toBeFalse();
-      expect(two.has("count")).toBeFalse();
-      expect(two.has("label")).toBeFalse();
+      expect(two.has("flag")).toBe(false);
+      expect(two.has("count")).toBe(false);
+      expect(two.has("label")).toBe(false);
     }));
 
     it("keeps explicit falsy overrides that differ from the default", fakeAsync(() => {
@@ -179,8 +179,8 @@ describe("ProjectManager graph sanitation", () => {
 
       sanitized(project);
 
-      expect(launchInputs(project, "node_two").has("deleted")).toBeFalse();
-      expect(project.launchRequest.nodes.has("ghost")).toBeFalse();
+      expect(launchInputs(project, "node_two").has("deleted")).toBe(false);
+      expect(project.launchRequest.nodes.has("ghost")).toBe(false);
     }));
 
     it("removes values for deleted output ports from outputs, not inputs", fakeAsync(() => {
@@ -191,9 +191,9 @@ describe("ProjectManager graph sanitation", () => {
 
       sanitized(project);
 
-      expect(two.outputs.has("deleted")).toBeFalse();
+      expect(two.outputs.has("deleted")).toBe(false);
       expect(two.outputs.get("result")).toBe('{"data":{"answer":"42"}}');
-      expect(two.inputs.has("count")).toBeTrue();
+      expect(two.inputs.has("count")).toBe(true);
     }));
 
     it("removes deleted output values when the node has no inputs map", fakeAsync(() => {
@@ -211,7 +211,7 @@ describe("ProjectManager graph sanitation", () => {
       sanitized(project);
 
       const one = project.launchRequest.nodes.get("node_one");
-      expect(one.outputs.has("deleted")).toBeFalse();
+      expect(one.outputs.has("deleted")).toBe(false);
       expect(one.outputs.get("text")).toBe("kept");
     }));
 
@@ -221,7 +221,7 @@ describe("ProjectManager graph sanitation", () => {
 
       sanitized(project);
 
-      expect(project.launchRequest.nodes.has("node_one")).toBeFalse();
+      expect(project.launchRequest.nodes.has("node_one")).toBe(false);
     }));
 
     it("copies a cached upstream output into the downstream input", fakeAsync(() => {
@@ -250,8 +250,18 @@ describe("ProjectManager graph sanitation", () => {
     for (const [name, path, input, expected] of cases) {
       it(`converts ${name}`, fakeAsync(() => {
         const plain = smallGraphWithJsonTransformer(path) as {
-          flows: Record<string, { input: string }>;
-          nodes: Record<string, { inputs: Record<string, object> }>;
+          flows: Record<
+            string,
+            {
+              input: string;
+            }
+          >;
+          nodes: Record<
+            string,
+            {
+              inputs: Record<string, object>;
+            }
+          >;
         };
         // The fixture's integer input is named `size`, a Map.prototype getter
         // that class-transformer skips when building Maps; use another name.
@@ -282,7 +292,7 @@ describe("ProjectManager graph sanitation", () => {
 
       sanitized(project);
 
-      expect(project.launchRequest.nodes.has("node_three")).toBeFalse();
+      expect(project.launchRequest.nodes.has("node_three")).toBe(false);
     }));
 
     it("leaves the input unset for malformed JSON without throwing", fakeAsync(() => {
@@ -293,8 +303,8 @@ describe("ProjectManager graph sanitation", () => {
 
       sanitized(project);
 
-      expect(project.launchRequest.nodes.has("node_three")).toBeFalse();
-      expect(project.pipeline.flows.has("two_to_three")).toBeTrue();
+      expect(project.launchRequest.nodes.has("node_three")).toBe(false);
+      expect(project.pipeline.flows.has("two_to_three")).toBe(true);
     }));
   });
 

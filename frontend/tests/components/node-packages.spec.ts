@@ -322,8 +322,8 @@ describe("NodePackagesComponent", () => {
       tick();
       page.fixture.detectChanges();
 
-      expect(hiddenBefore).toBeTrue();
-      expect(hiddenOpen).toBeFalse();
+      expect(hiddenBefore).toBe(true);
+      expect(hiddenOpen).toBe(false);
       expect(modal().classList).toContain("hidden");
       finish();
     }));

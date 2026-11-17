@@ -58,7 +58,10 @@ function route(
 }
 
 function capture<T>(source: Observable<T>) {
-  const result: { value?: T; error?: unknown } = {};
+  const result: {
+    value?: T;
+    error?: unknown;
+  } = {};
   source.subscribe({
     next: (value) => (result.value = value),
     error: (error) => (result.error = error),
@@ -89,7 +92,7 @@ describe("route resolvers", () => {
     });
 
     it("propagates a missing project without touching the project manager", () => {
-      spyOn(console, "error");
+      vi.spyOn(console, "error").mockReturnValue(undefined);
       const controller = setup();
       const manager = TestBed.inject(ProjectManager);
       manager.project = projectA();
@@ -147,7 +150,10 @@ describe("route resolvers", () => {
       const result = TestBed.inject(NodeFromProjectResolver).resolve(
         route({ id: "node_two" }, { project }),
         state,
-      ) as { id: string; node: Node };
+      ) as {
+        id: string;
+        node: Node;
+      };
 
       expect(result.id).toBe("node_two");
       expect(result.node).toBe(project.pipeline.nodes.get("node_two"));
@@ -160,7 +166,10 @@ describe("route resolvers", () => {
       const result = TestBed.inject(NodeFromLaunchResolver).resolve(
         route({ id: "node_one" }, { launch: parent }),
         state,
-      ) as { id: string; node: Node };
+      ) as {
+        id: string;
+        node: Node;
+      };
 
       expect(result.node).toBe(parent.pipeline.nodes.get("node_one"));
     });
@@ -171,7 +180,10 @@ describe("route resolvers", () => {
       const result = TestBed.inject(NodeFromProjectResolver).resolve(
         route({ id: "ghost" }, { project: projectA() }),
         state,
-      ) as { id: string; node: Node };
+      ) as {
+        id: string;
+        node: Node;
+      };
 
       expect(result.id).toBe("ghost");
       expect(result.node).toBeUndefined();

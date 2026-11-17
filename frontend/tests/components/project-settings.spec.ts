@@ -104,7 +104,7 @@ describe("ProjectSettingsComponent", () => {
 
     expect(request.request.method).toBe("POST");
     expect(request.request.body).toEqual(
-      jasmine.objectContaining({ group: "Sales" }),
+      expect.objectContaining({ group: "Sales" }),
     );
     expect(emitted.map((p) => p.group)).toEqual(["Sales"]);
     fixture.destroy();
@@ -123,7 +123,7 @@ describe("ProjectSettingsComponent", () => {
     tick(UI_DELAY);
 
     expect(request.request.body).toEqual(
-      jasmine.objectContaining({ group: "Support" }),
+      expect.objectContaining({ group: "Support" }),
     );
     fixture.destroy();
     finish();
@@ -137,7 +137,7 @@ describe("ProjectSettingsComponent", () => {
 
     fixture.detectChanges();
 
-    expect(saveButton().disabled).toBeTrue();
+    expect(saveButton().disabled).toBe(true);
     fixture.destroy();
     finish();
   }));
@@ -151,7 +151,7 @@ describe("ProjectSettingsComponent", () => {
     tick(UI_DELAY);
 
     expect(request.request.body).toEqual(
-      jasmine.objectContaining({ group: null }),
+      expect.objectContaining({ group: null }),
     );
     fixture.destroy();
     finish();

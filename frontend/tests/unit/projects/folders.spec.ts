@@ -24,7 +24,7 @@ describe("project folders tree", () => {
       ["Marketing/Video", "Marketing/Video"],
     ]);
     expect(roots[1].group).toBeUndefined();
-    expect(roots[1].more).toBeFalse();
+    expect(roots[1].more).toBe(false);
     expect(roots[1].children[0].group).toBe("Sales / EU");
   });
 

@@ -1,4 +1,4 @@
-/* Playwright browser workflows: Node + Playwright types only, no Jasmine globals. */
+/* Playwright browser workflows: Node + Playwright types only, no Vitest globals. */
 {
   "compilerOptions": {
     "target": "ES2022",

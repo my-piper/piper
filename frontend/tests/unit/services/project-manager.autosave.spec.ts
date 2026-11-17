@@ -116,9 +116,9 @@ describe("ProjectManager autosave", () => {
     tick(UI_DELAY);
 
     expect(project.pipeline.start.nodes).toEqual([]);
-    expect(project.pipeline.inputs.has("topic")).toBeFalse();
-    expect(project.pipeline.flows.has("one_to_two")).toBeFalse();
-    expect(project.launchRequest.nodes.has("node_one")).toBeFalse();
+    expect(project.pipeline.inputs.has("topic")).toBe(false);
+    expect(project.pipeline.flows.has("one_to_two")).toBe(false);
+    expect(project.launchRequest.nodes.has("node_one")).toBe(false);
   }));
 
   it("saves immediately on kick and advances the revision", fakeAsync(() => {

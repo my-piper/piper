@@ -12,9 +12,7 @@ async function render() {
 }
 
 function options(element: HTMLElement) {
-  return Array.from(
-    element.querySelectorAll<HTMLLabelElement>("label.option")
-  );
+  return Array.from(element.querySelectorAll<HTMLLabelElement>("label.option"));
 }
 
 describe("SelectThemeComponent", () => {
@@ -34,7 +32,7 @@ describe("SelectThemeComponent", () => {
     const fixture = await render();
 
     const selected = options(fixture.nativeElement).filter((option) =>
-      option.classList.contains("selected")
+      option.classList.contains("selected"),
     );
     expect(selected.map((option) => option.textContent.trim())).toEqual([
       "Dark",
@@ -45,7 +43,7 @@ describe("SelectThemeComponent", () => {
     localStorage.setItem(THEME_KEY, "dark");
     const fixture = await render();
     const light = options(fixture.nativeElement).find(
-      (option) => option.textContent.trim() === "Light"
+      (option) => option.textContent.trim() === "Light",
     );
 
     light.querySelector("input").click();
@@ -53,6 +51,6 @@ describe("SelectThemeComponent", () => {
 
     expect(document.documentElement.dataset["theme"]).toBe("light");
     expect(localStorage.getItem(THEME_KEY)).toBe("light");
-    expect(light.classList.contains("selected")).toBeTrue();
+    expect(light.classList.contains("selected")).toBe(true);
   });
 });

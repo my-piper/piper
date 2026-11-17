@@ -60,7 +60,7 @@ describe("route guards", () => {
 
       const result = TestBed.inject(AnonymousGuard).canActivate();
 
-      expect(result).toBeTrue();
+      expect(result).toBe(true);
     });
 
     it("redirects signed-in users home", () => {
@@ -80,7 +80,7 @@ describe("route guards", () => {
 
       const result = TestBed.inject(SigninNeededGuard).canActivate();
 
-      expect(result).toBeTrue();
+      expect(result).toBe(true);
     });
 
     it("redirects anonymous users to login", () => {
@@ -104,7 +104,7 @@ describe("route guards", () => {
       const other = guard.canActivate(snapshot({ id: "p2" }), state);
 
       expect(router.serializeUrl(first as UrlTree)).toBe("/play/p1/readme");
-      expect(second).toBeTrue();
+      expect(second).toBe(true);
       expect(other).toBeInstanceOf(UrlTree);
     });
   });
@@ -161,7 +161,7 @@ describe("route guards", () => {
     }));
 
     it("blocks navigation and keeps the project when saving fails, then retries", fakeAsync(() => {
-      spyOn(console, "error");
+      vi.spyOn(console, "error").mockReturnValue(undefined);
       const { controller, manager, project, guard } = prepare();
       project.pipeline.nodes.get("node_one").arrange.x = 777;
       const conflict = revisionConflict();

@@ -151,7 +151,7 @@ describe("project routing", () => {
       tick();
       harness.detectChanges();
 
-      expect(done).toBeTrue();
+      expect(done).toBe(true);
       expect(router.url).toBe(
         `/projects/${PROJECT_A_ID}/(right:nodes/node_two)`,
       );

@@ -158,6 +158,11 @@
               "localize": ["en", "ru"],
               "sourceMap": true,
               "budgets": []
+            },
+            "test": {
+              "aot": false,
+              "styles": [],
+              "polyfills": ["zone.js", "reflect-metadata"]
             }
           },
           "defaultConfiguration": "production"
@@ -181,33 +186,16 @@
           }
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "tests/setup.ts",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing",
-              "@angular/localize/init",
-              "reflect-metadata"
-            ],
+            "buildTarget": "frontend:build:development,test",
             "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.cjs",
-            "inlineStyleLanguage": "scss",
-            "stylePreprocessorOptions": {
-              "includePaths": ["."]
-            },
+            "runnerConfig": "vitest.config.ts",
+            "browsers": ["ChromiumHeadless"],
+            "setupFiles": ["tests/setup.ts"],
             "include": [
               "../tests/unit/**/*.spec.ts",
               "../tests/components/**/*.spec.ts"
-            ],
-            "styles": [],
-            "assets": [],
-            "codeCoverageExclude": [
-              "src/ui-kit/**",
-              "src/schemas/**",
-              "src/locale/**",
-              "tests/**",
-              "node_modules/**"
             ]
           }
         }

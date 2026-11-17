@@ -42,8 +42,8 @@ describe("test harness", () => {
 
     expect(http).toBeInstanceOf(HttpService);
     expect(config.baseUrl).toBe(TEST_BASE_URL);
-    expect(config.captcha.required).toBeFalse();
-    expect(config.assistant.active).toBeFalse();
+    expect(config.captcha.required).toBe(false);
+    expect(config.assistant.active).toBe(false);
   });
 
   it("imports the checked-in compiled JSON schemas", () => {
@@ -85,8 +85,8 @@ describe("test harness", () => {
       "",
     );
     expect(project.launchRequest.inputs.get("zero")).toBe(0);
-    expect(project.launchRequest.inputs.get("off")).toBeFalse();
-    expect("unknownField" in project).toBeFalse();
+    expect(project.launchRequest.inputs.get("off")).toBe(false);
+    expect("unknownField" in project).toBe(false);
     expect(toPlain(project).pipeline.nodes.n1.title).toBe("First");
   });
 
@@ -103,7 +103,7 @@ describe("test harness", () => {
     });
 
     it("renders the real template and emits through its output", () => {
-      const agreed = jasmine.createSpy("agree");
+      const agreed = vi.fn().mockName("agree");
       fixture.componentInstance.agree.subscribe(agreed);
 
       fixture.debugElement

@@ -14,10 +14,10 @@
     "test:watch": "ng test --watch=true",
     "test:typecheck": "tsc -p tsconfig.spec.json --noEmit",
     "typecheck:templates": "scripts/check-templates.sh",
-    "test:coverage": "ng test --watch=false --progress=false --code-coverage",
+    "test:coverage": "ng test --watch=false --progress=false --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:tests": "eslint tests karma.conf.cjs",
+    "lint:tests": "eslint tests vitest.config.ts",
     "test:browser": "ng build --configuration production,browser-test && playwright test -c tests/browser/playwright.config.ts",
     "test:browser:run": "playwright test -c tests/browser/playwright.config.ts",
     "test:browser:typecheck": "tsc -p tests/browser/tsconfig.json"
@@ -68,27 +68,18 @@
     "@eslint/js": "^9.10.0",
     "@playwright/test": "1.63.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/jasmine": "5.1.4",
     "@types/lodash": "^4.14.195",
     "@types/qs": "^6.15.1",
     "@types/url-parse": "^1.4.11",
+    "@vitest/browser-playwright": "5.1.0",
+    "@vitest/coverage-istanbul": "5.1.0",
+    "esbuild": "0.28.2",
     "eslint": "^9.10.0",
-    "istanbul-lib-instrument": "^6.0.3",
-    "jasmine-core": "5.1.2",
-    "karma": "6.4.4",
-    "karma-chrome-launcher": "3.2.0",
-    "karma-coverage": "2.2.1",
-    "karma-jasmine": "5.1.0",
-    "karma-jasmine-html-reporter": "2.1.0",
     "prettier": "3.3.3",
     "socket.io": "4.7.5",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.4.0"
-  },
-  "overrides": {
-    "karma-jasmine": {
-      "jasmine-core": "$jasmine-core"
-    }
+    "typescript-eslint": "^8.4.0",
+    "vitest": "5.1.0"
   },
   "engines": {
     "node": "^22.22.3 || ^24.15.0"

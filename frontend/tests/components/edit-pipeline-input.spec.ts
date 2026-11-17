@@ -85,7 +85,7 @@ describe("EditPipelineInputComponent", () => {
 
     type(fixture, "Cats");
 
-    expect(project.launchRequest.inputs.has("topic")).toBeFalse();
+    expect(project.launchRequest.inputs.has("topic")).toBe(false);
     finish();
   }));
 
@@ -145,7 +145,7 @@ describe("EditPipelineInputComponent", () => {
     const reloaded = render("enabled", input);
 
     expect(project.launchRequest.inputs.get("enabled")).toBe(false);
-    expect(field(reloaded).checked).toBeFalse();
+    expect(field(reloaded).checked).toBe(false);
     finish();
   }));
 
