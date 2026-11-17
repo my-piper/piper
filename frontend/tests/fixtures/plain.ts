@@ -2,7 +2,7 @@
  * Plain wire fixtures shared by the fast suites and the browser suite.
  *
  * Every export is a factory returning a fresh, independent object: mutate the
- * result freely. This module must stay free of Angular, Jasmine and `src/...`
+ * result freely. This module must stay free of Angular, test-runner and `src/...`
  * imports so Playwright (Node) can load it too.
  *
  * Wire sources (backend):

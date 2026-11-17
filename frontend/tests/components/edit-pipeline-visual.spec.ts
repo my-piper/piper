@@ -144,7 +144,7 @@ describe("EditPipelineVisualComponent", () => {
       const flows = flowsBetween(project, "node_one", "node_three");
       expect(flows.length).toBe(1);
       expect(flows[0]).toEqual(
-        jasmine.objectContaining({ output: "text", input: "words" }),
+        expect.objectContaining({ output: "text", input: "words" }),
       );
       expect(flows[0].transformer).toBeUndefined();
       expect(manager.status.value).toBe("dirty");
@@ -218,7 +218,7 @@ describe("EditPipelineVisualComponent", () => {
       const flows = flowsBetween(project, "node_two", "node_three");
       const byInput = new Map(flows.map((f) => [f.input, f]));
       expect(byInput.get("picture").transformer).toEqual(
-        jasmine.objectContaining({ type: "array", index: 0 }),
+        expect.objectContaining({ type: "array", index: 0 }),
       );
       expect(byInput.get("pictures").transformer).toBeUndefined();
       expect(flowsBetween(project, "node_three", "node_three")).toEqual([]);
@@ -275,7 +275,7 @@ describe("EditPipelineVisualComponent", () => {
       );
       expect(added.length).toBe(1);
       expect(project.pipeline.nodes.get(added[0]).arrange).toEqual(
-        jasmine.objectContaining({ x: 120, y: 80 }),
+        expect.objectContaining({ x: 120, y: 80 }),
       );
       expect(project.pipeline.start.nodes).toEqual(added);
       finish();
@@ -329,13 +329,13 @@ describe("EditPipelineVisualComponent", () => {
       detectChanges();
       tick(1000);
 
-      expect(project.pipeline.nodes.has("node_one")).toBeFalse();
+      expect(project.pipeline.nodes.has("node_one")).toBe(false);
       expect(project.pipeline.start.nodes).toEqual([]);
       expect(project.pipeline.flows.size).toBe(0);
-      expect(project.pipeline.inputs.has("topic")).toBeFalse();
-      expect(project.launchRequest.nodes.has("node_one")).toBeFalse();
-      expect(project.launchRequest.inputs.has("topic")).toBeFalse();
-      expect(project.pipeline.outputs.has("result")).toBeTrue();
+      expect(project.pipeline.inputs.has("topic")).toBe(false);
+      expect(project.launchRequest.nodes.has("node_one")).toBe(false);
+      expect(project.launchRequest.inputs.has("topic")).toBe(false);
+      expect(project.pipeline.outputs.has("result")).toBe(true);
       expect(manager.status.value).toBe("dirty");
       finish();
     }));
@@ -370,10 +370,10 @@ describe("EditPipelineVisualComponent", () => {
       expect(input.default).toBe(false);
       expect(input.type).toBe("boolean");
       expect([...input.flows.values()]).toEqual([
-        jasmine.objectContaining({ to: "node_two", input: "flag" }),
+        expect.objectContaining({ to: "node_two", input: "flag" }),
       ]);
       expect(input.arrange).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           x: node.arrange.x - 100,
           y: node.arrange.y,
         }),
@@ -416,7 +416,7 @@ describe("EditPipelineVisualComponent", () => {
       const output = project.pipeline.outputs.get("text");
       expect(output.type).toBe("string");
       expect([...output.flows.values()]).toEqual([
-        jasmine.objectContaining({ from: "node_one", output: "text" }),
+        expect.objectContaining({ from: "node_one", output: "text" }),
       ]);
       finish();
     }));
@@ -572,7 +572,13 @@ describe("EditPipelineVisualComponent", () => {
     function shiftPointer(
       target: Element,
       type: "pointerdown" | "pointermove" | "pointerup",
-      { x, y }: { x: number; y: number },
+      {
+        x,
+        y,
+      }: {
+        x: number;
+        y: number;
+      },
     ) {
       target.dispatchEvent(
         new PointerEvent(type, {
@@ -633,7 +639,7 @@ describe("EditPipelineVisualComponent", () => {
       detectChanges();
       tick();
 
-      expect(picked).toBeTrue();
+      expect(picked).toBe(true);
       expect(nodeBox(element, "node_two").classList).not.toContain("picked");
       expect(router.url).toBe(EDITOR_URL);
       finish();
@@ -719,7 +725,9 @@ describe("EditPipelineVisualComponent", () => {
       const request = controller.expectOne(
         "/api/projects/project_aaaa/patch/rev_a_1",
       );
-      const body = request.request.body as { pipeline: object };
+      const body = request.request.body as {
+        pipeline: object;
+      };
       request.flush(patchResponsePlain("rev_a_2"));
       tick(UI_DELAY);
 
@@ -728,9 +736,11 @@ describe("EditPipelineVisualComponent", () => {
       expect(request.request.method).toBe("PATCH");
       expect(Object.keys(body)).toEqual(["pipeline"]);
       expect(rebuilt).toEqual(toPlain(project.pipeline));
-      expect(diff(baseline, rebuilt) as unknown as { flows: object }).toEqual(
-        jasmine.objectContaining({ flows: jasmine.any(Object) }),
-      );
+      expect(
+        diff(baseline, rebuilt) as unknown as {
+          flows: object;
+        },
+      ).toEqual(expect.objectContaining({ flows: expect.any(Object) }));
       expect(added).toBeDefined();
       expect(project.revision).toBe("rev_a_2");
       controller.verify();

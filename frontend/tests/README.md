@@ -2,11 +2,11 @@
 
 Plan, status and evidence: [docs/frontend-testing-plan.md](../../docs/frontend-testing-plan.md).
 
-| Suite                                             | Runner                           | Location            | Needs                                                   |
-| ------------------------------------------------- | -------------------------------- | ------------------- | ------------------------------------------------------- |
-| Unit (models, pipes, services, guards, resolvers) | Jasmine + Karma, headless Chrome | `tests/unit/`       | Chrome/Chromium                                         |
-| Component (real templates via TestBed)            | Jasmine + Karma, headless Chrome | `tests/components/` | Chrome/Chromium                                         |
-| Browser workflows                                 | Playwright (Chromium)            | `tests/browser/`    | Playwright Chromium (`npx playwright install chromium`) |
+| Suite                                             | Runner                                 | Location            | Needs                                                   |
+| ------------------------------------------------- | -------------------------------------- | ------------------- | ------------------------------------------------------- |
+| Unit (models, pipes, services, guards, resolvers) | Vitest browser mode, headless Chromium | `tests/unit/`       | Playwright Chromium (`npx playwright install chromium`) |
+| Component (real templates via TestBed)            | Vitest browser mode, headless Chromium | `tests/components/` | Playwright Chromium (`npx playwright install chromium`) |
+| Browser workflows                                 | Playwright (Chromium)                  | `tests/browser/`    | Playwright Chromium (`npx playwright install chromium`) |
 
 None of these suites needs Docker, the backend, MongoDB/Redis or nginx.
 Browser workflows run the real frontend against **fixture** HTTP and Socket.IO
@@ -18,9 +18,9 @@ behaviour is covered separately by `backend/tests`.
 - Node and the frontend lockfile: `npm ci` in `frontend/`. Development and CI
   use Node 22 (`frontend/.nvmrc`, Dockerfile); Angular 22 requires
   `^22.22.3 || ^24.15.0` (`engines` in `package.json`).
-- A Chrome or Chromium binary for Karma. `karma-chrome-launcher` finds a system
-  Chrome; otherwise set `CHROME_BIN`, e.g. to Playwright's Chromium
-  (`npx playwright install chromium`).
+- Playwright's Chromium (`npx playwright install chromium`): `ng test` runs the
+  fast suites in it through `@vitest/browser-playwright`, and the browser
+  workflows use it too.
 
 ## Commands (run in `frontend/`)
 
@@ -30,14 +30,15 @@ behaviour is covered separately by `backend/tests`.
 | `npm run test:watch`             | Same, rebuilding and re-running on file changes                                                |
 | `npm run test:coverage`          | Single run with coverage in `coverage/` (HTML, lcov, json-summary, text summary)               |
 | `npm run test:typecheck`         | `tsc` over all fast-suite specs, helpers and fixtures                                          |
-| `npm run lint:tests`             | ESLint over `tests/` and the Karma config                                                      |
+| `npm run lint:tests`             | ESLint over `tests/` and `vitest.config.ts`                                                    |
 | `npm run test:browser`           | Builds en+ru (`production,browser-test` → `dist-browser/`), then runs the Playwright workflows |
 | `npm run test:browser:run`       | Runs the Playwright workflows against an existing `dist-browser/`                              |
-| `npm run test:browser:typecheck` | `tsc` over `tests/browser` (Node + Playwright types, no Jasmine)                               |
+| `npm run test:browser:typecheck` | `tsc` over `tests/browser` (Node + Playwright types, no Vitest)                                |
 
-Filter while iterating with `fdescribe`/`fit` (never commit them) or narrow
-discovery: `npx ng test --watch=false --include=../tests/unit/models`. Paths
-passed to `--include` are relative to `src/`, which is the Angular source root.
+Narrow a run while iterating: `npx ng test --watch=false
+--include=../tests/unit/models` picks files (paths are relative to `src/`, the
+Angular source root) and `--filter "<name>"` matches suite and spec names.
+Never commit `.only`; ESLint rejects it.
 
 Angular compiles every component exercised by a spec with the application's
 compiler, so template errors fail the run; `test:typecheck` alone does not
@@ -45,18 +46,23 @@ check templates.
 
 ## Layout
 
-- `setup.ts` — Karma entry: TestBed environment
-  (`errorOnUnknownElements`/`errorOnUnknownProperties`, destroy after each,
-  zone.js change detection and `ng-reflect-*` attributes like the app), the
-  JIT shadowing of pipes that extend `UntilDestroyed` (add new ones there), a
-  root `<base href>`, and the isolation layer. `zone.js`, `zone.js/testing`,
-  `@angular/localize/init` and `reflect-metadata` are loaded as polyfills from
-  `angular.json` before it.
+- `setup.ts` — Vitest setup file (`setupFiles` in `angular.json`): the
+  ProxyZone for every spec and hook (`helpers/proxy-zone.ts`), zone.js change
+  detection and `ng-reflect-*` attributes like the app, the JIT shadowing of
+  pipes that extend `UntilDestroyed` (add new ones there), a root
+  `<base href>`, and the isolation layer. Before it, `ng test` loads the
+  polyfills of the `test` build configuration (`zone.js`, `reflect-metadata`),
+  `zone.js/testing` and `@angular/localize/init`, and initializes TestBed
+  (`errorOnUnknownElements`/`errorOnUnknownProperties`, destroy after each).
+- `vitest.config.ts` (next to `angular.json`) — random order, required
+  assertions, 10 s timeout, spy restoring, coverage floors, and the plugin that
+  lowers `async`/`await` in dependencies so `fakeAsync` controls them.
 - `helpers/` — explicit infrastructure doubles: `config.ts` (PRERENDER/AppConfig,
   stored authorization), `socket.ts` (`SocketDouble` for ngx-socket-io),
-  `isolation.ts` (global guards), `console.ts` (`expectConsoleError`).
+  `isolation.ts` (global guards), `console.ts` (`expectConsoleError`),
+  `proxy-zone.ts` (runs specs in a zone.js ProxyZone, as zone.js does for Jasmine).
 - `fixtures/` — `plain.ts` wire payloads and `runtime-config.ts`, both free of
-  Angular/Jasmine imports so the browser suite can share them; `models.ts`
+  Angular/test-runner imports so the browser suite can share them; `models.ts`
   typed factories converting those payloads through the production
   `toInstance`.
 - `unit/`, `components/` — specs (`*.spec.ts`).
@@ -69,7 +75,8 @@ Before every spec: `localStorage`, `sessionStorage` and cookies are cleared and
 OAuth off, dummy base URL). After every spec the spec **fails** if it:
 
 - issued an application `fetch`/`XMLHttpRequest`/`WebSocket`/`EventSource`
-  request (only Karma's own `/base/` and `/absolute/` paths are allowed) —
+  request (the Vitest runner loads modules with `import()`, so no request is
+  allowed) —
   use `provideHttpClientTesting()` + `HttpTestingController` (and call
   `verify()`), and `provideSocketDouble()` for sockets;
 - left elements attached to `<body>` after TestBed teardown;
@@ -80,8 +87,9 @@ OAuth off, dummy base URL). After every spec the spec **fails** if it:
   it, and one declaration covers repeats. `HttpService` logs every HTTP error
   as `Process HTTP error <status> <body>`, so error-path specs declare it.
 
-`fakeAsync` already fails a spec that leaves timers queued. Jasmine runs specs
-in random order and fails specs without expectations.
+`fakeAsync` already fails a spec that leaves timers queued. Vitest runs specs
+in random order, fails specs without assertions and restores `vi.spyOn` spies
+after every spec (`vitest.config.ts`).
 
 ## Writing tests
 
@@ -131,14 +139,14 @@ and response, DataError bodies, node/launch events, rooms). Notable facts:
 - Known product bug pinned with `test.fail`: owners cannot delete their own
   deployment (see the plan's T007 record); the test turns red once fixed.
 
-Karma can reuse Playwright's Chromium:
-`CHROME_BIN=$(node -e 'console.log(require("@playwright/test").chromium.executablePath())') npm test`.
-
 ## Troubleshooting
 
-- `No binary for ChromeHeadless browser`: install Chrome or set `CHROME_BIN`.
-- `Executable doesn't exist` from Playwright: `npx playwright install chromium`
-  (add `--with-deps` on fresh Linux hosts).
-- Port 9876 busy: Karma picks the next free port automatically.
-- `Found 1 load error`: a compile error in a spec; it is printed above the
-  Karma banner.
+- `Executable doesn't exist` from Playwright (fast suites or browser
+  workflows): `npx playwright install chromium` (add `--with-deps` on fresh
+  Linux hosts).
+- `Application bundle generation failed`: a compile error in a spec, printed
+  before Vitest starts.
+- `Expected to be running in 'ProxyZone'`: the spec runs outside the wrapped
+  `it`/`beforeEach` globals, e.g. in a callback Vitest calls directly; move it
+  into a spec or hook.
+- Failure screenshots of the fast suites land in `.vitest/attachments/`.

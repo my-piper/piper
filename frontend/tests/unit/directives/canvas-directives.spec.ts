@@ -291,7 +291,7 @@ describe("canvas directives", () => {
 
       const event = wheel(-50, false);
 
-      expect(event.defaultPrevented).toBeFalse();
+      expect(event.defaultPrevented).toBe(false);
       expect(fixture.componentInstance.zooms).toEqual([]);
     });
 
@@ -353,7 +353,7 @@ describe("canvas directives", () => {
       const typed = key("-", input);
 
       expect(fixture.componentInstance.zooms).toEqual([1.2, 1, 0.833, 1]);
-      expect(typed.defaultPrevented).toBeFalse();
+      expect(typed.defaultPrevented).toBe(false);
     });
 
     it("fits all items into the viewport, never above 100%", () => {
@@ -713,7 +713,11 @@ describe("canvas directives", () => {
     class HostComponent {
       zone = true;
       payload = { node: "catalog_node" };
-      drops: { top: number; left: number; payload: unknown }[] = [];
+      drops: {
+        top: number;
+        left: number;
+        payload: unknown;
+      }[] = [];
     }
 
     let fixture: ComponentFixture<HostComponent>;

@@ -13,18 +13,7 @@ import { guardConsole, takeConsoleProblems } from "./console";
  * - console.error calls not declared with `expectConsoleError()` fail it.
  */
 
-// Same-origin paths the Karma runner needs.
-const ALLOWED_PATHS = [/^\/base\//, /^\/absolute\//];
-
 const violations: string[] = [];
-
-function isAllowed(url: string | URL): boolean {
-  const parsed = new URL(String(url), location.href);
-  if (parsed.origin !== location.origin) {
-    return false;
-  }
-  return ALLOWED_PATHS.some((pattern) => pattern.test(parsed.pathname));
-}
 
 function reject(kind: string, url: string | URL): never {
   const message = `Unexpected ${kind} request to ${String(url)} — use HttpTestingController or a test double`;
@@ -38,35 +27,17 @@ export function takeNetworkViolations(): string[] {
 }
 
 function guardNetwork() {
-  const originalFetch = window.fetch.bind(window);
-  window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+  window.fetch = (input: RequestInfo | URL) => {
     const url = input instanceof Request ? input.url : input;
-    if (!isAllowed(url)) {
-      try {
-        reject("fetch", url);
-      } catch (e) {
-        return Promise.reject(e);
-      }
+    try {
+      reject("fetch", url);
+    } catch (e) {
+      return Promise.reject(e);
     }
-    return originalFetch(input, init);
   };
 
-  const originalOpen = XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open = function (
-    this: XMLHttpRequest,
-    method: string,
-    url: string | URL,
-    ...rest: unknown[]
-  ) {
-    if (!isAllowed(url)) {
-      reject(`XMLHttpRequest ${method}`, url);
-    }
-    return (originalOpen as (...args: unknown[]) => void).call(
-      this,
-      method,
-      url,
-      ...rest,
-    );
+  XMLHttpRequest.prototype.open = function (method: string, url: string | URL) {
+    reject(`XMLHttpRequest ${method}`, url);
   } as typeof XMLHttpRequest.prototype.open;
 
   window.WebSocket = class {
@@ -97,9 +68,16 @@ function bodyElements(): Element[] {
   );
 }
 
+// The setup file runs again for every spec file; the global guards must wrap
+// fetch/console only once, while the hooks belong to each file.
+let guarded = false;
+
 export function installIsolation() {
-  guardNetwork();
-  guardConsole();
+  if (!guarded) {
+    guarded = true;
+    guardNetwork();
+    guardConsole();
+  }
   const baseline = new Set(bodyElements());
 
   beforeEach(() => {
@@ -112,10 +90,8 @@ export function installIsolation() {
   });
 
   afterEach(() => {
-    const network = takeNetworkViolations();
-    if (network.length > 0) {
-      fail(network.join("\n"));
-    }
+    // Every check runs, so one spec reports all of its isolation problems.
+    const failures = takeNetworkViolations();
 
     // Tear down TestBed now so leftovers below are real leaks, not fixtures
     // Angular's own afterEach would remove a moment later.
@@ -123,7 +99,7 @@ export function installIsolation() {
     const leaked = bodyElements().filter((e) => !baseline.has(e));
     if (leaked.length > 0) {
       leaked.forEach((e) => e.remove());
-      fail(
+      failures.push(
         `Spec left ${leaked.length} element(s) attached to <body>: ${leaked
           .map((e) => e.tagName.toLowerCase())
           .join(", ")}`,
@@ -131,9 +107,10 @@ export function installIsolation() {
     }
 
     // Checked after teardown so errors logged while destroying count too.
-    const problems = takeConsoleProblems();
-    if (problems.length > 0) {
-      fail(problems.join("\n"));
+    failures.push(...takeConsoleProblems());
+
+    if (failures.length > 0) {
+      throw new Error(failures.join("\n"));
     }
   });
 }

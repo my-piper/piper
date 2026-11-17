@@ -172,8 +172,8 @@ describe("EditPipelineEnvironmentComponent", () => {
     expect(request.request.body).toEqual({
       variables: { OPENAI_KEY: "sk-new", API_URL: "http://new.piper.test" },
     });
-    expect(busy).toBeTrue();
-    expect(button("Save").disabled).toBeFalse();
+    expect(busy).toBe(true);
+    expect(button("Save").disabled).toBe(false);
     expect(toPlain(project.environment)).toEqual({
       variables: { RETRIES: 5 },
     });

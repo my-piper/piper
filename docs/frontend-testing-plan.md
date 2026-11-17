@@ -910,6 +910,35 @@ other than Chromium, mobile viewports, pixel snapshots.
   any save (`!!value`); edit-pipeline-environment never rendered save/clear
   errors (no `<app-informer>`).
 
+### 2026-11-17: Karma/Jasmine replaced by Vitest (#90)
+
+- `ng test` uses `@angular/build:unit-test` with Vitest 5 in browser mode
+  (headless Playwright Chromium, `@vitest/browser-playwright`); see
+  [ADR 0002](adr/0002-vitest-browser-mode-with-zone-testing.md). The `test`
+  build configuration compiles JIT without global styles (as Karma did) and
+  loads `zone.js` and `reflect-metadata` as polyfills.
+- Specs ported with `ng g @schematics/angular:refactor-jasmine-vitest`
+  (`toBeTrue` → `toBe(true)`, `spyOn` → `vi.spyOn`, `jasmine.*` →
+  `expect.*`/`vi.fn`), plus by hand: the local HTTP-error helper the schematic
+  took for Jasmine's `fail` is now `respondWithError`, one `toHaveClass` became
+  a `classList` check, and `helpers/isolation.ts` reports all of its
+  violations in one thrown error instead of `fail()`.
+- Kept from Jasmine: random order (`sequence.shuffle`), failing specs without
+  assertions (`expect.requireAssertions`), 10 s timeout, spies restored after
+  each spec (`restoreMocks`), and zone.js `fakeAsync` — every spec and hook
+  runs in a ProxyZone (`helpers/proxy-zone.ts`) and a Vite plugin lowers
+  `async`/`await` in dependencies so the fake clock controls them.
+- Coverage (istanbul) floors moved to `frontend/vitest.config.ts`. Vitest's
+  istanbul instruments the built bundle and maps it back, so branch counts
+  differ from karma-coverage. Measured on 2026-11-17 (391 specs): global
+  66.6/60.8/57.8/65.8; two per-file branch floors no longer held and were
+  lowered a few points under the new measurement — login 85 → 72 (4 branches,
+  75%; the uncovered one is the constant `ENV_MODE` check) and playground
+  85 → 73 (76%). Every other floor is unchanged.
+- Evidence (local, macOS, Node 22): 391/391 on five shuffled runs;
+  `npm run test:coverage` exit 0; a probe spec without assertions, one leaving
+  an element on `<body>` and one calling `fetch` each failed.
+
 ## Suggested next-agent assignment
 
 Push the branch and watch the `frontend-tests` job. If it passes and blocks

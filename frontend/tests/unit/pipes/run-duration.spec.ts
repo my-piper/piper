@@ -10,9 +10,9 @@ describe("formatRunDuration", () => {
       [0, "0ms"],
       [350, "350ms"],
       [4240, "4.2s"],
-      [42_400, "42s"],
-      [185_000, "3m 05s"],
-      [4_800_000, "1h 20m"],
+      [42400, "42s"],
+      [185000, "3m 05s"],
+      [4800000, "1h 20m"],
     ];
 
     const formatted = cases.map(([ms]) => formatRunDuration(ms));

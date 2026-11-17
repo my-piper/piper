@@ -11,8 +11,8 @@ function stubColorScheme(light: boolean) {
     addEventListener: (_: string, listener: SchemeListener) =>
       listeners.push(listener),
   };
-  spyOn(window, "matchMedia").and.returnValue(
-    media as unknown as MediaQueryList
+  vi.spyOn(window, "matchMedia").mockReturnValue(
+    media as unknown as MediaQueryList,
   );
   return {
     change: (next: boolean) => {
@@ -95,7 +95,9 @@ describe("ThemeManager", () => {
 
 describe("applyMonacoTheme", () => {
   let initialTheme: string | undefined;
-  const global = window as unknown as { monaco?: unknown };
+  const global = window as unknown as {
+    monaco?: unknown;
+  };
 
   beforeEach(() => {
     initialTheme = documentTheme();
@@ -107,7 +109,7 @@ describe("applyMonacoTheme", () => {
   });
 
   it("maps the document theme to the Monaco theme", () => {
-    const setTheme = jasmine.createSpy("setTheme");
+    const setTheme = vi.fn().mockName("setTheme");
     global.monaco = { editor: { setTheme } };
     document.documentElement.dataset["theme"] = "light";
 
@@ -115,7 +117,7 @@ describe("applyMonacoTheme", () => {
     document.documentElement.dataset["theme"] = "dark";
     applyMonacoTheme();
 
-    expect(setTheme.calls.allArgs()).toEqual([["vs"], ["vs-dark"]]);
+    expect(vi.mocked(setTheme).mock.calls).toEqual([["vs"], ["vs-dark"]]);
   });
 
   it("does nothing before Monaco is loaded", () => {

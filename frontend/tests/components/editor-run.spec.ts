@@ -80,10 +80,10 @@ describe("EditPipelineVisualComponent runs", () => {
 
     expect(request.request.method).toBe("POST");
     expect(request.request.body).toEqual({ options: { bucket: "outputs" } });
-    expect(busy).toBeTrue();
+    expect(busy).toBe(true);
     expect(editor.editor.launch).toBeInstanceOf(Launch);
     expect(editor.editor.launch._id).toBe(LAUNCH_ID);
-    expect(editor.editor.progress.launching).toBeFalse();
+    expect(editor.editor.progress.launching).toBe(false);
     expect(editor.router.url).toContain(`launch=${LAUNCH_ID}`);
     expect(
       runButton(element)
@@ -137,8 +137,8 @@ describe("EditPipelineVisualComponent runs", () => {
       "Please, top up your balance",
     );
     expect(editor.editor.launch).toBeFalsy();
-    expect(editor.editor.progress.launching).toBeFalse();
-    expect(runButton(element).classList.contains("busy")).toBeFalse();
+    expect(editor.editor.progress.launching).toBe(false);
+    expect(runButton(element).classList.contains("busy")).toBe(false);
     controller.verify();
     finish();
   }));
@@ -161,9 +161,9 @@ describe("EditPipelineVisualComponent runs", () => {
     detectChanges();
 
     expect(interrupt.request.method).toBe("POST");
-    expect(interrupting).toBeTrue();
+    expect(interrupting).toBe(true);
     expect(editor.editor.launch).toBeNull();
-    expect(editor.editor.progress.interrupting).toBeFalse();
+    expect(editor.editor.progress.interrupting).toBe(false);
     expect(editor.router.url).not.toContain("launch=");
     controller.verify();
     finish();
@@ -187,7 +187,7 @@ describe("EditPipelineVisualComponent runs", () => {
     detectChanges();
 
     expect(editor.editor.launch._id).toBe(LAUNCH_ID);
-    expect(editor.editor.progress.interrupting).toBeFalse();
+    expect(editor.editor.progress.interrupting).toBe(false);
     expect(element.querySelector("app-informer")).not.toBeNull();
     controller.verify();
     finish();
@@ -238,11 +238,11 @@ describe("EditPipelineVisualComponent runs", () => {
       inclusive: { nodes: ["node_two"] },
     });
     expect(editor.editor.launches["node_two"]._id).toBe("launch_node_two");
-    expect(editor.editor.progress.nodes.launching["node_two"]).toBeFalse();
+    expect(editor.editor.progress.nodes.launching["node_two"]).toBe(false);
     expect(decodeURIComponent(editor.router.url)).toContain(
       "launches=node_two:launch_node_two",
     );
-    expect(reads.every((url) => url.includes("launch_node_two"))).toBeTrue();
+    expect(reads.every((url) => url.includes("launch_node_two"))).toBe(true);
     expect(editor.socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toContain(
       "launch_node_two",
     );
@@ -296,7 +296,7 @@ describe("EditPipelineVisualComponent runs", () => {
       socket.listenerCount("user_balance_updated"),
     );
     expect(live.rooms.get(USER_IDS.owner).size).toBe(1);
-    expect(live.rooms.has(LAUNCH_ID)).toBeFalse();
+    expect(live.rooms.has(LAUNCH_ID)).toBe(false);
     expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([LAUNCH_ID]);
     controller.verify();
     finish();

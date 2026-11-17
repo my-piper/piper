@@ -1,15 +1,14 @@
-// Fast-suite entry point. Polyfills (zone.js, zone.js/testing,
-// @angular/localize/init and reflect-metadata, which must be evaluated before
-// any decorated model is imported) are loaded by angular.json before this file.
+// Fast-suite setup file (angular.json `setupFiles`). Before it, `ng test`
+// loads the polyfills of the `test` build configuration (zone.js and
+// reflect-metadata, which must be evaluated before any decorated model is
+// imported), zone.js/testing and @angular/localize/init, and initializes
+// TestBed with errorOnUnknownElements/errorOnUnknownProperties and
+// destroy-after-each teardown.
 import {
   provideNgReflectAttributes,
   provideZoneChangeDetection,
 } from "@angular/core";
-import { getTestBed, TestBed } from "@angular/core/testing";
-import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from "@angular/platform-browser-dynamic/testing";
+import { TestBed } from "@angular/core/testing";
 import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
 import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
 import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
@@ -18,16 +17,11 @@ import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { TickerPipe } from "src/pipes/ticker.pipe";
 import { installIsolation } from "./helpers/isolation";
 import { asJitPipes } from "./helpers/jit";
+import { installProxyZone } from "./helpers/proxy-zone";
 
-getTestBed().initTestEnvironment(
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting(),
-  {
-    teardown: { destroyAfterEach: true, rethrowErrors: true },
-    errorOnUnknownElements: true,
-    errorOnUnknownProperties: true,
-  },
-);
+// First, so the hooks below and every spec run in a ProxyZone like under
+// Jasmine (helpers/proxy-zone.ts).
+installProxyZone();
 
 // Every pipe that extends the UntilDestroyed directive base inherits a
 // standalone `ɵdir`. Since Angular 20 the JIT dependency tracker treats a
@@ -55,7 +49,7 @@ beforeEach(() => {
 });
 
 // The app's index.html always sets <base href>, from which APP_BASE_HREF is
-// derived; Karma's context page has none, so provide the root one.
+// derived; the Vitest tester page has none, so provide the root one.
 if (!document.querySelector("base")) {
   const base = document.createElement("base");
   base.href = "/";

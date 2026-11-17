@@ -48,7 +48,10 @@ function setup() {
 }
 
 function capture(source: Observable<unknown>) {
-  const result: { value?: unknown; error?: unknown } = {};
+  const result: {
+    value?: unknown;
+    error?: unknown;
+  } = {};
   source.subscribe({
     next: (value) => (result.value = value),
     error: (error) => (result.error = error),
@@ -114,7 +117,7 @@ describe("HttpService", () => {
       const req = controller.expectOne("/api/me");
       req.flush({});
 
-      expect(req.request.headers.has("user-token")).toBeFalse();
+      expect(req.request.headers.has("user-token")).toBe(false);
       controller.verify();
     });
 
@@ -149,7 +152,7 @@ describe("HttpService", () => {
       expect(multipart.request.method).toBe("PATCH");
       expect(multipart.request.body).toBe(form);
       expect(multipart.request.detectContentTypeHeader()).toBeNull();
-      expect(multipart.request.headers.has("Content-Type")).toBeFalse();
+      expect(multipart.request.headers.has("Content-Type")).toBe(false);
       controller.verify();
     });
 
@@ -172,11 +175,15 @@ describe("HttpService", () => {
   });
 
   describe("errors", () => {
-    beforeEach(() => spyOn(console, "error"));
+    beforeEach(() => vi.spyOn(console, "error").mockReturnValue(undefined));
 
-    function fail(status: number, body: unknown = null, statusText = "Err") {
+    function respondWithError(
+      status: number,
+      body: unknown = null,
+      statusText = "Err",
+    ) {
       const { http, controller, config, router } = setup();
-      const navigate = spyOn(router, "navigate").and.resolveTo(true);
+      const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
       const result = capture(http.get("projects/p1"));
       controller
         .expectOne("/api/projects/p1")
@@ -200,7 +207,7 @@ describe("HttpService", () => {
     it("maps a 400 text body (revision conflict) to DataError", () => {
       const conflict = revisionConflict("rev_9");
 
-      const { error } = fail(conflict.status, conflict.body);
+      const { error } = respondWithError(conflict.status, conflict.body);
 
       expect(error).toBeInstanceOf(DataError);
       expect(error.message).toBe(
@@ -211,7 +218,7 @@ describe("HttpService", () => {
     it("maps a 400 object body to DataError with details", () => {
       const invalid = schemaInvalid();
 
-      const { error } = fail(invalid.status, invalid.body);
+      const { error } = respondWithError(invalid.status, invalid.body);
 
       expect(error).toBeInstanceOf(DataError);
       expect(error.message).toBe("Pipeline schema invalid");
@@ -221,12 +228,13 @@ describe("HttpService", () => {
     it("clears authorization and redirects home on 401", () => {
       seedAuthorization(userPlain("owner"));
 
-      const { error, config, navigate } = fail(401, "Unauthorized");
+      const { error, config, navigate } = respondWithError(401, "Unauthorized");
 
       expect(error).toBeInstanceOf(UnauthorizedError);
       expect(config.authorization).toBeNull();
       expect(localStorage.getItem(AUTHORIZATION_KEY)).toBeNull();
-      expect(navigate).toHaveBeenCalledOnceWith(["/"]);
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(["/"]);
     });
 
     const mapped: [number, new (...args: never[]) => Error][] = [
@@ -239,7 +247,7 @@ describe("HttpService", () => {
 
     for (const [status, type] of mapped) {
       it(`maps ${status} to ${type.name}`, () => {
-        const { error, navigate } = fail(status, "message");
+        const { error, navigate } = respondWithError(status, "message");
 
         expect(error).toBeInstanceOf(type);
         expect(navigate).not.toHaveBeenCalled();
@@ -247,7 +255,7 @@ describe("HttpService", () => {
     }
 
     it("maps other 5xx to a service-offline InternalError", () => {
-      const { error } = fail(503, "<html>bad gateway</html>");
+      const { error } = respondWithError(503, "<html>bad gateway</html>");
 
       expect(error).toBeInstanceOf(InternalError);
       expect(error.message).toBe(
@@ -256,7 +264,7 @@ describe("HttpService", () => {
     });
 
     it("maps an unmapped 4xx to a plain Error with the server message", () => {
-      const { error } = fail(403, "Forbidden for you");
+      const { error } = respondWithError(403, "Forbidden for you");
 
       expect(error.constructor).toBe(Error);
       expect(error.message).toBe("Forbidden for you");
@@ -265,7 +273,7 @@ describe("HttpService", () => {
     it("keeps authorization on non-401 errors", () => {
       seedAuthorization(userPlain("owner"));
 
-      const { config } = fail(500, "boom");
+      const { config } = respondWithError(500, "boom");
 
       expect(config.authorization.token).toBe(FAKE_TOKEN);
     });

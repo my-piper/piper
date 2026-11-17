@@ -59,7 +59,7 @@ describe("fixture contracts", () => {
         const valid = validate(factory());
 
         expect(validate.errors).toBeNull();
-        expect(valid).toBeTrue();
+        expect(valid).toBe(true);
       });
     }
 
@@ -69,7 +69,7 @@ describe("fixture contracts", () => {
       const valid = validate(toPlain(smallGraph()));
 
       expect(validate.errors).toBeNull();
-      expect(valid).toBeTrue();
+      expect(valid).toBe(true);
     });
 
     it("validates launch request inputs/nodes/inclusive against the schema", () => {
@@ -83,7 +83,7 @@ describe("fixture contracts", () => {
 
       expect(options).toEqual({ bucket: "outputs" });
       expect(validate.errors).toBeNull();
-      expect(valid).toBeTrue();
+      expect(valid).toBe(true);
     });
 
     it("rejects a pipeline node without its required title", () => {
@@ -93,7 +93,7 @@ describe("fixture contracts", () => {
       };
       delete pipeline.nodes["node_one"]["title"];
 
-      expect(validate(pipeline)).toBeFalse();
+      expect(validate(pipeline)).toBe(false);
     });
   });
 
@@ -130,7 +130,7 @@ describe("fixture contracts", () => {
       const plain = json(toPlain(projectA()));
 
       expect(plain.createdAt).toBe("2026-02-01T10:00:00.000Z");
-      expect(plain.pipeline.nodes.node_one.inputs.prompt.featured).toBeTrue();
+      expect(plain.pipeline.nodes.node_one.inputs.prompt.featured).toBe(true);
     });
 
     it("drops unknown and unexposed properties", () => {
@@ -142,8 +142,8 @@ describe("fixture contracts", () => {
 
       const project = toInstance(plain, Project);
 
-      expect("secret" in project).toBeFalse();
-      expect("internal" in project.pipeline).toBeFalse();
+      expect("secret" in project).toBe(false);
+      expect("internal" in project.pipeline).toBe(false);
     });
 
     it("keeps empty collections as empty Maps and missing optionals absent", () => {
@@ -175,7 +175,12 @@ describe("fixture contracts", () => {
       // class-transformer skips such keys: a port named `size`, `get` or
       // `keys` silently disappears (follow-up in the testing plan).
       const plain = smallGraphPipeline() as {
-        nodes: Record<string, { inputs: Record<string, unknown> }>;
+        nodes: Record<
+          string,
+          {
+            inputs: Record<string, unknown>;
+          }
+        >;
       };
       plain.nodes["node_two"].inputs["size"] = {
         title: "Size",
@@ -184,8 +189,8 @@ describe("fixture contracts", () => {
 
       const pipeline = toInstance(plain, Pipeline);
 
-      expect(pipeline.nodes.get("node_two").inputs.has("size")).toBeFalse();
-      expect(pipeline.nodes.get("node_two").inputs.has("count")).toBeTrue();
+      expect(pipeline.nodes.get("node_two").inputs.has("size")).toBe(false);
+      expect(pipeline.nodes.get("node_two").inputs.has("count")).toBe(true);
     });
 
     it("converts flow transformers into typed instances", () => {
@@ -201,7 +206,9 @@ describe("fixture contracts", () => {
 
   describe("launch request falsy values", () => {
     it("distinguishes absent, null, false, zero and empty string", () => {
-      const plain = launchRequestPlain() as { inputs: Record<string, unknown> };
+      const plain = launchRequestPlain() as {
+        inputs: Record<string, unknown>;
+      };
       plain.inputs["nothing"] = null;
 
       const request = toInstance(plain, LaunchRequest);
@@ -211,7 +218,7 @@ describe("fixture contracts", () => {
       expect(request.inputs.get("off")).toBe(false);
       expect(request.inputs.get("empty")).toBe("");
       expect(request.inputs.get("nothing")).toBeNull();
-      expect(request.inputs.has("absent")).toBeFalse();
+      expect(request.inputs.has("absent")).toBe(false);
       expect(back.inputs).toEqual({
         topic: "Cats",
         zero: 0,
@@ -244,7 +251,7 @@ describe("fixture contracts", () => {
       expect(a.revision).not.toBe(b.revision);
       expect(a.createdBy._id).not.toBe(b.createdBy._id);
       expect(b.pipeline.nodes.get("node_one").title).toBe("Generate text");
-      expect(b.pipeline.nodes.has("node_two")).toBeTrue();
+      expect(b.pipeline.nodes.has("node_two")).toBe(true);
       expect(b.launchRequest.inputs.get("topic")).toBe("Cats");
       expect(b.environment.variables.size).toBe(2);
     });
@@ -269,7 +276,9 @@ describe("fixture contracts", () => {
       project.pipeline.start.nodes.push("node_two");
 
       const delta = diff(before, toPlain(project.pipeline));
-      const rebuilt = patch(baseline, delta) as { nodes: object };
+      const rebuilt = patch(baseline, delta) as {
+        nodes: object;
+      };
 
       expect(PATCH_PROJECT_URL(project._id, project.revision)).toBe(
         "/api/projects/project_aaaa/patch/rev_a_1",

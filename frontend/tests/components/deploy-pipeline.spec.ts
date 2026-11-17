@@ -49,7 +49,10 @@ describe("DeployPipelineComponent", () => {
   function setup({
     user = "owner",
     project = projectA(),
-  }: { user?: UserKind; project?: Project } = {}) {
+  }: {
+    user?: UserKind;
+    project?: Project;
+  } = {}) {
     seedAuthorization(userPlain(user));
     asJitPipes(TickerPipe);
     TestBed.configureTestingModule({
@@ -155,13 +158,13 @@ describe("DeployPipelineComponent", () => {
     const project = setup();
     list();
     const manager = TestBed.inject(ProjectManager);
-    const markDirty = spyOn(manager, "markDirty");
+    const markDirty = vi.spyOn(manager, "markDirty").mockReturnValue(undefined);
 
     editJson(element, { prefix: USER_IDS.owner, slug: "first" });
     tick(500);
     editJson(element, { prefix: USER_IDS.owner, slug: "second" });
     tick(999);
-    const early = markDirty.calls.count();
+    const early = vi.mocked(markDirty).mock.calls.length;
     tick(1);
 
     expect(early).toBe(0);
@@ -191,8 +194,8 @@ describe("DeployPipelineComponent", () => {
       prefix: USER_IDS.owner,
       slug: "fresh",
     });
-    expect(busy).toBeTrue();
-    expect(fixture.componentInstance.progress.deploying).toBeFalse();
+    expect(busy).toBe(true);
+    expect(fixture.componentInstance.progress.deploying).toBe(false);
     expect(rows()).toEqual(["user_owner/fresh"]);
     finish();
   }));
@@ -215,7 +218,7 @@ describe("DeployPipelineComponent", () => {
     expect(element.querySelector("app-informer p").textContent.trim()).toBe(
       "You can't deploy this project in this prefix",
     );
-    expect(fixture.componentInstance.progress.deploying).toBeFalse();
+    expect(fixture.componentInstance.progress.deploying).toBe(false);
     finish();
   }));
 
@@ -234,7 +237,7 @@ describe("DeployPipelineComponent", () => {
     list([deploysPlain()[1]]);
 
     expect(request.request.method).toBe("DELETE");
-    expect(busy).toBeTrue();
+    expect(busy).toBe(true);
     expect(rows()).toEqual(["global-graph"]);
     finish();
   }));
@@ -268,7 +271,7 @@ describe("DeployPipelineComponent", () => {
       "Forbidden",
     );
     expect(rows().length).toBe(2);
-    expect(removeButtons()[0].classList.contains("busy")).toBeFalse();
+    expect(removeButtons()[0].classList.contains("busy")).toBe(false);
     finish();
   }));
 });

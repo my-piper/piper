@@ -122,7 +122,10 @@ describe("LaunchOutputsComponent", () => {
 
 type RouteData = {
   launch: Launch;
-  node: { id: string; node: unknown };
+  node: {
+    id: string;
+    node: unknown;
+  };
 };
 
 /** Components under the node drawer read `{ launch, node: { id, node } }`. */
@@ -217,9 +220,9 @@ describe("NodeOutputsComponent", () => {
       `${base}/outputs`,
       `${base}/status`,
     ]);
-    expect(
-      view.element.querySelector("li").classList.contains("filled"),
-    ).toBeTrue();
+    expect(view.element.querySelector("li").classList.contains("filled")).toBe(
+      true,
+    );
     view.controller.verify();
     finish();
   }));

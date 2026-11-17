@@ -108,7 +108,7 @@ describe("ProjectComponent save errors", () => {
   }
 
   it("shows a failed save, keeps the project and recovers on retry", fakeAsync(async () => {
-    spyOn(console, "error");
+    vi.spyOn(console, "error").mockReturnValue(undefined);
     const { harness, controller, project } = await render();
     harness.navigateByUrl(`/projects/${PROJECT_A_ID}`);
     tick();

@@ -47,7 +47,12 @@ function projectWithoutNodeValues(): Project {
 /** node_two with a dynamic "Image #" input that users can clone. */
 function dynamicProject(): Project {
   const pipeline = smallGraphPipeline() as {
-    nodes: Record<string, { inputs: Record<string, Plain> }>;
+    nodes: Record<
+      string,
+      {
+        inputs: Record<string, Plain>;
+      }
+    >;
   };
   pipeline.nodes["node_two"].inputs["image"] = {
     order: 5,
@@ -133,7 +138,7 @@ describe("EditNodeInputsComponent", () => {
       ).map((e) => e.textContent.trim().split("\n")[0].trim());
 
       expect(title().value).toBe("Make JSON");
-      expect(start().checked).toBeFalse();
+      expect(start().checked).toBe(false);
       expect(titles).toEqual(["Text", "Flag", "Count", "Label"]);
       finish();
     }));
@@ -141,7 +146,7 @@ describe("EditNodeInputsComponent", () => {
     it("reflects a start node and a stored zero over the default", fakeAsync(() => {
       const { start, field } = setup("node_one");
 
-      expect(start().checked).toBeTrue();
+      expect(start().checked).toBe(true);
       expect(field("Temperature").value).toBe("0");
       finish();
     }));
@@ -150,7 +155,7 @@ describe("EditNodeInputsComponent", () => {
       const { field } = setup("node_two", projectWithoutNodeValues());
 
       expect(field("Count").value).toBe("0");
-      expect(field("Flag").checked).toBeFalse();
+      expect(field("Flag").checked).toBe(false);
       finish();
     }));
 
@@ -213,7 +218,7 @@ describe("EditNodeInputsComponent", () => {
 
       expect(launchInputs().get("label")).toBe("Tag");
       expect(launchInputs().get("count")).toBe(7);
-      expect(launchInputs().get("flag")).toBeTrue();
+      expect(launchInputs().get("flag")).toBe(true);
       finish();
     }));
 
@@ -222,7 +227,7 @@ describe("EditNodeInputsComponent", () => {
 
       type(field("Label"), "");
 
-      expect(launchInputs().has("label")).toBeFalse();
+      expect(launchInputs().has("label")).toBe(false);
       finish();
     }));
 
@@ -231,7 +236,7 @@ describe("EditNodeInputsComponent", () => {
 
       type(field("Count"), "");
 
-      expect(launchInputs().has("count")).toBeFalse();
+      expect(launchInputs().has("count")).toBe(false);
       finish();
     }));
 
@@ -271,7 +276,7 @@ describe("EditNodeInputsComponent", () => {
       const featured = label().featured;
       click(toggle());
 
-      expect(featured).toBeTrue();
+      expect(featured).toBe(true);
       expect(label().featured).toBeUndefined();
       finish();
     }));
@@ -298,8 +303,8 @@ describe("EditNodeInputsComponent", () => {
 
       expect(clones).toEqual(["image_1", "image_2"]);
       expect(titles).toEqual(["Image 1", "Image 2"]);
-      expect(inputs.has("image_1")).toBeFalse();
-      expect(inputs.get("image_2").cloned).toBeTrue();
+      expect(inputs.has("image_1")).toBe(false);
+      expect(inputs.get("image_2").cloned).toBe(true);
       expect(status).toBe("dirty");
       finish();
     }));
@@ -324,11 +329,11 @@ describe("EditNodeInputsComponent", () => {
   describe("tools", () => {
     it("opens the script editor for the node", fakeAsync(() => {
       const { component, router } = setup("node_two");
-      const navigate = spyOn(router, "navigate").and.resolveTo(true);
+      const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
 
       component.edit();
 
-      const [commands] = navigate.calls.mostRecent().args;
+      const [commands] = vi.mocked(navigate).mock.lastCall;
       expect(commands).toEqual([
         { outlets: { primary: ["nodes", "node_two", "edit", "script"] } },
       ]);

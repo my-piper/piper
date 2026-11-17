@@ -19,7 +19,9 @@ function meDouble(current: User | null) {
       return user$.getValue();
     },
   };
-  return me as unknown as MeManager & { user$: BehaviorSubject<User | null> };
+  return me as unknown as MeManager & {
+    user$: BehaviorSubject<User | null>;
+  };
 }
 
 function projectManagerDouble() {
@@ -53,7 +55,7 @@ describe("domain pipes", () => {
         "<strong>here</strong>",
       );
       expect(variables.properties["RETRIES"].description).toBeNull();
-      expect(variables.additionalProperties).toBeFalse();
+      expect(variables.additionalProperties).toBe(false);
     });
 
     it("returns an empty variables schema when no node declares environment", () => {
@@ -99,8 +101,8 @@ describe("domain pipes", () => {
 
       me.user$.next(user("admin"));
 
-      expect(before).toBeFalse();
-      expect(can.getValue()).toBeTrue();
+      expect(before).toBe(false);
+      expect(can.getValue()).toBe(true);
     });
 
     it("accepts repeated calls without an owner", () => {
@@ -109,7 +111,7 @@ describe("domain pipes", () => {
 
       const can = pipe.transform(UserRole.admin) as BehaviorSubject<boolean>;
 
-      expect(can.getValue()).toBeTrue();
+      expect(can.getValue()).toBe(true);
     });
   });
 

@@ -85,7 +85,7 @@ describe("ProjectsComponent tags and groups", () => {
       "#image",
       "#video",
     ]);
-    expect(list.request.params.has("tags")).toBeFalse();
+    expect(list.request.params.has("tags")).toBe(false);
     fixture.destroy();
     finish();
   }));
@@ -120,7 +120,7 @@ describe("ProjectsComponent tags and groups", () => {
     answer(cleared, [taggedProject()]);
 
     expect(selected.request.params.getAll("tags")).toEqual(["image"]);
-    expect(cleared.request.params.has("tags")).toBeFalse();
+    expect(cleared.request.params.has("tags")).toBe(false);
     fixture.destroy();
     finish();
   }));
@@ -139,7 +139,7 @@ describe("ProjectsComponent tags and groups", () => {
       ["Sales", "3"],
     ]);
     expect(list.request.params.get("ungrouped")).toBe("true");
-    expect(list.request.params.has("group")).toBeFalse();
+    expect(list.request.params.has("group")).toBe(false);
     fixture.destroy();
     finish();
   }));
@@ -161,7 +161,7 @@ describe("ProjectsComponent tags and groups", () => {
     fixture.detectChanges();
 
     expect(opened.request.params.get("group")).toBe("Sales");
-    expect(opened.request.params.has("ungrouped")).toBeFalse();
+    expect(opened.request.params.has("ungrouped")).toBe(false);
     expect(nested).toBe(1);
     expect(more.request.params.get("cursor")).toBe("c1");
     expect(moreAfterEmpty).toBe(0);
@@ -192,11 +192,11 @@ describe("ProjectsComponent tags and groups", () => {
     answer(root, []);
     answer(opened, [taggedProject()]);
 
-    expect(found.request.params.has("ungrouped")).toBeFalse();
+    expect(found.request.params.has("ungrouped")).toBe(false);
     expect(folders).toBe(0);
     expect(groupText).toBe("Marketing");
     expect(root.request.params.get("ungrouped")).toBe("true");
-    expect(root.request.params.has("tags")).toBeFalse();
+    expect(root.request.params.has("tags")).toBe(false);
     expect(element.querySelectorAll("tr.nested").length).toBe(1);
     fixture.destroy();
     finish();

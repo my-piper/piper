@@ -17,6 +17,7 @@ export default tseslint.config(
       "playwright-report/**",
       "src/ui-kit/**",
       "*.config.mjs",
+      ".vitest/**",
     ],
   },
   eslint.configs.recommended,
@@ -43,31 +44,11 @@ export default tseslint.config(
     },
   },
   {
-    files: ["**/*.cjs"],
-    languageOptions: {
-      sourceType: "commonjs",
-      globals: {
-        require: "readonly",
-        module: "writable",
-        __dirname: "readonly",
-        process: "readonly",
-      },
-    },
-    rules: {
-      "@typescript-eslint/no-require-imports": "off",
-    },
-  },
-  {
     // A focused test silently skips the rest of the suite in CI.
     files: ["tests/**"],
     rules: {
       "no-restricted-syntax": [
         "error",
-        {
-          selector: "CallExpression[callee.name=/^f(describe|it)$/]",
-          message:
-            "Commit the whole suite: replace fdescribe/fit with describe/it.",
-        },
         {
           selector: "MemberExpression[property.name='only']",
           message: "Commit the whole suite: remove .only.",

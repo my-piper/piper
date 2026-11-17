@@ -82,7 +82,7 @@ async function render(config: Partial<PlainAppConfig> = {}) {
     element,
     controller: TestBed.inject(HttpTestingController),
     router,
-    navigate: spyOn(router, "navigate").and.resolveTo(true),
+    navigate: vi.spyOn(router, "navigate").mockResolvedValue(true),
     config: TestBed.inject(AppConfig),
     captcha: fixture.debugElement.query(By.directive(HcaptchaStubComponent))
       .componentInstance as HcaptchaStubComponent,
@@ -159,8 +159,8 @@ describe("SigupComponent", () => {
         captcha: "captcha-token",
       });
       expect(request.request.responseType).toBe("text");
-      expect(busy).toBeTrue();
-      expect((button as HTMLButtonElement).disabled).toBeFalse();
+      expect(busy).toBe(true);
+      expect((button as HTMLButtonElement).disabled).toBe(false);
       expect(page.captcha.siteKey).toBe("10000000-ffff-ffff-ffff-000000000001");
       expect(page.confirmationForm()).not.toBeNull();
       page.controller.verify();
@@ -226,7 +226,8 @@ describe("SigupComponent", () => {
       expect(JSON.parse(localStorage.getItem(AUTHORIZATION_KEY)).token).toBe(
         "fake-token-owner",
       );
-      expect(page.navigate).toHaveBeenCalledOnceWith(["/play"]);
+      expect(page.navigate).toHaveBeenCalledTimes(1);
+      expect(page.navigate).toHaveBeenCalledWith(["/play"]);
       page.controller.verify();
     }));
 
@@ -250,8 +251,11 @@ describe("SigupComponent", () => {
       expect(localStorage.getItem(AUTHORIZATION_KEY)).toBeNull();
       expect(page.navigate).not.toHaveBeenCalled();
       expect(
-        page.confirmationForm().querySelector("button[type=submit]"),
-      ).not.toHaveClass("busy");
+        page
+          .confirmationForm()
+          .querySelector("button[type=submit]")
+          ?.classList.contains("busy"),
+      ).toBe(false);
       page.controller.verify();
     }));
   });

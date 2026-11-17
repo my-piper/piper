@@ -126,7 +126,7 @@ describe("LaunchesComponent", () => {
     const output = fixture.componentInstance.launches[0].outputs.get("result");
     expect(before).toBeUndefined();
     expect(output.data).toEqual(
-      jasmine.objectContaining({ value: { answer: 42 } }),
+      expect.objectContaining({ value: { answer: 42 } }),
     );
     expect(
       JSON.parse(element.querySelector(".results pre").textContent),
@@ -207,7 +207,7 @@ describe("LaunchesComponent", () => {
     expect(fixture.componentInstance.launches.map((l) => l._id)).toEqual([
       "launch_two",
     ]);
-    expect(fixture.componentInstance.progress.removing[0]).toBeFalse();
+    expect(fixture.componentInstance.progress.removing[0]).toBe(false);
     finish();
   }));
 
@@ -228,7 +228,7 @@ describe("LaunchesComponent", () => {
       socket.listenerCount("user_balance_updated"),
     );
     expect(live.rooms.get(USER_IDS.owner).size).toBe(1);
-    expect(live.rooms.has(LAUNCH_ID)).toBeFalse();
+    expect(live.rooms.has(LAUNCH_ID)).toBe(false);
     finish();
   }));
 });

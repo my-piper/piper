@@ -108,7 +108,9 @@ describe("EditPipelineYamlComponent", () => {
     save();
     tick(AUTOSAVE_DELAY);
     const request = expectPatch(controller, "project_aaaa", "rev_a_1");
-    const body = request.request.body as { pipeline: object };
+    const body = request.request.body as {
+      pipeline: object;
+    };
     request.flush(patchResponsePlain("rev_a_2"));
     tick(UI_DELAY);
 

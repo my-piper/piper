@@ -100,7 +100,7 @@ describe("LoginComponent", () => {
 
   it("signs in, stores the authorization and opens projects", fakeAsync(async () => {
     const { fixture, element, controller, router, config } = await render();
-    const navigate = spyOn(router, "navigate").and.resolveTo(true);
+    const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
     type(fixture, "identity", "owner");
     type(fixture, "password", "secret");
 
@@ -113,20 +113,21 @@ describe("LoginComponent", () => {
 
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({ identity: "owner", password: "secret" });
-    expect(busy).toBeTrue();
-    expect(submitButton(element).disabled).toBeFalse();
+    expect(busy).toBe(true);
+    expect(submitButton(element).disabled).toBe(false);
     expect(config.authorization.token).toBe("fake-token-owner");
     expect(JSON.parse(localStorage.getItem(AUTHORIZATION_KEY)).token).toBe(
       "fake-token-owner",
     );
-    expect(navigate).toHaveBeenCalledOnceWith(["/projects"]);
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith(["/projects"]);
     controller.verify();
   }));
 
   it("shows the error, resets progress and stores nothing on failure", fakeAsync(async () => {
-    spyOn(console, "error");
+    vi.spyOn(console, "error").mockReturnValue(undefined);
     const { fixture, element, controller, router, config } = await render();
-    const navigate = spyOn(router, "navigate").and.resolveTo(true);
+    const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
     type(fixture, "identity", "owner");
     type(fixture, "password", "wrong");
 
@@ -140,7 +141,7 @@ describe("LoginComponent", () => {
     expect(element.querySelector("app-informer").textContent).toContain(
       "Wrong credentials",
     );
-    expect(submitButton(element).disabled).toBeFalse();
+    expect(submitButton(element).disabled).toBe(false);
     expect(config.authorization).toBeNull();
     expect(localStorage.getItem(AUTHORIZATION_KEY)).toBeNull();
     expect(navigate).not.toHaveBeenCalled();
@@ -154,7 +155,7 @@ describe("LoginComponent", () => {
 
     const disabled = await render(RUNTIME_VARIANTS.signupOff());
 
-    expect(withSignup).toBeTrue();
+    expect(withSignup).toBe(true);
     expect(disabled.element.querySelector("a[href='/signup']")).toBeNull();
   }));
 

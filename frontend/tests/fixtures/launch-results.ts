@@ -1,6 +1,6 @@
 /**
  * Plain wire payloads for launch results, shared like `plain.ts` (no Angular,
- * Jasmine or `src/...` imports).
+ * test-runner or `src/...` imports).
  *
  * Sources (backend):
  * - POST /api/projects/:_id/launch returns the launch without `pipeline`

@@ -51,7 +51,7 @@ describe("LiveService rooms", () => {
     expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
       "launch_one",
     ]);
-    expect(live.rooms.has("launch_one")).toBeFalse();
+    expect(live.rooms.has("launch_one")).toBe(false);
   });
 
   it("keeps independent rooms independent", () => {
@@ -67,7 +67,7 @@ describe("LiveService rooms", () => {
     expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
       "launch_one",
     ]);
-    expect(live.rooms.has("launch_two")).toBeTrue();
+    expect(live.rooms.has("launch_two")).toBe(true);
   });
 
   it("treats a repeated release as a no-op", () => {
@@ -92,7 +92,7 @@ describe("LiveService rooms", () => {
 
     stale();
 
-    expect(live.rooms.has("launch_one")).toBeTrue();
+    expect(live.rooms.has("launch_one")).toBe(true);
     expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
       "launch_one",
       "launch_one",
