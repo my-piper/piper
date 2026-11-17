@@ -36,7 +36,7 @@ behaviour is covered separately by `backend/tests`.
 | `npm run test:browser:run`       | Runs the Playwright workflows against an existing `dist-browser/`                              |
 | `npm run test:browser:typecheck` | `tsc` over `tests/browser` (Node + Playwright types, no Vitest)                                |
 
-Narrow a run while iterating: `npx ng test --watch=false
+Narrow a run while iterating: `npm run test:agent --
 --include=../tests/unit/models` picks files (paths are relative to `src/`, the
 Angular source root) and `--filter "<name>"` matches suite and spec names.
 Never commit `.only`; ESLint rejects it.
