@@ -1,7 +1,7 @@
 # Backend tests
 
-Use Node.js 26 (`.nvmrc` pins 26, as do CI and production; both Vitest configs
-refuse to start on other majors), initialize the
+Use the Node.js major in the root `.nvmrc` (CI and production use it too; both
+Vitest configs read it and refuse to start on other majors), initialize the
 `core-kit` submodule, and run `npm ci` in `backend`.
 
 ```sh
@@ -111,7 +111,7 @@ thresholds in `vitest.config.ts` sit just below current coverage and fail
 `npm run test:coverage` on regressions; raise them when adding suites. Real infrastructure tests run
 separately from coverage.
 
-CI checks the test types and lint, runs coverage and integration tests on Node.js 26, uploads reports,
+CI checks the test types and lint, runs coverage and integration tests on the `.nvmrc` Node.js version, uploads reports,
 and requires the backend test job to pass before building/publishing the image.
 The focused typecheck avoids unrelated existing backend errors involving unused
 core-kit MySQL/Telegram dependencies and `packages/vm/utils`.

@@ -51,7 +51,7 @@ style.
 
 ## Run
 
-From `backend/`, on Node.js 26. The suites refuse other majors. If `node -v`
+From `backend/`, on the Node.js major in `.nvmrc`. The suites refuse other majors. If `node -v`
 reports another major version, stop and say so instead of working around it.
 
 ```sh

@@ -16,8 +16,8 @@ behaviour is covered separately by `backend/tests`.
 ## Prerequisites
 
 - Node and the frontend lockfile: `npm ci` in `frontend/`. Development and CI
-  use Node 26 (`frontend/.nvmrc`, Dockerfile); `engines` in `package.json`
-  allows `>=26 <27`.
+  use the Node major in the root `.nvmrc` (`frontend/.nvmrc` links to it; CI
+  passes it to the Dockerfile and `make check-node-version` checks `engines`).
 - Playwright's Chromium (`npx playwright install chromium`): `ng test` runs the
   fast suites in it through `@vitest/browser-playwright`, and the browser
   workflows use it too.

@@ -8,7 +8,7 @@ The project instructions are maintained in `AGENTS.md` (shared with other agents
 
 ## Additions for Claude Code
 
-- Node version is pinned in `.nvmrc` (26); backend and frontend require Node `>=26 <27`.
+- The Node major is pinned only in the root `.nvmrc`; to upgrade, change it and run `make check-node-version` to find the `engines` ranges and Dockerfile default that must follow.
 - Run a single backend test: `cd backend && npx vitest run path/to/file.test.ts` (add `-t "<name>"` to filter by test name). Integration tests: `npm run test:integration` uses `vitest.integration.config.ts`.
 - Run focused frontend tests: `cd frontend && npx ng test --watch=false --include=../tests/unit/models` (paths relative to `src/`), add `--filter "<name>"` to match test names; never commit `.only`. Playwright without rebuilding: `npm run test:browser:run -- -g "<name>"`.
 - `ARCHITECTURE.md` has the full system diagram and deeper walkthroughs of the process model and launch flow — read it before larger backend changes.

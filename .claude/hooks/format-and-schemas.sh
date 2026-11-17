@@ -26,9 +26,10 @@ fi
 case "$file" in
   "$root"/backend/schemas/compiled.json) ;;
   "$root"/backend/schemas/*.json)
+    required=$(cut -d. -f1 "$root/.nvmrc" | tr -d '[:space:]')
     major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
-    if [ "$major" -ne 26 ]; then
-      echo "Schema changed but compiled.json was NOT regenerated: backend needs Node 26 (found $(node -v 2>/dev/null)). Run 'make schemas' on Node 26 before committing." >&2
+    if [ "$major" != "$required" ]; then
+      echo "Schema changed but compiled.json was NOT regenerated: backend needs Node $required from .nvmrc (found $(node -v 2>/dev/null)). Run 'make schemas' on Node $required before committing." >&2
       exit 2
     fi
     if ! out=$(make -C "$root" schemas 2>&1); then

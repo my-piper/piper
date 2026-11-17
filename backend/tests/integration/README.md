@@ -1,6 +1,6 @@
 # Backend integration tests
 
-Use Node.js 26 (see `.nvmrc`) and a running Docker daemon with Docker Compose v2:
+Use the Node.js version in `.nvmrc` and a running Docker daemon with Docker Compose v2:
 
 ```sh
 npm run test:integration
