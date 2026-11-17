@@ -1,9 +1,8 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { HIDDEN_STRING } from "consts/core";
 import { toPlain } from "core-kit/packages/transform";
 import { Project } from "models/project";
-import { Primitive } from "types/primitive";
+import { hide } from "packages/environment/hide-environment";
 import { checkLogged, checkProjectAccess, handle, toModel } from "utils/http";
 
 api.get(
@@ -19,16 +18,8 @@ api.get(
     );
     checkProjectAccess(currentUser, project);
 
-    const { environment } = project;
-    if (environment) {
-      const { variables } = environment;
-      for (const [k, v] of variables || new Map<string, Primitive>()) {
-        switch (typeof v) {
-          case "string":
-            variables.set(k, HIDDEN_STRING);
-            break;
-        }
-      }
+    if (project.environment) {
+      hide(project.environment);
     }
 
     return toPlain(project);

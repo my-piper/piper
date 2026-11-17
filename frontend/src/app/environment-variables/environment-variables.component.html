@@ -4,6 +4,7 @@
       <th i18n="@@label.name">Name</th>
       <th i18n="@@label.type">Type</th>
       <th i18n="@@label.value">Value</th>
+      <th width="64px" i18n="@@label.secret">Secret</th>
       <th *ngIf="removable" width="48px"></th>
     </tr>
   </thead>
@@ -42,9 +43,18 @@
             formControlName="value"
             [readOnly]="meta.readonly"
             [type]="
-              variable.controls.type.value === 'string' ? 'password' : 'text'
+              variable.controls.type.value === 'string' &&
+              variable.controls.secret.value
+                ? 'password'
+                : 'text'
             "
-            [placeholder]="placeholder(meta, variable.controls.type.value)"
+            [placeholder]="
+              placeholder(
+                meta,
+                variable.controls.type.value,
+                variable.controls.secret.value
+              )
+            "
           />
           <small
             class="inherited"
@@ -65,6 +75,17 @@
               >Not set</ng-container
             >
           </small>
+        </td>
+        <td title="Secret" i18n-title="@@label.secret">
+          <div
+            class="checkbox small"
+            *ngIf="variable.controls.type.value === 'string' && !meta.readonly"
+          >
+            <label class="switch">
+              <input class="secret" type="checkbox" formControlName="secret" />
+              <span class="slider"></span>
+            </label>
+          </div>
         </td>
         <td *ngIf="removable">
           <button

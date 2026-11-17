@@ -25,7 +25,7 @@ import { asJitPipes } from "../helpers/jit";
 
 /**
  * Route data: `project`, the user `environment` (GET /api/me/environment,
- * strings masked as `[encrypted]`) and the `platform` variable names
+ * Secret Variables masked as `[encrypted]`, Visible Variables in clear) and the `platform` variable names
  * (GET /api/environment/keys). The tab edits only `project.environment`,
  * which reaches the backend through the regular project autosave; it never
  * calls the environment API itself.
@@ -56,8 +56,11 @@ function projectWithEnvironment(): Project {
   return projectWith(pipeline);
 }
 
-function userEnvironment(variables: Plain): Environment {
-  return toInstance({ variables }, Environment);
+function userEnvironment(
+  variables: Plain,
+  visible: string[] = [],
+): Environment {
+  return toInstance({ variables, visible }, Environment);
 }
 
 describe("EditPipelineEnvironmentComponent", () => {
@@ -243,6 +246,7 @@ describe("EditPipelineEnvironmentComponent", () => {
     controller.expectNone(() => true);
     expect(toPlain(project.environment)).toEqual({
       variables: { RETRIES: 5, VERBOSE: false, TOKEN: "sk-project" },
+      visible: [],
     });
     expect(manager.status.value).toBe("dirty");
     finish();
@@ -255,7 +259,10 @@ describe("EditPipelineEnvironmentComponent", () => {
     button("Save").click();
     fixture.detectChanges();
 
-    expect(toPlain(project.environment)).toEqual({ variables: {} });
+    expect(toPlain(project.environment)).toEqual({
+      variables: {},
+      visible: [],
+    });
     finish();
   }));
 
@@ -271,6 +278,76 @@ describe("EditPipelineEnvironmentComponent", () => {
     expect(input.value).toBe("");
     expect(toPlain(project.environment)).toEqual({
       variables: { RETRIES: 0, TOKEN: "[encrypted]" },
+      visible: [],
+    });
+    finish();
+  }));
+
+  it("shows the value of an inherited Visible Variable", fakeAsync(() => {
+    setup(
+      projectWithEnvironment(),
+      userEnvironment({ OPENAI_KEY: "sk-shown" }, ["OPENAI_KEY"]),
+    );
+
+    expect(
+      (row("OPENAI_KEY").querySelector("input.value") as HTMLInputElement)
+        .placeholder,
+    ).toBe("sk-shown");
+    expect(row("OPENAI_KEY").querySelector("input.secret")).toBeNull();
+    finish();
+  }));
+
+  it("shows and keeps the project's own Visible Variable", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.variables.set("TOKEN", "tk-shown");
+    project.environment.visible = ["TOKEN"];
+    setup(project);
+
+    const input = row("TOKEN").querySelector("input.value") as HTMLInputElement;
+    const shown = { value: input.value, type: input.type };
+    button("Save").click();
+    fixture.detectChanges();
+
+    expect(shown).toEqual({ value: "tk-shown", type: "text" });
+    expect(toPlain(project.environment)).toEqual({
+      variables: { RETRIES: 0, TOKEN: "tk-shown" },
+      visible: ["TOKEN"],
+    });
+    finish();
+  }));
+
+  it("saves a string Variable as visible when it isn't secret", fakeAsync(() => {
+    const project = setup();
+    type(row("TOKEN").querySelector("input.value"), "tk-new");
+    (row("TOKEN").querySelector("input.secret") as HTMLInputElement).click();
+
+    button("Save").click();
+    fixture.detectChanges();
+
+    expect(toPlain(project.environment)).toEqual({
+      variables: { RETRIES: 0, TOKEN: "tk-new" },
+      visible: ["TOKEN"],
+    });
+    finish();
+  }));
+
+  it("drops a stored secret made visible without a new value", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.variables.set("TOKEN", "[encrypted]");
+    setup(project);
+
+    (row("TOKEN").querySelector("input.secret") as HTMLInputElement).click();
+    fixture.detectChanges();
+    const placeholder = (
+      row("TOKEN").querySelector("input.value") as HTMLInputElement
+    ).placeholder;
+    button("Save").click();
+    fixture.detectChanges();
+
+    expect(placeholder).toBe("The stored value is dropped on save");
+    expect(toPlain(project.environment)).toEqual({
+      variables: { RETRIES: 0 },
+      visible: [],
     });
     finish();
   }));

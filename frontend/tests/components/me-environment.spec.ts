@@ -28,8 +28,10 @@ import { asJitPipes } from "../helpers/jit";
 
 /**
  * Wire contracts (backend/api/environment):
- * - GET /api/me/environment → `{ variables }`, strings masked as `[encrypted]`;
- * - PUT /api/me/environment `{ variables }` merges into the user environment;
+ * - GET /api/me/environment → `{ variables, visible }`, Secret Variables
+ *   masked as `[encrypted]`, Visible Variables (named in `visible`) in clear;
+ * - PUT /api/me/environment `{ variables, visible }` merges into the user
+ *   environment; a Secret Variable made visible without a value is dropped;
  * - DELETE /api/me/environment/:key removes one variable.
  */
 const ENVIRONMENT_URL = "/api/me/environment";
@@ -45,6 +47,7 @@ describe("MeEnvironmentComponent", () => {
       RETRIES: 3,
       DEBUG: true,
     },
+    visible: string[] = [],
   ) {
     asJitPipes(TickerPipe);
     TestBed.configureTestingModule({
@@ -59,7 +62,9 @@ describe("MeEnvironmentComponent", () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ environment: toInstance({ variables }, Environment) }),
+            data: of({
+              environment: toInstance({ variables, visible }, Environment),
+            }),
           },
         },
       ],
@@ -80,6 +85,19 @@ describe("MeEnvironmentComponent", () => {
       type: (row.querySelector("select.type") as HTMLSelectElement).value,
       value: (row.querySelector("input.value") as HTMLInputElement).value,
     }));
+  }
+
+  function valueInput(index: number) {
+    return row(index).querySelector("input.value") as HTMLInputElement;
+  }
+
+  function secretBox(index: number) {
+    return row(index).querySelector("input.secret") as HTMLInputElement | null;
+  }
+
+  function toggle(input: HTMLInputElement) {
+    input.click();
+    fixture.detectChanges();
   }
 
   function row(index: number) {
@@ -149,6 +167,7 @@ describe("MeEnvironmentComponent", () => {
         DEBUG: true,
         API_URL: "http://shared.piper.test",
       },
+      visible: [],
     });
     expect(rows().map(({ key }) => key)).toEqual([
       "OPENAI_KEY",
@@ -178,12 +197,77 @@ describe("MeEnvironmentComponent", () => {
     expect(rename.request.body).toEqual({ name: "OPENAI_API_KEY" });
     expect(put.request.body).toEqual({
       variables: { RETRIES: 3, DEBUG: true },
+      visible: [],
     });
     expect(rows().map(({ key }) => key)).toEqual([
       "OPENAI_API_KEY",
       "RETRIES",
       "DEBUG",
     ]);
+    finish();
+  }));
+
+  it("shows a Visible Variable's value and masks a Secret Variable's input", fakeAsync(() => {
+    setup({ OPENAI_KEY: "[encrypted]", BASE_URL: "https://a", RETRIES: 3 }, [
+      "BASE_URL",
+    ]);
+
+    expect(rows().map(({ value }) => value)).toEqual(["", "https://a", "3"]);
+    expect(valueInput(0).type).toBe("password");
+    expect(valueInput(1).type).toBe("text");
+    expect(secretBox(0)?.checked).toBe(true);
+    expect(secretBox(1)?.checked).toBe(false);
+    expect(secretBox(2)).toBeNull();
+    finish();
+  }));
+
+  it("saves a new string Variable as visible when it isn't secret", fakeAsync(() => {
+    setup({});
+    button("Add variable").click();
+    fixture.detectChanges();
+    type(row(0).querySelector("input.key"), "BASE_URL");
+    type(valueInput(0), "https://a");
+    const secretByDefault = secretBox(0)?.checked;
+    toggle(secretBox(0));
+
+    button("Save").click();
+    const put = controller.expectOne(ENVIRONMENT_URL);
+    put.flush(null);
+    settle();
+    controller.expectOne(ENVIRONMENT_URL).flush({
+      variables: { BASE_URL: "https://a" },
+      visible: ["BASE_URL"],
+    });
+    fixture.detectChanges();
+
+    expect(secretByDefault).toBe(true);
+    expect(put.request.body).toEqual({
+      variables: { BASE_URL: "https://a" },
+      visible: ["BASE_URL"],
+    });
+    expect(valueInput(0).value).toBe("https://a");
+    finish();
+  }));
+
+  it("warns that making a stored Secret Variable visible drops its value", fakeAsync(() => {
+    setup({ OPENAI_KEY: "[encrypted]" });
+
+    toggle(secretBox(0));
+    const placeholder = valueInput(0).placeholder;
+    button("Save").click();
+    const put = controller.expectOne(ENVIRONMENT_URL);
+    put.flush(null);
+    settle();
+    controller.expectOne(ENVIRONMENT_URL).flush({
+      variables: {},
+      visible: [],
+    });
+
+    expect(placeholder).toBe("The stored value is dropped on save");
+    expect(put.request.body).toEqual({
+      variables: {},
+      visible: ["OPENAI_KEY"],
+    });
     finish();
   }));
 
@@ -286,7 +370,7 @@ describe("MeEnvironmentComponent", () => {
     settle();
     controller.expectOne(ENVIRONMENT_URL).flush({ variables: {} });
 
-    expect(put.request.body).toEqual({ variables: {} });
+    expect(put.request.body).toEqual({ variables: {}, visible: [] });
     finish();
   }));
 

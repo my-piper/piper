@@ -8,6 +8,10 @@ export class Environment {
   @Transform(primitiveMapTransformer)
   variables!: PrimitiveMap;
 
+  /** Names of the Visible Variables; every other string Variable is secret. */
+  @Expose()
+  visible?: string[];
+
   constructor(defs: Partial<Environment> = {}) {
     merge(this, defs);
   }

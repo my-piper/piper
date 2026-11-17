@@ -29,6 +29,7 @@ import {
   VariableGroup,
   variableGroup,
   variableType,
+  visibleNames,
 } from "src/utils/environment";
 import { toPlain } from "src/utils/models";
 
@@ -65,12 +66,14 @@ export class MeEnvironmentComponent implements OnInit {
 
   private build(environment: Environment | null) {
     this.variables.clear();
+    const visible = new Set(environment?.visible ?? []);
     for (const [key, value] of environment?.variables || []) {
       this.variables.push(
         variableGroup(this.fb, {
           key,
           type: variableType(typeof value),
           value,
+          secret: !visible.has(key),
           meta: { stored: true, storedName: key },
         }),
       );
@@ -128,13 +131,13 @@ export class MeEnvironmentComponent implements OnInit {
   }
 
   save() {
+    const rows = this.variables.getRawValue();
     const environment = new Environment({
       variables: new Map<string, Primitive>(),
+      visible: visibleNames(rows),
     });
     const renames: Observable<unknown>[] = [];
-    for (const [i, { key, type, value, meta }] of this.variables
-      .getRawValue()
-      .entries()) {
+    for (const [i, { key, type, value, meta }] of rows.entries()) {
       if (meta.storedName && meta.storedName !== key) {
         renames.push(this.rename(i, meta.storedName, key));
       }

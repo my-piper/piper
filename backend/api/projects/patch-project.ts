@@ -1,6 +1,7 @@
 import ajv from "app/ajv";
 import api from "app/api";
 import mongo from "app/mongo";
+import { HIDDEN_STRING } from "consts/core";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { DataError, NotFoundError } from "core-kit/types/errors";
 import { patch } from "jsondiffpatch/with-text-diffs";
@@ -11,6 +12,8 @@ import { Pipeline } from "models/pipeline";
 import { Project } from "models/project";
 import { User } from "models/user";
 import { decrypt, encrypt } from "packages/environment/crypt-environment";
+import { hide } from "packages/environment/hide-environment";
+import { dropRevealedSecrets } from "packages/environment/reveal-environment";
 import { generateSign } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
@@ -135,23 +138,32 @@ api.patch(
     }
 
     if (request.environment) {
-      const forPatch = toPlain(
-        (() => {
-          const { environment } = project;
-          if (environment) {
-            decrypt(environment);
-            return environment;
-          }
-
-          return new Environment({
-            variables: new Map<string, Primitive>(),
-          });
-        })()
-      );
+      const stored =
+        project.environment ??
+        new Environment({ variables: new Map<string, Primitive>() });
+      // the delta applies to what the client sees, never to a plain secret
+      const shown = toInstance(toPlain(stored), Environment);
+      hide(shown);
+      const forPatch = toPlain(shown);
       patch(forPatch, request.environment);
 
       const patched = toInstance(forPatch, Environment);
       await validate(patched);
+      decrypt(stored);
+      const changed = new Set<string>();
+      for (const [k, v] of patched.variables ?? new Map<string, Primitive>()) {
+        if (v === HIDDEN_STRING) {
+          const secret = stored.variables?.get(k);
+          if (typeof secret === "string") {
+            patched.variables.set(k, secret);
+          } else {
+            patched.variables.delete(k);
+          }
+        } else if (v !== shown.variables?.get(k)) {
+          changed.add(k);
+        }
+      }
+      dropRevealedSecrets(patched, stored.visible, changed);
 
       encrypt(patched);
       assign(update, { environment: patched });

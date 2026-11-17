@@ -51,13 +51,23 @@ permission rules; permission/status changes need an explicit contract decision.
 - Settings updates persist visibility, slug, order, update time, and updater;
   client-supplied ownership/title fields do not replace the existing metadata.
 - Reading projects serializes nested maps and dates and omits unexposed fields.
-  Environment strings are returned as `[encrypted]`; booleans and numbers retain
-  their values.
+  Environment strings of Secret Variables are returned as `[encrypted]`; the
+  Visible Variables named in `environment.visible` are returned in clear, and
+  booleans and numbers retain their values. A missing `visible` means every
+  string Variable is secret.
+- Visibility is written with the values: `PUT /api/me/environment`,
+  `PUT /api/environment` (admin) and the project `environment` PATCH delta
+  replace `visible` when they carry it (a `PUT` without `visible` keeps the
+  stored list). A Secret Variable made visible without a new value is removed, so
+  a stored secret is never revealed and launches fall back to the next
+  Environment. Only names of string Variables stay in `visible`. `GET /api/environment` (admin) masks the Platform
+  Environment the same way as the User Environment.
 - The User Environment (`/api/me/environment`) is read with `GET`, merged with
   `PUT` (values equal to `[encrypted]` keep the stored value), cleared with
   `DELETE`, and loses a single variable with `DELETE /api/me/environment/:key`
   (204, also when nothing is stored). `POST /api/me/environment/:key/rename`
-  with `{ name }` moves the stored value to the new name (204); it answers 400
+  with `{ name }` moves the stored value, and its visibility, to the new name
+  (204); removing a variable also removes it from `visible`. Rename answers 400
   for a name that isn't `^[A-Za-z_][A-Za-z0-9_]*$` or that another variable
   already has, and 404 when `:key` isn't stored. All require a logged-in user.
 - `GET /api/environment/keys` returns `{ keys: string[] }`: the names of the

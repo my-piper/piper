@@ -60,6 +60,14 @@ _Avoid_: Env, config, settings
 One value in an Environment, made of a name, a type (string, number or boolean) and the value itself. A Variable has no title of its own. Renaming a Variable keeps its value; no two Variables in one Environment share a name.
 _Avoid_: Env var, setting, key
 
+**Secret Variable**:
+A string Variable whose value is never shown again once it is saved; it can only be replaced. Every string Variable is a Secret Variable unless it is made a Visible Variable. Turning a Secret Variable into a Visible Variable without giving a new value removes it, so a stored secret can never be revealed.
+_Avoid_: Hidden variable, masked variable, encrypted variable
+
+**Visible Variable**:
+A string Variable whose value is shown to whoever can edit its Environment.
+_Avoid_: Plain variable, public variable
+
 **User Environment**:
 The Variables a user shares across all of their Projects. It fills Project Variables the Project leaves empty and overrides the Platform Environment.
 _Avoid_: Global environment, shared environment
