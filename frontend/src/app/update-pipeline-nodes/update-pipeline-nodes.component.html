@@ -10,7 +10,9 @@
   </p>
 </ng-template>
 
-<ng-container *ngIf="nodeUpdates?.updates | keyvalue as updates">
+<ng-container
+  *ngIf="$safeNavigationMigration(nodeUpdates?.updates) | keyvalue as updates"
+>
   <ng-container *ngIf="updates.length > 0; else noDataTemplate">
     <ul>
       <li *ngFor="let node of updates">

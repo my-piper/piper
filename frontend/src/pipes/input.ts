@@ -1,7 +1,10 @@
 import { Pipe, PipeTransform } from "@angular/core";
 import { Pipeline, PipelineInput } from "src/models/pipeline";
 
-@Pipe({ name: "pipelineInput" })
+@Pipe({
+  name: "pipelineInput",
+  standalone: false,
+})
 export class PipelineInputPipe implements PipeTransform {
   transform(pipeline: Pipeline, id: string): PipelineInput {
     const input = pipeline.inputs.get(id);

@@ -4,6 +4,7 @@ import {
   EventEmitter,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -22,6 +23,8 @@ import { ConfirmEmailRequest, SignupRequest } from "./models";
   selector: "app-signup",
   templateUrl: "./signup.component.html",
   styleUrls: ["./signup.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SigupComponent implements OnInit {
   progress = { confirmation: false, signup: false };
@@ -53,7 +56,7 @@ export class SigupComponent implements OnInit {
     private http: HttpService,
     public config: AppConfig,
     private router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -63,7 +66,7 @@ export class SigupComponent implements OnInit {
           email: "test@test.com",
           password: "",
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -99,7 +102,7 @@ export class SigupComponent implements OnInit {
         finalize(() => {
           this.progress.confirmation = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => (this.state.confirm = true),
@@ -125,7 +128,7 @@ export class SigupComponent implements OnInit {
           this.progress.signup = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Authorization, json as object))
+        map((json) => plainToInstance(Authorization, json as object)),
       )
       .subscribe({
         next: (authorization) => {

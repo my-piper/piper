@@ -61,6 +61,7 @@ export function eventEmitterFactory(): SelectableHub {
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class SelectableDirective implements OnInit, ControlValueAccessor {
   config: Config = new Config({

@@ -6,6 +6,7 @@ import {
   Input,
   QueryList,
   ViewChildren,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import first from "lodash/first";
 import { ImageData, Launch, LaunchArtefact } from "src/models/launch";
@@ -14,6 +15,8 @@ import { ImageData, Launch, LaunchArtefact } from "src/models/launch";
   selector: "app-launch-outputs",
   templateUrl: "./launch-outputs.component.html",
   styleUrls: ["./launch-outputs.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class LaunchOutputsComponent {
   private _launch: Launch;

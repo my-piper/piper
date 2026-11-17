@@ -10,7 +10,10 @@ import { toInstance } from "src/utils/models";
 
 const logger = createLogger("launch_heartbeat", LogLevel.info);
 
-@Pipe({ name: "launchHeartbeat" })
+@Pipe({
+  name: "launchHeartbeat",
+  standalone: false,
+})
 export class LaunchHeartbeatPipe
   extends UntilDestroyed
   implements PipeTransform
@@ -25,7 +28,7 @@ export class LaunchHeartbeatPipe
 
   constructor(
     private live: LiveService,
-    private http: HttpService
+    private http: HttpService,
   ) {
     super();
   }
@@ -49,7 +52,7 @@ export class LaunchHeartbeatPipe
         .fromEvent<object>("launch_heartbeat")
         .pipe(
           takeUntil(this.destroyed$),
-          map((json) => toInstance(json, HeartbeatEvent))
+          map((json) => toInstance(json, HeartbeatEvent)),
         )
         .subscribe(({ launch: _id, heartbeat }) => {
           if (launch === _id) {

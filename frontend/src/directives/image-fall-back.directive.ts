@@ -2,11 +2,12 @@ import { Directive, ElementRef, HostListener, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[imageFallback]",
+  standalone: false,
 })
 export class ImageFallbackDirective {
   constructor(
     private el: ElementRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) {}
 
   @HostListener("error", ["$event"])
@@ -35,7 +36,7 @@ export class ImageFallbackDirective {
     this.renderer.setProperty(
       this.el.nativeElement,
       "src",
-      `data:image/svg+xml;base64,${btoa(svg)}`
+      `data:image/svg+xml;base64,${btoa(svg)}`,
     );
   }
 }

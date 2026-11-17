@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import last from "lodash/last";
 import { delay, finalize, map } from "rxjs";
@@ -13,6 +18,8 @@ import { BalanceRefillsFilter } from "./models";
   selector: "app-balance-refills",
   templateUrl: "./balance-refills.component.html",
   styleUrls: ["./balance-refills.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class BalanceRefillsComponent implements OnInit {
   ui = UI;
@@ -26,7 +33,7 @@ export class BalanceRefillsComponent implements OnInit {
 
   constructor(
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
@@ -50,13 +57,13 @@ export class BalanceRefillsComponent implements OnInit {
         delay(UI_DELAY),
         map((arr) =>
           (arr as object[]).map((plain) =>
-            plainToInstance(BalanceRefill, plain)
-          )
+            plainToInstance(BalanceRefill, plain),
+          ),
         ),
         finalize(() => {
           this.progress.loading = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (refills) => {

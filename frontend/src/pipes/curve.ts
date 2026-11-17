@@ -2,7 +2,10 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 type Point = { x: number; y: number };
 
-@Pipe({ name: "curve" })
+@Pipe({
+  name: "curve",
+  standalone: false,
+})
 export class CurvePipe implements PipeTransform {
   transform({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): string {
     const dx = x2 - x1;

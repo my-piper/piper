@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
@@ -18,6 +23,8 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-edit-node-catalog",
   templateUrl: "./edit-node-catalog.component.html",
   styleUrls: ["./edit-node-catalog.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditNodeCatalogComponent implements OnInit {
   schemas = SCHEMAS;
@@ -39,7 +46,7 @@ export class EditNodeCatalogComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -99,7 +106,7 @@ export class EditNodeCatalogComponent implements OnInit {
         finalize(() => {
           this.progress.publishing = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {},

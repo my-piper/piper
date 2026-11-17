@@ -14,7 +14,11 @@ import { Point } from "src/types/point";
 const MOVE_DELAY = 100;
 const STOP_DELAY = 100;
 
-@Directive({ selector: "[appDragMove]", exportAs: "appDragMove" })
+@Directive({
+  selector: "[appDragMove]",
+  exportAs: "appDragMove",
+  standalone: false,
+})
 export class DragMoveDirective {
   _position!: Point;
 
@@ -91,7 +95,7 @@ export class DragMoveDirective {
   constructor(
     private renderer: Renderer2,
     private hostRef: ElementRef,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   @HostListener("mousedown", ["$event"])

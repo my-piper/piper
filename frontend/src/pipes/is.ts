@@ -1,6 +1,10 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-@Pipe({ name: "is", pure: false })
+@Pipe({
+  name: "is",
+  pure: false,
+  standalone: false,
+})
 export class IsPipe implements PipeTransform {
   transform(
     obj: unknown,

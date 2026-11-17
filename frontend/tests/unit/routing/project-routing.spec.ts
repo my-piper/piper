@@ -1,9 +1,9 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import {
   ActivatedRoute,
@@ -37,8 +37,8 @@ function segments(...paths: string[]) {
 }
 
 @Component({
-  standalone: true,
   imports: [RouterOutlet],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<h1>{{ project?.title }}</h1>
     <router-outlet name="right"></router-outlet>`,
 })
@@ -52,6 +52,7 @@ class ProjectStubComponent {
 
 @Component({
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<aside class="node">{{ node?.title }}</aside>`,
 })
 class NodeStubComponent {
@@ -62,7 +63,11 @@ class NodeStubComponent {
   }
 }
 
-@Component({ standalone: true, template: `<p>page</p>` })
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `<p>page</p>`,
+})
 class PageStubComponent {}
 
 // Mirrors the project route in src/app/app-routing.module.ts.
@@ -124,7 +129,7 @@ describe("project routing", () => {
         providers: [
           provideTestConfig(),
           provideRouter(routes),
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           provideHttpClientTesting(),
         ],
       });

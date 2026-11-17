@@ -2,6 +2,7 @@ import { Directive, ElementRef, OnDestroy, OnInit } from "@angular/core";
 
 @Directive({
   selector: "[autoScroll]",
+  standalone: false,
 })
 export class AutoScrollDirective implements OnInit, OnDestroy {
   private observer!: MutationObserver;
@@ -11,7 +12,7 @@ export class AutoScrollDirective implements OnInit, OnDestroy {
   ngOnInit() {
     const el = this.hostRef.nativeElement;
     this.observer = new MutationObserver(
-      () => (el.scrollTop = el.scrollHeight)
+      () => (el.scrollTop = el.scrollHeight),
     );
 
     this.observer.observe(el, { childList: true, subtree: true });

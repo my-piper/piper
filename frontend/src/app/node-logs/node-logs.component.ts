@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
@@ -15,6 +19,8 @@ import { UI_DELAY } from "src/ui-kit/consts";
   selector: "app-node-logs",
   templateUrl: "./node-logs.component.html",
   styleUrls: ["./node-logs.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class NodeLogsComponent extends UntilDestroyed {
   progress = { loading: false };
@@ -30,7 +36,7 @@ export class NodeLogsComponent extends UntilDestroyed {
     private socket: Socket,
     private http: HttpService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }
@@ -47,11 +53,11 @@ export class NodeLogsComponent extends UntilDestroyed {
     merge(
       this.socket.fromEvent("node_gonna_repeat"),
       this.socket.fromEvent("node_error"),
-      this.socket.fromEvent("node_done")
+      this.socket.fromEvent("node_done"),
     )
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
+        const { launch, node } = plainToInstance(PipelineEvent, data as object);
         if (launch === this.launch?._id && node === this.id) this.load();
       });
   }
@@ -68,7 +74,7 @@ export class NodeLogsComponent extends UntilDestroyed {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as object[]).map((e) => plainToInstance(NodeLog, e)))
+        map((arr) => (arr as object[]).map((e) => plainToInstance(NodeLog, e))),
       )
       .subscribe({
         next: (logs) => (this.logs = logs),

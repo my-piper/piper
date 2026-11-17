@@ -34,7 +34,9 @@
             {{ n.value.catalog?._id }}
           </td>
           <td title="Category" i18n-title="@@label.category">
-            {{ n.value.catalog?.category?.title | i18n }}
+            {{
+              $safeNavigationMigration(n.value.catalog?.category?.title) | i18n
+            }}
           </td>
           <td title="Package" i18n-title="@@label.package">
             {{ n.value.catalog?.package }}

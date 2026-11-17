@@ -1,4 +1,4 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -40,7 +40,7 @@ function setup() {
     providers: [
       provideTestConfig(),
       provideRouter([]),
-      provideHttpClient(),
+      provideHttpClient(withXhr()),
       provideHttpClientTesting(),
     ],
   });

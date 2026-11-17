@@ -1,9 +1,11 @@
 import {
+  createComponent,
+  EnvironmentInjector,
   Component,
-  ComponentFactoryResolver,
   Inject,
   Injector,
   OnInit,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -21,12 +23,14 @@ import { NsfwDisclaimer } from "../nsfw-disclaimer/nsfw-disclaimer.component";
   selector: "app-me-user",
   templateUrl: "./me-user.component.html",
   styleUrls: ["./me-user.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class MeUserComponent implements OnInit {
   references: { popover?: PopoverComponent } = { popover: null };
 
   nsfwControl = this.fb.control<boolean>(
-    localStorage.getItem("nsfw") === "allow"
+    localStorage.getItem("nsfw") === "allow",
   );
   form = this.fb.group({
     nsfw: this.nsfwControl,
@@ -39,17 +43,18 @@ export class MeUserComponent implements OnInit {
     private fb: FormBuilder,
     private injector: Injector,
     private modal: ModalService,
-    private cfr: ComponentFactoryResolver,
+    private environmentInjector: EnvironmentInjector,
     private router: Router,
-    private http: HttpService
+    private http: HttpService,
   ) {}
 
   ngOnInit(): void {
     this.nsfwControl.valueChanges.subscribe((allow) => {
       if (allow) {
-        const component = this.cfr
-          .resolveComponentFactory(NsfwDisclaimer)
-          .create(this.injector);
+        const component = createComponent(NsfwDisclaimer, {
+          environmentInjector: this.environmentInjector,
+          elementInjector: this.injector,
+        });
         component.instance.agree.subscribe(() => {
           localStorage.setItem("nsfw", "allow");
           this.modal.close();
@@ -70,9 +75,10 @@ export class MeUserComponent implements OnInit {
 
   changePassword() {
     this.references.popover?.hide();
-    const component = this.cfr
-      .resolveComponentFactory(ChangePasswordComponent)
-      .create(this.injector);
+    const component = createComponent(ChangePasswordComponent, {
+      environmentInjector: this.environmentInjector,
+      elementInjector: this.injector,
+    });
     component.instance.changed.subscribe(() => this.modal.close());
     this.modal.open(component, {
       title: $localize`:@@label.change_password:Change password`,

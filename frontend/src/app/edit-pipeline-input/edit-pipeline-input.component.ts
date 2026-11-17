@@ -5,6 +5,7 @@ import {
   Input,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -19,6 +20,8 @@ import { Primitive } from "src/types/primitive";
   selector: "app-edit-pipeline-input",
   templateUrl: "./edit-pipeline-input.component.html",
   styleUrls: ["./edit-pipeline-input.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditPipelineInputComponent implements OnInit {
   @Input()
@@ -45,7 +48,7 @@ export class EditPipelineInputComponent implements OnInit {
     private projectManager: ProjectManager,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {

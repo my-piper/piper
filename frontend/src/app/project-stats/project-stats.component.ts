@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { addDays, format, parseISO } from "date-fns";
 import { Subscription, delay, finalize, map } from "rxjs";
@@ -33,6 +38,8 @@ export function fillDays(
   selector: "app-project-stats",
   templateUrl: "./project-stats.component.html",
   styleUrls: ["./project-stats.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ProjectStatsComponent implements OnInit {
   periods = STATS_PERIODS;

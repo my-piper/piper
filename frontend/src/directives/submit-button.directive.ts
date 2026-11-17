@@ -4,11 +4,12 @@ const ENABLE_TIMEOUT = 1000;
 
 @Directive({
   selector: "[submitButton]",
+  standalone: false,
 })
 export class SubmitButtonDirective {
   constructor(
     private el: ElementRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) {}
 
   @HostListener("click")

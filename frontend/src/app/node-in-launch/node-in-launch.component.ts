@@ -13,6 +13,7 @@ import { Node } from "src/models/node";
   templateUrl: "./node-in-launch.component.html",
   styleUrls: ["./node-in-launch.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class NodeInLaunchComponent implements OnInit {
   launch: Launch;
@@ -21,7 +22,7 @@ export class NodeInLaunchComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {

@@ -3,6 +3,7 @@ import {
   Component,
   OnDestroy,
   Renderer2,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -26,6 +27,8 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-project-playground",
   templateUrl: "./project-playground.component.html",
   styleUrls: ["./project-playground.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ProjectPlaygroundComponent implements OnDestroy {
   progress = { launching: false };

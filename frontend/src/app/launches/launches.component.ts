@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { plainToInstance } from "class-transformer";
 import { assign, merge } from "lodash";
 import last from "lodash/last";
@@ -25,6 +31,8 @@ import { mapTo, toPlain } from "src/utils/models";
   selector: "app-launches",
   templateUrl: "./launches.component.html",
   styleUrls: ["./launches.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
   userRole = UserRole;
@@ -63,7 +71,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
     private live: LiveService,
     private me: MeManager,
     private signals: SignalsService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }
@@ -86,7 +94,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
       .fromEvent<object>("set_inputs")
       .pipe(
         takeUntil(this.destroyed$),
-        map((json) => plainToInstance(SetLaunchInputsEvent, json))
+        map((json) => plainToInstance(SetLaunchInputsEvent, json)),
       )
       .subscribe(({ launch, inputs }) => {
         for (const l of this.launches) {
@@ -101,7 +109,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
       .fromEvent<object>("set_output")
       .pipe(
         takeUntil(this.destroyed$),
-        map((json) => plainToInstance(SetLaunchOutputEvent, json))
+        map((json) => plainToInstance(SetLaunchOutputEvent, json)),
       )
       .subscribe(({ launch, id, output }) => {
         for (const l of this.launches) {
@@ -118,7 +126,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
       .fromEvent<object>("set_errors")
       .pipe(
         takeUntil(this.destroyed$),
-        map((json) => plainToInstance(SetLaunchErrorsEvent, json))
+        map((json) => plainToInstance(SetLaunchErrorsEvent, json)),
       )
       .subscribe(({ launch, errors }) => {
         for (const l of this.launches) {
@@ -148,7 +156,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
           this.progress.loading = false;
           this.cd.detectChanges();
         }),
-        map((arr) => (arr as object[]).map((e) => plainToInstance(Launch, e)))
+        map((arr) => (arr as object[]).map((e) => plainToInstance(Launch, e))),
       )
       .subscribe({
         next: (launches) => {
@@ -178,7 +186,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
         finalize(() => {
           this.progress.removing[index] = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {

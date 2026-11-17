@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -11,6 +15,8 @@ import { toPlain } from "src/utils/models";
   selector: "app-pipeline-tools",
   templateUrl: "./pipeline-tools.component.html",
   styleUrls: ["./pipeline-tools.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class PipelineToolsComponent {
   progress: {
@@ -29,7 +35,7 @@ export class PipelineToolsComponent {
     private fb: FormBuilder,
     private http: HttpService,
     private cd: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {

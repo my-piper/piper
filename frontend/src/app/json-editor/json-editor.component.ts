@@ -7,6 +7,7 @@ import {
   Inject,
   Input,
   OnDestroy,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { JSONEditor } from "@json-editor/json-editor";
@@ -26,6 +27,8 @@ import { getLabel } from "src/ui-kit/utils/i18n";
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
   private _value: object;
@@ -56,7 +59,7 @@ export class JsonEditorComponent implements ControlValueAccessor, OnDestroy {
 
   constructor(
     @Inject(CURRENT_LANGUAGE) private language: Languages,
-    private hostRef: ElementRef
+    private hostRef: ElementRef,
   ) {}
 
   writeValue(value: object) {

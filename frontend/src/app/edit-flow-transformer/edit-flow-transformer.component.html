@@ -5,8 +5,9 @@
   </ng-template>
   <ng-container
     *ngIf="
-      (launchRequest.nodes.get(from.id)?.outputs?.get(flow.output)
-        | split: '|')[indexControl.value] as image;
+      ($safeNavigationMigration(
+        launchRequest.nodes.get(from.id)?.outputs?.get(flow.output)
+      ) | split: '|')[indexControl.value] as image;
       else noImageTemplate
     "
   >

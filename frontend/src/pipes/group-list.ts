@@ -2,7 +2,10 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 const GROUP_NAME_REGEX = /<(.*?)>/g;
 
-@Pipe({ name: "groupList" })
+@Pipe({
+  name: "groupList",
+  standalone: false,
+})
 export class GroupListPipe implements PipeTransform {
   transform(list: string[]): { name: string; options: string[] }[] {
     const orphan: string[] = [];

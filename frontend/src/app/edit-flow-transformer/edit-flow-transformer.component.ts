@@ -1,4 +1,9 @@
-import { Component, Input, OnInit } from "@angular/core";
+import {
+  Component,
+  Input,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { assign } from "lodash";
 import { LaunchRequest } from "src/models/launch-request";
@@ -11,6 +16,8 @@ import { ProjectManager } from "src/services/project.manager";
   selector: "app-edit-flow-transformer",
   templateUrl: "./edit-flow-transformer.component.html",
   styleUrls: ["./edit-flow-transformer.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditFlowTransformerComponent implements OnInit {
   _flow!: NodeFlow;

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { LaunchesFilter } from "src/models/launch";
 import { LaunchOutputsComponent } from "../launch-outputs/launch-outputs.component";
@@ -7,6 +7,8 @@ import { LaunchOutputsComponent } from "../launch-outputs/launch-outputs.compone
   selector: "app-launches-page",
   templateUrl: "./launches-page.component.html",
   styleUrls: ["./launches-page.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class LaunchesPageComponent {
   modal!: LaunchOutputsComponent;
@@ -15,7 +17,7 @@ export class LaunchesPageComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {

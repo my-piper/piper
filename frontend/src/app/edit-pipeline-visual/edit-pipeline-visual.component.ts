@@ -5,6 +5,7 @@ import {
   HostListener,
   OnDestroy,
   ViewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { assign, isEmpty, mapValues, random } from "lodash";
@@ -72,6 +73,8 @@ function salt() {
   selector: "app-edit-pipeline-visual",
   templateUrl: "./edit-pipeline-visual.component.html",
   styleUrls: ["./edit-pipeline-visual.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditPipelineVisualComponent
   extends UntilDestroyed
@@ -864,7 +867,7 @@ export class EditPipelineVisualComponent
   }
 
   @HostListener("click", ["$event"])
-  selectNode(event: MouseEvent, id: string, node: Node) {
+  selectNode(event: MouseEvent, id?: string, node?: Node) {
     const target = event.target as HTMLElement;
     if (target.closest("a, button, input, textarea, select")) {
       return;

@@ -3,7 +3,10 @@ import { Node, NodeCategory } from "src/models/node";
 
 const DEFAULT_ORDER = 999;
 
-@Pipe({ name: "groupNodes" })
+@Pipe({
+  name: "groupNodes",
+  standalone: false,
+})
 export class GroupNodesPipe implements PipeTransform {
   transform(nodes: Node[]): { category: NodeCategory; nodes: Node[] }[] {
     const categories: {
@@ -23,13 +26,13 @@ export class GroupNodesPipe implements PipeTransform {
       .map((group) => ({
         category: group.category,
         nodes: group.nodes.sort(
-          (a, b) => (a.order ?? DEFAULT_ORDER) - (b.order ?? DEFAULT_ORDER)
+          (a, b) => (a.order ?? DEFAULT_ORDER) - (b.order ?? DEFAULT_ORDER),
         ),
       }))
       .sort(
         (a, b) =>
           (a.category?.order ?? DEFAULT_ORDER) -
-          (b.category?.order ?? DEFAULT_ORDER)
+          (b.category?.order ?? DEFAULT_ORDER),
       )
       .map(({ category, nodes }) => ({ category, nodes }));
   }

@@ -8,7 +8,10 @@
         [class.filled]="!!inputs?.[i.id]"
       >
         <b>{{ i.input.title | i18n }}</b>
-        <app-io-value [io]="i.input" [value]="inputs?.[i.id]"></app-io-value>
+        <app-io-value
+          [io]="i.input"
+          [value]="$safeNavigationMigration(inputs?.[i.id])"
+        ></app-io-value>
       </li>
     </ng-container>
   </ng-container>

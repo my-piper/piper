@@ -3,7 +3,10 @@ import { BehaviorSubject, Observable, skip } from "rxjs";
 import { User, UserRole } from "src/models/user";
 import { MeManager } from "src/services/me.service";
 
-@Pipe({ name: "can" })
+@Pipe({
+  name: "can",
+  standalone: false,
+})
 export class CanPipe implements PipeTransform {
   private can: BehaviorSubject<boolean>;
   private owner: User = null;

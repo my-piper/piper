@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
 import { AppConfig } from "src/models/app-config";
@@ -15,6 +19,8 @@ import { toInstance, toPlain } from "src/utils/models";
   selector: "app-play-via-api",
   templateUrl: "./play-via-api.component.html",
   styleUrls: ["./play-via-api.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class PlayViaApiComponent {
   progress = { generating: false };
@@ -28,7 +34,7 @@ export class PlayViaApiComponent {
     private http: HttpService,
     public config: AppConfig,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -53,7 +59,7 @@ export class PlayViaApiComponent {
   generateToken() {
     if (
       !confirm(
-        $localize`:@@message.confirm_generate_api_key:Previously generated key will be invalid`
+        $localize`:@@message.confirm_generate_api_key:Previously generated key will be invalid`,
       )
     ) {
       return;
@@ -70,7 +76,7 @@ export class PlayViaApiComponent {
           this.progress.generating = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, Authorization))
+        map((json) => toInstance(json as object, Authorization)),
       )
       .subscribe({
         next: (authorization) => {

@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
@@ -17,6 +21,8 @@ import { ImportPackageComponent } from "./import/import-package.component";
   selector: "app-node-packages",
   templateUrl: "./node-packages.component.html",
   styleUrls: ["./node-packages.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class NodePackagesComponent extends UntilDestroyed {
   ui = UI;
@@ -39,11 +45,11 @@ export class NodePackagesComponent extends UntilDestroyed {
     if (modal) {
       if (modal instanceof EditPackageComponent) {
         modal.added.subscribe((nodePackage) =>
-          this.packages.unshift(nodePackage)
+          this.packages.unshift(nodePackage),
         );
         modal.saved.subscribe((nodePackage) => {
           const index = this.packages.findIndex(
-            (u) => u._id === nodePackage._id
+            (u) => u._id === nodePackage._id,
           );
           if (index !== -1) {
             assign(this.packages[index], nodePackage);
@@ -52,7 +58,7 @@ export class NodePackagesComponent extends UntilDestroyed {
         });
 
         merge(modal.added, modal.saved).subscribe(() =>
-          this.router.navigate(["./"], { relativeTo: this.route })
+          this.router.navigate(["./"], { relativeTo: this.route }),
         );
       } else if (modal instanceof ImportPackageComponent) {
         modal.imported.subscribe(() => this.load());
@@ -75,7 +81,7 @@ export class NodePackagesComponent extends UntilDestroyed {
     private live: LiveService,
     private route: ActivatedRoute,
     private router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }
@@ -98,7 +104,7 @@ export class NodePackagesComponent extends UntilDestroyed {
       .fromEvent("package_updated")
       .pipe(
         takeUntil(this.destroyed$),
-        map((json) => plainToInstance(PackageUpdatedEvent, json))
+        map((json) => plainToInstance(PackageUpdatedEvent, json)),
       )
       .subscribe(() => this.load());
   }
@@ -112,12 +118,12 @@ export class NodePackagesComponent extends UntilDestroyed {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as object[]).map((plain) => plainToInstance(NodePackage, plain))
+          (arr as object[]).map((plain) => plainToInstance(NodePackage, plain)),
         ),
         finalize(() => {
           this.progress.loading.packages = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (packages) => {
@@ -140,7 +146,7 @@ export class NodePackagesComponent extends UntilDestroyed {
         finalize(() => {
           this.progress.loading.state = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (state) => {
@@ -173,7 +179,7 @@ export class NodePackagesComponent extends UntilDestroyed {
         finalize(() => {
           this.progress.checking = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (state) => {
@@ -198,7 +204,7 @@ export class NodePackagesComponent extends UntilDestroyed {
         finalize(() => {
           this.progress.updating = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (state) => {
@@ -223,7 +229,7 @@ export class NodePackagesComponent extends UntilDestroyed {
         finalize(() => {
           this.progress.deleting = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {

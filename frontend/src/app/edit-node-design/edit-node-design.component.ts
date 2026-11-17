@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
@@ -13,6 +13,8 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-node-design",
   templateUrl: "./edit-node-design.component.html",
   styleUrls: ["./edit-node-design.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditNodeDesignComponent implements OnInit {
   schemas = (() => {
@@ -61,7 +63,7 @@ export class EditNodeDesignComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
@@ -118,7 +120,7 @@ export class EditNodeDesignComponent implements OnInit {
       (() => {
         const { node, inputs, outputs } = this.form.getRawValue();
         return { ...node, inputs, outputs };
-      })()
+      })(),
     );
     assign(this.node, {
       _id,

@@ -1,5 +1,6 @@
 import {
-  ComponentFactoryResolver,
+  createComponent,
+  EnvironmentInjector,
   Directive,
   ElementRef,
   HostListener,
@@ -22,6 +23,7 @@ const ICON = `
 
 @Directive({
   selector: "[inspect]",
+  standalone: false,
 })
 export class InspectDirective implements OnInit, OnDestroy {
   private parent: HTMLElement | null = null;
@@ -57,9 +59,9 @@ export class InspectDirective implements OnInit, OnDestroy {
   constructor(
     private injector: Injector,
     private modal: ModalService,
-    private cfr: ComponentFactoryResolver,
+    private environmentInjector: EnvironmentInjector,
     private hostRef: ElementRef<HTMLElement>,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) {}
 
   ngOnInit() {
@@ -155,9 +157,10 @@ export class InspectDirective implements OnInit, OnDestroy {
   }
 
   private inspect() {
-    const component = this.cfr
-      .resolveComponentFactory(InspectComponent)
-      .create(this.injector);
+    const component = createComponent(InspectComponent, {
+      environmentInjector: this.environmentInjector,
+      elementInjector: this.injector,
+    });
     [component.instance.type, component.instance.url, component.instance.text] =
       [this.type, this.url, this.text];
     this.modal.open(component, {

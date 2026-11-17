@@ -37,6 +37,7 @@ const COMPACT_LENGTH = 3;
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class EditInputComponent implements OnInit, ControlValueAccessor {
   i18n = {
@@ -122,7 +123,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
   }
 
   valueControl = this.fb.control<boolean | number | string | string[] | null>(
-    null
+    null,
   );
   form = this.fb.group({
     value: this.valueControl,
@@ -132,7 +133,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
     private fb: FormBuilder,
     private http: HttpService,
     private modal: ModalService,
-    public cd: ChangeDetectorRef
+    public cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -153,7 +154,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
             default:
               return value;
           }
-        })()
+        })(),
       );
       this.cd.detectChanges();
     });
@@ -172,7 +173,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
             return value;
         }
       })(),
-      { emitEvent: false }
+      { emitEvent: false },
     );
     this.cd.detectChanges();
   }
@@ -239,7 +240,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
         this.upload(blob);
       } else if (item instanceof ClipboardItem) {
         const imageTypes = item.types.filter((type) =>
-          type.startsWith("image/")
+          type.startsWith("image/"),
         );
         for (const imageType of imageTypes) {
           const blob = await item.getType(imageType);
@@ -264,7 +265,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
           this.progress.uploading = false;
           this.cd.detectChanges();
         }),
-        map((json) => plainToInstance(Artefact, json as object))
+        map((json) => plainToInstance(Artefact, json as object)),
       )
       .subscribe({
         next: ({ url }) => {

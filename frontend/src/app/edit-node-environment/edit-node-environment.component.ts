@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
@@ -13,6 +18,8 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-node-environment",
   templateUrl: "./edit-node-environment.component.html",
   styleUrls: ["./edit-node-environment.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditNodeEnvironmentComponent implements OnInit {
   schemas = SCHEMAS;
@@ -29,7 +36,7 @@ export class EditNodeEnvironmentComponent implements OnInit {
     private projectManager: ProjectManager,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {

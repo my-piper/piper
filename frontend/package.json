@@ -24,14 +24,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^17.3.2",
-    "@angular/common": "^17.3.2",
-    "@angular/compiler": "^17.3.2",
-    "@angular/core": "^17.3.2",
-    "@angular/forms": "^17.3.2",
-    "@angular/platform-browser": "^17.3.2",
-    "@angular/platform-browser-dynamic": "^17.3.2",
-    "@angular/router": "^17.3.2",
+    "@angular/animations": "^22.2.6",
+    "@angular/common": "^22.2.6",
+    "@angular/compiler": "^22.2.6",
+    "@angular/core": "^22.2.6",
+    "@angular/forms": "^22.2.6",
+    "@angular/platform-browser": "^22.2.6",
+    "@angular/platform-browser-dynamic": "^22.2.6",
+    "@angular/router": "^22.2.6",
     "@apidevtools/json-schema-ref-parser": "^11.7.3",
     "@json-editor/json-editor": "^2.15.2",
     "ajv": "^8.17.1",
@@ -46,31 +46,34 @@
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "marked": "^14.1.2",
-    "monaco-editor": "^0.44.0",
+    "monaco-editor": "^0.56.0",
     "nanoid": "^5.0.7",
-    "ng-hcaptcha": "^2.6.0",
-    "ngx-monaco-editor-v2": "^17.0.1",
-    "ngx-socket-io": "^4.6.1",
+    "ng-hcaptcha": "^2.8.0",
+    "ngx-monaco-editor-v2": "^22.0.5",
+    "ngx-socket-io": "^4.11.1",
+    "qs": "^6.17.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "~7.8.0",
     "ts-node": "^10.9.2",
     "tslib": "^2.3.0",
     "url-parse": "^1.5.10",
     "yaml": "^2.6.1",
-    "zone.js": "~0.14.4"
+    "zone.js": "~0.16.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.3.2",
-    "@angular/cli": "~17.3.2",
-    "@angular/compiler-cli": "^17.3.2",
-    "@angular/localize": "^17.3.2",
+    "@angular/build": "^22.2.7",
+    "@angular/cli": "~22.2.7",
+    "@angular/compiler-cli": "^22.2.6",
+    "@angular/localize": "^22.2.6",
     "@eslint/js": "^9.10.0",
     "@playwright/test": "1.63.0",
     "@types/eslint__js": "^8.42.3",
     "@types/jasmine": "5.1.4",
     "@types/lodash": "^4.14.195",
+    "@types/qs": "^6.15.1",
     "@types/url-parse": "^1.4.11",
     "eslint": "^9.10.0",
+    "istanbul-lib-instrument": "^6.0.3",
     "jasmine-core": "5.1.2",
     "karma": "6.4.4",
     "karma-chrome-launcher": "3.2.0",
@@ -79,12 +82,15 @@
     "karma-jasmine-html-reporter": "2.1.0",
     "prettier": "3.3.3",
     "socket.io": "4.7.5",
-    "typescript": "~5.4.3",
+    "typescript": "~6.0.3",
     "typescript-eslint": "^8.4.0"
   },
   "overrides": {
     "karma-jasmine": {
       "jasmine-core": "$jasmine-core"
     }
+  },
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0"
   }
 }

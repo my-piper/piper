@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { delay, finalize } from "rxjs";
 import { Project } from "src/models/project";
@@ -11,6 +16,8 @@ import { PopoverComponent } from "src/ui-kit/popover/popover.component";
   selector: "app-select-playground-page",
   templateUrl: "./select-playground-page.component.html",
   styleUrls: ["./select-playground-page.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SelectPlaygroundPageComponent implements OnInit {
   userRole = UserRole;
@@ -28,7 +35,7 @@ export class SelectPlaygroundPageComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -48,7 +55,7 @@ export class SelectPlaygroundPageComponent implements OnInit {
           this.cd.detectChanges();
 
           this.references.popover?.hide();
-        })
+        }),
       )
       .subscribe({
         next: () => null,

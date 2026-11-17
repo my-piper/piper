@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -54,6 +54,7 @@ function pointer(
 describe("canvas directives", () => {
   describe("DragMoveDirective", () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div
         class="pane"
         [style.transform]="'scale(' + zoom + ')'"
@@ -77,6 +78,7 @@ describe("canvas directives", () => {
           <button>action</button>
         </div>
       </div>`,
+      standalone: false,
     })
     class HostComponent {
       zoom = 1;
@@ -211,6 +213,7 @@ describe("canvas directives", () => {
 
   describe("PitchZoomDirective", () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div
         class="container"
         style="width: 400px; height: 300px; overflow: auto"
@@ -232,6 +235,7 @@ describe("canvas directives", () => {
           ></div>
         </div>
       </div>`,
+      standalone: false,
     })
     class HostComponent {
       zoom = 1;
@@ -397,6 +401,7 @@ describe("canvas directives", () => {
 
   describe("CanvasPanDirective", () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div
         class="container"
         style="width: 400px; height: 300px; overflow: auto"
@@ -414,6 +419,7 @@ describe("canvas directives", () => {
           ></div>
         </div>
       </div>`,
+      standalone: false,
     })
     class HostComponent {
       clicks = 0;
@@ -544,6 +550,7 @@ describe("canvas directives", () => {
 
   describe("CanvasSelectDirective", () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div
         class="pane"
         style="position: absolute; left: 0; top: 0; width: 800px; height: 600px; transform-origin: 0 0"
@@ -562,6 +569,7 @@ describe("canvas directives", () => {
           style="position: absolute; left: 200px; top: 200px; width: 10px; height: 10px"
         ></div>
       </div>`,
+      standalone: false,
     })
     class HostComponent {
       zoom = 1;
@@ -685,6 +693,7 @@ describe("canvas directives", () => {
 
   describe("DragCloneDirective + DropZoneDirective", () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       template: `<div
           class="source"
           style="position: fixed; left: 0; top: 0; width: 50px; height: 20px"
@@ -699,6 +708,7 @@ describe("canvas directives", () => {
           style="position: fixed; left: 200px; top: 100px; width: 300px; height: 200px"
           (drop)="drops.push($event)"
         ></div>`,
+      standalone: false,
     })
     class HostComponent {
       zone = true;

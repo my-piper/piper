@@ -95,11 +95,13 @@
       },
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist",
+            "outputPath": {
+              "base": "dist",
+              "browser": ""
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -114,7 +116,11 @@
               }
             ],
             "styles": ["src/styles.scss"],
-            "scripts": []
+            "scripts": [],
+            "browser": "src/main.ts",
+            "stylePreprocessorOptions": {
+              "includePaths": ["."]
+            }
           },
           "configurations": {
             "production": {
@@ -139,15 +145,16 @@
               ]
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
             },
             "browser-test": {
-              "outputPath": "dist-browser",
+              "outputPath": {
+                "base": "dist-browser",
+                "browser": ""
+              },
               "localize": ["en", "ru"],
               "sourceMap": true,
               "budgets": []
@@ -156,7 +163,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
@@ -168,23 +175,27 @@
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular/build:extract-i18n",
           "options": {
             "buildTarget": "frontend:build"
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:karma",
           "options": {
             "main": "tests/setup.ts",
             "polyfills": [
               "zone.js",
               "zone.js/testing",
-              "@angular/localize/init"
+              "@angular/localize/init",
+              "reflect-metadata"
             ],
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.cjs",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": ["."]
+            },
             "include": [
               "../tests/unit/**/*.spec.ts",
               "../tests/components/**/*.spec.ts"
@@ -205,5 +216,31 @@
   },
   "cli": {
     "analytics": false
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
   }
 }

@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
@@ -13,6 +18,8 @@ import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
   selector: "app-node-state",
   templateUrl: "./node-state.component.html",
   styleUrls: ["./node-state.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class NodeStateComponent extends UntilDestroyed implements OnInit {
   launch: Launch;
@@ -25,7 +32,7 @@ export class NodeStateComponent extends UntilDestroyed implements OnInit {
     private socket: Socket,
     private http: HttpService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }

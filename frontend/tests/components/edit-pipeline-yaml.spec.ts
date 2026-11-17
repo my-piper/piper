@@ -1,4 +1,4 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import {
   ComponentFixture,
@@ -66,7 +66,7 @@ describe("EditPipelineYamlComponent", () => {
       providers: [
         provideTestConfig(),
         provideRouter([]),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: Ajv, useFactory: ajvFactory },
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },

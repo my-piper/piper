@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize } from "rxjs";
 import { AppError } from "src/models/errors";
@@ -10,6 +15,8 @@ import { UI_DELAY } from "src/ui-kit/consts";
   selector: "app-export-package",
   templateUrl: "./export-package.component.html",
   styleUrls: ["./export-package.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ExportPackageComponent implements OnInit {
   progress = { loading: false };
@@ -21,7 +28,7 @@ export class ExportPackageComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -39,14 +46,14 @@ export class ExportPackageComponent implements OnInit {
       .get(
         `node-packages/${this.nodePackage._id}/export`,
         {},
-        { responseType: "text" }
+        { responseType: "text" },
       )
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
           this.progress.loading = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (yaml) => (this.yaml = yaml as string),

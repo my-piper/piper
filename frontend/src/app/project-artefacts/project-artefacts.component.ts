@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Project } from "src/models/project";
 
@@ -6,6 +6,8 @@ import { Project } from "src/models/project";
   selector: "app-project-artefacts",
   templateUrl: "./project-artefacts.component.html",
   styleUrls: ["./project-artefacts.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ProjectArtefactsComponent {
   project!: Project;

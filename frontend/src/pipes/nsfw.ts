@@ -1,6 +1,10 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-@Pipe({ name: "nsfw", pure: false })
+@Pipe({
+  name: "nsfw",
+  pure: false,
+  standalone: false,
+})
 export class NsfwPipe implements PipeTransform {
   transform(list: string[]): string[] {
     const allow = localStorage.getItem("nsfw") === "allow";

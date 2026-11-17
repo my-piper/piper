@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
@@ -18,6 +23,8 @@ import { toPlain } from "src/utils/models";
   selector: "app-edit-pipeline-environment",
   templateUrl: "./edit-pipeline-environment.component.html",
   styleUrls: ["./edit-pipeline-environment.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditPipelineEnvironmentComponent implements OnInit {
   progress = { saving: false };

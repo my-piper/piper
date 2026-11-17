@@ -8,7 +8,10 @@ import {
   PipelineEnvironment,
 } from "src/utils/pipeline";
 
-@Pipe({ name: "pipelineEnvironment" })
+@Pipe({
+  name: "pipelineEnvironment",
+  standalone: false,
+})
 export class PipelineEnvironmentPipe
   extends UntilDestroyed
   implements PipeTransform, OnDestroy

@@ -1,4 +1,4 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -63,7 +63,7 @@ describe("DeployPipelineComponent", () => {
       providers: [
         provideTestConfig(),
         provideRouter([]),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideSocketDouble(),
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },

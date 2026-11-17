@@ -16,7 +16,10 @@ function objectPaths(value: any, prefix: string = ""): string[] {
   return prefix ? [prefix] : [];
 }
 
-@Pipe({ name: "objectPaths" })
+@Pipe({
+  name: "objectPaths",
+  standalone: false,
+})
 export class ObjectPathsPipe implements PipeTransform {
   transform(obj: object): string[] {
     return objectPaths(obj);

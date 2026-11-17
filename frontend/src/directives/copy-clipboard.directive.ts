@@ -10,6 +10,7 @@ const ENABLE_TIMEOUT = 1000;
 
 @Directive({
   selector: "[copyToClipboard]",
+  standalone: false,
 })
 export class CopyToClipboardDirective {
   @Input("copyToClipboard")
@@ -17,7 +18,7 @@ export class CopyToClipboardDirective {
 
   constructor(
     private el: ElementRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
   ) {}
 
   @HostListener("click")

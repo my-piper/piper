@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -78,7 +78,7 @@ describe("ProjectComponent save errors", () => {
       providers: [
         provideTestConfig(),
         provideSocketDouble(),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },
         provideRouter([

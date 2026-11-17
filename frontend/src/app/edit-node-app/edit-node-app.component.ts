@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
@@ -11,6 +11,8 @@ import { ProjectManager } from "src/services/project.manager";
   selector: "app-edit-node-app",
   templateUrl: "./edit-node-app.component.html",
   styleUrls: ["./edit-node-app.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditNodeAppComponent implements OnInit {
   project!: Project;
@@ -25,7 +27,7 @@ export class EditNodeAppComponent implements OnInit {
   constructor(
     private projectManager: ProjectManager,
     private fb: FormBuilder,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {

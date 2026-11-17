@@ -4,6 +4,7 @@ import {
   EventEmitter,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -20,6 +21,8 @@ import { toInstance } from "src/utils/models";
   selector: "app-edit-user",
   templateUrl: "./edit-user.component.html",
   styleUrls: ["./edit-user.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class EditUserComponent implements OnInit {
   schemas = SCHEMAS;
@@ -55,7 +58,7 @@ export class EditUserComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -95,7 +98,7 @@ export class EditUserComponent implements OnInit {
           this.progress.saving = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, User))
+        map((json) => toInstance(json as object, User)),
       )
       .subscribe({
         next: (user) => {

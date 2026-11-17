@@ -7,7 +7,10 @@ import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 
-@Pipe({ name: "node" })
+@Pipe({
+  name: "node",
+  standalone: false,
+})
 export class NodePipe
   extends UntilDestroyed
   implements PipeTransform, OnDestroy
@@ -40,7 +43,10 @@ export class NodePipe
   }
 }
 
-@Pipe({ name: "inputIndex" })
+@Pipe({
+  name: "inputIndex",
+  standalone: false,
+})
 export class InputIndexOfPipe
   extends UntilDestroyed
   implements PipeTransform, OnDestroy
@@ -79,7 +85,10 @@ export class InputIndexOfPipe
 
 type Flow = InputFlow | NodeFlow;
 
-@Pipe({ name: "inputFlows" })
+@Pipe({
+  name: "inputFlows",
+  standalone: false,
+})
 export class InputFlowsPipe
   extends UntilDestroyed
   implements PipeTransform, OnDestroy
@@ -93,7 +102,7 @@ export class InputFlowsPipe
   transform(
     pipeline: Pipeline,
     node: string,
-    input: string
+    input: string,
   ): BehaviorSubject<Flow[]> {
     const update = () => {
       const flows: Flow[] = [];
@@ -126,7 +135,10 @@ export class InputFlowsPipe
   }
 }
 
-@Pipe({ name: "outputIndex" })
+@Pipe({
+  name: "outputIndex",
+  standalone: false,
+})
 export class OutputIndexPipe implements PipeTransform {
   transform(node: Node, name: string): number {
     const keys = [];

@@ -1,5 +1,4 @@
-import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable } from "@angular/core";
+import { Inject, Injectable, DOCUMENT } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { THEME_KEY } from "src/consts/core";
 
@@ -18,9 +17,10 @@ export function monacoTheme(theme: Theme): string {
 // Editors are created without a theme option, so the global Monaco theme
 // follows the document theme set before bootstrap (see index.html).
 export function applyMonacoTheme(doc: Document = document) {
-  const theme = doc.documentElement.dataset["theme"] === "light" ? "light" : "dark";
+  const theme =
+    doc.documentElement.dataset["theme"] === "light" ? "light" : "dark";
   (doc.defaultView as MonacoGlobal | null)?.monaco?.editor.setTheme(
-    monacoTheme(theme)
+    monacoTheme(theme),
   );
 }
 

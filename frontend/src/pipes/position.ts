@@ -2,7 +2,10 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 type Point = { x: number; y: number };
 
-@Pipe({ name: "position" })
+@Pipe({
+  name: "position",
+  standalone: false,
+})
 export class PositionPipe implements PipeTransform {
   transform({ x, y }: Point) {
     return {

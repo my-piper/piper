@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { delay, map, takeUntil } from "rxjs";
 import { Project, ProjectSummary } from "src/models/project";
@@ -14,6 +18,8 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   selector: "app-play-with-project",
   templateUrl: "./play-with-project.component.html",
   styleUrls: ["./play-with-project.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class PlayWithProjectComponent extends UntilDestroyed {
   error!: Error;
@@ -28,7 +34,7 @@ export class PlayWithProjectComponent extends UntilDestroyed {
     private signals: SignalsService,
     private router: Router,
     private http: HttpService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     super();
   }
@@ -54,7 +60,7 @@ export class PlayWithProjectComponent extends UntilDestroyed {
       .get(`projects/${this.project._id}/summary`)
       .pipe(
         delay(UI_DELAY),
-        map((json) => toInstance(json as object, ProjectSummary))
+        map((json) => toInstance(json as object, ProjectSummary)),
       )
       .subscribe({
         next: (summary) => {

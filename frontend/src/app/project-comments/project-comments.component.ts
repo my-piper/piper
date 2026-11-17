@@ -1,4 +1,8 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { last } from "lodash";
@@ -19,6 +23,8 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
   selector: "app-project-comments",
   templateUrl: "./project-comments.component.html",
   styleUrls: ["./project-comments.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ProjectCommentsComponent {
   progress = {
@@ -45,7 +51,7 @@ export class ProjectCommentsComponent {
     public config: AppConfig,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -65,12 +71,12 @@ export class ProjectCommentsComponent {
       .pipe(
         delay(UI_DELAY),
         map((arr) =>
-          (arr as object[]).map((plain) => toInstance(plain, ProjectComment))
+          (arr as object[]).map((plain) => toInstance(plain, ProjectComment)),
         ),
         finalize(() => {
           this.progress.loading = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (comments) => {
@@ -107,7 +113,7 @@ export class ProjectCommentsComponent {
         finalize(() => {
           this.progress.adding = false;
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: (comment) => {
@@ -131,7 +137,7 @@ export class ProjectCommentsComponent {
           this.progress.removing[index] = false;
           this.references?.popover?.hide();
           this.cd.detectChanges();
-        })
+        }),
       )
       .subscribe({
         next: () => {

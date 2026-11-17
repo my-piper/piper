@@ -1,4 +1,4 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -51,7 +51,7 @@ describe("MeEnvironmentComponent", () => {
       providers: [
         provideTestConfig(),
         provideRouter([]),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },
         {

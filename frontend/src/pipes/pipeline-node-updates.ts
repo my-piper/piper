@@ -6,7 +6,10 @@ import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 
-@Pipe({ name: "pipelineNodeUpdates" })
+@Pipe({
+  name: "pipelineNodeUpdates",
+  standalone: false,
+})
 export class PipelineNodeUpdatesPipe
   extends UntilDestroyed
   implements PipeTransform

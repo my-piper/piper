@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { assign } from "lodash";
@@ -18,6 +23,8 @@ import { getMergedData } from "../utils/route";
   selector: "app-assistant",
   templateUrl: "./assistant.component.html",
   styleUrls: ["./assistant.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class AssistantComponent implements OnInit {
   error!: Error;

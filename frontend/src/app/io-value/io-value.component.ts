@@ -1,4 +1,9 @@
-import { Component, HostBinding, Input } from "@angular/core";
+import {
+  Component,
+  HostBinding,
+  Input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { NodeInput, NodeOutput } from "src/models/node";
 import { Primitive } from "src/types/primitive";
 
@@ -12,6 +17,8 @@ type NodeIO = Pick<NodeInput | NodeOutput, "type"> &
   selector: "app-io-value",
   templateUrl: "./io-value.component.html",
   styleUrls: ["./io-value.component.scss"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class IoValueComponent {
   @Input()

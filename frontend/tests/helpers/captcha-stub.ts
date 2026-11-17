@@ -1,4 +1,9 @@
-import { Component, forwardRef, Input } from "@angular/core";
+import {
+  Component,
+  forwardRef,
+  Input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 /**
@@ -11,6 +16,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
   selector: "ng-hcaptcha",
   standalone: true,
   template: `<div class="hcaptcha-stub" [attr.data-site-key]="siteKey"></div>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

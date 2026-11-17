@@ -10,7 +10,10 @@ import { SignalsService } from "src/services/signals.service";
 import { UntilDestroyed } from "src/ui-kit/helpers/until-destroyed";
 import { toPlain } from "src/utils/models";
 
-@Pipe({ name: "pipelineCosts" })
+@Pipe({
+  name: "pipelineCosts",
+  standalone: false,
+})
 export class PipelineCostsPipe
   extends UntilDestroyed
   implements PipeTransform, OnDestroy

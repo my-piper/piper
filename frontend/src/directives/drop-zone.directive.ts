@@ -10,6 +10,7 @@ import { DropZoneHub } from "src/services/drop-zone.hub";
 
 @Directive({
   selector: "[dropZone]",
+  standalone: false,
 })
 export class DropZoneDirective implements OnInit, OnDestroy {
   @Output()
@@ -21,7 +22,7 @@ export class DropZoneDirective implements OnInit, OnDestroy {
 
   constructor(
     private dropZoneService: DropZoneHub,
-    private hostRef: ElementRef<HTMLElement>
+    private hostRef: ElementRef<HTMLElement>,
   ) {}
 
   ngOnInit(): void {

@@ -1,4 +1,9 @@
-import { Component, forwardRef, Input } from "@angular/core";
+import {
+  Component,
+  forwardRef,
+  Input,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 /**
@@ -17,6 +22,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
     (input)="type($any($event.target).value)"
     (blur)="onTouched()"
   ></textarea>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

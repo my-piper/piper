@@ -26,7 +26,10 @@ function isEditable(target: EventTarget | null) {
  * anywhere. Shift + left button on empty space is left to the selection
  * marquee. A pan that moved swallows the click that follows it.
  */
-@Directive({ selector: "[canvasPan]" })
+@Directive({
+  selector: "[canvasPan]",
+  standalone: false,
+})
 export class CanvasPanDirective implements OnDestroy {
   private ignore = INTERACTIVE;
 
