@@ -13,6 +13,7 @@ export default tseslint.config(
       "build/**",
       "coverage/**",
       "core-kit/**",
+      "vendor/**",
       "cache/**",
       "tmp/**",
       "storage/**",
