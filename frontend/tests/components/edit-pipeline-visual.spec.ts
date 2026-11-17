@@ -1,5 +1,5 @@
 import { fakeAsync, tick } from "@angular/core/testing";
-import { diff, patch } from "jsondiffpatch";
+import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
 import { NodeFlow } from "src/models/node-flow";
 import { PipelineInput } from "src/models/pipeline";

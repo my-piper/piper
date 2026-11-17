@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { diff } from "jsondiffpatch";
+import { diff } from "jsondiffpatch/with-text-diffs";
 import { get } from "lodash";
 import assign from "lodash/assign";
 import {

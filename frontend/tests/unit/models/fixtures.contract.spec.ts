@@ -1,4 +1,4 @@
-import { diff, patch } from "jsondiffpatch";
+import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
 import { PipelineEvent, SetLaunchOutputEvent } from "src/models/events";
 import {

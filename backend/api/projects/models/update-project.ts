@@ -4,7 +4,7 @@ import {
   Type,
   ValidateNested,
 } from "core-kit/packages/transform";
-import { Delta } from "jsondiffpatch";
+import { Delta } from "jsondiffpatch/with-text-diffs";
 
 export class PatchProject {
   @IsOptional()
