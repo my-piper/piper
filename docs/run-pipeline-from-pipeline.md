@@ -259,11 +259,11 @@ external `utils/node.js`.
 execution: regular
 environment:
   PIPER_URL:
-    title: Piper base URL
+    description: Piper base URL
     type: string
     scope: user
   PIPER_API_TOKEN:
-    title: Piper API token
+    description: Piper API token
     type: string
     scope: user
 inputs:

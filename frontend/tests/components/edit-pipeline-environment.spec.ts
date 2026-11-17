@@ -3,21 +3,15 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter, RouterLink } from "@angular/router";
 import { of } from "rxjs";
 import { EditPipelineEnvironmentComponent } from "src/app/edit-pipeline-environment/edit-pipeline-environment.component";
+import { EnvironmentVariablesComponent } from "src/app/environment-variables/environment-variables.component";
 import { Environment } from "src/models/environment";
 import { Project } from "src/models/project";
-import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { TickerPipe } from "src/pipes/ticker.pipe";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
@@ -26,36 +20,38 @@ import { toInstance, toPlain } from "src/utils/models";
 import { projectA, projectWith } from "../fixtures/models";
 import { Plain, smallGraphPipeline } from "../fixtures/plain";
 import { provideTestConfig } from "../helpers/config";
-import { expectConsoleError } from "../helpers/console";
 import { finish } from "../helpers/editor";
 import { asJitPipes } from "../helpers/jit";
-import { editJson, JsonEditorStubComponent } from "../helpers/json-editor-stub";
 
 /**
- * Wire contracts (backend/api/environment):
- * - GET /api/me/environment → `{ variables }` (MeEnvironmentResolver);
- * - PUT /api/me/environment `{ variables }` merges into the user environment;
- * - the project tab never deletes the user environment; its Clear drops only
- *   the project's own variables.
- * Pipeline-scoped variables live in `project.environment` and reach the
- * backend through the regular project autosave.
+ * Route data: `project`, the user `environment` (GET /api/me/environment,
+ * strings masked as `[encrypted]`) and the `platform` variable names
+ * (GET /api/environment/keys). The tab edits only `project.environment`,
+ * which reaches the backend through the regular project autosave; it never
+ * calls the environment API itself.
  */
-const ENVIRONMENT_URL = "/api/me/environment";
 
 /**
- * Project A (environment `API_URL`, `RETRIES: 0`) whose nodes declare one
- * variable per scope.
+ * Project A (environment `API_URL`, `RETRIES: 0`) whose nodes declare
+ * variables of every scope.
  */
 function projectWithEnvironment(): Project {
   const pipeline = smallGraphPipeline() as {
     nodes: Record<string, Record<string, unknown>>;
   };
   pipeline.nodes["node_one"]["environment"] = {
-    OPENAI_KEY: { title: "OpenAI key", type: "string", scope: "user" },
-    API_URL: { title: "API URL", type: "string", scope: "global" },
+    OPENAI_KEY: {
+      type: "string",
+      scope: "user",
+      description: "Get it from **OpenAI**",
+    },
+    API_URL: { type: "string", scope: "global" },
+    MODEL: { type: "string", scope: "global" },
   };
   pipeline.nodes["node_two"]["environment"] = {
-    RETRIES: { title: "Retries", type: "integer", scope: "pipeline" },
+    RETRIES: { type: "integer", scope: "pipeline" },
+    VERBOSE: { type: "boolean", scope: "pipeline" },
+    TOKEN: { type: "string", scope: "pipeline" },
   };
   return projectWith(pipeline);
 }
@@ -73,19 +69,18 @@ describe("EditPipelineEnvironmentComponent", () => {
   function setup(
     project: Project = projectWithEnvironment(),
     environment: Environment = userEnvironment({
-      OPENAI_KEY: "sk-user",
-      API_URL: "http://user.piper.test",
+      OPENAI_KEY: "[encrypted]",
+      VERBOSE: true,
     }),
+    platform: string[] = ["API_URL"],
   ) {
-    asJitPipes(TickerPipe, PipelineEnvironmentPipe);
+    asJitPipes(TickerPipe);
     TestBed.configureTestingModule({
-      declarations: [EditPipelineEnvironmentComponent, PipelineEnvironmentPipe],
-      imports: [
-        ReactiveFormsModule,
-        RouterLink,
-        UiKitModule,
-        JsonEditorStubComponent,
+      declarations: [
+        EditPipelineEnvironmentComponent,
+        EnvironmentVariablesComponent,
       ],
+      imports: [ReactiveFormsModule, RouterLink, UiKitModule],
       providers: [
         provideTestConfig(),
         provideRouter([]),
@@ -94,7 +89,7 @@ describe("EditPipelineEnvironmentComponent", () => {
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },
         {
           provide: ActivatedRoute,
-          useValue: { data: of({ project, environment }) },
+          useValue: { data: of({ project, environment, platform }) },
         },
       ],
     });
@@ -107,22 +102,35 @@ describe("EditPipelineEnvironmentComponent", () => {
     return project;
   }
 
-  function editorValue(): object {
-    const textarea = element.querySelector(
-      "textarea.json-editor-stub",
-    ) as HTMLTextAreaElement;
-    return JSON.parse(textarea.value);
+  function rows() {
+    return Array.from(element.querySelectorAll("tr.variable")).map((row) => {
+      const value = row.querySelector("input.value") as HTMLInputElement;
+      return {
+        key: (row.querySelector("input.key") as HTMLInputElement).value,
+        type: (row.querySelector("select.type") as HTMLSelectElement).value,
+        value: value.value,
+        readonly: value.readOnly,
+        inherited: row.querySelector(".inherited")?.textContent.trim() || "",
+      };
+    });
+  }
+
+  function row(key: string) {
+    return Array.from(element.querySelectorAll("tr.variable")).find(
+      (r) => (r.querySelector("input.key") as HTMLInputElement).value === key,
+    );
+  }
+
+  function type(input: Element, value: string) {
+    (input as HTMLInputElement).value = value;
+    input.dispatchEvent(new Event("input"));
+    fixture.detectChanges();
   }
 
   function button(text: string): HTMLButtonElement {
     return Array.from(element.querySelectorAll("button")).find((b) =>
       b.textContent.includes(text),
     );
-  }
-
-  function settle() {
-    tick(UI_DELAY);
-    fixture.detectChanges();
   }
 
   afterEach(() => controller.verify());
@@ -132,123 +140,147 @@ describe("EditPipelineEnvironmentComponent", () => {
 
     expect(element.querySelector("form")).toBeNull();
     expect(element.textContent).toContain(
-      "No one node has require environment variables.",
+      "No node in this pipeline needs environment variables.",
     );
     finish();
   }));
 
-  it("shows user variables overridden by the pipeline's own", fakeAsync(() => {
+  it("lists each declared variable with where its value comes from", fakeAsync(() => {
     setup();
 
-    expect(editorValue()).toEqual({
-      variables: {
-        OPENAI_KEY: "sk-user",
-        API_URL: "http://dummy.piper.test",
-        RETRIES: 0,
+    expect(rows()).toEqual([
+      {
+        key: "OPENAI_KEY",
+        type: "string",
+        value: "",
+        readonly: true,
+        inherited: "Your environment",
       },
-    });
+      {
+        key: "API_URL",
+        type: "string",
+        value: "",
+        readonly: true,
+        inherited: "Platform",
+      },
+      {
+        key: "MODEL",
+        type: "string",
+        value: "",
+        readonly: true,
+        inherited: "Not set",
+      },
+      {
+        key: "RETRIES",
+        type: "number",
+        value: "0",
+        readonly: false,
+        inherited: "",
+      },
+      {
+        key: "VERBOSE",
+        type: "boolean",
+        value: "",
+        readonly: false,
+        inherited: "Your environment",
+      },
+      {
+        key: "TOKEN",
+        type: "string",
+        value: "",
+        readonly: false,
+        inherited: "Not set",
+      },
+    ]);
     finish();
   }));
 
-  it("saves user and global variables to the user and keeps pipeline ones in the project", fakeAsync(() => {
+  it("shows an inherited value but never a secret", fakeAsync(() => {
+    setup();
+
+    const placeholder = (key: string) =>
+      (row(key).querySelector("input.value") as HTMLInputElement).placeholder;
+
+    expect(placeholder("VERBOSE")).toBe("true");
+    expect(placeholder("OPENAI_KEY")).toBe("Stored");
+    expect(placeholder("API_URL")).toBe("Stored");
+    finish();
+  }));
+
+  it("fixes names and types to the node declarations", fakeAsync(() => {
+    setup();
+
+    expect(
+      (row("RETRIES").querySelector("input.key") as HTMLInputElement).readOnly,
+    ).toBe(true);
+    expect(
+      (row("RETRIES").querySelector("select.type") as HTMLSelectElement)
+        .disabled,
+    ).toBe(true);
+    expect(element.querySelector("button.remove")).toBeNull();
+    expect(button("Add variable")).toBeUndefined();
+    finish();
+  }));
+
+  it("shows the node's description as markdown", fakeAsync(() => {
+    setup();
+
+    expect(row("OPENAI_KEY").querySelector(".description").innerHTML).toContain(
+      "Get it from <strong>OpenAI</strong>",
+    );
+    finish();
+  }));
+
+  it("saves only the project's own variables, typed, without calling the API", fakeAsync(() => {
     const project = setup();
-    editJson(element, {
-      variables: {
-        OPENAI_KEY: "sk-new",
-        API_URL: "http://new.piper.test",
-        RETRIES: 5,
-        UNDECLARED: "dropped",
-      },
-    });
-    fixture.detectChanges();
+    type(row("RETRIES").querySelector("input.value"), "5");
+    type(row("VERBOSE").querySelector("input.value"), "false");
+    type(row("TOKEN").querySelector("input.value"), "sk-project");
 
     button("Save").click();
-    const request = controller.expectOne(ENVIRONMENT_URL);
-    const busy = button("Save").disabled;
-    request.flush(null);
-    settle();
+    fixture.detectChanges();
 
-    expect(request.request.method).toBe("PUT");
-    expect(request.request.body).toEqual({
-      variables: { OPENAI_KEY: "sk-new", API_URL: "http://new.piper.test" },
-    });
-    expect(busy).toBe(true);
-    expect(button("Save").disabled).toBe(false);
+    controller.expectNone(() => true);
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 5 },
+      variables: { RETRIES: 5, VERBOSE: false, TOKEN: "sk-project" },
     });
     expect(manager.status.value).toBe("dirty");
     finish();
   }));
 
-  it("shows a failed save and leaves the project untouched", fakeAsync(() => {
-    expectConsoleError("Process HTTP error 400");
-    const project = setup();
-    const before = toPlain(project.environment);
-
-    button("Save").click();
-    controller
-      .expectOne(ENVIRONMENT_URL)
-      .flush("Wrong environment", { status: 400, statusText: "Bad Request" });
-    settle();
-
-    expect(element.querySelector("app-informer").textContent).toContain(
-      "Wrong environment",
-    );
-    expect(toPlain(project.environment)).toEqual(before);
-    expect(manager.status.value).toBeNull();
-    finish();
-  }));
-
-  it("leaves project variables the project doesn't set to the user environment", fakeAsync(() => {
-    const project = projectWithEnvironment();
-    project.environment.variables.delete("RETRIES");
-    setup(project, userEnvironment({ OPENAI_KEY: "sk-user", RETRIES: 9 }));
-
-    // the user value isn't copied in; the editor shows its own default
-    expect(editorValue()).toEqual({
-      variables: {
-        OPENAI_KEY: "sk-user",
-        API_URL: "http://dummy.piper.test",
-        RETRIES: 0,
-      },
-    });
-    expect(element.querySelector(".inherited").textContent).toContain(
-      "RETRIES",
-    );
-    finish();
-  }));
-
   it("doesn't store emptied variables so they inherit", fakeAsync(() => {
     const project = setup();
-    editJson(element, {
-      variables: { OPENAI_KEY: "sk-user", API_URL: "", RETRIES: null },
-    });
-    fixture.detectChanges();
+    type(row("RETRIES").querySelector("input.value"), "");
 
     button("Save").click();
-    const request = controller.expectOne(ENVIRONMENT_URL);
-    request.flush(null);
-    settle();
+    fixture.detectChanges();
 
-    expect(request.request.body).toEqual({
-      variables: { OPENAI_KEY: "sk-user" },
-    });
     expect(toPlain(project.environment)).toEqual({ variables: {} });
     finish();
   }));
 
-  it("keeps inheriting a variable the editor filled with its default", fakeAsync(() => {
+  it("keeps a stored secret whose input is left empty", fakeAsync(() => {
     const project = projectWithEnvironment();
-    project.environment.variables.delete("RETRIES");
-    setup(project, userEnvironment({ RETRIES: 9 }));
-    tick();
+    project.environment.variables.set("TOKEN", "[encrypted]");
+    setup(project);
 
+    const input = row("TOKEN").querySelector("input.value") as HTMLInputElement;
     button("Save").click();
-    controller.expectOne(ENVIRONMENT_URL).flush(null);
-    settle();
+    fixture.detectChanges();
 
-    expect(toPlain(project.environment)).toEqual({ variables: {} });
+    expect(input.value).toBe("");
+    expect(toPlain(project.environment)).toEqual({
+      variables: { RETRIES: 0, TOKEN: "[encrypted]" },
+    });
+    finish();
+  }));
+
+  it("doesn't save a value that doesn't match its type", fakeAsync(() => {
+    setup();
+
+    type(row("RETRIES").querySelector("input.value"), "three");
+
+    expect(button("Save").disabled).toBe(true);
     finish();
   }));
 
@@ -258,16 +290,13 @@ describe("EditPipelineEnvironmentComponent", () => {
     button("Clear").click();
     fixture.detectChanges();
 
-    controller.expectNone(ENVIRONMENT_URL);
+    controller.expectNone(() => true);
     expect(toPlain(project.environment)).toEqual({ variables: {} });
     expect(manager.status.value).toBe("dirty");
-    expect(editorValue()).toEqual({
-      variables: {
-        OPENAI_KEY: "sk-user",
-        API_URL: "http://user.piper.test",
-        RETRIES: 0,
-      },
-    });
+    expect(row("RETRIES").querySelector("input.value")).toHaveProperty(
+      "value",
+      "",
+    );
     finish();
   }));
 });

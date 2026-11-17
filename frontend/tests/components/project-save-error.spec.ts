@@ -19,7 +19,7 @@ import { ProjectComponent } from "src/app/project/project.component";
 import { SaveProjectGuard } from "src/guards/save-project.guard";
 import { CanPipe } from "src/pipes/can";
 import { IsPipe } from "src/pipes/is";
-import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
+import { DeclaredVariablesPipe } from "src/pipes/declared-variables";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/consts/ui";
@@ -66,7 +66,7 @@ describe("ProjectComponent save errors", () => {
         I18nPipe,
         InvalidFieldPipe,
         CountdownPipe,
-        ...asJitPipes(PipelineEnvironmentPipe, PipelineNodeUpdatesPipe),
+        ...asJitPipes(DeclaredVariablesPipe, PipelineNodeUpdatesPipe),
       ],
       imports: [
         CommonModule,

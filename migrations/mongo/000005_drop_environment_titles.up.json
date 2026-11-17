@@ -1,0 +1,182 @@
+[
+  {
+    "update": "projects",
+    "updates": [
+      {
+        "q": {
+          "pipeline.nodes": {
+            "$type": "object"
+          }
+        },
+        "u": [
+          {
+            "$set": {
+              "pipeline.nodes": {
+                "$arrayToObject": {
+                  "$map": {
+                    "input": {
+                      "$objectToArray": "$pipeline.nodes"
+                    },
+                    "as": "node",
+                    "in": {
+                      "k": "$$node.k",
+                      "v": {
+                        "$cond": [
+                          {
+                            "$eq": [
+                              {
+                                "$type": "$$node.v.environment"
+                              },
+                              "object"
+                            ]
+                          },
+                          {
+                            "$mergeObjects": [
+                              "$$node.v",
+                              {
+                                "environment": {
+                                  "$arrayToObject": {
+                                    "$map": {
+                                      "input": {
+                                        "$objectToArray": "$$node.v.environment"
+                                      },
+                                      "as": "variable",
+                                      "in": {
+                                        "k": "$$variable.k",
+                                        "v": {
+                                          "$unsetField": {
+                                            "field": "title",
+                                            "input": "$$variable.v"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "$$node.v"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "multi": true
+      }
+    ]
+  },
+  {
+    "update": "nodePackages",
+    "updates": [
+      {
+        "q": {
+          "nodes": {
+            "$type": "object"
+          }
+        },
+        "u": [
+          {
+            "$set": {
+              "nodes": {
+                "$arrayToObject": {
+                  "$map": {
+                    "input": {
+                      "$objectToArray": "$nodes"
+                    },
+                    "as": "node",
+                    "in": {
+                      "k": "$$node.k",
+                      "v": {
+                        "$cond": [
+                          {
+                            "$eq": [
+                              {
+                                "$type": "$$node.v.environment"
+                              },
+                              "object"
+                            ]
+                          },
+                          {
+                            "$mergeObjects": [
+                              "$$node.v",
+                              {
+                                "environment": {
+                                  "$arrayToObject": {
+                                    "$map": {
+                                      "input": {
+                                        "$objectToArray": "$$node.v.environment"
+                                      },
+                                      "as": "variable",
+                                      "in": {
+                                        "k": "$$variable.k",
+                                        "v": {
+                                          "$unsetField": {
+                                            "field": "title",
+                                            "input": "$$variable.v"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "$$node.v"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "multi": true
+      }
+    ]
+  },
+  {
+    "update": "nodes",
+    "updates": [
+      {
+        "q": {
+          "environment": {
+            "$type": "object"
+          }
+        },
+        "u": [
+          {
+            "$set": {
+              "environment": {
+                "$arrayToObject": {
+                  "$map": {
+                    "input": {
+                      "$objectToArray": "$environment"
+                    },
+                    "as": "variable",
+                    "in": {
+                      "k": "$$variable.k",
+                      "v": {
+                        "$unsetField": {
+                          "field": "title",
+                          "input": "$$variable.v"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "multi": true
+      }
+    ]
+  }
+]

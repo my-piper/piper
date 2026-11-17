@@ -71,7 +71,7 @@ import { PipelineOutputPipe } from "src/pipes/output";
 import { ParseJsonPipe } from "src/pipes/parse-json";
 import { GetPercentPipe } from "src/pipes/percents";
 import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
-import { PipelineEnvironmentPipe } from "src/pipes/pipeline-environment";
+import { DeclaredVariablesPipe } from "src/pipes/declared-variables";
 import { PipelineFinishedMetricPipe } from "src/pipes/pipeline-finished-metric";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { PlainPipe } from "src/pipes/plain";
@@ -110,6 +110,7 @@ import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipelin
 import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
 import { EditProjectComponent } from "./edit-project/edit-project.component";
 import { MeEnvironmentComponent } from "./me-environment/me-environment.component";
+import { EnvironmentVariablesComponent } from "./environment-variables/environment-variables.component";
 import { ProjectSettingsComponent } from "./project-settings/project-settings.component";
 import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refills.component";
 import { ExpensesComponent } from "./expenses/expenses.component";
@@ -271,6 +272,7 @@ import { UsersComponent } from "./users/users.component";
     MeUserComponent,
     ExpensesComponent,
     MeEnvironmentComponent,
+    EnvironmentVariablesComponent,
     PipelineUsagesComponent,
     BalanceRefillsComponent,
     PlayViaApiComponent,
@@ -287,7 +289,7 @@ import { UsersComponent } from "./users/users.component";
     InspectComponent,
     AssistantComponent,
     AutoScrollDirective,
-    PipelineEnvironmentPipe,
+    DeclaredVariablesPipe,
     ProjectArtefactsComponent,
     ProjectStatsComponent,
     InputFlowsPipe,

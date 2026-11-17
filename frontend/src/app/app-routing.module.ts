@@ -26,6 +26,7 @@ import {
   ProjectPlaygroundLaunchesFilterResolver,
 } from "src/resolvers/launches-filter";
 import { MeEnvironmentResolver } from "src/resolvers/me-environment";
+import { PlatformEnvironmentResolver } from "src/resolvers/platform-environment";
 import {
   NodeFromLaunchResolver,
   NodeFromProjectResolver,
@@ -272,6 +273,7 @@ const routes: Routes = [
         path: "environment",
         resolve: {
           environment: MeEnvironmentResolver,
+          platform: PlatformEnvironmentResolver,
         },
         component: EditPipelineEnvironmentComponent,
       },

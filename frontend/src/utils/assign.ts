@@ -1,6 +1,6 @@
 export function assign<T extends Record<string, any>>(
   dst: T,
-  props: Partial<T>
+  props: Partial<T>,
 ) {
   for (const [k, v] of Object.entries(props)) {
     if (v !== undefined) {
@@ -12,7 +12,7 @@ export function assign<T extends Record<string, any>>(
 }
 
 export function essential<T extends Record<string, any>>(
-  object: T
+  object: T,
 ): Partial<T> {
   const dst: Partial<T> = {};
   for (const [k, v] of Object.entries(object)) {
