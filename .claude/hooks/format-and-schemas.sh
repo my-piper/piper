@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# PostToolUse (Edit|Write|MultiEdit): prettier on the edited file, and recompile
-# schemas when a source schema changes.
+# PostToolUse (Edit|Write|MultiEdit): prettier on the edited file, recompile
+# schemas when a source schema changes, and check that `npm ci` still accepts
+# the lockfile after a package.json edit.
 set -uo pipefail
 
 file=$(jq -r '.tool_input.file_path // empty')
@@ -24,6 +25,12 @@ if [ -n "$pkg" ]; then
 fi
 
 case "$file" in
+  "$root"/backend/package.json | "$root"/frontend/package.json)
+    if ! out=$("$root/tools/check-lockfile.sh" "$pkg" 2>&1); then
+      echo "$out" >&2
+      exit 2
+    fi
+    ;;
   "$root"/backend/schemas/compiled.json) ;;
   "$root"/backend/schemas/*.json)
     required=$(cut -d. -f1 "$root/.nvmrc" | tr -d '[:space:]')

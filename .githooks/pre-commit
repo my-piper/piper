@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Blocks commits whose package.json / package-lock.json `npm ci` would reject,
+# or that leave install scripts unapproved. Enabled by `make install`
+# (git config core.hooksPath .githooks). Checks the working tree of each
+# package whose manifests are staged; skip once with `git commit --no-verify`.
+set -uo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+status=0
+
+for pkg in backend frontend; do
+  git diff --cached --quiet -- "$pkg/package.json" "$pkg/package-lock.json" && continue
+  "$root/tools/check-lockfile.sh" "$root/$pkg" || status=1
+  "$root/tools/check-install-scripts.sh" "$root/$pkg" || status=1
+  if [ "$pkg" = frontend ]; then
+    "$root/frontend/scripts/check-denied-deps.mjs" || status=1
+  fi
+done
+
+exit $status

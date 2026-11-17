@@ -22,6 +22,7 @@ install:
 	nvm install; \
 	git submodule init; \
 	git submodule update; \
+	git config core.hooksPath .githooks; \
 	npm --prefix ./backend install; \
 	npm --prefix ./frontend install; \
 	npm --prefix ./translator install
@@ -97,3 +98,6 @@ mongo-migrate:
 
 check-install-scripts:
 	./tools/check-install-scripts.sh
+
+check-lockfile:
+	./tools/check-lockfile.sh
