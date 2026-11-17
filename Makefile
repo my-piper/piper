@@ -94,3 +94,6 @@ mongo-migrate-add:
 
 mongo-migrate:
 	npm run --prefix ./backend cli migrations mongo apply
+
+check-install-scripts:
+	./tools/check-install-scripts.sh
