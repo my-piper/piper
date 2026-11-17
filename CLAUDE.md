@@ -10,6 +10,6 @@ The project instructions are maintained in `AGENTS.md` (shared with other agents
 
 - The Node major is pinned only in the root `.nvmrc`; to upgrade, change it and run `make check-node-version` to find the `engines` ranges and Dockerfile default that must follow.
 - Run a single backend test: `cd backend && npx vitest run path/to/file.test.ts` (add `-t "<name>"` to filter by test name). Integration tests: `npm run test:integration` uses `vitest.integration.config.ts`.
-- Run focused frontend tests: `cd frontend && npx ng test --watch=false --include=../tests/unit/models` (paths relative to `src/`), add `--filter "<name>"` to match test names; never commit `.only`. Playwright without rebuilding: `npm run test:browser:run -- -g "<name>"`.
+- Run frontend tests with `cd frontend && npm run test:agent`: a passing run prints only the summary, a failing one only the failed tests. Focus with `-- --include=../tests/unit/models` (paths relative to `src/`) and `--filter "<name>"`; never commit `.only`. Playwright without rebuilding: `npm run test:browser:run -- -g "<name>"`.
 - `ARCHITECTURE.md` has the full system diagram and deeper walkthroughs of the process model and launch flow — read it before larger backend changes.
 - Before committing backend, schema or model changes, run the `piper-invariants-reviewer` subagent. After changing an HTTP route, response shape or model, run `contract-sync-checker`. Other subagents in `.claude/agents`: `backend-test-writer`, `node-package-author`.

@@ -161,7 +161,11 @@
             "test": {
               "aot": false,
               "styles": [],
-              "polyfills": ["zone.js", "reflect-metadata"]
+              "polyfills": ["zone.js", "reflect-metadata"],
+              "stylePreprocessorOptions": {
+                "includePaths": ["."],
+                "sass": { "silenceDeprecations": ["import", "global-builtin"] }
+              }
             }
           },
           "defaultConfiguration": "production"

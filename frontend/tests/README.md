@@ -27,6 +27,7 @@ behaviour is covered separately by `backend/tests`.
 | Command                          | What it does                                                                                   |
 | -------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `npm test`                       | Unit + component suites, headless, single run                                                  |
+| `npm run test:agent`             | Same, but prints only failed tests and the summary (Vitest `agent` reporter); for agent runs   |
 | `npm run test:watch`             | Same, rebuilding and re-running on file changes                                                |
 | `npm run test:coverage`          | Single run with coverage in `coverage/` (HTML, lcov, json-summary, text summary)               |
 | `npm run test:typecheck`         | `tsc` over all fast-suite specs, helpers and fixtures                                          |

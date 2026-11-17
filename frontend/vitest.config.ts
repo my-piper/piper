@@ -65,6 +65,11 @@ export default defineConfig({
     restoreMocks: true,
     expect: { requireAssertions: true },
     testTimeout: 10_000,
+    // Drop zone.js and pre-bundled dependency frames from failure stacks: they
+    // are the same in every fakeAsync/ProxyZone test and bury the spec line.
+    onStackTrace: (_error, { file }) =>
+      !file.includes("/node_modules/zone.js/") &&
+      !file.includes("/node_modules/.vite/"),
     coverage: {
       provider: "istanbul",
       reportsDirectory: "coverage",
