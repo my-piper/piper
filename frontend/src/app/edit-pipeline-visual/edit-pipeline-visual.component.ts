@@ -865,7 +865,7 @@ export class EditPipelineVisualComponent
   }
 
   @HostListener("click", ["$event"])
-  selectNode(event: MouseEvent, id: string, node: Node) {
+  selectNode(event: MouseEvent, id?: string, node?: Node) {
     const target = event.target as HTMLElement;
     if (target.closest("a, button, input, textarea, select")) {
       return;

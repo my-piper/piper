@@ -3,7 +3,10 @@
 // reflect-metadata must be evaluated before any decorated model is imported.
 import "reflect-metadata";
 
-import { provideNgReflectAttributes } from "@angular/core";
+import {
+  provideNgReflectAttributes,
+  provideZoneChangeDetection,
+} from "@angular/core";
 import { getTestBed, TestBed } from "@angular/core/testing";
 import {
   BrowserDynamicTestingModule,
@@ -44,10 +47,12 @@ asJitPipes(
 );
 
 // Angular 20 stopped emitting `ng-reflect-*` attributes in dev mode; some
-// specs still locate inputs by them.
+// specs still locate inputs by them. Since Angular 21 TestBed defaults to
+// zoneless change detection; the app bootstraps with zone.js (src/main.ts),
+// so the specs do too.
 beforeEach(() => {
   TestBed.configureTestingModule({
-    providers: [provideNgReflectAttributes()],
+    providers: [provideNgReflectAttributes(), provideZoneChangeDetection()],
   });
 });
 

@@ -52,7 +52,7 @@ export class NodeLogsComponent extends UntilDestroyed {
     )
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
+        const { launch, node } = plainToInstance(PipelineEvent, data as object);
         if (launch === this.launch?._id && node === this.id) this.load();
       });
   }
