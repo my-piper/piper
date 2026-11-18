@@ -1,13 +1,11 @@
 import { Authorization } from "api/users/models/authorization";
 import mongo from "app/mongo";
-import { INITIAL_USER_BALANCE } from "consts/billing";
 import { toModel, toPlain } from "core-kit/packages/transform";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { User } from "models/user";
 import { ulid } from "ulid";
 import { sid } from "utils/string";
 import { getToken } from "./auth";
-import { refillBalance } from "./refill-balance";
 import { OAuthProvider } from "./types";
 
 const MAX_ATTEMPTS = 5;
@@ -62,10 +60,6 @@ export async function identify(
 
         throw new FatalError("Can't create user");
       }
-    }
-
-    if (INITIAL_USER_BALANCE > 0) {
-      await refillBalance(user._id, INITIAL_USER_BALANCE);
     }
   }
 

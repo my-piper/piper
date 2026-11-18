@@ -20,8 +20,6 @@ app.get("/metrics", async (req, res) => {
       queues.nodes.process.regular.metrics(),
       queues.nodes.process.deferred.metrics(),
       queues.nodes.process.protracted.metrics(),
-      queues.users.updateBalance.metrics(),
-      queues.pipelines.usage.record.metrics(),
       queues.packages.checkUpdates.metrics(),
       queues.packages.update.metrics(),
     ]);

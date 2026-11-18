@@ -1,5 +1,5 @@
 import { AUTHORIZATION_KEY } from "src/consts/core";
-import { AppConfig, BillingConfig, UiConfig } from "src/models/app-config";
+import { AppConfig, CaptchaConfig, UiConfig } from "src/models/app-config";
 import { Authorization } from "src/models/authorisation";
 import { User } from "src/models/user";
 import { appConfigFactory } from "src/providers/app-config";
@@ -15,13 +15,13 @@ import { installPrerender, seedAuthorization } from "../../helpers/config";
 describe("app config", () => {
   describe("appConfigFactory", () => {
     it("reads the PRERENDER constant into typed config", () => {
-      installPrerender(testRuntimeConfig(RUNTIME_VARIANTS.billingOn()));
+      installPrerender(testRuntimeConfig(RUNTIME_VARIANTS.captchaOn()));
 
       const config = appConfigFactory();
 
       expect(config).toBeInstanceOf(AppConfig);
-      expect(config.billing).toBeInstanceOf(BillingConfig);
-      expect(config.billing.active).toBe(true);
+      expect(config.captcha).toBeInstanceOf(CaptchaConfig);
+      expect(config.captcha.required).toBe(true);
       expect(config.ui).toBeInstanceOf(UiConfig);
       expect(config.ui.features).toEqual(["signup"]);
       expect(config.baseUrl).toBe(TEST_BASE_URL);
@@ -34,7 +34,7 @@ describe("app config", () => {
 
       expect(config.ui.features).toEqual([]);
       expect(config.captcha.required).toBe(false);
-      expect(config.billing.active).toBe(false);
+      expect(config.assistant.active).toBe(false);
     });
 
     it("falls back to the prerender copy in localStorage", () => {

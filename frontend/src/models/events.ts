@@ -78,16 +78,6 @@ export class PackageUpdatedEvent {
   }
 }
 
-export class BalanceUpdatedEvent {
-  @Expose()
-  @Type(() => String)
-  user: string;
-
-  constructor(defs: Partial<BalanceUpdatedEvent>) {
-    assign(this, defs);
-  }
-}
-
 export class LaunchEvent {
   @Expose()
   @Type(() => String)

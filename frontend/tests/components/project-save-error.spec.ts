@@ -26,7 +26,6 @@ import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
-import { CountdownPipe } from "src/pipes/countdown.pipe";
 import { I18nPipe } from "src/pipes/i18n.pipe";
 import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
 import { LengthPipe } from "src/pipes/length.pipe";
@@ -65,7 +64,6 @@ describe("ProjectComponent save errors", () => {
         LengthPipe,
         I18nPipe,
         InvalidFieldPipe,
-        CountdownPipe,
         ...asJitPipes(DeclaredVariablesPipe, PipelineNodeUpdatesPipe),
       ],
       imports: [

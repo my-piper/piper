@@ -1,11 +1,8 @@
-import { UNIT_COST } from "consts/billing";
 import {
   Expose,
-  IsNotEmpty,
   Transform,
   Type,
 } from "core-kit/packages/transform";
-import assign from "lodash/assign";
 import { Arrange } from "models/arrange";
 import { InputFlow } from "models/input-flow";
 import { NodeFlow } from "models/node-flow";
@@ -201,64 +198,4 @@ export class Pipeline {
   @Expose()
   @Transform(objectsMapTransformer(Node))
   nodes: Map<string, Node>;
-}
-
-export class NodeCosts {
-  @Expose()
-  @Type(() => String)
-  node!: string;
-
-  @IsNotEmpty()
-  @Expose()
-  @Type(() => Number)
-  costs!: number;
-
-  @IsNotEmpty()
-  @Expose()
-  @Type(() => String)
-  details!: string;
-
-  constructor(defs: Partial<NodeCosts> = {}) {
-    assign(this, defs);
-  }
-}
-
-export class PipelineCosts {
-  @Expose()
-  @Type(() => Number)
-  pipeline!: number;
-
-  @Expose()
-  @Transform(objectsMapTransformer(NodeCosts))
-  nodes!: Map<string, NodeCosts>;
-
-  @Expose()
-  @Type(() => Number)
-  total!: number;
-
-  convert() {
-    this.pipeline *= UNIT_COST;
-    if (this.nodes) {
-      for (const [, node] of this.nodes) {
-        node.costs *= UNIT_COST;
-      }
-    }
-
-    return this;
-  }
-
-  update() {
-    this.total = this.pipeline;
-    if (this.nodes) {
-      this.total += [...this.nodes.values()].reduce(
-        (costs, n) => costs + n.costs,
-        0,
-      );
-    }
-    return this;
-  }
-
-  constructor(defs: Partial<PipelineCosts> = {}) {
-    assign(this, defs);
-  }
 }

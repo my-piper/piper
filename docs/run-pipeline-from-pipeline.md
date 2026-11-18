@@ -52,9 +52,9 @@ export async function run({ inputs, children }) {
 | Rule | Behaviour |
 | --- | --- |
 | Source | Only a Deploy, resolved by `prefix` and `slug`. It must declare pipeline outputs, and it must not share the parent's activated concurrency scope (that could deadlock). Otherwise the node fails fatally. |
-| Validation | Every request in one instruction is checked (depth, deploy, outputs, scope, fan-out, billing) before any child starts, so a bad request never leaves earlier siblings running. |
+| Validation | Every request in one instruction is checked (depth, deploy, outputs, scope, fan-out) before any child starts, so a bad request never leaves earlier siblings running. |
 | Fan-out | At most 10 children per node. |
-| Identity and billing | The child runs as the parent's `launchedBy`. When billing is active, the user's balance and rate limits are checked once per instruction, as for an HTTP deploy launch. |
+| Identity | The child runs as the parent's `launchedBy`. |
 | Idempotency | `key -> childId` is saved in `NODE_CHILDREN` **before** the child starts. A key that already has a child is never launched again, so retries don't start duplicates. If starting the child throws, the child is interrupted and the key released, so the retry can start it. |
 | `children` payload | `{ [key]: { launch, status: "running" \| "finished", outputs } }`. A child is `finished` when every pipeline output is filled. Pipeline outputs only, with `json` parsed. Failed children never reach the script (see Failure). |
 | Failure | If a child has errors, or its launch is missing or expired, the node's other children are interrupted and the parent node fails with a fatal (non-retried) error before its script runs. |
@@ -85,7 +85,7 @@ Why it is not usable now:
   `schema.node`, `inputs`, `state` and `env` (`process-node-handler.ts:263-270`).
 - `execute` POSTs `{script, fn, payload, timeout, isolation}` to `DENO_URL`
   (`backend/packages/deno/execute.ts:22-27`). `DENO_URL` defaults to
-  `http://deno/` (`backend/packages/deno/costs.ts:3`).
+  `http://deno/` (`backend/consts/deno.ts:3`).
 - `git show 3146562` removes `import { createContext } from "./context"` and the
   `context: await createContext({...})` call from the handler. A repo-wide grep
   finds no other importer of `jobs/process-node/context.ts`.
@@ -105,7 +105,7 @@ The UI has a "nested" tab under a launch that uses this filter
 (`frontend/src/app/app-routing.module.ts:240-246`,
 `frontend/src/resolvers/launches-filter.ts:19-20`). Child Launches (section 0) set
 `parent`, as the deleted `nested.run` did. The HTTP launch endpoints never do
-(`api/deploys/launch-deploy.ts:38-55`, `api/projects/launch-project.ts:107-123`).
+(`api/deploys/launch-deploy.ts:31-48`, `api/projects/launch-project.ts:51-67`).
 
 ## 2. From outside Piper: the HTTP API
 
@@ -113,8 +113,8 @@ The UI has a "nested" tab under a launch that uses this filter
 
 | Purpose | Endpoint | Source |
 | --- | --- | --- |
-| Launch a deployed pipeline | `POST /api/:slug/launch`, `POST /api/:prefix/:slug/launch` | `api/deploys/launch-deploy.ts:60-61` |
-| Launch a project directly | `POST /api/projects/:_id/launch` | `api/projects/launch-project.ts:41-43` |
+| Launch a deployed pipeline | `POST /api/:slug/launch`, `POST /api/:prefix/:slug/launch` | `api/deploys/launch-deploy.ts:53-54` |
+| Launch a project directly | `POST /api/projects/:_id/launch` | `api/projects/launch-project.ts:12-14` |
 | Poll outputs and errors | `GET /api/launches/:id/state` | `api/launches/launch-state.ts:6-10` |
 | Rich output data (images, video and so on) | `GET /api/launches/:id/data` | `api/launches/launch-data.ts:6-10`, `launching.ts:272-291` |
 | Get an API token | `POST /api/me/api-token/generate` | `api/users/generate-api-token.ts:12-29` |
@@ -145,7 +145,7 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
   A user stores secrets with `PUT /api/me/environment`, which encrypts them
   (`api/environment/set-me-environment.ts:11-33`).
 - The child launch runs as the token's owner. `launchedBy` is the current user
-  (`launch-deploy.ts:39-42`, `launch-project.ts:108-111`). This is not
+  (`launch-deploy.ts:32-35`, `launch-project.ts:52-55`). This is not
   necessarily the parent launch's user. **(inference)**
 - `GET /api/launches/:id/state` and `/data` have no auth check. The handlers
   never call `checkLogged` (`launch-state.ts:8`, `launch-data.ts:8`), so the
@@ -154,16 +154,16 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
 ### Request and response shape
 
 - The body is deep-merged over the deploy's or project's stored launch request
-  (`launch-deploy.ts:32-35`, `launch-project.ts:74-77`). The `LaunchRequest`
+  (`launch-deploy.ts:25-28`, `launch-project.ts:44-47`). The `LaunchRequest`
   fields are `options`, `inclusive.nodes`, `inputs` (pipeline-level inputs,
   keyed by pipeline input id) and `nodes.<nodeId>.{inputs,outputs}`
   (`models/launch-request.ts:18-55`). Pipeline inputs are routed to node inputs
   through `pipeline.inputs[*].flows`. Data URIs for `image` and `video` inputs
   are uploaded to storage first (`launching.ts:111-155`).
 - `comment` in the body overrides the launch comment for deploy launches
-  (`launch-deploy.ts:37,54`).
-- The response is `{ _id, url }` (`launch-deploy.ts:56`). The project launch
-  returns the whole launch except `pipeline` (`launch-project.ts:124-126`).
+  (`launch-deploy.ts:30,47`).
+- The response is `{ _id, url }` (`launch-deploy.ts:49`). The project launch
+  returns the whole launch except `pipeline` (`launch-project.ts:68-70`).
 - `GET .../state` returns `{ launchedAt, errors: string[], outputs }`.
   `outputs` holds only the child pipeline's pipeline-level `outputs`, read from
   `PIPELINE_OUTPUT` keys. `json` outputs are parsed (`launching.ts:242-270`,
@@ -184,9 +184,8 @@ either kicks it or queues a `run_launch` job. It returns right away
 ### How errors surface
 
 - Launch-time errors are HTTP statuses: `DataError` gives 400 (for example
-  "Deploy … is not found" from `packages/deploy/get-deploy.ts:23-25`, or balance
-  and rate-limit errors), and you also get 401, 404 and 429
-  (`utils/http.ts:175-197`).
+  "Deploy … is not found" from `packages/deploy/get-deploy.ts:23-25`), and you also get 401, 404 and 429
+  (`utils/http.ts:178-197`).
 - Run-time errors in the child are appended to `PIPELINE_ERRORS`. A message is
   added after the last attempt fails, or immediately for a fatal, timeout or
   memory error (`jobs/process-node/process-node-error.ts:83-112`). These
@@ -220,21 +219,11 @@ either kicks it or queues a `run_launch` job. It returns right away
   list when all pipeline outputs are filled (`complete-node.ts:287-292`).
   Launches whose heartbeat has died are pruned (`run-launch.ts:41-48`). Only
   deploy launches carry a scope; `launch-project.ts` passes none
-  (`launch-project.ts:107-123`).
-- **Billing.** Both endpoints call `checkBalance`. It is a no-op unless
-  `BILLING_ACTIVE`; in production it rejects a balance of 0 or less
-  (`utils/http.ts:236-247`). Deploy launches also run `checkRateLimits` when
-  billing is active (`launch-deploy.ts:28-30`). By default that allows 5
-  requests per 60 s window, and only when `RATE_LIMIT_MIN_BALANCE > 0` and the
-  user's available balance is below it (`packages/users/check-rate-limits.ts:6-55`).
-  The project launch instead accrues the estimated cost against a short-lived
-  Redis balance when `TRACK_BALANCE` is set (`launch-project.ts:81-105`). Each
-  child launch is costed as its own launch (`launching.ts:157-159`).
+  (`launch-project.ts:51-67`).
 - **Recursion and loop guards.** Child Launches are capped at 3 levels by
   `Launch.depth` (section 0). Launches started through the HTTP API carry no
   depth. A node that calls the HTTP API to launch its own deploy would still keep
-  spawning launches, bounded only by balance, rate limits and scope
-  concurrency. **(inference)**
+  spawning launches, bounded only by scope concurrency. **(inference)**
 - **Network reachability.** The script must reach the Piper API from inside the
   Deno container. Locally, nginx on the host proxies to the app processes
   (`ARCHITECTURE.md:239`). The right base URL depends on the deployment, so

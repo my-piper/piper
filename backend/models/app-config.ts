@@ -15,20 +15,6 @@ export class UiConfig {
   }
 }
 
-export class BillingConfig {
-  @Expose()
-  @Type(() => Boolean)
-  active?: boolean;
-
-  @Expose()
-  @Type(() => String)
-  url?: string;
-
-  constructor(defs: Partial<BillingConfig> = {}) {
-    assign(this, defs);
-  }
-}
-
 export class AssistantConfig {
   @Expose()
   @Type(() => Boolean)
@@ -55,11 +41,7 @@ export class CaptchaConfig {
 
 export class AppConfig {
   @Expose()
-  @Type(() => BillingConfig)
-  billing?: BillingConfig;
-
-  @Expose()
-  @Type(() => BillingConfig)
+  @Type(() => AssistantConfig)
   assistant?: AssistantConfig;
 
   @Expose()

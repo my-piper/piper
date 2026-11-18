@@ -31,14 +31,6 @@ set_launches_errors:
 	npm run worker -- -w set_launches_errors -h
 
 .PHONY: worker
-update_users_balance:
-	npm run worker -- -w update_users_balance -h
-
-.PHONY: worker
-record_pipelines_usage:
-	npm run worker -- -w record_pipelines_usage -h
-
-.PHONY: worker
 update_packages:
 	npm run worker -- -w update_packages -h
 

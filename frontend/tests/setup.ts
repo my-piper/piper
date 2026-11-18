@@ -8,7 +8,6 @@ import { provideZoneChangeDetection } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
 import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
-import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { DeclaredVariablesPipe } from "src/pipes/declared-variables";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { TickerPipe } from "src/pipes/ticker.pipe";
@@ -29,7 +28,6 @@ asJitPipes(
   NodePipe,
   InputIndexOfPipe,
   InputFlowsPipe,
-  PipelineCostsPipe,
   LaunchHeartbeatPipe,
   DeclaredVariablesPipe,
   PipelineNodeUpdatesPipe,

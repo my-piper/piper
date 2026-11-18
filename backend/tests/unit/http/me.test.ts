@@ -5,8 +5,6 @@ import { userToken } from "../../fixtures/http";
 import bcrypt from "bcrypt";
 import { beforeEach, describe, expect, it } from "vitest";
 
-const CURSOR = "01HZY0000000000000000000AB";
-
 let context: Awaited<ReturnType<typeof createHttpApp>>;
 
 beforeEach(async () => {
@@ -14,7 +12,6 @@ beforeEach(async () => {
   context = await createHttpApp([
     () => import("api/me/get-me"),
     () => import("api/me/change-me-password"),
-    () => import("api/balance-refills/list"),
   ]);
 });
 
@@ -29,7 +26,6 @@ describe("current user", () => {
       _id: "admin-user",
       email: "admin-user@example.com",
       roles: ["admin"],
-      balance: { remaining: 10 },
       createdAt: "2025-01-01T00:00:00.000Z",
     });
   });
@@ -77,56 +73,5 @@ describe("password change", () => {
 
     expect(response.status).toBe(400);
     expect(httpDoubles.users.updateOne).not.toHaveBeenCalled();
-  });
-});
-
-describe("balance refills", () => {
-  it("lists the current user's newest refills", async () => {
-    const rows = [{ user: "owner-user", amount: 5, cursor: CURSOR }];
-    httpDoubles.clickhouse.query.mockResolvedValue({ json: async () => rows });
-
-    const response = await context.request
-      .get("/api/balance-refills")
-      .set("user-token", userToken());
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(rows);
-    expect(httpDoubles.clickhouse.query).toHaveBeenCalledExactlyOnceWith({
-      query: `SELECT * FROM user_balance_refills WHERE "user" = 'owner-user' ORDER BY cursor desc LIMIT 20`,
-      format: "JSONEachRow",
-    });
-  });
-
-  it("continues from a cursor", async () => {
-    httpDoubles.clickhouse.query.mockResolvedValue({ json: async () => [] });
-
-    await context.request
-      .get("/api/balance-refills")
-      .query({ cursor: CURSOR })
-      .set("user-token", userToken());
-
-    expect(httpDoubles.clickhouse.query.mock.calls[0][0].query).toBe(
-      `SELECT * FROM user_balance_refills WHERE "user" = 'owner-user' AND cursor < '${CURSOR}' ORDER BY cursor desc LIMIT 20`
-    );
-  });
-
-  it.each([
-    { name: "a malformed cursor", cursor: "x' OR '1'='1" },
-    { name: "a short cursor", cursor: "01HZY" },
-  ])("rejects $name before querying", async ({ cursor }) => {
-    const response = await context.request
-      .get("/api/balance-refills")
-      .query({ cursor })
-      .set("user-token", userToken());
-
-    expect(response.status).toBe(400);
-    expect(httpDoubles.clickhouse.query).not.toHaveBeenCalled();
-  });
-
-  it("rejects anonymous requests", async () => {
-    const response = await context.request.get("/api/balance-refills");
-
-    expect(response.status).toBe(400);
-    expect(httpDoubles.clickhouse.query).not.toHaveBeenCalled();
   });
 });

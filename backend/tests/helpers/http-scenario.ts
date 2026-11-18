@@ -12,9 +12,6 @@ export function httpScenario() {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(HTTP_TEST_TIME);
   vi.stubEnv("JWT_SECRET", HTTP_TEST_SECRET);
-  vi.stubEnv("BILLING_ACTIVE", "no");
-  vi.stubEnv("TRACK_BALANCE", "no");
-  vi.stubEnv("UNIT_COST", "1");
 
   const users = new Map([
     ["owner-user", httpUserFixture()],

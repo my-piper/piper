@@ -9,7 +9,6 @@ import { IconComponent } from "./icon/icon.component";
 import { InformerComponent } from "./informer/informer.component";
 import { ModalComponent } from "./modal/modal.component";
 import { ModalDirective } from "./modal/modal.directive";
-import { CountdownPipe } from "src/pipes/countdown.pipe";
 import { FileTypePipe } from "src/pipes/file-type.pipe";
 import { I18nPipe, LabelsPipe } from "src/pipes/i18n.pipe";
 import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
@@ -42,7 +41,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     SelectLanguageComponent,
     SpinnerComponent,
     TimePassedPipe,
-    CountdownPipe,
     I18nPipe,
     IncludesPipe,
     InViewportDirective,
@@ -69,7 +67,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     SelectLanguageComponent,
     SpinnerComponent,
     TimePassedPipe,
-    CountdownPipe,
     I18nPipe,
     IncludesPipe,
     InViewportDirective,

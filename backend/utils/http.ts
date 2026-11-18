@@ -1,7 +1,6 @@
 import mongo from "app/mongo";
 import bcrypt from "bcrypt";
-import { BILLING_ACTIVE } from "consts/billing";
-import { JWT_SECRET, NODE_ENV } from "consts/core";
+import { JWT_SECRET } from "consts/core";
 import { NO_CACHE_HEADERS } from "consts/http";
 import { USER_API_TOKEN_KEY } from "consts/redis";
 import {
@@ -102,7 +101,6 @@ export const handle =
                   _id: 1,
                   email: 1,
                   roles: 1,
-                  balance: 1,
                   createdAt: 1,
                 },
               }
@@ -146,7 +144,6 @@ export const handle =
                   _id: 1,
                   email: 1,
                   roles: 1,
-                  balance: 1,
                   createdAt: 1,
                 },
               }
@@ -235,19 +232,6 @@ export function checkRoles(user: User, roles: UserRole | UserRole[]) {
   return (Array.isArray(roles) ? roles : [roles]).some((role) =>
     user.roles?.includes(role)
   );
-}
-
-export function checkBalance(user: User) {
-  checkLogged(user);
-
-  if (!BILLING_ACTIVE) {
-    return;
-  }
-
-  const remaining = user.balance?.remaining || 0;
-  if (NODE_ENV === "production" && remaining <= 0) {
-    throw new DataError("Please, charge you balance");
-  }
 }
 
 // Private projects look missing to everyone except their owner and admins.

@@ -17,7 +17,6 @@ import "./update-project";
 import "./update-project-settings";
 
 import "./check-node-updates";
-import "./get-launch-costs";
 import "./launch-project";
 
 import "./assistant";

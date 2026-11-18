@@ -34,10 +34,6 @@ export function appConfigFactory(): AppConfig {
   return plainToInstance(
     AppConfig,
     prerender?.config || {
-      billing: {
-        active: ENV_MODE == "development",
-        url: "https://google.com",
-      },
       assistant: {
         active: true,
       },

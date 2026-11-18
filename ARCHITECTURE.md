@@ -55,7 +55,7 @@ One codebase, several entrypoints. Each runs with `node --import=tsx <entry>.ts`
 
 | Entrypoint | Role |
 |---|---|
-| `server.ts` | Express REST API (`/api/**`). Also serves the built frontend: it picks the locale's `index.html` for `/:language/*` and injects runtime config into `window.PRERENDER` (billing, captcha, auth features, assistant, URLs). |
+| `server.ts` | Express REST API (`/api/**`). Also serves the built frontend: it picks the locale's `index.html` for `/:language/*` and injects runtime config into `window.PRERENDER` (captcha, auth features, assistant, URLs). |
 | `worker.ts` | BullMQ consumers. Worker groups (`process_rapid_nodes`, `run_launches`, `set_launches_io`, …) map to one or more queues; `-w` selects the groups. Has graceful shutdown (120s) and an optional `/health` endpoint. |
 | `sockets.ts` | socket.io server. Clients `join_room` / `leave_room`; rooms are user ids, launch ids, or topic names such as `updating_packages`. |
 | `periodic.ts` | In-process scheduler (bottleneck): checks node package updates, deletes launches and artefacts older than `MAX_STORE_LAUNCH_DAYS`. |
@@ -88,7 +88,7 @@ backend/
   - resolves the language;
   - serializes the returned value;
   - maps `core-kit/types/errors` (`DataError`, `NotFoundError`, `UnauthorizedError`, `TooManyRequestsError`, …) to HTTP statuses.
-- Authorization is done with explicit guards inside handlers: `checkLogged`, `checkAdmin`, `checkEngineer`, `checkRoles`, `checkBalance`.
+- Authorization is done with explicit guards inside handlers: `checkLogged`, `checkAdmin`, `checkEngineer`, `checkRoles`.
 
 ### Models and serialization
 Every boundary (HTTP, Mongo, Redis, queues, Kafka, Deno) goes through `class-transformer` via `core-kit/packages/transform` (`toInstance`, `toPlain`, `mapTo`, `validate`). Models in `models/` declare their shape with `@Expose` / `@Type`; maps such as `pipeline.nodes`, `pipeline.flows` and `node.inputs` are real `Map`s once instantiated.
@@ -98,9 +98,9 @@ Every boundary (HTTP, Mongo, Redis, queues, Kafka, Deno) goes through `class-tra
 | Store | What lives there | Access |
 |---|---|---|
 | **MongoDB** | Users, projects (each embeds its pipeline), deploys, launches (summary, without pipeline), launch artefacts, node catalog (`nodes`), node packages, assets, batches, categories, tags, comments, assistant chat messages | `app/mongo.ts` (one typed collection per entity) |
-| **Redis** | Everything about a *running* launch: the launch document, node inputs/outputs/state/status/progress/logs/jobs, flow completion sets, processing locks, heartbeats, pipeline outputs and errors, scope queues. Also deploys (the hot copy used by the deploy API), global and per-user environment, API tokens, balance locks. Also the BullMQ backend and socket.io adapter. | `core-kit/packages/redis`; keys in `consts/redis.ts`; launch keys expire after `LAUNCH_EXPIRED` (7 days by default) |
-| **Kafka** | Append-only event streams: `pipeline.messages`, `pipeline.usages`, `pipeline.errors`, `pipeline.metrics.outputs`, `pipeline.metrics.finished` | `app/streams.ts` (`core-kit/packages/stream`) |
-| **ClickHouse** | Analytics tables fed from Kafka by `Kafka` engine tables plus materialized views (see `migrations/clickhouse`); `user_balance_refills` and `pipeline_usages` are the source of truth for balances | `core-kit/packages/clickhouse` |
+| **Redis** | Everything about a *running* launch: the launch document, node inputs/outputs/state/status/progress/logs/jobs, flow completion sets, processing locks, heartbeats, pipeline outputs and errors, scope queues. Also deploys (the hot copy used by the deploy API), global and per-user environment, API tokens. Also the BullMQ backend and socket.io adapter. | `core-kit/packages/redis`; keys in `consts/redis.ts`; launch keys expire after `LAUNCH_EXPIRED` (7 days by default) |
+| **Kafka** | Append-only event streams: `pipeline.messages`, `pipeline.errors`, `pipeline.metrics.outputs`, `pipeline.metrics.finished` | `app/streams.ts` (`core-kit/packages/stream`) |
+| **ClickHouse** | Analytics tables fed from Kafka by `Kafka` engine tables plus materialized views (see `migrations/clickhouse`) | `core-kit/packages/clickhouse` |
 | **S3** | Uploaded assets, launch artefacts, pipeline outputs (separate buckets, resolved by `app/storage.ts`) | `app/s3.ts`, `app/storage.ts` |
 
 ## Pipeline model
@@ -141,7 +141,6 @@ POST /api/projects/:id/launch          POST /api/[:prefix/]:slug/launch (deploye
             packages/launches/launching.ts  run()
             • seed NODE_INPUT keys from request / defaults / pipeline input flows
             • upload data-URI images & videos to S3
-            • compute costs (if billing active)
             • insert launch summary in Mongo, full launch JSON in Redis
                             │
             scope activated? ──yes──► push to scope list ► queue run_launch
@@ -180,9 +179,7 @@ POST /api/projects/:id/launch          POST /api/[:prefix/]:slug/launch (deploye
 7. When every pipeline output is filled, the launch is finished:
    - remove it from its scope queue;
    - send a `finished` metric;
-   - notify the user with `pipeline_done`;
-   - record pipeline-level usage.
-8. Per-node costs (`costs × UNIT_COST`) are recorded when billing is active.
+   - notify the user with `pipeline_done`.
 
 Failures go to `process-node-error.ts`:
 - sets the node status to `error` and emits `node_error`;
@@ -202,22 +199,13 @@ These run in the `set_launches_io` worker group and similar, so node processing 
 | `set_launch_output` | `jobs/set-launch-output.ts` | Build output data (`PIPELINE_OUTPUT_DATA`), insert into `launchArtefacts`, update the Mongo launch, emit `set_output` |
 | `save_node_artefacts` | `jobs/save-launch-artefacts.ts` | When the request sets a `bucket`, store node outputs as `launchArtefacts` |
 | `set_launch_errors` | `jobs/set-launch-errors.ts` | Copy `PIPELINE_ERRORS` to the Mongo launch, emit `set_errors` |
-| `pipelines_usage` | `jobs/record-pipeline-usage.ts` | Send to the `pipeline.usages` stream, then schedule a balance update |
-| `users_update_balance` | `jobs/update-user-balance.ts` | Recompute balance from ClickHouse (refills − usages), save to Mongo, emit `user_balance_updated` |
 | `packages_updates` / `update_package` | `jobs/check-package-updates.ts`, `jobs/update-package.ts` | Node package update checks and installs |
 
 ## Deploys (pipelines as APIs)
 `POST /api/projects/:id/deploy` snapshots the project's pipeline, launch request, environment and concurrency `scope` into a `Deploy`.
 - The deploy is stored in Mongo and in Redis under `deploy[:prefix]:slug`. Non-admins may deploy only under their own user id as the prefix.
-- The public endpoint `POST /api/[:prefix/]:slug/launch` reads the deploy from Redis, merges the request body into the deployed launch request, checks balance and rate limits, and calls the same `launches.run()` with notifications off.
+- The public endpoint `POST /api/[:prefix/]:slug/launch` reads the deploy from Redis, merges the request body into the deployed launch request, and calls the same `launches.run()` with notifications off.
 - Callers poll the launch state and data endpoints under `/api/launches/:id`.
-
-## Billing
-Billing is enabled with `BILLING_ACTIVE=yes` (`consts/billing.ts`).
-- Launch costs are estimated up front (`packages/pipelines/pipeline-costs.ts`); actual usage is recorded per node and per pipeline.
-- Balances are derived in ClickHouse and cached on the user document.
-- `checkBalance` blocks launches in production when the remaining balance is ≤ 0.
-- Refills come from an external billing service (`BILLING_URL`).
 
 ## Other subsystems
 - **Assistant** (`api/projects/assistant`, `app/llm.ts`): an OpenAI-compatible LLM with tool definitions. It proposes pipeline changes, which are validated against the compiled schema and re-signed before saving. Enabled with `ACTIVATE_ASSISTANT`.
@@ -237,7 +225,7 @@ Angular 22 module-based app (`frontend/src`):
   - the visual pipeline editor (`edit-pipeline-*`, `edit-node-*`, `edit-flow-transformer`);
   - playground, launches and node inspection (`node-logs`, `node-jobs`, `node-state`, `node-outputs`);
   - deploy and API playground (`deploy-pipeline`, `play-via-api`);
-  - node packages, assets, artefacts, expenses, users, assistant.
+  - node packages, assets, artefacts, users, assistant.
 - `services/` — `http.service.ts` (REST), `live.service.ts` (socket.io rooms for launch and user events), `me.service.ts`, `project.manager.ts` (editing state for the open project).
 - `resolvers/` and `guards/` load route data and handle auth. `models/` mirrors backend models with class-transformer.
 - Runtime config comes from `window.PRERENDER`, injected by the backend.

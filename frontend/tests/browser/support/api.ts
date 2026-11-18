@@ -363,11 +363,6 @@ export class ApiFixture {
       },
     );
 
-    // backend/api/projects/get-launch-costs.ts
-    this.on("POST", "/api/projects/:id/launch-costs", () =>
-      ok({ costs: 0, nodes: {}, total: 0 }),
-    );
-
     // backend/api/projects/launch-project.ts: merges the body over the stored
     // launch request and returns the launch without `pipeline`.
     this.on("POST", "/api/projects/:id/launch", ({ params, body, user }) => {

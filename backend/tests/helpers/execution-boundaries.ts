@@ -25,7 +25,6 @@ const doubles = vi.hoisted(() => ({
     output: vi.fn(),
     inputs: vi.fn(),
     errors: vi.fn(),
-    usage: vi.fn(),
     run: vi.fn(),
   },
   metrics: {
@@ -71,7 +70,6 @@ vi.mock("app/queues", () => ({
       errors: { set: { plan: doubles.plans.errors } },
       run: { plan: doubles.plans.run },
     },
-    pipelines: { usage: { record: { plan: doubles.plans.usage } } },
   },
 }));
 vi.mock("app/streams", () => ({

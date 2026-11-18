@@ -3,10 +3,6 @@ import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { HTTP_TEST_SECRET, HTTP_TEST_TIME } from "../../fixtures/http";
 import bcrypt from "bcrypt";
-import {
-  USER_INITIAL_BALANCE_LOCK,
-  USER_INITIAL_BALANCE_LOCK_EXPIRED,
-} from "consts/redis";
 import jwt from "jsonwebtoken";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -146,67 +142,6 @@ describe("signup", () => {
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Signup has been disabled");
     expect(httpDoubles.users.insertOne).not.toHaveBeenCalled();
-  });
-});
-
-describe("initial signup balance", () => {
-  it("refills the configured balance once per client IP", async () => {
-    vi.stubEnv("INITIAL_USER_BALANCE", "5");
-    const context = await signupApp();
-
-    const response = await context.request
-      .post("/api/signup")
-      .set("cf-connecting-ip", "192.0.2.10")
-      .send(signup);
-
-    expect(response.status).toBe(200);
-    expect(httpDoubles.clickhouse.insert).toHaveBeenCalledExactlyOnceWith({
-      table: "user_balance_refills",
-      values: [
-        {
-          user: "new-user",
-          amount: 5,
-          refilledAt: "2026-01-02 03:04:05",
-          cursor: "http-generated-cursor",
-        },
-      ],
-      format: "JSONEachRow",
-    });
-    expect(httpDoubles.plans.updateBalance).toHaveBeenCalledExactlyOnceWith({
-      user: "new-user",
-    });
-    expect(httpDoubles.redis.setEx).toHaveBeenCalledWith(
-      USER_INITIAL_BALANCE_LOCK("192.0.2.10"),
-      USER_INITIAL_BALANCE_LOCK_EXPIRED,
-      "x"
-    );
-  });
-
-  it("skips the refill when the IP already received one", async () => {
-    vi.stubEnv("INITIAL_USER_BALANCE", "5");
-    httpDoubles.redis.GET.mockResolvedValue("x");
-    const context = await signupApp();
-
-    const response = await context.request
-      .post("/api/signup")
-      .set("cf-connecting-ip", "192.0.2.10")
-      .send(signup);
-
-    expect(response.status).toBe(200);
-    expect(httpDoubles.redis.GET).toHaveBeenCalledWith(
-      USER_INITIAL_BALANCE_LOCK("192.0.2.10")
-    );
-    expect(httpDoubles.clickhouse.insert).not.toHaveBeenCalled();
-    expect(httpDoubles.plans.updateBalance).not.toHaveBeenCalled();
-  });
-
-  it("does not refill when no initial balance is configured", async () => {
-    const context = await signupApp();
-
-    await context.request.post("/api/signup").send(signup);
-
-    expect(httpDoubles.redis.GET).not.toHaveBeenCalled();
-    expect(httpDoubles.clickhouse.insert).not.toHaveBeenCalled();
   });
 });
 

@@ -1,24 +1,6 @@
 import { Expose, Type } from "class-transformer";
 import assign from "lodash/assign";
 
-export class UserBalance {
-  @Expose()
-  @Type(() => Number)
-  available!: number;
-
-  @Expose()
-  @Type(() => Number)
-  used!: number;
-
-  @Expose()
-  @Type(() => Number)
-  remaining!: number;
-
-  @Expose()
-  @Type(() => Date)
-  updatedAt!: Date;
-}
-
 export enum UserRole {
   admin = "admin",
   engineer = "engineer",
@@ -48,10 +30,6 @@ export class User {
   @Expose()
   @Type(() => String)
   provider: "yandex" | "google";
-
-  @Expose()
-  @Type(() => UserBalance)
-  balance!: UserBalance;
 
   @Expose()
   @Type(() => String)

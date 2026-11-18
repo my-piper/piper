@@ -99,7 +99,8 @@
       "type": "string"
     },
     "costs": {
-      "type": "string"
+      "type": "string",
+      "description": "Deprecated and ignored: billing was removed."
     },
     "source": {
       "type": "string",

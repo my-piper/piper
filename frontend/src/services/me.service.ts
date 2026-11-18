@@ -3,7 +3,6 @@ import { plainToInstance } from "class-transformer";
 import { BehaviorSubject, map } from "rxjs";
 import { USER_KEY } from "src/consts/core";
 import { AppConfig } from "src/models/app-config";
-import { BalanceUpdatedEvent } from "src/models/events";
 import { User } from "src/models/user";
 import { toPlain } from "src/utils/models";
 import { HttpService } from "./http.service";
@@ -51,15 +50,11 @@ export class MeManager {
         this.user = null;
       }
     });
-    this.live.socket
-      .fromEvent<object>("user_balance_updated")
-      .pipe(map((json) => plainToInstance(BalanceUpdatedEvent, json)))
-      .subscribe(() => this.loadUser());
   }
 
   private subscribe() {
     const { _id } = this.user;
-    // Reloading the same user (e.g. on balance updates) keeps its room.
+    // Reloading the same user keeps its room.
     if (this.subscriptions.room === _id) {
       return;
     }

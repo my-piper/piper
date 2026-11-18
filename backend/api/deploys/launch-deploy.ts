@@ -1,5 +1,4 @@
 import api from "app/api";
-import { BILLING_ACTIVE } from "consts/billing";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import merge from "lodash/merge";
 import { Launch, LaunchOptions } from "models/launch";
@@ -8,14 +7,12 @@ import { Project } from "models/project";
 import { User } from "models/user";
 import * as deploys from "packages/deploy";
 import * as launches from "packages/launches";
-import { checkRateLimits } from "packages/users/check-rate-limits";
-import { checkBalance, checkLogged, handle } from "utils/http";
+import { checkLogged, handle } from "utils/http";
 
 const launch = handle(
   ({ currentUser }) =>
     async ({ params: { slug, prefix }, body, ip }) => {
       checkLogged(currentUser);
-      checkBalance(currentUser);
 
       const {
         project,
@@ -24,10 +21,6 @@ const launch = handle(
         environment,
         scope,
       } = await deploys.get(slug, prefix);
-
-      if (BILLING_ACTIVE) {
-        await checkRateLimits(currentUser);
-      }
 
       const launchRequest = toInstance(
         merge(toPlain(deployLaunchRequest), body),

@@ -224,9 +224,7 @@ describe("LaunchesComponent", () => {
     );
 
     expect(component.launches.map((l) => l._id)).toEqual([LAUNCH_ID]);
-    expect(socket.listenerCount()).toBe(
-      socket.listenerCount("user_balance_updated"),
-    );
+    expect(socket.listenerCount()).toBe(0);
     expect(live.rooms.get(USER_IDS.owner).size).toBe(1);
     expect(live.rooms.has(LAUNCH_ID)).toBe(false);
     finish();

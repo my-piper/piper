@@ -59,12 +59,12 @@ Data contract suites in `tests/unit/contracts` cover Redis wire values, nested
 model maps and dates, exposed fields, and production pipeline/launch-request
 schema validation. Small reusable fixtures are in `tests/fixtures`. Suites in
 `tests/unit/utils` exercise real node input/output conversion with explicit
-storage, download, and Redis doubles. Launch and cost regressions assert the
+storage, download, and Redis doubles. Launch regressions assert the
 values written to Redis and passed to Deno while keeping domain logic real.
 
 Execution suites in `tests/unit/execution` cover planning, launch persistence and
 starting nodes, readiness guards, node results and downstream flows, repeat/next
-behavior, worker errors, environment precedence/decryption, billing, and costs.
+behavior, worker errors, and environment precedence/decryption.
 `tests/helpers/execution-boundaries.ts` supplies explicit MongoDB, Redis client,
 queue, Deno, storage, stream, and notification doubles. Import this helper first
 so its module factories are registered before application imports. Redis
@@ -75,9 +75,9 @@ or BullMQ semantics.
 Use fixed launch/job IDs and fake time for execution tests. Heartbeat tests
 advance fake timers while Deno is pending and check that no timers remain after
 success, failure, or a late refresh. Environment tests use real encryption and
-decryption with test values. Suites changing billing/unit-cost settings reload
-application modules after stubbing configuration; import error constructors from
-that same module generation when asserting their types.
+decryption with test values. Suites changing configuration reload application
+modules after stubbing it; import error constructors from that same module
+generation when asserting their types.
 
 HTTP suites in `tests/unit/http` use pinned Supertest against the real Express
 app without importing `server.ts`. `http-app.ts` reloads modules, initializes real
@@ -85,11 +85,11 @@ error decorators before asynchronous mock factories, and loads only explicitly
 selected route files. It closes ephemeral loopback servers after each test.
 `http-boundaries.ts` controls storage/queue/Deno/reporting boundaries; JWT,
 bcrypt, authorization, validators, transformations, and launch logic remain real.
-`http-scenario.ts` selects controlled test secrets, users, time, and billing modes.
+`http-scenario.ts` selects controlled test secrets, users, and time.
 Only `Date` is faked so HTTP request timers continue to run normally.
 
 See [the HTTP contract reference](../../docs/backend-http-contracts.md) for current
-permissions, statuses, token handling, and billing behavior. The workspace
+permissions, statuses, and token handling. The workspace
 sandbox requires permission to bind temporary local sockets (`listen EPERM`
 otherwise); ordinary local/CI runs need no Docker or services. Every HTTP request
 has a bounded timeout (`HTTP_REQUEST_TIMEOUT`, set once on the harness agent), and the harness verifies that unrelated network access

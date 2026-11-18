@@ -73,7 +73,7 @@ check templates.
 ## Isolation rules (enforced by `helpers/isolation.ts`)
 
 Before every spec: `localStorage`, `sessionStorage` and cookies are cleared and
-`PRERENDER` is reset to `testRuntimeConfig()` (billing, captcha, assistant and
+`PRERENDER` is reset to `testRuntimeConfig()` (captcha, assistant and
 OAuth off, dummy base URL). After every spec the spec **fails** if it:
 
 - issued an application `fetch`/`XMLHttpRequest`/`WebSocket`/`EventSource`

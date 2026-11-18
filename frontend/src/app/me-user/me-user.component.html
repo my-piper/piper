@@ -16,44 +16,6 @@
       </div>
       <small>NSFW</small>
     </div>
-    <div class="refill-balance" *ngIf="config.billing.active">
-      <p i18n="@@label.refill_balance">Refill balance:</p>
-      <ul>
-        <li>
-          <a
-            href="{{ config.billing.url }}/add_5usd?language={{
-              language | lowercase
-            }}&t={{ config.authorization.token }}"
-            >5$</a
-          >
-        </li>
-        <li>
-          <a
-            href="{{ config.billing.url }}/add_10usd?language={{
-              language | lowercase
-            }}&t={{ config.authorization.token }}"
-            >10$</a
-          >
-        </li>
-        <li>
-          <a
-            href="{{ config.billing.url }}/add_20usd?language={{
-              language | lowercase
-            }}&t={{ config.authorization.token }}"
-            >20$</a
-          >
-        </li>
-        <li>
-          <a
-            href="{{ config.billing.url }}/add_40usd?language={{
-              language | lowercase
-            }}&t={{ config.authorization.token }}"
-            >40$</a
-          >
-        </li>
-      </ul>
-    </div>
-
     <ul class="context-menu">
       <li>
         <button (click)="changePassword()">
@@ -63,20 +25,6 @@
           </ng-container>
         </button>
       </li>
-      <ng-container *ngIf="!!config.billing.url">
-        <li>
-          <a
-            [routerLink]="['/expenses']"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="references.popover?.hide()"
-            i18n="@@link.expenses"
-          >
-            <app-icon class="icon left" [icon]="'dollar'"></app-icon>
-            Expenses
-          </a>
-        </li>
-      </ng-container>
       <li>
         <button (click)="logout()" i18n="@@action.logout">
           <app-icon class="icon left" [icon]="'logout'"></app-icon>
@@ -87,12 +35,6 @@
   </div>
 </ng-template>
 
-<ng-container *ngIf="me.user$ | async as user">
-  <ng-container *ngIf="config.billing.active"></ng-container>
-  <div *ngIf="user.balance?.remaining as remaining" class="money">
-    {{ remaining | countdown | async | currency: "USD" : "symbol" : "1.3-3" }}
-  </div>
-</ng-container>
 <button
   class="circle"
   [appPopover]="{ content: userPopover, trigger: 'click' }"
