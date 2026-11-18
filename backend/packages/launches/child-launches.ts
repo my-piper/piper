@@ -1,5 +1,3 @@
-import mongo from "app/mongo";
-import { BILLING_ACTIVE } from "consts/billing";
 import {
   LAUNCH,
   LAUNCH_EXPIRED,
@@ -16,9 +14,7 @@ import { LaunchRequest } from "models/launch-request";
 import { Project } from "models/project";
 import { User } from "models/user";
 import * as deploys from "packages/deploy";
-import { checkRateLimits } from "packages/users/check-rate-limits";
 import { ChildLaunchRequest } from "types/node";
-import { checkBalance } from "utils/http";
 import { sid } from "utils/string";
 import { get, interrupt, run, state } from "./launching";
 
@@ -41,22 +37,6 @@ async function readChildLaunches(
   node: string
 ): Promise<ChildLaunches | null> {
   return (await readObject(NODE_CHILDREN(parent, node))) as ChildLaunches;
-}
-
-async function checkBilling(launchedBy: User) {
-  if (!BILLING_ACTIVE) {
-    return;
-  }
-
-  const user = toInstance(
-    await mongo.users.findOne(
-      { _id: launchedBy._id },
-      { projection: { _id: 1, balance: 1 } }
-    ),
-    User
-  );
-  checkBalance(user);
-  await checkRateLimits(user);
 }
 
 // every check runs before any child starts, so a bad request never leaves
@@ -101,7 +81,6 @@ async function validate(
     starts.set(request, deploy);
   }
 
-  await checkBilling(parent.launchedBy);
   return starts;
 }
 

@@ -22,7 +22,6 @@ export function httpUserFixture(id = "owner-user", roles: string[] = []) {
     password: HTTP_TEST_PASSWORD_HASH,
     email: `${id}@example.com`,
     roles,
-    balance: { remaining: 10 },
     createdAt: new Date("2025-01-01T00:00:00.000Z"),
   };
 }

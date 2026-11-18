@@ -157,7 +157,7 @@ describe("user creation", () => {
       body: {
         _id: "created",
         email: "a@example.com",
-        balance: { remaining: 100 },
+        provider: "google",
       },
     },
   ])("rejects $name with the user schema", async ({ body }) => {
@@ -252,7 +252,7 @@ describe("user updates", () => {
       .send({
         _id: "owner-user",
         email: "owner-user@example.com",
-        balance: { remaining: 1000 },
+        provider: "google",
       });
 
     expect(response.status).toBe(400);

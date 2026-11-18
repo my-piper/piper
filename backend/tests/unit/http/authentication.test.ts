@@ -36,12 +36,11 @@ describe("user-token authentication", () => {
       _id: "owner-user",
       email: "owner-user@example.com",
       roles: [],
-      balance: { remaining: 10 },
     });
     expect(response.body.createdAt).toBe("2025-01-01T00:00:00.000Z");
     expect(httpDoubles.users.findOne).toHaveBeenCalledWith(
       { _id: "owner-user" },
-      { projection: { _id: 1, email: 1, roles: 1, balance: 1, createdAt: 1 } }
+      { projection: { _id: 1, email: 1, roles: 1, createdAt: 1 } }
     );
   });
 

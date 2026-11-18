@@ -129,34 +129,6 @@ const Workers = new Map<string, Worker>([
     },
   ],
   [
-    "update_users_balance",
-    {
-      queues: new Map([
-        [
-          "update_users_balance",
-          {
-            queue: queues.users.updateBalance,
-            loader: () => import("./jobs/update-user-balance"),
-          },
-        ],
-      ]),
-    },
-  ],
-  [
-    "record_pipelines_usage",
-    {
-      queues: new Map([
-        [
-          "record_pipelines_usage",
-          {
-            queue: queues.pipelines.usage.record,
-            loader: () => import("./jobs/record-pipeline-usage"),
-          },
-        ],
-      ]),
-    },
-  ],
-  [
     "update_packages",
     {
       queues: new Map([
@@ -184,7 +156,6 @@ const logger = createLogger("worker");
 await streams.pipeline.messages.connect();
 await streams.pipeline.metrics.outputs.connect();
 await streams.pipeline.metrics.finished.connect();
-await streams.pipeline.usage.connect();
 await streams.pipeline.errors.connect();
 await streams.pipeline.runs.nodes.connect();
 await streams.pipeline.runs.launches.connect();

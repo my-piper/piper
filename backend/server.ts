@@ -3,7 +3,6 @@ import "reflect-metadata";
 
 import api from "app/api";
 
-import { BILLING_ACTIVE, BILLING_URL } from "consts/billing";
 import { createLogger } from "core-kit/packages/logger";
 import sentry from "core-kit/packages/sentry";
 import { Expose, toInstance, toPlain, Type } from "core-kit/packages/transform";
@@ -15,7 +14,6 @@ import { parseURL } from "ufo";
 
 import "./api/artefacts";
 import "./api/assets";
-import "./api/balance-refills";
 import "./api/batches";
 import "./api/dms";
 import "./api/environment";
@@ -24,7 +22,6 @@ import "./api/me";
 import "./api/messages";
 import "./api/node-packages";
 import "./api/nodes";
-import "./api/pipeline-usages";
 import "./api/pipelines";
 import "./api/projects";
 import "./api/users";
@@ -88,10 +85,6 @@ api.get(
     const prerender = toInstance(
       {
         config: {
-          billing: {
-            active: BILLING_ACTIVE,
-            url: BILLING_URL,
-          },
           assistant: {
             active: ACTIVATE_ASSISTANT,
           },

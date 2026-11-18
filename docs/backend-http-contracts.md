@@ -2,13 +2,13 @@
 
 These behaviors are exercised by `backend/tests/unit/http` using the production
 Express middleware, selected route modules, JWT verification, bcrypt comparison,
-model transformations, validators, launch logic, and billing checks. Storage,
+model transformations, validators, and launch logic. Storage,
 queues, Deno, and reporting use explicit test doubles.
 
 ## Authentication
 
 - `user-token` is verified as a JWT. Its user ID is used to load the current user,
-  roles, and balance from MongoDB. Token-supplied roles do not grant access.
+  and roles from MongoDB. Token-supplied roles do not grant access.
 - `api-token` must pass JWT verification, have a stored Redis hash, match that
   hash through bcrypt, and resolve to an existing user. Deleting the hash
   revokes the API token (replacing it does not; see known defects). Expired or invalid tokens return 401.
@@ -27,7 +27,7 @@ queues, Deno, and reporting use explicit test doubles.
 | `POST /api/projects`               | Logged-in user                                | 200               |
 | `POST /api/projects/:_id`          | Project owner or admin                        | 200               |
 | `DELETE /api/projects/:_id`        | Project owner or admin                        | 204               |
-| `POST /api/projects/:_id/launch`   | Logged-in user plus applicable balance checks | 200               |
+| `POST /api/projects/:_id/launch`   | Logged-in user                                | 200               |
 | `POST /api/launches/:id/interrupt` | Logged-in user and an existing live launch    | 204               |
 
 Project read and launch handlers return 404 for a private project unless the
@@ -81,7 +81,7 @@ permission rules; permission/status changes need an explicit contract decision.
   become JSON; `null`, numeric zero, and empty-string handler results return 204.
   Handlers may send their own response and return `undefined`.
 
-## Users, current user, and balance refills
+## Users and current user
 
 | Endpoint                          | Requirement                        | Successful status  |
 | --------------------------------- | ---------------------------------- | ------------------ |
@@ -91,7 +91,6 @@ permission rules; permission/status changes need an explicit contract decision.
 | `POST /api/me/api-token/generate` | Logged-in user                     | 200                |
 | `GET /api/me`                     | Logged-in user                     | 200                |
 | `POST /api/me/change-password`    | Logged-in user                     | 204                |
-| `GET /api/balance-refills`        | Logged-in user; own refills only   | 200                |
 | `GET /api/users/:_id`             | Logged-in user                     | 200, 204 if absent |
 | `GET /api/users`                  | Admin                              | 200                |
 | `POST /api/users`                 | Admin                              | 200                |
@@ -103,8 +102,7 @@ permission rules; permission/status changes need an explicit contract decision.
   one. Passwords must be 6–20 characters before users are read.
 - Signup requires the code stored by `/api/signup/confirm` (5-minute TTL),
   rejects `+` addresses and addresses the external verifier does not report as
-  `VALID`, and stores a bcrypt hash. A configured `INITIAL_USER_BALANCE` is
-  refilled once per client IP per day.
+  `VALID`, and stores a bcrypt hash.
 - API token generation stores a bcrypt hash of the issued JWT in Redis.
 - `/api/me` and the auth middleware load users without password hashes. Password
   changes require 6–32 characters, update only the current user's hash, and do
@@ -112,8 +110,6 @@ permission rules; permission/status changes need an explicit contract decision.
 - Admin user creation and updates use the production user schema
   (`User schema invalid`, unknown fields rejected); duplicate users report
   `User exists`. Non-admins, including engineers, get 400.
-- Balance refills are read from ClickHouse 20 at a time by descending cursor;
-  malformed cursors are rejected before querying.
 
 Signup requires a pending confirmation code, and signup responses, signup
 tokens, and admin user updates never include password hashes. Admin user search
@@ -135,16 +131,3 @@ Known defects are recorded as `it.fails` tests in `backend/tests/unit/http`:
 | `PenTestingError`      | Existing 302 redirect                                                               |
 | Unexpected error       | Reported to Sentry; 500 with `SERVICE_OFFLINE\|Our service temporarily unavailable` |
 
-## Billing modes
-
-`BILLING_ACTIVE=yes` blocks launch requests with non-positive or missing remaining
-balance when `NODE_ENV=production`. This balance guard permits the same user in
-test/development mode or when billing is disabled. Enabled billing also computes
-and includes the launch cost estimate.
-
-`TRACK_BALANCE=yes` independently enables accrued-balance checks for users at or
-below `MIN_BALANCE_FOR_TRACK`. The Redis script receives the starting balance,
-cost estimate, and a 300-second TTL. A resulting balance at or below zero rejects
-the launch with 400 and `Please, top up your balance`, before launch persistence
-or node scheduling. Users above the threshold bypass this check. Tracking can
-reject a request even when `BILLING_ACTIVE=no`.

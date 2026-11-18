@@ -1,6 +1,6 @@
 import { Expose, Transform, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
-import { Pipeline, PipelineCosts } from "models/pipeline";
+import { Pipeline } from "models/pipeline";
 import {
   multipleMapTransformer,
   objectsMapTransformer,
@@ -341,10 +341,6 @@ export class Launch {
   @Expose()
   @Transform(objectsMapTransformer(LaunchArtefact))
   outputs!: Map<string, LaunchArtefact>;
-
-  @Expose()
-  @Type(() => PipelineCosts)
-  costs: PipelineCosts;
 
   @Expose()
   @Type(() => String)

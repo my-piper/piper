@@ -17,8 +17,8 @@ import { provideSocketDouble, SocketDouble } from "../../helpers/socket";
 /**
  * Room contract: backend/sockets.ts joins/leaves `socket.join(room)` with the
  * payload of `join_room` / `leave_room`, so both events must carry the room
- * name. User rooms are keyed by user id (backend/jobs/update-user-balance.ts
- * `notify(user, "user_balance_updated")`).
+ * name. User rooms are keyed by user id (backend/jobs/set-launch-output.ts
+ * `notify(launchedBy._id, "set_output", event)`).
  */
 describe("LiveService rooms", () => {
   let live: LiveService;
@@ -140,7 +140,6 @@ describe("MeManager", () => {
     controller.expectOne("/api/me").flush(userPlain("owner"));
 
     expect(me.user._id).toBe(USER_IDS.owner);
-    expect(me.user.balance.remaining).toBe(8);
     expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
       USER_IDS.owner,
     ]);
@@ -160,18 +159,19 @@ describe("MeManager", () => {
     );
   });
 
-  it("reloads the user on user_balance_updated without retaining extra rooms", () => {
+  it("reloads the same user on re-authorization without retaining extra rooms", () => {
     seedAuthorization(userPlain("owner"));
     configure();
     const me = TestBed.inject(MeManager);
     const live = TestBed.inject(LiveService);
+    const config = TestBed.inject(AppConfig);
     controller.expectOne("/api/me").flush(userPlain("owner"));
-    const refill = { ...userPlain("owner"), balance: { remaining: 100 } };
+    const renamed = { ...userPlain("owner"), email: "renamed@piper.test" };
 
-    socket.receive("user_balance_updated", { user: USER_IDS.owner });
-    controller.expectOne("/api/me").flush(refill);
+    config.authorization = authorization("owner");
+    controller.expectOne("/api/me").flush(renamed);
 
-    expect(me.user.balance.remaining).toBe(100);
+    expect(me.user.email).toBe("renamed@piper.test");
     expect(live.rooms.get(USER_IDS.owner).size).toBe(1);
     expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
       USER_IDS.owner,
@@ -184,8 +184,6 @@ describe("MeManager", () => {
     const me = TestBed.inject(MeManager);
     const live = TestBed.inject(LiveService);
     const config = TestBed.inject(AppConfig);
-    controller.expectOne("/api/me").flush(userPlain("owner"));
-    socket.receive("user_balance_updated", { user: USER_IDS.owner });
     controller.expectOne("/api/me").flush(userPlain("owner"));
 
     config.authorization = null;

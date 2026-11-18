@@ -91,10 +91,6 @@ export class NextNode {
   @Expose()
   @Type(() => Number)
   delay: number = 1000;
-
-  @Expose()
-  @Type(() => Number)
-  costs!: number;
 }
 
 export function Input(options: InputOptions = {}): PropertyDecorator {

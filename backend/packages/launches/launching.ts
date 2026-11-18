@@ -1,7 +1,6 @@
 import mongo from "app/mongo";
 import { queues } from "app/queues";
 import * as storage from "app/storage";
-import { BILLING_ACTIVE } from "consts/billing";
 import { BASE_URL } from "consts/core";
 import {
   LAUNCH,
@@ -35,7 +34,6 @@ import {
   VideoData,
 } from "models/launch";
 import { plan } from "packages/nodes/plan-node";
-import { getCosts } from "packages/pipelines/pipeline-costs";
 import path from "path";
 import sharp from "sharp";
 import { PipelineIOType } from "types/pipeline";
@@ -147,10 +145,6 @@ export async function run(
     }
   }
 
-  const costs = BILLING_ACTIVE
-    ? await getCosts(pipeline, launchRequest, launchedBy)
-    : null;
-
   const now = new Date();
   const launch = new Launch({
     _id,
@@ -166,7 +160,6 @@ export async function run(
     depth: depth || 0,
     scope,
     options,
-    costs,
     comment,
     url: `${BASE_URL}/launches/${_id}`,
     outputs,

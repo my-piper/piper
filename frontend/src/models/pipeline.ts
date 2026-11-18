@@ -204,39 +204,3 @@ export class Pipeline {
   @Type(() => Node)
   nodes!: Map<string, Node>;
 }
-
-export class NodeCosts {
-  @Expose()
-  @Type(() => String)
-  node!: string;
-
-  @Expose()
-  @Type(() => Number)
-  costs!: number;
-
-  @Expose()
-  @Type(() => String)
-  details!: string;
-
-  constructor(defs: Partial<NodeCosts> = {}) {
-    assign(this, defs);
-  }
-}
-
-export class PipelineCosts {
-  @Expose()
-  @Type(() => Number)
-  costs!: number;
-
-  @Expose()
-  @Type(() => NodeCosts)
-  nodes!: Map<string, NodeCosts>;
-
-  @Expose()
-  @Type(() => Number)
-  total!: number;
-
-  constructor(defs: Partial<PipelineCosts> = {}) {
-    assign(this, defs);
-  }
-}

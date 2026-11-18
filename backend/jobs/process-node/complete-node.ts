@@ -1,6 +1,5 @@
 import { queues } from "app/queues";
 import { streams } from "app/streams";
-import { BILLING_ACTIVE, UNIT_COST } from "consts/billing";
 import {
   LAUNCH_EXPIRED,
   NODE_FLOWS,
@@ -55,7 +54,7 @@ export async function completeNode({
   const node = pipeline.nodes.get(nodeJob.node);
   const PROCESSED_LOCK = NODE_PROCESSED_LOCK(nodeJob.launch, nodeJob.node);
 
-  const { outputs, kicks, behavior, reset, delay, costs } = toInstance(
+  const { outputs, kicks, behavior, reset, delay } = toInstance(
     result as object,
     NextNode
   );
@@ -288,7 +287,7 @@ export async function completeNode({
       }
       logger.info(`Filled ${filled} from ${total} in pipeline outputs`);
       if (filled >= total) {
-        const { scope, launchedBy } = launch;
+        const { scope } = launch;
         if (scope) {
           logger.info(`Remove launch from scope ${scope.id}`);
           await redis.lRem(scope.id, 0, launch._id);
@@ -307,33 +306,8 @@ export async function completeNode({
           "pipeline_done",
           mapTo({ launch: launch._id }, PipelineEvent)
         );
-
-        const { costs } = launch;
-        if (costs?.pipeline > 0) {
-          await queues.pipelines.usage.record.plan({
-            project: launch.project.title,
-            pipeline: launch.pipeline.name,
-            launch: launch._id,
-            launchedBy: launchedBy._id,
-            processedAt,
-            costs: costs.pipeline,
-          });
-        }
       }
     }
-  }
-
-  if (BILLING_ACTIVE && costs > 0) {
-    const { launchedBy } = launch;
-    await queues.pipelines.usage.record.plan({
-      project: launch.project.title,
-      pipeline: launch.pipeline.name,
-      launch: launch._id,
-      launchedBy: launchedBy._id,
-      node: node.title,
-      processedAt,
-      costs: costs * UNIT_COST,
-    });
   }
 
   return NodeJobResult.NODE_PROCESSED;

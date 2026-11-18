@@ -30,7 +30,6 @@ describe("launch persistence and scheduling", () => {
     expect(launch.cursor).toBe("fixed-cursor");
     expect(launch.launchedAt).toEqual(EXECUTION_TIME);
     expect(launch.parent).toBeNull();
-    expect(launch.costs).toBeNull();
     expect(toPlain(launch.outputs.get("result"))).toEqual({ type: "json" });
     expect(doubles.insertOne).toHaveBeenCalledOnce();
     expect(doubles.insertOne.mock.calls[0][0]).not.toHaveProperty("pipeline");

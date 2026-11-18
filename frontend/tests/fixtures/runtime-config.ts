@@ -3,7 +3,6 @@
  * (backend/server.ts). Shared with the browser suite: no Angular imports.
  */
 export type PlainAppConfig = {
-  billing?: { active?: boolean; url?: string };
   assistant?: { active?: boolean };
   captcha?: { required?: boolean; key?: string | null };
   ui?: {
@@ -16,12 +15,11 @@ export type PlainAppConfig = {
 
 export const TEST_BASE_URL = "http://piper.test";
 
-/** Billing off, signup on, captcha/assistant/OAuth off, dummy base URL. */
+/** Signup on, captcha/assistant/OAuth off, dummy base URL. */
 export function testRuntimeConfig(
   overrides: Partial<PlainAppConfig> = {},
 ): PlainAppConfig {
   return {
-    billing: { active: false, url: `${TEST_BASE_URL}/billing` },
     assistant: { active: false },
     captcha: { required: false, key: null },
     ui: { features: ["signup"], appFooter: "<div>test footer</div>" },
@@ -32,9 +30,6 @@ export function testRuntimeConfig(
 }
 
 export const RUNTIME_VARIANTS = {
-  billingOn: (): Partial<PlainAppConfig> => ({
-    billing: { active: true, url: `${TEST_BASE_URL}/billing` },
-  }),
   signupOff: (): Partial<PlainAppConfig> => ({ ui: { features: [] } }),
   captchaOn: (): Partial<PlainAppConfig> => ({
     // hCaptcha's documented always-pass test site key.

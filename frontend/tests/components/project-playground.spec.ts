@@ -34,9 +34,7 @@ import { expectConsoleError } from "../helpers/console";
 
 /**
  * POST /api/projects/:_id/launch merges this body into the stored launch
- * request (backend/api/projects/launch-project.ts); the costs pipe posts the
- * same request to /api/projects/:_id/launch-costs
- * (backend/api/projects/get-launch-costs.ts) — answered with `null` here.
+ * request (backend/api/projects/launch-project.ts).
  */
 const UI_DELAY = 250;
 
@@ -84,7 +82,6 @@ describe("ProjectPlaygroundComponent", () => {
     fixture = TestBed.createComponent(ProjectPlaygroundComponent);
     element = fixture.nativeElement;
     fixture.detectChanges();
-    answerCosts();
     return fixture.componentInstance;
   }
 
@@ -100,12 +97,6 @@ describe("ProjectPlaygroundComponent", () => {
     return create(project);
   }
 
-  function answerCosts() {
-    controller
-      .match((r) => r.url.endsWith("/launch-costs"))
-      .forEach((r) => r.flush(null));
-  }
-
   function field(id: string): HTMLInputElement {
     const host = Array.from(element.querySelectorAll("app-edit-input")).find(
       (e) => componentOf<EditInputComponent>(e)?.id === id,
@@ -118,7 +109,6 @@ describe("ProjectPlaygroundComponent", () => {
     input.value = value;
     input.dispatchEvent(new Event("input"));
     fixture.detectChanges();
-    answerCosts();
   }
 
   function runButton(): HTMLButtonElement {
@@ -261,7 +251,6 @@ describe("ProjectPlaygroundComponent", () => {
 
     playground.reset();
     fixture.detectChanges();
-    answerCosts();
 
     expect(localStorage.getItem(PROJECT_A_ID)).toBeNull();
     expect(playground.inputsGroup.getRawValue()).toEqual({
@@ -325,9 +314,6 @@ describe("PlayWithProjectComponent", () => {
     tick();
     fixture.detectChanges();
     controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
-    controller
-      .match((r) => r.url.endsWith("/launch-costs"))
-      .forEach((r) => r.flush(null));
     return { fixture, router, project };
   }
 

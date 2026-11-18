@@ -13,7 +13,6 @@ const jobDoubles = vi.hoisted(() => ({
     launchArtefacts: { insertOne: vi.fn() },
   },
   clickhouse: { query: vi.fn() },
-  usage: vi.fn(),
   notify: vi.fn(),
   captureException: vi.fn(),
   download: vi.fn(),
@@ -54,7 +53,7 @@ vi.mock("core-kit/packages/redis", async () => ({
 }));
 vi.mock("app/mongo", () => ({ default: jobDoubles.mongo }));
 vi.mock("app/streams", () => ({
-  streams: { pipeline: { usage: { send: jobDoubles.usage } } },
+  streams: { pipeline: {} },
 }));
 vi.mock("core-kit/packages/clickhouse", () => ({
   default: jobDoubles.clickhouse,
@@ -77,7 +76,6 @@ export function resetJobDoubles() {
       Object.values(collection)
     ),
     jobDoubles.clickhouse.query,
-    jobDoubles.usage,
     jobDoubles.notify,
     jobDoubles.captureException,
     jobDoubles.download,

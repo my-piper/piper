@@ -1,0 +1,20 @@
+[
+  {
+    "update": "users",
+    "updates": [
+      {
+        "q": {
+          "balance": {
+            "$exists": true
+          }
+        },
+        "u": {
+          "$unset": {
+            "balance": ""
+          }
+        },
+        "multi": true
+      }
+    ]
+  }
+]

@@ -9,9 +9,8 @@ Add a new background queue named `$ARGUMENTS` to the backend. The first word
 is the queue/worker id in `snake_case`; the rest describes what the job does.
 If no id was given, ask for one.
 
-Follow the existing pattern exactly, using `set_launch_errors` or
-`record_pipeline_usage` as the reference implementation. Read both end to end
-before writing.
+Follow the existing pattern exactly, using `set_launch_errors` as the
+reference implementation. Read it end to end before writing.
 
 1. **Job model:** `backend/models/jobs/<kebab-name>-job.ts`. A class whose
    fields all have `@Expose()`, with `@Type(() => X)` for nested objects and

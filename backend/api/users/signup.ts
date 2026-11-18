@@ -2,24 +2,18 @@ import api from "app/api";
 import mongo from "app/mongo";
 import axios from "axios";
 import bcrypt from "bcrypt";
-import { INITIAL_USER_BALANCE } from "consts/billing";
 import { CAPTCHA_REQUIRED, CAPTCHA_SECRET } from "consts/captcha";
-import {
-  USER_INITIAL_BALANCE_LOCK,
-  USER_INITIAL_BALANCE_LOCK_EXPIRED,
-} from "consts/redis";
 import { ALLOW_SIGNUP } from "consts/ui";
 import { getLabel } from "core-kit/packages/i18n";
 import { createLogger } from "core-kit/packages/logger";
 import { sendEmail } from "core-kit/packages/mailer";
-import redis, { lock, locked } from "core-kit/packages/redis";
+import redis from "core-kit/packages/redis";
 import { handlebars, markdown } from "core-kit/packages/templates";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import { readFile } from "fs/promises";
 import { User } from "models/user";
 import { getToken } from "packages/users/auth";
-import { refillBalance } from "packages/users/refill-balance";
 import { ulid } from "ulid";
 import { handle } from "utils/http";
 import { sid } from "utils/string";
@@ -34,7 +28,7 @@ const CONFIRMATION_CODE_EXPIRE = 300;
 
 api.post(
   "/api/signup",
-  handle(({ ip }) => async ({ body }) => {
+  handle(() => async ({ body }) => {
     if (!ALLOW_SIGNUP) {
       throw new DataError("Signup has been disabled");
     }
@@ -83,15 +77,6 @@ api.post(
       }
 
       throw err;
-    }
-
-    if (INITIAL_USER_BALANCE > 0) {
-      const refillKey = USER_INITIAL_BALANCE_LOCK(ip);
-      const refilled = await locked(refillKey);
-      if (!refilled) {
-        await refillBalance(_id, INITIAL_USER_BALANCE);
-        await lock(refillKey, USER_INITIAL_BALANCE_LOCK_EXPIRED);
-      }
     }
 
     {

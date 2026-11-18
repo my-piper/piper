@@ -21,7 +21,6 @@ import { Project } from "src/models/project";
 import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
 import { componentOf } from "./component";
 import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
-import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { DeclaredVariablesPipe } from "src/pipes/declared-variables";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { ProjectManager } from "src/services/project.manager";
@@ -54,7 +53,6 @@ export function configureAppTestingModule(routes: Routes = []) {
     NodePipe,
     InputIndexOfPipe,
     InputFlowsPipe,
-    PipelineCostsPipe,
     LaunchHeartbeatPipe,
     DeclaredVariablesPipe,
     PipelineNodeUpdatesPipe,

@@ -41,12 +41,6 @@ export function userPlain(kind: UserKind = "owner"): Plain {
     email: `${kind}@piper.test`,
     createdAt: "2026-01-01T00:00:00.000Z",
     roles: roles[kind],
-    balance: {
-      available: 10,
-      used: 2,
-      remaining: 8,
-      updatedAt: "2026-01-02T00:00:00.000Z",
-    },
   };
 }
 

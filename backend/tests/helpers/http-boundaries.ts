@@ -37,7 +37,6 @@ const httpDoubles = vi.hoisted(() => ({
     deferred: vi.fn(),
     protracted: vi.fn(),
     inputs: vi.fn(),
-    updateBalance: vi.fn(),
   },
   clickhouse: { query: vi.fn(), insert: vi.fn() },
   sendEmail: vi.fn(),
@@ -77,7 +76,6 @@ vi.mock("app/queues", () => ({
       },
     },
     launches: { inputs: { set: { plan: httpDoubles.plans.inputs } } },
-    users: { updateBalance: { plan: httpDoubles.plans.updateBalance } },
   },
 }));
 vi.mock("core-kit/packages/clickhouse", () => ({

@@ -127,7 +127,7 @@ describe("EditPipelineVisualComponent runs", () => {
     const { element, controller, detectChanges } = editor;
 
     runButton(element).click();
-    controller.expectOne(LAUNCH_URL).flush("Please, top up your balance", {
+    controller.expectOne(LAUNCH_URL).flush("Launch request is invalid", {
       status: 400,
       statusText: "Bad Request",
     });
@@ -135,7 +135,7 @@ describe("EditPipelineVisualComponent runs", () => {
     detectChanges();
 
     expect(element.querySelector("app-informer")?.textContent).toContain(
-      "Please, top up your balance",
+      "Launch request is invalid",
     );
     expect(editor.editor.launch).toBeFalsy();
     expect(editor.editor.progress.launching).toBe(false);
@@ -291,11 +291,9 @@ describe("EditPipelineVisualComponent runs", () => {
     fixture.destroy();
     socket.receive("node_done", { launch: LAUNCH_ID, node: "node_one" });
 
-    // Only MeManager's app-wide balance listener and user room remain.
+    // Only MeManager's user room remains.
     expect(userRefs).toBe(2);
-    expect(socket.listenerCount()).toBe(
-      socket.listenerCount("user_balance_updated"),
-    );
+    expect(socket.listenerCount()).toBe(0);
     expect(live.rooms.get(USER_IDS.owner).size).toBe(1);
     expect(live.rooms.has(LAUNCH_ID)).toBe(false);
     expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([LAUNCH_ID]);

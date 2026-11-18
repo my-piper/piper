@@ -2,7 +2,6 @@ import {
   createComponent,
   EnvironmentInjector,
   Component,
-  Inject,
   Injector,
   OnInit,
   ChangeDetectionStrategy,
@@ -12,9 +11,7 @@ import { Router } from "@angular/router";
 import { AppConfig } from "src/models/app-config";
 import { HttpService } from "src/services/http.service";
 import { MeManager } from "src/services/me.service";
-import { Languages } from "src/enums/languages";
 import { PopoverComponent } from "src/ui-kit/popover/popover.component";
-import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { ModalService } from "../../ui-kit/modal/modal.service";
 import { ChangePasswordComponent } from "../change-password/change-password.component";
 import { NsfwDisclaimer } from "../nsfw-disclaimer/nsfw-disclaimer.component";
@@ -37,7 +34,6 @@ export class MeUserComponent implements OnInit {
   });
 
   constructor(
-    @Inject(CURRENT_LANGUAGE) public language: Languages,
     public me: MeManager,
     public config: AppConfig,
     private fb: FormBuilder,

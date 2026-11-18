@@ -179,64 +179,7 @@
       <app-icon class="icon" icon="add-node"></app-icon>
     </a>
 
-    <ng-template #runTemplate>
-      <div class="run-pipeline">
-        <ul *ngIf="(launches | keyvalue).length > 0; else costsTemplate">
-          <li *ngFor="let l of launches | keyvalue">
-            <div>{{ pipeline.nodes.get(l.key).title | i18n }}</div>
-            <button
-              class="primary with-icon icon-only small"
-              (click)="stopNode(l.key)"
-            >
-              <app-icon class="icon" icon="stop"></app-icon>
-            </button>
-          </li>
-        </ul>
-
-        <ng-template #costsTemplate>
-          <ng-container *ngLet="project._id | pipelineCosts | async as costs">
-            <ng-template #loadingTemplate>
-              <app-spinner></app-spinner>
-            </ng-template>
-            <ng-container *ngIf="costs !== null; else loadingTemplate">
-              <ng-template #noCostsTemplate>
-                <div i18n="@@message.no_costs_for_pipeline">
-                  This pipeline is free to use.
-                </div>
-              </ng-template>
-              <ng-container *ngIf="costs.total > 0; else noCostsTemplate">
-                <ul>
-                  <li *ngFor="let n of costs.nodes | keyvalue">
-                    <div>{{ pipeline.nodes.get(n.key).title | i18n }}</div>
-                    <div class="money">
-                      {{
-                        n.value.costs | currency: "USD" : "symbol" : "1.0-10"
-                      }}
-                    </div>
-                  </li>
-                </ul>
-                <footer>
-                  <ng-container i18n="@@label.total_pipeline_costs">
-                    Total pipeline costs:
-                  </ng-container>
-                  <span class="money">
-                    {{ costs.total | currency: "USD" : "symbol" : "1.0-10" }}
-                  </span>
-                </footer>
-              </ng-container>
-            </ng-container>
-          </ng-container>
-        </ng-template>
-      </div>
-    </ng-template>
-
-    <div
-      [appPopover]="{
-        content: runTemplate,
-        maxWidth: '500px',
-        disabled: !config.billing.active,
-      }"
-    >
+    <div>
       <button
         class="circle"
         data-testid="run-pipeline"
@@ -477,44 +420,6 @@
       (moving)="itemMoving('node:' + node.key, node.value.arrange, $event)"
       (moved)="itemMoved('node:' + node.key, node.value.arrange, $event)"
     >
-      <ng-template #nodeCostsTemplate>
-        <div
-          class="node-costs"
-          *ngLet="
-            $safeNavigationMigration(
-              (project._id | pipelineCosts | async)?.nodes?.get(node.key)
-            ) as costs
-          "
-        >
-          <ng-template #noCostsTemplate>
-            <div i18n="@@message.no_costs_for_node">
-              This node is free to use.
-            </div>
-          </ng-template>
-
-          <ng-template #loadingTemplate>
-            <app-spinner></app-spinner>
-          </ng-template>
-          <ng-container *ngIf="costs !== null; else loadingTemplate">
-            <div *ngIf="costs.costs > 0; else noCostsTemplate">
-              <div
-                *ngIf="!!costs.details"
-                [innerHTML]="costs.details | markdown | async"
-              ></div>
-
-              <div class="costs">
-                <ng-container i18n="@@label.cost_per_run">
-                  Cost per run:
-                </ng-container>
-                <span class="money">
-                  {{ costs.costs | currency: "USD" : "symbol" : "1.0-10" }}
-                </span>
-              </div>
-            </div>
-          </ng-container>
-        </div>
-      </ng-template>
-
       <div
         *ngIf="mode !== 'scheme' && !launch"
         class="actions stack align-center"
@@ -523,10 +428,6 @@
           class="circle small"
           [class.busy]="progress.nodes.launching[node.key]"
           [disabled]="progress.nodes.launching[node.key]"
-          [appPopover]="{
-            content: nodeCostsTemplate,
-            disabled: !config.billing.active,
-          }"
           (click)="
             !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
           "

@@ -70,7 +70,6 @@ import { OrderByPipe } from "src/pipes/order-by";
 import { PipelineOutputPipe } from "src/pipes/output";
 import { ParseJsonPipe } from "src/pipes/parse-json";
 import { GetPercentPipe } from "src/pipes/percents";
-import { PipelineCostsPipe } from "src/pipes/pipeline-costs";
 import { DeclaredVariablesPipe } from "src/pipes/declared-variables";
 import { PipelineFinishedMetricPipe } from "src/pipes/pipeline-finished-metric";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
@@ -112,9 +111,6 @@ import { EditProjectComponent } from "./edit-project/edit-project.component";
 import { MeEnvironmentComponent } from "./me-environment/me-environment.component";
 import { EnvironmentVariablesComponent } from "./environment-variables/environment-variables.component";
 import { ProjectSettingsComponent } from "./project-settings/project-settings.component";
-import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refills.component";
-import { ExpensesComponent } from "./expenses/expenses.component";
-import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
 import { FeedSkeletonComponent } from "./feed-skeleton/feed-skeleton.component";
 import { InspectComponent } from "./inspect/inspect.component";
 import { IoValueComponent } from "./io-value/io-value.component";
@@ -267,14 +263,10 @@ import { UsersComponent } from "./users/users.component";
     NotPipe,
     EditPipelineReadmeComponent,
     PipelineReadmeComponent,
-    PipelineCostsPipe,
     PipelineNodeUpdatesPipe,
     MeUserComponent,
-    ExpensesComponent,
     MeEnvironmentComponent,
     EnvironmentVariablesComponent,
-    PipelineUsagesComponent,
-    BalanceRefillsComponent,
     PlayViaApiComponent,
     EditPipelineScriptComponent,
     ProjectCommentsComponent,

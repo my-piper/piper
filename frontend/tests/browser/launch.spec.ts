@@ -73,10 +73,10 @@ test("runs the playground, shows scoped live results and launch failures", async
 
   api.override("POST", /\/api\/projects\/project_aaaa\/launch$/, {
     status: 400,
-    text: "Please, top up your balance",
+    text: "Launch request is invalid",
   });
   await page.getByRole("button", { name: "Run" }).click();
-  await expect(page.getByText("Please, top up your balance")).toBeVisible();
+  await expect(page.getByText("Launch request is invalid")).toBeVisible();
   await expect(page.locator("app-launches .card")).toHaveCount(1);
 });
 

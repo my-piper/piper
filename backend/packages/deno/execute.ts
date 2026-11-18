@@ -2,7 +2,7 @@ import axios from "axios";
 import { createLogger } from "core-kit/packages/logger";
 import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
 import { ExecuteRequest, ExecutionError, ExecutionResult } from "./classes";
-import { DENO_URL } from "./costs";
+import { DENO_URL } from "consts/deno";
 
 const logger = createLogger("deno");
 

@@ -1,6 +1,6 @@
 ---
 name: piper-invariants-reviewer
-description: Read-only reviewer that checks the current git changes against Piper's cross-file invariants (queue registration, Redis keys and TTLs, class-transformer boundaries, route guards, schema compilation, billing gates, backend/frontend model parity, Dockerfile COPY for file:/vendor dependencies, CODING_STANDARDS.md rules). Use before committing backend, schema or frontend-test changes, alongside a general code review.
+description: Read-only reviewer that checks the current git changes against Piper's cross-file invariants (queue registration, Redis keys and TTLs, class-transformer boundaries, route guards, schema compilation, backend/frontend model parity, Dockerfile COPY for file:/vendor dependencies, CODING_STANDARDS.md rules). Use before committing backend, schema or frontend-test changes, alongside a general code review.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -59,7 +59,7 @@ Check only the ones the diff touches.
 - The handler is wrapped in `handle(({ currentUser, language }) => async (req, res) => ...)`
   from `utils/http.ts`.
 - It calls the appropriate guard: `checkLogged`, `checkAdmin`, `checkEngineer`,
-  `checkRoles`, `checkBalance`, `checkProjectAccess`. Flag any route reading or
+  `checkRoles`, `checkProjectAccess`. Flag any route reading or
   mutating another user's or project's data without an ownership or role check.
 - A new `api/<area>/` folder is imported from `server.ts` via its `index.ts`.
 - Responses go through `toModel`/`toModels`/`toPlain`; secrets, password
@@ -75,12 +75,6 @@ Check only the ones the diff touches.
   regenerated (`make schemas`) and are identical (`cmp` them).
 - Schema changes stay backward compatible with stored pipelines and node
   packages, or a migration in `migrations/mongo` accompanies them.
-
-### Billing
-
-- Cost and balance code paths are gated by `BILLING_ACTIVE` from
-  `consts/billing.ts`, and balance changes go through the
-  `update_user_balance` queue rather than direct writes.
 
 ### Migrations (`migrations/mongo`, `migrations/clickhouse`)
 

@@ -51,9 +51,6 @@ import { EditPipelineDesignComponent } from "./edit-pipeline-design/edit-pipelin
 import { EditPipelineEnvironmentComponent } from "./edit-pipeline-environment/edit-pipeline-environment.component";
 import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipeline-readme.component";
 import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
-import { BalanceRefillsComponent } from "./expenses/balance-refills/balance-refills.component";
-import { ExpensesComponent } from "./expenses/expenses.component";
-import { PipelineUsagesComponent } from "./expenses/pipeline-usages/pipeline-usages.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
@@ -570,21 +567,6 @@ const routes: Routes = [
             resolve: {
               user: UserResolver,
             },
-          },
-        ],
-      },
-      {
-        path: "expenses",
-        component: ExpensesComponent,
-        children: [
-          {
-            path: "",
-            pathMatch: "full",
-            component: PipelineUsagesComponent,
-          },
-          {
-            path: "refills",
-            component: BalanceRefillsComponent,
           },
         ],
       },
