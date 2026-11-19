@@ -1,12 +1,12 @@
-@import 'src/ui-kit/styles/mixins';
-@import 'src/ui-kit/styles/variables';
+@use 'src/ui-kit/styles/mixins';
+@use 'src/ui-kit/styles/variables';
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 
-  @include wider-mobile() {
+  @include mixins.wider-mobile() {
     &.centered {
       ul {
         justify-content: center;
@@ -14,9 +14,9 @@
     }
   }
 
-  @include for-mobile() {
+  @include mixins.for-mobile() {
     ul li:not(:last-child) {
-      margin-bottom: $gutter-small;
+      margin-bottom: variables.$gutter-small;
     }
   }
 }
@@ -34,17 +34,17 @@ ul {
       display: inline-block;
       user-select: none;
       cursor: pointer;
-      border-radius: $corner-base;
-      padding: $gutter-small $gutter-normal;
-      color: $primary-text-color;
+      border-radius: variables.$corner-base;
+      padding: variables.$gutter-small variables.$gutter-normal;
+      color: variables.$primary-text-color;
       transition: all .1s;
 
       &:hover {
-        background-color: $control-background-color;
+        background-color: variables.$control-background-color;
       }
 
       &.active {
-        background-color: $control-background-color;
+        background-color: variables.$control-background-color;
       }
     }
   }

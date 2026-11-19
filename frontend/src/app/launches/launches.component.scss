@@ -1,27 +1,28 @@
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/reset";
 
 :host {
   display: block;
-  @include vertical-stack();
-  padding: $gutter-small;
+  @include mixins.vertical-stack();
+  padding: variables.$gutter-small;
 }
 
 :host-context(.project-playground) {
   .launches {
-    @include wider-desktop() {
+    @include mixins.wider-desktop() {
       grid-template-columns: repeat(8, 1fr);
     }
 
-    @include for-desktop() {
+    @include mixins.for-desktop() {
       grid-template-columns: repeat(3, 1fr);
     }
 
-    @include for-tablet() {
+    @include mixins.for-tablet() {
       grid-template-columns: repeat(2, 1fr);
     }
 
-    @include for-mobile() {
+    @include mixins.for-mobile() {
       grid-template-columns: 1fr;
     }
   }
@@ -32,15 +33,15 @@
   grid-template-columns: repeat(8, 1fr);
   min-height: 100px;
 
-  @include for-desktop() {
+  @include mixins.for-desktop() {
     grid-template-columns: repeat(6, 1fr);
   }
 
-  @include for-tablet() {
+  @include mixins.for-tablet() {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  @include for-mobile() {
+  @include mixins.for-mobile() {
     grid-template-columns: 1fr;
   }
 
@@ -48,11 +49,11 @@
     header {
       .metric {
         position: absolute;
-        top: -$gutter-tiny;
-        right: -$gutter-tiny;
-        background: $control-background-color;
-        padding: $gutter-tiny;
-        border-radius: $corner-small;
+        top: -(variables.$gutter-tiny);
+        right: -(variables.$gutter-tiny);
+        background: variables.$control-background-color;
+        padding: variables.$gutter-tiny;
+        border-radius: variables.$corner-small;
         font-size: 12px;
       }
     }
@@ -103,12 +104,12 @@
     display: flex;
 
     .value {
-      margin-left: $gutter-tiny;
+      margin-left: variables.$gutter-tiny;
 
       img {
         display: block;
         max-height: 30px;
-        border-radius: $corner-small;
+        border-radius: variables.$corner-small;
       }
     }
   }

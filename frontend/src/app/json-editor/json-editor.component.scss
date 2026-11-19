@@ -1,8 +1,8 @@
-@import 'src/ui-kit/styles/variables';
-@import 'src/ui-kit/styles/mixins';
-@import 'src/ui-kit/styles/defs/forms';
-@import 'src/ui-kit/styles/defs/buttons';
-@import 'src/ui-kit/styles/reset';
+@use 'src/ui-kit/styles/variables';
+@use 'src/ui-kit/styles/mixins';
+@use 'src/ui-kit/styles/defs/forms';
+@use 'src/ui-kit/styles/defs/buttons';
+@use 'src/ui-kit/styles/reset';
 
 :host {
     &[data-theme=html]::ng-deep {
@@ -24,30 +24,30 @@
 
         select.je-switcher {
             font-style: normal;
-            border-radius: $corner-small;
-            padding: $gutter-tiny $gutter-small;
+            border-radius: variables.$corner-small;
+            padding: variables.$gutter-tiny variables.$gutter-small;
         }
 
         [role=alert] {
-            margin-top: $gutter-tiny;
-            font-size: $font-size-small;
+            margin-top: variables.$gutter-tiny;
+            font-size: variables.$font-size-small;
         }
 
         .je-switcher {
-            margin-bottom: $gutter-small;
+            margin-bottom: variables.$gutter-small;
         }
 
         .je-form-input-label:not(label) {
-            margin-top: $gutter-tiny;
+            margin-top: variables.$gutter-tiny;
             font-weight: normal;
-            font-size: $font-size-small;
+            font-size: variables.$font-size-small;
         }
 
         .je-object__container {
             display: grid;
             grid-template-columns: auto 1fr;
             grid-template-rows: auto 1fr;
-            row-gap: $gutter-small;
+            row-gap: variables.$gutter-small;
             align-items: center;
             grid-template-areas:
                 "controls title"
@@ -59,20 +59,20 @@
         }
 
         .je-object__controls {
-            @include reset-div();
-            margin-right: $gutter-small;
+            @include reset.reset-div();
+            margin-right: variables.$gutter-small;
             grid-area: controls;
         }
 
         .je-indented-panel {
-            @include reset-div();
+            @include reset.reset-div();
             grid-area: indented;
-            border-left: 1px dashed $control-border-color;
-            padding-left: $gutter-normal;
+            border-left: 1px dashed variables.$control-border-color;
+            padding-left: variables.$gutter-normal;
             margin-left: 16px;
 
             &>div>div {
-                @include vertical-stack($gutter-small);
+                @include mixins.vertical-stack(variables.$gutter-small);
             }
         }
 
@@ -83,7 +83,7 @@
         button.json-editor-btn-movedown {
             @extend %button-circle;
             display: inline-flex;
-            color: $button-text-color;
+            color: variables.$button-text-color;
 
             span {
                 display: none;
@@ -104,7 +104,7 @@
         button.json-editor-btn-delete,
         button.json-editor-btn-moveup,
         button.json-editor-btn-movedown {
-            margin: 0 $gutter-small $gutter-normal 0;
+            margin: 0 variables.$gutter-small variables.$gutter-normal 0;
         }
 
         button.json-editor-btn-edit_properties::after {
@@ -130,15 +130,15 @@
         button.json-editor-btn-add {
             @extend %button-primary;
             @extend %button-small;
-            margin-top: $gutter-tiny;
+            margin-top: variables.$gutter-tiny;
         }
 
 
         .je-modal {
-            margin-top: $gutter-tiny;
-            padding: $gutter-small;
-            background-color: $overlay-background;
-            @include vertical-stack($gutter-small);
+            margin-top: variables.$gutter-tiny;
+            padding: variables.$gutter-small;
+            background-color: variables.$overlay-background;
+            @include mixins.vertical-stack(variables.$gutter-small);
 
             input[type=checkbox] {
                 @extend %checkbox;

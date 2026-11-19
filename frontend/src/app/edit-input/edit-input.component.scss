@@ -1,5 +1,5 @@
-@import 'src/ui-kit/styles/mixins';
-@import 'src/ui-kit/styles/variables';
+@use 'src/ui-kit/styles/mixins';
+@use 'src/ui-kit/styles/variables';
 
 :host {
   display: block;
@@ -19,11 +19,11 @@
 }
 
 .upload {
-  @include placeholder();
+  @include mixins.placeholder();
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: $gutter-normal;
+  padding: variables.$gutter-normal;
 
   .icon {
     opacity: .5;
@@ -31,17 +31,17 @@
 }
 
 .select-asset {
-  @include vertical-stack($gutter-small);
+  @include mixins.vertical-stack(variables.$gutter-small);
   width: 80vmax;
   height: 90vmin;
 
   p {
-    font-size: $font-size-small;
+    font-size: variables.$font-size-small;
 
     span {
-      background: $control-background-color;
-      padding: $gutter-tiny $gutter-small;
-      border-radius: $corner-small;
+      background: variables.$control-background-color;
+      padding: variables.$gutter-tiny variables.$gutter-small;
+      border-radius: variables.$corner-small;
     }
   }
 }
@@ -99,7 +99,7 @@ textarea {
 }
 
 .image {
-  @include placeholder();
+  @include mixins.placeholder();
   position: relative;
   min-width: 50px;
   min-height: 50px;
@@ -133,17 +133,17 @@ textarea {
   }
 
   &.add-image {
-    background: $control-background-color;
+    background: variables.$control-background-color;
 
     &.dragging {
-      background: $control-focus-background-color;
+      background: variables.$control-focus-background-color;
     }
   }
 }
 
 img,
 video {
-  @include placeholder();
+  @include mixins.placeholder();
 
   display: block;
   width: 100%;

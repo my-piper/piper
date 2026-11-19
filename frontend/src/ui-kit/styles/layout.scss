@@ -1,14 +1,16 @@
+@use "variables";
+
 .app-container {
     display: block;
     margin: 0 auto;
     box-sizing: border-box;
-    padding: 0 $gutter-big;
+    padding: 0 variables.$gutter-big;
 }
 
 @media only screen and (max-width: 768px) {
     .app-container {
         width: 100%;
-        padding: 0 $gutter-small;
+        padding: 0 variables.$gutter-small;
     }
 }
 
@@ -26,30 +28,30 @@
 
 .stack {
     display: flex;
-    gap: $gutter-normal;
+    gap: variables.$gutter-normal;
 
     &.none {
         gap: 0;
     }
 
     &.tiny {
-        gap: $gutter-tiny;
+        gap: variables.$gutter-tiny;
     }
 
     &.small {
-        gap: $gutter-small;
+        gap: variables.$gutter-small;
     }
 
     &.big {
-        gap: $gutter-big;
+        gap: variables.$gutter-big;
     }
 
     &.large {
-        gap: $gutter-large;
+        gap: variables.$gutter-large;
     }
 
     &.huge {
-        gap: $gutter-huge;
+        gap: variables.$gutter-huge;
     }
 
     &.wrap {
@@ -143,7 +145,7 @@
         margin-top: -10px;
         margin-left: -10px;
         border-radius: 50%;
-        border-top: 2px solid $strong-text-color;
+        border-top: 2px solid variables.$strong-text-color;
         border-right: 2px solid transparent;
         animation: spinner-animation 0.5s linear infinite;
     }

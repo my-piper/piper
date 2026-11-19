@@ -1,11 +1,11 @@
-@import "variables";
-@import "mixins";
-@import "defs/forms";
+@use "variables";
+@use "mixins";
+@use "defs/forms";
 
 form {
   .errors {
-    font-size: $font-size-small;
-    color: $error-color;
+    font-size: variables.$font-size-small;
+    color: variables.$error-color;
   }
 }
 
@@ -13,7 +13,7 @@ form {
   @extend %input-primary;
 
   &.error {
-    border-color: $error-color;
+    border-color: variables.$error-color;
   }
 
   &.fluid {
@@ -37,7 +37,7 @@ fieldset {
   margin: 10px 0;
 
   label {
-    font-size: $font-size-small;
+    font-size: variables.$font-size-small;
     font-weight: bold;
   }
 }
@@ -79,9 +79,9 @@ fieldset {
   .slider {
     position: absolute;
     inset: 0;
-    border: 1px solid $control-border-color;
+    border: 1px solid variables.$control-border-color;
     border-radius: 12px;
-    background-color: $control-background-color;
+    background-color: variables.$control-background-color;
     transition: background-color 0.2s, border-color 0.2s;
 
     &:before {
@@ -92,15 +92,15 @@ fieldset {
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background-color: $graphite-color-100;
+      background-color: variables.$graphite-color-100;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       transition: transform 0.2s, background-color 0.2s;
     }
   }
 
   input:checked + .slider {
-    background-color: $primary-dark-color;
-    border-color: $primary-dark-color;
+    background-color: variables.$primary-dark-color;
+    border-color: variables.$primary-dark-color;
 
     &:before {
       transform: translateX(16px);
@@ -109,7 +109,7 @@ fieldset {
   }
 
   input:focus-visible + .slider {
-    outline: 2px solid $primary-dark-color;
+    outline: 2px solid variables.$primary-dark-color;
     outline-offset: 2px;
   }
 
@@ -119,14 +119,14 @@ fieldset {
 }
 
 .switcher {
-  border-radius: $corner-base;
+  border-radius: variables.$corner-base;
   display: flex;
-  background: $control-background-color;
+  background: variables.$control-background-color;
   width: fit-content;
   box-sizing: border-box;
-  border: 4px solid $control-background-color;
+  border: 4px solid variables.$control-background-color;
   overflow: hidden;
-  gap: $gutter-tiny;
+  gap: variables.$gutter-tiny;
 
   &.disabled {
     pointer-events: none;
@@ -139,15 +139,15 @@ fieldset {
 
   &.with-icon {
     label.option {
-      padding: $gutter-small $gutter-normal;
+      padding: variables.$gutter-small variables.$gutter-normal;
     }
   }
 
   label.option {
-    border-radius: $corner-base;
-    padding: $gutter-normal;
-    color: $primary-text-color;
-    font-size: $font-size-base;
+    border-radius: variables.$corner-base;
+    padding: variables.$gutter-normal;
+    color: variables.$primary-text-color;
+    font-size: variables.$font-size-base;
     line-height: 1;
     box-sizing: border-box;
     white-space: nowrap;
@@ -159,19 +159,19 @@ fieldset {
     transition: background-color .3s;
 
     app-icon svg {
-      stroke: $accent-color;
+      stroke: variables.$accent-color;
     }
 
-    @include for-mobile() {
-      font-size: $font-size-normal;
-      padding: $gutter-small;
+    @include mixins.for-mobile() {
+      font-size: variables.$font-size-normal;
+      padding: variables.$gutter-small;
       width: 100%;
     }
 
     &:has(input:checked),
     &.selected {
-      color: $strong-text-color;
-      background-color: $control-focus-background-color;
+      color: variables.$strong-text-color;
+      background-color: variables.$control-focus-background-color;
     }
 
     input {

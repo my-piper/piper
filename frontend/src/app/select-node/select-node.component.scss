@@ -1,17 +1,17 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
-@import "src/ui-kit/styles/defs/buttons";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/defs/buttons";
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: $gutter-huge;
+  gap: variables.$gutter-huge;
 }
 
 p {
   margin: 0;
-  font-size: $font-size-small;
+  font-size: variables.$font-size-small;
 }
 
 .search {
@@ -21,7 +21,7 @@ p {
 .category {
   @extend %button-primary;
   justify-content: flex-start;
-  gap: $gutter-small;
+  gap: variables.$gutter-small;
 
   .title {
     max-width: 150px;
@@ -34,7 +34,7 @@ p {
 .nodes {
   display: flex;
   flex-direction: column;
-  padding: $gutter-normal 0;
+  padding: variables.$gutter-normal 0;
 
   header {
 
@@ -44,8 +44,8 @@ p {
       max-width: 22px;
       aspect-ratio: 1/1;
       position: absolute;
-      top: $gutter-small;
-      right: $gutter-small;
+      top: variables.$gutter-small;
+      right: variables.$gutter-small;
     }
   }
 
@@ -57,7 +57,7 @@ p {
     h3 {
       flex: 1;
       text-align: center;
-      font-size: $font-size-base;
+      font-size: variables.$font-size-base;
       font-weight: normal;
     }
   }
@@ -67,12 +67,12 @@ p {
 
     .version {
       position: absolute;
-      bottom: -$gutter-small;
-      right: -$gutter-small;
-      padding: $gutter-tiny $gutter-small;
+      bottom: -(variables.$gutter-small);
+      right: -(variables.$gutter-small);
+      padding: variables.$gutter-tiny variables.$gutter-small;
       line-height: 1;
-      font-size: $font-size-tiny;
-      background: $control-background-color;
+      font-size: variables.$font-size-tiny;
+      background: variables.$control-background-color;
     }
 
     .tags {
@@ -81,17 +81,17 @@ p {
       margin: 0;
       display: flex;
       flex-wrap: wrap;
-      gap: $gutter-small;
+      gap: variables.$gutter-small;
 
       li {
         font-size: 0.85em;
-        color: $primary-text-color;
+        color: variables.$primary-text-color;
         &.free {
-          color: $success-color;
+          color: variables.$success-color;
           font-weight: bold;
         }
         &.cheap {
-          color: $accent-color;
+          color: variables.$accent-color;
           font-weight: bold;
         }
       }

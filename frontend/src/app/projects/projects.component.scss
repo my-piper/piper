@@ -1,6 +1,6 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/reset";
 
 :host {
   display: block;
@@ -9,7 +9,7 @@
 .app-container {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 }
 
 .search {
@@ -23,7 +23,7 @@
     content: "";
     position: absolute;
     top: 50%;
-    left: $gutter-small;
+    left: variables.$gutter-small;
     width: 18px;
     height: 18px;
     transform: translateY(-50%);
@@ -38,7 +38,7 @@
 
   input {
     width: 250px;
-    padding-left: calc(#{$gutter-small} + 18px + #{$gutter-small});
+    padding-left: calc(#{variables.$gutter-small} + 18px + #{variables.$gutter-small});
   }
 }
 
@@ -46,49 +46,49 @@
 .row-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: $gutter-small;
+  gap: variables.$gutter-small;
 }
 
 .title {
   .row-tags {
-    margin-top: $gutter-small;
+    margin-top: variables.$gutter-small;
   }
 }
 
 button.tag {
-  @include reset-button();
+  @include reset.reset-button();
   cursor: pointer;
-  background: $control-background-color;
-  padding: $gutter-tiny $gutter-normal;
-  border-radius: $corner-huge;
+  background: variables.$control-background-color;
+  padding: variables.$gutter-tiny variables.$gutter-normal;
+  border-radius: variables.$corner-huge;
   font-size: 0.85em;
   line-height: 1.4;
   white-space: nowrap;
-  color: $primary-text-color;
+  color: variables.$primary-text-color;
 
   &:hover {
-    background: $control-focus-background-color;
+    background: variables.$control-focus-background-color;
   }
 
   &.selected {
-    background: $control-focus-background-color;
-    color: $strong-text-color;
+    background: variables.$control-focus-background-color;
+    color: variables.$strong-text-color;
   }
 }
 
 button.group {
-  @include reset-button();
+  @include reset.reset-button();
   display: inline-flex;
   align-items: center;
-  gap: $gutter-tiny;
+  gap: variables.$gutter-tiny;
   cursor: pointer;
-  padding: $gutter-tiny $gutter-normal;
-  border: 1px solid $control-background-color;
-  border-radius: $corner-large;
+  padding: variables.$gutter-tiny variables.$gutter-normal;
+  border: 1px solid variables.$control-background-color;
+  border-radius: variables.$corner-large;
   font-size: 0.85em;
   line-height: 1.4;
   white-space: nowrap;
-  color: $primary-text-color;
+  color: variables.$primary-text-color;
 
   // icon is a mask so it follows the theme text color
   &::before {
@@ -104,13 +104,13 @@ button.group {
   }
 
   &:hover {
-    background: $control-background-color;
+    background: variables.$control-background-color;
   }
 
   &.selected {
-    background: $control-focus-background-color;
-    border-color: $control-focus-background-color;
-    color: $strong-text-color;
+    background: variables.$control-focus-background-color;
+    border-color: variables.$control-focus-background-color;
+    color: variables.$strong-text-color;
   }
 }
 
@@ -118,17 +118,17 @@ button.group {
 // always starts to the right of its parent and icons share one column
 $tree-toggle: 16px;
 $tree-icon: 20px;
-$tree-gap: $gutter-small;
+$tree-gap: variables.$gutter-small;
 $tree-step: calc(#{$tree-toggle} + #{$tree-gap});
 
 button.folder {
-  @include reset-button();
+  @include reset.reset-button();
   display: flex;
   align-items: center;
   gap: $tree-gap;
   width: 100%;
   cursor: pointer;
-  font-weight: $font-weight-bold;
+  font-weight: variables.$font-weight-bold;
   color: inherit;
   text-align: left;
 
@@ -154,9 +154,9 @@ button.folder {
   }
 
   .count {
-    padding: 0 $gutter-small;
-    border-radius: $corner-huge;
-    background: $control-background-color;
+    padding: 0 variables.$gutter-small;
+    border-radius: variables.$corner-huge;
+    background: variables.$control-background-color;
     font-size: 0.75em;
     font-weight: normal;
     opacity: 0.8;
@@ -167,12 +167,12 @@ tr.folder {
   cursor: pointer;
 
   td {
-    padding-top: $gutter-small;
-    padding-bottom: $gutter-small;
+    padding-top: variables.$gutter-small;
+    padding-bottom: variables.$gutter-small;
   }
 
   &:hover td {
-    background: with-alpha($graphite-color-60, 0.08);
+    background: variables.with-alpha(variables.$graphite-color-60, 0.08);
   }
 
   &.expanded button.folder .chevron {
@@ -204,7 +204,7 @@ tr.nested {
 }
 
 td.tree {
-  @include wider-tablet() {
+  @include mixins.wider-tablet() {
     position: relative;
     padding-left: calc(10px + var(--depth, 0) * #{$tree-step});
 
@@ -219,7 +219,7 @@ td.tree {
       background: repeating-linear-gradient(
         to right,
         transparent 0 calc(#{$tree-toggle} / 2 - 1px),
-        $control-background-color calc(#{$tree-toggle} / 2 - 1px)
+        variables.$control-background-color calc(#{$tree-toggle} / 2 - 1px)
           calc(#{$tree-toggle} / 2),
         transparent calc(#{$tree-toggle} / 2) #{$tree-step}
       );
@@ -230,7 +230,7 @@ td.tree {
 
 // pipelines have no toggle, so they skip its slot to keep icons aligned
 tr:not(.folder) td.tree {
-  @include wider-tablet() {
+  @include mixins.wider-tablet() {
     padding-left: calc(10px + var(--depth, 0) * #{$tree-step} + #{$tree-step});
   }
 
@@ -262,7 +262,7 @@ tr:not(.folder) td.tree {
   .rate,
   small,
   .none {
-    color: $graphite-color-100;
+    color: variables.$graphite-color-100;
   }
 }
 

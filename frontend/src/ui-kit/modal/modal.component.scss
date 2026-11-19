@@ -1,8 +1,8 @@
-@import 'src/ui-kit/styles/mixins';
-@import 'src/ui-kit/styles/variables';
-@import 'src/ui-kit/styles/reset';
+@use 'src/ui-kit/styles/mixins';
+@use 'src/ui-kit/styles/variables';
+@use 'src/ui-kit/styles/reset';
 
-$header-horizontal-padding: $gutter-large;
+$header-horizontal-padding: variables.$gutter-large;
 $cancel-icon-size: 24px;
 $modal-horizontal-spacing: 5px;
 
@@ -13,7 +13,7 @@ $modal-horizontal-spacing: 5px;
     display: block;
   }
 
-  @include for-mobile() {
+  @include mixins.for-mobile() {
     position: fixed;
     top: 0;
     z-index: 150;
@@ -21,7 +21,7 @@ $modal-horizontal-spacing: 5px;
     max-width: 100%;
     max-height: 100vh;
     overflow-y: auto;
-    padding: $gutter-big;
+    padding: variables.$gutter-big;
     box-sizing: border-box;
   }
 
@@ -53,29 +53,29 @@ $modal-horizontal-spacing: 5px;
   max-width: 90vw;
   max-height: 90vh;
   box-sizing: border-box;
-  box-shadow: $shadow-normal;
-  border-radius: $corner-large;
-  background-color: $overlay-background;
-  border: $overlay-border;
+  box-shadow: variables.$shadow-normal;
+  border-radius: variables.$corner-large;
+  background-color: variables.$overlay-background;
+  border: variables.$overlay-border;
 
   z-index: 200;
 
-  @include for-mobile() {
-    top: $gutter-tiny !important;
-    left: $gutter-tiny !important;
-    right: $gutter-tiny !important;
+  @include mixins.for-mobile() {
+    top: variables.$gutter-tiny !important;
+    left: variables.$gutter-tiny !important;
+    right: variables.$gutter-tiny !important;
     transform: none !important;
   }
 
   header {
     display: flex;
     justify-content: space-between;
-    padding: $gutter-large $header-horizontal-padding $gutter-small $header-horizontal-padding;
-    border-top-left-radius: $corner-large;
-    border-top-right-radius: $corner-large;
+    padding: variables.$gutter-large $header-horizontal-padding variables.$gutter-small $header-horizontal-padding;
+    border-top-left-radius: variables.$corner-large;
+    border-top-right-radius: variables.$corner-large;
 
     h1 {
-      font-size: $font-size-big;
+      font-size: variables.$font-size-big;
       font-weight: normal;
       margin: 0;
       padding: 0;
@@ -93,20 +93,20 @@ $modal-horizontal-spacing: 5px;
       span {
         font-size: 14px;
         color: silver;
-        margin-right: $gutter-tiny;
+        margin-right: variables.$gutter-tiny;
       }
 
       button {
-        @include reset-button();
+        @include reset.reset-button();
 
         svg {
           display: block;
-          stroke: $button-text-color;
+          stroke: variables.$button-text-color;
         }
 
         &:hover {
           svg {
-            stroke: $button-hover-text-color;
+            stroke: variables.$button-hover-text-color;
           }
         }
       }
@@ -114,14 +114,14 @@ $modal-horizontal-spacing: 5px;
   }
 
   .content {
-    padding: $gutter-small $gutter-large $gutter-large;
+    padding: variables.$gutter-small variables.$gutter-large variables.$gutter-large;
     overflow-y: auto;
     overflow-x: hidden;
   }
 
-  @include for-mobile() {
+  @include mixins.for-mobile() {
     .content {
-      padding: $gutter-small $gutter-normal $gutter-normal;
+      padding: variables.$gutter-small variables.$gutter-normal variables.$gutter-normal;
     }
   }
 

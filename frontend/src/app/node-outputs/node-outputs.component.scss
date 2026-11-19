@@ -1,8 +1,8 @@
-@import "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/variables";
 
 :host {
   display: block;
-  padding: $gutter-normal;
+  padding: variables.$gutter-normal;
 }
 
 .error {
@@ -21,7 +21,7 @@ ul {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    border-bottom: 1px dashed $graphite-color-75;
+    border-bottom: 1px dashed variables.$graphite-color-75;
     padding: 5px;
 
     >b {

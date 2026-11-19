@@ -1,10 +1,10 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/reset";
 
 :host {
   display: block;
-  @include vertical-stack();
+  @include mixins.vertical-stack();
 
   &[data-mode=select] {
     .assets {
@@ -47,19 +47,19 @@
   display: flex;
   flex-wrap: wrap;
   max-width: 200px;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 }
 
 .assets {
   display: flex;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
   flex-wrap: wrap;
   list-style-type: none;
   padding: 0;
   margin: 0;
 
   li {
-    @include placeholder();
+    @include mixins.placeholder();
     position: relative;
     display: flex;
     align-items: center;
@@ -68,21 +68,21 @@
 
     .folder {
       position: absolute;
-      bottom: $gutter-normal;
-      left: $gutter-normal;
+      bottom: variables.$gutter-normal;
+      left: variables.$gutter-normal;
       font-size: .75em;
-      color: $primary-text-color;
-      padding: $gutter-tiny;
-      background: $control-background-color;
-      border-radius: $gutter-tiny;
+      color: variables.$primary-text-color;
+      padding: variables.$gutter-tiny;
+      background: variables.$control-background-color;
+      border-radius: variables.$gutter-tiny;
       line-height: 1em;
     }
 
     .actions {
-      @include horizontal-stack($gutter-tiny);
+      @include mixins.horizontal-stack(variables.$gutter-tiny);
       position: absolute;
-      top: $gutter-normal;
-      right: $gutter-normal;
+      top: variables.$gutter-normal;
+      right: variables.$gutter-normal;
       z-index: 1;
 
       button {
@@ -96,7 +96,7 @@
     }
 
     &.upload {
-      @include placeholder();
+      @include mixins.placeholder();
       width: 150px;
 
       &:hover {
@@ -133,16 +133,16 @@
     }
 
     .archive {
-      @include reset-button();
-      padding: $gutter-small;
+      @include reset.reset-button();
+      padding: variables.$gutter-small;
     }
 
     .audio {
       height: 100%;
       display: flex;
       align-items: center;
-      padding: $gutter-normal;
-      gap: $gutter-small;
+      padding: variables.$gutter-normal;
+      gap: variables.$gutter-small;
 
       button {
         display: none;

@@ -1,5 +1,5 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
   display: block;
@@ -9,23 +9,23 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: $header-background;
-  padding: $gutter-normal;
-  gap: $gutter-normal;
-  border-bottom: 1px solid with-alpha($graphite-color-60, 0.1);
+  background-color: variables.$header-background;
+  padding: variables.$gutter-normal;
+  gap: variables.$gutter-normal;
+  border-bottom: 1px solid variables.with-alpha(variables.$graphite-color-60, 0.1);
 
-  @include less-tablet() {
+  @include mixins.less-tablet() {
     flex-direction: column;
   }
 
   .left {
     display: flex;
-    column-gap: $gutter-huge * 4;
+    column-gap: variables.$gutter-huge * 4;
     align-items: center;
 
-    @include less-tablet() {
+    @include mixins.less-tablet() {
       flex-direction: column;
-      gap: $gutter-normal;
+      gap: variables.$gutter-normal;
     }
 
     .logo {
@@ -43,7 +43,7 @@ header {
         font-size: 0.55em;
         padding: 1px 3px;
         line-height: 1em;
-        border-radius: $corner-small;
+        border-radius: variables.$corner-small;
         background: linear-gradient(135deg, #6e00ff, #b500f9);
       }
     }
@@ -54,9 +54,9 @@ header {
       align-items: center;
       margin: 0;
       padding: 0;
-      gap: $gutter-large;
+      gap: variables.$gutter-large;
 
-      @include less-tablet() {
+      @include mixins.less-tablet() {
         flex-wrap: wrap;
         justify-content: center;
       }
@@ -65,14 +65,14 @@ header {
         a {
           display: inline-block;
           text-decoration: none;
-          color: $primary-text-color;
+          color: variables.$primary-text-color;
           line-height: 1.45em;
-          border-radius: $corner-large;
-          padding: $gutter-small $gutter-normal;
+          border-radius: variables.$corner-large;
+          padding: variables.$gutter-small variables.$gutter-normal;
 
           &:hover,
           &.active {
-            background-color: with-alpha($control-focus-background-color, 0.8);
+            background-color: variables.with-alpha(variables.$control-focus-background-color, 0.8);
           }
         }
       }
@@ -81,15 +81,15 @@ header {
 
   ::ng-deep button.circle {
     .icon svg {
-      stroke: $icon-color !important;
+      stroke: variables.$icon-color !important;
     }
 
-    background-color: with-alpha($strong-text-color, 0.1);
+    background-color: variables.with-alpha(variables.$strong-text-color, 0.1);
   }
 
   .me ::ng-deep {
     .remaining {
-      color: $strong-text-color;
+      color: variables.$strong-text-color;
     }
   }
 }

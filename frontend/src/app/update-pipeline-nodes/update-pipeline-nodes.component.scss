@@ -1,29 +1,29 @@
-@import "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/variables";
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 }
 
 ul {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
   margin: 0;
   padding: 0;
 
   li {
     display: flex;
     align-items: center;
-    gap: $gutter-tiny;
+    gap: variables.$gutter-tiny;
 
     a {
       border-bottom: 2px solid transparent;
 
       &.active {
-        border-color: $primary-text-color;
+        border-color: variables.$primary-text-color;
       }
     }
   }
@@ -32,7 +32,7 @@ ul {
 .compare {
   display: flex;
   flex-direction: column;
-  gap: $gutter-small;
+  gap: variables.$gutter-small;
   position: relative;
 }
 

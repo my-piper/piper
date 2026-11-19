@@ -1,5 +1,5 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/reset";
 
 :host {
   display: flex;
@@ -10,9 +10,9 @@
 
   .index {
     position: absolute;
-    top: $gutter-small;
-    right: $gutter-small;
-    font-size: $font-size-tiny;
+    top: variables.$gutter-small;
+    right: variables.$gutter-small;
+    font-size: variables.$font-size-tiny;
     line-height: 1em;
     color: white;
     text-shadow: 0 0 2px black;
@@ -21,7 +21,7 @@
   img,
   .no-image {
     display: block;
-    border-radius: $corner-small;
+    border-radius: variables.$corner-small;
     min-width: 30px;
     min-height: 30px;
     background: white;
@@ -31,10 +31,10 @@
 .json {
   display: flex;
   button {
-    @include reset-button();
-    color: $primary-text-color;
+    @include reset.reset-button();
+    color: variables.$primary-text-color;
     font-size: 0.65em;
-    font-family: $monospace-font-family;
+    font-family: variables.$monospace-font-family;
     max-width: 100px;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -46,9 +46,9 @@
   .paths {
     list-style: none;
     margin: 0;
-    padding: 0 $gutter-small 0;
+    padding: 0 variables.$gutter-small 0;
     font-size: 0.75em;
-    font-family: $monospace-font-family;
+    font-family: variables.$monospace-font-family;
     max-height: 200px;
     overflow: auto;
     li {

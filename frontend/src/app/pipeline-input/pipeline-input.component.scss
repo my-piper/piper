@@ -1,20 +1,20 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/reset";
-@import "src/variables";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/reset";
+@use "src/variables" as app-variables;
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: $gutter-small;
+  gap: variables.$gutter-small;
   user-select: none;
   background: color-mix(
     in srgb,
-    #{$param-color} 10%,
-    #{with-alpha($node-background-color, 0.75)}
+    #{app-variables.$param-color} 10%,
+    #{variables.with-alpha(app-variables.$node-background-color, 0.75)}
   );
-  border: 1px solid with-alpha($param-color, 0.6);
-  border-radius: $corner-huge;
-  padding: $gutter-big;
+  border: 1px solid variables.with-alpha(app-variables.$param-color, 0.6);
+  border-radius: variables.$corner-huge;
+  padding: variables.$gutter-big;
 
   &.multiline[data-type=string] {
     min-width: 250px;
@@ -36,11 +36,11 @@
 }
 
 .title {
-  margin-right: $gutter-huge;
+  margin-right: variables.$gutter-huge;
 }
 
 .circle {
-  @include reset-button();
+  @include reset.reset-button();
 
   position: absolute;
   top: 0;
@@ -50,12 +50,12 @@
   width: 18px;
   height: 18px;
   aspect-ratio: 1;
-  background: $param-color;
-  border: 5px solid $node-background-color;
+  background: app-variables.$param-color;
+  border: 5px solid app-variables.$node-background-color;
   border-radius: 50%;
 
   &:hover {
-    background: $node-background-color;
-    border-color: $param-color;
+    background: app-variables.$node-background-color;
+    border-color: app-variables.$param-color;
   }
 }

@@ -1,5 +1,5 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
     flex: 1;
@@ -11,7 +11,7 @@ form {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: $gutter-normal;
+    gap: variables.$gutter-normal;
 
     .editor {
         flex: 1;

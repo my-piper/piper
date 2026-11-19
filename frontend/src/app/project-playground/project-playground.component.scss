@@ -1,39 +1,39 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
     display: block;
     position: relative;
-    @include vertical-stack();
+    @include mixins.vertical-stack();
 }
 
 .inputs {
     display: flex;
     flex-direction: column;
-    gap: $gutter-big;
+    gap: variables.$gutter-big;
 
     >* {
-        @include vertical-stack($gutter-small);
+        @include mixins.vertical-stack(variables.$gutter-small);
         display: flex;
         flex-direction: column;
         position: relative;
-        background: $control-background-color;
-        border-radius: $gutter-small;
-        padding: 35px $gutter-normal $gutter-normal $gutter-normal;
+        background: variables.$control-background-color;
+        border-radius: variables.$gutter-small;
+        padding: 35px variables.$gutter-normal variables.$gutter-normal variables.$gutter-normal;
 
         label {
             position: absolute;
             font-weight: bold;
-            top: -$gutter-small;
-            left: $gutter-small;
-            background: $control-background-color;
-            padding: $gutter-tiny $gutter-normal;
-            border-radius: $gutter-small;
-            font-size: $font-size-small;
+            top: -(variables.$gutter-small);
+            left: variables.$gutter-small;
+            background: variables.$control-background-color;
+            padding: variables.$gutter-tiny variables.$gutter-normal;
+            border-radius: variables.$gutter-small;
+            font-size: variables.$font-size-small;
 
             sup {
                 color: red;
-                padding-left: $gutter-tiny;
+                padding-left: variables.$gutter-tiny;
             }
         }
     }

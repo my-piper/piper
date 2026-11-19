@@ -1,43 +1,44 @@
-@import "variables";
+@use "variables";
+@use "mixins";
 
 a {
     cursor: pointer;
-    color: $primary-text-color;
+    color: variables.$primary-text-color;
 
     &.default {
         display: inline-flex;
         align-items: center;
         text-decoration: none;
         line-height: 1.25em;
-        border-bottom: 1px solid $primary-text-color;
+        border-bottom: 1px solid variables.$primary-text-color;
 
         &.with-icon {
 
             .icon {
                 svg {
-                    stroke: $primary-dark-color;
+                    stroke: variables.$primary-dark-color;
                 }
 
                 &.left {
-                    margin-right: $gutter-small;
+                    margin-right: variables.$gutter-small;
                 }
 
                 &.right {
-                    margin-left: $gutter-small;
+                    margin-left: variables.$gutter-small;
                 }
             }
         }
 
         &:visited {
-            color: $primary-text-color;
+            color: variables.$primary-text-color;
         }
     }
 }
 
 .informer.errors {
-    @include vertical-stack();
+    @include mixins.vertical-stack();
     color: white;
-    font-size: $font-size-big;
+    font-size: variables.$font-size-big;
 
     ul {
         list-style: none;
@@ -47,10 +48,10 @@ a {
 }
 
 pre {
-    background-color: $graphite-color-500;
-    color: $primary-text-color;
-    padding: $gutter-small;
-    border-radius: $corner-small;
+    background-color: variables.$graphite-color-500;
+    color: variables.$primary-text-color;
+    padding: variables.$gutter-small;
+    border-radius: variables.$corner-small;
     font-size: 0.75em;
     overflow-x: auto;
     margin: 0;
@@ -60,5 +61,5 @@ hr {
     width: 100%;
     height: 1px;
     border: none;
-    background: $control-border-color;
+    background: variables.$control-border-color;
 }

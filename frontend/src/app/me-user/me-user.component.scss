@@ -1,19 +1,19 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/reset";
 
 :host {
   display: flex;
   align-items: center;
-  background-color: rgba($color: $primary-light-color, $alpha: 0.15);
+  background-color: rgba($color: variables.$primary-light-color, $alpha: 0.15);
   border-radius: 50px;
-  padding: $gutter-tiny;
+  padding: variables.$gutter-tiny;
   overflow: hidden;
 }
 
 .user {
   small {
-    color: $graphite-color-100;
+    color: variables.$graphite-color-100;
   }
 }
 
@@ -21,7 +21,7 @@
   position: relative;
 
   small {
-    color: $graphite-color-100;
+    color: variables.$graphite-color-100;
     font-size: 10px;
   }
 }

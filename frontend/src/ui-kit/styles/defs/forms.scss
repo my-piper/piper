@@ -1,14 +1,14 @@
-@import "../variables";
+@use "../variables";
 
 %input-primary {
-    background-color: $control-background-color;
-    color: $control-text-color;
-    padding: $gutter-small $gutter-normal;
+    background-color: variables.$control-background-color;
+    color: variables.$control-text-color;
+    padding: variables.$gutter-small variables.$gutter-normal;
     text-decoration: none;
-    font-family: $primary-font-family;
-    font-size: $font-size-small;
-    border: 1px solid $control-border-color;
-    border-radius: $control-border-radius;
+    font-family: variables.$primary-font-family;
+    font-size: variables.$font-size-small;
+    border: 1px solid variables.$control-border-color;
+    border-radius: variables.$control-border-radius;
     box-sizing: border-box;
 
     &:disabled {
@@ -18,7 +18,7 @@
     &:focus,
     &:hover {
         outline: none;
-        background-color: $control-focus-background-color;
+        background-color: variables.$control-focus-background-color;
     }
 }
 
@@ -26,7 +26,7 @@
     @extend %input-primary;
     appearance: none;
     background-image: var(--select-chevron);
-    background-position: center right $gutter-tiny;
+    background-position: center right variables.$gutter-tiny;
     background-repeat: no-repeat;
     background-size: 24px 24px;
     padding-right: 32px;
@@ -37,19 +37,19 @@
     width: 1.5em;
     height: 1.5em;
     min-width: 1.5em;
-    margin: 0 $gutter-small 0 0;
-    background: $control-background-color;
+    margin: 0 variables.$gutter-small 0 0;
+    background: variables.$control-background-color;
     border: none;
-    border-radius: $corner-small;
+    border-radius: variables.$corner-small;
     appearance: none;
     outline: 0;
     cursor: pointer;
 
     &:focus {
-        outline: 2px solid $control-background-color;
+        outline: 2px solid variables.$control-background-color;
     }
 
     &:checked {
-        background: $control-background-color url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMiAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuODMzOTggNC41ODM5OEw0Ljc1MDY1IDcuNTAwNjVMMTAuMTY3MyAyLjA4Mzk4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K') no-repeat center center;
+        background: variables.$control-background-color url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMiAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuODMzOTggNC41ODM5OEw0Ljc1MDY1IDcuNTAwNjVMMTAuMTY3MyAyLjA4Mzk4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K') no-repeat center center;
     }
 }

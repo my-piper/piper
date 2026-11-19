@@ -1,9 +1,9 @@
-@import "variables";
-@import "reset";
+@use "variables";
+@use "reset";
 
 .cards {
   display: grid;
-  gap: $gutter-big;
+  gap: variables.$gutter-big;
   grid-template-columns: 1fr;
 }
 
@@ -11,8 +11,8 @@
   display: flex;
   flex-direction: column;
   border-radius: 5px;
-  background: $control-background-color;
-  color: $primary-text-color;
+  background: variables.$control-background-color;
+  color: variables.$primary-text-color;
   position: relative;
 
   &.disabled {
@@ -21,11 +21,11 @@
   }
 
   header {
-    margin: $gutter-small 0;
+    margin: variables.$gutter-small 0;
 
     h2 {
       margin: 0;
-      padding: 0 $gutter-tiny;
+      padding: 0 variables.$gutter-tiny;
       font-size: 16px;
       text-align: center;
       vertical-align: middle;
@@ -37,16 +37,16 @@
     }
 
     button.actions {
-      @include reset-button();
+      @include reset.reset-button();
       position: absolute;
       z-index: 5;
-      top: -$gutter-small;
-      left: -$gutter-small;
-      padding: $gutter-tiny;
-      border-radius: $corner-base;
+      top: -(variables.$gutter-small);
+      left: -(variables.$gutter-small);
+      padding: variables.$gutter-tiny;
+      border-radius: variables.$corner-base;
       cursor: pointer;
-      border: 1px solid $button-border-color;
-      background-color: $button-background-color;
+      border: 1px solid variables.$button-border-color;
+      background-color: variables.$button-background-color;
       display: flex;
       align-items: center;
 
@@ -55,24 +55,24 @@
       }
 
       &:hover {
-        background: $button-hover-background-color;
+        background: variables.$button-hover-background-color;
       }
     }
   }
 
   article {
     position: relative;
-    padding: $gutter-normal;
+    padding: variables.$gutter-normal;
     flex: 1;
 
     h3 {
       font-size: 1.2rem;
-      margin: $gutter-small 0;
+      margin: variables.$gutter-small 0;
     }
   }
 
   footer {
-    padding: $gutter-small;
-    font-size: $font-size-small;
+    padding: variables.$gutter-small;
+    font-size: variables.$font-size-small;
   }
 }

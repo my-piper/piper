@@ -1,18 +1,18 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/themes";
-@import "src/ui-kit/styles/tables";
-@import "src/ui-kit/styles/buttons";
-@import "src/ui-kit/styles/forms";
-@import "src/ui-kit/styles/modal";
-@import "src/ui-kit/styles/cards";
-@import "src/ui-kit/styles/layout";
-@import "src/ui-kit/styles/menus";
-@import "src/ui-kit/styles/animations";
-@import "src/ui-kit/styles/typography";
-@import "src/ui-kit/styles/tips";
-@import "src/ui-kit/styles/badges";
-@import "src/ui-kit/styles/drawler";
-@import "src/ui-kit/styles/tags";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/themes";
+@use "src/ui-kit/styles/tables";
+@use "src/ui-kit/styles/buttons";
+@use "src/ui-kit/styles/forms";
+@use "src/ui-kit/styles/modal";
+@use "src/ui-kit/styles/cards";
+@use "src/ui-kit/styles/layout";
+@use "src/ui-kit/styles/menus";
+@use "src/ui-kit/styles/animations";
+@use "src/ui-kit/styles/typography";
+@use "src/ui-kit/styles/tips";
+@use "src/ui-kit/styles/badges";
+@use "src/ui-kit/styles/drawler";
+@use "src/ui-kit/styles/tags";
 
 // https://coolors.co/palettes/popular/5468ff
 
@@ -26,11 +26,11 @@ body {
   font-optical-sizing: auto;
   font-style: normal;
   line-height: 1.5;
-  font-size: $font-size-base;
+  font-size: variables.$font-size-base;
   padding: 0;
   margin: 0;
-  color: $primary-text-color;
-  background-color: $page-background;
+  color: variables.$primary-text-color;
+  background-color: variables.$page-background;
 }
 
 .money {

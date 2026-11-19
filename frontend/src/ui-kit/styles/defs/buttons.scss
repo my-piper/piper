@@ -1,19 +1,19 @@
-@import "../variables";
-@import "../reset";
+@use "../variables";
+@use "../reset";
 
 %button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     vertical-align: middle;
-    color: $button-text-color;
-    font-family: $primary-font-family;
-    font-size: $button-font-size;
+    color: variables.$button-text-color;
+    font-family: variables.$primary-font-family;
+    font-size: variables.$button-font-size;
     line-height: 1.4;
-    background-color: $button-background-color;
-    border: 1px solid $button-border-color;
-    border-radius: $corner-base;
-    padding: $gutter-small $gutter-huge;
+    background-color: variables.$button-background-color;
+    border: 1px solid variables.$button-border-color;
+    border-radius: variables.$corner-base;
+    padding: variables.$gutter-small variables.$gutter-huge;
     appearance: none;
     box-sizing: border-box;
     position: relative;
@@ -25,26 +25,26 @@
 
     &.with-icon {
         &.only-icon {
-            padding: $gutter-small;
+            padding: variables.$gutter-small;
         }
 
         .icon {
             svg.stroke {
-                stroke: $button-text-color;
+                stroke: variables.$button-text-color;
             }
 
             &.left {
-                margin-right: $gutter-small;
+                margin-right: variables.$gutter-small;
             }
 
             &.right {
-                margin-left: $gutter-small;
+                margin-left: variables.$gutter-small;
             }
         }
     }
 
     .badge {
-        margin-left: $gutter-tiny;
+        margin-left: variables.$gutter-tiny;
     }
 
     &.fluid {
@@ -58,7 +58,7 @@
     }
 
     &.busy {
-        color: with-alpha($button-text-color, 0.1);
+        color: variables.with-alpha(variables.$button-text-color, 0.1);
         opacity: 0.9;
 
         &:disabled {
@@ -80,7 +80,7 @@
             margin-top: -10px;
             margin-left: -10px;
             border-radius: 50%;
-            border-top: 2px solid $button-text-color;
+            border-top: 2px solid variables.$button-text-color;
             border-right: 2px solid transparent;
             animation: spinner 0.6s linear infinite;
         }
@@ -95,7 +95,7 @@
         cursor: pointer;
 
         &:hover {
-            background-color: $button-hover-background-color;
+            background-color: variables.$button-hover-background-color;
         }
 
         &.active,
@@ -110,25 +110,25 @@
 }
 
 %button-small {
-    padding: $gutter-small $gutter-normal;
+    padding: variables.$gutter-small variables.$gutter-normal;
     font-size: 14px;
 
     &.with-icon {
-        padding: $gutter-small;
+        padding: variables.$gutter-small;
     }
 }
 
 %button-circle {
-    @include reset-button();
+    @include reset.reset-button();
 
     display: inline-flex;
     position: relative;
     border-radius: 50%;
-    border: 1px solid $button-border-color;
-    background: $button-background-color;
+    border: 1px solid variables.$button-border-color;
+    background: variables.$button-background-color;
     box-sizing: border-box;
     aspect-ratio: 1;
-    padding: $gutter-small;
+    padding: variables.$gutter-small;
     transition: all 0.15s;
 
     &:disabled {
@@ -139,29 +139,29 @@
 
     &:not(:disabled) {
         &:hover {
-            color: $button-hover-text-color;
-            background: $button-hover-background-color;
+            color: variables.$button-hover-text-color;
+            background: variables.$button-hover-background-color;
 
             .icon svg {
-                stroke: $button-hover-text-color;
+                stroke: variables.$button-hover-text-color;
             }
         }
     }
 
     &.toggled {
-        background: $button-toggled-background-color;
+        background: variables.$button-toggled-background-color;
     }
 
     &.light {
-        background: $graphite-color-50;
+        background: variables.$graphite-color-50;
 
         &:hover {
-            background: $primary-light-color;
+            background: variables.$primary-light-color;
         }
     }
 
     &.small {
-        padding: $gutter-tiny;
+        padding: variables.$gutter-tiny;
     }
 
     &.busy {
@@ -187,7 +187,7 @@
             margin-top: -9px;
             margin-left: -9px;
             border-radius: 50%;
-            border-top: 2px solid $button-text-color;
+            border-top: 2px solid variables.$button-text-color;
             border-right: 2px solid transparent;
             animation: spinner 0.6s linear infinite;
         }
@@ -195,7 +195,7 @@
 
     .icon {
         svg.stroke {
-            stroke: $button-text-color;
+            stroke: variables.$button-text-color;
         }
     }
 }
