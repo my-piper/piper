@@ -16,8 +16,8 @@
 <div class="node" [class.done]="status?.state === 'done'">
   <h2>{{ node.title | i18n }}</h2>
   <ul class="inputs">
-    @for (g of node.render.inputs; track g) {
-      @for (i of g.group.inputs; track i) {
+    @for (g of node.render.inputs; track g.id) {
+      @for (i of g.group.inputs; track i.id) {
         <ng-template #inputMenuPopover>
           <div class="context-menu">
             <li>
@@ -50,7 +50,7 @@
     }
   </ul>
   <ul class="outputs">
-    @for (o of node.outputs | keyvalue; track o) {
+    @for (o of node.outputs | keyvalue; track o.key) {
       <li>
         <ng-template #outputMenuPopover>
           <div class="context-menu">
@@ -81,7 +81,7 @@
   </ul>
 
   <ul class="featured" [class.filled]="(outputs | keyvalue)?.length > 0">
-    @for (o of node.outputs | keyvalue; track o) {
+    @for (o of node.outputs | keyvalue; track o.key) {
       @if (o.value.featured) {
         <li [attr.data-type]="o.value.type">
           <ng-template #pickArtefactModal>
@@ -121,7 +121,7 @@
               @if (outputs?.[o.key]; as value) {
                 @if (value | split: "|"; as images) {
                   <div class="images" [class.multiple]="images.length > 1">
-                    @for (image of images; track image) {
+                    @for (image of images; track $index) {
                       <img
                         imageFallback
                         [inspect]="{ type: 'image', url: image }"

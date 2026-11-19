@@ -107,7 +107,7 @@
         </header>
         <div class="plot" data-testid="stats-daily">
           <span class="max">{{ maxDailyRuns }}</span>
-          @for (d of daily; track d) {
+          @for (d of daily; track d.day) {
             <div
               class="day"
               tabindex="0"
@@ -185,7 +185,7 @@
             <th class="number" i18n="@@label.avg_wait">Avg wait</th>
           </thead>
           <tbody>
-            @for (n of s.nodes; track n) {
+            @for (n of s.nodes; track n.node) {
               <tr>
                 <td>
                   <div>{{ nodeTitle(n.node) | i18n }}</div>

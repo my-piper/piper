@@ -9,7 +9,7 @@ import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 })
 export class InspectComponent {
   @Input()
-  type: "image" | "video" | "text" | "markdown" = "image";
+  type: "image" | "video" | "text" | "markdown" | "json" = "image";
 
   @Input()
   url: string;

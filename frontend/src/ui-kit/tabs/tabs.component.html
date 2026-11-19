@@ -3,7 +3,7 @@
 </ng-template>
 
 <ul class="stack small">
-  @for (tab of tabs; track tab; let i = $index) {
+  @for (tab of tabs; track $index; let i = $index) {
     @if (!tab.hidden) {
       <li [attr.data-cy]="tab.selector">
         <a [class.active]="i == active" (click)="activate(i)">

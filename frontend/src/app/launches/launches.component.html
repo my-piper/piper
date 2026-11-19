@@ -3,7 +3,7 @@
     class="cards launches"
     [class.busy-block]="launches.length <= 0 && progress.loading"
   >
-    @for (l of launches; track l; let i = $index) {
+    @for (l of launches; track l._id; let i = $index) {
       <div class="card">
         <header>
           <ng-template #actionsTemplate>
@@ -53,7 +53,7 @@
         <article>
           <ng-template #errorsTemplate>
             <ul>
-              @for (error of l.errors; track error) {
+              @for (error of l.errors; track $index) {
                 <li>{{ error }}</li>
               }
             </ul>
@@ -79,7 +79,7 @@
             @if (l.inputs | keyvalue | orderBy: ["value.order"]; as inputs) {
               @if (inputs.length > 0) {
                 <ul class="inputs">
-                  @for (i of inputs; track i) {
+                  @for (i of inputs; track i.key) {
                     <li>
                       <b>{{ i.value.title | i18n }}:</b>
                       <div class="value">

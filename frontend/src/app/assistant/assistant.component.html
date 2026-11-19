@@ -1,6 +1,6 @@
 <form [formGroup]="form">
   <div autoScroll class="chat">
-    @for (m of messages; track m) {
+    @for (m of messages; track $index) {
       <div
         class="message"
         [attr.data-from]="m.from !== 'assistant' ? 'user' : 'assistant'"
@@ -10,7 +10,7 @@
         }
         @if (m.changes?.length > 0) {
           <ul>
-            @for (c of m.changes; track c) {
+            @for (c of m.changes; track $index) {
               <li>
                 @switch (c.action) {
                   @case ("add_node_from_catalog") {

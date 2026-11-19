@@ -1,12 +1,11 @@
 @if (artefacts.length > 0) {
   <div class="artefacts">
-    @if (artefacts.length > 0) {
-    } @else {
-      @if (!progress.loading) {
-        <p i18n="@@message.no_artefacts_found">No artefacts found.</p>
-      }
+    @if (artefacts.length === 0 && !progress.loading) {
+      <p i18n="@@message.no_artefacts_found">
+        No artefacts found.
+      </p>
     }
-    @for (o of artefacts; track o) {
+    @for (o of artefacts; track $index) {
       @if (o.data; as data) {
         @switch (o.type) {
           @case ("image") {
@@ -24,7 +23,7 @@
             />
           }
           @case ("image[]") {
-            @for (image of data.images; track image) {
+            @for (image of data.images; track $index) {
               <img
                 imageFallback
                 [inspect]="{

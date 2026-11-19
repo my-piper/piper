@@ -2,7 +2,7 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      @for (m of error?.details; track m) {
+      @for (m of error?.details; track $index) {
         <li>{{ m }}</li>
       }
     </ul>
@@ -45,7 +45,7 @@
 </form>
 
 @if (nodes.length > 0) {
-  @for (c of nodes | groupNodes; track c) {
+  @for (c of nodes | groupNodes; track c.category?._id) {
     <button
       class="category"
       (click)="toggle($safeNavigationMigration(c.category?._id))"
@@ -73,7 +73,7 @@
     </button>
     @if (state.currentGroup === c.category?._id) {
       <div class="cards nodes">
-        @for (node of c.nodes; track node) {
+        @for (node of c.nodes; track node._id) {
           <div class="card" [dragClone]="{ payload: { node: node._id } }">
             <header>
               <ng-template #actionsTemplate>

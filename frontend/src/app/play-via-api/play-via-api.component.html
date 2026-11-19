@@ -36,13 +36,10 @@
 
   @for (
     i of deploy.pipeline.inputs | keyvalue | orderBy: ["value.order"];
-    track i
+    track i.key
   ) {
     <h3>
-      {{ i.key }}
-      @if (i.value.required) {
-        <sup>*</sup>
-      }
+      {{ i.key }}<sup>{{ i.value.required ? "*" : "" }}</sup>
     </h3>
     <table>
       <tbody>

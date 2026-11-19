@@ -228,7 +228,7 @@
     "
     (zoom)="updateLayoutZoom($event)"
   >
-    @for (input of pipeline.inputs | keyvalue; track input) {
+    @for (input of pipeline.inputs | keyvalue; track input.key) {
       <div
         class="input"
         [class.disabled]="
@@ -301,8 +301,8 @@
     @if (
       mode === "project" && (userRole.admin | can: project.createdBy | async)
     ) {
-      @for (input of pipeline.inputs | keyvalue; track input) {
-        @for (f of input.value.flows | keyvalue; track f) {
+      @for (input of pipeline.inputs | keyvalue; track input.key) {
+        @for (f of input.value.flows | keyvalue; track f.key) {
           <div
             class="flow"
             [ngStyle]="
@@ -358,7 +358,7 @@
       }
     }
 
-    @for (output of pipeline.outputs | keyvalue; track output) {
+    @for (output of pipeline.outputs | keyvalue; track output.key) {
       <div
         class="output"
         [class.disabled]="
@@ -553,7 +553,7 @@
     @if (
       mode === "project" && (userRole.admin | can: project.createdBy | async)
     ) {
-      @for (f of pipeline.flows | keyvalue; track f) {
+      @for (f of pipeline.flows | keyvalue; track f.key) {
         <div
           class="flow"
           [ngStyle]="
@@ -650,42 +650,40 @@
       <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)"></rect>
 
       @if (state === "flow" && !!flow && !!mouse) {
-        <ng-container>
-          @switch (flow.type) {
-            @case ("node") {
-              <path
-                [attr.d]="
-                  (pipeline | node: flow.from | async).arrange
-                    | shift
-                      : {
-                          x: ui.node.width,
-                          y:
-                            ((pipeline
-                              | node: flow.from
-                              | async
-                              | outputIndex: flow.output) +
-                              1) *
-                              ui.node.input.height +
-                            ui.node.shift,
-                        }
-                    | curve: (mouse | multiply: pipeline.layout.zoom || 1)
-                "
-              />
-            }
-            @case ("input") {
-              <path
-                class="param"
-                [attr.d]="
-                  (pipeline | pipelineInput: flow.from).arrange
-                    | curve: (mouse | multiply: pipeline.layout.zoom || 1)
-                "
-              />
-            }
+        @switch (flow.type) {
+          @case ("node") {
+            <path
+              [attr.d]="
+                (pipeline | node: flow.from | async).arrange
+                  | shift
+                    : {
+                        x: ui.node.width,
+                        y:
+                          ((pipeline
+                            | node: flow.from
+                            | async
+                            | outputIndex: flow.output) +
+                            1) *
+                            ui.node.input.height +
+                          ui.node.shift,
+                      }
+                  | curve: (mouse | multiply: pipeline.layout.zoom || 1)
+              "
+            />
           }
-        </ng-container>
+          @case ("input") {
+            <path
+              class="param"
+              [attr.d]="
+                (pipeline | pipelineInput: flow.from).arrange
+                  | curve: (mouse | multiply: pipeline.layout.zoom || 1)
+              "
+            />
+          }
+        }
       }
 
-      @for (f of pipeline.flows | keyvalue; track f) {
+      @for (f of pipeline.flows | keyvalue; track f.key) {
         <path
           [attr.stroke]="f.value.color"
           [attr.d]="
@@ -720,92 +718,88 @@
         ></path>
       }
 
-      @for (i of pipeline.inputs | keyvalue; track i) {
-        <ng-container>
-          @for (f of i.value.flows | keyvalue; track f) {
-            <path
-              class="flow param"
-              [class.disabled]="
-                mode !== 'project' ||
-                (userRole.admin | can: project.createdBy | async | not)
-              "
-              [attr.d]="
-                (pipeline | pipelineInput: i.key).arrange
-                  | curve
-                    : ((pipeline | node: f.value.to | async).arrange
-                        | shift
-                          : {
-                              y:
-                                ((pipeline
-                                  | node: f.value.to
-                                  | async
-                                  | inputIndex: f.value.input
-                                  | async) +
-                                  1) *
-                                  ui.node.input.height +
-                                ui.node.shift,
-                            })
-              "
-            />
-          }
-        </ng-container>
+      @for (i of pipeline.inputs | keyvalue; track i.key) {
+        @for (f of i.value.flows | keyvalue; track f.key) {
+          <path
+            class="flow param"
+            [class.disabled]="
+              mode !== 'project' ||
+              (userRole.admin | can: project.createdBy | async | not)
+            "
+            [attr.d]="
+              (pipeline | pipelineInput: i.key).arrange
+                | curve
+                  : ((pipeline | node: f.value.to | async).arrange
+                      | shift
+                        : {
+                            y:
+                              ((pipeline
+                                | node: f.value.to
+                                | async
+                                | inputIndex: f.value.input
+                                | async) +
+                                1) *
+                                ui.node.input.height +
+                              ui.node.shift,
+                          })
+            "
+          />
+        }
       }
 
-      @for (o of pipeline.outputs | keyvalue; track o) {
-        <ng-container>
-          @for (f of o.value.flows | keyvalue; track f) {
-            <path
-              class="flow param to-output"
-              [class.disabled]="
-                mode !== 'project' ||
-                (userRole.admin | can: project.createdBy | async | not)
-              "
-              [attr.d]="
-                (pipeline | node: f.value.from | async).arrange
-                  | shift
-                    : {
-                        x: ui.node.width,
-                        y:
-                          ((pipeline
-                            | node: f.value.from
-                            | async
-                            | outputIndex: f.value.output) +
-                            1) *
-                            ui.node.input.height +
-                          ui.node.shift,
-                      }
-                  | curve: (pipeline | pipelineOutput: o.key).arrange
-              "
-            />
-          }
-          @if (!!o.value.from) {
-            <path
-              class="flow param to-output"
-              [class.disabled]="
-                mode !== 'project' ||
-                (userRole.admin | can: project.createdBy | async | not)
-              "
-              (click)="removeOutput(o.key)"
-              [attr.d]="
-                (pipeline | pipelineOutput: o.key).arrange
-                  | curve
-                    : ((pipeline | node: o.value.from | async).arrange
-                        | shift
-                          : {
-                              x: ui.node.width,
-                              y:
-                                ((pipeline
-                                  | node: o.value.from
-                                  | async
-                                  | outputIndex: o.value.output) +
-                                  1) *
-                                  ui.node.input.height +
-                                ui.node.shift,
-                            })
-              "
-            />
-          }
-        </ng-container>
+      @for (o of pipeline.outputs | keyvalue; track o.key) {
+        @for (f of o.value.flows | keyvalue; track f.key) {
+          <path
+            class="flow param to-output"
+            [class.disabled]="
+              mode !== 'project' ||
+              (userRole.admin | can: project.createdBy | async | not)
+            "
+            [attr.d]="
+              (pipeline | node: f.value.from | async).arrange
+                | shift
+                  : {
+                      x: ui.node.width,
+                      y:
+                        ((pipeline
+                          | node: f.value.from
+                          | async
+                          | outputIndex: f.value.output) +
+                          1) *
+                          ui.node.input.height +
+                        ui.node.shift,
+                    }
+                | curve: (pipeline | pipelineOutput: o.key).arrange
+            "
+          />
+        }
+        @if (!!o.value.from) {
+          <path
+            class="flow param to-output"
+            [class.disabled]="
+              mode !== 'project' ||
+              (userRole.admin | can: project.createdBy | async | not)
+            "
+            (click)="removeOutput(o.key)"
+            [attr.d]="
+              (pipeline | pipelineOutput: o.key).arrange
+                | curve
+                  : ((pipeline | node: o.value.from | async).arrange
+                      | shift
+                        : {
+                            x: ui.node.width,
+                            y:
+                              ((pipeline
+                                | node: o.value.from
+                                | async
+                                | outputIndex: o.value.output) +
+                                1) *
+                                ui.node.input.height +
+                              ui.node.shift,
+                          })
+            "
+          />
+        }
       }
     </svg>
   </div>

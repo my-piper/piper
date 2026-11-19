@@ -1,4 +1,4 @@
-@for (log of logs; track log; let i = $index) {
+@for (log of logs; track $index; let i = $index) {
   @if (
     i === 0 ||
     logs[i - 1].job !== log.job ||

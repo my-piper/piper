@@ -1,9 +1,9 @@
 <ul>
-  @for (g of node.render.inputs; track g) {
+  @for (g of node.render.inputs; track g.id) {
     @if (g.group.group?.title; as group) {
       <h3>{{ group | i18n }}</h3>
     }
-    @for (i of g.group.inputs; track i) {
+    @for (i of g.group.inputs; track i.id) {
       @if (!i.input.hidden) {
         <li [attr.data-type]="i.input.type" [class.filled]="!!inputs?.[i.id]">
           <b>{{ i.input.title | i18n }}</b>

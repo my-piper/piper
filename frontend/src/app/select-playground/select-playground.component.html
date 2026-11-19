@@ -1,7 +1,7 @@
 <form [formGroup]="form">
   @if (categories.length > 0) {
     <fieldset class="categories">
-      @for (c of categories; track c) {
+      @for (c of categories; track c._id) {
         <button
           formControlName="category"
           [appSelectable]="{ value: c._id, group: 'category' }"
@@ -30,7 +30,7 @@
 
 @if (projects.length > 0) {
   <div class="projects cards" [class.busy-block]="progress.loading.projects">
-    @for (p of projects; track p) {
+    @for (p of projects; track p._id) {
       <div class="card">
         @if (userRole.admin | can | async) {
           @if (p.order; as order) {

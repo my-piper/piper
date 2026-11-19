@@ -52,7 +52,7 @@
     <th i18n="@@label.slug">Slug</th>
   </thead>
   <tbody>
-    @for (d of deploys; track d) {
+    @for (d of deploys; track d._id) {
       <tr>
         <td>
           <button
@@ -72,10 +72,7 @@
             class="default with-icon"
             [routerLink]="!!d.prefix ? [d.prefix, d.slug] : [d.slug]"
           >
-            @if (!!d.prefix) {
-              {{ d.prefix }}/
-            }
-            {{ d.slug }}
+            {{ d.prefix ? d.prefix + "/" : "" }}{{ d.slug }}
             <app-icon
               class="icon right"
               icon="open-link"

@@ -2,7 +2,7 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      @for (m of error?.details; track m) {
+      @for (m of error?.details; track $index) {
         <li>{{ m }}</li>
       }
     </ul>

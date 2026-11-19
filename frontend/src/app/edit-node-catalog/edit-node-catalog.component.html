@@ -1,6 +1,6 @@
 @if (form.errors?.["validate"]; as errors) {
   <ul class="errors">
-    @for (e of errors; track e) {
+    @for (e of errors; track $index) {
       <li>{{ e }}</li>
     }
   </ul>

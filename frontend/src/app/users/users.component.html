@@ -2,7 +2,7 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      @for (m of error?.details; track m) {
+      @for (m of error?.details; track $index) {
         <li>{{ m }}</li>
       }
     </ul>
@@ -56,7 +56,7 @@
       <th width="48px"></th>
     </thead>
     <tbody>
-      @for (u of users; track u; let i = $index) {
+      @for (u of users; track u._id; let i = $index) {
         <tr>
           <td>
             <ng-template #actionsTemplate>

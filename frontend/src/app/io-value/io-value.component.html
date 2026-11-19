@@ -57,7 +57,7 @@
     </a>
   }
   @case ("image[]") {
-    @for (image of joinedImages | split: "|"; track image) {
+    @for (image of joinedImages | split: "|"; track $index) {
       <a [href]="image" target="_blank">
         <img [imageSize]="image" [src]="image" />
       </a>

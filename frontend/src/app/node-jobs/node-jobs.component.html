@@ -1,4 +1,4 @@
-@for (job of jobs; track job) {
+@for (job of jobs; track $index) {
   <div class="card">
     <header>
       <div>{{ job.createdAt | date: "short" }}</div>

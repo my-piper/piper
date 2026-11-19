@@ -2,7 +2,7 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      @for (m of error?.details; track m) {
+      @for (m of error?.details; track $index) {
         <li>{{ m }}</li>
       }
     </ul>
@@ -60,7 +60,7 @@
     }
   </li>
   @if (assets.length > 0) {
-    @for (asset of assets; track asset) {
+    @for (asset of assets; track asset._id) {
       <li>
         @if (asset.folder; as folder) {
           <a class="folder" (click)="filterFolder(folder)">{{ folder }}</a>

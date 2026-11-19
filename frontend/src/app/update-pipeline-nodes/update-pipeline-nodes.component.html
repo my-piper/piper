@@ -1,7 +1,7 @@
 @if ($safeNavigationMigration(nodeUpdates?.updates) | keyvalue; as updates) {
   @if (updates.length > 0) {
     <ul>
-      @for (node of updates; track node) {
+      @for (node of updates; track node.key) {
         <li>
           <app-icon
             [icon]="state.updated[node.key] ? 'checked' : 'unchecked'"
@@ -60,7 +60,9 @@
     @if (progress.loading) {
       <app-skeleton type="cards" [cols]="2"></app-skeleton>
     } @else {
-      <p i18n="@@message.no_node_updates">No updates in nodes from catalog.</p>
+      <p i18n="@@message.no_node_updates">
+        No updates in nodes from catalog.
+      </p>
     }
   }
 }

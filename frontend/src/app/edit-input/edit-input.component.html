@@ -82,17 +82,15 @@
           [step]="step"
         ></app-slider>
       } @else {
-        @case ("integer") {
-          <input
-            class="input-primary"
-            formControlName="value"
-            type="number"
-            [attr.placeholder]="placeholder | i18n"
-            [min]="min"
-            [max]="max"
-            [step]="step"
-          />
-        }
+        <input
+          class="input-primary"
+          formControlName="value"
+          type="number"
+          [attr.placeholder]="placeholder | i18n"
+          [min]="min"
+          [max]="max"
+          [step]="step"
+        />
       }
     }
     @case ("float") {
@@ -166,7 +164,7 @@
         ></ng-container>
       </ng-template>
       @if (valueControl.value; as value) {
-        @for (url of value; track url; let i = $index) {
+        @for (url of value; track $index; let i = $index) {
           <div class="image">
             <div class="remove">
               <button
@@ -280,7 +278,7 @@
       </div>
     }
     @case ("string[]") {
-      @for (g of stringEnum | nsfw | groupList; track g) {
+      @for (g of stringEnum | nsfw | groupList; track g.name) {
         <label>{{ g.name }}</label>
         <div class="switcher">
           @for (o of g.options; track o) {
@@ -308,7 +306,7 @@
             [attr.list]="id"
           />
           <datalist [id]="id">
-            @for (g of stringEnum | nsfw | groupList; track g) {
+            @for (g of stringEnum | nsfw | groupList; track g.name) {
               <optgroup>
                 @for (o of g.options; track o) {
                   @if (o | split: "|"; as x) {
@@ -337,7 +335,7 @@
                 }
               }
             </ng-template>
-            @for (g of stringEnum | nsfw | groupList; track g) {
+            @for (g of stringEnum | nsfw | groupList; track g.name) {
               @if (g.name) {
                 <optgroup [label]="g.name | i18n">
                   <ng-container

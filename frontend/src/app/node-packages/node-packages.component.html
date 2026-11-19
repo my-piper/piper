@@ -39,7 +39,7 @@
     </header>
     @if (state?.updates.length) {
       <ul>
-        @for (update of state.updates; track update) {
+        @for (update of state.updates; track update.current._id) {
           <li>
             {{ update.current.title | i18n }}
             @if (update.errors; as errors) {
@@ -58,9 +58,7 @@
                   ></div>
                 }
               } @else {
-                <p i18n="@@message.no_updates_for_package">
-                  Package has no updates.
-                </p>
+                <p i18n="@@message.no_updates_for_package">Package has no updates.</p>
               }
             }
           </li>
@@ -127,7 +125,7 @@
       <th i18n="@@label.description">Description</th>
     </thead>
     <tbody>
-      @for (p of packages; track p; let i = $index) {
+      @for (p of packages; track p._id; let i = $index) {
         <tr>
           <td>
             <ng-template #actionsTemplate>

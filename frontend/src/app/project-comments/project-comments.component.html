@@ -2,7 +2,7 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      @for (m of error?.details; track m) {
+      @for (m of error?.details; track $index) {
         <li>{{ m }}</li>
       }
     </ul>
@@ -54,7 +54,7 @@
   class="cards"
   [class.busy-block]="comments.length <= 0 && progress.loading"
 >
-  @for (c of comments; track c; let i = $index) {
+  @for (c of comments; track c._id; let i = $index) {
     <div class="card">
       <header class="stack justify-end">
         <ng-template #actionsTemplate>

@@ -1,5 +1,5 @@
 @if (messages.length > 0) {
-  @for (m of messages; track m) {
+  @for (m of messages; track $index) {
     <div>
       <header>
         @if (!!filter?.project) {

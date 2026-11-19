@@ -2,7 +2,7 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      @for (m of error?.details; track m) {
+      @for (m of error?.details; track $index) {
         <li>{{ m }}</li>
       }
     </ul>
@@ -30,10 +30,7 @@
           @if (i.value.icon; as icon) {
             <app-icon class="icon" [icon]="icon"></app-icon>
           }
-          {{ i.value.title | i18n }}
-          @if (i.value.required) {
-            <sup>&ast;</sup>
-          }
+          {{ i.value.title | i18n }}<sup>{{ i.value.required ? "*" : "" }}</sup>
           <ng-template #inputDescriptionPopover>
             <div [innerHTML]="i.value.description | markdown | async"></div>
           </ng-template>

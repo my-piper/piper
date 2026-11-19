@@ -23,7 +23,7 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      @for (m of error?.details; track m) {
+      @for (m of error?.details; track $index) {
         <li>{{ m }}</li>
       }
     </ul>
@@ -258,7 +258,7 @@
         </td>
       </tr>
       @if (showChildren(f)) {
-        @for (c of visibleFolders(f.children); track c) {
+        @for (c of visibleFolders(f.children); track c.path) {
           <ng-container
             *ngTemplateOutlet="
               folderTemplate;
@@ -268,7 +268,7 @@
         }
       }
       @if (f.expanded) {
-        @for (p of f.projects; track p) {
+        @for (p of f.projects; track p._id) {
           <tr class="nested" [style.--depth]="depth + 1">
             <ng-container
               *ngTemplateOutlet="
@@ -300,7 +300,7 @@
       }
     </ng-template>
     <tbody>
-      @for (f of folders; track f) {
+      @for (f of folders; track f.path) {
         <ng-container
           *ngTemplateOutlet="
             folderTemplate;
@@ -308,7 +308,7 @@
           "
         ></ng-container>
       }
-      @for (p of projects; track p) {
+      @for (p of projects; track p._id) {
         <tr>
           <ng-container
             *ngTemplateOutlet="projectCellsTemplate; context: { $implicit: p }"

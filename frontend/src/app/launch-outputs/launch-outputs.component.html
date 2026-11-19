@@ -52,7 +52,7 @@
         ></video>
       }
       @case ("image[]") {
-        @for (image of data.images; track image; let i = $index) {
+        @for (image of data.images; track $index; let i = $index) {
           @if (active?.index == i) {
             <img
               [imageSize]="{ width: image.width, height: image.height }"
@@ -74,7 +74,7 @@
 
 @if (launch.outputs | keyvalue; as outputs) {
   <footer>
-    @for (o of outputs; track o) {
+    @for (o of outputs; track o.key) {
       @switch (o.value.type) {
         @case ("boolean") {
           <button
@@ -166,7 +166,7 @@
           @if (o.value.data; as data) {
             @for (
               image of data.images | slice: 0 : 10;
-              track image;
+              track $index;
               let i = $index
             ) {
               <button
@@ -185,7 +185,7 @@
       }
     }
   </footer>
-  @for (o of outputs; track o) {
+  @for (o of outputs; track o.key) {
     @if (active?.id == o.key) {
       <label>{{ o.value.title | i18n }}</label>
       @if (mode == "full") {
