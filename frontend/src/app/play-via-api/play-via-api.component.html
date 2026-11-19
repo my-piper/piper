@@ -15,21 +15,21 @@
 <ng-container>
   <h2 i18n="@@label.how_to_call">How to call</h2>
   <pre>
-    <![CDATA[curl --location --request POST '{{ config.baseUrl }}/api/{{
+<![CDATA[curl --location --request POST '{{ config.baseUrl }}/api/{{
       !!deploy.prefix ? deploy.prefix + "/" : ""
     }}{{ deploy.slug }}/launch' \
-    --header 'content-type: application/json' \
-    --header 'api-token: [YOUR_API_KEY_HERE]' \
-    --data '{{ launchRequest | json }}']]></pre
+--header 'content-type: application/json' \
+--header 'api-token: [YOUR_API_KEY_HERE]' \
+--data '{{ launchRequest | json }}']]></pre
   >
 
   <h2 i18n="@@label.how_to_check">How to check</h2>
 
   <pre>
-      <![CDATA[curl --location --request GET '{{
+<![CDATA[curl --location --request GET '{{
       config.baseUrl
     }}/api/launches/[LAUNCH_ID]/state' \
-      --header 'api-token: [YOUR_API_KEY_HERE]']]></pre
+--header 'api-token: [YOUR_API_KEY_HERE]']]></pre
   >
 
   <h2 i18n="@@label.api_parameters">Parameters</h2>
@@ -39,7 +39,7 @@
     track i.key
   ) {
     <h3>
-      {{ i.key }}<sup>{{ i.value.required ? "*" : "" }}</sup>
+      {{ i.key }}@if (i.value.required) {<sup>*</sup>}
     </h3>
     <table>
       <tbody>
