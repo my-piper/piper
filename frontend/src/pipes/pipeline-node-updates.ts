@@ -1,27 +1,23 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import { DestroyRef, Pipe, PipeTransform } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { plainToInstance } from "class-transformer";
-import { BehaviorSubject, filter, map, Observable, takeUntil } from "rxjs";
+import { BehaviorSubject, filter, map, Observable } from "rxjs";
 import { PipelineNodeUpdates } from "src/models/node";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 
 @Pipe({
   name: "pipelineNodeUpdates",
   standalone: false,
 })
-export class PipelineNodeUpdatesPipe
-  extends UntilDestroyed
-  implements PipeTransform
-{
+export class PipelineNodeUpdatesPipe implements PipeTransform {
   last: BehaviorSubject<PipelineNodeUpdates | null>;
 
   constructor(
     private projectManager: ProjectManager,
     private http: HttpService,
-  ) {
-    super();
-  }
+    private destroyRef: DestroyRef,
+  ) {}
 
   transform(project: string): Observable<PipelineNodeUpdates | null> {
     const load = () => {
@@ -42,7 +38,7 @@ export class PipelineNodeUpdatesPipe
 
       this.projectManager.status
         .pipe(
-          takeUntil(this.destroyed$),
+          takeUntilDestroyed(this.destroyRef),
           filter((status) => status === "saved"),
         )
         .subscribe(() => load());

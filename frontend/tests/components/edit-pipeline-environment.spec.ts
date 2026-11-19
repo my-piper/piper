@@ -13,7 +13,6 @@ import { Environment } from "src/models/environment";
 import { Project } from "src/models/project";
 import { ProjectManager } from "src/services/project.manager";
 import { Languages } from "src/enums/languages";
-import { TickerPipe } from "src/pipes/ticker.pipe";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { toInstance, toPlain } from "src/utils/models";
@@ -21,7 +20,6 @@ import { projectA, projectWith } from "../fixtures/models";
 import { Plain, smallGraphPipeline } from "../fixtures/plain";
 import { provideTestConfig } from "../helpers/config";
 import { finish } from "../helpers/editor";
-import { asJitPipes } from "../helpers/jit";
 
 /**
  * Route data: `project`, the user `environment` (GET /api/me/environment,
@@ -77,7 +75,6 @@ describe("EditPipelineEnvironmentComponent", () => {
     }),
     platform: string[] = ["API_URL"],
   ) {
-    asJitPipes(TickerPipe);
     TestBed.configureTestingModule({
       declarations: [
         EditPipelineEnvironmentComponent,

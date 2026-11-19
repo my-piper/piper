@@ -17,14 +17,12 @@ import { MeEnvironmentComponent } from "src/app/me-environment/me-environment.co
 import { Environment } from "src/models/environment";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
-import { TickerPipe } from "src/pipes/ticker.pipe";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { toInstance } from "src/utils/models";
 import { provideTestConfig } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
 import { finish } from "../helpers/editor";
-import { asJitPipes } from "../helpers/jit";
 
 /**
  * Wire contracts (backend/api/environment):
@@ -49,7 +47,6 @@ describe("MeEnvironmentComponent", () => {
     },
     visible: string[] = [],
   ) {
-    asJitPipes(TickerPipe);
     TestBed.configureTestingModule({
       declarations: [MeEnvironmentComponent, EnvironmentVariablesComponent],
       imports: [ReactiveFormsModule, UiKitModule],

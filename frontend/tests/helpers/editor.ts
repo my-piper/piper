@@ -18,17 +18,11 @@ import { AppModule } from "src/app/app.module";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { NodeComponent } from "src/app/node/node.component";
 import { Project } from "src/models/project";
-import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
 import { componentOf } from "./component";
-import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
-import { DeclaredVariablesPipe } from "src/pipes/declared-variables";
-import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { ProjectManager } from "src/services/project.manager";
-import { TickerPipe } from "src/pipes/ticker.pipe";
 import { projectA } from "../fixtures/models";
 import { userPlain, UserKind } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "./config";
-import { asJitPipes } from "./jit";
 import { provideSocketDouble, SocketDouble } from "./socket";
 
 /** Placeholder for routed drawers; the editor's own template stays real. */
@@ -47,17 +41,6 @@ export const EDITOR_URL = "/project";
  * SocketDouble, test runtime config and the given routes.
  */
 export function configureAppTestingModule(routes: Routes = []) {
-  // Every AppModule pipe that extends the UntilDestroyed directive base.
-  asJitPipes(
-    TickerPipe,
-    NodePipe,
-    InputIndexOfPipe,
-    InputFlowsPipe,
-    LaunchHeartbeatPipe,
-    DeclaredVariablesPipe,
-    PipelineNodeUpdatesPipe,
-  );
-
   TestBed.configureTestingModule({
     imports: [AppModule],
     providers: [

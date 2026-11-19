@@ -17,7 +17,6 @@ import { Project } from "src/models/project";
 import { CanPipe } from "src/pipes/can";
 import { ProjectManager } from "src/services/project.manager";
 import { Languages } from "src/enums/languages";
-import { TickerPipe } from "src/pipes/ticker.pipe";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { deploysPlain } from "../fixtures/launch-results";
@@ -25,7 +24,6 @@ import { projectA } from "../fixtures/models";
 import { PROJECT_A_ID, USER_IDS, userPlain, UserKind } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../helpers/config";
 import { finish } from "../helpers/editor";
-import { asJitPipes } from "../helpers/jit";
 import { editJson, JsonEditorStubComponent } from "../helpers/json-editor-stub";
 import { provideSocketDouble } from "../helpers/socket";
 import { expectConsoleError } from "../helpers/console";
@@ -54,7 +52,6 @@ describe("DeployPipelineComponent", () => {
     project?: Project;
   } = {}) {
     seedAuthorization(userPlain(user));
-    asJitPipes(TickerPipe);
     TestBed.configureTestingModule({
       declarations: [DeployPipelineComponent, CanPipe],
       imports: [

@@ -41,7 +41,6 @@ import {
   userPlain,
 } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../helpers/config";
-import { asJitPipes } from "../helpers/jit";
 import { provideSocketDouble } from "../helpers/socket";
 
 const NODE_UPDATES_URL = `/api/projects/${PROJECT_A_ID}/check-node-updates`;
@@ -64,7 +63,8 @@ describe("ProjectComponent save errors", () => {
         LengthPipe,
         I18nPipe,
         InvalidFieldPipe,
-        ...asJitPipes(DeclaredVariablesPipe, PipelineNodeUpdatesPipe),
+        DeclaredVariablesPipe,
+        PipelineNodeUpdatesPipe,
       ],
       imports: [
         CommonModule,

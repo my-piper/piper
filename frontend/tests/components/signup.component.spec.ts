@@ -38,8 +38,6 @@ const SIGNUP_URL = "/api/signup";
 
 async function render(config: Partial<PlainAppConfig> = {}) {
   await TestBed.configureTestingModule({
-    // UiKitModule is not imported: under JIT its TickerPipe (a pipe extending
-    // the @Directive UntilDestroyed base) fails with "has no selector".
     declarations: [
       SigupComponent,
       IconComponent,

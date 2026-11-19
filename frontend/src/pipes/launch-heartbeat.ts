@@ -1,10 +1,10 @@
-import { Pipe, PipeTransform } from "@angular/core";
-import { map, takeUntil } from "rxjs";
+import { DestroyRef, Pipe, PipeTransform } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 import { BehaviorSubject } from "rxjs/internal/BehaviorSubject";
 import { HeartbeatEvent } from "src/models/events";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { createLogger, LogLevel } from "src/utils/logger";
 import { toInstance } from "src/utils/models";
 
@@ -14,10 +14,7 @@ const logger = createLogger("launch_heartbeat", LogLevel.info);
   name: "launchHeartbeat",
   standalone: false,
 })
-export class LaunchHeartbeatPipe
-  extends UntilDestroyed
-  implements PipeTransform
-{
+export class LaunchHeartbeatPipe implements PipeTransform {
   current: BehaviorSubject<Date | null>;
 
   timer: any | null = null;
@@ -29,8 +26,12 @@ export class LaunchHeartbeatPipe
   constructor(
     private live: LiveService,
     private http: HttpService,
+    private destroyRef: DestroyRef,
   ) {
-    super();
+    destroyRef.onDestroy(() => {
+      this.current?.complete();
+      this.subscriptions.launch?.();
+    });
   }
 
   transform(launch: string) {
@@ -51,7 +52,7 @@ export class LaunchHeartbeatPipe
       this.live.socket
         .fromEvent<object>("launch_heartbeat")
         .pipe(
-          takeUntil(this.destroyed$),
+          takeUntilDestroyed(this.destroyRef),
           map((json) => toInstance(json, HeartbeatEvent)),
         )
         .subscribe(({ launch: _id, heartbeat }) => {
@@ -63,11 +64,5 @@ export class LaunchHeartbeatPipe
     }
 
     return this.current;
-  }
-
-  override ngOnDestroy() {
-    super.ngOnDestroy();
-    this.current?.complete();
-    this.subscriptions.launch?.();
   }
 }
