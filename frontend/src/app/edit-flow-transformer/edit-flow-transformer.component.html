@@ -1,61 +1,65 @@
 <ng-template #imageTransformerTemplate>
   <span class="index">{{ indexControl.value + 1 }}</span>
-  <ng-template #noImageTemplate>
-    <div class="no-image"></div>
-  </ng-template>
-  <ng-container
-    *ngIf="
-      ($safeNavigationMigration(
-        launchRequest.nodes.get(from.id)?.outputs?.get(flow.output)
-      ) | split: '|')[indexControl.value] as image;
-      else noImageTemplate
-    "
-  >
+  @if (
+    ($safeNavigationMigration(
+      launchRequest.nodes.get(from.id)?.outputs?.get(flow.output)
+    ) | split: "|")[indexControl.value];
+    as image
+  ) {
     <img [src]="image | proxyImage: { height: 30 }" />
-  </ng-container>
+  } @else {
+    <div class="no-image"></div>
+  }
 </ng-template>
 
-<ng-container [ngSwitch]="flow.transformer.type">
-  <form *ngSwitchCase="'array'">
-    <fieldset class="stack small align-center">
-      <button type="button" class="transparent" (click)="down()">
-        <app-icon class="icon" [size]="16" icon="chevron-left"></app-icon>
-      </button>
-      <ng-container [ngSwitch]="from.node.outputs.get(flow.output).type">
-        <ng-container *ngSwitchCase="'image[]'">
-          <ng-container [ngSwitch]="to.node.inputs.get(flow.input).type">
-            <div class="array" *ngSwitchCase="'image'">
-              <ng-container
-                *ngTemplateOutlet="imageTransformerTemplate"
-              ></ng-container>
-            </div>
-          </ng-container>
-        </ng-container>
-      </ng-container>
-      <button type="button" class="transparent" (click)="up()">
-        <app-icon class="icon" [size]="16" icon="chevron-right"></app-icon>
-      </button>
-    </fieldset>
-  </form>
-  <div *ngSwitchCase="'json'" class="json">
-    <ng-template #jsonTransformerTemplate>
-      <ng-container
-        *ngIf="
-          launchRequest.nodes.get(from.id)?.outputs?.get(flow.output) as json
-        "
+@switch (flow.transformer.type) {
+  @case ("array") {
+    <form>
+      <fieldset class="stack small align-center">
+        <button type="button" class="transparent" (click)="down()">
+          <app-icon class="icon" [size]="16" icon="chevron-left"></app-icon>
+        </button>
+        @switch (from.node.outputs.get(flow.output).type) {
+          @case ("image[]") {
+            @switch (to.node.inputs.get(flow.input).type) {
+              @case ("image") {
+                <div class="array">
+                  <ng-container
+                    *ngTemplateOutlet="imageTransformerTemplate"
+                  ></ng-container>
+                </div>
+              }
+            }
+          }
+        }
+        <button type="button" class="transparent" (click)="up()">
+          <app-icon class="icon" [size]="16" icon="chevron-right"></app-icon>
+        </button>
+      </fieldset>
+    </form>
+  }
+  @case ("json") {
+    <div class="json">
+      <ng-template #jsonTransformerTemplate>
+        @if (
+          launchRequest.nodes.get(from.id)?.outputs?.get(flow.output);
+          as json
+        ) {
+          <ul class="paths">
+            @for (path of json | parseJson | objectPaths; track path) {
+              <li>
+                <a (click)="setPath(path)">{{ path }}</a>
+              </li>
+            }
+          </ul>
+        }
+      </ng-template>
+      <button
+        [appPopover]="{ content: jsonTransformerTemplate, trigger: 'click' }"
+        (attached)="instances.popover = $event"
       >
-        <ul class="paths">
-          <li *ngFor="let path of json | parseJson | objectPaths">
-            <a (click)="setPath(path)">{{ path }}</a>
-          </li>
-        </ul>
-      </ng-container>
-    </ng-template>
-    <button
-      [appPopover]="{ content: jsonTransformerTemplate, trigger: 'click' }"
-      (attached)="instances.popover = $event"
-    >
-      {{ pathControl.value || "JSON" }}
-    </button>
-  </div>
-</ng-container>
+        {{ pathControl.value || "JSON" }}
+      </button>
+    </div>
+  }
+}

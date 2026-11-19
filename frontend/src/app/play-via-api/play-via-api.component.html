@@ -1,45 +1,49 @@
-<button
-  *ngIf="!authorization"
-  class="primary with-icon"
-  (click)="generateToken()"
->
-  <app-icon class="icon left" icon="lock" [size]="18"></app-icon>
-  <ng-container i18n="@@action.generate_api_key">Generate API key</ng-container>
-</button>
+@if (!authorization) {
+  <button class="primary with-icon" (click)="generateToken()">
+    <app-icon class="icon left" icon="lock" [size]="18"></app-icon>
+    <ng-container i18n="@@action.generate_api_key"
+      >Generate API key</ng-container
+    >
+  </button>
+}
 
-<ng-container *ngIf="authorization?.token as token">
+@if (authorization?.token; as token) {
   <h2 i18n="@@label.your_api_token">Your API token</h2>
   <textarea class="input-primary" rows="3" readonly>{{ token }}</textarea>
-</ng-container>
+}
 
 <ng-container>
   <h2 i18n="@@label.how_to_call">How to call</h2>
   <pre>
-<![CDATA[curl --location --request POST '{{ config.baseUrl }}/api/{{
+    <![CDATA[curl --location --request POST '{{ config.baseUrl }}/api/{{
       !!deploy.prefix ? deploy.prefix + "/" : ""
     }}{{ deploy.slug }}/launch' \
---header 'content-type: application/json' \
---header 'api-token: [YOUR_API_KEY_HERE]' \
---data '{{ launchRequest | json }}']]></pre
+    --header 'content-type: application/json' \
+    --header 'api-token: [YOUR_API_KEY_HERE]' \
+    --data '{{ launchRequest | json }}']]></pre
   >
 
   <h2 i18n="@@label.how_to_check">How to check</h2>
 
   <pre>
-<![CDATA[curl --location --request GET '{{
+      <![CDATA[curl --location --request GET '{{
       config.baseUrl
     }}/api/launches/[LAUNCH_ID]/state' \
---header 'api-token: [YOUR_API_KEY_HERE]']]></pre
+      --header 'api-token: [YOUR_API_KEY_HERE]']]></pre
   >
 
   <h2 i18n="@@label.api_parameters">Parameters</h2>
 
-  <ng-container
-    *ngFor="
-      let i of deploy.pipeline.inputs | keyvalue | orderBy: ['value.order']
-    "
-  >
-    <h3>{{ i.key }}<sup *ngIf="i.value.required">*</sup></h3>
+  @for (
+    i of deploy.pipeline.inputs | keyvalue | orderBy: ["value.order"];
+    track i
+  ) {
+    <h3>
+      {{ i.key }}
+      @if (i.value.required) {
+        <sup>*</sup>
+      }
+    </h3>
     <table>
       <tbody>
         <tr>
@@ -56,43 +60,47 @@
             </b>
           </td>
         </tr>
-        <ng-container *ngIf="i.value.default !== undefined">
+        @if (i.value.default !== undefined) {
           <tr>
             <td i18n="@@label.default">Default</td>
             <td>
-              <ng-container [ngSwitch]="i.value.type">
-                <ng-container *ngSwitchCase="'boolean'">
+              @switch (i.value.type) {
+                @case ("boolean") {
                   <code>{{ i.value.default ? "true" : "false" }}</code>
-                </ng-container>
-                <ng-container *ngSwitchDefault="">
+                }
+                @default {
                   {{ i.value.default }}
-                </ng-container>
-              </ng-container>
+                }
+              }
             </td>
           </tr>
-        </ng-container>
-        <tr *ngIf="i.value.enum as enum">
-          <td i18n="@@label.enum">Enum</td>
-          <td>
-            <table>
-              <tbody>
-                <tr *ngFor="let o of enum">
-                  <ng-container *ngIf="o | split: '|' as x">
-                    <td>
-                      {{ x[0] }}
-                    </td>
-                    <td>
-                      <ng-container *ngIf="x[1] as label">
-                        {{ label | i18n }}
-                      </ng-container>
-                    </td>
-                  </ng-container>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
+        }
+        @if (i.value.enum; as enum) {
+          <tr>
+            <td i18n="@@label.enum">Enum</td>
+            <td>
+              <table>
+                <tbody>
+                  @for (o of enum; track o) {
+                    <tr>
+                      @if (o | split: "|"; as x) {
+                        <td>
+                          {{ x[0] }}
+                        </td>
+                        <td>
+                          @if (x[1]; as label) {
+                            {{ label | i18n }}
+                          }
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
-  </ng-container>
+  }
 </ng-container>

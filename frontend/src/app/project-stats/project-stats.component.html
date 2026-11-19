@@ -6,34 +6,40 @@
     aria-label="Period"
     i18n-aria-label="@@label.period"
   >
-    <button
-      *ngFor="let p of periods"
-      type="button"
-      class="period"
-      [attr.data-testid]="'stats-period-' + p"
-      [class.selected]="p === days"
-      [attr.aria-pressed]="p === days"
-      [disabled]="progress.loading"
-      (click)="select(p)"
-    >
-      <ng-container i18n="@@label.n_days">{{ p }} days</ng-container>
-    </button>
+    @for (p of periods; track p) {
+      <button
+        type="button"
+        class="period"
+        [attr.data-testid]="'stats-period-' + p"
+        [class.selected]="p === days"
+        [attr.aria-pressed]="p === days"
+        [disabled]="progress.loading"
+        (click)="select(p)"
+      >
+        <ng-container i18n="@@label.n_days">{{ p }} days</ng-container>
+      </button>
+    }
   </div>
 </header>
 
-<p *ngIf="error" class="error">{{ error.message }}</p>
+@if (error) {
+  <p class="error">{{ error.message }}</p>
+}
 
-<div *ngIf="!stats && progress.loading" class="loading"></div>
+@if (!stats && progress.loading) {
+  <div class="loading"></div>
+}
 
-<ng-container *ngIf="stats as s">
+@if (stats; as s) {
   <div [class.busy]="progress.loading">
-    <p *ngIf="s.runs === 0" class="empty" data-testid="stats-empty">
-      <ng-container i18n="@@message.no_runs_in_period"
-        >No finished runs in this period.</ng-container
-      >
-    </p>
-
-    <ng-container *ngIf="s.runs > 0">
+    @if (s.runs === 0) {
+      <p class="empty" data-testid="stats-empty">
+        <ng-container i18n="@@message.no_runs_in_period"
+          >No finished runs in this period.</ng-container
+        >
+      </p>
+    }
+    @if (s.runs > 0) {
       <section class="tiles" data-testid="stats-tiles">
         <div class="tile">
           <small i18n="@@label.runs">Runs</small>
@@ -81,7 +87,6 @@
           <span class="hint" i18n="@@label.before_start">before start</span>
         </div>
       </section>
-
       <section class="chart">
         <header>
           <h3 i18n="@@label.runs_per_day">Runs per day</h3>
@@ -102,56 +107,61 @@
         </header>
         <div class="plot" data-testid="stats-daily">
           <span class="max">{{ maxDailyRuns }}</span>
-          <div
-            *ngFor="let d of daily"
-            class="day"
-            tabindex="0"
-            [attr.aria-label]="dayLabel(d.day) + ': ' + d.runs"
-          >
-            <!-- stacked bottom-up: succeeded, interrupted, failed -->
-            <div class="bar">
-              <div
-                *ngIf="d.failed > 0"
-                class="failed"
-                [style.height.%]="height(d.failed)"
-              ></div>
-              <div
-                *ngIf="d.interrupted > 0"
-                class="interrupted"
-                [style.height.%]="height(d.interrupted)"
-              ></div>
-              <div
-                *ngIf="d.succeeded > 0"
-                class="succeeded"
-                [style.height.%]="height(d.succeeded)"
-              ></div>
+          @for (d of daily; track d) {
+            <div
+              class="day"
+              tabindex="0"
+              [attr.aria-label]="dayLabel(d.day) + ': ' + d.runs"
+            >
+              <!-- stacked bottom-up: succeeded, interrupted, failed -->
+              <div class="bar">
+                @if (d.failed > 0) {
+                  <div class="failed" [style.height.%]="height(d.failed)"></div>
+                }
+                @if (d.interrupted > 0) {
+                  <div
+                    class="interrupted"
+                    [style.height.%]="height(d.interrupted)"
+                  ></div>
+                }
+                @if (d.succeeded > 0) {
+                  <div
+                    class="succeeded"
+                    [style.height.%]="height(d.succeeded)"
+                  ></div>
+                }
+              </div>
+              <div class="tooltip">
+                <strong>{{ dayLabel(d.day) }}</strong>
+                <div>
+                  <ng-container i18n="@@label.runs">Runs</ng-container>:
+                  {{ d.runs }}
+                </div>
+                @if (d.runs > 0) {
+                  <div>
+                    <i class="succeeded"></i>{{ d.succeeded }}
+                    <i class="failed"></i>{{ d.failed }}
+                    <i class="interrupted"></i>{{ d.interrupted }}
+                  </div>
+                }
+                @if (d.avgDurationMs !== null) {
+                  <div>
+                    <ng-container i18n="@@label.avg_duration"
+                      >Avg duration</ng-container
+                    >:
+                    {{ d.avgDurationMs | runDuration }}
+                  </div>
+                }
+              </div>
             </div>
-            <div class="tooltip">
-              <strong>{{ dayLabel(d.day) }}</strong>
-              <div>
-                <ng-container i18n="@@label.runs">Runs</ng-container>:
-                {{ d.runs }}
-              </div>
-              <div *ngIf="d.runs > 0">
-                <i class="succeeded"></i>{{ d.succeeded }} <i class="failed"></i
-                >{{ d.failed }} <i class="interrupted"></i>{{ d.interrupted }}
-              </div>
-              <div *ngIf="d.avgDurationMs !== null">
-                <ng-container i18n="@@label.avg_duration"
-                  >Avg duration</ng-container
-                >:
-                {{ d.avgDurationMs | runDuration }}
-              </div>
-            </div>
-          </div>
+          }
         </div>
         <div class="axis">
           <span>{{ dayLabel(daily[0].day) }}</span>
           <span>{{ dayLabel(daily[daily.length - 1].day) }}</span>
         </div>
       </section>
-    </ng-container>
-
+    }
     <section class="nodes">
       <h3>
         <ng-container i18n="@@label.slowest_nodes">Slowest nodes</ng-container>
@@ -159,42 +169,40 @@
           >last {{ nodeStatsDays }} days</small
         >
       </h3>
-      <p
-        *ngIf="s.nodes.length === 0"
-        class="empty"
-        i18n="@@message.no_node_runs"
-      >
-        No node runs recorded.
-      </p>
-      <table
-        *ngIf="s.nodes.length > 0"
-        class="default"
-        data-testid="stats-nodes"
-      >
-        <thead>
-          <th i18n="@@label.node">Node</th>
-          <th class="number" i18n="@@label.runs">Runs</th>
-          <th class="number" i18n="@@label.failed_runs">Failed</th>
-          <th class="number" i18n="@@label.avg_duration">Avg duration</th>
-          <th class="number">p95</th>
-          <th class="number" i18n="@@label.avg_wait">Avg wait</th>
-        </thead>
-        <tbody>
-          <tr *ngFor="let n of s.nodes">
-            <td>
-              <div>{{ nodeTitle(n.node) | i18n }}</div>
-              <small>{{ n.node }}</small>
-            </td>
-            <td class="number">{{ n.runs | number }}</td>
-            <td class="number">
-              {{ n.failed | number }}
-            </td>
-            <td class="number">{{ n.avgDurationMs | runDuration }}</td>
-            <td class="number">{{ n.p95DurationMs | runDuration }}</td>
-            <td class="number">{{ n.avgWaitMs | runDuration }}</td>
-          </tr>
-        </tbody>
-      </table>
+      @if (s.nodes.length === 0) {
+        <p class="empty" i18n="@@message.no_node_runs">
+          No node runs recorded.
+        </p>
+      }
+      @if (s.nodes.length > 0) {
+        <table class="default" data-testid="stats-nodes">
+          <thead>
+            <th i18n="@@label.node">Node</th>
+            <th class="number" i18n="@@label.runs">Runs</th>
+            <th class="number" i18n="@@label.failed_runs">Failed</th>
+            <th class="number" i18n="@@label.avg_duration">Avg duration</th>
+            <th class="number">p95</th>
+            <th class="number" i18n="@@label.avg_wait">Avg wait</th>
+          </thead>
+          <tbody>
+            @for (n of s.nodes; track n) {
+              <tr>
+                <td>
+                  <div>{{ nodeTitle(n.node) | i18n }}</div>
+                  <small>{{ n.node }}</small>
+                </td>
+                <td class="number">{{ n.runs | number }}</td>
+                <td class="number">
+                  {{ n.failed | number }}
+                </td>
+                <td class="number">{{ n.avgDurationMs | runDuration }}</td>
+                <td class="number">{{ n.p95DurationMs | runDuration }}</td>
+                <td class="number">{{ n.avgWaitMs | runDuration }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
     </section>
   </div>
-</ng-container>
+}

@@ -1,12 +1,19 @@
-<ng-container [ngSwitch]="type">
-  <div
-    class="cards"
-    *ngSwitchCase="'cards'"
-    [style.grid-template-columns]="'repeat(' + cols + ', 1fr)'"
-  >
-    <div *ngFor="let l of cols * rows | mockArray"></div>
-  </div>
-  <div class="lines" *ngSwitchDefault>
-    <div *ngFor="let l of lines | mockArray"></div>
-  </div>
-</ng-container>
+@switch (type) {
+  @case ("cards") {
+    <div
+      class="cards"
+      [style.grid-template-columns]="'repeat(' + cols + ', 1fr)'"
+    >
+      @for (l of cols * rows | mockArray; track l) {
+        <div></div>
+      }
+    </div>
+  }
+  @default {
+    <div class="lines">
+      @for (l of lines | mockArray; track l) {
+        <div></div>
+      }
+    </div>
+  }
+}

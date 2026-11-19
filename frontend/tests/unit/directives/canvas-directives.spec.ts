@@ -701,13 +701,14 @@ describe("canvas directives", () => {
         >
           node <button>info</button>
         </div>
-        <div
-          *ngIf="zone"
-          class="zone"
-          dropZone
-          style="position: fixed; left: 200px; top: 100px; width: 300px; height: 200px"
-          (drop)="drops.push($event)"
-        ></div>`,
+        @if (zone) {
+          <div
+            class="zone"
+            dropZone
+            style="position: fixed; left: 200px; top: 100px; width: 300px; height: 200px"
+            (drop)="drops.push($event)"
+          ></div>
+        }`,
       standalone: false,
     })
     class HostComponent {

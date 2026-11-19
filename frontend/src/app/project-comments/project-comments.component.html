@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track m) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
@@ -10,11 +12,12 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <form [formGroup]="form">
   <header>
@@ -51,39 +54,43 @@
   class="cards"
   [class.busy-block]="comments.length <= 0 && progress.loading"
 >
-  <div class="card" *ngFor="let c of comments; let i = index">
-    <header class="stack justify-end">
-      <ng-template #actionsTemplate>
-        <ul class="context-menu" [class.busy]="progress.removing[i]">
-          <li>
-            <button (click)="remove(i, c)">
-              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
-              Delete
-            </button>
-          </li>
-        </ul>
-      </ng-template>
-      <button
-        class="actions"
-        [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-        (attached)="references.popover = $event"
-      >
-        <app-icon class="icon" icon="menu"></app-icon>
-      </button>
-      <div>{{ c.createdAt | date: "short" }}</div>
-    </header>
-    <article
-      [innerHTML]="c.message | markdown: { safe: false } | async"
-    ></article>
-    <footer class="stack justify-between">
-      <div class="created-by">{{ c.createdBy._id }}</div>
-      <div>{{ c.createdAt | timePassed }}</div>
-    </footer>
-  </div>
+  @for (c of comments; track c; let i = $index) {
+    <div class="card">
+      <header class="stack justify-end">
+        <ng-template #actionsTemplate>
+          <ul class="context-menu" [class.busy]="progress.removing[i]">
+            <li>
+              <button (click)="remove(i, c)">
+                <app-icon
+                  class="icon left"
+                  icon="delete"
+                  [size]="18"
+                ></app-icon>
+                Delete
+              </button>
+            </li>
+          </ul>
+        </ng-template>
+        <button
+          class="actions"
+          [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+          (attached)="references.popover = $event"
+        >
+          <app-icon class="icon" icon="menu"></app-icon>
+        </button>
+        <div>{{ c.createdAt | date: "short" }}</div>
+      </header>
+      <article
+        [innerHTML]="c.message | markdown: { safe: false } | async"
+      ></article>
+      <footer class="stack justify-between">
+        <div class="created-by">{{ c.createdBy._id }}</div>
+        <div>{{ c.createdAt | timePassed }}</div>
+      </footer>
+    </div>
+  }
 </div>
 
-<div
-  *ngIf="chunk.length > 0 && !progress.loading"
-  inViewport
-  (visible)="loadMore()"
-></div>
+@if (chunk.length > 0 && !progress.loading) {
+  <div inViewport (visible)="loadMore()"></div>
+}

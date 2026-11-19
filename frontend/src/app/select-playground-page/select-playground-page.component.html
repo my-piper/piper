@@ -13,14 +13,15 @@
     <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
   </a>
   <h1 i18n="@@label.select_app">Select app</h1>
-  <button
-    *ngIf="userRole.admin | can | async"
-    class="tools button circle"
-    [appPopover]="{ content: toolsPopover, trigger: 'click' }"
-    (attached)="references.popover = $event"
-  >
-    <app-icon class="icon" icon="menu"></app-icon>
-  </button>
+  @if (userRole.admin | can | async) {
+    <button
+      class="tools button circle"
+      [appPopover]="{ content: toolsPopover, trigger: 'click' }"
+      (attached)="references.popover = $event"
+    >
+      <app-icon class="icon" icon="menu"></app-icon>
+    </button>
+  }
 </header>
 
 <app-select-playground

@@ -4,6 +4,8 @@
   <router-outlet></router-outlet>
 </main>
 
-<footer *ngIf="appConfig.ui.appFooter as footer">
+@if (appConfig.ui.appFooter; as footer) {
+<footer>
   <div [innerHTML]="footer | i18n"></div>
 </footer>
+}

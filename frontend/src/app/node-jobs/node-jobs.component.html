@@ -1,22 +1,24 @@
-<div class="card" *ngFor="let job of jobs">
-  <header>
-    <div>{{ job.createdAt | date: "short" }}</div>
-  </header>
-  <article>
-    <div i18n="@@label.id">Id</div>
-    <div>{{ job.id }}</div>
-    <div i18n="@@label.attempts">Attempts</div>
-    <div>{{ job.attemptsMade }} / {{ job.maxAttempts }}</div>
-    <div i18n="@@label.waited">Waited</div>
-    <div>
-      {{ ((job.processedAt - job.createdAt) / 1000 | duration) || "-" }}
-    </div>
-    <div i18n="@@label.processed">Processed</div>
-    <div>
-      {{ ((job.finishedAt - job.processedAt) / 1000 | duration) || "-" }}
-    </div>
-  </article>
-  <footer>
-    <small>{{ job.result }}</small>
-  </footer>
-</div>
+@for (job of jobs; track job) {
+  <div class="card">
+    <header>
+      <div>{{ job.createdAt | date: "short" }}</div>
+    </header>
+    <article>
+      <div i18n="@@label.id">Id</div>
+      <div>{{ job.id }}</div>
+      <div i18n="@@label.attempts">Attempts</div>
+      <div>{{ job.attemptsMade }} / {{ job.maxAttempts }}</div>
+      <div i18n="@@label.waited">Waited</div>
+      <div>
+        {{ ((job.processedAt - job.createdAt) / 1000 | duration) || "-" }}
+      </div>
+      <div i18n="@@label.processed">Processed</div>
+      <div>
+        {{ ((job.finishedAt - job.processedAt) / 1000 | duration) || "-" }}
+      </div>
+    </article>
+    <footer>
+      <small>{{ job.result }}</small>
+    </footer>
+  </div>
+}

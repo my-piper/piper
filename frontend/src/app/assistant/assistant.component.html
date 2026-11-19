@@ -1,64 +1,76 @@
 <form [formGroup]="form">
   <div autoScroll class="chat">
-    <ng-container *ngFor="let m of messages">
+    @for (m of messages; track m) {
       <div
         class="message"
         [attr.data-from]="m.from !== 'assistant' ? 'user' : 'assistant'"
       >
-        <div *ngIf="m.message" [innerHTML]="m.message | markdown | async"></div>
-        <ul *ngIf="m.changes?.length > 0">
-          <li *ngFor="let c of m.changes">
-            <ng-container [ngSwitch]="c.action">
-              <ng-container
-                *ngSwitchCase="'add_node_from_catalog'"
-                i18n="@@action.add_node"
-              >
-                Add node
-              </ng-container>
-              <ng-container *ngSwitchCase="'add_node'" i18n="@@action.add_node">
-                Add node
-              </ng-container>
-              <ng-container
-                *ngSwitchCase="'remove_node'"
-                i18n="@@action.remove_node"
-              >
-                Remove node
-              </ng-container>
-              <ng-container
-                *ngSwitchCase="'replace_node'"
-                i18n="@@action.replace_node"
-              >
-                Replace node: {{ c.data.id }}
-              </ng-container>
-              <ng-container *ngSwitchCase="'add_flow'" i18n="@@action.add_flow">
-                Add flow
-              </ng-container>
-            </ng-container>
-          </li>
-        </ul>
+        @if (m.message) {
+          <div [innerHTML]="m.message | markdown | async"></div>
+        }
+        @if (m.changes?.length > 0) {
+          <ul>
+            @for (c of m.changes; track c) {
+              <li>
+                @switch (c.action) {
+                  @case ("add_node_from_catalog") {
+                    <ng-container i18n="@@action.add_node">
+                      Add node
+                    </ng-container>
+                  }
+                  @case ("add_node") {
+                    <ng-container i18n="@@action.add_node">
+                      Add node
+                    </ng-container>
+                  }
+                  @case ("remove_node") {
+                    <ng-container i18n="@@action.remove_node">
+                      Remove node
+                    </ng-container>
+                  }
+                  @case ("replace_node") {
+                    <ng-container i18n="@@action.replace_node">
+                      Replace node: {{ c.data.id }}
+                    </ng-container>
+                  }
+                  @case ("add_flow") {
+                    <ng-container i18n="@@action.add_flow">
+                      Add flow
+                    </ng-container>
+                  }
+                }
+              </li>
+            }
+          </ul>
+        }
       </div>
-    </ng-container>
-    <div *ngIf="progress.sending">
-      <app-spinner></app-spinner>
-    </div>
+    }
+    @if (progress.sending) {
+      <div>
+        <app-spinner></app-spinner>
+      </div>
+    }
 
-    <div
-      class="stack justify-center"
-      *ngIf="messages.length > 0 && !progress.loading && !progress.sending"
-    >
-      <button
-        class="primary small with-icon"
-        [class.busy]="progress.clearing"
-        [disabled]="progress.clearing"
-        (click)="clear()"
-      >
-        <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
-        <ng-container i18n="@@action.clear_history">Clear history</ng-container>
-      </button>
-    </div>
+    @if (messages.length > 0 && !progress.loading && !progress.sending) {
+      <div class="stack justify-center">
+        <button
+          class="primary small with-icon"
+          [class.busy]="progress.clearing"
+          [disabled]="progress.clearing"
+          (click)="clear()"
+        >
+          <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
+          <ng-container i18n="@@action.clear_history"
+            >Clear history</ng-container
+          >
+        </button>
+      </div>
+    }
   </div>
 
-  <div class="active-node" *ngIf="!!node">{{ node.node.title | i18n }}</div>
+  @if (!!node) {
+    <div class="active-node">{{ node.node.title | i18n }}</div>
+  }
 
   <fieldset>
     <textarea

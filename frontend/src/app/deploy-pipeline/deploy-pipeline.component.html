@@ -1,8 +1,6 @@
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+}
 
 <div class="modal" [class.hidden]="!modal">
   <header>
@@ -54,39 +52,44 @@
     <th i18n="@@label.slug">Slug</th>
   </thead>
   <tbody>
-    <tr *ngFor="let d of deploys">
-      <td>
-        <button
-          class="circle small"
-          (click)="remove(d)"
-          [class.busy]="progress.removing[d._id]"
-          [disabled]="progress.removing[d._id]"
-        >
-          <app-icon class="icon" icon="delete" [size]="16"></app-icon>
-        </button>
-      </td>
-      <td title="Deployed at" i18n-title="@@label.deployed_at">
-        {{ d.deployedAt | date: "short" }}
-      </td>
-      <td title="Path" i18n-title="@@label.path">
-        <a
-          class="default with-icon"
-          [routerLink]="!!d.prefix ? [d.prefix, d.slug] : [d.slug]"
-        >
-          <ng-container *ngIf="!!d.prefix">{{ d.prefix }}/</ng-container
-          >{{ d.slug }}
-
-          <app-icon
-            class="icon right"
-            icon="open-link"
-            [size]="16"
-            [stroke]="2"
-          ></app-icon>
-        </a>
-      </td>
-    </tr>
-    <tr class="loading" *ngIf="progress.loading">
-      <td colspan="3"></td>
-    </tr>
+    @for (d of deploys; track d) {
+      <tr>
+        <td>
+          <button
+            class="circle small"
+            (click)="remove(d)"
+            [class.busy]="progress.removing[d._id]"
+            [disabled]="progress.removing[d._id]"
+          >
+            <app-icon class="icon" icon="delete" [size]="16"></app-icon>
+          </button>
+        </td>
+        <td title="Deployed at" i18n-title="@@label.deployed_at">
+          {{ d.deployedAt | date: "short" }}
+        </td>
+        <td title="Path" i18n-title="@@label.path">
+          <a
+            class="default with-icon"
+            [routerLink]="!!d.prefix ? [d.prefix, d.slug] : [d.slug]"
+          >
+            @if (!!d.prefix) {
+              {{ d.prefix }}/
+            }
+            {{ d.slug }}
+            <app-icon
+              class="icon right"
+              icon="open-link"
+              [size]="16"
+              [stroke]="2"
+            ></app-icon>
+          </a>
+        </td>
+      </tr>
+    }
+    @if (progress.loading) {
+      <tr class="loading">
+        <td colspan="3"></td>
+      </tr>
+    }
   </tbody>
 </table>

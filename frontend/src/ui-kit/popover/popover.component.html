@@ -22,10 +22,14 @@
   role="popover"
   [ngStyle]="{ 'max-height': options.maxHeight, 'max-width': options.maxWidth }"
 >
-  <div class="title" *ngIf="options.title">{{ options.title | i18n }}</div>
+  @if (options.title) {
+    <div class="title">{{ options.title | i18n }}</div>
+  }
 
   <div class="content">
-    <ng-container *ngIf="!!contentText">{{ contentText }}</ng-container>
+    @if (!!contentText) {
+      {{ contentText }}
+    }
     <ng-container #container>
       <ng-container *ngTemplateOutlet="contentTemplate"> </ng-container>
     </ng-container>

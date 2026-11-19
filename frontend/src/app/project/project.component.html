@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track m) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
@@ -10,41 +12,12 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
-
-<ng-template #clonePipelineTemplate>
-  <header>
-    <p>
-      <ng-container i18n="@@message.not_owner_pipeline">
-        You are not owner of this pipeline, but you can play with it
-        in</ng-container
-      >&nbsp;<a
-        class="primary with-icon"
-        [routerLink]="['/', 'play', project.slug || project._id]"
-        routerLinkActive="active"
-      >
-        <ng-container i18n="@@link.open_playground">Playground</ng-container>
-        <app-icon
-          class="icon right"
-          icon="open-link"
-          [size]="18"
-        ></app-icon> </a
-      >&nbsp;<ng-container i18n="@@label.or">or</ng-container>&nbsp;<button
-        class="primary"
-        [disabled]="progress.cloning"
-        [class.busy]="progress.cloning"
-        (click)="clone()"
-        i18n="@@action.clone_pipeline"
-      >
-        Clone
-      </button>
-    </p>
-  </header>
-</ng-template>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <app-main-toolbar></app-main-toolbar>
 
@@ -65,223 +38,301 @@
           (updated)="updated($event)"
         ></app-edit-project>
       </ng-template>
-      <button
-        *ngIf="userRole.admin | can | async"
-        class="circle"
-        [appPopover]="{
-          trigger: 'click',
-          content: shareProjectPopover,
-        }"
-      >
-        <app-icon class="icon" [icon]="'share'"></app-icon>
-      </button>
+      @if (userRole.admin | can | async) {
+        <button
+          class="circle"
+          [appPopover]="{
+            trigger: 'click',
+            content: shareProjectPopover,
+          }"
+        >
+          <app-icon class="icon" [icon]="'share'"></app-icon>
+        </button>
+      }
       <ng-template #projectSettingsModal>
         <app-project-settings
           [project]="project"
           (updated)="settingsUpdated($event)"
         ></app-project-settings>
       </ng-template>
-      <button
-        *ngIf="userRole.admin | can: project.createdBy | async"
-        class="circle"
-        data-testid="project-settings"
-        title="Settings"
-        [appModal]="{
-          title: 'Project settings',
-          maxWidth: '400px',
-          content: projectSettingsModal,
-        }"
-      >
-        <app-icon class="icon" [icon]="'edit'"></app-icon>
-      </button>
-      <div class="title" [formGroup]="form">
-        <a
-          *ngIf="project.group"
-          class="folder"
-          data-testid="project-folder"
-          [routerLink]="['..']"
-          [queryParams]="{ folder: project.group }"
-          >{{ project.group }}</a
+      @if (userRole.admin | can: project.createdBy | async) {
+        <button
+          class="circle"
+          data-testid="project-settings"
+          title="Settings"
+          [appModal]="{
+            title: 'Project settings',
+            maxWidth: '400px',
+            content: projectSettingsModal,
+          }"
         >
+          <app-icon class="icon" [icon]="'edit'"></app-icon>
+        </button>
+      }
+      <div class="title" [formGroup]="form">
+        @if (project.group) {
+          <a
+            class="folder"
+            data-testid="project-folder"
+            [routerLink]="['..']"
+            [queryParams]="{ folder: project.group }"
+            >{{ project.group }}</a
+          >
+        }
         <input
           [class.error]="form | invalidField: 'name'"
           formControlName="name"
         />
-        <small *ngIf="pipeline.description as description">{{
-          description | i18n
-        }}</small>
+        @if (pipeline.description; as description) {
+          <small>{{ description | i18n }}</small>
+        }
       </div>
     </div>
   </div>
   <div class="stack align-center justify-between">
-    <nav
-      *ngIf="
-        userRole.admin | can: project.createdBy | async;
-        else clonePipelineTemplate
-      "
-      class="stack align-center"
-    >
-      <ul class="menu">
-        <li>
-          <a
-            class="with-icon"
-            [class.active]="child | is: editPipelineVisualComponent"
-            [routerLink]="['./']"
-            ><app-icon class="icon left" [size]="18" icon="node"></app-icon
-            ><ng-container i18n="@@link.canvas">Canvas</ng-container></a
-          >
-        </li>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['environment'],
-                  left: null,
-                  right: null,
-                  bottom: null,
-                },
-              },
-            ]"
-            routerLinkActive="active"
-          >
-            <app-icon class="icon left" [size]="18" icon="password"></app-icon
-            ><ng-container i18n="@@link.environment">Environment</ng-container>
-            <ng-container
-              *ngIf="
-                (project.pipeline | declaredVariables | async)
-                  ?.size as variables
-              "
-            >
-              <span *ngIf="variables > 0" class="badge">
-                {{ variables }}
-              </span>
-            </ng-container>
-          </a>
-        </li>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['artefacts'],
-                  left: null,
-                  right: null,
-                  bottom: null,
-                },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="archive"></app-icon
-            ><ng-container i18n="@@link.artefacts">Artefacts</ng-container></a
-          >
-        </li>
-        <ng-container
-          *ngIf="(project.pipeline.outputs | keyvalue | length) > 0"
-        >
+    @if (userRole.admin | can: project.createdBy | async) {
+      <nav class="stack align-center">
+        <ul class="menu">
           <li>
             <a
               class="with-icon"
-              [routerLink]="['/', 'play', project.slug || project._id]"
-              target="_blank"
+              [class.active]="child | is: editPipelineVisualComponent"
+              [routerLink]="['./']"
+              ><app-icon class="icon left" [size]="18" icon="node"></app-icon
+              ><ng-container i18n="@@link.canvas">Canvas</ng-container></a
+            >
+          </li>
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['environment'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
+                },
+              ]"
               routerLinkActive="active"
             >
-              <app-icon class="icon left" [size]="18" icon="app"></app-icon>
-              <ng-container i18n="@@link.app">App</ng-container>
+              <app-icon class="icon left" [size]="18" icon="password"></app-icon
+              ><ng-container i18n="@@link.environment"
+                >Environment</ng-container
+              >
+              @if (
+                (project.pipeline | declaredVariables | async)?.size;
+                as variables
+              ) {
+                @if (variables > 0) {
+                  <span class="badge">
+                    {{ variables }}
+                  </span>
+                }
+              }
             </a>
           </li>
-        </ng-container>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['deploy'],
-                  left: null,
-                  right: null,
-                  bottom: null,
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['artefacts'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
                 },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="upload"></app-icon
-            ><ng-container i18n="@@link.deploy">Deploy</ng-container></a
-          >
-        </li>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['assets'],
-                  left: null,
-                  right: null,
-                  bottom: null,
+              ]"
+              routerLinkActive="active"
+              ><app-icon class="icon left" [size]="18" icon="archive"></app-icon
+              ><ng-container i18n="@@link.artefacts">Artefacts</ng-container></a
+            >
+          </li>
+          @if ((project.pipeline.outputs | keyvalue | length) > 0) {
+            <li>
+              <a
+                class="with-icon"
+                [routerLink]="['/', 'play', project.slug || project._id]"
+                target="_blank"
+                routerLinkActive="active"
+              >
+                <app-icon class="icon left" [size]="18" icon="app"></app-icon>
+                <ng-container i18n="@@link.app">App</ng-container>
+              </a>
+            </li>
+          }
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['deploy'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
                 },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="image"></app-icon
-            ><ng-container i18n="@@link.assets">Assets</ng-container></a
-          >
-        </li>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['launches'],
-                  left: null,
-                  right: null,
-                  bottom: null,
+              ]"
+              routerLinkActive="active"
+              ><app-icon class="icon left" [size]="18" icon="upload"></app-icon
+              ><ng-container i18n="@@link.deploy">Deploy</ng-container></a
+            >
+          </li>
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['assets'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
                 },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="play"></app-icon
-            ><ng-container i18n="@@link.launches">Launches</ng-container></a
-          >
-        </li>
-        <li>
-          <a
-            class="with-icon"
-            data-testid="project-stats-tab"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['stats'],
-                  left: null,
-                  right: null,
-                  bottom: null,
+              ]"
+              routerLinkActive="active"
+              ><app-icon class="icon left" [size]="18" icon="image"></app-icon
+              ><ng-container i18n="@@link.assets">Assets</ng-container></a
+            >
+          </li>
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['launches'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
                 },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="number"></app-icon
-            ><ng-container i18n="@@link.stats">Stats</ng-container></a
-          >
-        </li>
-        <ng-container
-          *ngIf="project._id | pipelineNodeUpdates | async as nodeUpdates"
-        >
-          <ng-container
-            *ngIf="
+              ]"
+              routerLinkActive="active"
+              ><app-icon class="icon left" [size]="18" icon="play"></app-icon
+              ><ng-container i18n="@@link.launches">Launches</ng-container></a
+            >
+          </li>
+          <li>
+            <a
+              class="with-icon"
+              data-testid="project-stats-tab"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['stats'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
+                },
+              ]"
+              routerLinkActive="active"
+              ><app-icon class="icon left" [size]="18" icon="number"></app-icon
+              ><ng-container i18n="@@link.stats">Stats</ng-container></a
+            >
+          </li>
+          @if (project._id | pipelineNodeUpdates | async; as nodeUpdates) {
+            @if (
               ($safeNavigationMigration(nodeUpdates?.updates) | keyvalue)
-                .length as updates
-            "
-          >
+                .length;
+              as updates
+            ) {
+              <li>
+                <a
+                  class="with-icon"
+                  [routerLink]="[
+                    {
+                      outlets: {
+                        primary: ['node-updates'],
+                        left: null,
+                        right: null,
+                        bottom: null,
+                      },
+                    },
+                  ]"
+                  routerLinkActive="active"
+                >
+                  <app-icon
+                    class="icon left"
+                    [size]="18"
+                    icon="download"
+                  ></app-icon
+                  ><ng-container i18n="@@link.updates">Updates</ng-container>
+                  <span class="badge">
+                    {{ updates }}
+                  </span>
+                </a>
+              </li>
+            }
+          }
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['design'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
+                },
+              ]"
+              routerLinkActive="active"
+              ><app-icon class="icon left" [size]="18" icon="theme"></app-icon
+              ><ng-container i18n="@@link.design">Design</ng-container></a
+            >
+          </li>
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['readme', 'edit'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
+                },
+              ]"
+              routerLinkActive="active"
+              ><app-icon class="icon left" [size]="18" icon="text"></app-icon
+              ><ng-container i18n="@@link.readme">README</ng-container></a
+            >
+          </li>
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['yaml'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
+                },
+              ]"
+              routerLinkActive="active"
+              ><app-icon class="icon left" [size]="18" icon="json"></app-icon
+              >YAML</a
+            >
+          </li>
+          @if (userRole.engineer | can | async) {
             <li>
               <a
                 class="with-icon"
                 [routerLink]="[
                   {
                     outlets: {
-                      primary: ['node-updates'],
+                      primary: ['script'],
                       left: null,
                       right: null,
                       bottom: null,
@@ -289,129 +340,87 @@
                   },
                 ]"
                 routerLinkActive="active"
+                ><app-icon class="icon left" [size]="18" icon="edit"></app-icon
+                ><ng-container i18n="@@link.script">Script</ng-container></a
               >
-                <app-icon
+            </li>
+          }
+          @if (userRole.admin | can | async) {
+            <li>
+              <a
+                class="with-icon"
+                [routerLink]="['messages']"
+                routerLinkActive="active"
+                ><app-icon
                   class="icon left"
                   [size]="18"
-                  icon="download"
+                  icon="assistant"
                 ></app-icon
-                ><ng-container i18n="@@link.updates">Updates</ng-container>
-                <span class="badge">
-                  {{ updates }}
-                </span>
-              </a>
+                ><ng-container i18n="@@link.messages">Messages</ng-container></a
+              >
             </li>
-          </ng-container>
-        </ng-container>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['design'],
-                  left: null,
-                  right: null,
-                  bottom: null,
+          }
+          <li>
+            <a
+              class="with-icon"
+              [routerLink]="[
+                {
+                  outlets: {
+                    primary: ['tools'],
+                    left: null,
+                    right: null,
+                    bottom: null,
+                  },
                 },
-              },
-            ]"
+              ]"
+              routerLinkActive="active"
+              ><app-icon
+                class="icon left"
+                [size]="18"
+                icon="switcher"
+              ></app-icon
+              ><ng-container i18n="@@link.tools">Tools</ng-container></a
+            >
+          </li>
+        </ul>
+      </nav>
+    } @else {
+      <header>
+        <p>
+          <ng-container i18n="@@message.not_owner_pipeline">
+            You are not owner of this pipeline, but you can play with it
+            in</ng-container
+          >&nbsp;<a
+            class="primary with-icon"
+            [routerLink]="['/', 'play', project.slug || project._id]"
             routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="theme"></app-icon
-            ><ng-container i18n="@@link.design">Design</ng-container></a
           >
-        </li>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['readme', 'edit'],
-                  left: null,
-                  right: null,
-                  bottom: null,
-                },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="text"></app-icon
-            ><ng-container i18n="@@link.readme">README</ng-container></a
+            <ng-container i18n="@@link.open_playground"
+              >Playground</ng-container
+            >
+            <app-icon
+              class="icon right"
+              icon="open-link"
+              [size]="18"
+            ></app-icon> </a
+          >&nbsp;<ng-container i18n="@@label.or">or</ng-container>&nbsp;<button
+            class="primary"
+            [disabled]="progress.cloning"
+            [class.busy]="progress.cloning"
+            (click)="clone()"
+            i18n="@@action.clone_pipeline"
           >
-        </li>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['yaml'],
-                  left: null,
-                  right: null,
-                  bottom: null,
-                },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="json"></app-icon
-            >YAML</a
-          >
-        </li>
-        <li *ngIf="userRole.engineer | can | async">
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['script'],
-                  left: null,
-                  right: null,
-                  bottom: null,
-                },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="edit"></app-icon
-            ><ng-container i18n="@@link.script">Script</ng-container></a
-          >
-        </li>
-        <li *ngIf="userRole.admin | can | async">
-          <a
-            class="with-icon"
-            [routerLink]="['messages']"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="assistant"></app-icon
-            ><ng-container i18n="@@link.messages">Messages</ng-container></a
-          >
-        </li>
-        <li>
-          <a
-            class="with-icon"
-            [routerLink]="[
-              {
-                outlets: {
-                  primary: ['tools'],
-                  left: null,
-                  right: null,
-                  bottom: null,
-                },
-              },
-            ]"
-            routerLinkActive="active"
-            ><app-icon class="icon left" [size]="18" icon="switcher"></app-icon
-            ><ng-container i18n="@@link.tools">Tools</ng-container></a
-          >
-        </li>
-      </ul>
-    </nav>
+            Clone
+          </button>
+        </p>
+      </header>
+    }
 
-    <div
-      class="status"
-      *ngIf="projectManager.status | async as status"
-      [attr.data-status]="status"
-    >
-      <app-icon icon="cloud"></app-icon>
-    </div>
+    @if (projectManager.status | async; as status) {
+      <div class="status" [attr.data-status]="status">
+        <app-icon icon="cloud"></app-icon>
+      </div>
+    }
   </div>
 </header>
 

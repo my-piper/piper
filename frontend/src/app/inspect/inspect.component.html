@@ -1,15 +1,22 @@
-<ng-container [ngSwitch]="type">
-  <img *ngSwitchCase="'image'" imageFallback [src]="url" />
-  <video *ngSwitchCase="'video'" [src]="url" autoplay muted controls></video>
-  <div *ngSwitchCase="'markdown'" [innerHTML]="text | markdown | async"></div>
-  <ngx-monaco-editor
-    *ngSwitchCase="'json'"
-    class="monaco"
-    [options]="{
-      readOnly: true,
-      automaticLayout: true,
-    }"
-    [model]="{ language: 'json', value: text }"
-  >
-  </ngx-monaco-editor>
-</ng-container>
+@switch (type) {
+  @case ("image") {
+    <img imageFallback [src]="url" />
+  }
+  @case ("video") {
+    <video [src]="url" autoplay muted controls></video>
+  }
+  @case ("markdown") {
+    <div [innerHTML]="text | markdown | async"></div>
+  }
+  @case ("json") {
+    <ngx-monaco-editor
+      class="monaco"
+      [options]="{
+        readOnly: true,
+        automaticLayout: true,
+      }"
+      [model]="{ language: 'json', value: text }"
+    >
+    </ngx-monaco-editor>
+  }
+}

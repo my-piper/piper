@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track m) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
@@ -10,11 +12,12 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <h1 i18n="@@label.put_yaml_or_url">Put YAML or URL</h1>
 <form [formGroup]="form">

@@ -6,15 +6,17 @@
     </a>
 
     <ul>
-      <li *ngIf="userRole.admin | can | async">
-        <a
-          [routerLink]="['/', 'packages']"
-          [state]="{ scroll: 'top' }"
-          routerLinkActive="active"
-          i18n="@@link.node_packages"
-          >Node packages</a
-        >
-      </li>
+      @if (userRole.admin | can | async) {
+        <li>
+          <a
+            [routerLink]="['/', 'packages']"
+            [state]="{ scroll: 'top' }"
+            routerLinkActive="active"
+            i18n="@@link.node_packages"
+            >Node packages</a
+          >
+        </li>
+      }
       <li>
         <a
           [routerLink]="['/', 'projects']"
@@ -60,15 +62,17 @@
           >Environment</a
         >
       </li>
-      <li *ngIf="userRole.admin | can | async">
-        <a
-          [routerLink]="['/', 'users']"
-          [state]="{ scroll: 'top' }"
-          routerLinkActive="active"
-          i18n="@@link.users"
-          >Users</a
-        >
-      </li>
+      @if (userRole.admin | can | async) {
+        <li>
+          <a
+            [routerLink]="['/', 'users']"
+            [state]="{ scroll: 'top' }"
+            routerLinkActive="active"
+            i18n="@@link.users"
+            >Users</a
+          >
+        </li>
+      }
     </ul>
   </div>
 

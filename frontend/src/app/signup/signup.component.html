@@ -38,16 +38,13 @@
   </form>
 </ng-template>
 
-<app-informer
-  *ngIf="state.confirm"
-  [contentTemplate]="confirmEmailTemplate"
-></app-informer>
+@if (state.confirm) {
+  <app-informer [contentTemplate]="confirmEmailTemplate"></app-informer>
+}
 
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+}
 
 <div class="app-container">
   <div class="frame">

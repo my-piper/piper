@@ -1,7 +1,3 @@
-<ng-template #noInputsTemplate>
-  <p>No inputs for node.</p>
-</ng-template>
-
 <header class="stack vertical" [formGroup]="form">
   <div class="stack horizontal align-center">
     <input type="text" formControlName="title" />
@@ -11,12 +7,13 @@
         [innerHTML]="node.description | markdown | async"
       ></div>
     </ng-template>
-    <app-icon
-      *ngIf="node.description as description"
-      icon="info"
-      [size]="18"
-      [appPopover]="{ content: descriptionPopover }"
-    ></app-icon>
+    @if (node.description; as description) {
+      <app-icon
+        icon="info"
+        [size]="18"
+        [appPopover]="{ content: descriptionPopover }"
+      ></app-icon>
+    }
     <button
       type="button"
       class="primary close with-icon only-icon"
@@ -53,49 +50,60 @@
 
 <hr />
 
-<ng-container *ngIf="node.render.inputs as groups">
-  <ng-container *ngIf="groups.length > 0; else noInputsTemplate">
+@if (node.render.inputs; as groups) {
+  @if (groups.length > 0) {
     <form [formGroup]="form">
-      <ng-container *ngFor="let g of groups">
-        <h2 class="stack align-center" *ngIf="g.group.group?.title as group">
-          {{ group | i18n }}
-          <div class="order" *ngIf="userRole.admin | can | async">
-            {{ g.group.group?.order }}
-          </div>
-        </h2>
+      @for (g of groups; track g) {
+        @if (g.group.group?.title; as group) {
+          <h2 class="stack align-center">
+            {{ group | i18n }}
+            @if (userRole.admin | can | async) {
+              <div class="order">
+                {{ g.group.group?.order }}
+              </div>
+            }
+          </h2>
+        }
         <fieldset class="inputs stack vertical huge" formGroupName="inputs">
-          <ng-container *ngFor="let i of g.group.inputs">
+          @for (i of g.group.inputs; track i) {
             <div class="input stack vertical" [formGroupName]="i.id">
               <div class="stack align-center justify-between">
                 <div class="stack align-center flex">
-                  <div class="order" *ngIf="userRole.admin | can | async">
-                    {{ i.input.order }}
-                  </div>
+                  @if (userRole.admin | can | async) {
+                    <div class="order">
+                      {{ i.input.order }}
+                    </div>
+                  }
                   <div>
                     {{ i.input.title | i18n }}
-                    <span class="required" *ngIf="i.input.required">&ast;</span>
+                    @if (i.input.required) {
+                      <span class="required">&ast;</span>
+                    }
                   </div>
                   <ng-template #inputDescriptionPopover>
                     <div
                       [innerHTML]="i.input.description | markdown | async"
                     ></div>
                   </ng-template>
-                  <app-icon
-                    *ngIf="i.input.description"
-                    [appPopover]="{ content: inputDescriptionPopover }"
-                    icon="help"
-                    [color]="ui.color.grey"
-                    [size]="18"
-                  ></app-icon>
+                  @if (i.input.description) {
+                    <app-icon
+                      [appPopover]="{ content: inputDescriptionPopover }"
+                      icon="help"
+                      [color]="ui.color.grey"
+                      [size]="18"
+                    ></app-icon>
+                  }
                 </div>
                 <div class="stack small">
-                  <button
-                    *ngIf="i.input.cloned"
-                    class="circle small"
-                    (click)="removeInput(i.id)"
-                  >
-                    <app-icon class="icon" icon="minus" [size]="12"></app-icon>
-                  </button>
+                  @if (i.input.cloned) {
+                    <button class="circle small" (click)="removeInput(i.id)">
+                      <app-icon
+                        class="icon"
+                        icon="minus"
+                        [size]="12"
+                      ></app-icon>
+                    </button>
+                  }
                   <button
                     class="circle small"
                     (click)="
@@ -112,45 +120,45 @@
                   </button>
                 </div>
               </div>
-              <app-edit-input
-                *ngIf="
-                  (project.pipeline | inputFlows: id : i.id | async | length) <=
-                  0
-                "
-                [id]="i.id"
-                [type]="i.input.type"
-                [enum]="i.input.enum"
-                [freeform]="i.input.freeform"
-                [multiline]="i.input.multiline"
-                [default]="i.input.default"
-                [placeholder]="i.input.placeholder"
-                [min]="i.input.min"
-                [max]="i.input.max"
-                [step]="i.input.step"
-                formControlName="value"
-                [inputs]="inputsGroup"
-              ></app-edit-input>
+              @if (
+                (project.pipeline | inputFlows: id : i.id | async | length) <= 0
+              ) {
+                <app-edit-input
+                  [id]="i.id"
+                  [type]="i.input.type"
+                  [enum]="i.input.enum"
+                  [freeform]="i.input.freeform"
+                  [multiline]="i.input.multiline"
+                  [default]="i.input.default"
+                  [placeholder]="i.input.placeholder"
+                  [min]="i.input.min"
+                  [max]="i.input.max"
+                  [step]="i.input.step"
+                  formControlName="value"
+                  [inputs]="inputsGroup"
+                ></app-edit-input>
+              }
             </div>
-          </ng-container>
+          }
         </fieldset>
-      </ng-container>
+      }
     </form>
     <div class="dynamic stack horizontal wrap">
-      <ng-container *ngFor="let g of groups">
-        <ng-container *ngFor="let i of g.group.inputs">
-          <button
-            *ngIf="!!i.input.dynamic && !i.input.cloned"
-            class="primary with-icon"
-            (click)="addDynamic(i.input)"
-          >
-            <app-icon class="icon left" icon="add" [size]="16"></app-icon>
-            {{ i.input.dynamic.title | i18n }}
-          </button>
-        </ng-container>
-      </ng-container>
+      @for (g of groups; track g) {
+        @for (i of g.group.inputs; track i) {
+          @if (!!i.input.dynamic && !i.input.cloned) {
+            <button class="primary with-icon" (click)="addDynamic(i.input)">
+              <app-icon class="icon left" icon="add" [size]="16"></app-icon>
+              {{ i.input.dynamic.title | i18n }}
+            </button>
+          }
+        }
+      }
     </div>
-  </ng-container>
-</ng-container>
+  } @else {
+    <p>No inputs for node.</p>
+  }
+}
 
 <footer class="stack justify-between">
   <button submitButton class="primary" (click)="reset()">
@@ -160,14 +168,18 @@
   <ng-template #toolsPopover>
     <ul class="context-menu">
       <li>
-        <a *ngIf="userRole.engineer | can | async" (click)="edit()">
-          <app-icon
-            class="icon left"
-            [icon]="node.locked ? 'lock' : 'lock'"
-            [size]="16"
-          ></app-icon>
-          <ng-container i18n="@@action.edit_with_shortcut">(E)dit</ng-container>
-        </a>
+        @if (userRole.engineer | can | async) {
+          <a (click)="edit()">
+            <app-icon
+              class="icon left"
+              [icon]="node.locked ? 'lock' : 'lock'"
+              [size]="16"
+            ></app-icon>
+            <ng-container i18n="@@action.edit_with_shortcut"
+              >(E)dit</ng-container
+            >
+          </a>
+        }
       </li>
       <li>
         <button (click)="reorder()">

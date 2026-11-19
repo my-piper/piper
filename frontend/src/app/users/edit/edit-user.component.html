@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track m) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
@@ -10,17 +12,18 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
-<ng-template #addUserTemplate>
+@if (!!user) {
+  <h1>{{ user._id }}</h1>
+} @else {
   <h1>Add user</h1>
-</ng-template>
-
-<h1 *ngIf="!!user; else addUserTemplate">{{ user._id }}</h1>
+}
 
 <form [formGroup]="form" (ngSubmit)="save()">
   <fieldset>

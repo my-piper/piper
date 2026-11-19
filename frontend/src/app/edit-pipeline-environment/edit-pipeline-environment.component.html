@@ -4,33 +4,33 @@
   shared by all your projects; greyed out variables can only be set there.
 </p>
 
-<ng-template #noVariablesTemplate>
+@if (variables.length > 0) {
+  <form [formGroup]="form">
+    <app-environment-variables
+      [variables]="variables"
+    ></app-environment-variables>
+    <footer class="stack horizontal justify-between">
+      <button
+        type="button"
+        class="primary"
+        [disabled]="form.invalid"
+        (click)="save()"
+        i18n="@@action.save"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        class="delete-button"
+        (click)="clear()"
+        i18n="@@action.clear"
+      >
+        Clear
+      </button>
+    </footer>
+  </form>
+} @else {
   <p i18n="@@message.no_environment_variables">
     No node in this pipeline needs environment variables.
   </p>
-</ng-template>
-
-<form *ngIf="variables.length > 0; else noVariablesTemplate" [formGroup]="form">
-  <app-environment-variables
-    [variables]="variables"
-  ></app-environment-variables>
-  <footer class="stack horizontal justify-between">
-    <button
-      type="button"
-      class="primary"
-      [disabled]="form.invalid"
-      (click)="save()"
-      i18n="@@action.save"
-    >
-      Save
-    </button>
-    <button
-      type="button"
-      class="delete-button"
-      (click)="clear()"
-      i18n="@@action.clear"
-    >
-      Clear
-    </button>
-  </footer>
-</form>
+}

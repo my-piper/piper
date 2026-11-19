@@ -1,8 +1,6 @@
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+}
 
 <div class="app-container">
   <h1 i18n="@@label.my_environment">My environment</h1>
@@ -22,16 +20,14 @@
       [removing]="progress.removing"
       (remove)="remove($event)"
     ></app-environment-variables>
-    <p
-      class="duplicate-name"
-      *ngIf="variables.errors?.['duplicateName']"
-      i18n="@@message.duplicate_variable_name"
-    >
-      Two variables can't share a name. To swap names, save one rename first.
-    </p>
-    <p *ngIf="variables.length === 0" i18n="@@message.no_user_variables">
-      You have no variables yet.
-    </p>
+    @if (variables.errors?.["duplicateName"]) {
+      <p class="duplicate-name" i18n="@@message.duplicate_variable_name">
+        Two variables can't share a name. To swap names, save one rename first.
+      </p>
+    }
+    @if (variables.length === 0) {
+      <p i18n="@@message.no_user_variables">You have no variables yet.</p>
+    }
 
     <footer class="stack horizontal justify-between">
       <button type="button" class="primary with-icon" (click)="add()">

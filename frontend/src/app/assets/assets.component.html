@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track m) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
@@ -10,128 +12,128 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
-
-<ng-template #noDataTemplate>
-  <!--<p>No assets found.</p>-->
-</ng-template>
-
-<ng-template #loadingTemplate>
-  <div *ngIf="progress.loading; else noDataTemplate">
-    <!--<app-feed-skeleton></app-feed-skeleton>-->
-  </div>
-</ng-template>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <ng-template #foldersPopover>
   <div class="folders">
-    <a
-      class="default"
-      *ngFor="let folder of folders"
-      (click)="filterFolder(folder)"
-    >
-      {{ folder }}
-    </a>
+    @for (folder of folders; track folder) {
+      <a class="default" (click)="filterFolder(folder)">
+        {{ folder }}
+      </a>
+    }
   </div>
 </ng-template>
 
-<form *ngIf="userRole.admin | can | async" [formGroup]="form">
-  <fieldset class="stack small align-center">
-    <button
-      class="circle"
-      type="button"
-      [disabled]="folders.length <= 0"
-      [appPopover]="{ content: foldersPopover, trigger: 'click' }"
-      (attached)="references.popover = $event"
-    >
-      <app-icon class="icon" icon="menu" [size]="20"></app-icon>
-    </button>
-    <input
-      class="input-primary"
-      formControlName="folder"
-      placeholder="Folder name"
-    />
-  </fieldset>
-</form>
+@if (userRole.admin | can | async) {
+  <form [formGroup]="form">
+    <fieldset class="stack small align-center">
+      <button
+        class="circle"
+        type="button"
+        [disabled]="folders.length <= 0"
+        [appPopover]="{ content: foldersPopover, trigger: 'click' }"
+        (attached)="references.popover = $event"
+      >
+        <app-icon class="icon" icon="menu" [size]="20"></app-icon>
+      </button>
+      <input
+        class="input-primary"
+        formControlName="folder"
+        placeholder="Folder name"
+      />
+    </fieldset>
+  </form>
+}
 
 <ul class="assets" [class.busy-block]="progress.loading">
   <li class="upload" [class.busy-block]="progress.uploading">
-    <ng-container *ngIf="!progress.uploading">
+    @if (!progress.uploading) {
       <input type="file" (change)="upload($event)" />
       <button>
         <app-icon icon="upload" [size]="32"></app-icon>
       </button>
-    </ng-container>
+    }
   </li>
-  <ng-container *ngIf="assets.length > 0; else loadingTemplate">
-    <li *ngFor="let asset of assets">
-      <a
-        class="folder"
-        *ngIf="asset.folder as folder"
-        (click)="filterFolder(folder)"
-        >{{ folder }}</a
-      >
-      <div class="actions">
-        <button
-          class="circle"
-          [class.busy]="progress.removing[asset._id]"
-          [disabled]="progress.removing[asset._id]"
-          (click)="remove(asset)"
-        >
-          <app-icon class="icon" icon="delete" [size]="18"></app-icon>
-        </button>
-      </div>
-      <ng-container [ngSwitch]="asset.type">
-        <img
-          *ngSwitchCase="'image'"
-          [inspect]="{
-            type: 'image',
-            url: asset.url,
-            disabled: mode === 'select',
-          }"
-          [src]="asset.url | proxyImage: { width: 300 }"
-          [style.aspect-ratio]="asset.width + '/' + asset.height"
-          (click)="select(asset)"
-        />
-        <ng-container *ngSwitchCase="'archive'">
-          <button class="archive" (click)="select(asset)">
-            <app-icon
-              icon="archive"
-              [size]="64"
-              [stroke]="1"
-              [color]="ui.color.graphite100"
-            ></app-icon>
+  @if (assets.length > 0) {
+    @for (asset of assets; track asset) {
+      <li>
+        @if (asset.folder; as folder) {
+          <a class="folder" (click)="filterFolder(folder)">{{ folder }}</a>
+        }
+        <div class="actions">
+          <button
+            class="circle"
+            [class.busy]="progress.removing[asset._id]"
+            [disabled]="progress.removing[asset._id]"
+            (click)="remove(asset)"
+          >
+            <app-icon class="icon" icon="delete" [size]="18"></app-icon>
           </button>
-        </ng-container>
-        <div class="audio" *ngSwitchCase="'audio'">
-          <button class="circle" type="button" (click)="select(asset)">
-            <app-icon class="icon" icon="add-circle"></app-icon>
-          </button>
-          <audio controls [src]="asset.url"></audio>
         </div>
-        <video
-          *ngSwitchCase="'video'"
-          muted
-          autoplay
-          [volume]="0"
-          [inspect]="{
-            type: 'video',
-            url: asset.url,
-            disabled: mode === 'select',
-          }"
-          [src]="asset.url"
-          [style.aspect-ratio]="asset.width + '/' + asset.height"
-          (click)="select(asset)"
-        ></video>
-      </ng-container>
-    </li>
-  </ng-container>
+        @switch (asset.type) {
+          @case ("image") {
+            <img
+              [inspect]="{
+                type: 'image',
+                url: asset.url,
+                disabled: mode === 'select',
+              }"
+              [src]="asset.url | proxyImage: { width: 300 }"
+              [style.aspect-ratio]="asset.width + '/' + asset.height"
+              (click)="select(asset)"
+            />
+          }
+          @case ("archive") {
+            <button class="archive" (click)="select(asset)">
+              <app-icon
+                icon="archive"
+                [size]="64"
+                [stroke]="1"
+                [color]="ui.color.graphite100"
+              ></app-icon>
+            </button>
+          }
+          @case ("audio") {
+            <div class="audio">
+              <button class="circle" type="button" (click)="select(asset)">
+                <app-icon class="icon" icon="add-circle"></app-icon>
+              </button>
+              <audio controls [src]="asset.url"></audio>
+            </div>
+          }
+          @case ("video") {
+            <video
+              muted
+              autoplay
+              [volume]="0"
+              [inspect]="{
+                type: 'video',
+                url: asset.url,
+                disabled: mode === 'select',
+              }"
+              [src]="asset.url"
+              [style.aspect-ratio]="asset.width + '/' + asset.height"
+              (click)="select(asset)"
+            ></video>
+          }
+        }
+      </li>
+    }
+  } @else {
+    @if (progress.loading) {
+      <div>
+        <!--<app-feed-skeleton></app-feed-skeleton>-->
+      </div>
+    } @else {
+      <!--<p>No assets found.</p>-->
+    }
+  }
 </ul>
-<div
-  *ngIf="chunk.length > 0 && !progress.loading"
-  inViewport
-  (visible)="loadMore()"
-></div>
+@if (chunk.length > 0 && !progress.loading) {
+  <div inViewport (visible)="loadMore()"></div>
+}

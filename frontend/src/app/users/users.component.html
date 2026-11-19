@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track m) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
@@ -10,11 +12,12 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <div class="modal" [class.hidden]="!modal">
   <header>
@@ -53,69 +56,65 @@
       <th width="48px"></th>
     </thead>
     <tbody>
-      <tr *ngFor="let u of users; let i = index">
-        <td>
-          <ng-template #actionsTemplate>
-            <ul class="context-menu" [class.busy]="progress.deleting">
-              <li>
-                <button (click)="remove(i, u)">
-                  <app-icon
-                    class="icon left"
-                    icon="delete"
-                    [size]="18"
-                  ></app-icon>
-                  <ng-container i18n="@@action.delete">Delete</ng-container>
-                </button>
-              </li>
-            </ul>
-          </ng-template>
-          <button
-            class="circle"
-            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-            (attached)="references.popover = $event"
-          >
-            <app-icon class="icon" icon="menu"></app-icon>
-          </button>
-        </td>
-        <td title="Login" i18n-title="@@label.login">
-          <a class="default" [routerLink]="[u._id]">
-            {{ u._id }}
-          </a>
-        </td>
-        <td title="Email" i18n-title="@@label.email">
-          {{ u.email }}
-        </td>
-        <td title="Created at" i18n-title="@@label.created_at">
-          {{ u.createdAt | date }}
-        </td>
-        <td>
-          <div class="stack tiny align-center">
-            <app-icon
-              *ngIf="u.roles | includes: userRole.admin"
-              [icon]="'admin'"
-              [size]="20"
-            ></app-icon>
-            <app-icon
-              *ngIf="u.provider === 'yandex'"
-              [icon]="'yandex'"
-              [size]="20"
-            ></app-icon>
-            <app-icon
-              *ngIf="u.provider === 'google'"
-              [icon]="'google'"
-              [size]="20"
-            ></app-icon>
-          </div>
-        </td>
-      </tr>
-      <tr class="loading" *ngIf="progress.loading">
-        <td colspan="6"></td>
-      </tr>
+      @for (u of users; track u; let i = $index) {
+        <tr>
+          <td>
+            <ng-template #actionsTemplate>
+              <ul class="context-menu" [class.busy]="progress.deleting">
+                <li>
+                  <button (click)="remove(i, u)">
+                    <app-icon
+                      class="icon left"
+                      icon="delete"
+                      [size]="18"
+                    ></app-icon>
+                    <ng-container i18n="@@action.delete">Delete</ng-container>
+                  </button>
+                </li>
+              </ul>
+            </ng-template>
+            <button
+              class="circle"
+              [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+              (attached)="references.popover = $event"
+            >
+              <app-icon class="icon" icon="menu"></app-icon>
+            </button>
+          </td>
+          <td title="Login" i18n-title="@@label.login">
+            <a class="default" [routerLink]="[u._id]">
+              {{ u._id }}
+            </a>
+          </td>
+          <td title="Email" i18n-title="@@label.email">
+            {{ u.email }}
+          </td>
+          <td title="Created at" i18n-title="@@label.created_at">
+            {{ u.createdAt | date }}
+          </td>
+          <td>
+            <div class="stack tiny align-center">
+              @if (u.roles | includes: userRole.admin) {
+                <app-icon [icon]="'admin'" [size]="20"></app-icon>
+              }
+              @if (u.provider === "yandex") {
+                <app-icon [icon]="'yandex'" [size]="20"></app-icon>
+              }
+              @if (u.provider === "google") {
+                <app-icon [icon]="'google'" [size]="20"></app-icon>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+      @if (progress.loading) {
+        <tr class="loading">
+          <td colspan="6"></td>
+        </tr>
+      }
     </tbody>
   </table>
-  <div
-    *ngIf="chunk.length > 0 && !progress.loading"
-    inViewport
-    (visible)="loadMore()"
-  ></div>
+  @if (chunk.length > 0 && !progress.loading) {
+    <div inViewport (visible)="loadMore()"></div>
+  }
 </div>

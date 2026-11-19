@@ -1,8 +1,6 @@
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+}
 
 <div class="app-container">
   <div class="frame">
@@ -76,31 +74,25 @@
       </footer>
     </form>
 
-    <div
-      *ngIf="config.ui.features | includes: 'signup'"
-      class="stack vertical align-center"
-    >
-      <div class="stack small align-center">
-        <a
-          *ngIf="config.ui.features | includes: 'google_auth'"
-          class="button circle light"
-          href="/oauth/google"
-        >
-          <app-icon class="icon" icon="google"></app-icon>
-        </a>
-        <a
-          *ngIf="config.ui.features | includes: 'yandex_auth'"
-          class="button circle light"
-          href="/oauth/yandex"
-        >
-          <app-icon class="icon" icon="yandex"></app-icon>
-        </a>
+    @if (config.ui.features | includes: "signup") {
+      <div class="stack vertical align-center">
+        <div class="stack small align-center">
+          @if (config.ui.features | includes: "google_auth") {
+            <a class="button circle light" href="/oauth/google">
+              <app-icon class="icon" icon="google"></app-icon>
+            </a>
+          }
+          @if (config.ui.features | includes: "yandex_auth") {
+            <a class="button circle light" href="/oauth/yandex">
+              <app-icon class="icon" icon="yandex"></app-icon>
+            </a>
+          }
+        </div>
+        <p i18n="@@message.no_account">
+          Have no account yet?
+          <a [routerLink]="['/signup']">Register</a>
+        </p>
       </div>
-
-      <p i18n="@@message.no_account">
-        Have no account yet?
-        <a [routerLink]="['/signup']">Register</a>
-      </p>
-    </div>
+    }
   </div>
 </div>

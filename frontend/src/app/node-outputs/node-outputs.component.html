@@ -1,15 +1,15 @@
-<p class="error" *ngIf="status?.error as error">{{ error }}</p>
+@if (status?.error; as error) {
+  <p class="error">{{ error }}</p>
+}
 
 <ul>
-  <li
-    *ngFor="let o of node.outputs | keyvalue"
-    [attr.data-type]="o.value.type"
-    [class.filled]="outputs?.[o.key]"
-  >
-    <b>{{ o.value.title | i18n }}</b>
-    <app-io-value
-      [io]="o.value"
-      [value]="$safeNavigationMigration(outputs?.[o.key])"
-    ></app-io-value>
-  </li>
+  @for (o of node.outputs | keyvalue; track o) {
+    <li [attr.data-type]="o.value.type" [class.filled]="outputs?.[o.key]">
+      <b>{{ o.value.title | i18n }}</b>
+      <app-io-value
+        [io]="o.value"
+        [value]="$safeNavigationMigration(outputs?.[o.key])"
+      ></app-io-value>
+    </li>
+  }
 </ul>

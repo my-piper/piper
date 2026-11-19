@@ -1,5 +1,5 @@
-<ng-container [ngSwitch]="language">
-  <ng-container *ngSwitchCase="languages.ru">
+@switch (language) {
+  @case (languages.ru) {
     <h2>Отказ от ответственности за NSFW-контент</h2>
     <ul>
       <li>
@@ -29,7 +29,6 @@
         использовании контента.
       </li>
     </ul>
-
     <h2>Ответственное использование ИИ</h2>
     <ul>
       <li>
@@ -55,8 +54,8 @@
         контента и стремитесь минимизировать непреднамеренные последствия.
       </li>
     </ul>
-  </ng-container>
-  <ng-container *ngSwitchDefault>
+  }
+  @default {
     <h2>NSFW Content Disclaimer</h2>
     <ul>
       <li>
@@ -84,7 +83,6 @@
         to exercise discretion and accountability in how the content is used.
       </li>
     </ul>
-
     <h2>Responsible AI Use</h2>
     <ul>
       <li>
@@ -108,8 +106,8 @@
         strive to mitigate unintended consequences.
       </li>
     </ul>
-  </ng-container>
-</ng-container>
+  }
+}
 
 <button class="primary" i18n="@@action.i_agree" (click)="agree.emit()">
   I agree

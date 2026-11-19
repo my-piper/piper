@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track m) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <p>Your data were not saved!</p>
     <div class="stack justify-center">
@@ -11,11 +13,12 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <form [formGroup]="form">
   <fieldset>
@@ -26,21 +29,25 @@
       formControlName="group"
     >
       <option [ngValue]="null">No group</option>
-      <option *ngFor="let g of groups" [ngValue]="g">{{ g }}</option>
+      @for (g of groups; track g) {
+        <option [ngValue]="g">{{ g }}</option>
+      }
       <option [ngValue]="NEW_GROUP">+ New group…</option>
     </select>
   </fieldset>
-  <fieldset *ngIf="form.controls.group.value === NEW_GROUP">
-    <label for="project-new-group">New group</label>
-    <input
-      id="project-new-group"
-      class="input-primary fluid"
-      type="text"
-      formControlName="newGroup"
-      placeholder="Group name"
-      maxlength="100"
-    />
-  </fieldset>
+  @if (form.controls.group.value === NEW_GROUP) {
+    <fieldset>
+      <label for="project-new-group">New group</label>
+      <input
+        id="project-new-group"
+        class="input-primary fluid"
+        type="text"
+        formControlName="newGroup"
+        placeholder="Group name"
+        maxlength="100"
+      />
+    </fieldset>
+  }
   <footer>
     <button
       class="primary"
