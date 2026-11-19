@@ -705,11 +705,15 @@ describe("EditPipelineVisualComponent", () => {
           new MouseEvent("click", { bubbles: true, shiftKey: true }),
         );
       detectChanges();
+      const pickedBefore = nodeBox(element, "node_one").classList.contains(
+        "picked",
+      );
 
       nodeElement(element, "node_two").querySelector("h2").click();
       detectChanges();
       tick();
 
+      expect(pickedBefore).toBe(true);
       expect(nodeBox(element, "node_one").classList).not.toContain("picked");
       expect(router.url).toBe(`${EDITOR_URL}/(right:nodes/node_two)`);
       finish();
@@ -726,6 +730,9 @@ describe("EditPipelineVisualComponent", () => {
         );
       detectChanges();
       const opened = router.url;
+      const pickedBefore = nodeBox(element, "node_one").classList.contains(
+        "picked",
+      );
 
       (element.querySelector(".pane > svg rect") as SVGElement).dispatchEvent(
         new MouseEvent("click", { bubbles: true }),
@@ -734,6 +741,7 @@ describe("EditPipelineVisualComponent", () => {
       tick();
 
       expect(opened).toBe(`${EDITOR_URL}/(right:nodes/node_two)`);
+      expect(pickedBefore).toBe(true);
       expect(nodeBox(element, "node_one").classList).not.toContain("picked");
       expect(router.url).toBe(EDITOR_URL);
       finish();

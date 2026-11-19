@@ -867,8 +867,8 @@ export class EditPipelineVisualComponent
   }
 
   /**
-   * A click on a canvas node: a modifier click toggles the node in the
-   * selection; a plain click clears the selection and opens the node's
+   * A click on a canvas node: in project mode a modifier click toggles the
+   * node in the selection (elsewhere it is ignored); a plain click clears the selection and opens the node's
    * drawer, or closes it when the node is already open. Clicks on empty
    * canvas space are handled by `clickOnGrid`.
    */
