@@ -19,7 +19,6 @@ import { Node } from "src/models/node";
 import { Project } from "src/models/project";
 import { Ajv, ajvFactory } from "src/providers/ajv";
 import { ProjectManager } from "src/services/project.manager";
-import { TickerPipe } from "src/pipes/ticker.pipe";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
@@ -29,7 +28,6 @@ import { projectA } from "../fixtures/models";
 import { patchResponsePlain } from "../fixtures/plain";
 import { provideTestConfig } from "../helpers/config";
 import { MonacoEditorStubComponent, typeInto } from "../helpers/editor-stubs";
-import { asJitPipes } from "../helpers/jit";
 import {
   AUTOSAVE_DELAY,
   expectPatch,
@@ -58,7 +56,6 @@ describe("EditPipelineYamlComponent", () => {
   }
 
   beforeEach(() => {
-    asJitPipes(TickerPipe);
     project = projectA();
     TestBed.configureTestingModule({
       declarations: [EditPipelineYamlComponent, SubmitButtonDirective],

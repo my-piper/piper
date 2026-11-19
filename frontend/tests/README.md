@@ -49,11 +49,10 @@ check templates.
 
 - `setup.ts` — Vitest setup file (`setupFiles` in `angular.json`): the
   ProxyZone for every spec and hook (`helpers/proxy-zone.ts`), zone.js change
-  detection like the app, the JIT shadowing of
-  pipes that extend `UntilDestroyed` (add new ones there), a root
-  `<base href>`, and the isolation layer. Before it, `ng test` loads the
-  polyfills of the `test` build configuration (`zone.js`, `reflect-metadata`),
-  `zone.js/testing` and `@angular/localize/init`, and initializes TestBed
+  detection like the app, a root `<base href>`, and the isolation layer.
+  Before it, `ng test` loads the polyfills of the `test` build configuration
+  (`zone.js`, `reflect-metadata`), `zone.js/testing` and
+  `@angular/localize/init`, and initializes TestBed
   (`errorOnUnknownElements`/`errorOnUnknownProperties`, destroy after each).
 - `vitest.config.ts` (next to `angular.json`) — random order, required
   assertions, 10 s timeout, spy restoring, coverage floors, and the plugin that

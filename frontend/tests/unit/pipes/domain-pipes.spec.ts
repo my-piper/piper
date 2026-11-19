@@ -1,3 +1,4 @@
+import { DestroyRef } from "@angular/core";
 import { BehaviorSubject, Subject } from "rxjs";
 import { Pipeline } from "src/models/pipeline";
 import { User, UserRole } from "src/models/user";
@@ -26,6 +27,14 @@ function meDouble(current: User | null) {
 
 function projectManagerDouble() {
   return { updates: new Subject<object | null>() } as unknown as ProjectManager;
+}
+
+/** A DestroyRef that is never destroyed: the pipe outlives the spec. */
+function destroyRefDouble() {
+  return {
+    destroyed: false,
+    onDestroy: () => (): void => undefined,
+  } as unknown as DestroyRef;
 }
 
 describe("domain pipes", () => {
@@ -115,10 +124,16 @@ describe("domain pipes", () => {
   describe("flow lookup", () => {
     it("finds pipeline-input and node flows that feed one input", () => {
       const pipeline = smallGraph();
-      const pipe = new InputFlowsPipe(projectManagerDouble());
+      const pipe = new InputFlowsPipe(
+        projectManagerDouble(),
+        destroyRefDouble(),
+      );
 
       const prompt = pipe.transform(pipeline, "node_one", "prompt").getValue();
-      const text = new InputFlowsPipe(projectManagerDouble())
+      const text = new InputFlowsPipe(
+        projectManagerDouble(),
+        destroyRefDouble(),
+      )
         .transform(pipeline, "node_two", "text")
         .getValue();
 
@@ -131,7 +146,7 @@ describe("domain pipes", () => {
     it("recomputes flows when the project manager publishes an update", () => {
       const pipeline = smallGraph();
       const manager = projectManagerDouble();
-      const flows = new InputFlowsPipe(manager).transform(
+      const flows = new InputFlowsPipe(manager, destroyRefDouble()).transform(
         pipeline,
         "node_two",
         "text",
