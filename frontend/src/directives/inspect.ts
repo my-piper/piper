@@ -1,10 +1,7 @@
 import {
-  createComponent,
-  EnvironmentInjector,
   Directive,
   ElementRef,
   HostListener,
-  Injector,
   Input,
   OnDestroy,
   OnInit,
@@ -57,9 +54,7 @@ export class InspectDirective implements OnInit, OnDestroy {
   }
 
   constructor(
-    private injector: Injector,
     private modal: ModalService,
-    private environmentInjector: EnvironmentInjector,
     private hostRef: ElementRef<HTMLElement>,
     private renderer: Renderer2,
   ) {}
@@ -157,14 +152,9 @@ export class InspectDirective implements OnInit, OnDestroy {
   }
 
   private inspect() {
-    const component = createComponent(InspectComponent, {
-      environmentInjector: this.environmentInjector,
-      elementInjector: this.injector,
-    });
-    [component.instance.type, component.instance.url, component.instance.text] =
-      [this.type, this.url, this.text];
-    this.modal.open(component, {
+    this.modal.openComponent(InspectComponent, {
       title: $localize`:@@label.inspect:Inspect`,
+      inputs: { type: this.type, url: this.url, text: this.text },
     });
   }
 

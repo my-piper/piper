@@ -1,11 +1,4 @@
-import {
-  createComponent,
-  EnvironmentInjector,
-  Component,
-  Injector,
-  OnInit,
-  ChangeDetectionStrategy,
-} from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
 import { AppConfig } from "src/models/app-config";
@@ -37,9 +30,7 @@ export class MeUserComponent implements OnInit {
     public me: MeManager,
     public config: AppConfig,
     private fb: FormBuilder,
-    private injector: Injector,
     private modal: ModalService,
-    private environmentInjector: EnvironmentInjector,
     private router: Router,
     private http: HttpService,
   ) {}
@@ -47,21 +38,17 @@ export class MeUserComponent implements OnInit {
   ngOnInit(): void {
     this.nsfwControl.valueChanges.subscribe((allow) => {
       if (allow) {
-        const component = createComponent(NsfwDisclaimer, {
-          environmentInjector: this.environmentInjector,
-          elementInjector: this.injector,
-        });
-        component.instance.agree.subscribe(() => {
-          localStorage.setItem("nsfw", "allow");
-          this.modal.close();
-        });
-        this.modal.open(component, {
+        const component = this.modal.openComponent(NsfwDisclaimer, {
           title: $localize`:@@label.nsfw_disclaimer:NSFW disclaimer`,
           closed: (reason) => {
             if (reason === "user") {
               this.nsfwControl.setValue(false, { emitEvent: false });
             }
           },
+        });
+        component.instance.agree.subscribe(() => {
+          localStorage.setItem("nsfw", "allow");
+          this.modal.close();
         });
       } else {
         localStorage.removeItem("nsfw");
@@ -71,14 +58,10 @@ export class MeUserComponent implements OnInit {
 
   changePassword() {
     this.references.popover?.hide();
-    const component = createComponent(ChangePasswordComponent, {
-      environmentInjector: this.environmentInjector,
-      elementInjector: this.injector,
-    });
-    component.instance.changed.subscribe(() => this.modal.close());
-    this.modal.open(component, {
+    const component = this.modal.openComponent(ChangePasswordComponent, {
       title: $localize`:@@label.change_password:Change password`,
     });
+    component.instance.changed.subscribe(() => this.modal.close());
   }
 
   logout() {
