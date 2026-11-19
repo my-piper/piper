@@ -1,9 +1,9 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/reset";
 
 :host {
-    @include placeholder();
+    @include mixins.placeholder();
     display: flex;
     position: relative;
     min-height: 50px;
@@ -12,9 +12,9 @@
         footer {
             position: absolute;
             z-index: 1;
-            right: $gutter-normal;
-            bottom: $gutter-normal;
-            left: $gutter-normal;
+            right: variables.$gutter-normal;
+            bottom: variables.$gutter-normal;
+            left: variables.$gutter-normal;
             display: grid;
             grid-template-columns: repeat(5, .2fr);
 
@@ -25,8 +25,8 @@
 
         .results {
             &[data-type=string] {
-                padding: $gutter-normal;
-                font-size: $font-size-tiny;
+                padding: variables.$gutter-normal;
+                font-size: variables.$font-size-tiny;
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
                 -webkit-line-clamp: 10;
@@ -64,16 +64,16 @@
     }
 
     &[data-mode=full] {
-        gap: $gutter-normal;
+        gap: variables.$gutter-normal;
 
         footer {
             display: flex;
             flex-direction: column;
-            gap: $gutter-normal;
+            gap: variables.$gutter-normal;
         }
 
         .results {
-            padding: $gutter-normal;
+            padding: variables.$gutter-normal;
 
             img,
             video {
@@ -89,7 +89,7 @@
 }
 
 a {
-    @include reset-link();
+    @include reset.reset-link();
 }
 
 label {
@@ -97,10 +97,10 @@ label {
     bottom: 0;
     right: 0;
     z-index: 1;
-    padding: $gutter-tiny $gutter-small;
+    padding: variables.$gutter-tiny variables.$gutter-small;
     background-color: rgba($color: black, $alpha: .75);
-    padding: $gutter-tiny;
-    font-size: $font-size-tiny;
+    padding: variables.$gutter-tiny;
+    font-size: variables.$font-size-tiny;
 }
 
 .results {
@@ -117,7 +117,7 @@ label {
     }
 
     &[data-type=string] {
-        padding: $gutter-normal;
+        padding: variables.$gutter-normal;
     }
 
     img,
@@ -127,15 +127,15 @@ label {
 }
 
 footer {
-    gap: $gutter-small;
+    gap: variables.$gutter-small;
 
     button {
-        @include reset-button();
+        @include reset.reset-button();
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        border-radius: $corner-small;
+        border-radius: variables.$corner-small;
         opacity: .5;
         background-color: silver;
 

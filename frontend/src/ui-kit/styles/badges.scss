@@ -1,25 +1,25 @@
-@import "variables";
+@use "variables";
 
 .badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: $gutter-tiny;
-    font-size: $font-size-small;
+    padding: variables.$gutter-tiny;
+    font-size: variables.$font-size-small;
     line-height: .85em;
     min-width: 1.5em;
-    border-radius: $corner-base;
+    border-radius: variables.$corner-base;
 
     &.error {
-        background: $error-color;
+        background: variables.$error-color;
     }
 
     &.success {
-        background: $success-color;
+        background: variables.$success-color;
     }
 
     &.ghost {
-        border: 1px solid $control-border-color;
-        color: $graphite-color-100;
+        border: 1px solid variables.$control-border-color;
+        color: variables.$graphite-color-100;
     }
 }

@@ -1,5 +1,5 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 // status colors, validated for colorblind separation against each page background
 :host {
@@ -8,8 +8,8 @@
   --stats-interrupted: #7d7d88;
 
   display: block;
-  padding: $gutter-huge;
-  @include vertical-stack($gutter-huge);
+  padding: variables.$gutter-huge;
+  @include mixins.vertical-stack(variables.$gutter-huge);
 }
 
 :host-context([data-theme="light"]) {
@@ -21,48 +21,48 @@
 h2,
 h3 {
   margin: 0;
-  color: $strong-text-color;
+  color: variables.$strong-text-color;
 }
 
 h3 small {
-  margin-left: $gutter-normal;
-  color: $graphite-color-100;
+  margin-left: variables.$gutter-normal;
+  color: variables.$graphite-color-100;
   font-weight: normal;
-  font-size: $font-size-small;
+  font-size: variables.$font-size-small;
 }
 
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
   flex-wrap: wrap;
 }
 
 .periods {
   display: flex;
-  padding: $gutter-tiny;
-  border: 1px solid $button-border-color;
-  border-radius: $corner-large;
-  background: $button-background-color;
+  padding: variables.$gutter-tiny;
+  border: 1px solid variables.$button-border-color;
+  border-radius: variables.$corner-large;
+  background: variables.$button-background-color;
 }
 
 button.period {
-  padding: $gutter-small $gutter-large;
+  padding: variables.$gutter-small variables.$gutter-large;
   border: none;
-  border-radius: $corner-base;
+  border-radius: variables.$corner-base;
   background: transparent;
-  color: $graphite-color-100;
-  font-size: $button-font-size;
+  color: variables.$graphite-color-100;
+  font-size: variables.$button-font-size;
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    color: $button-hover-text-color;
+    color: variables.$button-hover-text-color;
   }
 
   &.selected {
-    background: $button-toggled-background-color;
-    color: $strong-text-color;
+    background: variables.$button-toggled-background-color;
+    color: variables.$strong-text-color;
   }
 
   &:disabled {
@@ -71,11 +71,11 @@ button.period {
 }
 
 .error {
-  color: $error-color;
+  color: variables.$error-color;
 }
 
 .empty {
-  color: $graphite-color-100;
+  color: variables.$graphite-color-100;
 }
 
 .busy {
@@ -86,27 +86,27 @@ button.period {
 .tiles {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: $gutter-large;
-  margin-bottom: $gutter-huge;
+  gap: variables.$gutter-large;
+  margin-bottom: variables.$gutter-huge;
 }
 
 .tile {
   display: flex;
   flex-direction: column;
-  gap: $gutter-small;
-  padding: $gutter-large;
-  border: 1px solid $graphite-color-300;
-  border-radius: $corner-large;
+  gap: variables.$gutter-small;
+  padding: variables.$gutter-large;
+  border: 1px solid variables.$graphite-color-300;
+  border-radius: variables.$corner-large;
 
   small,
   .hint {
-    color: $graphite-color-100;
-    font-size: $font-size-small;
+    color: variables.$graphite-color-100;
+    font-size: variables.$font-size-small;
   }
 
   strong {
-    color: $strong-text-color;
-    font-size: $font-size-huge;
+    color: variables.$strong-text-color;
+    font-size: variables.$font-size-huge;
     font-variant-numeric: tabular-nums;
   }
 }
@@ -117,8 +117,8 @@ i.interrupted {
   display: inline-block;
   width: 10px;
   height: 10px;
-  margin: 0 $gutter-small 0 $gutter-normal;
-  border-radius: $corner-small;
+  margin: 0 variables.$gutter-small 0 variables.$gutter-normal;
+  border-radius: variables.$corner-small;
 }
 
 i.succeeded,
@@ -137,26 +137,26 @@ i.interrupted,
 }
 
 .chart {
-  margin-bottom: $gutter-huge;
+  margin-bottom: variables.$gutter-huge;
 
   > header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: $gutter-normal;
-    margin-bottom: $gutter-large;
+    gap: variables.$gutter-normal;
+    margin-bottom: variables.$gutter-large;
   }
 }
 
 .legend {
   display: flex;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
   margin: 0;
   padding: 0;
   list-style: none;
-  color: $graphite-color-75;
-  font-size: $font-size-small;
+  color: variables.$graphite-color-75;
+  font-size: variables.$font-size-small;
 
   li {
     display: flex;
@@ -170,15 +170,15 @@ i.interrupted,
   align-items: stretch;
   gap: 2px;
   height: 160px;
-  padding-top: $gutter-large;
-  border-bottom: 1px solid $graphite-color-200;
+  padding-top: variables.$gutter-large;
+  border-bottom: 1px solid variables.$graphite-color-200;
 
   .max {
     position: absolute;
     top: 0;
     left: 0;
-    color: $graphite-color-100;
-    font-size: $font-size-tiny;
+    color: variables.$graphite-color-100;
+    font-size: variables.$font-size-tiny;
   }
 }
 
@@ -193,7 +193,7 @@ i.interrupted,
 
   &:hover,
   &:focus-visible {
-    background: with-alpha($graphite-color-300, 0.6);
+    background: variables.with-alpha(variables.$graphite-color-300, 0.6);
 
     .tooltip {
       display: block;
@@ -222,16 +222,16 @@ i.interrupted,
 .tooltip {
   display: none;
   position: absolute;
-  bottom: calc(100% + #{$gutter-small});
+  bottom: calc(100% + #{variables.$gutter-small});
   left: 50%;
   z-index: 1;
   transform: translateX(-50%);
-  padding: $gutter-normal $gutter-large;
-  border: $overlay-border;
-  border-radius: $corner-base;
-  background: $overlay-background;
-  color: $primary-text-color;
-  font-size: $font-size-small;
+  padding: variables.$gutter-normal variables.$gutter-large;
+  border: variables.$overlay-border;
+  border-radius: variables.$corner-base;
+  background: variables.$overlay-background;
+  color: variables.$primary-text-color;
+  font-size: variables.$font-size-small;
   white-space: nowrap;
   pointer-events: none;
 
@@ -243,13 +243,13 @@ i.interrupted,
 .axis {
   display: flex;
   justify-content: space-between;
-  margin-top: $gutter-small;
-  color: $graphite-color-100;
-  font-size: $font-size-tiny;
+  margin-top: variables.$gutter-small;
+  color: variables.$graphite-color-100;
+  font-size: variables.$font-size-tiny;
 }
 
 table {
-  margin-top: $gutter-normal;
+  margin-top: variables.$gutter-normal;
 
   th.number,
   td.number {
@@ -263,6 +263,6 @@ table {
   }
 
   small {
-    color: $graphite-color-100;
+    color: variables.$graphite-color-100;
   }
 }

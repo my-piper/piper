@@ -1,57 +1,57 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/reset";
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 }
 
 .categories {
   display: flex;
   flex-wrap: wrap;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 
   button {
-    @include reset-button();
+    @include reset.reset-button();
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: $gutter-tiny;
+    gap: variables.$gutter-tiny;
     align-items: center;
-    background-color: with-alpha($control-background-color, 0.25);
-    padding: $gutter-small;
-    border-radius: $corner-small;
+    background-color: variables.with-alpha(variables.$control-background-color, 0.25);
+    padding: variables.$gutter-small;
+    border-radius: variables.$corner-small;
     font-size: 0.85em;
     border: 2px solid transparent;
-    color: $primary-text-color;
+    color: variables.$primary-text-color;
 
     &:hover {
-      background-color: with-alpha($control-background-color, 0.5);
+      background-color: variables.with-alpha(variables.$control-background-color, 0.5);
     }
 
     &.selected {
-      background-color: with-alpha($control-background-color, 0.65);
-      border-color: $control-background-color;
+      background-color: variables.with-alpha(variables.$control-background-color, 0.65);
+      border-color: variables.$control-background-color;
     }
 
     .icon ::ng-deep {
       svg {
-        fill: $primary-text-color;
+        fill: variables.$primary-text-color;
       }
     }
 
     .badge {
       position: absolute;
-      top: $gutter-small;
-      right: $gutter-small;
+      top: variables.$gutter-small;
+      right: variables.$gutter-small;
     }
 
     input {
@@ -63,19 +63,19 @@ form {
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: $gutter-small;
+  gap: variables.$gutter-small;
 
   button {
-    @include reset-button();
-    background: $control-background-color;
-    padding: $gutter-tiny $gutter-small;
-    border-radius: $corner-large;
+    @include reset.reset-button();
+    background: variables.$control-background-color;
+    padding: variables.$gutter-tiny variables.$gutter-small;
+    border-radius: variables.$corner-large;
     font-size: 0.85em;
-    color: $primary-text-color;
+    color: variables.$primary-text-color;
 
     &.selected {
-      background: $control-focus-background-color;
-      color: $strong-text-color;
+      background: variables.$control-focus-background-color;
+      color: variables.$strong-text-color;
     }
   }
 }
@@ -83,38 +83,38 @@ form {
 .projects {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
   min-height: 100px;
 
-  @include for-desktop() {
+  @include mixins.for-desktop() {
     grid-template-columns: repeat(5, 1fr);
   }
 
-  @include less-tablet() {
+  @include mixins.less-tablet() {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  @include for-mobile() {
+  @include mixins.for-mobile() {
     grid-template-columns: 1fr;
   }
 
   .card {
     .order {
       position: absolute;
-      top: -$gutter-small;
-      left: -$gutter-small;
-      background: $control-background-color;
+      top: -(variables.$gutter-small);
+      left: -(variables.$gutter-small);
+      background: variables.$control-background-color;
       line-height: 1em;
-      padding: $gutter-tiny $gutter-small;
+      padding: variables.$gutter-tiny variables.$gutter-small;
       font-size: 0.75em;
-      border-radius: $corner-small;
+      border-radius: variables.$corner-small;
     }
 
     article {
       padding: 0;
 
       button {
-        @include reset-button();
+        @include reset.reset-button();
         display: flex;
         align-items: center;
         justify-content: center;
@@ -128,15 +128,15 @@ form {
           bottom: 0;
           left: 0;
           display: none;
-          color: $strong-text-color;
-          padding: $gutter-small;
+          color: variables.$strong-text-color;
+          padding: variables.$gutter-small;
         }
 
         .no-thumbnail {
           display: block;
 
           ::ng-deep svg {
-            stroke: $graphite-color-200;
+            stroke: variables.$graphite-color-200;
           }
         }
 
@@ -145,7 +145,7 @@ form {
           display: block;
           width: 100%;
           aspect-ratio: 400 / 400;
-          background: $primary-background-color;
+          background: variables.$primary-background-color;
         }
       }
     }
@@ -153,7 +153,7 @@ form {
     footer {
       p {
         margin: 0;
-        padding: $gutter-small;
+        padding: variables.$gutter-small;
         text-align: center;
       }
     }

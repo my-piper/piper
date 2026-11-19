@@ -1,5 +1,5 @@
-@import '../styles/variables';
-@import '../styles/mixins';
+@use '../styles/variables';
+@use '../styles/mixins';
 
 :host {
     display: block;
@@ -8,16 +8,16 @@
 .cards,
 .lines {
     display: grid;
-    gap: $gutter-normal;
+    gap: variables.$gutter-normal;
 
     >div {
         height: 100px;
-        background: $control-background-color;
+        background: variables.$control-background-color;
     }
 }
 
 .cards {
-    @include for-mobile() {
+    @include mixins.for-mobile() {
         grid-template-columns: 1fr !important;
     }
 }

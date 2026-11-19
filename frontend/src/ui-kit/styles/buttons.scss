@@ -1,6 +1,6 @@
-@import "variables";
-@import "reset";
-@import "defs/buttons";
+@use "variables";
+@use "reset";
+@use "defs/buttons";
 
 button.primary,
 button.primary-button,
@@ -18,12 +18,12 @@ a.primary-button {
   }
 
   &:visited {
-    color: $button-text-color;
+    color: variables.$button-text-color;
   }
 }
 
 button.transparent {
-  @include reset-button();
+  @include reset.reset-button();
   display: inline-flex;
   background-color: transparent;
   position: relative;
@@ -48,7 +48,7 @@ button.transparent {
       margin-top: -10px;
       margin-left: -10px;
       border-radius: 50%;
-      border-top: 2px solid $primary-dark-color;
+      border-top: 2px solid variables.$primary-dark-color;
       border-right: 2px solid transparent;
       animation: spinner 0.6s linear infinite;
     }
@@ -56,7 +56,7 @@ button.transparent {
 
   .icon {
     svg {
-      stroke: $button-text-color;
+      stroke: variables.$button-text-color;
     }
   }
 }
@@ -64,8 +64,8 @@ button.transparent {
 button.delete-button,
 a.delete-button {
   @extend %button;
-  border-color: $accent-color;
-  color: $accent-color;
+  border-color: variables.$accent-color;
+  color: variables.$accent-color;
 }
 
 button.circle,

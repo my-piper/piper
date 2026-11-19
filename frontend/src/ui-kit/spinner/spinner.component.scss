@@ -1,4 +1,4 @@
-@import '../styles/variables';
+@use '../styles/variables';
 
 @mixin spinner-size($size) {
   width: $size;

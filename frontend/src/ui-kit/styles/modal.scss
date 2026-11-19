@@ -1,5 +1,5 @@
-@import "variables";
-@import "mixins";
+@use "variables";
+@use "mixins";
 
 .modal {
   display: flex;
@@ -19,28 +19,28 @@
   }
 
   >header {
-    margin: $gutter-normal;
+    margin: variables.$gutter-normal;
     text-align: right;
 
-    @include less-tablet() {
-      margin: $gutter-small;
+    @include mixins.less-tablet() {
+      margin: variables.$gutter-small;
     }
   }
 
   >.content {
-    margin: $gutter-normal;
+    margin: variables.$gutter-normal;
     overflow: scroll;
     flex: 1;
     display: flex;
     flex-direction: column;
 
-    @include less-tablet() {
-      margin: $gutter-small;
+    @include mixins.less-tablet() {
+      margin: variables.$gutter-small;
     }
 
     &.filled {
-      background-color: $overlay-background;
-      padding: $gutter-normal;
+      background-color: variables.$overlay-background;
+      padding: variables.$gutter-normal;
       border-radius: 5px;
     }
 

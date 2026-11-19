@@ -1,10 +1,10 @@
-@import "variables";
+@use "variables";
 
 .tip {
     &.info {
-        border: 2px solid $primary-light-color;
-        border-radius: $corner-base;
-        padding: $gutter-small $gutter-normal;
+        border: 2px solid variables.$primary-light-color;
+        border-radius: variables.$corner-base;
+        padding: variables.$gutter-small variables.$gutter-normal;
         background: white;
         font-size: .85em;
     }

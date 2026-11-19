@@ -1,5 +1,5 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
     display: block;
@@ -12,7 +12,7 @@
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: $gutter-small;
+    gap: variables.$gutter-small;
 
     li {
         font-size: 0.85em;
@@ -20,6 +20,6 @@
 }
 
 .publish {
-    @include vertical-stack();
+    @include mixins.vertical-stack();
     align-items: flex-start;
 }

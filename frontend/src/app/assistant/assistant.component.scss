@@ -1,5 +1,5 @@
-@import 'src/ui-kit/styles/variables';
-@import 'src/ui-kit/styles/mixins';
+@use 'src/ui-kit/styles/variables';
+@use 'src/ui-kit/styles/mixins';
 
 :host {
   display: block;
@@ -10,17 +10,17 @@
   flex-direction: column;
   height: 200px;
   overflow-y: scroll;
-  border: 1px solid $control-border-color;
-  border-radius: $corner-base;
-  padding: $gutter-normal;
-  gap: $gutter-normal;
+  border: 1px solid variables.$control-border-color;
+  border-radius: variables.$corner-base;
+  padding: variables.$gutter-normal;
+  gap: variables.$gutter-normal;
 
   .message {
-    border: 1px solid $control-border-color;
-    background: $control-background-color;
-    border-radius: $corner-base;
-    padding: $gutter-small $gutter-large;
-    margin-bottom: $gutter-normal;
+    border: 1px solid variables.$control-border-color;
+    background: variables.$control-background-color;
+    border-radius: variables.$corner-base;
+    padding: variables.$gutter-small variables.$gutter-large;
+    margin-bottom: variables.$gutter-normal;
 
     &[data-from=user] {
       align-self: end;
@@ -33,7 +33,7 @@
     ul {
       display: flex;
       flex-direction: column;
-      gap: $gutter-small;
+      gap: variables.$gutter-small;
       list-style: none;
       padding: 0;
       margin: 0;
@@ -45,23 +45,23 @@
 
     ::ng-deep {
       p {
-        margin: $gutter-tiny 0;
+        margin: variables.$gutter-tiny 0;
       }
     }
   }
 }
 
 form {
-  @include vertical-stack();
+  @include mixins.vertical-stack();
 
   .active-node {
     font-weight: bold;
-    font-size: $font-size-small;
+    font-size: variables.$font-size-small;
   }
 
   fieldset {
     display: flex;
-    gap: $gutter-normal;
+    gap: variables.$gutter-normal;
 
     textarea {
       width: 100%;

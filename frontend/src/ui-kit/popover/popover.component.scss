@@ -1,5 +1,5 @@
-@import 'src/ui-kit/styles/mixins';
-@import 'src/ui-kit/styles/variables';
+@use 'src/ui-kit/styles/mixins';
+@use 'src/ui-kit/styles/variables';
 
 :host {
     position: absolute;
@@ -9,7 +9,7 @@
     display: none;
     box-sizing: border-box;
 
-    @include for-mobile() {
+    @include mixins.for-mobile() {
         box-sizing: border-box;
         max-width: 100%;
         max-height: 100vh;
@@ -19,11 +19,11 @@
         position: absolute;
 
         .line {
-            fill: $overlay-border-color;
+            fill: variables.$overlay-border-color;
         }
 
         .background {
-            fill: $overlay-background;
+            fill: variables.$overlay-background;
         }
 
         z-index: 2;
@@ -37,27 +37,27 @@
 
         &[data-placement='bottom'],
         &[data-placement='rightBottom'] {
-            padding: $gutter-tiny 0 0;
+            padding: variables.$gutter-tiny 0 0;
         }
 
         &[data-placement='top'] {
-            padding: 0 0 $gutter-tiny;
+            padding: 0 0 variables.$gutter-tiny;
         }
 
         &[data-placement='right'] {
-            padding: 0 0 0 $gutter-tiny;
+            padding: 0 0 0 variables.$gutter-tiny;
         }
 
         &[data-placement='left'] {
-            padding: 0 $gutter-tiny 0 0;
+            padding: 0 variables.$gutter-tiny 0 0;
         }
 
         .arrow {
             display: none;
         }
 
-        @include for-mobile() {
-            padding: $gutter-tiny 12px 12px;
+        @include mixins.for-mobile() {
+            padding: variables.$gutter-tiny 12px 12px;
         }
     }
 
@@ -100,19 +100,19 @@
         animation: fade-in 500ms;
 
         [data-wrapper] {
-            padding: $gutter-small;
-            font-size: $font-size-small;
+            padding: variables.$gutter-small;
+            font-size: variables.$font-size-small;
         }
     }
 }
 
 .popover {
-    border-radius: $corner-base;
+    border-radius: variables.$corner-base;
     overflow: auto;
     box-sizing: border-box;
-    background-color: $overlay-background;
-    padding: $gutter-normal;
-    border: $overlay-border;
+    background-color: variables.$overlay-background;
+    padding: variables.$gutter-normal;
+    border: variables.$overlay-border;
 
     position: relative;
     z-index: 1;
@@ -132,6 +132,6 @@
 
     .title {
         font-weight: bold;
-        margin-bottom: $gutter-normal;
+        margin-bottom: variables.$gutter-normal;
     }
 }

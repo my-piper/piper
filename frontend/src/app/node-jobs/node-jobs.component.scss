@@ -1,10 +1,10 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 }
 
 .card {

@@ -1,3 +1,7 @@
+@use "sass:math";
+@use "sass:meta";
+@use "sass:string";
+
 $yellow-color-50: #fff8eb;
 $yellow-color-75: #ffe3ad;
 $yellow-color-100: #fed88c;
@@ -25,11 +29,11 @@ $inverse-background: var(--inverse-background);
 
 // rgba() for both static Sass colors and runtime CSS variables.
 @function with-alpha($color, $alpha) {
-  @if type-of($color) == "color" {
+  @if meta.type-of($color) == "color" {
     @return rgba($color, $alpha);
   }
 
-  @return unquote("color-mix(in srgb, #{$color} #{percentage($alpha)}, transparent)");
+  @return string.unquote("color-mix(in srgb, #{$color} #{math.percentage($alpha)}, transparent)");
 }
 
 $primary-color: rgb(0, 102, 255);

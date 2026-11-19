@@ -1,5 +1,6 @@
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/reset";
 
 :host {
     display: block;
@@ -21,12 +22,12 @@
 .artefacts {
     display: flex;
     flex-wrap: wrap;
-    gap: $gutter-normal;
+    gap: variables.$gutter-normal;
     min-height: 200px;
 
     img,
     video {
-        @include placeholder();
+        @include mixins.placeholder();
         height: 200px;
     }
 }

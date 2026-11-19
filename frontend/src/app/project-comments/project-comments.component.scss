@@ -1,13 +1,13 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
     display: block;
-    @include vertical-stack();
+    @include mixins.vertical-stack();
 }
 
 form {
-    @include vertical-stack($gutter-small);
+    @include mixins.vertical-stack(variables.$gutter-small);
 }
 
 .cards {
@@ -15,14 +15,14 @@ form {
 
     .card {
         header {
-            padding: $gutter-small;
+            padding: variables.$gutter-small;
             font-size: .85em;
             margin: 0;
         }
 
         article {
             ::ng-deep {
-                @include vertical-stack($gutter-small);
+                @include mixins.vertical-stack(variables.$gutter-small);
 
                 p {
                     margin: 0;
@@ -32,7 +32,7 @@ form {
 
         footer {
             text-align: right;
-            color: $graphite-color-100;
+            color: variables.$graphite-color-100;
             font-size: .85em;
 
             .created-by {

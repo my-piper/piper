@@ -1,12 +1,12 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
   display: block;
 }
 
 .app-container {
-  @include vertical-stack();
+  @include mixins.vertical-stack();
 }
 
 h1,
@@ -15,5 +15,5 @@ p {
 }
 
 form {
-  @include vertical-stack();
+  @include mixins.vertical-stack();
 }

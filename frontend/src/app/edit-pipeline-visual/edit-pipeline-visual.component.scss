@@ -1,6 +1,6 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/variables";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/variables" as app-variables;
 
 :host {
   display: block;
@@ -20,13 +20,13 @@
 
 .zoom {
   position: absolute;
-  left: $gutter-big;
-  bottom: $gutter-big + 10px;
+  left: variables.$gutter-big;
+  bottom: variables.$gutter-big + 10px;
   z-index: 2;
   align-items: center;
-  background: with-alpha($header-background, 0.6);
+  background: variables.with-alpha(variables.$header-background, 0.6);
   border-radius: 30px;
-  padding: $gutter-small;
+  padding: variables.$gutter-small;
   backdrop-filter: blur(5px);
 
   .level {
@@ -56,7 +56,7 @@
 ::ng-deep .canvas-hint {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: $gutter-small $gutter-normal;
+  gap: variables.$gutter-small variables.$gutter-normal;
   margin: 0;
   font-size: 13px;
 
@@ -98,16 +98,16 @@
     left: 5px;
     z-index: 2;
     width: fit-content;
-    background: with-alpha($header-background, 0.6);
+    background: variables.with-alpha(variables.$header-background, 0.6);
     border-radius: 30px;
-    padding: $gutter-big;
+    padding: variables.$gutter-big;
     backdrop-filter: blur(5px);
   }
 
   .locked {
     position: absolute;
-    top: -$gutter-small;
-    right: -$gutter-small;
+    top: -(variables.$gutter-small);
+    right: -(variables.$gutter-small);
     z-index: 1;
     background: white;
     border-radius: 50%;
@@ -117,7 +117,7 @@
     .icon,
     .icon ::ng-deep svg {
       display: block;
-      stroke: $graphite-color-100;
+      stroke: variables.$graphite-color-100;
     }
   }
 
@@ -135,7 +135,7 @@
 
   .input.picked app-pipeline-input,
   .output.picked app-pipeline-output {
-    outline: 2px solid $primary-color;
+    outline: 2px solid variables.$primary-color;
     outline-offset: 3px;
   }
 
@@ -143,8 +143,8 @@
     .more {
       z-index: 1;
       position: absolute;
-      top: $gutter-normal;
-      right: $gutter-small;
+      top: variables.$gutter-normal;
+      right: variables.$gutter-small;
     }
 
     transform: translate(-100%, -50%);
@@ -162,7 +162,7 @@
     z-index: 1;
 
     &.picked app-node {
-      outline: 2px solid $primary-color;
+      outline: 2px solid variables.$primary-color;
       outline-offset: 3px;
     }
 
@@ -182,8 +182,8 @@
     .more {
       z-index: 1;
       position: absolute;
-      top: $gutter-normal;
-      right: $gutter-small;
+      top: variables.$gutter-normal;
+      right: variables.$gutter-small;
     }
   }
 
@@ -200,18 +200,18 @@
       position: absolute;
       z-index: 2;
       pointer-events: none;
-      border: 1px solid $primary-color;
-      background: with-alpha($primary-color, 0.1);
+      border: 1px solid variables.$primary-color;
+      background: variables.with-alpha(variables.$primary-color, 0.1);
     }
 
     > .flow {
       position: absolute;
       z-index: 1;
       transform: translate(-50%, -50%);
-      background: with-alpha($node-background-color, 0.5);
+      background: variables.with-alpha(app-variables.$node-background-color, 0.5);
       backdrop-filter: blur(2px);
-      border-radius: $corner-large;
-      padding: $gutter-small;
+      border-radius: variables.$corner-large;
+      padding: variables.$gutter-small;
       display: flex;
       align-items: center;
       opacity: 0.5;
@@ -234,22 +234,22 @@
       z-index: 0;
 
       .dot {
-        fill: $strong-text-color;
+        fill: variables.$strong-text-color;
         opacity: 0.1;
       }
 
       path {
         stroke-width: 3;
-        stroke: rgba($flow-color, 0.85);
+        stroke: rgba(app-variables.$flow-color, 0.85);
         fill: transparent;
         opacity: 0.85;
 
         &.param {
-          stroke: $param-color;
+          stroke: app-variables.$param-color;
           stroke-dasharray: 8 5;
 
           &.to-output {
-            stroke: $output-color;
+            stroke: app-variables.$output-color;
           }
         }
       }

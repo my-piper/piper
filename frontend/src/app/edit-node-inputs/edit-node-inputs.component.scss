@@ -1,11 +1,10 @@
-@import "src/ui-kit/styles/variables";
-@import "src/variables";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/reset";
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
+  gap: variables.$gutter-normal;
 }
 
 ::ng-deep .popover {
@@ -16,8 +15,8 @@
 
 header {
   input {
-    @include reset-input();
-    font-size: $font-size-big;
+    @include reset.reset-input();
+    font-size: variables.$font-size-big;
     flex: 1;
     min-width: 0;
     width: 100%;
@@ -30,7 +29,7 @@ header {
 }
 
 h2 {
-  font-size: $font-size-big;
+  font-size: variables.$font-size-big;
   margin: 0;
   padding: 0;
 }
@@ -44,7 +43,7 @@ h2 {
 form {
   display: flex;
   flex-direction: column;
-  gap: $gutter-huge;
+  gap: variables.$gutter-huge;
   align-items: stretch;
 
   .inputs {
@@ -69,7 +68,7 @@ form {
     }
 
     .json {
-      border: 1px solid $graphite-color-75;
+      border: 1px solid variables.$graphite-color-75;
     }
 
     .select-asset {
@@ -78,7 +77,7 @@ form {
   }
 
   .editor {
-    border: 1px solid $graphite-color-75;
+    border: 1px solid variables.$graphite-color-75;
     border-radius: 5px;
     overflow: hidden;
   }
@@ -91,5 +90,5 @@ form {
 }
 
 footer {
-  margin-top: $gutter-big;
+  margin-top: variables.$gutter-big;
 }

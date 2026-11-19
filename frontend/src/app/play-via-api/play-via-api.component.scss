@@ -1,5 +1,5 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
     display: block;
@@ -11,7 +11,7 @@ textarea {
 
 h3 sup {
     color: red;
-    padding-left: $gutter-tiny;
+    padding-left: variables.$gutter-tiny;
 }
 
 table {
@@ -19,13 +19,13 @@ table {
     max-width: 100%;
     border-collapse: collapse;
     overflow: hidden;
-    background: $control-background-color;
+    background: variables.$control-background-color;
     font-size: .85em;
 }
 
 th,
 td {
-    border: 1px solid $control-border-color;
+    border: 1px solid variables.$control-border-color;
     padding: 8px;
     text-align: left;
 

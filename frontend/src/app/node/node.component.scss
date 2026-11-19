@@ -1,7 +1,7 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/variables";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/variables" as app-variables;
+@use "src/ui-kit/styles/reset";
 
 @property --border-angle {
   syntax: "<angle>";
@@ -10,7 +10,7 @@
 }
 
 $node-width: 250px;
-$node-border-color: with-alpha($graphite-color-200, 0.25);
+$node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
 
 :host {
   display: block;
@@ -18,10 +18,10 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
   width: $node-width;
   box-sizing: border-box;
   user-select: none;
-  border: solid 1px with-alpha($graphite-color-200, 0.45);
-  border-radius: $corner-large;
+  border: solid 1px variables.with-alpha(variables.$graphite-color-200, 0.45);
+  border-radius: variables.$corner-large;
   box-shadow: 2px 2px 2px rgba(black, 0.25);
-  background: with-alpha($node-background-color, 0.75);
+  background: variables.with-alpha(app-variables.$node-background-color, 0.75);
   min-height: 100px;
 
   @keyframes bg-spin {
@@ -34,9 +34,9 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
     --border-angle: 0turn;
     $main-bg: conic-gradient(
       from var(--border-angle),
-      $node-background-color 5%,
-      $node-background-color 60%,
-      $node-background-color 95%
+      app-variables.$node-background-color 5%,
+      app-variables.$node-background-color 60%,
+      app-variables.$node-background-color 95%
     );
     $gradient-border: conic-gradient(
       from var(--border-angle),
@@ -54,7 +54,7 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
   }
 
   &.done {
-    border-color: $green-color;
+    border-color: variables.$green-color;
   }
 
   &.error {
@@ -77,7 +77,7 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
   }
 
   &.active {
-    box-shadow: 0 0 2px 4px rgba($flow-color, 0.35);
+    box-shadow: 0 0 2px 4px rgba(app-variables.$flow-color, 0.35);
   }
 
   &.active .node ul.inputs li .title,
@@ -95,7 +95,7 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
   right: 0;
   bottom: 0;
   z-index: 1;
-  border-radius: $corner-large;
+  border-radius: variables.$corner-large;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,18 +104,18 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
 .node {
   display: flex;
   flex-direction: column;
-  border-radius: $corner-large;
+  border-radius: variables.$corner-large;
 
   h2 {
-    font-size: $font-size-small;
+    font-size: variables.$font-size-small;
     font-weight: normal;
     line-height: 30px;
     vertical-align: middle;
-    width: calc($node-width - $gutter-huge * 2);
+    width: calc($node-width - variables.$gutter-huge * 2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: 0 0 0 $gutter-normal;
+    margin: 0 0 0 variables.$gutter-normal;
   }
 
   display: flex;
@@ -151,19 +151,19 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
       }
 
       .circle {
-        @include reset-button();
+        @include reset.reset-button();
         position: absolute;
         width: 18px;
         height: 18px;
         aspect-ratio: 1;
-        background: $flow-color;
-        border: 5px solid $node-background-color;
+        background: app-variables.$flow-color;
+        border: 5px solid app-variables.$node-background-color;
         border-radius: 50%;
         cursor: pointer;
 
         &:hover {
-          background: $node-background-color;
-          border-color: $flow-color;
+          background: app-variables.$node-background-color;
+          border-color: app-variables.$flow-color;
         }
       }
     }
@@ -204,8 +204,8 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
     margin: 0;
     display: flex;
     flex-direction: column;
-    padding: $gutter-small;
-    gap: $gutter-small;
+    padding: variables.$gutter-small;
+    gap: variables.$gutter-small;
 
     &.filled {
       li:has(.no-value) {
@@ -226,8 +226,8 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
 
       .pick-output {
         position: absolute;
-        bottom: $gutter-small;
-        right: $gutter-small;
+        bottom: variables.$gutter-small;
+        right: variables.$gutter-small;
         z-index: 1;
         opacity: 0;
         transition: all 250ms;
@@ -242,10 +242,10 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
       }
 
       img {
-        @include placeholder();
+        @include mixins.placeholder();
         display: block;
         width: 100%;
-        border-radius: $corner-small;
+        border-radius: variables.$corner-small;
         user-select: none;
         -webkit-user-drag: none;
         user-drag: none;
@@ -255,8 +255,8 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
         &.multiple {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: $gutter-small;
-          padding: $gutter-normal;
+          gap: variables.$gutter-small;
+          padding: variables.$gutter-normal;
         }
       }
 
@@ -264,7 +264,7 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
         video {
           display: block;
           width: 100%;
-          border-radius: $corner-small;
+          border-radius: variables.$corner-small;
         }
       }
 
@@ -276,7 +276,7 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
       }
 
       > .string {
-        padding: $gutter-small;
+        padding: variables.$gutter-small;
         overflow: hidden;
         max-height: 15em;
         font-size: 0.75em;
@@ -293,8 +293,8 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
 
     .artefacts {
       position: absolute;
-      right: $gutter-small;
-      bottom: $gutter-small;
+      right: variables.$gutter-small;
+      bottom: variables.$gutter-small;
     }
 
     &:empty {
@@ -308,16 +308,16 @@ $node-border-color: with-alpha($graphite-color-200, 0.25);
   justify-content: space-between;
   position: absolute;
   top: 0;
-  left: $gutter-normal;
-  right: $gutter-normal;
+  left: variables.$gutter-normal;
+  right: variables.$gutter-normal;
   z-index: 1;
   height: 5px;
   transform: translate(0, -100%);
-  border-radius: $corner-small;
+  border-radius: variables.$corner-small;
   overflow: hidden;
 
   .processed {
-    background: $green-color;
+    background: variables.$green-color;
     transition: width 250ms;
     height: 100%;
   }

@@ -1,10 +1,10 @@
-@import 'src/ui-kit/styles/mixins';
-@import 'src/ui-kit/styles/variables';
+@use 'src/ui-kit/styles/mixins';
+@use 'src/ui-kit/styles/variables';
 
 :host {
     display: block;
 
-    @include wider-mobile() {
+    @include mixins.wider-mobile() {
         height: 100vmin;
         background: linear-gradient(305deg, #f388fc, #34ab9d, #d3a657, #880fb8, #98a6ee);
         background-size: 300% 300%;
@@ -18,8 +18,8 @@
         }
     }
 
-    @include for-mobile() {
-        padding: $gutter-large $gutter-small;
+    @include mixins.for-mobile() {
+        padding: variables.$gutter-large variables.$gutter-small;
     }
 }
 
@@ -39,27 +39,27 @@
 }
 
 .frame {
-    @include vertical-stack();
+    @include mixins.vertical-stack();
     position: relative;
 
-    @include wider-mobile() {
-        background-color: $control-background-color;
-        padding: $gutter-huge;
-        border-radius: $corner-base;
+    @include mixins.wider-mobile() {
+        background-color: variables.$control-background-color;
+        padding: variables.$gutter-huge;
+        border-radius: variables.$corner-base;
     }
 
-    @include for-mobile() {
+    @include mixins.for-mobile() {
         width: 100%;
     }
 
-    @include wider-mobile() {
+    @include mixins.wider-mobile() {
         min-width: 300px;
     }
 
     .frame-actions {
         position: absolute;
-        top: $gutter-normal;
-        right: $gutter-normal;
+        top: variables.$gutter-normal;
+        right: variables.$gutter-normal;
     }
 
     h1,
@@ -70,7 +70,7 @@
     form {
         display: flex;
         flex-direction: column;
-        gap: $gutter-normal;
+        gap: variables.$gutter-normal;
 
         &.disabled {
             opacity: .35;
@@ -79,11 +79,11 @@
         fieldset {
             display: flex;
             flex-direction: column;
-            gap: $gutter-big;
+            gap: variables.$gutter-big;
         }
 
         footer {
-            margin-top: $gutter-big;
+            margin-top: variables.$gutter-big;
         }
 
     }

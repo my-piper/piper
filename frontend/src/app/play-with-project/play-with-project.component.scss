@@ -1,5 +1,5 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
 
 :host {
   display: grid;
@@ -8,12 +8,12 @@
   grid-template-areas:
     "header header"
     "project launches";
-  gap: $gutter-big;
-  padding: $gutter-normal;
+  gap: variables.$gutter-big;
+  padding: variables.$gutter-normal;
   box-sizing: border-box;
   flex: 1;
 
-  @include less-tablet() {
+  @include mixins.less-tablet() {
     grid-template-columns: 1fr;
     grid-template-areas:
       "header"
@@ -29,9 +29,9 @@ header {
   grid-template-columns: max-content auto;
   grid-template-areas: "actions title";
   align-items: flex-start;
-  gap: $gutter-big;
+  gap: variables.$gutter-big;
 
-  @include for-mobile() {
+  @include mixins.for-mobile() {
     grid-template-columns: 1fr;
     grid-template-areas: "actions" "title";
   }
@@ -61,7 +61,7 @@ header {
   flex-direction: column;
 
   .menu {
-    margin-bottom: $gutter-big;
+    margin-bottom: variables.$gutter-big;
   }
 
   .child {

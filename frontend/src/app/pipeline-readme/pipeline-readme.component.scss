@@ -1,18 +1,18 @@
-@import "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/variables";
 
 :host {
     display: flex;
     flex-direction: column;
-    gap: $gutter-normal;
+    gap: variables.$gutter-normal;
 
     ::ng-deep {
         .row {
             display: flex;
-            margin: -$gutter-normal;
+            margin: -(variables.$gutter-normal);
         }
 
         [class^="col-"] {
-            padding: $gutter-normal;
+            padding: variables.$gutter-normal;
             flex: 1;
         }
 
@@ -70,7 +70,7 @@
 
         img {
             width: 100%;
-            border-radius: $corner-small;
+            border-radius: variables.$corner-small;
         }
     }
 }
@@ -81,12 +81,12 @@
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: $gutter-small;
+    gap: variables.$gutter-small;
 
     li {
-        background: $primary-light-color;
-        padding: $gutter-tiny $gutter-small;
-        border-radius: $corner-large;
+        background: variables.$primary-light-color;
+        padding: variables.$gutter-tiny variables.$gutter-small;
+        border-radius: variables.$corner-large;
         font-size: 0.85em;
     }
 }

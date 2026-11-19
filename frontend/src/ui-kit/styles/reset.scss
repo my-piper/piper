@@ -1,5 +1,7 @@
+@use "variables";
+
 %reset-button {
-  font-family: $primary-font-family;
+  font-family: variables.$primary-font-family;
   border: none;
   background: transparent;
   background-color: transparent;
@@ -23,7 +25,7 @@
 }
 
 @mixin reset-button() {
-  font-family: $primary-font-family;
+  font-family: variables.$primary-font-family;
   border: none;
   background: transparent;
   background-color: transparent;
@@ -40,5 +42,5 @@
   padding: 0;
   background-color: transparent;
   outline: none;
-  color: $primary-text-color;
+  color: variables.$primary-text-color;
 }

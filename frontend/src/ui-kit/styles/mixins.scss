@@ -1,4 +1,4 @@
-@import "variables";
+@use "variables";
 
 @mixin for-mobile() {
     @media only screen and (max-width: 425px) {
@@ -56,13 +56,13 @@
     }
 }
 
-@mixin vertical-stack($gutter: $gutter-normal) {
+@mixin vertical-stack($gutter: variables.$gutter-normal) {
     display: flex;
     flex-direction: column;
     gap: $gutter;
 }
 
-@mixin horizontal-stack($gutter: $gutter-normal) {
+@mixin horizontal-stack($gutter: variables.$gutter-normal) {
     display: flex;
     gap: $gutter;
 }

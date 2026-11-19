@@ -1,6 +1,6 @@
-@import "src/ui-kit/styles/variables";
-@import "src/ui-kit/styles/mixins";
-@import "src/ui-kit/styles/reset";
+@use "src/ui-kit/styles/variables";
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/reset";
 
 :host {
   display: flex;
@@ -12,8 +12,8 @@
 header {
   display: flex;
   flex-direction: column;
-  gap: $gutter-normal;
-  padding: $gutter-normal $gutter-big $gutter-small $gutter-big;
+  gap: variables.$gutter-normal;
+  padding: variables.$gutter-normal variables.$gutter-big variables.$gutter-small variables.$gutter-big;
 
   .title {
     display: flex;
@@ -24,7 +24,7 @@ header {
       display: inline-flex;
       align-items: center;
       align-self: flex-start;
-      gap: $gutter-tiny;
+      gap: variables.$gutter-tiny;
       font-size: 0.85em;
       color: inherit;
       text-decoration: none;
@@ -48,11 +48,11 @@ header {
     }
 
     input {
-      @include reset-input();
-      font-size: $font-size-large;
-      font-weight: $font-weight-bold;
+      @include reset.reset-input();
+      font-size: variables.$font-size-large;
+      font-weight: variables.$font-weight-bold;
       &.error {
-        border-bottom: 1px dotted $error-color;
+        border-bottom: 1px dotted variables.$error-color;
       }
     }
   }
@@ -81,7 +81,7 @@ header {
     }
 
     &[data-status="error"] {
-      stroke: $error-color;
+      stroke: variables.$error-color;
     }
   }
 }
@@ -95,6 +95,6 @@ header {
   }
 
   &:not(.edit) {
-    padding: $gutter-normal;
+    padding: variables.$gutter-normal;
   }
 }
