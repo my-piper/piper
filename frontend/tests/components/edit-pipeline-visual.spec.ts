@@ -697,6 +697,63 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
+    it("clears the selection when a node is clicked without a modifier", fakeAsync(() => {
+      const { element, detectChanges, router } = setupEditor();
+      nodeElement(element, "node_one")
+        .querySelector("h2")
+        .dispatchEvent(
+          new MouseEvent("click", { bubbles: true, shiftKey: true }),
+        );
+      detectChanges();
+
+      nodeElement(element, "node_two").querySelector("h2").click();
+      detectChanges();
+      tick();
+
+      expect(nodeBox(element, "node_one").classList).not.toContain("picked");
+      expect(router.url).toBe(`${EDITOR_URL}/(right:nodes/node_two)`);
+      finish();
+    }));
+
+    it("clears the selection and closes the drawer when the empty canvas is clicked", fakeAsync(() => {
+      const { element, detectChanges, router } = setupEditor();
+      nodeElement(element, "node_two").querySelector("h2").click();
+      tick();
+      nodeElement(element, "node_one")
+        .querySelector("h2")
+        .dispatchEvent(
+          new MouseEvent("click", { bubbles: true, shiftKey: true }),
+        );
+      detectChanges();
+      const opened = router.url;
+
+      (element.querySelector(".pane > svg rect") as SVGElement).dispatchEvent(
+        new MouseEvent("click", { bubbles: true }),
+      );
+      detectChanges();
+      tick();
+
+      expect(opened).toBe(`${EDITOR_URL}/(right:nodes/node_two)`);
+      expect(nodeBox(element, "node_one").classList).not.toContain("picked");
+      expect(router.url).toBe(EDITOR_URL);
+      finish();
+    }));
+
+    it("keeps the drawer open when a non-empty canvas element is clicked", fakeAsync(() => {
+      const { element, detectChanges, router } = setupEditor();
+      nodeElement(element, "node_two").querySelector("h2").click();
+      tick();
+
+      element
+        .querySelector("app-pipeline-input")
+        .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      detectChanges();
+      tick();
+
+      expect(router.url).toBe(`${EDITOR_URL}/(right:nodes/node_two)`);
+      finish();
+    }));
+
     it("does not select a node when one of its buttons is clicked", fakeAsync(() => {
       const { element, router } = setupEditor();
 

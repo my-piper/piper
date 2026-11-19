@@ -866,22 +866,25 @@ export class EditPipelineVisualComponent
     this.save();
   }
 
-  @HostListener("click", ["$event"])
-  selectNode(event: MouseEvent, id?: string, node?: Node) {
+  /**
+   * A click on a canvas node: a modifier click toggles the node in the
+   * selection; a plain click clears the selection and opens the node's
+   * drawer, or closes it when the node is already open. Clicks on empty
+   * canvas space are handled by `clickOnGrid`.
+   */
+  clickOnNode(event: MouseEvent, id: string, node: Node) {
     const target = event.target as HTMLElement;
     if (target.closest("a, button, input, textarea, select")) {
       return;
     }
 
     if (event.shiftKey || event.metaKey || event.ctrlKey) {
-      if (id && this.mode === "project") {
+      if (this.mode === "project") {
         this.toggleSelection(`node:${id}`);
       }
       return;
     }
-    if (id) {
-      this.clearSelection();
-    }
+    this.clearSelection();
 
     if (this.currentNode !== node) {
       const launch = this.launches[id] || this.launch;
