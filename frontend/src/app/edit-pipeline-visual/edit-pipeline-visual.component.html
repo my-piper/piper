@@ -513,7 +513,7 @@
         (takeOutOutput)="takeOutPipelineOutput($event)"
         (click)="
           mode !== 'scheme' && !drag.dragged
-            ? selectNode($event, node.key, node.value)
+            ? clickOnNode($event, node.key, node.value)
             : null
         "
       ></app-node>
