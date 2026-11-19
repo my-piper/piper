@@ -1,8 +1,6 @@
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+}
 
 <ng-template #pipelineTab>
   <div class="editor" [formGroup]="form">

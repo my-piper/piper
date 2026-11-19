@@ -1,27 +1,26 @@
-<ng-template #noDataTemplate>
-  <p>No messages found.</p>
-</ng-template>
-
-<ng-template #loadingTemplate>
-  <div *ngIf="progress.loading; else noDataTemplate">
-    <p>Loading...</p>
-  </div>
-</ng-template>
-
-<ng-container *ngIf="messages.length > 0; else loadingTemplate">
-  <div *ngFor="let m of messages">
-    <header>
-      <a
-        *ngIf="!!filter?.project"
-        target="_blank"
-        [routerLink]="['/launches', m.launch]"
-      >
-        {{ m.launch }}
-      </a>
-      <small>{{ m.createdAt | date: "short" }}</small>
-      <label *ngIf="m.type as type">{{ type }}</label>
-    </header>
-
-    <div [innerHTML]="m.message | markdown | async"></div>
-  </div>
-</ng-container>
+@if (messages.length > 0) {
+  @for (m of messages; track $index) {
+    <div>
+      <header>
+        @if (!!filter?.project) {
+          <a target="_blank" [routerLink]="['/launches', m.launch]">
+            {{ m.launch }}
+          </a>
+        }
+        <small>{{ m.createdAt | date: "short" }}</small>
+        @if (m.type; as type) {
+          <label>{{ type }}</label>
+        }
+      </header>
+      <div [innerHTML]="m.message | markdown | async"></div>
+    </div>
+  }
+} @else {
+  @if (progress.loading) {
+    <div>
+      <p>Loading...</p>
+    </div>
+  } @else {
+    <p>No messages found.</p>
+  }
+}

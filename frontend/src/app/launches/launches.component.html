@@ -1,140 +1,147 @@
-<ng-template #noDataTemplate>
-  <ng-template #emptyTemplate>
+@if (launches.length > 0) {
+  <div
+    class="cards launches"
+    [class.busy-block]="launches.length <= 0 && progress.loading"
+  >
+    @for (l of launches; track l._id; let i = $index) {
+      <div class="card">
+        <header>
+          <ng-template #actionsTemplate>
+            <ul class="context-menu" [class.busy]="progress.removing[i]">
+              <li>
+                <a
+                  class="link"
+                  target="_blank"
+                  [routerLink]="['/launches', l._id]"
+                  (click)="references.popover?.hide()"
+                >
+                  <app-icon
+                    class="icon left"
+                    icon="open-link"
+                    [size]="18"
+                  ></app-icon>
+                  <ng-container i18n="@@link.open_pipeline">
+                    Open pipeline
+                  </ng-container>
+                </a>
+              </li>
+              @if (userRole.admin | can: l.launchedBy | async) {
+                <li>
+                  <button (click)="remove(i, l)">
+                    <app-icon
+                      class="icon left"
+                      icon="delete"
+                      [size]="18"
+                    ></app-icon>
+                    <ng-container i18n="@@action.delete">Delete</ng-container>
+                  </button>
+                </li>
+              }
+            </ul>
+          </ng-template>
+          <button
+            class="actions"
+            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+            (attached)="references.popover = $event"
+          >
+            <app-icon class="icon" icon="menu"></app-icon>
+          </button>
+          @if (l._id | pipelineFinishedMetric | async; as metric) {
+            <div class="metric">{{ metric.fromStart }} sec</div>
+          }
+        </header>
+        <article>
+          <ng-template #errorsTemplate>
+            <ul>
+              @for (error of l.errors; track $index) {
+                <li>{{ error }}</li>
+              }
+            </ul>
+          </ng-template>
+          @if (l.errors?.length > 0) {
+            <div class="errors">
+              <button
+                class="transparent"
+                [appPopover]="{ content: errorsTemplate }"
+              >
+                <app-icon icon="error" [color]="'red'"></app-icon>
+              </button>
+            </div>
+          }
+          <app-launch-outputs
+            class="outputs"
+            mode="card"
+            [launch]="l"
+          ></app-launch-outputs>
+        </article>
+        <footer>
+          <ng-template #inputsPopover>
+            @if (l.inputs | keyvalue | orderBy: ["value.order"]; as inputs) {
+              @if (inputs.length > 0) {
+                <ul class="inputs">
+                  @for (i of inputs; track i.key) {
+                    <li>
+                      <b>{{ i.value.title | i18n }}:</b>
+                      <div class="value">
+                        @switch (i.value.type) {
+                          @case ("image") {
+                            <img
+                              [src]="
+                                $safeNavigationMigration(i.value.data?.url)
+                                  | proxyImage: { width: 100 }
+                              "
+                            />
+                          }
+                          @default {
+                            {{ i.value.data?.value }}
+                          }
+                        }
+                      </div>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <ng-container i18n="@@message.inputs_are_not_filled_yet">
+                  Inputs are not filled yet.
+                </ng-container>
+              }
+            }
+          </ng-template>
+          <div class="stack horizontal align-center">
+            <button
+              class="transparent"
+              [appPopover]="{ content: inputsPopover }"
+            >
+              <app-icon icon="info"></app-icon>
+            </button>
+            @if (l._id | launchHeartbeat | ticker | async; as heartbeat) {
+              @if ((heartbeat | timeDiff: "s") < 10) {
+                <app-spinner size="small"></app-spinner>
+              }
+            }
+          </div>
+          <!-- name who started a launch, unless it is the current user -->
+          @if (
+            !!l.launchedBy &&
+            l.launchedBy._id !== config.authorization?.user?._id
+          ) {
+            <span class="launched-by"> by {{ l.launchedBy?.name }} | </span>
+          }
+          {{ l.launchedAt | timePassed }}
+        </footer>
+      </div>
+    }
+  </div>
+} @else {
+  @if (progress.loading) {
+    <app-skeleton type="cards" [cols]="3"></app-skeleton>
+  } @else {
     <p i18n="@@message.no_launches_found">
       Launches not found. Please, press <b>RUN</b> button.
     </p>
-  </ng-template>
-  <ng-container *ngIf="progress.loading; else emptyTemplate">
-    <app-skeleton type="cards" [cols]="3"></app-skeleton>
-  </ng-container>
-</ng-template>
+  }
+}
 
-<div
-  *ngIf="launches.length > 0; else noDataTemplate"
-  class="cards launches"
-  [class.busy-block]="launches.length <= 0 && progress.loading"
->
-  <div class="card" *ngFor="let l of launches; let i = index">
-    <header>
-      <ng-template #actionsTemplate>
-        <ul class="context-menu" [class.busy]="progress.removing[i]">
-          <li>
-            <a
-              class="link"
-              target="_blank"
-              [routerLink]="['/launches', l._id]"
-              (click)="references.popover?.hide()"
-            >
-              <app-icon
-                class="icon left"
-                icon="open-link"
-                [size]="18"
-              ></app-icon>
-              <ng-container i18n="@@link.open_pipeline">
-                Open pipeline
-              </ng-container>
-            </a>
-          </li>
-          <li *ngIf="userRole.admin | can: l.launchedBy | async">
-            <button (click)="remove(i, l)">
-              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
-              <ng-container i18n="@@action.delete">Delete</ng-container>
-            </button>
-          </li>
-        </ul>
-      </ng-template>
-      <button
-        class="actions"
-        [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-        (attached)="references.popover = $event"
-      >
-        <app-icon class="icon" icon="menu"></app-icon>
-      </button>
-
-      <div
-        class="metric"
-        *ngIf="l._id | pipelineFinishedMetric | async as metric"
-      >
-        {{ metric.fromStart }} sec
-      </div>
-    </header>
-    <article>
-      <ng-template #errorsTemplate>
-        <ul>
-          <li *ngFor="let error of l.errors">{{ error }}</li>
-        </ul>
-      </ng-template>
-      <div class="errors" *ngIf="l.errors?.length > 0">
-        <button class="transparent" [appPopover]="{ content: errorsTemplate }">
-          <app-icon icon="error" [color]="'red'"></app-icon>
-        </button>
-      </div>
-      <app-launch-outputs
-        class="outputs"
-        mode="card"
-        [launch]="l"
-      ></app-launch-outputs>
-    </article>
-    <footer>
-      <ng-template #inputsPopover>
-        <ng-template #noInputs>
-          <ng-container i18n="@@message.inputs_are_not_filled_yet">
-            Inputs are not filled yet.
-          </ng-container>
-        </ng-template>
-        <ng-container
-          *ngIf="l.inputs | keyvalue | orderBy: ['value.order'] as inputs"
-        >
-          <ul *ngIf="inputs.length > 0; else noInputs" class="inputs">
-            <li *ngFor="let i of inputs">
-              <b>{{ i.value.title | i18n }}:</b>
-              <div class="value" [ngSwitch]="i.value.type">
-                <ng-container *ngSwitchCase="'image'">
-                  <img
-                    [src]="
-                      $safeNavigationMigration(i.value.data?.url)
-                        | proxyImage: { width: 100 }
-                    "
-                  />
-                </ng-container>
-                <ng-container *ngSwitchDefault>
-                  {{ i.value.data?.value }}
-                </ng-container>
-              </div>
-            </li>
-          </ul>
-        </ng-container>
-      </ng-template>
-      <div class="stack horizontal align-center">
-        <button class="transparent" [appPopover]="{ content: inputsPopover }">
-          <app-icon icon="info"></app-icon>
-        </button>
-        <ng-container
-          *ngIf="l._id | launchHeartbeat | ticker | async as heartbeat"
-        >
-          <app-spinner
-            *ngIf="(heartbeat | timeDiff: 's') < 10"
-            size="small"
-          ></app-spinner>
-        </ng-container>
-      </div>
-      <!-- name who started a launch, unless it is the current user -->
-      <span
-        *ngIf="
-          !!l.launchedBy && l.launchedBy._id !== config.authorization?.user?._id
-        "
-        class="launched-by"
-      >
-        by {{ l.launchedBy?.name }} |
-      </span>
-
-      {{ l.launchedAt | timePassed }}
-    </footer>
-  </div>
-</div>
-
-<div
-  *ngIf="chunk.length > 0 && !progress.loading"
-  inViewport
-  (visible)="loadMore()"
-></div>
+@if (chunk.length > 0 && !progress.loading) {
+  <div inViewport (visible)="loadMore()"></div>
+}

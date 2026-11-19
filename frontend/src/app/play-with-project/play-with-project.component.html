@@ -19,9 +19,9 @@
     <h1>
       {{ project.title | i18n }}
     </h1>
-    <small *ngIf="project.pipeline.description as description">{{
-      description | i18n
-    }}</small>
+    @if (project.pipeline.description; as description) {
+      <small>{{ description | i18n }}</small>
+    }
   </div>
 </header>
 
@@ -63,13 +63,15 @@
     <li>
       <a [routerLink]="['comments']" routerLinkActive="active">
         <ng-container i18n="@@link.comments">Comments</ng-container>
-        <div *ngIf="summary?.comments as comments" class="badge">
-          {{ comments }}
-        </div>
+        @if (summary?.comments; as comments) {
+          <div class="badge">
+            {{ comments }}
+          </div>
+        }
       </a>
     </li>
     <li>|</li>
-    <ng-container *ngIf="project.deploy as deploy">
+    @if (project.deploy; as deploy) {
       <li>
         <a
           [routerLink]="
@@ -83,7 +85,7 @@
         >
       </li>
       <li>|</li>
-    </ng-container>
+    }
     <li>
       <a
         [routerLink]="['batches']"

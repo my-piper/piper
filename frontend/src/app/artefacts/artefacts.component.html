@@ -1,62 +1,66 @@
-<ng-template #noDataTemplate>
-  <app-skeleton
-    *ngIf="progress.loading; else emptyTemplate"
-    type="cards"
-    [cols]="5"
-    [rows]="2"
-  ></app-skeleton>
-  <ng-template #emptyTemplate>
+@if (artefacts.length > 0) {
+  <div class="artefacts">
+    @if (artefacts.length === 0 && !progress.loading) {
+      <p i18n="@@message.no_artefacts_found">
+        No artefacts found.
+      </p>
+    }
+    @for (o of artefacts; track $index) {
+      @if (o.data; as data) {
+        @switch (o.type) {
+          @case ("image") {
+            <img
+              imageFallback
+              [inspect]="{
+                type: 'image',
+                url: data.url,
+                disabled: mode == 'select',
+              }"
+              [src]="data.url | proxyImage: { width: 300 }"
+              [class.vertical]="data.height > data.width"
+              [style.aspect-ratio]="data.width + '/' + data.height"
+              (click)="select(data.url)"
+            />
+          }
+          @case ("image[]") {
+            @for (image of data.images; track $index) {
+              <img
+                imageFallback
+                [inspect]="{
+                  type: 'image',
+                  url: image.url,
+                  disabled: mode == 'select',
+                }"
+                [src]="image.url | proxyImage: { width: 300 }"
+                [class.vertical]="image.height > image.width"
+                [style.aspect-ratio]="image.width + '/' + image.height"
+                (click)="select(image.url)"
+              />
+            }
+          }
+          @case ("video") {
+            <video
+              controls
+              [inspect]="{
+                type: 'video',
+                url: data.url,
+                disabled: mode == 'select',
+              }"
+              [poster]="data.poster | proxyImage: { width: 300 }"
+              [src]="data.url"
+              [class.vertical]="data.height > data.width"
+              [style.aspect-ratio]="data.width + '/' + data.height"
+              (click)="select(data.url)"
+            ></video>
+          }
+        }
+      }
+    }
+  </div>
+} @else {
+  @if (progress.loading) {
+    <app-skeleton type="cards" [cols]="5" [rows]="2"></app-skeleton>
+  } @else {
     <p i18n="@@message.nothing_found">Nothing found.</p>
-  </ng-template>
-</ng-template>
-
-<div *ngIf="artefacts.length > 0; else noDataTemplate" class="artefacts">
-  <ng-template #noDataTemplate>
-    <p *ngIf="!progress.loading" i18n="@@message.no_artefacts_found">
-      No artefacts found.
-    </p>
-  </ng-template>
-
-  <ng-container
-    *ngIf="artefacts.length > 0; else noDataTemplate"
-  ></ng-container>
-
-  <ng-container *ngFor="let o of artefacts">
-    <ng-container *ngIf="o.data as data" [ngSwitch]="o.type">
-      <img
-        *ngSwitchCase="'image'"
-        imageFallback
-        [inspect]="{ type: 'image', url: data.url, disabled: mode == 'select' }"
-        [src]="data.url | proxyImage: { width: 300 }"
-        [class.vertical]="data.height > data.width"
-        [style.aspect-ratio]="data.width + '/' + data.height"
-        (click)="select(data.url)"
-      />
-      <ng-container *ngSwitchCase="'image[]'">
-        <img
-          *ngFor="let image of data.images"
-          imageFallback
-          [inspect]="{
-            type: 'image',
-            url: image.url,
-            disabled: mode == 'select',
-          }"
-          [src]="image.url | proxyImage: { width: 300 }"
-          [class.vertical]="image.height > image.width"
-          [style.aspect-ratio]="image.width + '/' + image.height"
-          (click)="select(image.url)"
-        />
-      </ng-container>
-      <video
-        *ngSwitchCase="'video'"
-        controls
-        [inspect]="{ type: 'video', url: data.url, disabled: mode == 'select' }"
-        [poster]="data.poster | proxyImage: { width: 300 }"
-        [src]="data.url"
-        [class.vertical]="data.height > data.width"
-        [style.aspect-ratio]="data.width + '/' + data.height"
-        (click)="select(data.url)"
-      ></video>
-    </ng-container>
-  </ng-container>
-</div>
+  }
+}

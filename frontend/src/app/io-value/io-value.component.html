@@ -1,54 +1,66 @@
-<ng-container [ngSwitch]="io.type">
-  <span *ngSwitchCase="'boolean'">{{
-    value !== undefined
-      ? value
-        ? "yes"
-        : "no"
-      : io.default !== undefined
-        ? io.default
+@switch (io.type) {
+  @case ("boolean") {
+    <span>{{
+      value !== undefined
+        ? value
           ? "yes"
           : "no"
-        : null
-  }}</span>
-  <span *ngSwitchCase="'integer'">{{ value || io.default }}</span>
-  <span *ngSwitchCase="'float'">{{ value || io.default }}</span>
-  <pre *ngSwitchCase="'json'" [title]="value">{{ value }}</pre>
-  <ng-container *ngSwitchCase="'string'">
-    <ng-container [ngSwitch]="io.format">
-      <div class="stack vertical small" *ngSwitchCase="'code'">
-        <button [copyToClipboard]="value" class="primary small">
-          <ng-container i18n="@@action.copy">Copy</ng-container>
-        </button>
-        <ngx-monaco-editor
-          [options]="{
-            automaticLayout: true,
-            readOnly: true,
-          }"
-          [model]="{ language: io.language, value }"
-          [ngStyle]="{ width: '100%' }"
-        ></ngx-monaco-editor>
-      </div>
-      <ng-container *ngSwitchDefault>
+        : io.default !== undefined
+          ? io.default
+            ? "yes"
+            : "no"
+          : null
+    }}</span>
+  }
+  @case ("integer") {
+    <span>{{ value || io.default }}</span>
+  }
+  @case ("float") {
+    <span>{{ value || io.default }}</span>
+  }
+  @case ("json") {
+    <pre [title]="value">{{ value }}</pre>
+  }
+  @case ("string") {
+    @switch (io.format) {
+      @case ("code") {
+        <div class="stack vertical small">
+          <button [copyToClipboard]="value" class="primary small">
+            <ng-container i18n="@@action.copy">Copy</ng-container>
+          </button>
+          <ngx-monaco-editor
+            [options]="{
+              automaticLayout: true,
+              readOnly: true,
+            }"
+            [model]="{ language: io.language, value }"
+            [ngStyle]="{ width: '100%' }"
+          ></ngx-monaco-editor>
+        </div>
+      }
+      @default {
         {{ value || io.default }}
-      </ng-container>
-    </ng-container>
-  </ng-container>
-  <ng-container *ngSwitchCase="'string[]'">
+      }
+    }
+  }
+  @case ("string[]") {
     {{ value }}
-  </ng-container>
-  <a *ngSwitchCase="'image'" [href]="value" target="_blank">
-    <img [imageSize]="value" [src]="value" />
-  </a>
-  <a *ngSwitchCase="'video'" [href]="value" target="_blank">
-    <video autoplay muted [volume]="0" [src]="value"></video>
-  </a>
-  <ng-container *ngSwitchCase="'image[]'">
-    <a
-      *ngFor="let image of joinedImages | split: '|'"
-      [href]="image"
-      target="_blank"
-    >
-      <img [imageSize]="image" [src]="image" />
+  }
+  @case ("image") {
+    <a [href]="value" target="_blank">
+      <img [imageSize]="value" [src]="value" />
     </a>
-  </ng-container>
-</ng-container>
+  }
+  @case ("video") {
+    <a [href]="value" target="_blank">
+      <video autoplay muted [volume]="0" [src]="value"></video>
+    </a>
+  }
+  @case ("image[]") {
+    @for (image of joinedImages | split: "|"; track $index) {
+      <a [href]="image" target="_blank">
+        <img [imageSize]="image" [src]="image" />
+      </a>
+    }
+  }
+}

@@ -1,8 +1,6 @@
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+}
 
 <div class="drawler left" [class.hidden]="!drawlers.left">
   <div class="content">
@@ -129,7 +127,7 @@
         Ctrl/⌘ + wheel, Ctrl/⌘ + plus/minus, Ctrl/⌘ + 0 to reset, Shift + 1 to
         fit
       </dd>
-      <ng-container *ngIf="mode === 'project'">
+      @if (mode === "project") {
         <dt i18n="@@label.canvas_hint_select">Select</dt>
         <dd i18n="@@message.canvas_hint_select">
           Shift + drag empty space, Shift/Ctrl/⌘ + click to add or remove, Esc
@@ -139,7 +137,7 @@
         <dd i18n="@@message.canvas_hint_move">
           Drag any selected item to move the whole selection
         </dd>
-      </ng-container>
+      }
     </dl>
   </ng-template>
   <button
@@ -164,48 +162,46 @@
   }"
   (updated)="updateLayoutPosition({ left: $event.left, top: $event.top })"
 >
-  <div
-    *ngIf="
-      mode === 'project' && (userRole.admin | can: project.createdBy | async)
-    "
-    class="actions stack"
-  >
-    <a
-      class="circle"
-      data-testid="add-node"
-      [class.toggled]="drawlers.left"
-      [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
-    >
-      <app-icon class="icon" icon="add-node"></app-icon>
-    </a>
-
-    <div>
-      <button
+  @if (
+    mode === "project" && (userRole.admin | can: project.createdBy | async)
+  ) {
+    <div class="actions stack">
+      <a
         class="circle"
-        data-testid="run-pipeline"
-        [class.busy]="
-          progress.launching ||
-          progress.interrupting ||
-          (launches | keyvalue).length > 0
-        "
-        [disabled]="(launches | keyvalue).length > 0"
-        (click)="!!launch ? interrupt() : run()"
+        data-testid="add-node"
+        [class.toggled]="drawlers.left"
+        [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
       >
-        <app-icon class="icon" [icon]="!!launch ? 'stop' : 'play'"></app-icon>
-      </button>
+        <app-icon class="icon" icon="add-node"></app-icon>
+      </a>
+      <div>
+        <button
+          class="circle"
+          data-testid="run-pipeline"
+          [class.busy]="
+            progress.launching ||
+            progress.interrupting ||
+            (launches | keyvalue).length > 0
+          "
+          [disabled]="(launches | keyvalue).length > 0"
+          (click)="!!launch ? interrupt() : run()"
+        >
+          <app-icon class="icon" [icon]="!!launch ? 'stop' : 'play'"></app-icon>
+        </button>
+      </div>
+      @if (config.assistant.active) {
+        <a
+          class="circle"
+          [class.toggled]="drawlers.bottom"
+          [routerLink]="[
+            { outlets: { bottom: drawlers.bottom ? null : ['assistant'] } },
+          ]"
+        >
+          <app-icon class="icon" icon="assistant"></app-icon>
+        </a>
+      }
     </div>
-
-    <a
-      *ngIf="config.assistant.active"
-      class="circle"
-      [class.toggled]="drawlers.bottom"
-      [routerLink]="[
-        { outlets: { bottom: drawlers.bottom ? null : ['assistant'] } },
-      ]"
-    >
-      <app-icon class="icon" icon="assistant"></app-icon>
-    </a>
-  </div>
+  }
 
   <div
     #paneRef
@@ -232,73 +228,348 @@
     "
     (zoom)="updateLayoutZoom($event)"
   >
-    <div
-      class="input"
-      [class.disabled]="
-        mode !== 'project' ||
-        (userRole.admin | can: project.createdBy | async | not)
-      "
-      *ngFor="let input of pipeline.inputs | keyvalue"
-      [class.picked]="selection.has('input:' + input.key)"
-      [attr.data-pick]="'input:' + input.key"
-      #drag="appDragMove"
-      [appDragMove]="{
-        anchorX: 1,
-        anchorY: 0.5,
-        position: { x: input.value.arrange.x, y: input.value.arrange.y },
-        zoom: pipeline.layout?.zoom || 1,
-      }"
-      (moving)="itemMoving('input:' + input.key, input.value.arrange, $event)"
-      (moved)="itemMoved('input:' + input.key, input.value.arrange, $event)"
-      (click)="!drag.dragged ? togglePick($event, 'input:' + input.key) : null"
-    >
-      <ng-template #actionsTemplate>
-        <ul class="context-menu">
-          <li>
-            <button (click)="removeInput(input.key)">
-              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
-              <span i18n="@@action.delete">Delete</span>
-            </button>
-          </li>
-        </ul>
-      </ng-template>
-
-      <button
-        *ngIf="
-          mode === 'project' &&
-          (userRole.admin | can: project.createdBy | async)
+    @for (input of pipeline.inputs | keyvalue; track input.key) {
+      <div
+        class="input"
+        [class.disabled]="
+          mode !== 'project' ||
+          (userRole.admin | can: project.createdBy | async | not)
         "
-        class="more transparent"
-        [appPopover]="{
-          content: actionsTemplate,
-          trigger: 'click',
-          position: 'right',
+        [class.picked]="selection.has('input:' + input.key)"
+        [attr.data-pick]="'input:' + input.key"
+        #drag="appDragMove"
+        [appDragMove]="{
+          anchorX: 1,
+          anchorY: 0.5,
+          position: { x: input.value.arrange.x, y: input.value.arrange.y },
+          zoom: pipeline.layout?.zoom || 1,
         }"
+        (moving)="itemMoving('input:' + input.key, input.value.arrange, $event)"
+        (moved)="itemMoved('input:' + input.key, input.value.arrange, $event)"
+        (click)="
+          !drag.dragged ? togglePick($event, 'input:' + input.key) : null
+        "
       >
-        <app-icon class="icon" icon="more" [size]="16" [stroke]="2"></app-icon>
-      </button>
-      <app-pipeline-input
-        [id]="input.key"
-        [input]="input.value"
-        [value]="$safeNavigationMigration(launchRequest.inputs?.get(input.key))"
-        [project]="project"
-        [launchRequest]="launchRequest"
-        [attr.disabled]="drag.dragged"
-        (output)="startInputFlow(input.key)"
-      ></app-pipeline-input>
-    </div>
+        <ng-template #actionsTemplate>
+          <ul class="context-menu">
+            <li>
+              <button (click)="removeInput(input.key)">
+                <app-icon
+                  class="icon left"
+                  icon="delete"
+                  [size]="18"
+                ></app-icon>
+                <span i18n="@@action.delete">Delete</span>
+              </button>
+            </li>
+          </ul>
+        </ng-template>
+        @if (
+          mode === "project" &&
+          (userRole.admin | can: project.createdBy | async)
+        ) {
+          <button
+            class="more transparent"
+            [appPopover]="{
+              content: actionsTemplate,
+              trigger: 'click',
+              position: 'right',
+            }"
+          >
+            <app-icon
+              class="icon"
+              icon="more"
+              [size]="16"
+              [stroke]="2"
+            ></app-icon>
+          </button>
+        }
+        <app-pipeline-input
+          [id]="input.key"
+          [input]="input.value"
+          [value]="
+            $safeNavigationMigration(launchRequest.inputs?.get(input.key))
+          "
+          [project]="project"
+          [launchRequest]="launchRequest"
+          [attr.disabled]="drag.dragged"
+          (output)="startInputFlow(input.key)"
+        ></app-pipeline-input>
+      </div>
+    }
 
-    <ng-container
-      *ngIf="
-        mode === 'project' && (userRole.admin | can: project.createdBy | async)
-      "
-    >
-      <ng-container *ngFor="let input of pipeline.inputs | keyvalue">
+    @if (
+      mode === "project" && (userRole.admin | can: project.createdBy | async)
+    ) {
+      @for (input of pipeline.inputs | keyvalue; track input.key) {
+        @for (f of input.value.flows | keyvalue; track f.key) {
+          <div
+            class="flow"
+            [ngStyle]="
+              (pipeline | pipelineInput: input.key).arrange
+                | center
+                  : ((pipeline | node: f.value.to | async).arrange
+                      | shift
+                        : {
+                            y:
+                              ((pipeline
+                                | node: f.value.to
+                                | async
+                                | inputIndex: f.value.input
+                                | async) +
+                                1) *
+                                ui.node.input.height +
+                              ui.node.shift,
+                          })
+                | position
+            "
+          >
+            <ng-template #actionsTemplate>
+              <ul class="context-menu">
+                <li>
+                  <button (click)="removeInputFlow(input.key, f.key)">
+                    <app-icon
+                      class="icon left"
+                      icon="delete"
+                      [size]="18"
+                    ></app-icon>
+                    <span i18n="@@action.delete">Delete</span>
+                  </button>
+                </li>
+              </ul>
+            </ng-template>
+            <button
+              class="more transparent"
+              [appPopover]="{
+                content: actionsTemplate,
+                trigger: 'click',
+                position: 'right',
+              }"
+            >
+              <app-icon
+                class="icon"
+                icon="more"
+                [size]="16"
+                [stroke]="2"
+              ></app-icon>
+            </button>
+          </div>
+        }
+      }
+    }
+
+    @for (output of pipeline.outputs | keyvalue; track output.key) {
+      <div
+        class="output"
+        [class.disabled]="
+          mode !== 'project' ||
+          (userRole.admin | can: project.createdBy | async | not)
+        "
+        [class.picked]="selection.has('output:' + output.key)"
+        [attr.data-pick]="'output:' + output.key"
+        #drag="appDragMove"
+        [appDragMove]="{
+          anchorY: 0.5,
+          position: { x: output.value.arrange.x, y: output.value.arrange.y },
+          zoom: pipeline.layout?.zoom || 1,
+        }"
+        (moving)="
+          itemMoving('output:' + output.key, output.value.arrange, $event)
+        "
+        (moved)="
+          itemMoved('output:' + output.key, output.value.arrange, $event)
+        "
+        (click)="
+          !drag.dragged ? togglePick($event, 'output:' + output.key) : null
+        "
+      >
+        <app-pipeline-output
+          [id]="output.key"
+          [output]="output.value"
+        ></app-pipeline-output>
+        <ng-template #actionsTemplate>
+          <ul class="context-menu">
+            <li>
+              <button (click)="removeOutput(output.key)">
+                <app-icon
+                  class="icon left"
+                  icon="delete"
+                  [size]="18"
+                ></app-icon>
+                <span i18n="@@action.delete">Delete</span>
+              </button>
+            </li>
+          </ul>
+        </ng-template>
+        @if (
+          mode === "project" &&
+          (userRole.admin | can: project.createdBy | async)
+        ) {
+          <button
+            class="transparent"
+            [appPopover]="{
+              content: actionsTemplate,
+              trigger: 'click',
+              position: 'right',
+            }"
+          >
+            <app-icon
+              class="icon"
+              icon="more"
+              [size]="16"
+              [stroke]="2"
+            ></app-icon>
+          </button>
+        }
+      </div>
+    }
+
+    @for (node of pipeline.nodes | keyvalue; track trackNode($index, node)) {
+      <div
+        class="node"
+        [class.selected]="currentNode === node.value"
+        [class.picked]="selection.has('node:' + node.key)"
+        [attr.data-testid]="'node-' + node.key"
+        [attr.data-node]="node.key"
+        [attr.data-pick]="'node:' + node.key"
+        [class.disabled]="userRole.admin | can: project.createdBy | async | not"
+        #drag="appDragMove"
+        [appDragMove]="{
+          position: { x: node.value.arrange.x, y: node.value.arrange.y },
+          zoom: pipeline.layout?.zoom || 1,
+          disabled: mode !== 'project',
+        }"
+        (moving)="itemMoving('node:' + node.key, node.value.arrange, $event)"
+        (moved)="itemMoved('node:' + node.key, node.value.arrange, $event)"
+      >
+        @if (mode !== "scheme" && !launch) {
+          <div class="actions stack align-center">
+            <button
+              class="circle small"
+              [class.busy]="progress.nodes.launching[node.key]"
+              [disabled]="progress.nodes.launching[node.key]"
+              (click)="
+                !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
+              "
+            >
+              <app-icon
+                class="icon"
+                [icon]="
+                  !!launches[node.key]
+                    ? 'stop'
+                    : (pipeline.start.nodes | includes: node.key)
+                      ? 'play-filled'
+                      : 'play'
+                "
+                [size]="20"
+              ></app-icon>
+            </button>
+            @if (!!node.value.app) {
+              <a class="circle" [routerLink]="['apps', node.key]">
+                <app-icon class="icon" icon="cursor" [size]="18"></app-icon>
+              </a>
+            }
+          </div>
+        }
+        <ng-template #actionsTemplate>
+          <ul class="context-menu">
+            <li>
+              <button (click)="removeNode(node.key)">
+                <app-icon
+                  class="icon left"
+                  icon="delete"
+                  [size]="18"
+                ></app-icon>
+                <span i18n="@@action.delete">Delete</span>
+              </button>
+            </li>
+          </ul>
+        </ng-template>
+        @if (
+          mode === "project" &&
+          (userRole.admin | can: project.createdBy | async) &&
+          !launches[node.key]
+        ) {
+          <button
+            class="transparent more"
+            [appPopover]="{
+              content: actionsTemplate,
+              trigger: 'click',
+              position: 'right',
+            }"
+          >
+            <app-icon
+              class="icon"
+              icon="more"
+              [size]="16"
+              [stroke]="2"
+            ></app-icon>
+          </button>
+        }
+        <app-node
+          [class.active]="currentNode === node.value"
+          [disabled]="mode !== 'project'"
+          [id]="node.key"
+          [project]="project"
+          [node]="node.value"
+          [inputs]="
+            (!!launches[node.key]
+              ? $safeNavigationMigration(
+                  launches[node.key].launchRequest.nodes.get(node.key)?.inputs
+                )
+              : $safeNavigationMigration(
+                  launchRequest.nodes.get(node.key)?.inputs
+                )
+            ) | mapToPlain
+          "
+          [outputs]="
+            (['project', 'scheme'] | includes: mode)
+              ? !!launches[node.key]
+                ? $safeNavigationMigration(
+                    launches[node.key].launchRequest.nodes.get(node.key)
+                      ?.outputs
+                  )
+                : ($safeNavigationMigration(
+                    launchRequest.nodes.get(node.key)?.outputs
+                  ) | mapToPlain)
+              : null
+          "
+          [launch]="launch || launches[node.key]"
+          (input)="!!flow ? addFlow(node.key, $event) : null"
+          (output)="startNodeFlow(node.key, $event)"
+          (done)="mode === 'project' ? fillNodeOutputs(node.key, $event) : null"
+          (setOutput)="setNodeOutput(node.key, $event.output, $event.value)"
+          (takeOutInput)="takeOutPipelineInput($event)"
+          (takeOutOutput)="takeOutPipelineOutput($event)"
+          (click)="
+            mode !== 'scheme' && !drag.dragged
+              ? clickOnNode($event, node.key, node.value)
+              : null
+          "
+        ></app-node>
+      </div>
+    }
+
+    @if (
+      mode === "project" && (userRole.admin | can: project.createdBy | async)
+    ) {
+      @for (f of pipeline.flows | keyvalue; track f.key) {
         <div
-          *ngFor="let f of input.value.flows | keyvalue"
           class="flow"
           [ngStyle]="
-            (pipeline | pipelineInput: input.key).arrange
+            (pipeline | node: f.value.from | async).arrange
+              | shift
+                : {
+                    x: ui.node.width,
+                    y:
+                      ((pipeline
+                        | node: f.value.from
+                        | async
+                        | outputIndex: f.value.output) +
+                        1) *
+                        ui.node.input.height +
+                      ui.node.shift,
+                  }
               | center
                 : ((pipeline | node: f.value.to | async).arrange
                     | shift
@@ -316,10 +587,26 @@
               | position
           "
         >
+          @if (!!f.value.transformer) {
+            <app-edit-flow-transformer
+              [project]="project"
+              [launchRequest]="launchRequest"
+              [id]="f.key"
+              [flow]="f.value"
+              [from]="{
+                id: f.value.from,
+                node: pipeline | node: f.value.from | async,
+              }"
+              [to]="{
+                id: f.value.to,
+                node: pipeline | node: f.value.to | async,
+              }"
+            ></app-edit-flow-transformer>
+          }
           <ng-template #actionsTemplate>
             <ul class="context-menu">
               <li>
-                <button (click)="removeInputFlow(input.key, f.key)">
+                <button (click)="removeFlow(f.key)">
                   <app-icon
                     class="icon left"
                     icon="delete"
@@ -346,261 +633,8 @@
             ></app-icon>
           </button>
         </div>
-      </ng-container>
-    </ng-container>
-
-    <div
-      class="output"
-      [class.disabled]="
-        mode !== 'project' ||
-        (userRole.admin | can: project.createdBy | async | not)
-      "
-      *ngFor="let output of pipeline.outputs | keyvalue"
-      [class.picked]="selection.has('output:' + output.key)"
-      [attr.data-pick]="'output:' + output.key"
-      #drag="appDragMove"
-      [appDragMove]="{
-        anchorY: 0.5,
-        position: { x: output.value.arrange.x, y: output.value.arrange.y },
-        zoom: pipeline.layout?.zoom || 1,
-      }"
-      (moving)="
-        itemMoving('output:' + output.key, output.value.arrange, $event)
-      "
-      (moved)="itemMoved('output:' + output.key, output.value.arrange, $event)"
-      (click)="
-        !drag.dragged ? togglePick($event, 'output:' + output.key) : null
-      "
-    >
-      <app-pipeline-output
-        [id]="output.key"
-        [output]="output.value"
-      ></app-pipeline-output>
-      <ng-template #actionsTemplate>
-        <ul class="context-menu">
-          <li>
-            <button (click)="removeOutput(output.key)">
-              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
-              <span i18n="@@action.delete">Delete</span>
-            </button>
-          </li>
-        </ul>
-      </ng-template>
-      <button
-        *ngIf="
-          mode === 'project' &&
-          (userRole.admin | can: project.createdBy | async)
-        "
-        class="transparent"
-        [appPopover]="{
-          content: actionsTemplate,
-          trigger: 'click',
-          position: 'right',
-        }"
-      >
-        <app-icon class="icon" icon="more" [size]="16" [stroke]="2"></app-icon>
-      </button>
-    </div>
-
-    <div
-      class="node"
-      [class.selected]="currentNode === node.value"
-      [class.picked]="selection.has('node:' + node.key)"
-      *ngFor="let node of pipeline.nodes | keyvalue; trackBy: trackNode"
-      [attr.data-testid]="'node-' + node.key"
-      [attr.data-node]="node.key"
-      [attr.data-pick]="'node:' + node.key"
-      [class.disabled]="userRole.admin | can: project.createdBy | async | not"
-      #drag="appDragMove"
-      [appDragMove]="{
-        position: { x: node.value.arrange.x, y: node.value.arrange.y },
-        zoom: pipeline.layout?.zoom || 1,
-        disabled: mode !== 'project',
-      }"
-      (moving)="itemMoving('node:' + node.key, node.value.arrange, $event)"
-      (moved)="itemMoved('node:' + node.key, node.value.arrange, $event)"
-    >
-      <div
-        *ngIf="mode !== 'scheme' && !launch"
-        class="actions stack align-center"
-      >
-        <button
-          class="circle small"
-          [class.busy]="progress.nodes.launching[node.key]"
-          [disabled]="progress.nodes.launching[node.key]"
-          (click)="
-            !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
-          "
-        >
-          <app-icon
-            class="icon"
-            [icon]="
-              !!launches[node.key]
-                ? 'stop'
-                : (pipeline.start.nodes | includes: node.key)
-                  ? 'play-filled'
-                  : 'play'
-            "
-            [size]="20"
-          ></app-icon>
-        </button>
-        <a
-          *ngIf="!!node.value.app"
-          class="circle"
-          [routerLink]="['apps', node.key]"
-        >
-          <app-icon class="icon" icon="cursor" [size]="18"></app-icon>
-        </a>
-      </div>
-      <ng-template #actionsTemplate>
-        <ul class="context-menu">
-          <li>
-            <button (click)="removeNode(node.key)">
-              <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
-              <span i18n="@@action.delete">Delete</span>
-            </button>
-          </li>
-        </ul>
-      </ng-template>
-      <button
-        *ngIf="
-          mode === 'project' &&
-          (userRole.admin | can: project.createdBy | async) &&
-          !launches[node.key]
-        "
-        class="transparent more"
-        [appPopover]="{
-          content: actionsTemplate,
-          trigger: 'click',
-          position: 'right',
-        }"
-      >
-        <app-icon class="icon" icon="more" [size]="16" [stroke]="2"></app-icon>
-      </button>
-      <app-node
-        [class.active]="currentNode === node.value"
-        [disabled]="mode !== 'project'"
-        [id]="node.key"
-        [project]="project"
-        [node]="node.value"
-        [inputs]="
-          (!!launches[node.key]
-            ? $safeNavigationMigration(
-                launches[node.key].launchRequest.nodes.get(node.key)?.inputs
-              )
-            : $safeNavigationMigration(
-                launchRequest.nodes.get(node.key)?.inputs
-              )
-          ) | mapToPlain
-        "
-        [outputs]="
-          (['project', 'scheme'] | includes: mode)
-            ? !!launches[node.key]
-              ? $safeNavigationMigration(
-                  launches[node.key].launchRequest.nodes.get(node.key)?.outputs
-                )
-              : ($safeNavigationMigration(
-                  launchRequest.nodes.get(node.key)?.outputs
-                ) | mapToPlain)
-            : null
-        "
-        [launch]="launch || launches[node.key]"
-        (input)="!!flow ? addFlow(node.key, $event) : null"
-        (output)="startNodeFlow(node.key, $event)"
-        (done)="mode === 'project' ? fillNodeOutputs(node.key, $event) : null"
-        (setOutput)="setNodeOutput(node.key, $event.output, $event.value)"
-        (takeOutInput)="takeOutPipelineInput($event)"
-        (takeOutOutput)="takeOutPipelineOutput($event)"
-        (click)="
-          mode !== 'scheme' && !drag.dragged
-            ? clickOnNode($event, node.key, node.value)
-            : null
-        "
-      ></app-node>
-    </div>
-
-    <ng-container
-      *ngIf="
-        mode === 'project' && (userRole.admin | can: project.createdBy | async)
-      "
-    >
-      <div
-        *ngFor="let f of pipeline.flows | keyvalue"
-        class="flow"
-        [ngStyle]="
-          (pipeline | node: f.value.from | async).arrange
-            | shift
-              : {
-                  x: ui.node.width,
-                  y:
-                    ((pipeline
-                      | node: f.value.from
-                      | async
-                      | outputIndex: f.value.output) +
-                      1) *
-                      ui.node.input.height +
-                    ui.node.shift,
-                }
-            | center
-              : ((pipeline | node: f.value.to | async).arrange
-                  | shift
-                    : {
-                        y:
-                          ((pipeline
-                            | node: f.value.to
-                            | async
-                            | inputIndex: f.value.input
-                            | async) +
-                            1) *
-                            ui.node.input.height +
-                          ui.node.shift,
-                      })
-            | position
-        "
-      >
-        <app-edit-flow-transformer
-          *ngIf="!!f.value.transformer"
-          [project]="project"
-          [launchRequest]="launchRequest"
-          [id]="f.key"
-          [flow]="f.value"
-          [from]="{
-            id: f.value.from,
-            node: pipeline | node: f.value.from | async,
-          }"
-          [to]="{ id: f.value.to, node: pipeline | node: f.value.to | async }"
-        ></app-edit-flow-transformer>
-        <ng-template #actionsTemplate>
-          <ul class="context-menu">
-            <li>
-              <button (click)="removeFlow(f.key)">
-                <app-icon
-                  class="icon left"
-                  icon="delete"
-                  [size]="18"
-                ></app-icon>
-                <span i18n="@@action.delete">Delete</span>
-              </button>
-            </li>
-          </ul>
-        </ng-template>
-        <button
-          class="more transparent"
-          [appPopover]="{
-            content: actionsTemplate,
-            trigger: 'click',
-            position: 'right',
-          }"
-        >
-          <app-icon
-            class="icon"
-            icon="more"
-            [size]="16"
-            [stroke]="2"
-          ></app-icon>
-        </button>
-      </div>
-    </ng-container>
+      }
+    }
 
     <svg>
       <defs>
@@ -615,83 +649,57 @@
       </defs>
       <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)"></rect>
 
-      <ng-container
-        *ngIf="state === 'flow' && !!flow && !!mouse"
-        [ngSwitch]="flow.type"
-      >
+      @if (state === "flow" && !!flow && !!mouse) {
+        @switch (flow.type) {
+          @case ("node") {
+            <path
+              [attr.d]="
+                (pipeline | node: flow.from | async).arrange
+                  | shift
+                    : {
+                        x: ui.node.width,
+                        y:
+                          ((pipeline
+                            | node: flow.from
+                            | async
+                            | outputIndex: flow.output) +
+                            1) *
+                            ui.node.input.height +
+                          ui.node.shift,
+                      }
+                  | curve: (mouse | multiply: pipeline.layout.zoom || 1)
+              "
+            />
+          }
+          @case ("input") {
+            <path
+              class="param"
+              [attr.d]="
+                (pipeline | pipelineInput: flow.from).arrange
+                  | curve: (mouse | multiply: pipeline.layout.zoom || 1)
+              "
+            />
+          }
+        }
+      }
+
+      @for (f of pipeline.flows | keyvalue; track f.key) {
         <path
-          *ngSwitchCase="'node'"
+          [attr.stroke]="f.value.color"
           [attr.d]="
-            (pipeline | node: flow.from | async).arrange
+            (pipeline | node: f.value.from | async).arrange
               | shift
                 : {
                     x: ui.node.width,
                     y:
                       ((pipeline
-                        | node: flow.from
+                        | node: f.value.from
                         | async
-                        | outputIndex: flow.output) +
+                        | outputIndex: f.value.output) +
                         1) *
                         ui.node.input.height +
                       ui.node.shift,
                   }
-              | curve: (mouse | multiply: pipeline.layout.zoom || 1)
-          "
-        />
-        <path
-          class="param"
-          *ngSwitchCase="'input'"
-          [attr.d]="
-            (pipeline | pipelineInput: flow.from).arrange
-              | curve: (mouse | multiply: pipeline.layout.zoom || 1)
-          "
-        />
-      </ng-container>
-
-      <path
-        *ngFor="let f of pipeline.flows | keyvalue"
-        [attr.stroke]="f.value.color"
-        [attr.d]="
-          (pipeline | node: f.value.from | async).arrange
-            | shift
-              : {
-                  x: ui.node.width,
-                  y:
-                    ((pipeline
-                      | node: f.value.from
-                      | async
-                      | outputIndex: f.value.output) +
-                      1) *
-                      ui.node.input.height +
-                    ui.node.shift,
-                }
-            | curve
-              : ((pipeline | node: f.value.to | async).arrange
-                  | shift
-                    : {
-                        y:
-                          ((pipeline
-                            | node: f.value.to
-                            | async
-                            | inputIndex: f.value.input
-                            | async) +
-                            1) *
-                            ui.node.input.height +
-                          ui.node.shift,
-                      })
-        "
-      ></path>
-
-      <ng-container *ngFor="let i of pipeline.inputs | keyvalue">
-        <path
-          class="flow param"
-          *ngFor="let f of i.value.flows | keyvalue"
-          [class.disabled]="
-            mode !== 'project' ||
-            (userRole.admin | can: project.createdBy | async | not)
-          "
-          [attr.d]="
-            (pipeline | pipelineInput: i.key).arrange
               | curve
                 : ((pipeline | node: f.value.to | async).arrange
                     | shift
@@ -707,61 +715,92 @@
                             ui.node.shift,
                         })
           "
-        />
-      </ng-container>
+        ></path>
+      }
 
-      <ng-container *ngFor="let o of pipeline.outputs | keyvalue">
-        <path
-          class="flow param to-output"
-          *ngFor="let f of o.value.flows | keyvalue"
-          [class.disabled]="
-            mode !== 'project' ||
-            (userRole.admin | can: project.createdBy | async | not)
-          "
-          [attr.d]="
-            (pipeline | node: f.value.from | async).arrange
-              | shift
-                : {
-                    x: ui.node.width,
-                    y:
-                      ((pipeline
-                        | node: f.value.from
-                        | async
-                        | outputIndex: f.value.output) +
-                        1) *
-                        ui.node.input.height +
-                      ui.node.shift,
-                  }
-              | curve: (pipeline | pipelineOutput: o.key).arrange
-          "
-        />
-        <path
-          class="flow param to-output"
-          *ngIf="!!o.value.from"
-          [class.disabled]="
-            mode !== 'project' ||
-            (userRole.admin | can: project.createdBy | async | not)
-          "
-          (click)="removeOutput(o.key)"
-          [attr.d]="
-            (pipeline | pipelineOutput: o.key).arrange
-              | curve
-                : ((pipeline | node: o.value.from | async).arrange
-                    | shift
-                      : {
-                          x: ui.node.width,
-                          y:
-                            ((pipeline
-                              | node: o.value.from
-                              | async
-                              | outputIndex: o.value.output) +
-                              1) *
-                              ui.node.input.height +
-                            ui.node.shift,
-                        })
-          "
-        />
-      </ng-container>
+      @for (i of pipeline.inputs | keyvalue; track i.key) {
+        @for (f of i.value.flows | keyvalue; track f.key) {
+          <path
+            class="flow param"
+            [class.disabled]="
+              mode !== 'project' ||
+              (userRole.admin | can: project.createdBy | async | not)
+            "
+            [attr.d]="
+              (pipeline | pipelineInput: i.key).arrange
+                | curve
+                  : ((pipeline | node: f.value.to | async).arrange
+                      | shift
+                        : {
+                            y:
+                              ((pipeline
+                                | node: f.value.to
+                                | async
+                                | inputIndex: f.value.input
+                                | async) +
+                                1) *
+                                ui.node.input.height +
+                              ui.node.shift,
+                          })
+            "
+          />
+        }
+      }
+
+      @for (o of pipeline.outputs | keyvalue; track o.key) {
+        @for (f of o.value.flows | keyvalue; track f.key) {
+          <path
+            class="flow param to-output"
+            [class.disabled]="
+              mode !== 'project' ||
+              (userRole.admin | can: project.createdBy | async | not)
+            "
+            [attr.d]="
+              (pipeline | node: f.value.from | async).arrange
+                | shift
+                  : {
+                      x: ui.node.width,
+                      y:
+                        ((pipeline
+                          | node: f.value.from
+                          | async
+                          | outputIndex: f.value.output) +
+                          1) *
+                          ui.node.input.height +
+                        ui.node.shift,
+                    }
+                | curve: (pipeline | pipelineOutput: o.key).arrange
+            "
+          />
+        }
+        @if (!!o.value.from) {
+          <path
+            class="flow param to-output"
+            [class.disabled]="
+              mode !== 'project' ||
+              (userRole.admin | can: project.createdBy | async | not)
+            "
+            (click)="removeOutput(o.key)"
+            [attr.d]="
+              (pipeline | pipelineOutput: o.key).arrange
+                | curve
+                  : ((pipeline | node: o.value.from | async).arrange
+                      | shift
+                        : {
+                            x: ui.node.width,
+                            y:
+                              ((pipeline
+                                | node: o.value.from
+                                | async
+                                | outputIndex: o.value.output) +
+                                1) *
+                                ui.node.input.height +
+                              ui.node.shift,
+                          })
+            "
+          />
+        }
+      }
     </svg>
   </div>
 </div>

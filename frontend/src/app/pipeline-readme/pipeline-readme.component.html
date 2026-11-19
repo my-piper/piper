@@ -1,10 +1,15 @@
-<ul class="tags" *ngIf="project.pipeline.tags as tags">
-  <li *ngFor="let t of tags">
-    <a *ngIf="t | i18n as tag" [routerLink]="['../..', { tag }]">#{{ tag }}</a>
-  </li>
-</ul>
+@if (project.pipeline.tags; as tags) {
+  <ul class="tags">
+    @for (t of tags; track t) {
+      <li>
+        @if (t | i18n; as tag) {
+          <a [routerLink]="['../..', { tag }]">#{{ tag }}</a>
+        }
+      </li>
+    }
+  </ul>
+}
 
-<div
-  *ngIf="project?.pipeline?.readme as readme"
-  [innerHTML]="readme | markdown | async"
-></div>
+@if (project?.pipeline?.readme; as readme) {
+  <div [innerHTML]="readme | markdown | async"></div>
+}

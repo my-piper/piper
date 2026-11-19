@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track $index) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <p>Your data were not saved!</p>
     <div class="stack justify-center">
@@ -11,11 +13,12 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <form [formGroup]="form">
   <fieldset>
@@ -34,25 +37,27 @@
       >
         <span>Shared</span>
       </label>
-      <label
-        *ngIf="userRole.admin | can | async"
-        class="option"
-        formControlName="visibility"
-        [appSelectable]="{ value: 'public' }"
-      >
-        <span>Public</span>
-      </label>
+      @if (userRole.admin | can | async) {
+        <label
+          class="option"
+          formControlName="visibility"
+          [appSelectable]="{ value: 'public' }"
+        >
+          <span>Public</span>
+        </label>
+      }
     </div>
-    <ng-container *ngIf="visibilityControl.value !== 'private'">
+    @if (visibilityControl.value !== "private") {
       <input class="input-primary fluid" type="text" formControlName="slug" />
-      <input
-        *ngIf="visibilityControl.value === 'public'"
-        class="input-primary fluid"
-        type="number"
-        formControlName="order"
-        placeholder="Order"
-      />
-    </ng-container>
+      @if (visibilityControl.value === "public") {
+        <input
+          class="input-primary fluid"
+          type="number"
+          formControlName="order"
+          placeholder="Order"
+        />
+      }
+    }
   </fieldset>
   <footer>
     <button
@@ -67,7 +72,7 @@
   </footer>
 </form>
 
-<ng-container *ngIf="['shared', 'public'] | includes: visibilityControl.value">
+@if (["shared", "public"] | includes: visibilityControl.value) {
   <p>Link to share:</p>
   <pre>{{ origin }}/play/{{ project.slug || project._id }}</pre>
-</ng-container>
+}

@@ -1,4 +1,6 @@
-<h1 *ngIf="!!nodePackage">{{ nodePackage.title | i18n }}</h1>
+@if (!!nodePackage) {
+  <h1>{{ nodePackage.title | i18n }}</h1>
+}
 <form [formGroup]="form">
   <fieldset>
     <app-json-editor

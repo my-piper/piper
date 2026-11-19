@@ -2,7 +2,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track $index) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
@@ -10,20 +12,12 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
-
-<ng-template #noDataTemplate>
-  <ng-template #emptyTemplate>
-    <p i18n="@@message.nothing_found">Nothing found.</p>
-  </ng-template>
-  <ng-container *ngIf="progress.loading; else emptyTemplate">
-    <app-skeleton type="cards" [cols]="1"></app-skeleton>
-  </ng-container>
-</ng-template>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <p>
   <ng-container i18n="@@message.request_node"
@@ -50,23 +44,19 @@
   </fieldset>
 </form>
 
-<ng-container *ngIf="nodes.length > 0; else noDataTemplate">
-  <ng-container *ngFor="let c of nodes | groupNodes">
+@if (nodes.length > 0) {
+  @for (c of nodes | groupNodes; track c.category?._id) {
     <button
       class="category"
       (click)="toggle($safeNavigationMigration(c.category?._id))"
     >
-      <app-icon
-        *ngIf="c.category?.icon as icon"
-        class="icon"
-        [icon]="icon"
-        [size]="18"
-      ></app-icon>
+      @if (c.category?.icon; as icon) {
+        <app-icon class="icon" [icon]="icon" [size]="18"></app-icon>
+      }
       <div class="stack horizontal justify-between flex">
         <div class="title">
           {{ $safeNavigationMigration(c.category?.title) | i18n }}
         </div>
-
         <div class="stack">
           <div class="badge ghost">{{ c.nodes.length }}</div>
           <app-icon
@@ -81,61 +71,69 @@
         </div>
       </div>
     </button>
-    <div *ngIf="state.currentGroup === c.category?._id" class="cards nodes">
-      <div
-        class="card"
-        *ngFor="let node of c.nodes"
-        [dragClone]="{ payload: { node: node._id } }"
-      >
-        <header>
-          <ng-template #actionsTemplate>
-            <div class="stack vertical small">
-              <ul class="context-menu">
-                <li>
-                  <button submitButton (click)="remove(node)">
-                    <app-icon
-                      class="icon left"
-                      icon="delete"
-                      [size]="18"
-                    ></app-icon>
-                    Delete
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </ng-template>
-          <button
-            *ngIf="userRole.admin | can | async"
-            class="actions"
-            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-            (attached)="references.popover = $event"
-          >
-            <app-icon class="icon" icon="menu"></app-icon>
-          </button>
-          <img
-            class="thumbnail"
-            *ngIf="node.thumbnail as thumbnail"
-            [src]="thumbnail"
-          />
-        </header>
-        <article>
-          <h3>{{ node.title | i18n }}</h3>
-        </article>
-        <footer>
-          <ul *ngIf="node.tags as tags" class="tags">
-            <li
-              *ngFor="let t of tags"
-              [class.cheap]="(t | i18n: languages.en) === 'cheap'"
-              [class.free]="(t | i18n: languages.en) === 'free'"
-            >
-              #{{ t | i18n }}
-            </li>
-          </ul>
-          <div class="version" *ngIf="userRole.admin | can | async">
-            ver. {{ node.version }}
+    @if (state.currentGroup === c.category?._id) {
+      <div class="cards nodes">
+        @for (node of c.nodes; track node._id) {
+          <div class="card" [dragClone]="{ payload: { node: node._id } }">
+            <header>
+              <ng-template #actionsTemplate>
+                <div class="stack vertical small">
+                  <ul class="context-menu">
+                    <li>
+                      <button submitButton (click)="remove(node)">
+                        <app-icon
+                          class="icon left"
+                          icon="delete"
+                          [size]="18"
+                        ></app-icon>
+                        Delete
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </ng-template>
+              @if (userRole.admin | can | async) {
+                <button
+                  class="actions"
+                  [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+                  (attached)="references.popover = $event"
+                >
+                  <app-icon class="icon" icon="menu"></app-icon>
+                </button>
+              }
+              @if (node.thumbnail; as thumbnail) {
+                <img class="thumbnail" [src]="thumbnail" />
+              }
+            </header>
+            <article>
+              <h3>{{ node.title | i18n }}</h3>
+            </article>
+            <footer>
+              @if (node.tags; as tags) {
+                <ul class="tags">
+                  @for (t of tags; track t) {
+                    <li
+                      [class.cheap]="(t | i18n: languages.en) === 'cheap'"
+                      [class.free]="(t | i18n: languages.en) === 'free'"
+                    >
+                      #{{ t | i18n }}
+                    </li>
+                  }
+                </ul>
+              }
+              @if (userRole.admin | can | async) {
+                <div class="version">ver. {{ node.version }}</div>
+              }
+            </footer>
           </div>
-        </footer>
+        }
       </div>
-    </div>
-  </ng-container>
-</ng-container>
+    }
+  }
+} @else {
+  @if (progress.loading) {
+    <app-skeleton type="cards" [cols]="1"></app-skeleton>
+  } @else {
+    <p i18n="@@message.nothing_found">Nothing found.</p>
+  }
+}

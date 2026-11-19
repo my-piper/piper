@@ -1,11 +1,11 @@
 <ng-template #userPopover>
   <div class="stack vertical">
-    <ng-container *ngIf="me.user$ | async as user">
+    @if (me.user$ | async; as user) {
       <div class="user">
         {{ user._id }}<br />
         <small>{{ user.email }}</small>
       </div>
-    </ng-container>
+    }
 
     <div [formGroup]="form" class="stack small align-center">
       <div class="checkbox small">

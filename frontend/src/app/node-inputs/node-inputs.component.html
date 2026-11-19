@@ -1,18 +1,18 @@
 <ul>
-  <ng-container *ngFor="let g of node.render.inputs">
-    <h3 *ngIf="g.group.group?.title as group">{{ group | i18n }}</h3>
-    <ng-container *ngFor="let i of g.group.inputs">
-      <li
-        *ngIf="!i.input.hidden"
-        [attr.data-type]="i.input.type"
-        [class.filled]="!!inputs?.[i.id]"
-      >
-        <b>{{ i.input.title | i18n }}</b>
-        <app-io-value
-          [io]="i.input"
-          [value]="$safeNavigationMigration(inputs?.[i.id])"
-        ></app-io-value>
-      </li>
-    </ng-container>
-  </ng-container>
+  @for (g of node.render.inputs; track g.id) {
+    @if (g.group.group?.title; as group) {
+      <h3>{{ group | i18n }}</h3>
+    }
+    @for (i of g.group.inputs; track i.id) {
+      @if (!i.input.hidden) {
+        <li [attr.data-type]="i.input.type" [class.filled]="!!inputs?.[i.id]">
+          <b>{{ i.input.title | i18n }}</b>
+          <app-io-value
+            [io]="i.input"
+            [value]="$safeNavigationMigration(inputs?.[i.id])"
+          ></app-io-value>
+        </li>
+      }
+    }
+  }
 </ul>

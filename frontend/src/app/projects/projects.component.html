@@ -23,7 +23,9 @@
   <div class="informer errors">
     <p>{{ error.message }}</p>
     <ul>
-      <li *ngFor="let m of error?.details">{{ m }}</li>
+      @for (m of error?.details; track $index) {
+        <li>{{ m }}</li>
+      }
     </ul>
     <div class="stack justify-center">
       <button class="primary" (click)="error = null">Ok</button>
@@ -31,11 +33,12 @@
   </div>
 </ng-template>
 
-<app-informer
-  *ngIf="!!error"
-  [contentTemplate]="errorTemplate"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer
+    [contentTemplate]="errorTemplate"
+    (ok)="error = null"
+  ></app-informer>
+}
 
 <div class="app-container">
   <header class="stack">
@@ -49,14 +52,11 @@
       <app-icon class="icon left" icon="add"></app-icon>
       <ng-container i18n="@@action.create">Create</ng-container>
     </button>
-    <a
-      *ngIf="userRole.admin | can | async"
-      class="primary"
-      [routerLink]="['import']"
-      i18n="@@link.import"
-    >
-      Import
-    </a>
+    @if (userRole.admin | can | async) {
+      <a class="primary" [routerLink]="['import']" i18n="@@link.import">
+        Import
+      </a>
+    }
     <form class="search" [formGroup]="form">
       <input
         class="input-primary"
@@ -68,21 +68,24 @@
     </form>
   </header>
 
-  <form *ngIf="allTags.length > 0" class="tags" [formGroup]="form">
-    <button
-      *ngFor="let t of allTags"
-      type="button"
-      class="tag"
-      formControlName="tags"
-      [appSelectable]="{
-        value: t,
-        group: 'project-tags',
-        mode: selectMode.multiple,
-      }"
-    >
-      #{{ t | i18n }}
-    </button>
-  </form>
+  @if (allTags.length > 0) {
+    <form class="tags" [formGroup]="form">
+      @for (t of allTags; track t) {
+        <button
+          type="button"
+          class="tag"
+          formControlName="tags"
+          [appSelectable]="{
+            value: t,
+            group: 'project-tags',
+            mode: selectMode.multiple,
+          }"
+        >
+          #{{ t | i18n }}
+        </button>
+      }
+    </form>
+  }
 
   <table class="default">
     <thead>
@@ -109,34 +112,40 @@
           </a>
         </div>
 
-        <div *ngIf="(searching && p.group) || p.tags?.length" class="row-tags">
-          <button
-            *ngIf="searching && p.group"
-            type="button"
-            class="group"
-            (click)="revealFolder(p.group)"
-          >
-            {{ p.group }}
-          </button>
-          <button
-            *ngFor="let t of p.tags"
-            type="button"
-            class="tag"
-            [class.selected]="tagsControl.value?.includes(t)"
-            (click)="toggleTag(t)"
-          >
-            #{{ t | i18n }}
-          </button>
-        </div>
+        @if ((searching && p.group) || p.tags?.length) {
+          <div class="row-tags">
+            @if (searching && p.group) {
+              <button
+                type="button"
+                class="group"
+                (click)="revealFolder(p.group)"
+              >
+                {{ p.group }}
+              </button>
+            }
+            @for (t of p.tags; track t) {
+              <button
+                type="button"
+                class="tag"
+                [class.selected]="tagsControl.value?.includes(t)"
+                (click)="toggleTag(t)"
+              >
+                #{{ t | i18n }}
+              </button>
+            }
+          </div>
+        }
       </td>
       <td i18n-title="@@label.visibility" title="Visibility">
-        <app-icon *ngIf="p.visibility === 'public'" icon="share"></app-icon>
+        @if (p.visibility === "public") {
+          <app-icon icon="share"></app-icon>
+        }
       </td>
       <td class="version">
         {{ p.pipeline.version }}
       </td>
       <td class="runs" data-testid="project-runs">
-        <ng-container *ngIf="stats.get(p._id) as st; else noRunsTemplate">
+        @if (stats.get(p._id); as st) {
           <div>
             {{ st.runs | number }}
             <span
@@ -149,10 +158,9 @@
           <small i18n-title="@@label.avg_duration" title="Avg duration">{{
             st.avgDurationMs | runDuration
           }}</small>
-        </ng-container>
-        <ng-template #noRunsTemplate>
+        } @else {
           <span class="none">—</span>
-        </ng-template>
+        }
       </td>
       <td class="created" i18n-title="@@label.created" title="Created">
         <div>{{ p.createdBy?._id }}</div>
@@ -177,16 +185,17 @@
             </li>
           </ul>
         </ng-template>
-        <button
-          *ngIf="userRole.admin | can: p.createdBy | async"
-          class="circle"
-          i18n-title="@@action.delete"
-          title="Delete"
-          [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-          (attached)="references.popover = $event"
-        >
-          <app-icon class="icon" icon="delete" [size]="18"></app-icon>
-        </button>
+        @if (userRole.admin | can: p.createdBy | async) {
+          <button
+            class="circle"
+            i18n-title="@@action.delete"
+            title="Delete"
+            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
+            (attached)="references.popover = $event"
+          >
+            <app-icon class="icon" icon="delete" [size]="18"></app-icon>
+          </button>
+        }
       </td>
     </ng-template>
     <ng-template #folderTemplate let-f let-depth="depth">
@@ -198,116 +207,122 @@
         (click)="toggleFolder(f)"
       >
         <td colspan="6" class="tree">
-          <button
-            *ngIf="!f.renaming"
-            type="button"
-            class="folder"
-            [attr.aria-expanded]="f.expanded"
-          >
-            <app-icon
-              class="chevron"
-              icon="chevron-right"
-              [size]="16"
-            ></app-icon>
-            <span class="name">{{ f.name }}</span>
-            <span class="count">{{ f.total }}</span>
-          </button>
+          @if (!f.renaming) {
+            <button
+              type="button"
+              class="folder"
+              [attr.aria-expanded]="f.expanded"
+            >
+              <app-icon
+                class="chevron"
+                icon="chevron-right"
+                [size]="16"
+              ></app-icon>
+              <span class="name">{{ f.name }}</span>
+              <span class="count">{{ f.total }}</span>
+            </button>
+          }
           <!-- "/" in the new name moves the folder to another parent -->
-          <div
-            *ngIf="f.renaming"
-            class="folder rename"
-            [class.busy]="progress.renaming"
-            (click)="$event.stopPropagation()"
-          >
-            <input
-              #nameInput
-              class="input-primary"
-              aria-label="Folder name"
-              i18n-aria-label="@@label.folder_name"
-              [value]="f.name"
-              [disabled]="progress.renaming"
-              (keydown.enter)="rename(f, nameInput.value)"
-              (keydown.escape)="cancelRename(f)"
-              (blur)="cancelRename(f)"
-            />
-          </div>
+          @if (f.renaming) {
+            <div
+              class="folder rename"
+              [class.busy]="progress.renaming"
+              (click)="$event.stopPropagation()"
+            >
+              <input
+                #nameInput
+                class="input-primary"
+                aria-label="Folder name"
+                i18n-aria-label="@@label.folder_name"
+                [value]="f.name"
+                [disabled]="progress.renaming"
+                (keydown.enter)="rename(f, nameInput.value)"
+                (keydown.escape)="cancelRename(f)"
+                (blur)="cancelRename(f)"
+              />
+            </div>
+          }
         </td>
         <td class="actions">
-          <button
-            *ngIf="!f.renaming"
-            type="button"
-            class="circle rename"
-            i18n-title="@@action.rename"
-            title="Rename"
-            (click)="$event.stopPropagation(); startRename(f)"
-          >
-            <app-icon class="icon" icon="edit" [size]="18"></app-icon>
-          </button>
+          @if (!f.renaming) {
+            <button
+              type="button"
+              class="circle rename"
+              i18n-title="@@action.rename"
+              title="Rename"
+              (click)="$event.stopPropagation(); startRename(f)"
+            >
+              <app-icon class="icon" icon="edit" [size]="18"></app-icon>
+            </button>
+          }
         </td>
       </tr>
-      <ng-container *ngIf="showChildren(f)">
-        <ng-container *ngFor="let c of visibleFolders(f.children)">
+      @if (showChildren(f)) {
+        @for (c of visibleFolders(f.children); track c.path) {
           <ng-container
             *ngTemplateOutlet="
               folderTemplate;
               context: { $implicit: c, depth: depth + 1 }
             "
           ></ng-container>
-        </ng-container>
-      </ng-container>
-      <ng-container *ngIf="f.expanded">
-        <tr
-          *ngFor="let p of f.projects"
-          class="nested"
-          [style.--depth]="depth + 1"
-        >
-          <ng-container
-            *ngTemplateOutlet="projectCellsTemplate; context: { $implicit: p }"
-          ></ng-container>
-        </tr>
-        <tr class="loading" *ngIf="f.loading">
-          <td colspan="7"></td>
-        </tr>
-        <tr
-          class="nested more"
-          *ngIf="f.more && !f.loading"
-          [style.--depth]="depth + 1"
-        >
-          <td colspan="7" class="tree">
-            <button
-              type="button"
-              class="primary"
-              (click)="loadFolder(f)"
-              i18n="@@link.more"
-            >
-              More
-            </button>
-          </td>
-        </tr>
-      </ng-container>
+        }
+      }
+      @if (f.expanded) {
+        @for (p of f.projects; track p._id) {
+          <tr class="nested" [style.--depth]="depth + 1">
+            <ng-container
+              *ngTemplateOutlet="
+                projectCellsTemplate;
+                context: { $implicit: p }
+              "
+            ></ng-container>
+          </tr>
+        }
+        @if (f.loading) {
+          <tr class="loading">
+            <td colspan="7"></td>
+          </tr>
+        }
+        @if (f.more && !f.loading) {
+          <tr class="nested more" [style.--depth]="depth + 1">
+            <td colspan="7" class="tree">
+              <button
+                type="button"
+                class="primary"
+                (click)="loadFolder(f)"
+                i18n="@@link.more"
+              >
+                More
+              </button>
+            </td>
+          </tr>
+        }
+      }
     </ng-template>
     <tbody>
-      <ng-container *ngFor="let f of folders">
+      @for (f of folders; track f.path) {
         <ng-container
           *ngTemplateOutlet="
             folderTemplate;
             context: { $implicit: f, depth: 0 }
           "
         ></ng-container>
-      </ng-container>
-      <tr *ngFor="let p of projects">
-        <ng-container
-          *ngTemplateOutlet="projectCellsTemplate; context: { $implicit: p }"
-        ></ng-container>
-      </tr>
-      <tr class="loading" *ngIf="progress.loading">
-        <td colspan="7"></td>
-      </tr>
+      }
+      @for (p of projects; track p._id) {
+        <tr>
+          <ng-container
+            *ngTemplateOutlet="projectCellsTemplate; context: { $implicit: p }"
+          ></ng-container>
+        </tr>
+      }
+      @if (progress.loading) {
+        <tr class="loading">
+          <td colspan="7"></td>
+        </tr>
+      }
     </tbody>
   </table>
-  <div
-    *ngIf="chunk.length > 0 && !progress.loading"
-    inViewport
-    (visible)="loadMore()"
-  ></div>
+  @if (chunk.length > 0 && !progress.loading) {
+    <div inViewport (visible)="loadMore()"></div>
+  }
 </div>

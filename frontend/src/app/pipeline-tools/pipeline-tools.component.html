@@ -1,8 +1,6 @@
-<app-informer
-  *ngIf="!!error"
-  [message]="error.message"
-  (ok)="error = null"
-></app-informer>
+@if (!!error) {
+  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+}
 
 <ng-template #publishTab>
   <div class="publish">
@@ -15,36 +13,43 @@
         <th i18n="@@label.version" style="width: 100px">Version</th>
       </thead>
       <tbody>
-        <tr *ngFor="let n of project.pipeline.nodes | keyvalue">
-          <td title="Node" i18n-title="@@label.node" class="stack">
-            <app-icon
-              class="icon"
-              [icon]="
-                (progress.published | includes: n.key) ? 'checked' : 'unchecked'
-              "
-            ></app-icon>
-            <div class="stack vertical tiny">
-              <div>{{ n.value.title | i18n }}</div>
-              <ul class="tags">
-                <li *ngFor="let t of n?.value.tags">#{{ t | i18n }}</li>
-              </ul>
-            </div>
-          </td>
-          <td title="Id" i18n-title="@@label.id">
-            {{ n.value.catalog?._id }}
-          </td>
-          <td title="Category" i18n-title="@@label.category">
-            {{
-              $safeNavigationMigration(n.value.catalog?.category?.title) | i18n
-            }}
-          </td>
-          <td title="Package" i18n-title="@@label.package">
-            {{ n.value.catalog?.package }}
-          </td>
-          <td title="Version" i18n-title="@@label.version">
-            {{ n.value.catalog?.version || "-" }}
-          </td>
-        </tr>
+        @for (n of project.pipeline.nodes | keyvalue; track n.key) {
+          <tr>
+            <td title="Node" i18n-title="@@label.node" class="stack">
+              <app-icon
+                class="icon"
+                [icon]="
+                  (progress.published | includes: n.key)
+                    ? 'checked'
+                    : 'unchecked'
+                "
+              ></app-icon>
+              <div class="stack vertical tiny">
+                <div>{{ n.value.title | i18n }}</div>
+                <ul class="tags">
+                  @for (t of n?.value.tags; track t) {
+                    <li>#{{ t | i18n }}</li>
+                  }
+                </ul>
+              </div>
+            </td>
+            <td title="Id" i18n-title="@@label.id">
+              {{ n.value.catalog?._id }}
+            </td>
+            <td title="Category" i18n-title="@@label.category">
+              {{
+                $safeNavigationMigration(n.value.catalog?.category?.title)
+                  | i18n
+              }}
+            </td>
+            <td title="Package" i18n-title="@@label.package">
+              {{ n.value.catalog?.package }}
+            </td>
+            <td title="Version" i18n-title="@@label.version">
+              {{ n.value.catalog?.version || "-" }}
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
 

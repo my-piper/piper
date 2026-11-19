@@ -1,33 +1,20 @@
-<ng-template #noDataTemplate>
-  <ng-container *ngIf="progress.loading; else noUpdatesTemplate">
-    <app-skeleton type="cards" [cols]="2"></app-skeleton>
-  </ng-container>
-</ng-template>
-
-<ng-template #noUpdatesTemplate>
-  <p i18n="@@message.no_node_updates">
-    No updates in nodes from catalog.
-  </p>
-</ng-template>
-
-<ng-container
-  *ngIf="$safeNavigationMigration(nodeUpdates?.updates) | keyvalue as updates"
->
-  <ng-container *ngIf="updates.length > 0; else noDataTemplate">
+@if ($safeNavigationMigration(nodeUpdates?.updates) | keyvalue; as updates) {
+  @if (updates.length > 0) {
     <ul>
-      <li *ngFor="let node of updates">
-        <app-icon
-          [icon]="state.updated[node.key] ? 'checked' : 'unchecked'"
-          [size]="24"
-        ></app-icon>
-        <a
-          (click)="select(node.key)"
-          [class.active]="state.active == node.key"
-          >{{ node.value.updated.title | i18n }}</a
-        >
-      </li>
+      @for (node of updates; track node.key) {
+        <li>
+          <app-icon
+            [icon]="state.updated[node.key] ? 'checked' : 'unchecked'"
+            [size]="24"
+          ></app-icon>
+          <a
+            (click)="select(node.key)"
+            [class.active]="state.active == node.key"
+            >{{ node.value.updated.title | i18n }}</a
+          >
+        </li>
+      }
     </ul>
-
     <div>
       <button
         class="primary"
@@ -38,38 +25,44 @@
         Update all
       </button>
     </div>
-
-    <div
-      class="compare"
-      *ngIf="nodeUpdates?.updates.get(state.active) as active"
-    >
-      <ngx-monaco-diff-editor
-        class="monaco"
-        [originalModel]="{
-          language: 'yaml',
-          code: active.current | yaml,
-        }"
-        [modifiedModel]="{
-          language: 'yaml',
-          code: active.changes | yaml,
-        }"
-        [options]="{
-          readOnly: true,
-          renderSideBySide: true,
-          minimap: { enabled: false },
-        }"
-      >
-      </ngx-monaco-diff-editor>
-      <footer>
-        <button
-          class="primary"
-          [disabled]="state.updated[state.active]"
-          i18n="@@action.update"
-          (click)="update()"
+    @if (nodeUpdates?.updates.get(state.active); as active) {
+      <div class="compare">
+        <ngx-monaco-diff-editor
+          class="monaco"
+          [originalModel]="{
+            language: 'yaml',
+            code: active.current | yaml,
+          }"
+          [modifiedModel]="{
+            language: 'yaml',
+            code: active.changes | yaml,
+          }"
+          [options]="{
+            readOnly: true,
+            renderSideBySide: true,
+            minimap: { enabled: false },
+          }"
         >
-          Update
-        </button>
-      </footer>
-    </div>
-  </ng-container>
-</ng-container>
+        </ngx-monaco-diff-editor>
+        <footer>
+          <button
+            class="primary"
+            [disabled]="state.updated[state.active]"
+            i18n="@@action.update"
+            (click)="update()"
+          >
+            Update
+          </button>
+        </footer>
+      </div>
+    }
+  } @else {
+    @if (progress.loading) {
+      <app-skeleton type="cards" [cols]="2"></app-skeleton>
+    } @else {
+      <p i18n="@@message.no_node_updates">
+        No updates in nodes from catalog.
+      </p>
+    }
+  }
+}

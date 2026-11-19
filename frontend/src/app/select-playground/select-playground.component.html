@@ -1,83 +1,88 @@
 <form [formGroup]="form">
-  <fieldset *ngIf="categories.length > 0" class="categories">
-    <button
-      *ngFor="let c of categories"
-      formControlName="category"
-      [appSelectable]="{ value: c._id, group: 'category' }"
-    >
-      <app-icon class="icon" [icon]="c.icon"></app-icon>
-      {{ c.title | i18n }}
-      <span class="badge">{{ c.projects }}</span>
-    </button>
-  </fieldset>
+  @if (categories.length > 0) {
+    <fieldset class="categories">
+      @for (c of categories; track c._id) {
+        <button
+          formControlName="category"
+          [appSelectable]="{ value: c._id, group: 'category' }"
+        >
+          <app-icon class="icon" [icon]="c.icon"></app-icon>
+          {{ c.title | i18n }}
+          <span class="badge">{{ c.projects }}</span>
+        </button>
+      }
+    </fieldset>
+  }
 
-  <fieldset *ngIf="allTags.length > 0" class="tags">
-    <button
-      *ngFor="let t of allTags"
-      formControlName="tag"
-      [appSelectable]="{ value: t, group: 'tags' }"
-    >
-      #{{ t }}
-    </button>
-  </fieldset>
+  @if (allTags.length > 0) {
+    <fieldset class="tags">
+      @for (t of allTags; track t) {
+        <button
+          formControlName="tag"
+          [appSelectable]="{ value: t, group: 'tags' }"
+        >
+          #{{ t }}
+        </button>
+      }
+    </fieldset>
+  }
 </form>
 
-<ng-template #noDataTemplate>
-  <ng-template #emptyTemplate>
-    <p i18n="@@message.nothing_found">Nothing found.</p>
-  </ng-template>
-  <ng-container *ngIf="progress.loading.projects; else emptyTemplate">
-    <app-skeleton type="cards" [cols]="3"></app-skeleton>
-  </ng-container>
-</ng-template>
-
-<div
-  *ngIf="projects.length > 0; else noDataTemplate"
-  class="projects cards"
-  [class.busy-block]="progress.loading.projects"
->
-  <div class="card" *ngFor="let p of projects">
-    <ng-container *ngIf="userRole.admin | can | async">
-      <div *ngIf="p.order as order" class="order">
-        {{ order }}
+@if (projects.length > 0) {
+  <div class="projects cards" [class.busy-block]="progress.loading.projects">
+    @for (p of projects; track p._id) {
+      <div class="card">
+        @if (userRole.admin | can | async) {
+          @if (p.order; as order) {
+            <div class="order">
+              {{ order }}
+            </div>
+          }
+        }
+        <header>
+          <h2>{{ p.title | i18n }}</h2>
+        </header>
+        <article>
+          <button (click)="selected.emit(p)">
+            <div class="title">{{ p.title | i18n }}</div>
+            @if (p.pipeline.thumbnail; as thumbnail) {
+              @switch (thumbnail | fileType) {
+                @case ("video") {
+                  <video
+                    [attr.muted]="true"
+                    [attr.autoplay]="true"
+                    playsinline
+                    loop
+                  >
+                    <source [src]="thumbnail" type="video/webm" />
+                  </video>
+                }
+                @default {
+                  <img [src]="thumbnail" />
+                }
+              }
+            } @else {
+              <app-icon
+                class="no-thumbnail"
+                icon="image"
+                [stroke]="1.5"
+                [size]="64"
+              ></app-icon>
+            }
+          </button>
+        </article>
+        @if (p.pipeline.description; as description) {
+          <footer>
+            <p>{{ description | i18n }}</p>
+          </footer>
+        }
       </div>
-    </ng-container>
-    <header>
-      <h2>{{ p.title | i18n }}</h2>
-    </header>
-    <article>
-      <button (click)="selected.emit(p)">
-        <div class="title">{{ p.title | i18n }}</div>
-
-        <ng-template #noThumbnailTemplate>
-          <app-icon
-            class="no-thumbnail"
-            icon="image"
-            [stroke]="1.5"
-            [size]="64"
-          ></app-icon>
-        </ng-template>
-
-        <ng-container
-          *ngIf="p.pipeline.thumbnail as thumbnail; else noThumbnailTemplate"
-        >
-          <ng-container [ngSwitch]="thumbnail | fileType">
-            <video
-              *ngSwitchCase="'video'"
-              [attr.muted]="true"
-              [attr.autoplay]="true"
-              playsinline
-              loop
-            >
-              <source [src]="thumbnail" type="video/webm" />
-            </video>
-            <img *ngSwitchDefault [src]="thumbnail" />
-          </ng-container>
-        </ng-container>
-      </button>
-    </article>
-    <footer *ngIf="p.pipeline.description as description">
-      <p>{{ description | i18n }}</p>
-    </footer>
+    }
   </div>
-</div>
+} @else {
+  @if (progress.loading.projects) {
+    <app-skeleton type="cards" [cols]="3"></app-skeleton>
+  } @else {
+    <p i18n="@@message.nothing_found">Nothing found.</p>
+  }
+}
