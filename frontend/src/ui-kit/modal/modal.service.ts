@@ -56,7 +56,7 @@ export class ModalService {
     this.checkRegistration();
     const component = createComponent(type, {
       environmentInjector:
-        injector?.get(EnvironmentInjector) ?? this.environmentInjector,
+        injector?.get(EnvironmentInjector, null) ?? this.environmentInjector,
       elementInjector: injector,
     });
     for (const [name, value] of Object.entries(inputs ?? {})) {
