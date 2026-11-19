@@ -166,14 +166,38 @@ jobs:
             type=sha,priority=300
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
 
-      - name: Build production and push Docker image
+      - name: Build production Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: devops/docker/Dockerfile
           build-args: NODE_VERSION=${{ steps.node.outputs.version }}
-          push: ${{ github.ref == 'refs/heads/main' }}
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:_buildcache
           cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:_buildcache,mode=max
+
+      # npm 11 skips install scripts missing from allowScripts, which leaves a
+      # native module without its binary while the image still builds (#105).
+      # Also checks the esbuild binary that tsx (and so the backend) runs on.
+      - name: Smoke-test native modules
+        run: >
+          docker run --rm --entrypoint node -w /app/backend
+          ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          -e "require('bcrypt'); require('sharp'); require('msgpackr-extract'); require('jsonwebtoken');
+          require(require.resolve('esbuild', { paths: ['node_modules/tsx'] })).transformSync('');"
+
+      # Same inputs on the same builder: every layer comes from the cache of
+      # the step above, so this only exports and pushes.
+      - name: Push Docker image
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: devops/docker/Dockerfile
+          build-args: NODE_VERSION=${{ steps.node.outputs.version }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:_buildcache
