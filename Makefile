@@ -75,10 +75,14 @@ stop:
 # -- local development --
 # Start the infra first with `make up` in another terminal.
 # Each target runs in the foreground; Ctrl-C stops it.
-.PHONY: dev run-backend run-server run-worker run-periodic run-sockets run-oauth run-frontend
+# `dev` first stops any server, worker, periodic, sockets or frontend already running.
+.PHONY: dev dev-stop run-backend run-server run-worker run-periodic run-sockets run-oauth run-frontend
 
-dev:
+dev: dev-stop
 	$(MAKE) -j2 run-backend run-frontend
+
+dev-stop:
+	./tools/dev-stop.sh
 
 run-backend:
 	cd backend && npx --no-install run-p --print-label server worker periodic sockets
