@@ -11,7 +11,11 @@ const logger = createLogger("registry");
 const FILE = /^\/([a-z0-9_]+)\/(\d+)\/(.+)$/;
 
 function authorized(header: string | undefined): boolean {
-  if (!REGISTRY_TOKEN || !header) {
+  if (!REGISTRY_TOKEN) {
+    return true;
+  }
+
+  if (!header) {
     return false;
   }
   const expected = Buffer.from(`Bearer ${REGISTRY_TOKEN}`);

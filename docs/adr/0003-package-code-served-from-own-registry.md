@@ -1,6 +1,6 @@
 # Node package code is served to Deno from Piper's own Package Registry
 
-A Node Package published as a Package Archive (zip) keeps its code in a private S3 bucket, one folder per package version. A separate `registry.ts` container serves those files read-only to Deno, behind a bearer token, on the internal network only. A node stores `script: registry:<package>@<version>/<node>/script.js`, and the backend turns that into the registry URL right before calling Deno. Deno `import()`s the URL, and the script's relative imports (`../utils.js`, `../node.js`) resolve against it, so packages keep their multi-file layout.
+A Node Package published as a Package Archive (zip) keeps its code in a private S3 bucket, one folder per package version. A separate `registry.ts` container serves those files read-only to Deno, with optional bearer authentication, on the internal network only. An empty or unset `REGISTRY_TOKEN` disables authentication, allowing internal deployments without a shared token; a nonempty value requires Deno to send the matching token through `DENO_AUTH_TOKENS`. A node stores `script: registry:<package>@<version>/<node>/script.js`, and the backend turns that into the registry URL right before calling Deno. Deno `import()`s the URL, and the script's relative imports (`../utils.js`, `../node.js`) resolve against it, so packages keep their multi-file layout.
 
 We considered two alternatives:
 

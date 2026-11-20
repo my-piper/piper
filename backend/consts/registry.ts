@@ -4,7 +4,7 @@ import env from "core-kit/env";
 export const REGISTRY_URL = (
   env["REGISTRY_URL"] || "http://registry:8085"
 ).replace(/\/+$/, "");
-// Bearer token the registry requires; Deno sends it through DENO_AUTH_TOKENS.
+// Optional bearer token; empty disables auth. Deno sends it through DENO_AUTH_TOKENS.
 export const REGISTRY_TOKEN = env["REGISTRY_TOKEN"] || "";
 export const REGISTRY_PORT = parseInt(env["REGISTRY_PORT"] || "8085");
 // Kept apart from public media: the registry holds private package code.
