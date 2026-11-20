@@ -1,51 +1,75 @@
-@use "src/ui-kit/styles/variables";
-@use "src/ui-kit/styles/mixins";
-
 :host {
   display: block;
+  color: var(--tui-text-primary);
 }
 
-::ng-deep .popover {
-  p {
-    margin: 0;
-  }
-}
-
-.app-container {
-  @include mixins.vertical-stack();
-}
-
-.content {
+.app-container,
+.updates {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 1rem;
 }
 
+.toolbar,
 .version {
   display: flex;
-  justify-content: right;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-h1 {
-  font-size: variables.$font-size-big;
+.toolbar {
+  flex-wrap: wrap;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.icon-column {
+  width: 2.5rem;
+}
+
+.title-column {
+  width: 16rem;
+}
+
+.updates,
+.release-notes {
+  padding: 1rem;
+  max-width: min(32rem, calc(100vw - 4rem));
+  overflow-wrap: anywhere;
 }
 
 .updates {
-  @include mixins.vertical-stack();
+  align-items: flex-start;
 
   p {
-    font-size: variables.$font-size-small;
-
-    &.new {
-      color: green
-    }
-
-    &.errors {
-      color: red;
-    }
+    margin: 0.5rem 0;
   }
 
-  .notes {
-    font-size: variables.$font-size-small;
+  .new {
+    color: var(--tui-text-positive);
   }
+
+  .errors {
+    color: var(--tui-text-negative);
+  }
+}
+
+.error-message {
+  margin-bottom: 1rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

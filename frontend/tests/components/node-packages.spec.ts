@@ -66,14 +66,17 @@ function updatesStatePlain(status: string | null = null): Plain {
 }
 
 /** Renders the admin packages page inside the real app root. Call in `fakeAsync`. */
-function setup() {
+function setup(initialUrl = "/packages") {
   seedAuthorization(userPlain("admin"));
   configureAppTestingModule([
     { path: "", component: OutletStubComponent },
     {
       path: "packages",
       component: NodePackagesComponent,
-      children: [{ path: "add", component: OutletStubComponent }],
+      children: [
+        { path: "add", component: OutletStubComponent },
+        { path: "import", component: OutletStubComponent },
+      ],
     },
   ]);
   const controller = TestBed.inject(HttpTestingController);
@@ -81,7 +84,7 @@ function setup() {
   const router = TestBed.inject(Router);
 
   const fixture = TestBed.createComponent(AppComponent);
-  router.navigateByUrl("/packages");
+  router.navigateByUrl(initialUrl);
   tick();
   fixture.detectChanges();
 
@@ -152,7 +155,7 @@ describe("NodePackagesComponent", () => {
       page.controller.expectOne(STATE_URL).flush(updatesStatePlain());
       page.settle();
 
-      expect(page.element.querySelector("app-informer").textContent).toContain(
+      expect(page.element.querySelector("[role=alert]").textContent).toContain(
         "Forbidden",
       );
       expect(page.rows()).toEqual([]);
@@ -197,8 +200,11 @@ describe("NodePackagesComponent", () => {
       page.load();
 
       const badges = Array.from(
-        page.checkButton().querySelectorAll(".badge"),
-      ).map((b) => [b.className.includes("error"), b.textContent.trim()]);
+        page.checkButton().querySelectorAll("[tuiBadge]"),
+      ).map((b) => [
+        b.className.includes("update-errors"),
+        b.textContent.trim(),
+      ]);
       expect(badges).toEqual([
         [false, "1"],
         [true, "1"],
@@ -238,7 +244,9 @@ describe("NodePackagesComponent", () => {
 
       expect(request.request.method).toBe("POST");
       expect(status).toBe("Checking");
-      expect(page.checkButton().querySelector(".badge").textContent).toBe("1");
+      expect(page.checkButton().querySelector("[tuiBadge]").textContent).toBe(
+        "1",
+      );
       page.controller.verify();
       finish();
     }));
@@ -258,7 +266,7 @@ describe("NodePackagesComponent", () => {
 
       expect(request.request.method).toBe("POST");
       expect(status).toBe("Updating");
-      expect(page.checkButton().querySelector(".badge")).toBeNull();
+      expect(page.checkButton().querySelector("[tuiBadge]")).toBeNull();
       page.controller.verify();
       finish();
     }));
@@ -270,11 +278,13 @@ describe("NodePackagesComponent", () => {
       page.load();
 
       (
-        page.element.querySelector("tbody tr button.circle") as HTMLElement
+        page.element.querySelector(
+          "tbody tr button[tuiIconButton]",
+        ) as HTMLElement
       ).click();
       page.fixture.detectChanges();
       const remove = Array.from(
-        document.querySelectorAll(".context-menu button"),
+        document.querySelectorAll("tui-data-list button"),
       ).find((b) => b.textContent.includes("Delete")) as HTMLElement;
       remove.click();
       const request = page.controller.expectOne(`${PACKAGES_URL}/text_tools`);
@@ -299,7 +309,7 @@ describe("NodePackagesComponent", () => {
       page.settle();
 
       expect(page.rows()).toEqual(["Text tools", "Image tools"]);
-      expect(page.element.querySelector("app-informer").textContent).toContain(
+      expect(page.element.querySelector("[role=alert]").textContent).toContain(
         "Not found",
       );
       finish();
@@ -307,25 +317,39 @@ describe("NodePackagesComponent", () => {
   });
 
   describe("modal", () => {
-    it("shows the modal only while a child route is open", fakeAsync(() => {
-      const page = setup();
-      page.load();
-      const modal = () =>
-        page.element.querySelector("div.modal") as HTMLElement;
-      const hiddenBefore = modal().classList.contains("hidden");
+    it("shows routed content in a dialog and returns to packages on close", async () => {
+      const page = fakeAsync(() => {
+        const page = setup("/packages/add");
+        page.load();
+        finish();
+        return page;
+      })();
+      const modal = () => document.querySelector("tui-dialog");
 
-      page.router.navigateByUrl("/packages/add");
-      tick();
       page.fixture.detectChanges();
-      const hiddenOpen = modal().classList.contains("hidden");
-      page.router.navigateByUrl("/packages");
-      tick();
+      await expect
+        .poll(() => {
+          page.fixture.detectChanges();
+          return modal()?.textContent;
+        })
+        .toContain("outlet");
+      expect(page.component().packages).toHaveLength(2);
+
+      await page.router.navigateByUrl("/packages/import");
       page.fixture.detectChanges();
 
-      expect(hiddenBefore).toBe(true);
-      expect(hiddenOpen).toBe(false);
-      expect(modal().classList).toContain("hidden");
-      finish();
-    }));
+      expect(page.router.url).toBe("/packages/import");
+      expect(modal()?.textContent).toContain("outlet");
+
+      (modal().querySelector("button[tuiButtonX]") as HTMLElement).click();
+      await expect
+        .poll(() => {
+          page.fixture.detectChanges();
+          return page.router.url;
+        })
+        .toBe("/packages");
+      await expect.poll(modal).toBeNull();
+      page.controller.verify();
+    });
   });
 });

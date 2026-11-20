@@ -8,7 +8,20 @@ import { APP_INITIALIZER, NgModule, DOCUMENT } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
-import { provideTaiga, TuiButton, TuiRoot, TuiIcon } from "@taiga-ui/core";
+import {
+  provideTaiga,
+  TuiButton,
+  TuiDataList,
+  TuiDialog,
+  TuiDropdown,
+  TuiIcon,
+  TuiLink,
+  TuiLoader,
+  TuiNotification,
+  TuiRoot,
+} from "@taiga-ui/core";
+import { TuiTable } from "@taiga-ui/addon-table";
+import { TuiBadge, TuiButtonLoading } from "@taiga-ui/kit";
 import { NgHcaptchaModule } from "ng-hcaptcha";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { SocketIoModule } from "ngx-socket-io";
@@ -304,6 +317,15 @@ import { UsersComponent } from "./users/users.component";
     TuiRoot,
     TuiButton,
     TuiIcon,
+    ...TuiDataList,
+    TuiDialog,
+    ...TuiDropdown,
+    TuiLink,
+    TuiLoader,
+    ...TuiNotification,
+    ...TuiTable,
+    TuiBadge,
+    TuiButtonLoading,
   ],
   providers: [
     provideTaiga(),

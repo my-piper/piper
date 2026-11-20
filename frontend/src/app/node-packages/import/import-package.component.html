@@ -1,22 +1,24 @@
-<ng-template #errorTemplate>
-  <div class="informer errors">
+@if (error) {
+  <div tuiNotification appearance="negative" role="alert" class="error-message">
     <p>{{ error.message }}</p>
-    <ul>
-      @for (m of error?.details; track $index) {
-        <li>{{ m }}</li>
-      }
-    </ul>
-    <div class="stack justify-center">
-      <button class="primary" (click)="error = null">Ok</button>
-    </div>
+    @if (error.details?.length) {
+      <ul>
+        @for (message of error.details; track $index) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    }
+    <button
+      tuiButton
+      appearance="flat"
+      size="s"
+      type="button"
+      (click)="error = null"
+      i18n="@@action.ok"
+    >
+      Ok
+    </button>
   </div>
-</ng-template>
-
-@if (!!error) {
-  <app-informer
-    [contentTemplate]="errorTemplate"
-    (ok)="error = null"
-  ></app-informer>
 }
 
 <section class="archive">
@@ -25,15 +27,26 @@
     A zip with package.yaml and a folder per node holding schema.yaml and
     script.js.
   </p>
-  <label class="button primary" [class.busy]="progress.uploading">
-    <input
-      type="file"
-      accept=".zip,application/zip"
-      [disabled]="progress.uploading"
-      (change)="upload($event)"
-    />
-    <span i18n="@@action.choose_zip">Choose zip</span>
-  </label>
+  <input
+    #archiveInput
+    type="file"
+    accept=".zip,application/zip"
+    hidden
+    [disabled]="progress.uploading"
+    (change)="upload($event)"
+  />
+  <button
+    tuiButton
+    size="m"
+    type="button"
+    iconStart="@tui.upload"
+    [loading]="progress.uploading"
+    [disabled]="progress.uploading"
+    (click)="archiveInput.click()"
+    i18n="@@action.choose_zip"
+  >
+    Choose zip
+  </button>
 </section>
 
 <h1 i18n="@@label.put_yaml_or_url">Put YAML or URL</h1>
@@ -50,9 +63,10 @@
   </fieldset>
   <footer>
     <button
-      class="primary"
+      tuiButton
+      size="m"
       type="button"
-      [class.busy]="progress.importing"
+      [loading]="progress.importing"
       [disabled]="form.invalid || progress.importing"
       (click)="import()"
       i18n="@@action.import"

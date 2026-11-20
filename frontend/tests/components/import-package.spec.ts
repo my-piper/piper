@@ -98,7 +98,7 @@ describe("ImportPackageComponent", () => {
     page.settle();
 
     expect(page.router.url).toBe("/packages/import");
-    const informer = page.element.querySelector("app-informer");
+    const informer = page.element.querySelector("[role=alert]");
     expect(informer.textContent).toContain(
       "Archive imports files outside of it",
     );

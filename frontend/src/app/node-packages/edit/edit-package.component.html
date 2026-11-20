@@ -1,3 +1,19 @@
+@if (error) {
+  <div tuiNotification appearance="negative" role="alert" class="error-message">
+    <p>{{ error.message }}</p>
+    <button
+      tuiButton
+      appearance="flat"
+      size="s"
+      type="button"
+      (click)="error = null"
+      i18n="@@action.ok"
+    >
+      Ok
+    </button>
+  </div>
+}
+
 @if (!!nodePackage) {
   <h1>{{ nodePackage.title | i18n }}</h1>
 }
@@ -12,8 +28,10 @@
   </fieldset>
   <footer>
     <button
-      class="primary"
-      [class.busy]="progress.saving"
+      tuiButton
+      size="m"
+      type="button"
+      [loading]="progress.saving"
       [disabled]="form.invalid || progress.saving"
       (click)="save()"
       i18n="@@action.save"

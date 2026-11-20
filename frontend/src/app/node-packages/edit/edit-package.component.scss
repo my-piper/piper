@@ -1,20 +1,14 @@
-@use "src/ui-kit/styles/variables";
-@use "src/ui-kit/styles/mixins";
+:host,
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
 :host {
-  display: block;
   width: 100%;
-  @include mixins.vertical-stack();
-
-  @include mixins.wider-tablet() {
-    width: 500px;
-  }
 }
 
 h1 {
   margin: 0;
-}
-
-form {
-  @include mixins.vertical-stack();
 }

@@ -1,71 +1,67 @@
-<div class="modal" [class.hidden]="!modal">
-  <header>
-    <a
-      class="primary with-icon"
-      [hotKey]="'escape'"
-      (hotKeyPressed)="back()"
-      [routerLink]="['./']"
-    >
-      <app-icon class="icon right" icon="close"></app-icon>
-      <span class="badge">ESC</span>
-    </a>
-  </header>
-  <div class="content filled">
-    <router-outlet
-      (activate)="modal = $event"
-      (deactivate)="modal = null"
-    ></router-outlet>
-  </div>
-</div>
+<ng-template
+  [tuiDialog]="dialogOpen"
+  [tuiDialogOptions]="dialogOptions"
+  (tuiDialogChange)="!$event && back()"
+>
+  <router-outlet (activate)="activate($event)"></router-outlet>
+</ng-template>
 
-@if (!!error) {
-  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+@if (error) {
+  <div tuiNotification appearance="negative" role="alert" class="error-message">
+    <span>{{ error.message }}</span>
+    <button
+      tuiButton
+      appearance="flat"
+      size="s"
+      type="button"
+      (click)="error = null"
+      i18n="@@action.ok"
+    >
+      Ok
+    </button>
+  </div>
 }
 
 <ng-template #readmePopover>
   <div class="updates">
-    <header>
-      @if ((state?.updates || [] | packagesForUpdate) > 0) {
-        <button
-          class="primary"
-          [disabled]="progress.updating"
-          [class.busy]="progress.updating"
-          (click)="update()"
-          i18n="@@action.update"
-        >
-          Update
-        </button>
-      }
-    </header>
+    @if ((state?.updates || [] | packagesForUpdate) > 0) {
+      <button
+        tuiButton
+        size="s"
+        type="button"
+        [disabled]="progress.updating"
+        [loading]="progress.updating"
+        (click)="update()"
+        i18n="@@action.update"
+      >
+        Update
+      </button>
+    }
     @if (state?.updates.length) {
-      <ul>
-        @for (update of state.updates; track update.current._id) {
-          <li>
-            {{ update.current.title | i18n }}
-            @if (update.errors; as errors) {
-              <p class="errors">
-                {{ errors }}
+      @for (update of state.updates; track update.current._id) {
+        <section>
+          <strong>{{ update.current.title | i18n }}</strong>
+          @if (update.errors; as errors) {
+            <p class="errors">{{ errors }}</p>
+          } @else {
+            @if (update.updated; as updated) {
+              <p class="new" i18n="@@message.new_version">
+                New version {{ updated.version }}:
               </p>
-            } @else {
-              @if (update.updated; as updated) {
-                <p class="new" i18n="@@message.new_version">
-                  New version {{ updated.version }}:
-                </p>
-                @if (updated.readme; as readme) {
-                  <div
-                    class="notes"
-                    [innerHTML]="readme | markdown | async"
-                  ></div>
-                }
-              } @else {
-                <p i18n="@@message.no_updates_for_package">
-                  Package has no updates.
-                </p>
+              @if (updated.readme; as readme) {
+                <div
+                  class="notes"
+                  [innerHTML]="readme | markdown | async"
+                ></div>
               }
+            } @else {
+              <p i18n="@@message.no_updates_for_package">
+                Package has no updates.
+              </p>
             }
-          </li>
-        }
-      </ul>
+          }
+        </section>
+      }
     } @else {
       <p i18n="@@label.check_updates">Please, check updates.</p>
     }
@@ -73,139 +69,195 @@
 </ng-template>
 
 <div class="app-container">
-  <header class="stack">
-    <a class="primary with-icon" [routerLink]="['add']">
-      <app-icon class="icon left" icon="add"></app-icon>
-      <ng-container i18n="@@action.create">Create</ng-container>
-    </a>
-    <a class="primary" [routerLink]="['import']" i18n="@@link.import">
+  <header class="toolbar">
+    <a
+      tuiButton
+      iconStart="@tui.plus"
+      size="m"
+      [routerLink]="['add']"
+      i18n="@@action.create"
+      >Create</a
+    >
+    <a
+      tuiButton
+      appearance="secondary"
+      size="m"
+      [routerLink]="['import']"
+      i18n="@@link.import"
+    >
       Import
     </a>
 
     @switch (state?.status) {
       @case ("checking") {
-        <button class="primary busy" disabled i18n="@@label.checking">
+        <button
+          tuiButton
+          appearance="secondary"
+          size="m"
+          type="button"
+          [loading]="true"
+          disabled
+          i18n="@@label.checking"
+        >
           Checking
         </button>
       }
       @case ("updating") {
-        <button class="primary busy" disabled i18n="@@label.updating">
+        <button
+          tuiButton
+          appearance="secondary"
+          size="m"
+          type="button"
+          [loading]="true"
+          disabled
+          i18n="@@label.updating"
+        >
           Updating
         </button>
       }
       @default {
         <button
-          class="primary"
+          tuiButton
+          appearance="secondary"
+          size="m"
+          type="button"
           [disabled]="progress.loading.state || progress.checking"
-          [class.busy]="progress.loading.state || progress.checking"
-          [appPopover]="{ content: readmePopover }"
-          (attached)="references.popover = $event"
+          [loading]="progress.loading.state || progress.checking"
+          [tuiDropdown]="readmePopover"
+          tuiDropdownHover
+          [(tuiDropdownOpen)]="updatesOpen"
           (click)="checkUpdates()"
         >
-          <div class="stack align-center">
-            <ng-container i18n="@@action.check_updates">
-              Check updates
-            </ng-container>
-            @if (state?.updates || [] | packagesForUpdate; as updates) {
-              <span class="badge ghost">{{ updates }}</span>
-            }
-            @if (state?.updates || [] | packagesUpdateErrors; as errors) {
-              <span class="badge error">{{ errors }}</span>
-            }
-          </div>
+          <ng-container i18n="@@action.check_updates"
+            >Check updates</ng-container
+          >
+          @if (state?.updates || [] | packagesForUpdate; as updates) {
+            <span tuiBadge size="s" appearance="primary">{{ updates }}</span>
+          }
+          @if (state?.updates || [] | packagesUpdateErrors; as errors) {
+            <span
+              tuiBadge
+              size="s"
+              appearance="negative"
+              class="update-errors"
+              >{{ errors }}</span
+            >
+          }
         </button>
       }
     }
   </header>
 
-  <table class="default">
-    <thead>
-      <th width="24px"></th>
-      <th width="256px" i18n="@@label.title">Title</th>
-      <th width="24px"></th>
-      <th width="64px" i18n="@@label.version">Version</th>
-      <th i18n="@@label.description">Description</th>
-    </thead>
-    <tbody>
-      @for (p of packages; track p._id; let i = $index) {
+  <div class="table-container">
+    <table tuiTable size="m">
+      <thead>
         <tr>
-          <td>
-            <ng-template #actionsTemplate>
-              <ul class="context-menu">
-                <li>
+          <th tuiTh class="icon-column">
+            <span class="visually-hidden" i18n="@@label.actions">Actions</span>
+          </th>
+          <th tuiTh class="title-column" i18n="@@label.title">Title</th>
+          <th tuiTh class="icon-column">
+            <span class="visually-hidden" i18n="@@label.visibility"
+              >Visibility</span
+            >
+          </th>
+          <th tuiTh i18n="@@label.version">Version</th>
+          <th tuiTh i18n="@@label.description">Description</th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (p of packages; track p._id; let i = $index) {
+          <tr>
+            <td tuiTd>
+              <ng-template #actionsTemplate>
+                <tui-data-list>
                   <a
+                    tuiOption
                     [routerLink]="[p._id]"
-                    (click)="references.popover?.hide()"
+                    (click)="actionsOpen = null"
                   >
-                    <app-icon
-                      class="icon left"
-                      icon="edit"
-                      [size]="18"
-                    ></app-icon>
+                    <tui-icon icon="@tui.pencil"></tui-icon>
                     <ng-container i18n="@@action.edit">Edit</ng-container>
                   </a>
-                </li>
-                <li>
-                  <button (click)="remove(i, p)">
-                    <app-icon
-                      class="icon left"
-                      icon="delete"
-                      [size]="18"
-                    ></app-icon>
+                  <button
+                    tuiOption
+                    type="button"
+                    [disabled]="progress.deleting"
+                    (click)="remove(i, p)"
+                  >
+                    <tui-icon icon="@tui.trash-2"></tui-icon>
                     <ng-container i18n="@@action.delete">Delete</ng-container>
                   </button>
-                </li>
-              </ul>
-            </ng-template>
-            <button
-              class="circle"
-              [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-              (attached)="references.popover = $event"
-            >
-              <app-icon class="icon" icon="menu"></app-icon>
-            </button>
-          </td>
-          <td>
-            <a class="default" [routerLink]="[p._id, 'export']">
-              {{ p.title | i18n }}
-            </a>
-          </td>
-          <td i18n-title="@@label.visibility" title="Visibility">
-            @if (p.public) {
-              <a
-                class="circle"
-                target="_blank"
-                href="/api/node-packages/{{ p._id }}/export"
-              >
-                <app-icon class="icon" icon="share" size="18"></app-icon>
-              </a>
-            }
-          </td>
-          <td class="version">
-            <ng-template #releaseNotesPopover>
-              <div [innerHTML]="p.readme | markdown | async"></div>
-            </ng-template>
-            <div class="stack small align-center">
-              <span>{{ p.version }}</span>
+                </tui-data-list>
+              </ng-template>
               <button
-                [appPopover]="{ content: releaseNotesPopover }"
-                class="circle"
-                [disabled]="!p.readme"
-              >
-                <app-icon class="icon" icon="info" size="18"></app-icon>
-              </button>
-            </div>
-          </td>
-          <td>
-            {{ p.description }}
-          </td>
-        </tr>
-      }
-      @if (progress.loading.packages) {
-        <tr class="loading">
-          <td colspan="4"></td>
-        </tr>
-      }
-    </tbody>
-  </table>
+                tuiIconButton
+                appearance="flat"
+                size="s"
+                type="button"
+                iconStart="@tui.ellipsis-vertical"
+                aria-label="Actions"
+                i18n-aria-label="@@label.actions"
+                [tuiDropdown]="actionsTemplate"
+                [tuiDropdownOpen]="actionsOpen === p._id"
+                (tuiDropdownOpenChange)="actionsOpen = $event ? p._id : null"
+              ></button>
+            </td>
+            <td tuiTd>
+              <a tuiLink [routerLink]="[p._id, 'export']">{{
+                p.title | i18n
+              }}</a>
+            </td>
+            <td tuiTd>
+              @if (p.public) {
+                <a
+                  tuiIconButton
+                  appearance="flat"
+                  size="s"
+                  iconStart="@tui.share-2"
+                  aria-label="Visibility"
+                  i18n-aria-label="@@label.visibility"
+                  target="_blank"
+                  rel="noopener"
+                  href="/api/node-packages/{{ p._id }}/export"
+                ></a>
+              }
+            </td>
+            <td tuiTd>
+              <ng-template #releaseNotesPopover>
+                <div
+                  class="release-notes"
+                  [innerHTML]="p.readme | markdown | async"
+                ></div>
+              </ng-template>
+              <div class="version">
+                <span>{{ p.version }}</span>
+                <button
+                  tuiIconButton
+                  appearance="flat"
+                  size="s"
+                  type="button"
+                  iconStart="@tui.info"
+                  aria-label="Release notes"
+                  i18n-aria-label="@@label.release_notes"
+                  [tuiDropdown]="releaseNotesPopover"
+                  tuiDropdownHover
+                  tuiDropdownAuto
+                  [disabled]="!p.readme"
+                ></button>
+              </div>
+            </td>
+            <td tuiTd>{{ p.description }}</td>
+          </tr>
+        }
+        @if (progress.loading.packages) {
+          <tr class="loading">
+            <td tuiTd colspan="5">
+              <tui-loader [loading]="true"></tui-loader>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 </div>

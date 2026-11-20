@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "skills": {
+    "taiga-ui": {
+      "source": "taiga-family/skills",
+      "commit": "81dfac30d096489a16b684198d177d41eb173b10",
+      "sourceType": "github",
+      "skillPath": "taiga-ui/SKILL.md",
+      "computedHash": "0a966f121794c0d50e504491d48803b522826b31117065017cb111e004665a31"
+    },
+    "taiga-ui-migration": {
+      "source": "taiga-family/skills",
+      "commit": "81dfac30d096489a16b684198d177d41eb173b10",
+      "sourceType": "github",
+      "skillPath": "taiga-ui-migration/SKILL.md",
+      "computedHash": "c3a7ca3bdc175951b28e495abab22f15cfb540bd52864ea51051b996a871d427"
+    },
+    "taiga-ui-setup": {
+      "source": "taiga-family/skills",
+      "commit": "81dfac30d096489a16b684198d177d41eb173b10",
+      "sourceType": "github",
+      "skillPath": "taiga-ui-setup/SKILL.md",
+      "computedHash": "072cabe9fcc681d6f1960d4917d96a3b95f48e6c8bbc60a591aae36ad3d81f3e"
+    }
+  }
+}

@@ -1,19 +1,21 @@
 import {
+  afterNextRender,
+  signal,
   ChangeDetectorRef,
   Component,
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
-import { delay, finalize, map, merge, takeUntil } from "rxjs";
+import { EMPTY, delay, finalize, map, merge, takeUntil } from "rxjs";
 import { PackageUpdatedEvent } from "src/models/events";
 import { NodePackage, NodePackageUpdatesState } from "src/models/node-package";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
-import { UI, UI_DELAY } from "src/consts/ui";
+import { UI_DELAY } from "src/consts/ui";
 import { UntilDestroyed } from "src/utils/until-destroyed";
-import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { EditPackageComponent } from "./edit/edit-package.component";
 import { ImportPackageComponent } from "./import/import-package.component";
 
@@ -23,12 +25,13 @@ import { ImportPackageComponent } from "./import/import-package.component";
   styleUrls: ["./node-packages.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
+  providers: [
+    // Keep the child router context and let the route control the dialog lifetime.
+    TuiDialogService,
+    { provide: TUI_DIALOGS_CLOSE, useValue: EMPTY },
+  ],
 })
 export class NodePackagesComponent extends UntilDestroyed {
-  ui = UI;
-
-  private _modal!: EditPackageComponent | ImportPackageComponent;
-
   error!: Error;
   progress = {
     loading: { packages: false, state: false },
@@ -38,10 +41,21 @@ export class NodePackagesComponent extends UntilDestroyed {
   };
 
   state: NodePackageUpdatesState;
-  references: { popover: PopoverComponent } = { popover: null };
+  readonly dialogOptions = {
+    size: "l" as const,
+    label: $localize`:@@link.node_packages:Node packages`,
+  };
 
-  set modal(modal: EditPackageComponent | ImportPackageComponent) {
-    this._modal = modal;
+  private readonly dialogReady = signal(false);
+
+  updatesOpen = false;
+  actionsOpen: string | null = null;
+
+  get dialogOpen() {
+    return this.dialogReady() && !!this.route.firstChild;
+  }
+
+  activate(modal: unknown) {
     if (modal) {
       if (modal instanceof EditPackageComponent) {
         modal.added.subscribe((nodePackage) =>
@@ -66,10 +80,6 @@ export class NodePackagesComponent extends UntilDestroyed {
     }
   }
 
-  get modal() {
-    return this._modal;
-  }
-
   packages: NodePackage[] = [];
 
   subscriptions: { updatingPackages: () => void } = {
@@ -84,6 +94,8 @@ export class NodePackagesComponent extends UntilDestroyed {
     private cd: ChangeDetectorRef,
   ) {
     super();
+    // The root popup host must exist before opening a dialog on direct route entry.
+    afterNextRender(() => this.dialogReady.set(true));
   }
 
   ngOnInit() {
@@ -167,7 +179,7 @@ export class NodePackagesComponent extends UntilDestroyed {
   }
 
   checkUpdates() {
-    this.references.popover?.hide();
+    this.updatesOpen = false;
     this.progress.checking = true;
     this.cd.detectChanges();
 
@@ -218,7 +230,7 @@ export class NodePackagesComponent extends UntilDestroyed {
   }
 
   remove(index: number, { _id }: NodePackage) {
-    this.references?.popover?.hide();
+    this.actionsOpen = null;
     this.progress.deleting = true;
     this.cd.detectChanges();
 
