@@ -13,6 +13,7 @@ import {
 } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter, Router, Routes } from "@angular/router";
+import { EditorComponent, MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
@@ -23,6 +24,7 @@ import { ProjectManager } from "src/services/project.manager";
 import { projectA } from "../fixtures/models";
 import { userPlain, UserKind } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "./config";
+import { MonacoEditorStubComponent } from "./editor-stubs";
 import { provideSocketDouble, SocketDouble } from "./socket";
 
 /** Placeholder for routed drawers; the editor's own template stays real. */
@@ -38,9 +40,18 @@ export const EDITOR_URL = "/project";
 /**
  * TestBed with the real AppModule declarations (all app/ui-kit components,
  * pipes and directives) and test boundaries: HttpTestingController,
- * SocketDouble, test runtime config and the given routes.
+ * SocketDouble, test runtime config and the given routes. `<ngx-monaco-editor>`
+ * renders MonacoEditorStubComponent: real Monaco starts web workers that fail
+ * in the test runner after the spec ends.
  */
 export function configureAppTestingModule(routes: Routes = []) {
+  TestBed.overrideModule(MonacoEditorModule, {
+    remove: { imports: [EditorComponent], exports: [EditorComponent] },
+    add: {
+      imports: [MonacoEditorStubComponent],
+      exports: [MonacoEditorStubComponent],
+    },
+  });
   TestBed.configureTestingModule({
     imports: [AppModule],
     providers: [

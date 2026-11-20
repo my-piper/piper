@@ -28,7 +28,7 @@ Tests:
 
 - Backend fast tests (`npm test`) need no Docker; integration tests (`npm run test:integration`) start disposable MongoDB/Redis containers, real BullMQ workers and Deno smoke tests, and need Docker Compose v2. Rules: `backend/tests/README.md` and `backend/tests/integration/README.md`.
 - Frontend fast suites (`tests/unit`, `tests/components`) run in Vitest browser mode on Playwright's Chromium; the Playwright workflows (`tests/browser`) run against fixture HTTP/Socket.IO peers, not the full stack. Both need `npx playwright install chromium`. Running, focusing and rules: `frontend/tests/README.md`.
-- `ng build` skips strict template type checks; CI runs them separately (`typecheck:templates`), as well as `i18n:check` for a stale `en.json`.
+- `ng build` skips strict template type checks; CI runs them separately (`typecheck:templates`). The pre-commit hook and CI run `i18n:check` for a stale `en.json`.
 - Tests separate preparation, action and assertions with blank lines, keep model transformations real and use explicit factories for infrastructure mocks.
 
 VS Code: the "-- all --" launch compound starts server, worker, periodic, sockets, cli and frontend together.

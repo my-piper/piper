@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Blocks commits whose package.json / package-lock.json `npm ci` would reject,
-# or that leave install scripts unapproved. Enabled by `make install`
+# that leave install scripts unapproved, or whose frontend sources leave
+# src/locale/en.json stale. Enabled by `make install`
 # (git config core.hooksPath .githooks). Checks the working tree of each
 # package whose manifests are staged; skip once with `git commit --no-verify`.
 set -uo pipefail
@@ -16,5 +17,10 @@ for pkg in backend frontend; do
     "$root/frontend/scripts/check-denied-deps.mjs" || status=1
   fi
 done
+
+# Templates and components carry i18n ids: en.json must match what they extract.
+if ! git diff --cached --quiet -- 'frontend/src/*.html' 'frontend/src/*.ts'; then
+  (cd "$root/frontend" && scripts/check-i18n.sh) || status=1
+fi
 
 exit $status

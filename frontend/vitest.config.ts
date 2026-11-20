@@ -74,6 +74,8 @@ export default defineConfig({
       provider: "istanbul",
       reportsDirectory: "coverage",
       reporter: ["html", "text-summary", "lcovonly", "json-summary"],
+      // Filters the report only (the builder sets excludeAfterRemap); what gets
+      // instrumented is set by `coverageInclude` in angular.json.
       exclude: [
         "src/ui-kit/**",
         "src/schemas/**",
