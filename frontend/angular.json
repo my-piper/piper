@@ -200,6 +200,7 @@
             "runnerConfig": "vitest.config.ts",
             "browsers": ["ChromiumHeadless"],
             "setupFiles": ["tests/setup.ts"],
+            "coverageInclude": ["src/**/*.ts"],
             "include": [
               "../tests/unit/**/*.spec.ts",
               "../tests/components/**/*.spec.ts"

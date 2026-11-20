@@ -23,7 +23,7 @@ services:
       - redis-data:/data
 
   deno:
-    image: ghcr.io/my-piper/piper-deno:sha-aaa0480
+    image: ghcr.io/my-piper/piper-deno:sha-31bd0a7
     ports:
       - "0.0.0.0:9090:80"
     environment:
