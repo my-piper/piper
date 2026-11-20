@@ -72,6 +72,37 @@ down:
 stop:
 	docker compose ${COMPOSE_ARGS} stop
 
+# -- local development --
+# Start the infra first with `make up` in another terminal.
+# Each target runs in the foreground; Ctrl-C stops it.
+.PHONY: dev run-backend run-server run-worker run-periodic run-sockets run-oauth run-frontend
+
+dev:
+	$(MAKE) -j2 run-backend run-frontend
+
+run-backend:
+	cd backend && npx --no-install run-p --print-label server worker periodic sockets
+
+run-server:
+	${BACKEND} run server
+
+# Optional subset of workers (keys of the Workers map in backend/worker.ts):
+#   make run-worker WORKERS="process_rapid_nodes process_regular_nodes"
+run-worker:
+	${BACKEND} run worker$(if $(WORKERS), -- -w $(WORKERS))
+
+run-periodic:
+	${BACKEND} run periodic
+
+run-sockets:
+	${BACKEND} run sockets
+
+run-oauth:
+	${BACKEND} run oauth
+
+run-frontend:
+	${FRONTEND} start
+
 # -- clickhouse --
 clickhouse-migrate-add:
 	@read -p "enter migration name (e.g. add_new_column): " migration_name; \

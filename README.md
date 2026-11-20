@@ -123,31 +123,24 @@ Select and start "-- all --" debug configuration.
 
 #### From terminal
 
-##### Run socket server
+Keep `make up` running in one terminal, then start everything else in another:
 
 ```shell
-cd backend
-npm run sockets
-npm run server
-./worker.sh -i
+make dev
 ```
 
-##### Run backend
+`make dev` runs the backend processes (server, worker, periodic, sockets) and the frontend dev server in the foreground. Ctrl-C stops them all.
+
+To run components one at a time, in separate terminals:
 
 ```shell
-cd backend && npm run server
-```
-
-##### Run workers
-
-```shell
-cd backend && ./worker.sh
-```
-
-##### Run frontend
-
-```shell
-cd frontend && npm start
+make run-backend    # server, worker, periodic and sockets, with labeled logs
+make run-server
+make run-worker     # all workers; a subset: make run-worker WORKERS="process_rapid_nodes"
+make run-periodic
+make run-sockets
+make run-oauth      # optional, only for OAuth sign-in
+make run-frontend
 ```
 
 #### After start services
