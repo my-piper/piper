@@ -46,6 +46,10 @@ oauth:
 metrics:
 	npm run metrics
 
+.PHONY: registry
+registry:
+	npm run registry
+
 .PHONY: sockets
 sockets:
 	npm run sockets

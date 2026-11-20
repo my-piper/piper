@@ -61,6 +61,7 @@ One codebase, several entrypoints. Each runs with `node --import=tsx <entry>.ts`
 | `periodic.ts` | In-process scheduler (bottleneck): checks node package updates, deletes launches and artefacts older than `MAX_STORE_LAUNCH_DAYS`. |
 | `oauth.ts` | Google / Yandex OAuth (passport), separate express app. |
 | `metrics.ts` | Prometheus `/metrics` endpoint exporting BullMQ queue metrics. |
+| `registry.ts` | Package Registry: serves uploaded node package code read-only from a private S3 bucket to Deno, behind a bearer token (`REGISTRY_TOKEN`). Internal network only. |
 | `chrome.ts` | Puppeteer-controlled Chrome service (used by browser-automation nodes). |
 | `cli.ts` | commander CLI: users, environment, modules, workers, schemas, migrations, debug. |
 

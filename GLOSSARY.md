@@ -19,8 +19,16 @@ A Node Definition placed in a Pipeline, with its own inputs and position.
 _Avoid_: Step, block, task
 
 **Node Package**:
-A versioned, published collection of Node Definitions that users add to their Pipelines.
+A versioned, published collection of Node Definitions that users add to their Pipelines. Once a version is published, its code never changes; a fix is a new version.
 _Avoid_: Plugin, library, module
+
+**Package Archive**:
+A zip that an admin uploads to publish one version of a Node Package. It carries the package's description, every Node Definition and all the code they run, including its own copy of the shared node helpers.
+_Avoid_: Bundle, plugin file
+
+**Package Registry**:
+Where Piper keeps the code of every published Node Package version, and where Nodes load it from when they run.
+_Avoid_: CDN, repository, package store
 
 **Pipeline**:
 A graph of Nodes joined by Flows. It has no identity of its own and always belongs to a Project, a Deploy or a Launch.

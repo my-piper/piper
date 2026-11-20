@@ -3,6 +3,7 @@ import { createLogger } from "core-kit/packages/logger";
 import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
 import { ExecuteRequest, ExecutionError, ExecutionResult } from "./classes";
 import { DENO_URL } from "consts/deno";
+import { resolveScript } from "packages/registry/reference";
 
 const logger = createLogger("deno");
 
@@ -20,7 +21,7 @@ export async function execute(
 ): Promise<ExecutionResult> {
   logger.debug("Running script");
   const request = mapTo(
-    { script, fn, payload, timeout, isolation },
+    { script: resolveScript(script), fn, payload, timeout, isolation },
     ExecuteRequest
   );
   try {

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Stops the components `make dev` starts (server, worker, periodic, sockets,
-# frontend) if they are already running, however they were started.
+# registry, frontend) if they are already running, however they were started.
 #   - backend processes of this checkout are found by command line
 #     (node --import=tsx <name>.ts) and working directory (backend/)
 #   - anything listening on the server, sockets or frontend port is stopped too
@@ -22,6 +22,7 @@ env_port() {
 
 server_port="$(env_port SERVER_PORT 8081)"
 sockets_port="$(env_port SOCKETS_PORT 8082)"
+registry_port="$(env_port REGISTRY_PORT 8085)"
 frontend_port=4200
 
 process_cwd() {
@@ -31,7 +32,7 @@ process_cwd() {
 # Prints "<pid> <label>" for every running component.
 find_components() {
   local name pid
-  for name in server worker periodic sockets; do
+  for name in server worker periodic sockets registry; do
     for pid in $(pgrep -f "node .*--import=tsx.* ${name}\.ts" 2>/dev/null || true); do
       # The node check skips shells whose command text merely mentions the script.
       if [[ "$(ps -o comm= -p "$pid" 2>/dev/null)" == *node && "$(process_cwd "$pid")" == "$backend_dir" ]]; then
@@ -40,7 +41,7 @@ find_components() {
     done
   done
   local entry port label
-  for entry in "$server_port:server" "$sockets_port:sockets" "$frontend_port:frontend"; do
+  for entry in "$server_port:server" "$sockets_port:sockets" "$registry_port:registry" "$frontend_port:frontend"; do
     port="${entry%%:*}"
     label="${entry#*:}"
     for pid in $(lsof -ti "tcp:$port" -sTCP:LISTEN 2>/dev/null || true); do
