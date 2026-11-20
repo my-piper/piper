@@ -6,6 +6,7 @@ import { posix } from "node:path";
 import { NodePackage } from "models/node-package";
 import { registryScript } from "packages/registry/reference";
 import * as YAML from "yaml";
+import { checkScriptUrl, PINNED, REMOTE_HOSTS } from "./script-url";
 
 export const MANIFEST = "package.yaml";
 const SCHEMA = "schema.yaml";
@@ -126,16 +127,28 @@ export function readArchive(data: Buffer): PackageArchive {
     if (file !== SCHEMA || rest.length > 0) {
       continue;
     }
-    if (!files.has(`${folder}/${SCRIPT}`)) {
-      throw new DataError(`Node has no ${SCRIPT}`, [folder]);
+    const schema = parseYaml(path, content) as Record<string, unknown>;
+    if (Object.hasOwn(schema, "script")) {
+      throw new DataError(
+        "schema.yaml cannot contain script; use scriptUrl or script.js",
+        [folder]
+      );
     }
-    const node = toInstance(parseYaml(path, content), Node);
+    const node = toInstance(schema, Node);
     node._id = folder;
-    node.script = registryScript(
-      nodePackage._id,
-      nodePackage.version,
-      `${folder}/${SCRIPT}`
-    );
+    if (schema.scriptUrl !== undefined) {
+      checkScriptUrl(schema.scriptUrl);
+      node.script = schema.scriptUrl;
+    } else {
+      if (!files.has(`${folder}/${SCRIPT}`)) {
+        throw new DataError(`Node has no ${SCRIPT}`, [folder]);
+      }
+      node.script = registryScript(
+        nodePackage._id,
+        nodePackage.version,
+        `${folder}/${SCRIPT}`
+      );
+    }
     const app = files.get(`${folder}/${APP}`);
     if (app) {
       node.app = app.toString("utf-8");
@@ -180,19 +193,6 @@ function findImports(files: Map<string, Buffer>): Import[] {
 function describeImport({ file, line, specifier }: Import) {
   return `${file}:${line}: ${specifier}`;
 }
-
-// Hosts Deno imports from without extra permissions (its --allow-import
-// default); the registry host is added to them by the Deno service.
-const REMOTE_HOSTS = new Set([
-  "deno.land",
-  "jsr.io",
-  "esm.sh",
-  "cdn.jsdelivr.net",
-  "raw.githubusercontent.com",
-  "gist.githubusercontent.com",
-]);
-// `name@1.2.3`, `@v2.0.4` or a full commit hash pins the code behind a URL.
-const PINNED = /@v?\d[^/]*|\/[0-9a-f]{40}(\/|$)/;
 
 type ImportKind = "inside" | "outside" | "missing" | "unpinned" | "unloadable";
 

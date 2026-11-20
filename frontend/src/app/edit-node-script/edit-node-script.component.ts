@@ -3,11 +3,24 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
-import { delay, finalize, map } from "rxjs";
+import {
+  catchError,
+  delay,
+  EMPTY,
+  finalize,
+  map,
+  of,
+  skip,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 import { NodeExecution } from "src/enums/node-execution";
 import { AppError } from "src/models/errors";
 import { Node } from "src/models/node";
@@ -27,7 +40,10 @@ import { toInstance, toPlain } from "src/utils/models";
 export class EditNodeScriptComponent implements OnInit {
   nodeExecution = NodeExecution;
 
-  progress = { saving: false, formatting: false };
+  private destroyRef = inject(DestroyRef);
+  private loadedSource = "";
+  scriptLoaded = false;
+  progress = { loading: false, saving: false, formatting: false };
   error!: AppError;
 
   project!: Project;
@@ -48,21 +64,45 @@ export class EditNodeScriptComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project, node: { id, node } }) => {
-      [this.project, this.id, this.node] = [project, id, node];
-      this.build();
-    });
-  }
-
-  private build() {
-    const { execution, script } = this.node;
-    this.form.patchValue({
-      execution,
-      script,
-    });
+    this.route.data
+      .pipe(
+        switchMap(({ project, node: { id, node } }) => {
+          [this.project, this.id, this.node] = [project, id, node];
+          this.scriptLoaded = false;
+          this.error = null;
+          this.form.patchValue({ execution: node.execution, script: "" });
+          const script = node.script ?? "";
+          if (!/^(registry:|https?:\/\/)/.test(script)) {
+            return of(script);
+          }
+          this.progress.loading = true;
+          this.form.disable();
+          return this.http.post("nodes/script-source", { script }).pipe(
+            map((response) => (response as { source: string }).source),
+            catchError((err) => {
+              this.error = err;
+              return EMPTY;
+            }),
+            finalize(() => {
+              this.progress.loading = false;
+              if (!this.destroyRef.destroyed) this.cd.detectChanges();
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((source) => {
+        this.loadedSource = source;
+        this.form.patchValue({ script: source });
+        this.form.enable();
+        this.scriptLoaded = true;
+        this.cd.detectChanges();
+      });
   }
 
   format() {
+    if (!this.scriptLoaded || this.progress.formatting || this.progress.saving)
+      return;
     this.progress.formatting = true;
     this.cd.detectChanges();
 
@@ -74,9 +114,11 @@ export class EditNodeScriptComponent implements OnInit {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.formatting = false;
-          this.cd.detectChanges();
+          if (!this.destroyRef.destroyed) this.cd.detectChanges();
         }),
         map((script) => script as string),
+        takeUntil(this.route.data.pipe(skip(1))),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (script) => {
@@ -88,10 +130,19 @@ export class EditNodeScriptComponent implements OnInit {
   }
 
   save() {
+    if (!this.scriptLoaded || this.progress.saving || this.progress.formatting)
+      return;
     this.progress.saving = true;
     this.cd.detectChanges();
 
-    const { execution, script } = this.form.getRawValue();
+    const { execution, script: source } = this.form.getRawValue();
+    const target = this.node;
+    const changed = source !== this.loadedSource;
+    const script = changed ? source : target.script;
+    const base =
+      changed && /^(registry:|https?:\/\/)/.test(target.script)
+        ? target.script
+        : undefined;
 
     const node = toInstance(
       {
@@ -102,18 +153,24 @@ export class EditNodeScriptComponent implements OnInit {
     );
 
     this.http
-      .post("nodes/get-sign", toPlain(node), { responseType: "text" })
+      .post("nodes/prepare-script", { node: toPlain(node), base })
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
           this.progress.saving = false;
-          this.cd.detectChanges();
+          if (!this.destroyRef.destroyed) this.cd.detectChanges();
         }),
-        map((sign) => sign as string),
+        map((result) => result as { script: string; sign: string }),
+        takeUntil(this.route.data.pipe(skip(1))),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (sign) => {
-          assign(this.node, { execution, script, sign });
+        next: ({ script, sign }) => {
+          assign(target, { execution, script, sign });
+          if (changed && this.node === target) {
+            this.loadedSource = script;
+            this.form.patchValue({ script });
+          }
           this.projectManager.markDirty();
         },
         error: (err) => (this.error = err),

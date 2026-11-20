@@ -14,4 +14,4 @@ The registry only stays correct if a published version never changes. Deno cache
 - `piper-deno` must allow imports from the registry host (`ALLOW_IMPORT_HOSTS`). `--allow-import=<hosts>` replaces Deno's default host list, so the service repeats that list itself and runs workers with explicit permissions (`--unstable-worker-options`).
 - Each archive carries its own copy of the shared node helpers (`node.js`). Every import must stay inside the archive or point at a pinned remote module on a host Deno allows by default. The catalog needs a pack step that copies the helpers in and rewrites their import path.
 - A node's `app` (HTML for the browser) is stored inline, because browsers can't reach the registry.
-- Moving the registry, or running it locally, needs no data migration: stored scripts carry no host.
+- Moving the registry, or running it locally, needs no data migration for registry references: they carry no host. Pipeline-local Script Overrides resolve their relative imports to absolute URLs when saved, so those URLs need updating if the registry host moves. See [Node Package scripts](../node-package-scripts.md).

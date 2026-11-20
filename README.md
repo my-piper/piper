@@ -105,6 +105,19 @@ make up
 cp backend/.env.template backend/.env
 ```
 
+Local object storage uses [SeaweedFS](https://github.com/seaweedfs/seaweedfs/blob/4.53/README.md), started by `make up` with data persisted in the
+`seaweedfs-data` Docker volume. It creates the `piper-media`, `assets`, `artefacts`,
+`outputs` and private `piper-registry` buckets on startup. The development S3
+credentials in `tools/compose/seaweedfs/s3.json` match `backend/.env.template`.
+
+For an existing `backend/.env`, change `S3_ENDPOINT_URL` to
+`http://127.0.0.1:8333`, set `S3_DEFAULT_BUCKET_NAME=piper-media`, and keep
+`S3_BASE_URL=http://localhost/storage`.
+Restart backend processes after changing their environment. The S3 API is
+bound to localhost; nginx serves anonymous media reads under `/storage/`.
+Package code requires signed S3 requests and is served to Deno by the Package
+Registry, rather than through public media URLs.
+
 #### Apply migrations
 
 ```shell

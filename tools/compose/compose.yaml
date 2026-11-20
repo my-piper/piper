@@ -5,8 +5,28 @@ volumes:
   kafka-data:
   clickhouse-data:
   clickhouse-logs:
+  seaweedfs-data:
 
 services:
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.53
+    command:
+      - mini
+      - -dir=/data
+      - -s3.config=/etc/seaweedfs/s3.json
+      - -bucket=piper-media,assets,artefacts,outputs,piper-registry
+    ports:
+      - "127.0.0.1:8333:8333"
+    volumes:
+      - seaweedfs-data:/data
+      - ./seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9333/cluster/status"]
+      interval: 2s
+      retries: 30
+      start_period: 10s
+      timeout: 5s
+
   mongo:
     image: mongo:8.0
     ports:
@@ -51,9 +71,10 @@ services:
     depends_on:
       imgproxy:
         condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ../../tmp/storage:/var/www/storage:ro
     ports:
       - "80:80"
     healthcheck:

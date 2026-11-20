@@ -2,7 +2,7 @@
   <app-informer [message]="error.message" (ok)="error = null"></app-informer>
 }
 
-<form [formGroup]="form">
+<form [formGroup]="form" [attr.aria-busy]="progress.loading">
   <fieldset>
     <div class="switcher">
       <label
@@ -43,26 +43,29 @@
       [options]="{
         language: 'javascript',
         minimap: { enabled: false },
+        readOnly: !scriptLoaded || progress.saving || progress.formatting,
       }"
     >
     </ngx-monaco-editor>
   </div>
   <footer class="stack">
     <button
-      class="primary-button"
+      tuiButton
+      size="m"
       type="button"
-      [disabled]="progress.formatting"
-      [class.busy]="progress.formatting"
+      [disabled]="!scriptLoaded || progress.saving || progress.formatting"
+      [loading]="progress.formatting"
       (click)="format()"
       i18n="@@action.format"
     >
       Format
     </button>
     <button
-      class="primary-button"
+      tuiButton
+      size="m"
       type="button"
-      [disabled]="progress.saving"
-      [class.busy]="progress.saving"
+      [disabled]="!scriptLoaded || progress.saving || progress.formatting"
+      [loading]="progress.saving"
       (click)="save()"
     >
       Save

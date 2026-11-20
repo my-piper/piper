@@ -23,8 +23,12 @@ A versioned, published collection of Node Definitions that users add to their Pi
 _Avoid_: Plugin, library, module
 
 **Package Archive**:
-A zip that an admin uploads to publish one version of a Node Package. It carries the package's description, every Node Definition and all the code they run, including its own copy of the shared node helpers.
+A zip that an admin uploads to publish one version of a Node Package. It carries the package's description, every Node Definition and either their code with its shared helpers or references to published scripts.
 _Avoid_: Bundle, plugin file
+
+**Script Override**:
+An edited script belonging to one Node in a Pipeline. It leaves the published Node Definition unchanged.
+_Avoid_: Package patch, package edit
 
 **Package Registry**:
 Where Piper keeps the code of every published Node Package version, and where Nodes load it from when they run.

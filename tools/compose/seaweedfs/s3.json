@@ -1,0 +1,23 @@
+{
+  "identities": [
+    {
+      "name": "piper-local",
+      "credentials": [
+        {
+          "accessKey": "xyzXYZ",
+          "secretKey": "xyzXYZ"
+        }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    },
+    {
+      "name": "anonymous",
+      "actions": [
+        "Read:piper-media/*",
+        "Read:assets/*",
+        "Read:artefacts/*",
+        "Read:outputs/*"
+      ]
+    }
+  ]
+}

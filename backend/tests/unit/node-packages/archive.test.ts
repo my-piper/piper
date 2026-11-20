@@ -63,6 +63,97 @@ describe("reading a package archive", () => {
     expect(node.script).toBe("registry:artworks@3/ask_llm_agent/script.js");
   });
 
+  it("uses an explicit script URL without requiring a local script", () => {
+    const scriptUrl =
+      "https://cdn.jsdelivr.net/gh/my-piper/piper-nodes@v2.0.4/nodes/echo/script.js";
+    const data = archive({
+      "package.yaml": MANIFEST,
+      "echo_node/schema.yaml": YAML.stringify({
+        ...YAML.parse(SCHEMA),
+        scriptUrl,
+      }),
+    });
+
+    const { nodePackage } = readArchive(data);
+
+    expect(nodePackage.nodes.get("echo_node").script).toBe(scriptUrl);
+    expect(nodePackage.nodes.get("echo_node")).not.toHaveProperty("scriptUrl");
+  });
+
+  it("rejects a script field in schema.yaml instead of silently ignoring it", () => {
+    const data = archive(
+      artworks({
+        "ask_llm_agent/schema.yaml": YAML.stringify({
+          ...YAML.parse(SCHEMA),
+          script: "export function run() {}",
+        }),
+      })
+    );
+
+    const error = rejection(() => readArchive(data));
+
+    expect(error.message).toBe(
+      "schema.yaml cannot contain script; use scriptUrl or script.js"
+    );
+    expect(error.details).toEqual(["ask_llm_agent"]);
+  });
+
+  it.each([
+    null,
+    "",
+    12,
+    "file:///tmp/script.js",
+    "https://cdn.jsdelivr.net/gh/piper/main/script.js",
+    "https://evil.example/script@1.js",
+  ])("rejects invalid scriptUrl %s", (scriptUrl) => {
+    const data = archive(
+      artworks({
+        "ask_llm_agent/schema.yaml": YAML.stringify({
+          ...YAML.parse(SCHEMA),
+          scriptUrl,
+        }),
+      })
+    );
+
+    const error = rejection(() => readArchive(data));
+
+    expect(error.message).toContain("scriptUrl must be a pinned HTTPS URL");
+  });
+
+  it("rejects mutable branches with version-looking filenames", () => {
+    const scriptUrl =
+      "https://raw.githubusercontent.com/org/repo/main/nodes/echo@1/script.js";
+    const data = archive(
+      artworks({
+        "ask_llm_agent/schema.yaml": YAML.stringify({
+          ...YAML.parse(SCHEMA),
+          scriptUrl,
+        }),
+      })
+    );
+
+    const error = rejection(() => readArchive(data));
+
+    expect(error.message).toContain("scriptUrl must be a pinned HTTPS URL");
+  });
+
+  it("prefers scriptUrl even when script.js is included", () => {
+    const scriptUrl =
+      "https://cdn.jsdelivr.net/gh/my-piper/piper-nodes@v2.0.4/other/script.js";
+    const data = archive(
+      artworks({
+        "ask_llm_agent/schema.yaml": YAML.stringify({
+          ...YAML.parse(SCHEMA),
+          scriptUrl,
+        }),
+      })
+    );
+
+    const { nodePackage } = readArchive(data);
+
+    expect(nodePackage.nodes.get("ask_llm_agent").script).toBe(scriptUrl);
+  });
+
   it("keeps a node app inline because browsers can't reach the registry", () => {
     const data = archive(
       artworks({ "ask_llm_agent/app.html": "<h1>Agent</h1>" })
