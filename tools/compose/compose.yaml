@@ -23,7 +23,7 @@ services:
       - redis-data:/data
 
   deno:
-    image: ghcr.io/my-piper/piper-deno:sha-fcfb6e9
+    image: ghcr.io/my-piper/piper-deno:sha-aaa0480
     ports:
       - "0.0.0.0:9090:80"
     environment:
@@ -41,6 +41,9 @@ services:
 
   nginx:
     image: nginx:1.25.2
+    depends_on:
+      imgproxy:
+        condition: service_healthy
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ../../tmp/storage:/var/www/storage:ro
@@ -99,3 +102,9 @@ services:
       - IMGPROXY_LOCAL_FILESYSTEM_ROOT=/data
     volumes:
       - ./storage:/data/storage:ro
+    healthcheck:
+      test: ["CMD", "imgproxy", "health"]
+      interval: 2s
+      retries: 10
+      start_period: 5s
+      timeout: 5s

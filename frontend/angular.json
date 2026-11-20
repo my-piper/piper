@@ -102,7 +102,7 @@
               "browser": ""
             },
             "index": "src/index.html",
-            "polyfills": ["zone.js"],
+            "polyfills": ["zone.js", "@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -112,9 +112,17 @@
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor",
                 "output": "/assets/monaco/"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/@taiga-ui/icons/src",
+                "output": "/assets/taiga-ui/icons/"
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": [
+              "node_modules/@taiga-ui/styles/taiga-ui-theme.css",
+              "src/styles.scss"
+            ],
             "scripts": [],
             "browser": "src/main.ts",
             "stylePreprocessorOptions": {

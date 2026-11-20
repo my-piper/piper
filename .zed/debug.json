@@ -1,0 +1,89 @@
+// Debug configurations for Zed (vscode-js-debug via the JavaScript adapter).
+// Mirrors .vscode/launch.json. Zed has no compounds: start each session separately.
+// "frontend: chrome" starts ng serve in the background if needed (tools/frontend-serve.sh,
+// log in tmp/frontend-serve.log) and needs nginx from `make up`; stop it with the task "frontend: stop".
+[
+  {
+    "label": "backend: server",
+    "adapter": "JavaScript",
+    "type": "pwa-node",
+    "request": "launch",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "program": "$ZED_WORKTREE_ROOT/backend/server.ts",
+    "runtimeExecutable": "node",
+    "runtimeArgs": ["--import=tsx"],
+    "console": "integratedTerminal",
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+  },
+  {
+    "label": "backend: worker",
+    "adapter": "JavaScript",
+    "type": "pwa-node",
+    "request": "launch",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "program": "$ZED_WORKTREE_ROOT/backend/worker.ts",
+    "runtimeExecutable": "node",
+    "runtimeArgs": ["--import=tsx"],
+    "console": "integratedTerminal",
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+  },
+  {
+    "label": "backend: periodic",
+    "adapter": "JavaScript",
+    "type": "pwa-node",
+    "request": "launch",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "program": "$ZED_WORKTREE_ROOT/backend/periodic.ts",
+    "runtimeExecutable": "node",
+    "runtimeArgs": ["--import=tsx"],
+    "console": "integratedTerminal",
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+  },
+  {
+    "label": "backend: sockets",
+    "adapter": "JavaScript",
+    "type": "pwa-node",
+    "request": "launch",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "program": "$ZED_WORKTREE_ROOT/backend/sockets.ts",
+    "runtimeExecutable": "node",
+    "runtimeArgs": ["--import=tsx"],
+    "console": "integratedTerminal",
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+  },
+  {
+    "label": "backend: cli",
+    "adapter": "JavaScript",
+    "type": "pwa-node",
+    "request": "launch",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "program": "$ZED_WORKTREE_ROOT/backend/cli.ts",
+    "runtimeExecutable": "node",
+    "runtimeArgs": ["--import=tsx"],
+    "console": "integratedTerminal",
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+  },
+  {
+    "label": "backend: current test file",
+    "adapter": "JavaScript",
+    "type": "pwa-node",
+    "request": "launch",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "program": "$ZED_WORKTREE_ROOT/backend/node_modules/vitest/vitest.mjs",
+    "args": ["run", "$ZED_FILE"],
+    "console": "integratedTerminal",
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+  },
+  {
+    "label": "frontend: chrome",
+    "adapter": "JavaScript",
+    "type": "pwa-chrome",
+    "request": "launch",
+    "build": {
+      "command": "tools/frontend-serve.sh",
+      "cwd": "$ZED_WORKTREE_ROOT"
+    },
+    "url": "http://localhost/",
+    "webRoot": "$ZED_WORKTREE_ROOT/frontend"
+  }
+]

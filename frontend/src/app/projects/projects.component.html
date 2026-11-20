@@ -43,13 +43,16 @@
 <div class="app-container">
   <header class="stack">
     <button
-      class="primary with-icon"
+      size="s"
+      tuiButton
+      type="button"
       [routerLink]="['add']"
       [class.busy]="progress.creating"
       [disabled]="progress.creating"
       (click)="create()"
     >
-      <app-icon class="icon left" icon="add"></app-icon>
+      <tui-icon icon="@tui.plus" />
+      <!--<app-icon class="icon left" icon="add"></app-icon>-->
       <ng-container i18n="@@action.create">Create</ng-container>
     </button>
     @if (userRole.admin | can | async) {

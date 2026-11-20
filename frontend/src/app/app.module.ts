@@ -8,6 +8,7 @@ import { APP_INITIALIZER, NgModule, DOCUMENT } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
+import { provideTaiga, TuiButton, TuiRoot, TuiIcon } from "@taiga-ui/core";
 import { NgHcaptchaModule } from "ng-hcaptcha";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { SocketIoModule } from "ngx-socket-io";
@@ -300,8 +301,12 @@ import { UsersComponent } from "./users/users.component";
     }),
     UiKitModule,
     NgHcaptchaModule.forRoot(),
+    TuiRoot,
+    TuiButton,
+    TuiIcon,
   ],
   providers: [
+    provideTaiga(),
     {
       provide: APP_BASE_HREF,
       useFactory: baseHrefFactory,

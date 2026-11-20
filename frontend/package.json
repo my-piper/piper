@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --no-live-reload --host 0.0.0.0 --disable-host-check",
+    "start": "ng serve --host 0.0.0.0 --allowed-hosts",
     "build": "ng build --localize",
     "sync-schemas": "cp ../backend/schemas/compiled.json ./src/schemas/compiled.json",
     "watch": "ng build --watch --configuration development",
@@ -35,6 +35,8 @@
     "@angular/router": "^22.2.6",
     "@apidevtools/json-schema-ref-parser": "^11.7.3",
     "@json-editor/json-editor": "^2.15.2",
+    "@taiga-ui/core": "5.33.0",
+    "@taiga-ui/icons": "5.33.0",
     "ajv": "^8.17.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

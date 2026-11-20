@@ -1,0 +1,60 @@
+// Run tasks for Zed (task: spawn). Local infra comes from `make up`.
+[
+  {
+    "label": "infra: up",
+    "command": "make up",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "backend: all (server, worker, periodic, sockets)",
+    "command": "npm start",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "backend: server",
+    "command": "npm run server",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "backend: worker",
+    "command": "npm run worker",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "backend: periodic",
+    "command": "npm run periodic",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "backend: sockets",
+    "command": "npm run sockets",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "backend: test current file",
+    "command": "npx vitest run \"$ZED_FILE\"",
+    "cwd": "$ZED_WORKTREE_ROOT/backend"
+  },
+  {
+    "label": "frontend: start",
+    "command": "npm start",
+    "cwd": "$ZED_WORKTREE_ROOT/frontend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "frontend: stop",
+    "command": "tools/frontend-serve.sh stop",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  }
+]

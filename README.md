@@ -160,7 +160,7 @@ make schemas
 #### Add admin user
 
 ```shell
-npm --prefix backend run cli users add admin admin@piper.my admin admin
+npm --prefix backend run cli users add admin admin@piper.my admin123 admin
 ```
 
 ## CLI
