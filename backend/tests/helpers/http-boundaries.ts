@@ -22,9 +22,20 @@ const httpDoubles = vi.hoisted(() => ({
   projectsCursor: { sort: vi.fn(), limit: vi.fn(), toArray: vi.fn() },
   projectsAggregation: { toArray: vi.fn() },
   launches: { findOne: vi.fn(), insertOne: vi.fn(), distinct: vi.fn() },
-  nodes: { findOne: vi.fn(), find: vi.fn(), updateOne: vi.fn(), bulkWrite: vi.fn() },
+  nodes: {
+    findOne: vi.fn(),
+    find: vi.fn(),
+    aggregate: vi.fn(),
+    updateOne: vi.fn(),
+    bulkWrite: vi.fn(),
+  },
   nodesCursor: { toArray: vi.fn() },
-  nodePackages: { findOne: vi.fn(), updateOne: vi.fn(), deleteOne: vi.fn() },
+  nodePackages: {
+    findOne: vi.fn(),
+    find: vi.fn(),
+    updateOne: vi.fn(),
+    deleteOne: vi.fn(),
+  },
   notify: vi.fn(),
   redis: {
     get: vi.fn(),

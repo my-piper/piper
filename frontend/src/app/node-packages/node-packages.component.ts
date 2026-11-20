@@ -58,14 +58,16 @@ export class NodePackagesComponent extends UntilDestroyed {
   activate(modal: unknown) {
     if (modal) {
       if (modal instanceof EditPackageComponent) {
-        modal.added.subscribe((nodePackage) =>
-          this.packages.unshift(nodePackage),
-        );
+        modal.added.subscribe((nodePackage) => {
+          nodePackage.nodeCount = 0;
+          this.packages.unshift(nodePackage);
+        });
         modal.saved.subscribe((nodePackage) => {
           const index = this.packages.findIndex(
             (u) => u._id === nodePackage._id,
           );
           if (index !== -1) {
+            nodePackage.nodeCount = this.packages[index].nodeCount;
             assign(this.packages[index], nodePackage);
             this.cd.detectChanges();
           }

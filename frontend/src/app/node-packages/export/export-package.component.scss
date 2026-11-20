@@ -5,7 +5,8 @@
   gap: 1rem;
 }
 
-h1 {
+h1,
+h2 {
   margin: 0;
 }
 
@@ -14,8 +15,23 @@ tui-loader {
   min-width: 0;
 }
 
-pre {
-  min-height: 12rem;
-  max-width: 100%;
-  overflow: auto;
+.nodes {
+  inline-size: 100%;
+  overflow-wrap: anywhere;
+
+  ul {
+    margin-block-end: 0;
+    padding-inline-start: 1.5rem;
+    max-block-size: 12rem;
+    overflow: auto;
+  }
+
+  code {
+    color: var(--tui-text-secondary);
+  }
+}
+
+.editor {
+  display: block;
+  block-size: 24rem;
 }

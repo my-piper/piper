@@ -15,6 +15,24 @@
 }
 
 <h1>{{ nodePackage.title | i18n }}</h1>
+@if (yaml) {
+  <section class="nodes">
+    <h2 i18n="@@label.nodes">Nodes</h2>
+    <ul>
+      @for (node of nodes; track node.id) {
+        @let title = (node.title | i18n) || node.id;
+        <li>
+          {{ title }}
+          @if (title !== node.id) {
+            <code>({{ node.id }})</code>
+          }
+        </li>
+      } @empty {
+        <li i18n="@@message.no_nodes">No nodes</li>
+      }
+    </ul>
+  </section>
+}
 <button
   tuiButton
   size="m"
@@ -25,5 +43,9 @@
   <ng-container i18n="@@action.copy">Copy</ng-container>
 </button>
 <tui-loader [loading]="progress.loading" [overlay]="true">
-  <pre>{{ yaml }}</pre>
+  <ngx-monaco-editor
+    class="editor"
+    [options]="editorOptions"
+    [formControl]="yamlControl"
+  ></ngx-monaco-editor>
 </tui-loader>

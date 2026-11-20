@@ -4,6 +4,8 @@ import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { AppComponent } from "src/app/app.component";
 import { NodePackagesComponent } from "src/app/node-packages/node-packages.component";
+import { EditPackageComponent } from "src/app/node-packages/edit/edit-package.component";
+import { NodePackage } from "src/models/node-package";
 import { UI_DELAY } from "src/consts/ui";
 import { Plain, userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
@@ -17,7 +19,7 @@ import { SocketDouble } from "../helpers/socket";
 
 /**
  * Wire contracts (backend/api/node-packages, admin only):
- * - GET /api/node-packages → stored packages;
+ * - GET /api/node-packages → stored packages with nodeCount;
  * - GET /api/node-packages/updates/state, POST …/updates/check and
  *   POST …/updates/apply → `{ status: "checking" | "updating" | null,
  *   updates: [{ current, updated?, errors? }] }`
@@ -40,6 +42,7 @@ function packagesPlain(): Plain[] {
       title: "Text tools",
       description: "Text helpers",
       version: 2,
+      nodeCount: 3,
       readme: "Release **notes**",
       public: true,
     },
@@ -48,6 +51,7 @@ function packagesPlain(): Plain[] {
       title: "Image tools",
       description: "Image helpers",
       version: 1,
+      nodeCount: 0,
     },
   ];
 }
@@ -124,6 +128,29 @@ function setup(initialUrl = "/packages") {
 
 describe("NodePackagesComponent", () => {
   describe("loading", () => {
+    it("keeps counts after metadata edits and shows zero for a new package", fakeAsync(() => {
+      const page = setup();
+      page.load();
+      const editor =
+        TestBed.createComponent(EditPackageComponent).componentInstance;
+      page.component().activate(editor);
+
+      editor.saved.emit(
+        new NodePackage({ ...packagesPlain()[0], nodeCount: undefined }),
+      );
+      editor.added.emit(new NodePackage({ _id: "empty", title: "Empty" }));
+      tick();
+      page.fixture.detectChanges();
+
+      expect(
+        Array.from(
+          page.element.querySelectorAll("tbody tr td:nth-child(5)"),
+        ).map((cell) => cell.textContent.trim()),
+      ).toEqual(["0", "3", "0"]);
+      page.controller.verify();
+      finish();
+    }));
+
     it("lists packages after a loading row and joins the updates room", fakeAsync(() => {
       const page = setup();
 
@@ -133,6 +160,11 @@ describe("NodePackagesComponent", () => {
       expect(loading).not.toBeNull();
       expect(page.element.querySelector("tr.loading")).toBeNull();
       expect(page.rows()).toEqual(["Text tools", "Image tools"]);
+      expect(
+        Array.from(
+          page.element.querySelectorAll("tbody tr td:nth-child(5)"),
+        ).map((cell) => cell.textContent.trim()),
+      ).toEqual(["3", "0"]);
       expect(
         page.element.querySelectorAll(
           "a[href='/api/node-packages/text_tools/export']",

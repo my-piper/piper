@@ -162,6 +162,7 @@
             >
           </th>
           <th tuiTh i18n="@@label.version">Version</th>
+          <th tuiTh i18n="@@label.nodes">Nodes</th>
           <th tuiTh i18n="@@label.description">Description</th>
         </tr>
       </thead>
@@ -247,12 +248,13 @@
                 ></button>
               </div>
             </td>
+            <td tuiTd>{{ p.nodeCount }}</td>
             <td tuiTd>{{ p.description }}</td>
           </tr>
         }
         @if (progress.loading.packages) {
           <tr class="loading">
-            <td tuiTd colspan="5">
+            <td tuiTd colspan="6">
               <tui-loader [loading]="true"></tui-loader>
             </td>
           </tr>

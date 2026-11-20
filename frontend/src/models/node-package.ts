@@ -34,6 +34,10 @@ export class NodePackage {
   @Type(() => Boolean)
   public: boolean;
 
+  @Expose()
+  @Type(() => Number)
+  nodeCount: number;
+
   constructor(defs: Partial<NodePackage>) {
     assign(this, defs);
   }
