@@ -6,8 +6,10 @@ import {
   OnDestroy,
   ViewChild,
   ChangeDetectionStrategy,
+  inject,
 } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
+import { TuiDialogService } from "@taiga-ui/core";
 import { assign, isEmpty, mapValues, random } from "lodash";
 import { customAlphabet } from "nanoid";
 import { Socket } from "ngx-socket-io";
@@ -80,6 +82,8 @@ export class EditPipelineVisualComponent
   extends UntilDestroyed
   implements OnDestroy
 {
+  private readonly dialogs = inject(TuiDialogService);
+
   userRole = UserRole;
   ui = UI;
   zoom = { min: MIN_SCALE, max: MAX_SCALE, step: ZOOM_STEP };
@@ -337,6 +341,20 @@ export class EditPipelineVisualComponent
   }
 
   run() {
+    if (this.pipeline.start.nodes.length === 0) {
+      this.dialogs
+        .open(
+          $localize`:@@message.select_start_node:Enable Auto start for at least one node before launching.`,
+          {
+            label: $localize`:@@message.no_start_node:No start node selected`,
+            size: "s",
+          },
+        )
+        .pipe(takeUntil(this.destroyed$))
+        .subscribe();
+      return;
+    }
+
     this.progress.launching = true;
     this.cd.detectChanges();
 

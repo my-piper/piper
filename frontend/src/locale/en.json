@@ -58,6 +58,8 @@
     "label.canvas_hint_move": "Move",
     "message.canvas_hint_move": " Drag any selected item to move the whole selection ",
     "action.delete": "Delete",
+    "message.select_start_node": "Enable Auto start for at least one node before launching.",
+    "message.no_start_node": "No start node selected",
     "message.pipeline_schema_invalid": "Pipeline schema invalid",
     "label.name": "Name",
     "label.type": "Type",
