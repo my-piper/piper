@@ -39,6 +39,24 @@ engineers without an admin role, with 400 and `You aren't admin`. Missing projec
 and interruption of absent launches return 404. These tests record the existing
 permission rules; permission/status changes need an explicit contract decision.
 
+## Node and node package permissions
+
+| Endpoint                                         | Current requirement                        | Successful status |
+| ------------------------------------------------ | ------------------------------------------ | ----------------- |
+| `GET /api/nodes/:_id`                            | None                                       | 200               |
+| `POST /api/nodes`                                | Logged-in user; valid sign unless engineer | 204               |
+| `POST /api/node-packages/actions/import-package` | Admin                                      | 204               |
+| `DELETE /api/node-packages/:_id`                 | Admin                                      | 204               |
+| `GET /api/projects/:_id/check-node-updates`      | Logged-in user with project access         | 200               |
+
+`GET /api/nodes/:_id` strips `catalog` and returns 404 for a missing node.
+`POST /api/nodes` and project patches share the sign rule: a node whose `sign`
+does not match its script and environment scopes is re-signed for engineers and
+admins, and rejected for anyone else with 400 and `Wrong sign for <id> node`.
+Package import and deletion reject non-admins with 400 and `You aren't admin`;
+import stamps every node with the package `_id`. Node update checks return 404
+for a private project unless the current user is its owner or an admin.
+
 ## Validation and serialization
 
 - Creating a project assigns server-generated IDs, ownership, creation time,

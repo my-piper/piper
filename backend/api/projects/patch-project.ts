@@ -14,7 +14,7 @@ import { User } from "models/user";
 import { decrypt, encrypt } from "packages/environment/crypt-environment";
 import { hide } from "packages/environment/hide-environment";
 import { dropRevealedSecrets } from "packages/environment/reveal-environment";
-import { generateSign } from "packages/nodes/sign-node";
+import { ensureSign } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
 import {
@@ -103,14 +103,7 @@ api.patch(
       }
 
       for (const [id, node] of patched.nodes) {
-        const sign = generateSign(node);
-        if (sign !== node.sign) {
-          if (isEngineer(currentUser)) {
-            assign(node, { sign });
-          } else {
-            throw new DataError(`Wrong sign for ${id} node`);
-          }
-        }
+        ensureSign(node, id, isEngineer(currentUser));
       }
 
       assign(update, {

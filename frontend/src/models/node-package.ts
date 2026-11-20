@@ -23,7 +23,7 @@ export class NodePackage {
   url: string;
 
   @Expose()
-  @Type(() => String)
+  @Type(() => Number)
   version: number;
 
   @Expose()

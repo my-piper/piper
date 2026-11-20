@@ -59,12 +59,12 @@ export async function uploadPackage(nodePackage: NodePackage) {
   logger.info("Update nodes");
 
   const bulk = [];
-  for (const [_id, node] of nodes) {
-    logger.info(`Update node ${_id}`);
-    assign(node, { locked: true, sign: generateSign(node) });
+  for (const [nodeId, node] of nodes) {
+    logger.info(`Update node ${nodeId}`);
+    assign(node, { package: _id, locked: true, sign: generateSign(node) });
     bulk.push({
       updateOne: {
-        filter: { _id },
+        filter: { _id: nodeId },
         update: { $set: toPlain(node) },
         upsert: true,
       },

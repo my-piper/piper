@@ -67,7 +67,6 @@ export class PipelineToolsComponent {
 
       try {
         await firstValueFrom(this.http.post("nodes", toPlain(node)));
-        this.progress.published.push(node._id);
       } catch (err) {
         this.error = err as Error;
         break;

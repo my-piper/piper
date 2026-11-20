@@ -896,7 +896,6 @@ other than Chromium, mobile viewports, pixel snapshots.
 | Editor    | `selectNode` host listener receives an undefined node; selectable directive and node-package editors untested                                                                                                | T005             |
 | Launch UI | LaunchesComponent `authorization._id`, `err.error`, anonymous `me.user._id` crash; NodeLogs/NodeJobs hidden errors; NodeComponent poll after destroy; `run()` does not trigger a pending save                | T006             |
 | Routing   | Canvas route's `LaunchResolver` requests `GET /api/launches/<projectId>` (inherited `:id`)                                                                                                                   | T007             |
-| Backend   | `DELETE /api/node-packages/:_id` and package import only `checkLogged`; every other package route is `checkAdmin`                                                                                            | 2026-10-22       |
 | Env       | `EditPipelineEnvironmentComponent.clear()` leaves the form and pipeline-scoped variables unchanged                                                                                                           | 2026-10-22       |
 | Dev mode  | `ProjectComponent` throws NG0100 from its `child \| is:` class binding with `optimization: false`                                                                                                            | T007             |
 

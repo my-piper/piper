@@ -5,7 +5,7 @@ import { NotFoundError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { Node, NodeToUpdate, PipelineNodeUpdates } from "models/node";
 import { Project } from "models/project";
-import { checkLogged, handle, toModel } from "utils/http";
+import { checkLogged, checkProjectAccess, handle, toModel } from "utils/http";
 
 api.get(
   "/api/projects/:_id/check-node-updates",
@@ -13,6 +13,7 @@ api.get(
     checkLogged(currentUser);
 
     const project = toModel(await mongo.projects.findOne({ _id }), Project);
+    checkProjectAccess(currentUser, project);
     const { pipeline } = project;
 
     const updates = new Map<string, NodeToUpdate>();
@@ -35,6 +36,7 @@ api.get(
         if (e instanceof NotFoundError) {
           continue;
         }
+        throw e;
       }
 
       updates.set(

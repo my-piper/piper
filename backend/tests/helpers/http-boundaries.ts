@@ -22,6 +22,10 @@ const httpDoubles = vi.hoisted(() => ({
   projectsCursor: { sort: vi.fn(), limit: vi.fn(), toArray: vi.fn() },
   projectsAggregation: { toArray: vi.fn() },
   launches: { findOne: vi.fn(), insertOne: vi.fn(), distinct: vi.fn() },
+  nodes: { findOne: vi.fn(), find: vi.fn(), updateOne: vi.fn(), bulkWrite: vi.fn() },
+  nodesCursor: { toArray: vi.fn() },
+  nodePackages: { findOne: vi.fn(), updateOne: vi.fn(), deleteOne: vi.fn() },
+  notify: vi.fn(),
   redis: {
     get: vi.fn(),
     GET: vi.fn(),
@@ -52,6 +56,8 @@ vi.mock("app/mongo", () => ({
     users: httpDoubles.users,
     projects: httpDoubles.projects,
     launches: httpDoubles.launches,
+    nodes: httpDoubles.nodes,
+    nodePackages: httpDoubles.nodePackages,
   },
 }));
 vi.mock("core-kit/packages/redis/redis", () => ({
@@ -61,6 +67,7 @@ vi.mock("core-kit/packages/redis", async () => ({
   ...(await import("core-kit/packages/redis/utils")),
   default: httpDoubles.redis,
 }));
+vi.mock("core-kit/packages/io", () => ({ notify: httpDoubles.notify }));
 vi.mock("core-kit/packages/sentry", () => ({
   default: { captureException: httpDoubles.captureException },
 }));
@@ -102,6 +109,10 @@ export function resetHttpDoubles() {
     ...Object.values(httpDoubles.projectsCursor),
     ...Object.values(httpDoubles.projectsAggregation),
     ...Object.values(httpDoubles.launches),
+    ...Object.values(httpDoubles.nodes),
+    ...Object.values(httpDoubles.nodesCursor),
+    ...Object.values(httpDoubles.nodePackages),
+    httpDoubles.notify,
     ...Object.values(httpDoubles.redis),
     ...Object.values(httpDoubles.plans),
     ...Object.values(httpDoubles.clickhouse),
@@ -121,6 +132,8 @@ export function resetHttpDoubles() {
   httpDoubles.projectsCursor.limit.mockReturnValue(httpDoubles.projectsCursor);
   httpDoubles.projectsCursor.toArray.mockResolvedValue([]);
   httpDoubles.projects.distinct.mockResolvedValue([]);
+  httpDoubles.nodes.find.mockReturnValue(httpDoubles.nodesCursor);
+  httpDoubles.nodesCursor.toArray.mockResolvedValue([]);
   httpDoubles.launches.distinct.mockResolvedValue([]);
   httpDoubles.projects.aggregate.mockReturnValue(
     httpDoubles.projectsAggregation
