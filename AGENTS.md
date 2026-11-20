@@ -37,7 +37,7 @@ VS Code: the "-- all --" launch compound starts server, worker, periodic, socket
 
 ### Backend process model
 
-Several separate entrypoints share one codebase: `server.ts`, `worker.ts`, `periodic.ts`, `sockets.ts`, `oauth.ts`, `metrics.ts`, `chrome.ts`, `cli.ts`. `npm run worker -- -w <ids>` runs a subset of workers (ids are the keys of the `Workers` map in `worker.ts`; `-h` adds a health endpoint); the admin CLI (`npm run cli -- <cmd>`, `cli/`) manages users, environment, modules, migrations and schema compilation. Imports use `baseUrl: ./` (e.g. `app/mongo`, `models/launch`, `consts/redis`).
+Several separate entrypoints share one codebase: `server.ts`, `worker.ts`, `periodic.ts`, `sockets.ts`, `oauth.ts`, `metrics.ts`, `registry.ts`, `chrome.ts`, `cli.ts`. `npm run worker -- -w <ids>` runs a subset of workers (ids are the keys of the `Workers` map in `worker.ts`; `-h` adds a health endpoint); the admin CLI (`npm run cli -- <cmd>`, `cli/`) manages users, environment, modules, migrations and schema compilation. Imports use `baseUrl: ./` (e.g. `app/mongo`, `models/launch`, `consts/redis`).
 
 - **API**: each file in `api/**` registers routes as a side effect on the shared express app (`app/api` → `core-kit/packages/server`); `server.ts` imports each `api/<area>/index.ts`. Handlers are wrapped with `handle(({ currentUser, language }) => async (req, res) => ...)` from `utils/http.ts`, which resolves auth (`user-token` / `api-token` headers) and maps `core-kit` error types to HTTP statuses. A route's return value is sent as the response; use the guards in the same file (`checkLogged`, `checkAdmin`, `checkEngineer`, `checkRoles`) and `toModel`/`toModels`/`toPlain`.
 - **Models**: classes in `models/` use `class-transformer` decorators (`@Expose`, `@Type`) via `core-kit/packages/transform` (`toInstance`, `toPlain`, `mapTo`). Data crossing Redis, Mongo, queues and HTTP is always converted through these.
@@ -51,6 +51,10 @@ Several separate entrypoints share one codebase: `server.ts`, `worker.ts`, `peri
 3. Each node is planned via `packages/nodes/plan-node.ts` onto one of four queues by its `execution` type — `rapid`, `regular`, `deferred`, `protracted` — which differ in concurrency, rate limits and timeouts.
 4. `jobs/process-node/process-node-handler.ts` gathers inputs from upstream flows, locks the node, and runs the node's JavaScript `run` function remotely in a **Deno** sandbox service via HTTP (`packages/deno/execute.ts`, `DENO_URL`). Node environment/secrets come from `jobs/process-node/environment.ts`. Results produce outputs, logs, progress, artefacts, `RepeatNode`/`NextNode` decisions, and plan downstream nodes.
 5. Side effects are pushed to separate queues (set inputs/outputs/errors, save artefacts) and Kafka streams; progress is pushed to clients with `notify()` (socket.io rooms) from `core-kit/packages/io`.
+
+### Node packages
+
+A Node Package is published from a YAML (scripts inline or by CDN URL) or from a Package Archive: a zip uploaded to `api/node-packages/upload-archive.ts`, checked by `packages/node-packages/archive.ts` and written to a private S3 bucket per `<package>/<version>`. Its nodes store `script: registry:<package>@<version>/<path>`, which `packages/deno/execute.ts` resolves against `REGISTRY_URL` before calling Deno; `registry.ts` serves those files to Deno, and `piper-deno` must list the registry host in `ALLOW_IMPORT_HOSTS`. A published version never changes, so each upload needs a greater version (ADR 0003).
 
 ### Schemas
 

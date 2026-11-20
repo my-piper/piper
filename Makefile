@@ -76,7 +76,7 @@ stop:
 # Start the infra first with `make up` in another terminal.
 # Each target runs in the foreground; Ctrl-C stops it.
 # `dev` first stops any server, worker, periodic, sockets or frontend already running.
-.PHONY: dev dev-stop run-backend run-server run-worker run-periodic run-sockets run-oauth run-frontend
+.PHONY: dev dev-stop run-backend run-server run-worker run-periodic run-sockets run-oauth run-registry run-frontend
 
 dev: dev-stop
 	$(MAKE) -j2 run-backend run-frontend
@@ -85,7 +85,7 @@ dev-stop:
 	./tools/dev-stop.sh
 
 run-backend:
-	cd backend && npx --no-install run-p --print-label server worker periodic sockets
+	cd backend && npx --no-install run-p --print-label server worker periodic sockets registry
 
 run-server:
 	${BACKEND} run server
@@ -103,6 +103,10 @@ run-sockets:
 
 run-oauth:
 	${BACKEND} run oauth
+
+# Package Registry: serves uploaded node package code to Deno.
+run-registry:
+	${BACKEND} run registry
 
 run-frontend:
 	${FRONTEND} start

@@ -75,6 +75,31 @@ export async function upload(
   }
 }
 
+// Stores a file without public access, for buckets served only internally.
+export async function putPrivate(
+  key: string,
+  data: Buffer,
+  bucket: string,
+  contentType: string
+): Promise<void> {
+  logger.debug(`Put private file ${key}`);
+  try {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: getKey(key),
+        Body: data,
+        ACL: "private",
+        ContentType: contentType,
+      })
+    );
+  } catch (e) {
+    logger.error(e);
+    sentry.captureException(e);
+    throw new DataError("Can't upload file");
+  }
+}
+
 export async function load(
   key: string,
   bucket: string = S3_DEFAULT_BUCKET_NAME

@@ -46,6 +46,7 @@ permission rules; permission/status changes need an explicit contract decision.
 | `GET /api/nodes/:_id`                            | None                                       | 200               |
 | `POST /api/nodes`                                | Logged-in user; valid sign unless engineer | 204               |
 | `POST /api/node-packages/actions/import-package` | Admin                                      | 204               |
+| `POST /api/node-packages/actions/upload-archive` | Admin                                      | 200               |
 | `DELETE /api/node-packages/:_id`                 | Admin                                      | 204               |
 | `GET /api/projects/:_id/check-node-updates`      | Logged-in user with project access         | 200               |
 
@@ -56,6 +57,17 @@ admins, and rejected for anyone else with 400 and `Wrong sign for <id> node`.
 Package import and deletion reject non-admins with 400 and `You aren't admin`;
 import stamps every node with the package `_id`. Node update checks return 404
 for a private project unless the current user is its owner or an admin.
+
+`POST /api/node-packages/actions/upload-archive` takes a Package Archive as the
+multipart field `file` (zip, at most 20 MB packed and unpacked) and returns
+`{ nodePackage, version, nodes, dropped }`: the package id and version, its node
+ids, and the archive files left out of the registry. It answers 400 with a
+`DataError` whose `details` list the offending files or nodes when the archive
+has no `package.yaml` or nodes, a node folder has no `script.js`, an import
+leaves the archive, misses a file or is an unpinned or unloadable remote
+module, the version isn't a positive integer greater than the published one
+or is already complete in the registry, the archive exceeds 20 MB, or a node id
+belongs to another package. Nodes it publishes run `registry:<package>@<version>/<node>/script.js`.
 
 ## Validation and serialization
 

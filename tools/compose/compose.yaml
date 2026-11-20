@@ -30,6 +30,13 @@ services:
       # Per-worker memory limit in MB (default: 128)
       # Adjust based on your workload: 64M for light, 256M for heavy
       - PER_WORKER_MEMORY_MB=128
+      # Package Registry run on the host by `make run-registry`; matches
+      # REGISTRY_URL and REGISTRY_TOKEN in backend/.env. ALLOW_IMPORT_HOSTS
+      # needs a piper-deno image that supports it.
+      - ALLOW_IMPORT_HOSTS=host.docker.internal:8085
+      - DENO_AUTH_TOKENS=local-registry-token@host.docker.internal:8085
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     deploy:
       resources:
         limits:

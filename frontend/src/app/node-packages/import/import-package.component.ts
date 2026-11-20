@@ -20,7 +20,7 @@ import { UI_DELAY } from "src/consts/ui";
   standalone: false,
 })
 export class ImportPackageComponent {
-  progress = { importing: false };
+  progress = { importing: false, uploading: false };
   error!: AppError;
 
   form = this.fb.group({
@@ -37,6 +37,37 @@ export class ImportPackageComponent {
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
   ) {}
+
+  upload({ target }: Event) {
+    const input = target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.progress.uploading = true;
+    this.cd.detectChanges();
+
+    const data = new FormData();
+    data.append("file", file);
+    this.http
+      .post("node-packages/actions/upload-archive", data)
+      .pipe(
+        delay(UI_DELAY),
+        finalize(() => {
+          this.progress.uploading = false;
+          input.value = "";
+          this.cd.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([".."], { relativeTo: this.route });
+          this.imported.emit();
+        },
+        error: (err) => (this.error = err),
+      });
+  }
 
   import() {
     this.progress.importing = true;
