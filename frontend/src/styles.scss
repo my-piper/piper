@@ -33,6 +33,11 @@ body {
   background-color: variables.$page-background;
 }
 
+// Absolute-positioned routed canvases do not give Taiga's content wrapper a height.
+app-root > tui-root > .t-root-content {
+  min-block-size: 100dvh;
+}
+
 .money {
   font-family: "Quantico", sans-serif;
   font-size: 0.8rem;
