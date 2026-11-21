@@ -9,6 +9,7 @@ import { FatalError } from "core-kit/types/errors";
 import { getEnvironment } from "jobs/process-node/environment";
 import { Environment } from "models/environment";
 import { NodeEnvironment } from "models/node";
+import { Project } from "models/project";
 import { encrypt } from "packages/environment/crypt-environment";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -130,8 +131,12 @@ describe("node environment precedence and decryption", () => {
     });
   });
 
-  it("reads a bound project variable from the user variable it names", async () => {
+  it("reads a bound project variable from the owner's user variable it names", async () => {
     const launch = launchFixture();
+    launch.project = toInstance(
+      { _id: "project", createdBy: { _id: launch.launchedBy._id } },
+      Project
+    );
     const node = launch.pipeline.nodes.get("echo_node");
     node.environment = new Map(
       Object.entries({
@@ -169,6 +174,42 @@ describe("node environment precedence and decryption", () => {
     expect(toPlain(environment)).toEqual({
       variables: { token: "bound token", userOnly: "user only" },
       scope: { token: "user", userOnly: "user" },
+    });
+  });
+
+  it("ignores bindings when someone other than the project owner launches it", async () => {
+    const launch = launchFixture();
+    launch.project = toInstance(
+      { _id: "project", createdBy: { _id: "owner" } },
+      Project
+    );
+    const node = launch.pipeline.nodes.get("echo_node");
+    node.environment = new Map([
+      ["token", toInstance({ scope: "pipeline" }, NodeEnvironment)],
+    ]);
+    const user = encryptedEnvironment({
+      token: "launcher token",
+      OPENAI_KEY: "launcher secret must not leak",
+    });
+    launch.environment = toInstance(
+      { variables: {}, bindings: { token: "OPENAI_KEY" } },
+      Environment
+    );
+    doubles.redis.get.mockImplementation(async (key) =>
+      key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
+        ? JSON.stringify(toPlain(user))
+        : null
+    );
+
+    const environment = await getEnvironment({
+      launch,
+      node,
+      launchedBy: launch.launchedBy,
+    });
+
+    expect(toPlain(environment)).toEqual({
+      variables: { token: "launcher token" },
+      scope: { token: "user" },
     });
   });
 

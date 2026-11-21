@@ -97,8 +97,10 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   project `environment` PATCH delta answers 400 when either name isn't
   `^[A-Za-z_][A-Za-z0-9_]*$`, and drops the own value and the `visible` entry
   of every bound variable; empty `bindings` are omitted. At launch a bound
-  `pipeline`-scoped variable is read only from the launching user's User
-  Environment, under the bound name, and stays unset when it isn't there.
+  `pipeline`-scoped variable is read only from the owner's User Environment,
+  under the bound name, and stays unset when it isn't there; bindings apply
+  only when the project's owner launches it, anyone else (a public project, a
+  Deploy) gets the same-name lookup.
 - The User Environment (`/api/me/environment`) is read with `GET`, merged with
   `PUT` (values equal to `[encrypted]` keep the stored value), cleared with
   `DELETE`, and loses a single variable with `DELETE /api/me/environment/:key`

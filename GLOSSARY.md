@@ -97,5 +97,5 @@ A Variable a Project's Nodes declare but the Project neither sets nor binds, so 
 _Avoid_: Default variable, fallback
 
 **Bound Variable**:
-A Project Variable that names a User Variable to read its value from, which may have a different name. It has no value of its own, and when the User Variable is missing it stays unset rather than falling back to the Variable of the same name. Only a Variable a Node reads from the Project can be bound.
+A Project Variable that names a User Variable to read its value from, which may have a different name. It has no value of its own, and when the User Variable is missing it stays unset rather than falling back to the Variable of the same name. Only a Variable a Node reads from the Project can be bound, and a binding counts only when the Project's owner launches it; for anyone else the Variable is an Inherited Variable.
 _Avoid_: Linked variable, alias, reference
