@@ -8,3 +8,19 @@
 form {
   @include mixins.vertical-stack();
 }
+table.default {
+  td {
+    vertical-align: middle;
+  }
+
+  .type,
+  .bind {
+    width: 100%;
+  }
+
+  .description,
+  .inherited {
+    display: block;
+    opacity: 0.7;
+  }
+}

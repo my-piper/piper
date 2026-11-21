@@ -8,7 +8,6 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter, RouterLink } from "@angular/router";
 import { of } from "rxjs";
 import { EditPipelineEnvironmentComponent } from "src/app/edit-pipeline-environment/edit-pipeline-environment.component";
-import { EnvironmentVariablesComponent } from "src/app/environment-variables/environment-variables.component";
 import { Environment } from "src/models/environment";
 import { Project } from "src/models/project";
 import { ProjectManager } from "src/services/project.manager";
@@ -76,10 +75,7 @@ describe("EditPipelineEnvironmentComponent", () => {
     platform: string[] = ["API_URL"],
   ) {
     TestBed.configureTestingModule({
-      declarations: [
-        EditPipelineEnvironmentComponent,
-        EnvironmentVariablesComponent,
-      ],
+      declarations: [EditPipelineEnvironmentComponent],
       imports: [ReactiveFormsModule, RouterLink, UiKitModule],
       providers: [
         provideTestConfig(),
@@ -355,6 +351,139 @@ describe("EditPipelineEnvironmentComponent", () => {
     type(row("RETRIES").querySelector("input.value"), "three");
 
     expect(button("Save").disabled).toBe(true);
+    finish();
+  }));
+
+  function bind(key: string, name: string) {
+    const select = row(key).querySelector("select.bind") as HTMLSelectElement;
+    select.value = name;
+    select.dispatchEvent(new Event("change"));
+    fixture.detectChanges();
+  }
+
+  it("offers binding only for variables the project can set", fakeAsync(() => {
+    setup();
+
+    const options = Array.from(
+      row("TOKEN").querySelectorAll("select.bind option"),
+    ).map((option) => option.textContent.trim());
+
+    expect(options).toEqual(["This project", "OPENAI_KEY", "VERBOSE"]);
+    expect(row("OPENAI_KEY").querySelector("select.bind")).toBeNull();
+    finish();
+  }));
+
+  it("binds a variable to a user variable instead of its own value", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.variables.set("TOKEN", "[encrypted]");
+    setup(project);
+
+    bind("TOKEN", "OPENAI_KEY");
+
+    const input = row("TOKEN").querySelector("input.value") as HTMLInputElement;
+    const shown = {
+      readonly: input.readOnly,
+      placeholder: input.placeholder,
+      secret: row("TOKEN").querySelector("input.secret"),
+    };
+
+    button("Save").click();
+    fixture.detectChanges();
+
+    expect(shown).toEqual({
+      readonly: true,
+      placeholder: "Stored",
+      secret: null,
+    });
+    expect(toPlain(project.environment)).toEqual({
+      variables: { RETRIES: 0 },
+      visible: [],
+      bindings: { TOKEN: "OPENAI_KEY" },
+    });
+    finish();
+  }));
+
+  it("shows the value of a bound Visible Variable", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.bindings = new Map([["RETRIES", "VERBOSE"]]);
+    setup(project, userEnvironment({ VERBOSE: true }, ["VERBOSE"]));
+
+    const input = row("RETRIES").querySelector(
+      "input.value",
+    ) as HTMLInputElement;
+
+    expect(
+      (row("RETRIES").querySelector("select.bind") as HTMLSelectElement).value,
+    ).toBe("VERBOSE");
+    expect({ value: input.value, placeholder: input.placeholder }).toEqual({
+      value: "",
+      placeholder: "true",
+    });
+    finish();
+  }));
+
+  it("keeps a binding whose user variable is gone and says so", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.bindings = new Map([["TOKEN", "OLD_TOKEN"]]);
+    setup(project);
+
+    const select = row("TOKEN").querySelector(
+      "select.bind",
+    ) as HTMLSelectElement;
+    const shown = {
+      value: select.value,
+      placeholder: (
+        row("TOKEN").querySelector("input.value") as HTMLInputElement
+      ).placeholder,
+      note: row("TOKEN").querySelector(".missing")?.textContent.trim(),
+    };
+
+    button("Save").click();
+    fixture.detectChanges();
+
+    expect(shown).toEqual({
+      value: "OLD_TOKEN",
+      placeholder: "",
+      note: "Not in your environment",
+    });
+    expect(toPlain(project.environment).bindings).toEqual({
+      TOKEN: "OLD_TOKEN",
+    });
+    finish();
+  }));
+
+  it("gives back the own value when a row is bound and unbound before saving", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.variables.set("TOKEN", "tk-shown");
+    project.environment.visible = ["TOKEN"];
+    setup(project);
+
+    bind("TOKEN", "OPENAI_KEY");
+    bind("TOKEN", "");
+    button("Save").click();
+    fixture.detectChanges();
+
+    expect(toPlain(project.environment)).toEqual({
+      variables: { RETRIES: 0, TOKEN: "tk-shown" },
+      visible: ["TOKEN"],
+    });
+    finish();
+  }));
+
+  it("unbinding lets the project set its own value again", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.bindings = new Map([["TOKEN", "OPENAI_KEY"]]);
+    setup(project);
+
+    bind("TOKEN", "");
+    type(row("TOKEN").querySelector("input.value"), "sk-own");
+    button("Save").click();
+    fixture.detectChanges();
+
+    expect(toPlain(project.environment)).toEqual({
+      variables: { RETRIES: 0, TOKEN: "sk-own" },
+      visible: [],
+    });
     finish();
   }));
 

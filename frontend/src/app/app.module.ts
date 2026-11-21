@@ -123,7 +123,6 @@ import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipelin
 import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
 import { EditProjectComponent } from "./edit-project/edit-project.component";
 import { MeEnvironmentComponent } from "./me-environment/me-environment.component";
-import { EnvironmentVariablesComponent } from "./environment-variables/environment-variables.component";
 import { ProjectSettingsComponent } from "./project-settings/project-settings.component";
 import { FeedSkeletonComponent } from "./feed-skeleton/feed-skeleton.component";
 import { InspectComponent } from "./inspect/inspect.component";
@@ -280,7 +279,6 @@ import { UsersComponent } from "./users/users.component";
     PipelineNodeUpdatesPipe,
     MeUserComponent,
     MeEnvironmentComponent,
-    EnvironmentVariablesComponent,
     PlayViaApiComponent,
     EditPipelineScriptComponent,
     ProjectCommentsComponent,

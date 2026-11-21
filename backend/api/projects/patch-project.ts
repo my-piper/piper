@@ -12,6 +12,7 @@ import { Pipeline } from "models/pipeline";
 import { Project } from "models/project";
 import { User } from "models/user";
 import { decrypt, encrypt } from "packages/environment/crypt-environment";
+import { applyBindings } from "packages/environment/bind-environment";
 import { hide } from "packages/environment/hide-environment";
 import { dropRevealedSecrets } from "packages/environment/reveal-environment";
 import { ensureSign } from "packages/nodes/sign-node";
@@ -157,6 +158,7 @@ api.patch(
         }
       }
       dropRevealedSecrets(patched, stored.visible, changed);
+      applyBindings(patched);
 
       encrypt(patched);
       assign(update, { environment: patched });

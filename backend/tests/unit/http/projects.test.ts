@@ -716,6 +716,47 @@ describe("project environment patch", () => {
     });
   });
 
+  it("binds a project variable to a user variable and drops its own value", async () => {
+    storeProjectEnvironment({ OPENAI_KEY: "sk-project", RETRIES: 3 });
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(
+      { variables: { OPENAI_KEY: "[encrypted]", RETRIES: 3 } },
+      {
+        variables: { OPENAI_KEY: "[encrypted]", RETRIES: 3 },
+        bindings: { OPENAI_KEY: "OPENAI_KEY_WORK" },
+      }
+    );
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    const [, { $set }] = httpDoubles.projects.updateOne.mock.calls[0];
+    expect($set.environment.bindings).toEqual({
+      OPENAI_KEY: "OPENAI_KEY_WORK",
+    });
+    expect(writtenEnvironment().variables).toEqual({ RETRIES: 3 });
+  });
+
+  it.each([
+    { name: "to an invalid name", bindings: { OPENAI_KEY: "not a name" } },
+    { name: "of an invalid name", bindings: { "not a name": "OPENAI_KEY" } },
+  ])("rejects a binding $name", async ({ bindings }) => {
+    storeProjectEnvironment({});
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff({ variables: {} }, { variables: {}, bindings });
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(400);
+    expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
+  });
+
   it("shows a Visible Variable when the project is read", async () => {
     storeProjectEnvironment(
       { OPENAI_KEY: "sk-project", BASE_URL: "https://a" },

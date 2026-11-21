@@ -89,9 +89,13 @@ The Variables an admin provides for every user.
 _Avoid_: Global environment, system environment
 
 **Project Environment**:
-The Variables set on one Project. They override the User Environment and are frozen into each Deploy.
+The Variables set or bound on one Project. They override the User Environment and are frozen into each Deploy.
 _Avoid_: Pipeline environment, local environment
 
 **Inherited Variable**:
-A Variable a Project's Nodes declare but the Project doesn't set, so its value is read from the User Environment or the Platform Environment.
+A Variable a Project's Nodes declare but the Project neither sets nor binds, so its value is read from the Variable of the same name in the User Environment or the Platform Environment.
 _Avoid_: Default variable, fallback
+
+**Bound Variable**:
+A Project Variable that names a User Variable to read its value from, which may have a different name. It has no value of its own, and when the User Variable is missing it stays unset rather than falling back to the Variable of the same name. Only a Variable a Node reads from the Project can be bound.
+_Avoid_: Linked variable, alias, reference

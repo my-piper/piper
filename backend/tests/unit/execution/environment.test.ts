@@ -130,6 +130,48 @@ describe("node environment precedence and decryption", () => {
     });
   });
 
+  it("reads a bound project variable from the user variable it names", async () => {
+    const launch = launchFixture();
+    const node = launch.pipeline.nodes.get("echo_node");
+    node.environment = new Map(
+      Object.entries({
+        token: toInstance({ scope: "pipeline" }, NodeEnvironment),
+        missing: toInstance({ scope: "pipeline" }, NodeEnvironment),
+        userOnly: toInstance({ scope: "user" }, NodeEnvironment),
+      })
+    );
+    const user = encryptedEnvironment({
+      token: "same-name token",
+      work_token: "bound token",
+      missing: "same-name must not be used",
+      other: "binding of a user-scoped variable is ignored",
+      userOnly: "user only",
+    });
+    launch.environment = toInstance(
+      {
+        variables: {},
+        bindings: { token: "work_token", missing: "gone", userOnly: "other" },
+      },
+      Environment
+    );
+    doubles.redis.get.mockImplementation(async (key) =>
+      key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
+        ? JSON.stringify(toPlain(user))
+        : null
+    );
+
+    const environment = await getEnvironment({
+      launch,
+      node,
+      launchedBy: launch.launchedBy,
+    });
+
+    expect(toPlain(environment)).toEqual({
+      variables: { token: "bound token", userOnly: "user only" },
+      scope: { token: "user", userOnly: "user" },
+    });
+  });
+
   it("fills project variables from the user environment when the launch has no environment", async () => {
     const launch = launchFixture();
     const node = launch.pipeline.nodes.get("echo_node");

@@ -14,21 +14,100 @@
   </p>
 
   <form [formGroup]="form">
-    <app-environment-variables
-      [variables]="variables"
-      [removable]="true"
-      [removing]="progress.removing"
-      (remove)="remove($event)"
-    ></app-environment-variables>
+    @if (variables.length > 0) {
+      <table class="default">
+        <thead>
+          <tr>
+            <th i18n="@@label.name">Name</th>
+            <th i18n="@@label.type">Type</th>
+            <th i18n="@@label.value">Value</th>
+            <th width="64px" i18n="@@label.secret">Secret</th>
+            <th width="48px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (
+            variable of variables.controls;
+            track variable;
+            let i = $index
+          ) {
+            <tr class="variable" [formGroup]="variable">
+              <td title="Name" i18n-title="@@label.name">
+                <input
+                  class="key input-primary fluid"
+                  [class.error]="variable.controls.key.invalid"
+                  formControlName="key"
+                  placeholder="API_KEY"
+                />
+              </td>
+              <td title="Type" i18n-title="@@label.type">
+                <select class="type select-primary" formControlName="type">
+                  <option value="string" i18n="@@label.string">String</option>
+                  <option value="number" i18n="@@label.number">Number</option>
+                  <option value="boolean" i18n="@@label.boolean">
+                    Boolean
+                  </option>
+                </select>
+              </td>
+              <td title="Value" i18n-title="@@label.value">
+                <input
+                  class="value input-primary fluid"
+                  [class.error]="variable.errors?.['valueType']"
+                  formControlName="value"
+                  [type]="
+                    variable.controls.type.value === 'string' &&
+                    variable.controls.secret.value
+                      ? 'password'
+                      : 'text'
+                  "
+                  [placeholder]="
+                    placeholder(
+                      variable.controls.meta.value!,
+                      variable.controls.type.value!,
+                      variable.controls.secret.value
+                    )
+                  "
+                />
+              </td>
+              <td title="Secret" i18n-title="@@label.secret">
+                @if (variable.controls.type.value === "string") {
+                  <div class="checkbox small">
+                    <label class="switch">
+                      <input
+                        class="secret"
+                        type="checkbox"
+                        formControlName="secret"
+                      />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                }
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="remove transparent"
+                  [class.busy]="busy(variable)"
+                  [disabled]="busy(variable)"
+                  (click)="remove(i)"
+                  title="Remove"
+                  i18n-title="@@action.remove"
+                >
+                  <app-icon class="icon" icon="delete" [size]="18"></app-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
     @if (variables.errors?.["duplicateName"]) {
       <p class="duplicate-name" i18n="@@message.duplicate_variable_name">
         Two variables can't share a name. To swap names, save one rename first.
       </p>
     }
     @if (variables.length === 0) {
-      <p i18n="@@message.no_user_variables">
-        You have no variables yet.
-      </p>
+      <p i18n="@@message.no_user_variables">You have no variables yet.</p>
     }
 
     <footer class="stack horizontal justify-between">

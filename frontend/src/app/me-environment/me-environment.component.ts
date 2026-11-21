@@ -25,6 +25,7 @@ import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/consts/ui";
 import {
   parseValue,
+  storedPlaceholder,
   uniqueNames,
   VariableGroup,
   variableGroup,
@@ -33,8 +34,14 @@ import {
 } from "src/utils/environment";
 import { toPlain } from "src/utils/models";
 
+/** A User Variable row: the name its value is stored under, once saved. */
+interface UserVariableMeta {
+  storedName?: string;
+}
+
 /**
- * The user environment: variables shared by all of the user's projects.
+ * The User Environment: a free list of Variables shared by all of the user's
+ * Projects. Rows can be added, renamed and removed.
  */
 @Component({
   selector: "app-me-environment",
@@ -50,7 +57,10 @@ export class MeEnvironmentComponent implements OnInit {
   };
   error!: AppError;
 
-  variables = this.fb.array<VariableGroup>([], { validators: uniqueNames });
+  variables = this.fb.array<VariableGroup<UserVariableMeta>>([], {
+    validators: uniqueNames,
+  });
+
   form = this.fb.group({ variables: this.variables });
 
   constructor(
@@ -69,7 +79,7 @@ export class MeEnvironmentComponent implements OnInit {
     const visible = new Set(environment?.visible ?? []);
     for (const [key, value] of environment?.variables || []) {
       this.variables.push(
-        variableGroup(this.fb, {
+        variableGroup<UserVariableMeta>(this.fb, {
           key,
           type: variableType(typeof value),
           value,
@@ -82,7 +92,15 @@ export class MeEnvironmentComponent implements OnInit {
   }
 
   add() {
-    this.variables.push(variableGroup(this.fb));
+    this.variables.push(variableGroup<UserVariableMeta>(this.fb));
+  }
+
+  placeholder = storedPlaceholder;
+
+  /** The name the row is busy under while it is being removed. */
+  busy(variable: VariableGroup<UserVariableMeta>) {
+    const { meta, key } = variable.getRawValue();
+    return !!this.progress.removing[meta.storedName ?? key ?? ""];
   }
 
   remove(index: number) {

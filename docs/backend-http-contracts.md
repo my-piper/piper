@@ -92,6 +92,13 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   a stored secret is never revealed and launches fall back to the next
   Environment. Only names of string Variables stay in `visible`. `GET /api/environment` (admin) masks the Platform
   Environment the same way as the User Environment.
+- The project `environment` may carry `bindings`, a map from a Project Variable
+  name to the User Variable name it is read from (a Bound Variable). The
+  project `environment` PATCH delta answers 400 when either name isn't
+  `^[A-Za-z_][A-Za-z0-9_]*$`, and drops the own value and the `visible` entry
+  of every bound variable; empty `bindings` are omitted. At launch a bound
+  `pipeline`-scoped variable is read only from the launching user's User
+  Environment, under the bound name, and stays unset when it isn't there.
 - The User Environment (`/api/me/environment`) is read with `GET`, merged with
   `PUT` (values equal to `[encrypted]` keep the stored value), cleared with
   `DELETE`, and loses a single variable with `DELETE /api/me/environment/:key`

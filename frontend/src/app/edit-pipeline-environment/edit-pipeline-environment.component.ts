@@ -4,7 +4,7 @@ import {
   OnInit,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
 import * as marked from "marked";
@@ -16,19 +16,53 @@ import { ProjectManager } from "src/services/project.manager";
 import { Primitive } from "src/types/primitive";
 import {
   parseValue,
-  VariableGroup,
+  storedPlaceholder,
   variableGroup,
   VariableMeta,
+  VariableOptions,
+  VariableSource,
   variableType,
   visibleNames,
 } from "src/utils/environment";
 import { getDeclaredVariables } from "src/utils/pipeline";
 
+/** What a Project Variable row shows besides its value. */
+interface ProjectVariableMeta {
+  /** Only `pipeline`-scoped Variables can be set or bound here. */
+  readonly: boolean;
+  description: string | null;
+  /** Shown when the row has no value of its own and isn't bound. */
+  inherited?: { source: VariableSource; value?: Primitive };
+}
+
+/** A Project Variable row; `bind` names the User Variable it is read from. */
+function projectVariableGroup(
+  fb: FormBuilder,
+  options: VariableOptions<Omit<ProjectVariableMeta, "readonly">>,
+  bind: string,
+) {
+  const readonly = !!options.readonly;
+  const group = variableGroup<ProjectVariableMeta>(fb, {
+    ...options,
+    meta: { ...options.meta, readonly },
+  });
+  return new FormGroup(
+    {
+      ...group.controls,
+      bind: fb.nonNullable.control({ value: bind, disabled: readonly }),
+    },
+    { validators: group.validator },
+  );
+}
+
+type ProjectVariableGroup = ReturnType<typeof projectVariableGroup>;
+
 /**
  * The Project Environment: one row per Variable the pipeline's Nodes declare.
- * Only `pipeline`-scoped Variables can be set here; the others show where
- * their value is read from (the lookup order of the backend's
- * `jobs/process-node/environment.ts`).
+ * A `pipeline`-scoped Variable gets its own value, is bound to a User
+ * Variable, or is left empty to read the User Variable of the same name; the
+ * other scopes only show where their value is read from (the lookup order of
+ * the backend's `jobs/process-node/environment.ts`).
  */
 @Component({
   selector: "app-edit-pipeline-environment",
@@ -42,8 +76,12 @@ export class EditPipelineEnvironmentComponent implements OnInit {
   userEnvironment: Environment | null = null;
   platform = new Set<string>();
 
-  variables = this.fb.array<VariableGroup>([]);
+  variables = this.fb.array<ProjectVariableGroup>([]);
   form = this.fb.group({ variables: this.variables });
+
+  private texts = {
+    stored: $localize`:@@label.stored:Stored`,
+  };
 
   constructor(
     private projectManager: ProjectManager,
@@ -61,32 +99,76 @@ export class EditPipelineEnvironmentComponent implements OnInit {
     });
   }
 
+  /** User Variables a row can be bound to, and the name it is bound to. */
+  userNames(bound: string): string[] {
+    const names = [...(this.userEnvironment?.variables?.keys() ?? [])];
+    if (bound && !names.includes(bound)) {
+      names.push(bound);
+    }
+    return names.sort();
+  }
+
+  hasUserVariable(name: string) {
+    return !!this.userEnvironment?.variables?.has(name);
+  }
+
   private build() {
     this.variables.clear();
     const own = this.project.environment?.variables;
     const visible = new Set(this.project.environment?.visible ?? []);
+    const bindings = this.project.environment?.bindings;
     for (const [key, declaration] of getDeclaredVariables(
       this.project.pipeline,
     )) {
       const editable = declaration.scope === "pipeline";
-      this.variables.push(
-        variableGroup(this.fb, {
+      const bound = (editable && bindings?.get(key)) || "";
+      const group = projectVariableGroup(
+        this.fb,
+        {
           key,
           type: variableType(declaration.type),
-          value: editable ? (own?.get(key) ?? null) : null,
+          value: editable && !bound ? (own?.get(key) ?? null) : null,
           secret: !visible.has(key),
+          fixed: true,
+          readonly: !editable,
           meta: {
-            fixed: true,
-            readonly: !editable,
             description: declaration.description
               ? (marked.parse(declaration.description) as string)
               : null,
             inherited: this.inherited(key, declaration, own?.has(key)),
           },
-        }),
+        },
+        bound,
       );
+      if (editable) {
+        this.lockWhenBound(group);
+      }
+      this.variables.push(group);
     }
     this.cd.detectChanges();
+  }
+
+  /** A Bound Variable has no value of its own to edit. */
+  private lockWhenBound(group: ProjectVariableGroup) {
+    const { bind, value, secret } = group.controls;
+    // unbinding before saving gives the row its own value back
+    let own = value.value;
+    const apply = (bound: string) => {
+      if (bound) {
+        if (value.enabled) {
+          own = value.value;
+        }
+        value.setValue("");
+        value.disable({ emitEvent: false });
+        secret.disable({ emitEvent: false });
+      } else {
+        value.setValue(own);
+        value.enable({ emitEvent: false });
+        secret.enable({ emitEvent: false });
+      }
+    };
+    apply(bind.value);
+    bind.valueChanges.subscribe(apply);
   }
 
   /** Where the value comes from when the Project doesn't set it. */
@@ -94,7 +176,7 @@ export class EditPipelineEnvironmentComponent implements OnInit {
     key: string,
     { scope }: NodeEnvironment,
     setByProject: boolean,
-  ): VariableMeta["inherited"] {
+  ): ProjectVariableMeta["inherited"] {
     const user = this.userEnvironment?.variables;
     if (user?.has(key)) {
       return scope === "pipeline" && setByProject
@@ -111,13 +193,41 @@ export class EditPipelineEnvironmentComponent implements OnInit {
     }
   }
 
+  placeholder(
+    meta: ProjectVariableMeta & VariableMeta,
+    type: string,
+    secret: boolean,
+    bound: string,
+  ) {
+    if (bound) {
+      return this.hasUserVariable(bound)
+        ? this.shown(this.userEnvironment?.variables?.get(bound))
+        : "";
+    }
+    const { inherited, readonly } = meta;
+    if (inherited && inherited.source !== "none") {
+      return this.shown(inherited.value);
+    }
+    return readonly ? "" : storedPlaceholder(meta, type, secret);
+  }
+
+  /** An inherited value, never a secret one. */
+  private shown(value: Primitive | undefined) {
+    return value === undefined || value === HIDDEN_STRING
+      ? this.texts.stored
+      : String(value);
+  }
+
   save() {
     const variables = new Map<string, Primitive>();
+    const bindings = new Map<string, string>();
     const rows = this.variables
       .getRawValue()
       .filter(({ meta }) => !meta.readonly);
-    for (const { key, type, value, secret, meta } of rows) {
-      if (value !== "") {
+    for (const { key, type, value, secret, meta, bind } of rows) {
+      if (bind) {
+        bindings.set(key, bind);
+      } else if (value !== "") {
         variables.set(key, parseValue(type, value));
       } else if (meta.storedSecret && secret) {
         // the stored secret is kept: the project diff leaves it untouched
@@ -126,10 +236,16 @@ export class EditPipelineEnvironmentComponent implements OnInit {
       // a stored secret made visible without a new value is dropped
     }
     const visible = visibleNames(rows).filter((key) => variables.has(key));
-    this.apply(new Environment({ variables, visible }));
+    this.apply(
+      new Environment({
+        variables,
+        visible,
+        ...(bindings.size > 0 ? { bindings } : {}),
+      }),
+    );
   }
 
-  /** Drops the project's own variables; the user environment is untouched. */
+  /** Drops the project's own variables and bindings; the user environment is untouched. */
   clear() {
     this.apply(new Environment({ variables: new Map<string, Primitive>() }));
   }

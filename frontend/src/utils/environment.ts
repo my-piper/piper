@@ -8,26 +8,40 @@ import {
 import { HIDDEN_STRING } from "src/consts/core";
 import { Primitive } from "src/types/primitive";
 
+/** What a Variable name may look like. */
+export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
 export type VariableType = "string" | "number" | "boolean";
 
 /** Where a Variable the Project doesn't set is read from. */
 export type VariableSource = "user" | "platform" | "none";
 
-/** What a row shows besides its editable name, type and value. */
+/** What a row knows about its stored value. */
 export interface VariableMeta {
   /** The value is stored server-side: an empty input keeps it. */
   stored: boolean;
   /** The stored value belongs to a Secret Variable, so it isn't shown. */
   storedSecret: boolean;
-  /** The name the value is stored under, when the row can be renamed. */
-  storedName?: string;
-  /** Name and type come from a Node declaration. */
-  fixed: boolean;
-  /** The value can't be set here. */
-  readonly: boolean;
-  description?: string | null;
-  /** Shown when the row has no value of its own. */
-  inherited?: { source: VariableSource; value?: Primitive };
+}
+
+const storedTexts = {
+  kept: $localize`:@@message.stored_value_leave_empty:Stored, leave empty to keep`,
+  dropped: $localize`:@@message.stored_secret_dropped_on_save:The stored value is dropped on save`,
+};
+
+/** What an editable row's empty value input says about its stored value. */
+export function storedPlaceholder(
+  { stored, storedSecret }: VariableMeta,
+  type: string,
+  secret: boolean,
+) {
+  if (type !== "string") {
+    return "";
+  }
+  if (storedSecret && !secret) {
+    return storedTexts.dropped;
+  }
+  return stored ? storedTexts.kept : "";
 }
 
 /** Maps a declared or `typeof` type name onto a Variable type. */
@@ -45,9 +59,7 @@ export function variableType(name: string): VariableType {
 
 /** A value must parse as its type; empty is always allowed (keep / unset). */
 function valueMatchesType(group: AbstractControl): ValidationErrors | null {
-  const { type, value } = (
-    group as ReturnType<typeof variableGroup>
-  ).getRawValue();
+  const { type, value } = (group as VariableGroup).getRawValue();
   if (value === "") {
     return null;
   }
@@ -61,35 +73,44 @@ function valueMatchesType(group: AbstractControl): ValidationErrors | null {
   }
 }
 
-export function variableGroup(
+/**
+ * A row of an Environment form. `fixed` locks the type to a Node
+ * declaration; `readonly` locks the value and the secret switch.
+ */
+export interface VariableOptions<M> {
+  key?: string;
+  type?: VariableType;
+  value?: Primitive | null;
+  secret?: boolean;
+  fixed?: boolean;
+  readonly?: boolean;
+  meta?: M & Partial<VariableMeta>;
+}
+
+export function variableGroup<M extends object = object>(
   fb: FormBuilder,
   {
     key = "",
-    type = "string" as VariableType,
-    value = null as Primitive | null,
+    type = "string",
+    value = null,
     secret = true,
-    meta = {} as Partial<VariableMeta>,
-  } = {},
+    fixed = false,
+    readonly = false,
+    meta = {} as M & Partial<VariableMeta>,
+  }: VariableOptions<M> = {},
 ) {
-  const full: VariableMeta = {
-    stored: false,
-    storedSecret: false,
-    fixed: false,
-    readonly: false,
-    ...meta,
-  };
   const storedSecret = value === HIDDEN_STRING;
   return fb.group(
     {
       key: fb.control(key, [
         Validators.required,
-        Validators.pattern(/^[A-Za-z_][A-Za-z0-9_]*$/),
+        Validators.pattern(VARIABLE_NAME),
       ]),
-      type: fb.control<VariableType>({ value: type, disabled: full.fixed }),
+      type: fb.control<VariableType>({ value: type, disabled: fixed }),
       // only string Variables can be secret; off makes a Visible Variable
       secret: fb.nonNullable.control({
         value: secret,
-        disabled: full.readonly,
+        disabled: readonly,
       }),
       // stored strings are never sent back: leave empty to keep them
       value: fb.control({
@@ -97,11 +118,11 @@ export function variableGroup(
           value === null || value === undefined || storedSecret
             ? ""
             : String(value),
-        disabled: full.readonly,
+        disabled: readonly,
       }),
-      meta: fb.control<VariableMeta>({
-        ...full,
-        stored: full.stored || storedSecret,
+      meta: fb.control<M & VariableMeta>({
+        ...meta,
+        stored: !!meta.stored || storedSecret,
         storedSecret,
       }),
     },
@@ -109,14 +130,22 @@ export function variableGroup(
   );
 }
 
-export type VariableGroup = ReturnType<typeof variableGroup>;
+export type VariableGroup<M extends object = object> = ReturnType<
+  typeof variableGroup<M>
+>;
+
+export type VariableRow<M extends object = object> = ReturnType<
+  VariableGroup<M>["getRawValue"]
+>;
 
 /**
  * No two rows of an Environment may share a name, and a row may not take a
  * name another row still has stored: that rename has to be saved first.
  */
 export function uniqueNames(array: AbstractControl): ValidationErrors | null {
-  const rows = (array as FormArray<VariableGroup>).getRawValue();
+  const rows = (
+    array as FormArray<VariableGroup<{ storedName?: string }>>
+  ).getRawValue();
   const taken = rows.some(({ key }, i) =>
     rows.some(
       (other, j) =>
@@ -138,9 +167,7 @@ export function parseValue(type: VariableType, value: string): Primitive {
 }
 
 /** Names of the rows saved as Visible Variables. */
-export function visibleNames(
-  rows: ReturnType<VariableGroup["getRawValue"]>[],
-): string[] {
+export function visibleNames(rows: VariableRow[]): string[] {
   return rows
     .filter(({ type, secret }) => type === "string" && !secret)
     .map(({ key }) => key);

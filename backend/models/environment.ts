@@ -23,6 +23,15 @@ export class Environment {
   @Type(() => String)
   visible?: string[];
 
+  /**
+   * Bound Variables: the name of a Project Variable mapped to the name of the
+   * User Variable it is read from.
+   */
+  @Expose()
+  @IsOptional()
+  @Transform(primitiveMapTransformer)
+  bindings?: Map<string, string>;
+
   constructor(defs: Partial<Environment> = {}) {
     assign(this, defs);
   }

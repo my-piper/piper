@@ -12,6 +12,14 @@ export class Environment {
   @Expose()
   visible?: string[];
 
+  /**
+   * Bound Variables: the name of a Project Variable mapped to the name of the
+   * User Variable it is read from.
+   */
+  @Expose()
+  @Transform(primitiveMapTransformer)
+  bindings?: Map<string, string>;
+
   constructor(defs: Partial<Environment> = {}) {
     merge(this, defs);
   }

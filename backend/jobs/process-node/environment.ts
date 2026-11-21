@@ -13,7 +13,7 @@ import { Primitive } from "types/primitive";
 /**
  * Where a variable of each scope is read from, first match wins: the user
  * environment overrides the platform one and fills what the project leaves
- * empty.
+ * empty. A Bound Variable is read only from the User Variable it names.
  */
 const LOOKUP_ORDER: Record<EnvironmentScope, EnvironmentScope[]> = {
   global: ["user", "global"],
@@ -60,7 +60,17 @@ export async function getEnvironment({
       }
     }
 
+    const bindings = launch?.environment?.bindings;
     for (const [k, v] of node.environment) {
+      const bound = v.scope === "pipeline" ? bindings?.get(k) : undefined;
+      if (bound !== undefined) {
+        const value = environment.user?.variables?.get(bound);
+        if (value !== undefined) {
+          env.variables.set(k, value);
+          env.scope.set(k, "user");
+        }
+        continue;
+      }
       for (const source of LOOKUP_ORDER[v.scope] || []) {
         const value = environment[source]?.variables?.get(k);
         if (value !== undefined) {

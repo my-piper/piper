@@ -17,3 +17,13 @@ p {
 form {
   @include mixins.vertical-stack();
 }
+
+table.default {
+  td {
+    vertical-align: middle;
+  }
+
+  .type {
+    width: 100%;
+  }
+}

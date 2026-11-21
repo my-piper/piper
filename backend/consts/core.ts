@@ -25,3 +25,6 @@ export const CLAUDE_API_KEY = env["CLAUDE_API_KEY"] || "xyzXYZ";
 export const HIDDEN_STRING = "[encrypted]";
 export const SITE_URL = env["SITE_URL"] || "/";
 export const NODE_SIGN_SALT = env["NODE_SIGN_SALT"] || "xyzXYZ";
+
+/** What a Variable name may look like. */
+export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;

@@ -1,14 +1,137 @@
-<p i18n="@@message.project_environment_explained">
-  Set the variables this pipeline's nodes read. A variable you leave empty is
-  taken from <a [routerLink]="['/me', 'environment']">your environment</a>,
-  shared by all your projects; greyed out variables can only be set there.
+<p i18n="@@message.project_environment_explained_binding">
+  Set the variables this pipeline's nodes read, or take one from a variable of
+  <a [routerLink]="['/me', 'environment']">your environment</a>, shared by all
+  your projects. A variable you leave empty is taken from your variable of the
+  same name; greyed out variables can only be set there.
 </p>
 
 @if (variables.length > 0) {
   <form [formGroup]="form">
-    <app-environment-variables
-      [variables]="variables"
-    ></app-environment-variables>
+    <table class="default">
+      <thead>
+        <tr>
+          <th i18n="@@label.name">Name</th>
+          <th i18n="@@label.type">Type</th>
+          <th i18n="@@label.source">Source</th>
+          <th i18n="@@label.value">Value</th>
+          <th width="64px" i18n="@@label.secret">Secret</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (variable of variables.controls; track variable) {
+          <tr class="variable" [formGroup]="variable">
+            @if (variable.controls.meta.value; as meta) {
+              <td title="Name" i18n-title="@@label.name">
+                <input
+                  class="key input-primary fluid"
+                  formControlName="key"
+                  [readOnly]="true"
+                />
+                @if (meta.description) {
+                  <small
+                    class="description"
+                    [innerHTML]="meta.description"
+                  ></small>
+                }
+              </td>
+              <td title="Type" i18n-title="@@label.type">
+                <select class="type select-primary" formControlName="type">
+                  <option value="string" i18n="@@label.string">String</option>
+                  <option value="number" i18n="@@label.number">Number</option>
+                  <option value="boolean" i18n="@@label.boolean">
+                    Boolean
+                  </option>
+                </select>
+              </td>
+              <td title="Source" i18n-title="@@label.source">
+                @if (!meta.readonly) {
+                  <select class="bind select-primary" formControlName="bind">
+                    <option value="" i18n="@@label.this_project">
+                      This project
+                    </option>
+                    @for (
+                      name of userNames(variable.controls.bind.value);
+                      track name
+                    ) {
+                      <option [value]="name">{{ name }}</option>
+                    }
+                  </select>
+                }
+              </td>
+              <td title="Value" i18n-title="@@label.value">
+                <input
+                  class="value input-primary fluid"
+                  [class.error]="variable.errors?.['valueType']"
+                  formControlName="value"
+                  [readOnly]="meta.readonly || !!variable.controls.bind.value"
+                  [type]="
+                    variable.controls.type.value === 'string' &&
+                    variable.controls.secret.value
+                      ? 'password'
+                      : 'text'
+                  "
+                  [placeholder]="
+                    placeholder(
+                      meta,
+                      variable.controls.type.value!,
+                      variable.controls.secret.value,
+                      variable.controls.bind.value
+                    )
+                  "
+                />
+                @if (variable.controls.bind.value; as bound) {
+                  @if (!hasUserVariable(bound)) {
+                    <small
+                      class="inherited missing"
+                      i18n="@@message.bound_variable_missing"
+                      >Not in your environment</small
+                    >
+                  }
+                } @else if (meta.inherited && !variable.controls.value.value) {
+                  <small class="inherited">
+                    @switch (meta.inherited.source) {
+                      @case ("user") {
+                        <ng-container i18n="@@label.source_user_environment"
+                          >Your environment</ng-container
+                        >
+                      }
+                      @case ("platform") {
+                        <ng-container i18n="@@label.source_platform"
+                          >Platform</ng-container
+                        >
+                      }
+                      @default {
+                        <ng-container i18n="@@label.not_set"
+                          >Not set</ng-container
+                        >
+                      }
+                    }
+                  </small>
+                }
+              </td>
+              <td title="Secret" i18n-title="@@label.secret">
+                @if (
+                  variable.controls.type.value === "string" &&
+                  !meta.readonly &&
+                  !variable.controls.bind.value
+                ) {
+                  <div class="checkbox small">
+                    <label class="switch">
+                      <input
+                        class="secret"
+                        type="checkbox"
+                        formControlName="secret"
+                      />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
     <footer class="stack horizontal justify-between">
       <button
         type="button"
