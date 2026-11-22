@@ -1,6 +1,7 @@
 import { HttpTestingController } from "@angular/common/http/testing";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
+import { TuiRoot } from "@taiga-ui/core";
 import { BehaviorSubject } from "rxjs";
 import { EditNodeScriptComponent } from "src/app/edit-node-script/edit-node-script.component";
 import { UI_DELAY } from "src/consts/ui";
@@ -143,6 +144,29 @@ describe("pipeline node script editor", () => {
     expect(page.node.script).toBe(edited);
     expect(page.node.execution).toBe(NodeExecution.rapid);
     expect(page.node.sign).toBeUndefined();
+    page.controller.verify();
+    finish();
+  }));
+
+  it("opens the script examples from the editor", fakeAsync(() => {
+    const page = setup(SOURCE);
+    // the dialog renders into the portal host of the app's tui-root
+    const root = TestBed.createComponent(TuiRoot);
+    root.detectChanges();
+    const element = page.fixture.nativeElement as HTMLElement;
+    const examples = Array.from(element.querySelectorAll("button")).find(
+      (b) => b.textContent.trim() === "Examples",
+    );
+
+    examples.click();
+    page.fixture.detectChanges();
+    root.detectChanges();
+    const dialog = document.querySelector("tui-dialog");
+
+    expect(dialog.textContent).toContain("Script examples");
+    expect(
+      dialog.querySelector("app-node-script-help pre").textContent,
+    ).toContain("export async function run");
     page.controller.verify();
     finish();
   }));

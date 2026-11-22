@@ -1,0 +1,46 @@
+:host {
+  display: grid;
+  grid-template-columns: minmax(10rem, max-content) 1fr;
+  gap: 1.5rem;
+  min-height: 28rem;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.description {
+  margin: 0;
+  font: var(--tui-typography-body-m);
+  color: var(--tui-text-secondary);
+}
+
+.code {
+  position: relative;
+  border-radius: var(--tui-radius-m);
+  background: var(--tui-background-neutral-1);
+
+  pre {
+    margin: 0;
+    padding: 1rem;
+    overflow: auto;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .copy {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  :host {
+    grid-template-columns: 1fr;
+  }
+}

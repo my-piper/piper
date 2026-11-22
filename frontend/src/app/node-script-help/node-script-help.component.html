@@ -1,0 +1,22 @@
+@let current = example();
+
+<tui-tabs
+  vertical="start"
+  size="m"
+  [activeItemIndex]="active()"
+  (activeItemIndexChange)="active.set($event)"
+>
+  @for (item of examples; track item.id) {
+    <button tuiTab type="button">{{ item.title }}</button>
+  }
+</tui-tabs>
+
+<section [attr.aria-label]="current.title">
+  <p class="description">{{ current.description }}</p>
+  <div class="code">
+    <button class="copy" [tuiButtonCopy]="current.code">
+      <ng-container i18n="@@action.copy">Copy</ng-container>
+    </button>
+    <pre><code>{{ current.code }}</code></pre>
+  </div>
+</section>

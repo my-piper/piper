@@ -53,6 +53,16 @@
       tuiButton
       size="m"
       type="button"
+      appearance="secondary"
+      (click)="helpOpen = true"
+      i18n="@@action.script_examples"
+    >
+      Examples
+    </button>
+    <button
+      tuiButton
+      size="m"
+      type="button"
       [disabled]="!scriptLoaded || progress.saving || progress.formatting"
       [loading]="progress.formatting"
       (click)="format()"
@@ -72,3 +82,9 @@
     </button>
   </footer>
 </form>
+
+<ng-template [(tuiDialog)]="helpOpen" [tuiDialogOptions]="helpOptions">
+  <app-node-script-help
+    [scriptNode]="node?.source === scriptNodeSource"
+  ></app-node-script-help>
+</ng-template>

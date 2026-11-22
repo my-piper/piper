@@ -117,6 +117,7 @@ import { EditNodeDesignComponent } from "./edit-node-design/edit-node-design.com
 import { EditNodeEnvironmentComponent } from "./edit-node-environment/edit-node-environment.component";
 import { EditNodeInputsComponent } from "./edit-node-inputs/edit-node-inputs.component";
 import { EditNodeScriptComponent } from "./edit-node-script/edit-node-script.component";
+import { NodeScriptHelpComponent } from "./node-script-help/node-script-help.component";
 import { EditNodeYamlComponent } from "./edit-node-yaml/edit-node-yaml.component";
 import { EditPipelineDesignComponent } from "./edit-pipeline-design/edit-pipeline-design.component";
 import { EditPipelineEnvironmentComponent } from "./edit-pipeline-environment/edit-pipeline-environment.component";
@@ -315,6 +316,7 @@ import { UsersComponent } from "./users/users.component";
     TaigaFormsModule,
     NgHcaptchaModule.forRoot(),
     TuiRoot,
+    NodeScriptHelpComponent,
     TuiButton,
     TuiIcon,
     ...TuiDataList,

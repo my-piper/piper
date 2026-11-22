@@ -39,6 +39,13 @@ import { toInstance, toPlain } from "src/utils/models";
 })
 export class EditNodeScriptComponent implements OnInit {
   nodeExecution = NodeExecution;
+  readonly scriptNodeSource = SCRIPT_NODE_SOURCE;
+
+  helpOpen = false;
+  readonly helpOptions = {
+    label: $localize`:@@label.script_examples:Script examples`,
+    size: "l" as const,
+  };
 
   private destroyRef = inject(DestroyRef);
   private loadedSource = "";
