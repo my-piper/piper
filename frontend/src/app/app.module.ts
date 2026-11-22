@@ -22,6 +22,7 @@ import {
 } from "@taiga-ui/core";
 import { TuiTable } from "@taiga-ui/addon-table";
 import { TuiBadge, TuiButtonLoading } from "@taiga-ui/kit";
+import { TuiNavigation } from "@taiga-ui/layout";
 import { NgHcaptchaModule } from "ng-hcaptcha";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { SocketIoModule } from "ngx-socket-io";
@@ -134,7 +135,6 @@ import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs
 import { LaunchOutputsComponent } from "./launch-outputs/launch-outputs.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
-import { MainToolbarComponent } from "./main-toolbar/main-toolbar.component";
 import { MeUserComponent } from "./me-user/me-user.component";
 import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
@@ -216,7 +216,6 @@ import { UsersComponent } from "./users/users.component";
     LoginComponent,
     SigupComponent,
     AppLayoutComponent,
-    MainToolbarComponent,
     NodeInLaunchComponent,
     NodeStateComponent,
     NodeJobsComponent,
@@ -328,6 +327,7 @@ import { UsersComponent } from "./users/users.component";
     ...TuiTable,
     TuiBadge,
     TuiButtonLoading,
+    ...TuiNavigation,
   ],
   providers: [
     provideTaiga(),

@@ -25,7 +25,7 @@ test("switches theme from the header and keeps it after reload", async ({
   await page.emulateMedia({ colorScheme: "light" });
   await open("/en/projects");
 
-  await page.locator("header button:has(app-icon[icon='theme'])").click();
+  await page.getByTestId("theme-menu").click();
   await page.locator(".switcher label").filter({ hasText: "Dark" }).click();
   await page.reload();
 

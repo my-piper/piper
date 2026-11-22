@@ -14,8 +14,6 @@ import {
   RouterOutlet,
 } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
-import { MainToolbarComponent } from "src/app/main-toolbar/main-toolbar.component";
-import { MeUserComponent } from "src/app/me-user/me-user.component";
 import { ProjectComponent } from "src/app/project/project.component";
 import { SaveProjectGuard } from "src/guards/save-project.guard";
 import { CanPipe } from "src/pipes/can";
@@ -53,8 +51,6 @@ describe("ProjectComponent save errors", () => {
     TestBed.configureTestingModule({
       declarations: [
         ProjectComponent,
-        MainToolbarComponent,
-        MeUserComponent,
         IconComponent,
         InformerComponent,
         ModalDirective,

@@ -104,79 +104,6 @@ export function projectIdMatcher(
 
 const routes: Routes = [
   {
-    path: "play",
-    component: PlaygroundComponent,
-    children: [
-      {
-        path: "",
-        pathMatch: "full",
-        resolve: {
-          tag: TagResolver,
-        },
-        component: SelectPlaygroundPageComponent,
-      },
-      {
-        path: ":id",
-        resolve: {
-          project: ProjectResolver,
-        },
-        component: PlayWithProjectComponent,
-        children: [
-          {
-            path: "readme",
-            component: PipelineReadmeComponent,
-          },
-          {
-            path: "scheme",
-            component: EditPipelineVisualComponent,
-            data: {
-              mode: "scheme",
-            },
-          },
-          {
-            path: "api/:prefix/:slug",
-            resolve: {
-              deploy: DeployResolver,
-            },
-            component: PlayViaApiComponent,
-          },
-          {
-            path: "api/:slug",
-            resolve: {
-              deploy: DeployResolver,
-            },
-            component: PlayViaApiComponent,
-          },
-          {
-            path: "comments",
-            component: ProjectCommentsComponent,
-          },
-          {
-            path: "batches",
-            component: BatchesComponent,
-          },
-          {
-            path: "",
-            resolve: {
-              filter: ProjectPlaygroundLaunchesFilterResolver,
-            },
-            component: LaunchesPageComponent,
-            canActivate: [ShouldCheckReadmeGuard],
-            children: [
-              {
-                path: "outputs/:id",
-                component: LaunchOutputsPageComponent,
-                resolve: {
-                  launch: LaunchResolver,
-                },
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
     path: "login",
     canActivate: [AnonymousGuard],
     component: LoginComponent,
@@ -187,303 +114,379 @@ const routes: Routes = [
     component: SigupComponent,
   },
   {
-    path: "launches/:id",
-    component: EditPipelineVisualComponent,
-    data: {
-      project: null,
-      mode: "launch",
-    },
-    resolve: {
-      launch: LaunchResolver,
-    },
+    path: "",
+    component: AppLayoutComponent,
     children: [
       {
-        path: "nodes/:id",
-        outlet: "right",
-        component: NodeInLaunchComponent,
-        resolve: {
-          node: NodeFromLaunchResolver,
-        },
+        path: "play",
+        component: PlaygroundComponent,
         children: [
           {
             path: "",
-            redirectTo: "outputs",
             pathMatch: "full",
-          },
-          {
-            path: "outputs",
-            component: NodeOutputsComponent,
-          },
-          {
-            path: "inputs",
-            component: NodeInputsComponent,
-          },
-          {
-            path: "state",
-            component: NodeStateComponent,
-          },
-          {
-            path: "logs",
-            component: NodeJobsComponent,
-          },
-          {
-            path: "jobs",
-            component: NodeJobsComponent,
-          },
-        ],
-      },
-      {
-        path: "outputs",
-        component: LaunchOutputsPageComponent,
-      },
-      {
-        path: "nested",
-        component: LaunchesPageComponent,
-        resolve: {
-          filter: NestedLaunchesFilterResolver,
-        },
-      },
-      {
-        path: "messages",
-        resolve: {
-          filter: LaunchMessagesFilterResolver,
-        },
-        component: PipelineMessagesComponent,
-      },
-    ],
-  },
-  {
-    matcher: projectIdMatcher,
-    component: ProjectComponent,
-    canActivate: [SigninNeededGuard],
-    canDeactivate: [SaveProjectGuard],
-    resolve: {
-      project: ProjectResolver,
-    },
-    runGuardsAndResolvers: "pathParamsChange",
-    children: [
-      {
-        path: "artefacts",
-        component: ProjectArtefactsComponent,
-      },
-      {
-        path: "environment",
-        resolve: {
-          environment: MeEnvironmentResolver,
-          platform: PlatformEnvironmentResolver,
-        },
-        component: EditPipelineEnvironmentComponent,
-      },
-      {
-        path: "readme/edit",
-        component: EditPipelineReadmeComponent,
-        children: [
-          {
-            path: "view",
-            component: PipelineReadmeComponent,
-          },
-        ],
-      },
-      {
-        path: "readme",
-        component: PipelineReadmeComponent,
-      },
-      {
-        path: "yaml",
-        component: EditPipelineYamlComponent,
-      },
-      {
-        path: "script",
-        component: EditPipelineScriptComponent,
-      },
-      {
-        path: "design",
-        component: EditPipelineDesignComponent,
-      },
-      {
-        path: "deploy",
-        component: DeployPipelineComponent,
-        children: [
-          {
-            path: ":slug",
             resolve: {
-              deploy: DeployResolver,
+              tag: TagResolver,
             },
-            component: PlayViaApiComponent,
+            component: SelectPlaygroundPageComponent,
           },
           {
-            path: ":prefix/:slug",
+            path: ":id",
+            data: { fullBleed: true },
             resolve: {
-              deploy: DeployResolver,
+              project: ProjectResolver,
             },
-            component: PlayViaApiComponent,
-          },
-        ],
-      },
-      {
-        path: "launches",
-        component: LaunchesPageComponent,
-        resolve: {
-          filter: LaunchesFilterResolver,
-        },
-        children: [
-          {
-            path: "outputs/:id",
-            component: LaunchOutputsPageComponent,
-            resolve: {
-              launch: LaunchResolver,
-            },
-          },
-        ],
-      },
-      {
-        path: "stats",
-        component: ProjectStatsComponent,
-      },
-      {
-        path: "node-updates",
-        component: UpdatePipelineNodesComponent,
-      },
-      {
-        path: "messages",
-        resolve: {
-          filter: ProjectMessagesFilterResolver,
-        },
-        component: PipelineMessagesComponent,
-      },
-      {
-        path: "tools",
-        component: PipelineToolsComponent,
-      },
-      {
-        path: "assets",
-        component: ProjectAssetsComponent,
-      },
-      {
-        path: "",
-        component: EditPipelineVisualComponent,
-        resolve: {
-          launch: LaunchResolver,
-          launches: LaunchesResolver,
-        },
-        runGuardsAndResolvers: "pathParamsChange",
-        children: [
-          {
-            path: "launches/:id",
-            resolve: {
-              launch: LaunchResolver,
-            },
-            outlet: "right",
+            component: PlayWithProjectComponent,
             children: [
               {
-                path: "nodes/:id",
-                component: NodeInLaunchComponent,
-                resolve: {
-                  node: NodeFromLaunchResolver,
+                path: "readme",
+                component: PipelineReadmeComponent,
+              },
+              {
+                path: "scheme",
+                component: EditPipelineVisualComponent,
+                data: {
+                  mode: "scheme",
                 },
+              },
+              {
+                path: "api/:prefix/:slug",
+                resolve: {
+                  deploy: DeployResolver,
+                },
+                component: PlayViaApiComponent,
+              },
+              {
+                path: "api/:slug",
+                resolve: {
+                  deploy: DeployResolver,
+                },
+                component: PlayViaApiComponent,
+              },
+              {
+                path: "comments",
+                component: ProjectCommentsComponent,
+              },
+              {
+                path: "batches",
+                component: BatchesComponent,
+              },
+              {
+                path: "",
+                resolve: {
+                  filter: ProjectPlaygroundLaunchesFilterResolver,
+                },
+                component: LaunchesPageComponent,
+                canActivate: [ShouldCheckReadmeGuard],
                 children: [
                   {
-                    path: "",
-                    redirectTo: "outputs",
-                    pathMatch: "full",
-                  },
-                  {
-                    path: "outputs",
-                    component: NodeOutputsComponent,
-                  },
-                  {
-                    path: "inputs",
-                    component: NodeInputsComponent,
-                  },
-                  {
-                    path: "state",
-                    component: NodeStateComponent,
-                  },
-                  {
-                    path: "logs",
-                    component: NodeLogsComponent,
-                  },
-                  {
-                    path: "jobs",
-                    component: NodeJobsComponent,
+                    path: "outputs/:id",
+                    component: LaunchOutputsPageComponent,
+                    resolve: {
+                      launch: LaunchResolver,
+                    },
                   },
                 ],
               },
             ],
           },
-          {
-            path: "add-node",
-            component: SelectNodeComponent,
-            outlet: "left",
-          },
-          {
-            path: "assistant",
-            component: AssistantComponent,
-            outlet: "bottom",
-          },
-          {
-            path: "apps/:id",
-            component: NodeAppComponent,
-            resolve: {
-              node: NodeFromProjectResolver,
-            },
-          },
+        ],
+      },
+      {
+        path: "launches/:id",
+        component: EditPipelineVisualComponent,
+        data: {
+          fullBleed: true,
+          project: null,
+          mode: "launch",
+        },
+        resolve: {
+          launch: LaunchResolver,
+        },
+        children: [
           {
             path: "nodes/:id",
-            component: EditNodeInputsComponent,
             outlet: "right",
+            component: NodeInLaunchComponent,
             resolve: {
-              node: NodeFromProjectResolver,
-            },
-          },
-          {
-            path: "nodes/:id/edit",
-            component: EditNodeComponent,
-            resolve: {
-              node: NodeFromProjectResolver,
+              node: NodeFromLaunchResolver,
             },
             children: [
               {
-                path: "script",
-                component: EditNodeScriptComponent,
-              },
-              {
-                path: "app",
-                component: EditNodeAppComponent,
-              },
-              {
-                path: "yaml",
-                component: EditNodeYamlComponent,
-              },
-              {
-                path: "catalog",
-                component: EditNodeCatalogComponent,
-              },
-              {
-                path: "environment",
-                component: EditNodeEnvironmentComponent,
-              },
-              {
                 path: "",
-                component: EditNodeDesignComponent,
+                redirectTo: "outputs",
+                pathMatch: "full",
+              },
+              {
+                path: "outputs",
+                component: NodeOutputsComponent,
+              },
+              {
+                path: "inputs",
+                component: NodeInputsComponent,
+              },
+              {
+                path: "state",
+                component: NodeStateComponent,
+              },
+              {
+                path: "logs",
+                component: NodeJobsComponent,
+              },
+              {
+                path: "jobs",
+                component: NodeJobsComponent,
               },
             ],
           },
           {
-            path: "inputs/:id",
-            component: EditPipelineInputComponent,
+            path: "outputs",
+            component: LaunchOutputsPageComponent,
+          },
+          {
+            path: "nested",
+            component: LaunchesPageComponent,
             resolve: {
-              input: PipelineInputFromProjectResolver,
+              filter: NestedLaunchesFilterResolver,
             },
+          },
+          {
+            path: "messages",
+            resolve: {
+              filter: LaunchMessagesFilterResolver,
+            },
+            component: PipelineMessagesComponent,
           },
         ],
       },
-    ],
-  },
-  {
-    path: "",
-    component: AppLayoutComponent,
-    children: [
+      {
+        matcher: projectIdMatcher,
+        component: ProjectComponent,
+        data: { fullBleed: true },
+        canActivate: [SigninNeededGuard],
+        canDeactivate: [SaveProjectGuard],
+        resolve: {
+          project: ProjectResolver,
+        },
+        runGuardsAndResolvers: "pathParamsChange",
+        children: [
+          {
+            path: "artefacts",
+            component: ProjectArtefactsComponent,
+          },
+          {
+            path: "environment",
+            resolve: {
+              environment: MeEnvironmentResolver,
+              platform: PlatformEnvironmentResolver,
+            },
+            component: EditPipelineEnvironmentComponent,
+          },
+          {
+            path: "readme/edit",
+            component: EditPipelineReadmeComponent,
+            children: [
+              {
+                path: "view",
+                component: PipelineReadmeComponent,
+              },
+            ],
+          },
+          {
+            path: "readme",
+            component: PipelineReadmeComponent,
+          },
+          {
+            path: "yaml",
+            component: EditPipelineYamlComponent,
+          },
+          {
+            path: "script",
+            component: EditPipelineScriptComponent,
+          },
+          {
+            path: "design",
+            component: EditPipelineDesignComponent,
+          },
+          {
+            path: "deploy",
+            component: DeployPipelineComponent,
+            children: [
+              {
+                path: ":slug",
+                resolve: {
+                  deploy: DeployResolver,
+                },
+                component: PlayViaApiComponent,
+              },
+              {
+                path: ":prefix/:slug",
+                resolve: {
+                  deploy: DeployResolver,
+                },
+                component: PlayViaApiComponent,
+              },
+            ],
+          },
+          {
+            path: "launches",
+            component: LaunchesPageComponent,
+            resolve: {
+              filter: LaunchesFilterResolver,
+            },
+            children: [
+              {
+                path: "outputs/:id",
+                component: LaunchOutputsPageComponent,
+                resolve: {
+                  launch: LaunchResolver,
+                },
+              },
+            ],
+          },
+          {
+            path: "stats",
+            component: ProjectStatsComponent,
+          },
+          {
+            path: "node-updates",
+            component: UpdatePipelineNodesComponent,
+          },
+          {
+            path: "messages",
+            resolve: {
+              filter: ProjectMessagesFilterResolver,
+            },
+            component: PipelineMessagesComponent,
+          },
+          {
+            path: "tools",
+            component: PipelineToolsComponent,
+          },
+          {
+            path: "assets",
+            component: ProjectAssetsComponent,
+          },
+          {
+            path: "",
+            component: EditPipelineVisualComponent,
+            resolve: {
+              launch: LaunchResolver,
+              launches: LaunchesResolver,
+            },
+            runGuardsAndResolvers: "pathParamsChange",
+            children: [
+              {
+                path: "launches/:id",
+                resolve: {
+                  launch: LaunchResolver,
+                },
+                outlet: "right",
+                children: [
+                  {
+                    path: "nodes/:id",
+                    component: NodeInLaunchComponent,
+                    resolve: {
+                      node: NodeFromLaunchResolver,
+                    },
+                    children: [
+                      {
+                        path: "",
+                        redirectTo: "outputs",
+                        pathMatch: "full",
+                      },
+                      {
+                        path: "outputs",
+                        component: NodeOutputsComponent,
+                      },
+                      {
+                        path: "inputs",
+                        component: NodeInputsComponent,
+                      },
+                      {
+                        path: "state",
+                        component: NodeStateComponent,
+                      },
+                      {
+                        path: "logs",
+                        component: NodeLogsComponent,
+                      },
+                      {
+                        path: "jobs",
+                        component: NodeJobsComponent,
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: "add-node",
+                component: SelectNodeComponent,
+                outlet: "left",
+              },
+              {
+                path: "assistant",
+                component: AssistantComponent,
+                outlet: "bottom",
+              },
+              {
+                path: "apps/:id",
+                component: NodeAppComponent,
+                resolve: {
+                  node: NodeFromProjectResolver,
+                },
+              },
+              {
+                path: "nodes/:id",
+                component: EditNodeInputsComponent,
+                outlet: "right",
+                resolve: {
+                  node: NodeFromProjectResolver,
+                },
+              },
+              {
+                path: "nodes/:id/edit",
+                component: EditNodeComponent,
+                resolve: {
+                  node: NodeFromProjectResolver,
+                },
+                children: [
+                  {
+                    path: "script",
+                    component: EditNodeScriptComponent,
+                  },
+                  {
+                    path: "app",
+                    component: EditNodeAppComponent,
+                  },
+                  {
+                    path: "yaml",
+                    component: EditNodeYamlComponent,
+                  },
+                  {
+                    path: "catalog",
+                    component: EditNodeCatalogComponent,
+                  },
+                  {
+                    path: "environment",
+                    component: EditNodeEnvironmentComponent,
+                  },
+                  {
+                    path: "",
+                    component: EditNodeDesignComponent,
+                  },
+                ],
+              },
+              {
+                path: "inputs/:id",
+                component: EditPipelineInputComponent,
+                resolve: {
+                  input: PipelineInputFromProjectResolver,
+                },
+              },
+            ],
+          },
+        ],
+      },
       {
         path: "projects",
         component: ProjectsComponent,

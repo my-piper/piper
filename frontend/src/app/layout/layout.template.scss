@@ -1,40 +1,67 @@
-@use "src/ui-kit/styles/variables";
-@use "src/ui-kit/styles/mixins";
+// Unencapsulated: the full-bleed rules reach the routed page, which is a
+// sibling of <router-outlet> and not part of this component's view.
 
-:host {
+app-layout {
   display: block;
 }
 
-app-main-toolbar {
-  margin-bottom: variables.$gutter-normal;
-}
-
-main {
-  @include mixins.wider-tablet() {
-    padding: 20px;
-    min-height: calc(100vmin - 200px);
+app-layout:not(.ready) {
+  aside[tuiNavigationAside],
+  main[tuiNavigationMain] {
+    transition: none;
   }
 }
 
-footer {
-  margin-top: variables.$gutter-normal;
-  border-top: 1px solid variables.with-alpha(variables.$graphite-color-60, 0.1);
+app-layout .app-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  img {
+    display: block;
+  }
+}
+
+app-layout .app-frame {
+  display: flex;
+  min-block-size: calc(100dvh - 3rem);
+}
+
+app-layout main[tuiNavigationMain] {
+  min-inline-size: 0;
+}
+
+// Canvases and editors take the whole area right of the aside. Layout
+// containment makes this area the box their fixed drawers attach to, so the
+// drawers open under the header and next to the aside instead of beneath them.
+app-layout main[tuiNavigationMain].full-bleed {
+  contain: layout;
+  block-size: calc(100dvh - 3rem);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: none;
+
+  > router-outlet {
+    display: none;
+  }
+
+  > * {
+    flex: 1 0 auto;
+  }
+}
+
+app-layout .app-footer {
+  border-block-start: 1px solid var(--tui-border-normal);
+  font: var(--tui-typography-body-s);
+  color: var(--tui-text-secondary);
 
   > div {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    padding: variables.$gutter-normal;
-    gap: variables.$gutter-small;
-    font-size: 0.85em;
-
-    @include mixins.less-tablet() {
-      flex-direction: column;
-    }
-
-    @include mixins.wider-tablet() {
-      margin: 0 auto;
-      max-width: 960px;
-    }
+    gap: 0.5rem;
+    padding-block: 1rem;
   }
 }
