@@ -3,11 +3,13 @@ import {
   Component,
   ViewEncapsulation,
   afterNextRender,
+  computed,
   inject,
   signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
+import { TUI_BREAKPOINT } from "@taiga-ui/core";
 import { filter, map } from "rxjs";
 import { ASIDE_EXPANDED_KEY } from "src/consts/core";
 import { AppConfig } from "src/models/app-config";
@@ -55,10 +57,14 @@ function storeExpanded(expanded: boolean) {
 })
 export class AppLayoutComponent {
   private readonly router = inject(Router);
+  private readonly breakpoint = inject(TUI_BREAKPOINT);
 
   readonly appConfig = inject(AppConfig);
   readonly userRole = UserRole;
   readonly expanded = signal(readExpanded());
+  /** On phones the aside gives way to a drawer opened from the header. */
+  readonly mobile = computed(() => this.breakpoint() === "mobile");
+  drawerOpen = false;
   readonly fullBleed = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),

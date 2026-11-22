@@ -177,6 +177,26 @@ describe("AppLayoutComponent", () => {
     );
   });
 
+  it("replaces the aside with a header drawer on mobile", async () => {
+    const { harness } = await render("owner", "mobile");
+
+    const element = await open(harness, "/projects");
+
+    expect(element.querySelector("aside")).toBeNull();
+    expect(
+      element.querySelector("[data-testid=navigation-drawer]"),
+    ).not.toBeNull();
+  });
+
+  it("keeps the aside and no drawer on desktop", async () => {
+    const { harness } = await render("owner", "desktopSmall");
+
+    const element = await open(harness, "/projects");
+
+    expect(element.querySelector("aside")).not.toBeNull();
+    expect(element.querySelector("[data-testid=navigation-drawer]")).toBeNull();
+  });
+
   it("shows the footer on content pages and hides it on full-bleed pages", async () => {
     const { harness } = await render("owner");
 

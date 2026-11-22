@@ -1,4 +1,71 @@
 <header tuiNavigationHeader>
+  @if (mobile()) {
+    <button
+      tuiIconButton
+      tuiNavigationDrawer
+      type="button"
+      data-testid="navigation-drawer"
+      aria-label="Menu"
+      i18n-aria-label="@@label.menu"
+      [(open)]="drawerOpen"
+    >
+      <tui-data-list>
+        @if (userRole.admin | can | async) {
+          <a
+            tuiOption
+            [routerLink]="['/', 'packages']"
+            (click)="drawerOpen = false"
+            i18n="@@link.node_packages"
+            >Node packages</a
+          >
+        }
+        <a
+          tuiOption
+          [routerLink]="['/', 'projects']"
+          (click)="drawerOpen = false"
+          i18n="@@link.pipelines"
+          >Pipelines</a
+        >
+        <a
+          tuiOption
+          [routerLink]="['/', 'play']"
+          (click)="drawerOpen = false"
+          i18n="@@link.apps"
+          >Apps</a
+        >
+        <a
+          tuiOption
+          [routerLink]="['/', 'launches']"
+          (click)="drawerOpen = false"
+          i18n="@@link.launches"
+          >Launches</a
+        >
+        <a
+          tuiOption
+          [routerLink]="['/', 'assets']"
+          (click)="drawerOpen = false"
+          i18n="@@link.assets"
+          >Assets</a
+        >
+        <a
+          tuiOption
+          [routerLink]="['/', 'me', 'environment']"
+          (click)="drawerOpen = false"
+          i18n="@@link.environment"
+          >Environment</a
+        >
+        @if (userRole.admin | can | async) {
+          <a
+            tuiOption
+            [routerLink]="['/', 'users']"
+            (click)="drawerOpen = false"
+            i18n="@@link.users"
+            >Users</a
+          >
+        }
+      </tui-data-list>
+    </button>
+  }
   <a tuiNavigationLogo class="app-logo" [href]="appConfig.siteUrl">
     <img height="25" src="assets/app-logo.svg?v=next" alt="Piper" />
     <span tuiBadge appearance="accent" size="s">beta</span>
@@ -42,94 +109,96 @@
 </header>
 
 <div class="app-frame">
-  <aside [tuiNavigationAside]="expanded()">
-    @if (userRole.admin | can | async) {
-    <a
-      tuiAsideItem
-      iconStart="@tui.package"
-      [routerLink]="['/', 'packages']"
-      [state]="{ scroll: 'top' }"
-      i18n="@@link.node_packages"
-      >Node packages</a
-    >
-    }
-    <a
-      tuiAsideItem
-      iconStart="@tui.workflow"
-      [routerLink]="['/', 'projects']"
-      [state]="{ scroll: 'top' }"
-      i18n="@@link.pipelines"
-      >Pipelines</a
-    >
-    <a
-      tuiAsideItem
-      iconStart="@tui.play"
-      [routerLink]="['/', 'play']"
-      [state]="{ scroll: 'top' }"
-      i18n="@@link.apps"
-      >Apps</a
-    >
-    <a
-      tuiAsideItem
-      iconStart="@tui.history"
-      [routerLink]="['/', 'launches']"
-      [state]="{ scroll: 'top' }"
-      i18n="@@link.launches"
-      >Launches</a
-    >
-    <a
-      tuiAsideItem
-      iconStart="@tui.folder-open"
-      [routerLink]="['/', 'assets']"
-      [state]="{ scroll: 'top' }"
-      i18n="@@link.assets"
-      >Assets</a
-    >
-    <a
-      tuiAsideItem
-      iconStart="@tui.key-round"
-      [routerLink]="['/', 'me', 'environment']"
-      [state]="{ scroll: 'top' }"
-      i18n="@@link.environment"
-      >Environment</a
-    >
-    @if (userRole.admin | can | async) {
-    <a
-      tuiAsideItem
-      iconStart="@tui.users"
-      [routerLink]="['/', 'users']"
-      [state]="{ scroll: 'top' }"
-      i18n="@@link.users"
-      >Users</a
-    >
-    }
-
-    <footer>
-      <button
+  @if (!mobile()) {
+    <aside [tuiNavigationAside]="expanded()">
+      @if (userRole.admin | can | async) {
+        <a
+          tuiAsideItem
+          iconStart="@tui.package"
+          [routerLink]="['/', 'packages']"
+          [state]="{ scroll: 'top' }"
+          i18n="@@link.node_packages"
+          >Node packages</a
+        >
+      }
+      <a
         tuiAsideItem
-        type="button"
-        data-testid="aside-toggle"
-        [iconStart]="
-          expanded() ? '@tui.panel-left-close' : '@tui.panel-left-open'
-        "
-        (click)="toggleAside()"
+        iconStart="@tui.workflow"
+        [routerLink]="['/', 'projects']"
+        [state]="{ scroll: 'top' }"
+        i18n="@@link.pipelines"
+        >Pipelines</a
       >
-        @if (expanded()) {
-        <ng-container i18n="@@action.collapse">Collapse</ng-container>
-        } @else {
-        <ng-container i18n="@@action.expand">Expand</ng-container>
-        }
-      </button>
-    </footer>
-  </aside>
+      <a
+        tuiAsideItem
+        iconStart="@tui.play"
+        [routerLink]="['/', 'play']"
+        [state]="{ scroll: 'top' }"
+        i18n="@@link.apps"
+        >Apps</a
+      >
+      <a
+        tuiAsideItem
+        iconStart="@tui.history"
+        [routerLink]="['/', 'launches']"
+        [state]="{ scroll: 'top' }"
+        i18n="@@link.launches"
+        >Launches</a
+      >
+      <a
+        tuiAsideItem
+        iconStart="@tui.folder-open"
+        [routerLink]="['/', 'assets']"
+        [state]="{ scroll: 'top' }"
+        i18n="@@link.assets"
+        >Assets</a
+      >
+      <a
+        tuiAsideItem
+        iconStart="@tui.key-round"
+        [routerLink]="['/', 'me', 'environment']"
+        [state]="{ scroll: 'top' }"
+        i18n="@@link.environment"
+        >Environment</a
+      >
+      @if (userRole.admin | can | async) {
+        <a
+          tuiAsideItem
+          iconStart="@tui.users"
+          [routerLink]="['/', 'users']"
+          [state]="{ scroll: 'top' }"
+          i18n="@@link.users"
+          >Users</a
+        >
+      }
+
+      <footer>
+        <button
+          tuiAsideItem
+          type="button"
+          data-testid="aside-toggle"
+          [iconStart]="
+            expanded() ? '@tui.panel-left-close' : '@tui.panel-left-open'
+          "
+          (click)="toggleAside()"
+        >
+          @if (expanded()) {
+            <ng-container i18n="@@action.collapse">Collapse</ng-container>
+          } @else {
+            <ng-container i18n="@@action.expand">Expand</ng-container>
+          }
+        </button>
+      </footer>
+    </aside>
+  }
 
   <main tuiNavigationMain [class.full-bleed]="fullBleed()">
     <router-outlet></router-outlet>
 
     @if (!fullBleed() && appConfig.ui.appFooter; as footer) {
-    <footer class="app-footer" data-testid="app-footer">
-      <div [innerHTML]="footer | i18n"></div>
-    </footer>
+      <footer class="app-footer" data-testid="app-footer">
+        <div [innerHTML]="footer | i18n"></div>
+      </footer>
     }
   </main>
 </div>
