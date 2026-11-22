@@ -1,22 +1,24 @@
-<ng-template #errorTemplate>
-  <div class="informer errors">
+@if (error) {
+  <div tuiNotification appearance="negative" role="alert" class="error-message">
     <p>{{ error.message }}</p>
-    <ul>
-      @for (m of error?.details; track $index) {
-        <li>{{ m }}</li>
-      }
-    </ul>
-    <div class="stack justify-center">
-      <button class="primary" (click)="error = null">Ok</button>
-    </div>
+    @if (error.details?.length) {
+      <ul>
+        @for (message of error.details; track $index) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    }
+    <button
+      tuiButton
+      appearance="flat"
+      size="s"
+      type="button"
+      (click)="error = null"
+      i18n="@@action.ok"
+    >
+      Ok
+    </button>
   </div>
-</ng-template>
-
-@if (!!error) {
-  <app-informer
-    [contentTemplate]="errorTemplate"
-    (ok)="error = null"
-  ></app-informer>
 }
 
 <h1 i18n="@@label.put_yaml_or_url">Put YAML or URL</h1>
@@ -33,9 +35,10 @@
   </fieldset>
   <footer>
     <button
-      class="primary"
+      tuiButton
+      size="m"
       type="button"
-      [class.busy]="progress.importing"
+      [loading]="progress.importing"
       [disabled]="form.invalid || progress.importing"
       (click)="import()"
       i18n="@@action.import"

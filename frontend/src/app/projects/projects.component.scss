@@ -1,178 +1,113 @@
-@use "src/ui-kit/styles/variables";
-@use "src/ui-kit/styles/mixins";
-@use "src/ui-kit/styles/reset";
-
 :host {
   display: block;
+  color: var(--tui-text-primary);
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
-  gap: variables.$gutter-normal;
+  gap: 1rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .search {
-  position: relative;
-  display: flex;
-  align-items: center;
   margin-left: auto;
+  width: 16rem;
+}
 
-  // icon is a mask so it follows the theme text color
-  &::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: variables.$gutter-small;
-    width: 18px;
-    height: 18px;
-    transform: translateY(-50%);
-    background-color: currentColor;
-    mask-image: url(../../assets/icons/search.svg);
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    opacity: 0.6;
-    pointer-events: none;
-  }
+.error-message {
+  margin-bottom: 1rem;
 
-  input {
-    width: 250px;
-    padding-left: calc(#{variables.$gutter-small} + 18px + #{variables.$gutter-small});
+  p,
+  ul {
+    margin: 0 0 0.5rem;
   }
 }
 
-.tags,
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.icon-column {
+  width: 2.5rem;
+}
+
+.version-column {
+  width: 3rem;
+}
+
+.runs-column {
+  width: 8rem;
+}
+
+.user-column {
+  width: 9rem;
+}
+
 .row-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: variables.$gutter-small;
-}
-
-.title {
-  .row-tags {
-    margin-top: variables.$gutter-small;
-  }
-}
-
-button.tag {
-  @include reset.reset-button();
-  cursor: pointer;
-  background: variables.$control-background-color;
-  padding: variables.$gutter-tiny variables.$gutter-normal;
-  border-radius: variables.$corner-huge;
-  font-size: 0.85em;
-  line-height: 1.4;
-  white-space: nowrap;
-  color: variables.$primary-text-color;
-
-  &:hover {
-    background: variables.$control-focus-background-color;
-  }
-
-  &.selected {
-    background: variables.$control-focus-background-color;
-    color: variables.$strong-text-color;
-  }
-}
-
-button.group {
-  @include reset.reset-button();
-  display: inline-flex;
-  align-items: center;
-  gap: variables.$gutter-tiny;
-  cursor: pointer;
-  padding: variables.$gutter-tiny variables.$gutter-normal;
-  border: 1px solid variables.$control-background-color;
-  border-radius: variables.$corner-large;
-  font-size: 0.85em;
-  line-height: 1.4;
-  white-space: nowrap;
-  color: variables.$primary-text-color;
-
-  // icon is a mask so it follows the theme text color
-  &::before {
-    content: "";
-    width: 14px;
-    height: 14px;
-    background-color: currentColor;
-    mask-image: url(../../assets/icons/folder.svg);
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    opacity: 0.6;
-  }
-
-  &:hover {
-    background: variables.$control-background-color;
-  }
-
-  &.selected {
-    background: variables.$control-focus-background-color;
-    border-color: variables.$control-focus-background-color;
-    color: variables.$strong-text-color;
-  }
+  gap: 0.25rem;
+  margin-top: 0.5rem;
 }
 
 // every tree row lines up as [indent][toggle][icon][label], so a child
 // always starts to the right of its parent and icons share one column
-$tree-toggle: 16px;
-$tree-icon: 20px;
-$tree-gap: variables.$gutter-small;
+$tree-toggle: 1rem;
+$tree-icon: 1.25rem;
+$tree-gap: 0.5rem;
 $tree-step: calc(#{$tree-toggle} + #{$tree-gap});
+$cell-padding: 0.75rem;
 
-button.folder {
-  @include reset.reset-button();
+.tree-label,
+button.folder,
+.folder.rename {
   display: flex;
   align-items: center;
   gap: $tree-gap;
+}
+
+.kind {
+  flex-shrink: 0;
+  font-size: $tree-icon;
+  color: var(--tui-text-secondary);
+}
+
+button.folder {
+  appearance: none;
   width: 100%;
-  cursor: pointer;
-  font-weight: variables.$font-weight-bold;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: bold;
   color: inherit;
   text-align: left;
+  cursor: pointer;
 
   .chevron {
-    order: -2;
-    opacity: 0.6;
-    transition: transform 150ms ease-in-out;
-  }
-
-  // icon is a mask so it follows the theme text color
-  &::after {
-    content: "";
-    order: -1;
     flex-shrink: 0;
-    width: $tree-icon;
-    height: $tree-icon;
-    background-color: currentColor;
-    mask-image: url(../../assets/icons/folder.svg);
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    opacity: 0.8;
-  }
-
-  .count {
-    padding: 0 variables.$gutter-small;
-    border-radius: variables.$corner-huge;
-    background: variables.$control-background-color;
-    font-size: 0.75em;
-    font-weight: normal;
-    opacity: 0.8;
+    font-size: $tree-toggle;
+    color: var(--tui-text-secondary);
+    transition: transform 150ms ease-in-out;
   }
 }
 
 tr.folder {
   cursor: pointer;
 
-  td {
-    padding-top: variables.$gutter-small;
-    padding-bottom: variables.$gutter-small;
-  }
-
   &:hover td {
-    background: variables.with-alpha(variables.$graphite-color-60, 0.08);
+    background: var(--tui-background-neutral-1);
   }
 
   &.expanded button.folder .chevron {
@@ -180,14 +115,13 @@ tr.folder {
   }
 }
 
-.tree-label {
-  display: flex;
-  align-items: center;
-  gap: $tree-gap;
+// inline rename keeps the folder icon so the row does not jump
+.folder.rename {
+  padding-left: calc(#{$tree-toggle} + #{$tree-gap});
 
-  .kind {
-    flex-shrink: 0;
-    opacity: 0.6;
+  tui-textfield {
+    flex: 1;
+    max-width: 20rem;
   }
 }
 
@@ -204,65 +138,60 @@ tr.nested {
 }
 
 td.tree {
-  @include mixins.wider-tablet() {
-    position: relative;
-    padding-left: calc(10px + var(--depth, 0) * #{$tree-step});
+  position: relative;
+  padding-left: calc(#{$cell-padding} + var(--depth, 0) * #{$tree-step});
 
-    // a guide line runs under each ancestor's chevron
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 10px;
-      width: calc(var(--depth, 0) * #{$tree-step});
-      background: repeating-linear-gradient(
-        to right,
-        transparent 0 calc(#{$tree-toggle} / 2 - 1px),
-        variables.$control-background-color calc(#{$tree-toggle} / 2 - 1px)
-          calc(#{$tree-toggle} / 2),
-        transparent calc(#{$tree-toggle} / 2) #{$tree-step}
-      );
-      pointer-events: none;
-    }
+  // a guide line runs under each ancestor's chevron
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: $cell-padding;
+    width: calc(var(--depth, 0) * #{$tree-step});
+    background: repeating-linear-gradient(
+      to right,
+      transparent 0 calc(#{$tree-toggle} / 2 - 1px),
+      var(--tui-border-normal) calc(#{$tree-toggle} / 2 - 1px)
+        calc(#{$tree-toggle} / 2),
+      transparent calc(#{$tree-toggle} / 2) #{$tree-step}
+    );
+    pointer-events: none;
   }
 }
 
-// pipelines have no toggle, so they skip its slot to keep icons aligned
+// projects have no toggle, so they skip its slot to keep icons aligned
 tr:not(.folder) td.tree {
-  @include mixins.wider-tablet() {
-    padding-left: calc(10px + var(--depth, 0) * #{$tree-step} + #{$tree-step});
-  }
+  padding-left: calc(
+    #{$cell-padding} + var(--depth, 0) * #{$tree-step} + #{$tree-step}
+  );
 
   .row-tags {
     margin-left: calc(#{$tree-icon} + #{$tree-gap});
   }
 }
 
-.row-tags button.tag,
-.row-tags button.group {
-  font-size: 0.75em;
-}
-
 .version {
-  display: flex;
-  justify-content: right;
+  text-align: right;
 }
 
 .created,
-.updated {
-  line-height: 1em;
+.updated,
+.runs {
+  line-height: 1.2;
+
+  small {
+    color: var(--tui-text-secondary);
+  }
 }
 
 .runs {
-  line-height: 1em;
   text-align: right;
   font-variant-numeric: tabular-nums;
 
   .rate,
-  small,
   .none {
-    color: variables.$graphite-color-100;
+    color: var(--tui-text-secondary);
   }
 }
 
@@ -270,43 +199,32 @@ tr:not(.folder) td.tree {
 td.actions {
   text-align: right;
 
-  button.circle {
+  button {
     opacity: 0.4;
     transition: opacity 150ms ease-in-out;
 
     &:hover,
-    &:focus-visible {
+    &:focus-visible,
+    &[aria-expanded="true"] {
       opacity: 1;
     }
   }
 }
 
-tr:hover td.actions button.circle {
+tr:hover td.actions button {
   opacity: 1;
 }
 
-// inline rename keeps the folder icon so the row does not jump
-.folder.rename {
-  display: flex;
-  align-items: center;
-  gap: $tree-gap;
-  padding-left: calc(#{$tree-toggle} + #{$tree-gap});
+.loading td {
+  text-align: center;
+}
 
-  &::before {
-    content: "";
-    flex-shrink: 0;
-    width: $tree-icon;
-    height: $tree-icon;
-    background-color: currentColor;
-    mask-image: url(../../assets/icons/folder.svg);
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    opacity: 0.8;
-  }
-
-  input {
-    flex: 1;
-    max-width: 300px;
-  }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

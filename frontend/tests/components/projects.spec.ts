@@ -8,11 +8,26 @@ import {
   TestBed,
   tick,
 } from "@angular/core/testing";
+import { Type } from "@angular/core";
+import { By } from "@angular/platform-browser";
+import { Router } from "@angular/router";
+import { AppComponent } from "src/app/app.component";
+import { ImportProjectComponent } from "src/app/projects/import/import-project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
-import { PROJECT_A_ID, projectAPlain, userPlain } from "../fixtures/plain";
+import {
+  PROJECT_A_ID,
+  projectAPlain,
+  projectBPlain,
+  userPlain,
+} from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
-import { configureAppTestingModule, finish } from "../helpers/editor";
+import {
+  configureAppTestingModule,
+  finish,
+  OutletStubComponent,
+} from "../helpers/editor";
+import { typeInto } from "../helpers/editor-stubs";
 
 /**
  * GET /api/projects/tags/available lists tags of visible projects and
@@ -32,7 +47,7 @@ function taggedProject() {
 }
 
 describe("ProjectsComponent tags and groups", () => {
-  let fixture: ComponentFixture<ProjectsComponent>;
+  let fixture: ComponentFixture<AppComponent>;
   let controller: HttpTestingController;
   let element: HTMLElement;
 
@@ -46,24 +61,62 @@ describe("ProjectsComponent tags and groups", () => {
     fixture.detectChanges();
   }
 
-  function setup() {
+  /** Renders the projects page inside the real app root, where Taiga popups live. */
+  function mount(
+    tags: string[],
+    counts: object[],
+    url = "/projects",
+    importPage: Type<unknown> = OutletStubComponent,
+  ) {
     seedAuthorization(userPlain("owner"));
-    configureAppTestingModule();
-    controller = TestBed.inject(HttpTestingController);
-    fixture = TestBed.createComponent(ProjectsComponent);
-    element = fixture.nativeElement;
-    fixture.detectChanges();
-    controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
-    controller
-      .expectOne("/api/projects/tags/available")
-      .flush(["image", "video"]);
-    controller.expectOne("/api/projects/groups/counts").flush([
-      { group: "Marketing", count: 1 },
-      { group: "Sales", count: 3 },
+    configureAppTestingModule([
+      { path: "", component: OutletStubComponent },
+      {
+        path: "projects",
+        component: ProjectsComponent,
+        children: [{ path: "import", component: importPage }],
+      },
     ]);
+    controller = TestBed.inject(HttpTestingController);
+    fixture = TestBed.createComponent(AppComponent);
+    TestBed.inject(Router).navigateByUrl(url);
+    tick();
+    fixture.detectChanges();
+    element = fixture.debugElement.query(By.directive(ProjectsComponent))
+      .nativeElement as HTMLElement;
+    controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
+    controller.expectOne("/api/projects/tags/available").flush(tags);
+    controller.expectOne("/api/projects/groups/counts").flush(counts);
+  }
+
+  function setup() {
+    mount(
+      ["image", "video"],
+      [
+        { group: "Marketing", count: 1 },
+        { group: "Sales", count: 3 },
+      ],
+    );
     const list = expectList();
     answer(list, [taggedProject()]);
     return list;
+  }
+
+  function deleteFromMenu(row: number) {
+    const rows = element.querySelectorAll("tbody tr:not(.folder)");
+    rows[row]
+      .querySelector<HTMLButtonElement>("button[aria-label=Actions]")
+      .click();
+    fixture.detectChanges();
+    Array.from(
+      document.querySelectorAll<HTMLButtonElement>("tui-data-list button"),
+    )
+      .find((b) => b.textContent.includes("Delete"))
+      .click();
+  }
+
+  function tagChips(): HTMLInputElement[] {
+    return Array.from(element.querySelectorAll("tui-filter input"));
   }
 
   function expectStats(): TestRequest[] {
@@ -79,8 +132,7 @@ describe("ProjectsComponent tags and groups", () => {
   it("lists available tags without filtering initially", fakeAsync(() => {
     const list = setup();
 
-    const chips =
-      element.querySelectorAll<HTMLButtonElement>("form.tags button");
+    const chips = element.querySelectorAll("tui-filter label");
     expect(Array.from(chips).map((c) => c.textContent.trim())).toEqual([
       "#image",
       "#video",
@@ -92,8 +144,7 @@ describe("ProjectsComponent tags and groups", () => {
 
   it("filters by every selected tag chip", fakeAsync(() => {
     setup();
-    const chips =
-      element.querySelectorAll<HTMLButtonElement>("form.tags button");
+    const chips = tagChips();
 
     chips[0].click();
     answer(expectList(), [taggedProject()]);
@@ -102,7 +153,7 @@ describe("ProjectsComponent tags and groups", () => {
     answer(list, [taggedProject()]);
 
     expect(list.request.params.getAll("tags")).toEqual(["image", "video"]);
-    expect(chips[1].classList).toContain("selected");
+    expect(chips.map((c) => c.checked)).toEqual([true, true]);
     fixture.destroy();
     finish();
   }));
@@ -121,6 +172,41 @@ describe("ProjectsComponent tags and groups", () => {
 
     expect(selected.request.params.getAll("tags")).toEqual(["image"]);
     expect(cleared.request.params.has("tags")).toBe(false);
+    fixture.destroy();
+    finish();
+  }));
+
+  it("deletes a project through its row menu", fakeAsync(() => {
+    setup();
+    const rows = () => element.querySelectorAll("tbody tr:not(.folder)");
+
+    deleteFromMenu(0);
+    const request = controller.expectOne(`/api/projects/${PROJECT_A_ID}`);
+    request.flush(null);
+    tick(UI_DELAY);
+    fixture.detectChanges();
+
+    expect(request.request.method).toBe("DELETE");
+    expect(rows().length).toBe(0);
+    fixture.destroy();
+    finish();
+  }));
+
+  it("keeps the project and shows an alert when deleting fails", fakeAsync(() => {
+    setup();
+    expectConsoleError("Process HTTP error 404");
+
+    deleteFromMenu(0);
+    controller
+      .expectOne(`/api/projects/${PROJECT_A_ID}`)
+      .flush("Not found", { status: 404, statusText: "Not Found" });
+    tick(UI_DELAY);
+    fixture.detectChanges();
+
+    expect(element.querySelectorAll("tbody tr:not(.folder)").length).toBe(1);
+    expect(element.querySelector("[role=alert]").textContent).toContain(
+      "Not found",
+    );
     fixture.destroy();
     finish();
   }));
@@ -173,7 +259,7 @@ describe("ProjectsComponent tags and groups", () => {
 
   it("searches across folders and reveals a result in its folder", fakeAsync(() => {
     setup();
-    const tag = element.querySelector<HTMLButtonElement>("form.tags button");
+    const [tag] = tagChips();
 
     tag.click();
     const found = expectList();
@@ -256,17 +342,7 @@ describe("ProjectsComponent tags and groups", () => {
   }));
 
   it("nests folders by path and unfolds them level by level", fakeAsync(() => {
-    seedAuthorization(userPlain("owner"));
-    configureAppTestingModule();
-    controller = TestBed.inject(HttpTestingController);
-    fixture = TestBed.createComponent(ProjectsComponent);
-    element = fixture.nativeElement;
-    fixture.detectChanges();
-    controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
-    controller.expectOne("/api/projects/tags/available").flush([]);
-    controller
-      .expectOne("/api/projects/groups/counts")
-      .flush([{ group: "Marketing/Video", count: 2 }]);
+    mount([], [{ group: "Marketing/Video", count: 2 }]);
     answer(expectList(), []);
     const names = () =>
       Array.from(element.querySelectorAll("tr.folder")).map((f) => [
@@ -336,8 +412,82 @@ describe("ProjectsComponent tags and groups", () => {
       "tr:not(.folder) [data-testid=project-runs]",
     );
     expect(cell.textContent.trim()).toBe("—");
-    expect(element.querySelector("app-informer")).toBeNull();
+    expect(element.querySelector("[role=alert]")).toBeNull();
     fixture.destroy();
     finish();
   }));
+
+  it("shows the import page in a dialog and returns to projects on close", async () => {
+    const modal = () => document.querySelector("tui-dialog");
+    fakeAsync(() => {
+      mount([], [], "/projects/import");
+      answer(expectList(), []);
+      finish();
+    })();
+    const router = TestBed.inject(Router);
+
+    await expect
+      .poll(() => {
+        fixture.detectChanges();
+        return modal()?.textContent;
+      })
+      .toContain("outlet");
+    modal().querySelector<HTMLElement>("button[tuiButtonX]").click();
+    await expect
+      .poll(() => {
+        fixture.detectChanges();
+        return router.url;
+      })
+      .toBe("/projects");
+
+    await expect.poll(modal).toBeNull();
+    controller.verify();
+  });
+
+  it("adds an imported project on top of the list and closes the dialog", async () => {
+    const modal = () => document.querySelector("tui-dialog");
+    const titles = () =>
+      Array.from(element.querySelectorAll("tbody td.title a")).map((a) =>
+        a.textContent.trim(),
+      );
+    fakeAsync(() => {
+      mount([], [], "/projects/import", ImportProjectComponent);
+      answer(expectList(), [projectAPlain()]);
+      finish();
+    })();
+    const router = TestBed.inject(Router);
+    await expect
+      .poll(() => {
+        fixture.detectChanges();
+        return modal()?.querySelector("textarea");
+      })
+      .toBeTruthy();
+
+    typeInto(modal().querySelector("textarea"), "name: Imported");
+    fixture.detectChanges();
+    modal()
+      .querySelector<HTMLButtonElement>("footer button[tuiButton]")
+      .click();
+    const request = controller.expectOne("/api/pipelines/import");
+    request.flush(projectBPlain());
+    await expect
+      .poll(() => {
+        fixture.detectChanges();
+        return router.url;
+      })
+      .toBe("/projects");
+
+    expect(request.request.body).toEqual({ yaml: "name: Imported" });
+    expect(titles()).toEqual(["Project B", "Project A"]);
+    await expect
+      .poll(() => {
+        fixture.detectChanges();
+        return modal();
+      })
+      .toBeNull();
+    // the short list leaves the scroll sentinel in view, so it asks for a next page
+    controller
+      .match((r) => r.url === "/api/projects")
+      .forEach((r) => r.flush([]));
+  });
 });

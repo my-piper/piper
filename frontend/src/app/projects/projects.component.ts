@@ -1,17 +1,31 @@
 import {
+  afterNextRender,
+  computed,
+  signal,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   ElementRef,
   OnInit,
   QueryList,
   ViewChildren,
   ChangeDetectionStrategy,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
 import { plainToInstance } from "class-transformer";
 import last from "lodash/last";
-import { Subscription, debounceTime, delay, finalize, map } from "rxjs";
+import {
+  EMPTY,
+  Subscription,
+  debounceTime,
+  delay,
+  filter,
+  finalize,
+  map,
+} from "rxjs";
 import { DisplayError } from "src/models/errors";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
@@ -20,8 +34,6 @@ import { ProjectRunsSummary } from "src/models/project-stats";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI, UI_DELAY } from "src/consts/ui";
-import { SelectMode } from "src/directives/selectable.directive";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import {
@@ -60,13 +72,15 @@ const TEST_REQUEST = {
   styleUrls: ["./projects.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
+  providers: [
+    // Keep the child router context and let the route control the dialog lifetime.
+    TuiDialogService,
+    { provide: TUI_DIALOGS_CLOSE, useValue: EMPTY },
+  ],
 })
 export class ProjectsComponent implements OnInit {
   ui = UI;
   userRole = UserRole;
-  selectMode = SelectMode;
-
-  private _modal!: ImportProjectComponent;
 
   error!: DisplayError;
   progress = {
@@ -76,23 +90,31 @@ export class ProjectsComponent implements OnInit {
     renaming: false,
   };
 
-  references: { popover: PopoverComponent } = { popover: null };
+  // the project whose row menu is open
+  actionsOpen: string | null = null;
 
   @ViewChildren("nameInput")
   nameInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
-  set modal(modal: ImportProjectComponent) {
-    this._modal = modal;
-    if (modal) {
+  // the import page carries its own heading
+  readonly dialogOptions = { size: "l" as const };
+
+  // the root popup host must exist before opening a dialog on direct route entry
+  private readonly dialogReady = signal(false);
+  // a signal rather than a getter over route.firstChild, so OnPush re-renders
+  // when navigation opens or closes the child route
+  private readonly childActive = signal(false);
+  readonly dialogOpen = computed(
+    () => this.dialogReady() && this.childActive(),
+  );
+
+  activate(modal: unknown) {
+    if (modal instanceof ImportProjectComponent) {
       modal.imported.subscribe((project) => {
         this.projects.unshift(project);
         this.cd.detectChanges();
       });
     }
-  }
-
-  get modal() {
-    return this._modal;
   }
 
   chunk: Project[] = [];
@@ -117,7 +139,17 @@ export class ProjectsComponent implements OnInit {
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
     private fb: FormBuilder,
-  ) {}
+    destroyRef: DestroyRef,
+  ) {
+    afterNextRender(() => this.dialogReady.set(true));
+    this.childActive.set(!!this.route.firstChild);
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(destroyRef),
+      )
+      .subscribe(() => this.childActive.set(!!this.route.firstChild));
+  }
 
   // like a finder search: results come from every folder
   get searching(): boolean {
@@ -304,6 +336,10 @@ export class ProjectsComponent implements OnInit {
       });
   }
 
+  isTagSelected(tag: string): boolean {
+    return (this.tagsControl.value ?? []).includes(tag);
+  }
+
   toggleTag(tag: string) {
     const tags = this.tagsControl.value ?? [];
     this.tagsControl.setValue(
@@ -407,7 +443,6 @@ export class ProjectsComponent implements OnInit {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.creating = false;
-          this.references?.popover?.hide();
           this.cd.detectChanges();
         }),
         map((json) => plainToInstance(Project, json as object)),
@@ -430,7 +465,7 @@ export class ProjectsComponent implements OnInit {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.deleting = false;
-          this.references?.popover?.hide();
+          this.actionsOpen = null;
           this.cd.detectChanges();
         }),
       )

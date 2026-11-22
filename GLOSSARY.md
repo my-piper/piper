@@ -10,6 +10,14 @@ Piper is a visual builder for AI pipelines: users compose Nodes on a canvas, try
 What a user owns and edits. It holds a draft Pipeline.
 _Avoid_: Workspace, app
 
+**Folder**:
+A named place in the Projects list that holds Projects and other Folders. A Project is in at most one Folder; one in none sits at the top of the list.
+_Avoid_: Group, directory, category
+
+**Tag**:
+A label on a Project. A Project can have many, and picking Tags narrows the Projects list to the Projects that have all of them.
+_Avoid_: Label, keyword
+
 **Node Definition**:
 A reusable kind of Node, published in a Node Package: its inputs, outputs and script.
 _Avoid_: Node type, template

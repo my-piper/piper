@@ -1,278 +1,335 @@
-<div class="modal" [class.hidden]="!modal">
-  <header>
-    <a
-      class="primary with-icon"
-      [hotKey]="'escape'"
-      (hotKeyPressed)="back()"
-      [routerLink]="['./']"
-      queryParamsHandling="preserve"
-    >
-      <app-icon class="icon right" icon="close"></app-icon>
-      <span class="badge">ESC</span>
-    </a>
-  </header>
-  <div class="content filled">
-    <router-outlet
-      (activate)="modal = $event"
-      (deactivate)="modal = null"
-    ></router-outlet>
-  </div>
-</div>
-
-<ng-template #errorTemplate>
-  <div class="informer errors">
-    <p>{{ error.message }}</p>
-    <ul>
-      @for (m of error?.details; track $index) {
-        <li>{{ m }}</li>
-      }
-    </ul>
-    <div class="stack justify-center">
-      <button class="primary" (click)="error = null">Ok</button>
-    </div>
-  </div>
+<ng-template
+  [tuiDialog]="dialogOpen()"
+  [tuiDialogOptions]="dialogOptions"
+  (tuiDialogChange)="!$event && back()"
+>
+  <router-outlet (activate)="activate($event)"></router-outlet>
 </ng-template>
 
-@if (!!error) {
-  <app-informer
-    [contentTemplate]="errorTemplate"
-    (ok)="error = null"
-  ></app-informer>
+@if (error) {
+  <div tuiNotification appearance="negative" role="alert" class="error-message">
+    <p>{{ error.message }}</p>
+    @if (error.details?.length) {
+      <ul>
+        @for (message of error.details; track $index) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    }
+    <button
+      tuiButton
+      appearance="flat"
+      size="s"
+      type="button"
+      (click)="error = null"
+      i18n="@@action.ok"
+    >
+      Ok
+    </button>
+  </div>
 }
 
 <div class="app-container">
-  <header class="stack">
+  <header class="toolbar">
     <button
-      size="s"
       tuiButton
+      size="m"
       type="button"
+      iconStart="@tui.plus"
       [routerLink]="['add']"
-      [class.busy]="progress.creating"
+      [loading]="progress.creating"
       [disabled]="progress.creating"
       (click)="create()"
     >
-      <tui-icon icon="@tui.plus" />
-      <!--<app-icon class="icon left" icon="add"></app-icon>-->
       <ng-container i18n="@@action.create">Create</ng-container>
     </button>
     @if (userRole.admin | can | async) {
-      <a class="primary" [routerLink]="['import']" i18n="@@link.import">
+      <a
+        tuiButton
+        appearance="secondary"
+        size="m"
+        [routerLink]="['import']"
+        i18n="@@link.import"
+      >
         Import
       </a>
     }
     <form class="search" [formGroup]="form">
-      <input
-        class="input-primary"
-        formControlName="search"
-        type="search"
-        placeholder="Search"
-        i18n-placeholder="@@label.search"
-      />
+      <tui-textfield iconStart="@tui.search" tuiTextfieldSize="m">
+        <input
+          tuiInput
+          formControlName="search"
+          type="search"
+          placeholder="Search"
+          i18n-placeholder="@@label.search"
+        />
+      </tui-textfield>
     </form>
   </header>
 
   @if (allTags.length > 0) {
+    <ng-template #tagTemplate let-t>#{{ t | i18n }}</ng-template>
     <form class="tags" [formGroup]="form">
-      @for (t of allTags; track t) {
-        <button
-          type="button"
-          class="tag"
-          formControlName="tags"
-          [appSelectable]="{
-            value: t,
-            group: 'project-tags',
-            mode: selectMode.multiple,
-          }"
-        >
-          #{{ t | i18n }}
-        </button>
-      }
+      <tui-filter
+        formControlName="tags"
+        size="s"
+        [items]="allTags"
+        [content]="tagTemplate"
+      />
     </form>
   }
 
-  <table class="default">
-    <thead>
-      <th i18n="@@label.title">Title</th>
-      <th width="24px"></th>
-      <th width="24px" i18n="@@label.ver">Ver.</th>
-      <th width="130px" class="runs" i18n="@@label.runs_last_30_days">
-        Runs · 30d
-      </th>
-      <th width="150px" i18n="@@label.created">Created</th>
-      <th width="150px" i18n="@@label.updated">Updated</th>
-      <th width="24px"></th>
-    </thead>
-    <ng-template #projectCellsTemplate let-p>
-      <td i18n-title="@@label.title" title="Title" class="title tree">
-        <div class="tree-label">
-          <app-icon class="kind" icon="node" [size]="20"></app-icon>
-          <a
-            class="default"
-            [routerLink]="[p.slug || p._id]"
-            [state]="{ scroll: 'top' }"
-          >
-            {{ p.title | i18n }}
-          </a>
-        </div>
+  <div class="table-container">
+    <table tuiTable size="m">
+      <thead>
+        <tr>
+          <th tuiTh i18n="@@label.title">Title</th>
+          <th tuiTh class="icon-column">
+            <span class="visually-hidden" i18n="@@label.visibility"
+              >Visibility</span
+            >
+          </th>
+          <th tuiTh class="version-column" i18n="@@label.ver">Ver.</th>
+          <th tuiTh class="runs runs-column" i18n="@@label.runs_last_30_days">
+            Runs · 30d
+          </th>
+          <th tuiTh class="user-column" i18n="@@label.created">Created</th>
+          <th tuiTh class="user-column" i18n="@@label.updated">Updated</th>
+          <th tuiTh class="icon-column">
+            <span class="visually-hidden" i18n="@@label.actions">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <ng-template #projectCellsTemplate let-p>
+        <td tuiTd i18n-title="@@label.title" title="Title" class="title tree">
+          <div class="tree-label">
+            <tui-icon class="kind" icon="@tui.workflow" />
+            <a
+              tuiLink
+              [routerLink]="[p.slug || p._id]"
+              [state]="{ scroll: 'top' }"
+            >
+              {{ p.title | i18n }}
+            </a>
+          </div>
 
-        @if ((searching && p.group) || p.tags?.length) {
-          <div class="row-tags">
-            @if (searching && p.group) {
-              <button
-                type="button"
-                class="group"
-                (click)="revealFolder(p.group)"
-              >
-                {{ p.group }}
-              </button>
-            }
-            @for (t of p.tags; track t) {
-              <button
-                type="button"
-                class="tag"
-                [class.selected]="tagsControl.value?.includes(t)"
-                (click)="toggleTag(t)"
-              >
-                #{{ t | i18n }}
-              </button>
-            }
-          </div>
-        }
-      </td>
-      <td i18n-title="@@label.visibility" title="Visibility">
-        @if (p.visibility === "public") {
-          <app-icon icon="share"></app-icon>
-        }
-      </td>
-      <td class="version">
-        {{ p.pipeline.version }}
-      </td>
-      <td class="runs" data-testid="project-runs">
-        @if (stats.get(p._id); as st) {
-          <div>
-            {{ st.runs | number }}
-            <span
-              class="rate"
-              i18n-title="@@label.success_rate"
-              title="Success rate"
-              >· {{ st.successRate | percent: "1.0-0" }}</span
-            >
-          </div>
-          <small i18n-title="@@label.avg_duration" title="Avg duration">{{
-            st.avgDurationMs | runDuration
-          }}</small>
-        } @else {
-          <span class="none">—</span>
-        }
-      </td>
-      <td class="created" i18n-title="@@label.created" title="Created">
-        <div>{{ p.createdBy?._id }}</div>
-        <small>{{ p.createdAt | date }}</small>
-      </td>
-      <td class="updated" i18n-title="@@label.updated" title="Updated">
-        <div>{{ p.updatedBy?._id }}</div>
-        <small>{{ p.updatedAt | date: "short" }}</small>
-      </td>
-      <td class="actions">
-        <ng-template #actionsTemplate>
-          <ul class="context-menu" [class.busy]="progress.deleting">
-            <li>
-              <button (click)="remove(p)">
-                <app-icon
-                  class="icon left"
-                  icon="delete"
-                  [size]="18"
-                ></app-icon>
-                <span i18n="@@action.delete">Delete</span>
-              </button>
-            </li>
-          </ul>
-        </ng-template>
-        @if (userRole.admin | can: p.createdBy | async) {
-          <button
-            class="circle"
-            i18n-title="@@action.delete"
-            title="Delete"
-            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-            (attached)="references.popover = $event"
-          >
-            <app-icon class="icon" icon="delete" [size]="18"></app-icon>
-          </button>
-        }
-      </td>
-    </ng-template>
-    <ng-template #folderTemplate let-f let-depth="depth">
-      <!-- the whole row toggles; the button keeps it reachable from the keyboard -->
-      <tr
-        class="folder"
-        [class.expanded]="f.expanded"
-        [style.--depth]="depth"
-        (click)="toggleFolder(f)"
-      >
-        <td colspan="6" class="tree">
-          @if (!f.renaming) {
-            <button
-              type="button"
-              class="folder"
-              [attr.aria-expanded]="f.expanded"
-            >
-              <app-icon
-                class="chevron"
-                icon="chevron-right"
-                [size]="16"
-              ></app-icon>
-              <span class="name">{{ f.name }}</span>
-              <span class="count">{{ f.total }}</span>
-            </button>
-          }
-          <!-- "/" in the new name moves the folder to another parent -->
-          @if (f.renaming) {
-            <div
-              class="folder rename"
-              [class.busy]="progress.renaming"
-              (click)="$event.stopPropagation()"
-            >
-              <input
-                #nameInput
-                class="input-primary"
-                aria-label="Folder name"
-                i18n-aria-label="@@label.folder_name"
-                [value]="f.name"
-                [disabled]="progress.renaming"
-                (keydown.enter)="rename(f, nameInput.value)"
-                (keydown.escape)="cancelRename(f)"
-                (blur)="cancelRename(f)"
-              />
+          @if ((searching && p.group) || p.tags?.length) {
+            <div class="row-tags">
+              @if (searching && p.group) {
+                <button
+                  tuiChip
+                  size="xs"
+                  type="button"
+                  class="group"
+                  appearance="outline"
+                  iconStart="@tui.folder"
+                  (click)="revealFolder(p.group)"
+                >
+                  {{ p.group }}
+                </button>
+              }
+              @for (t of p.tags; track t) {
+                <button
+                  tuiChip
+                  size="xs"
+                  type="button"
+                  class="tag"
+                  [appearance]="isTagSelected(t) ? 'primary' : 'neutral'"
+                  [class.selected]="isTagSelected(t)"
+                  (click)="toggleTag(t)"
+                >
+                  #{{ t | i18n }}
+                </button>
+              }
             </div>
           }
         </td>
-        <td class="actions">
-          @if (!f.renaming) {
-            <button
-              type="button"
-              class="circle rename"
-              i18n-title="@@action.rename"
-              title="Rename"
-              (click)="$event.stopPropagation(); startRename(f)"
-            >
-              <app-icon class="icon" icon="edit" [size]="18"></app-icon>
-            </button>
+        <td tuiTd i18n-title="@@label.visibility" title="Visibility">
+          @if (p.visibility === "public") {
+            <tui-icon icon="@tui.share-2" />
           }
         </td>
-      </tr>
-      @if (showChildren(f)) {
-        @for (c of visibleFolders(f.children); track c.path) {
+        <td tuiTd class="version">
+          {{ p.pipeline.version }}
+        </td>
+        <td tuiTd class="runs" data-testid="project-runs">
+          @if (stats.get(p._id); as st) {
+            <div>
+              {{ st.runs | number }}
+              <span
+                class="rate"
+                i18n-title="@@label.success_rate"
+                title="Success rate"
+                >· {{ st.successRate | percent: "1.0-0" }}</span
+              >
+            </div>
+            <small i18n-title="@@label.avg_duration" title="Avg duration">{{
+              st.avgDurationMs | runDuration
+            }}</small>
+          } @else {
+            <span class="none">—</span>
+          }
+        </td>
+        <td tuiTd class="created" i18n-title="@@label.created" title="Created">
+          <div>{{ p.createdBy?._id }}</div>
+          <small>{{ p.createdAt | date }}</small>
+        </td>
+        <td tuiTd class="updated" i18n-title="@@label.updated" title="Updated">
+          <div>{{ p.updatedBy?._id }}</div>
+          <small>{{ p.updatedAt | date: "short" }}</small>
+        </td>
+        <td tuiTd class="actions">
+          @if (userRole.admin | can: p.createdBy | async) {
+            <ng-template #actionsTemplate>
+              <tui-data-list>
+                <button
+                  tuiOption
+                  type="button"
+                  [disabled]="progress.deleting"
+                  (click)="remove(p)"
+                >
+                  <tui-icon icon="@tui.trash-2" />
+                  <ng-container i18n="@@action.delete">Delete</ng-container>
+                </button>
+              </tui-data-list>
+            </ng-template>
+            <button
+              tuiIconButton
+              appearance="flat"
+              size="s"
+              type="button"
+              iconStart="@tui.ellipsis-vertical"
+              aria-label="Actions"
+              i18n-aria-label="@@label.actions"
+              [tuiDropdown]="actionsTemplate"
+              [tuiDropdownOpen]="actionsOpen === p._id"
+              (tuiDropdownOpenChange)="actionsOpen = $event ? p._id : null"
+            ></button>
+          }
+        </td>
+      </ng-template>
+      <ng-template #folderTemplate let-f let-depth="depth">
+        <!-- the whole row toggles; the button keeps it reachable from the keyboard -->
+        <tr
+          class="folder"
+          [class.expanded]="f.expanded"
+          [style.--depth]="depth"
+          (click)="toggleFolder(f)"
+        >
+          <td tuiTd colspan="6" class="tree">
+            @if (!f.renaming) {
+              <button
+                type="button"
+                class="folder"
+                [attr.aria-expanded]="f.expanded"
+              >
+                <tui-icon class="chevron" icon="@tui.chevron-right" />
+                <tui-icon
+                  class="kind"
+                  [icon]="f.expanded ? '@tui.folder-open' : '@tui.folder'"
+                />
+                <span class="name">{{ f.name }}</span>
+                <span tuiBadge size="s" appearance="neutral" class="count">{{
+                  f.total
+                }}</span>
+              </button>
+            }
+            <!-- "/" in the new name moves the folder to another parent -->
+            @if (f.renaming) {
+              <div class="folder rename" (click)="$event.stopPropagation()">
+                <tui-icon class="kind" icon="@tui.folder" />
+                <tui-textfield tuiTextfieldSize="s">
+                  <input
+                    #nameInput
+                    tuiInput
+                    aria-label="Folder name"
+                    i18n-aria-label="@@label.folder_name"
+                    [value]="f.name"
+                    [disabled]="progress.renaming"
+                    (keydown.enter)="rename(f, nameInput.value)"
+                    (keydown.escape)="cancelRename(f)"
+                    (blur)="cancelRename(f)"
+                  />
+                </tui-textfield>
+                @if (progress.renaming) {
+                  <tui-loader size="s" />
+                }
+              </div>
+            }
+          </td>
+          <td tuiTd class="actions">
+            @if (!f.renaming) {
+              <button
+                tuiIconButton
+                appearance="flat"
+                size="s"
+                type="button"
+                class="rename"
+                iconStart="@tui.pencil"
+                aria-label="Rename"
+                i18n-aria-label="@@action.rename"
+                (click)="$event.stopPropagation(); startRename(f)"
+              ></button>
+            }
+          </td>
+        </tr>
+        @if (showChildren(f)) {
+          @for (c of visibleFolders(f.children); track c.path) {
+            <ng-container
+              *ngTemplateOutlet="
+                folderTemplate;
+                context: { $implicit: c, depth: depth + 1 }
+              "
+            ></ng-container>
+          }
+        }
+        @if (f.expanded) {
+          @for (p of f.projects; track p._id) {
+            <tr class="nested" [style.--depth]="depth + 1">
+              <ng-container
+                *ngTemplateOutlet="
+                  projectCellsTemplate;
+                  context: { $implicit: p }
+                "
+              ></ng-container>
+            </tr>
+          }
+          @if (f.loading) {
+            <tr class="loading">
+              <td tuiTd colspan="7">
+                <tui-loader [loading]="true" />
+              </td>
+            </tr>
+          }
+          @if (f.more && !f.loading) {
+            <tr class="nested more" [style.--depth]="depth + 1">
+              <td tuiTd colspan="7" class="tree">
+                <button
+                  tuiButton
+                  appearance="flat"
+                  size="s"
+                  type="button"
+                  (click)="loadFolder(f)"
+                  i18n="@@link.more"
+                >
+                  More
+                </button>
+              </td>
+            </tr>
+          }
+        }
+      </ng-template>
+      <tbody tuiTbody>
+        @for (f of folders; track f.path) {
           <ng-container
             *ngTemplateOutlet="
               folderTemplate;
-              context: { $implicit: c, depth: depth + 1 }
+              context: { $implicit: f, depth: 0 }
             "
           ></ng-container>
         }
-      }
-      @if (f.expanded) {
-        @for (p of f.projects; track p._id) {
-          <tr class="nested" [style.--depth]="depth + 1">
+        @for (p of projects; track p._id) {
+          <tr>
             <ng-container
               *ngTemplateOutlet="
                 projectCellsTemplate;
@@ -281,50 +338,16 @@
             ></ng-container>
           </tr>
         }
-        @if (f.loading) {
+        @if (progress.loading) {
           <tr class="loading">
-            <td colspan="7"></td>
-          </tr>
-        }
-        @if (f.more && !f.loading) {
-          <tr class="nested more" [style.--depth]="depth + 1">
-            <td colspan="7" class="tree">
-              <button
-                type="button"
-                class="primary"
-                (click)="loadFolder(f)"
-                i18n="@@link.more"
-              >
-                More
-              </button>
+            <td tuiTd colspan="7">
+              <tui-loader [loading]="true" />
             </td>
           </tr>
         }
-      }
-    </ng-template>
-    <tbody>
-      @for (f of folders; track f.path) {
-        <ng-container
-          *ngTemplateOutlet="
-            folderTemplate;
-            context: { $implicit: f, depth: 0 }
-          "
-        ></ng-container>
-      }
-      @for (p of projects; track p._id) {
-        <tr>
-          <ng-container
-            *ngTemplateOutlet="projectCellsTemplate; context: { $implicit: p }"
-          ></ng-container>
-        </tr>
-      }
-      @if (progress.loading) {
-        <tr class="loading">
-          <td colspan="7"></td>
-        </tr>
-      }
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  </div>
   @if (chunk.length > 0 && !progress.loading) {
     <div inViewport (visible)="loadMore()"></div>
   }
