@@ -25,11 +25,13 @@
     <li>
       <a [routerLink]="['app']" routerLinkActive="app" i18n="@@link.app">App</a>
     </li>
-    <li>
-      <a [routerLink]="['environment']" routerLinkActive="active"
-        ><ng-container i18n="@@link.environment">Environment</ng-container></a
-      >
-    </li>
+    @if (node.source !== scriptNodeSource) {
+      <li>
+        <a [routerLink]="['environment']" routerLinkActive="active"
+          ><ng-container i18n="@@link.environment">Environment</ng-container></a
+        >
+      </li>
+    }
     <li>
       <a
         [routerLink]="['catalog']"

@@ -21,14 +21,14 @@ queues, Deno, and reporting use explicit test doubles.
 
 ## Project and launch permissions
 
-| Endpoint                           | Current requirement                           | Successful status |
-| ---------------------------------- | --------------------------------------------- | ----------------- |
-| `GET /api/projects/:_id`           | Logged-in user; lookup accepts ID or slug     | 200               |
-| `POST /api/projects`               | Logged-in user                                | 200               |
-| `POST /api/projects/:_id`          | Project owner or admin                        | 200               |
-| `DELETE /api/projects/:_id`        | Project owner or admin                        | 204               |
-| `POST /api/projects/:_id/launch`   | Logged-in user                                | 200               |
-| `POST /api/launches/:id/interrupt` | Logged-in user and an existing live launch    | 204               |
+| Endpoint                           | Current requirement                        | Successful status |
+| ---------------------------------- | ------------------------------------------ | ----------------- |
+| `GET /api/projects/:_id`           | Logged-in user; lookup accepts ID or slug  | 200               |
+| `POST /api/projects`               | Logged-in user                             | 200               |
+| `POST /api/projects/:_id`          | Project owner or admin                     | 200               |
+| `DELETE /api/projects/:_id`        | Project owner or admin                     | 204               |
+| `POST /api/projects/:_id/launch`   | Logged-in user                             | 200               |
+| `POST /api/launches/:id/interrupt` | Logged-in user and an existing live launch | 204               |
 
 Project read and launch handlers return 404 for a private project unless the
 current user is its owner or an admin; public projects are readable and
@@ -43,6 +43,7 @@ permission rules; permission/status changes need an explicit contract decision.
 
 | Endpoint                                         | Current requirement                        | Successful status |
 | ------------------------------------------------ | ------------------------------------------ | ----------------- |
+| `GET /api/nodes`                                 | None                                       | 200               |
 | `GET /api/nodes/:_id`                            | None                                       | 200               |
 | `POST /api/nodes`                                | Logged-in user; valid sign unless engineer | 204               |
 | `POST /api/node-packages/actions/import-package` | Admin                                      | 204               |
@@ -51,9 +52,19 @@ permission rules; permission/status changes need an explicit contract decision.
 | `GET /api/projects/:_id/check-node-updates`      | Logged-in user with project access         | 200               |
 
 `GET /api/nodes/:_id` strips `catalog` and returns 404 for a missing node.
+Both node reads also serve the builtin Script Node (`_id: "script"`,
+`source: "script"`) from code: `GET /api/nodes` lists it first whenever the
+`search` matches its title, and `GET /api/nodes/script` returns it with no
+inputs, outputs or sign and an inline `run` script.
 `POST /api/nodes` and project patches share the sign rule: a node whose `sign`
 does not match its script and environment scopes is re-signed for engineers and
 admins, and rejected for anyone else with 400 and `Wrong sign for <id> node`.
+A project patch exempts nodes with `source: "script"`: it accepts their script
+from any editor and stores them without `sign` and `environment` (ADR 0004),
+but rejects a `registry:` or `https://` script with 400 and
+`Script Node <id> must hold its own code`. The id `script` is reserved: node
+publishing and package import reject it with 400 and `Node id script is reserved`.
+`POST /api/nodes` grants no such exemption.
 Package import and deletion reject non-admins with 400 and `You aren't admin`;
 import stamps every node with the package `_id`. Node update checks return 404
 for a private project unless the current user is its owner or an admin.
@@ -169,4 +180,3 @@ Known defects are recorded as `it.fails` tests in `backend/tests/unit/http`:
 | `TooManyRequestsError` | 429 with message                                                                    |
 | `PenTestingError`      | Existing 302 redirect                                                               |
 | Unexpected error       | Reported to Sentry; 500 with `SERVICE_OFFLINE\|Our service temporarily unavailable` |
-

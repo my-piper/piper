@@ -16,11 +16,15 @@ const REFERENCE = "registry:artworks@3/echo_node/script.js";
 const SOURCE =
   'import { next } from "../node.js";\nexport function run() { return next({}); }';
 
-function setup(script = REFERENCE) {
-  seedAuthorization(userPlain("engineer"));
+function setup(
+  script = REFERENCE,
+  { role = "engineer" as "engineer" | "owner", source = "catalog" } = {},
+) {
+  seedAuthorization(userPlain(role));
   const project = projectA();
   const node = project.pipeline.nodes.values().next().value;
   node.script = script;
+  node.source = source;
   const data = new BehaviorSubject({ project, node: { id: "node_one", node } });
   configureAppTestingModule();
   TestBed.overrideProvider(ActivatedRoute, { useValue: { data } });
@@ -120,6 +124,25 @@ describe("pipeline node script editor", () => {
 
     expect(page.editor().value).toBe(SOURCE);
     expect(page.save().disabled).toBe(false);
+    page.controller.verify();
+    finish();
+  }));
+
+  it("saves a Script Node's script for a regular user without signing it", fakeAsync(() => {
+    const page = setup(SOURCE, { role: "owner", source: "script" });
+    page.node.sign = "stale-sign";
+    const edited = SOURCE.replace("next({})", 'next({ text: "edited" })');
+    typeInto(page.editor(), edited);
+    page.fixture.componentInstance.form.controls.execution.setValue(
+      NodeExecution.rapid,
+    );
+
+    page.save().click();
+    page.settle();
+
+    expect(page.node.script).toBe(edited);
+    expect(page.node.execution).toBe(NodeExecution.rapid);
+    expect(page.node.sign).toBeUndefined();
     page.controller.verify();
     finish();
   }));

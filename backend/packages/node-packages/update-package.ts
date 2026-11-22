@@ -8,6 +8,7 @@ import { DataError } from "core-kit/types/errors";
 import assign from "lodash/assign";
 import { PackageUpdatedEvent } from "models/events";
 import { NodePackage } from "models/node-package";
+import { checkNodeIdFree } from "packages/nodes/script-node";
 import { generateSign } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { ulid } from "ulid";
@@ -50,6 +51,9 @@ export function validatePackage(nodePackage: NodePackage) {
 
   if (nodePackage.nodes.size <= 0) {
     throw new DataError("Package has no nodes");
+  }
+  for (const nodeId of nodePackage.nodes.keys()) {
+    checkNodeIdFree(nodeId);
   }
 }
 

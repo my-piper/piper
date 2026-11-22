@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UI } from "src/consts/ui";
-import { Node } from "src/models/node";
+import { Node, SCRIPT_NODE_SOURCE } from "src/models/node";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 
@@ -18,6 +18,7 @@ export class EditNodeComponent {
   project!: Project;
   id!: string;
   node!: Node;
+  scriptNodeSource = SCRIPT_NODE_SOURCE;
 
   constructor(private route: ActivatedRoute) {}
 

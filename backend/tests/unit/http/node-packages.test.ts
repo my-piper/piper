@@ -17,15 +17,15 @@ beforeEach(async () => {
   ]);
 });
 
-function packageYaml() {
+function packageYaml(nodeId = "echo_node") {
   return YAML.stringify({
     _id: "echo_package",
     version: 2,
     title: "Echo package",
     description: "Echo nodes",
     nodes: {
-      echo_node: {
-        _id: "echo_node",
+      [nodeId]: {
+        _id: nodeId,
         version: 3,
         title: "Echo",
         execution: "rapid",
@@ -106,6 +106,17 @@ describe("node package administration", () => {
       expect(httpDoubles.nodePackages.deleteOne).not.toHaveBeenCalled();
     }
   );
+
+  it("rejects a package whose node takes the Script Node id", async () => {
+    const response = await context.request
+      .post("/api/node-packages/actions/import-package")
+      .set("user-token", userToken("admin-user"))
+      .send({ yaml: packageYaml("script") });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Node id script is reserved");
+    expect(httpDoubles.nodes.bulkWrite).not.toHaveBeenCalled();
+  });
 
   it("stamps imported nodes with their package so export finds them", async () => {
     const response = await context.request

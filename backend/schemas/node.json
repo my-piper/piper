@@ -104,7 +104,7 @@
     },
     "source": {
       "type": "string",
-      "enum": ["node", "catalog"]
+      "enum": ["node", "catalog", "script"]
     },
     "locked": {
       "type": "boolean"

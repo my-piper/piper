@@ -23,7 +23,7 @@ import {
 } from "rxjs";
 import { NodeExecution } from "src/enums/node-execution";
 import { AppError } from "src/models/errors";
-import { Node } from "src/models/node";
+import { Node, SCRIPT_NODE_SOURCE } from "src/models/node";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
@@ -137,6 +137,17 @@ export class EditNodeScriptComponent implements OnInit {
 
     const { execution, script: source } = this.form.getRawValue();
     const target = this.node;
+
+    // a Script Node is the user's own code: it is stored as typed and never
+    // signed, so it doesn't go through the engineers' prepare-script call
+    if (target.source === SCRIPT_NODE_SOURCE) {
+      assign(target, { execution, script: source, sign: undefined });
+      this.loadedSource = source;
+      this.progress.saving = false;
+      this.projectManager.markDirty();
+      return;
+    }
+
     const changed = source !== this.loadedSource;
     const script = changed ? source : target.script;
     const base =

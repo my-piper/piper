@@ -6,6 +6,8 @@ import { pipelineFixture, launchRequestFixture } from "../../fixtures/pipeline";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { diff } from "jsondiffpatch/with-text-diffs";
 import { Environment } from "models/environment";
+import { Node } from "models/node";
+import { generateSign } from "packages/nodes/sign-node";
 import { decrypt, encrypt } from "packages/environment/crypt-environment";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -624,6 +626,103 @@ describe("available project tags", () => {
 
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("tags", {});
+  });
+});
+
+describe("Script Node in a pipeline patch", () => {
+  function signStoredNodes() {
+    for (const node of Object.values(scenario.project.pipeline.nodes)) {
+      Object.assign(node, { sign: generateSign(toInstance(node, Node)) });
+    }
+  }
+
+  function addedNodePatch(node: object) {
+    const { pipeline } = scenario.project;
+    return diff(pipeline, {
+      ...pipeline,
+      nodes: { ...pipeline.nodes, script_1: node },
+    });
+  }
+
+  it("lets a regular user write its script and keeps it unsigned", async () => {
+    signStoredNodes();
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const script =
+      'export async function run({ inputs }) { return { __type: "next", outputs: { b: inputs.a } }; }';
+    const delta = addedNodePatch({
+      _id: "script",
+      title: "Script",
+      source: "script",
+      execution: "regular",
+      arrange: { x: 10, y: 10 },
+      script,
+      sign: "forged",
+      environment: { OPENAI_KEY: { type: "string", scope: "global" } },
+      inputs: { a: { type: "string", title: "A" } },
+      outputs: { b: { type: "string", title: "B" } },
+    });
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: delta });
+
+    expect(response.status).toBe(200);
+    const [, { $set }] = httpDoubles.projects.updateOne.mock.calls[0];
+    const written = $set.pipeline.nodes.script_1;
+    expect(written).toMatchObject({
+      script,
+      inputs: { a: { type: "string", title: "A" } },
+      outputs: { b: { type: "string", title: "B" } },
+    });
+    expect(written.sign).toBeUndefined();
+    expect(written.environment).toBeUndefined();
+  });
+
+  it("rejects a Script Node whose script points at published code", async () => {
+    signStoredNodes();
+    const delta = addedNodePatch({
+      _id: "script",
+      title: "Script",
+      source: "script",
+      execution: "regular",
+      arrange: { x: 10, y: 10 },
+      script: "registry:echo_package@2/echo_node/script.js",
+      inputs: {},
+      outputs: {},
+    });
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: delta });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      "Script Node script_1 must hold its own code"
+    );
+  });
+
+  it("still rejects a regular user's edited script on a catalog node", async () => {
+    signStoredNodes();
+    const delta = addedNodePatch({
+      _id: "echo_node",
+      title: "Echo",
+      source: "catalog",
+      execution: "rapid",
+      arrange: { x: 10, y: 10 },
+      script: "export async function run() {}",
+      inputs: {},
+      outputs: {},
+    });
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: delta });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Wrong sign for script_1 node");
   });
 });
 

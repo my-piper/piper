@@ -327,6 +327,34 @@ describe("EditNodeInputsComponent", () => {
   });
 
   describe("tools", () => {
+    function editOption() {
+      return Array.from(document.querySelectorAll("[tuiOption]")).find((o) =>
+        o.textContent.includes("(E)dit"),
+      );
+    }
+
+    for (const [verb, source, offered] of [
+      ["offers", "script", true],
+      ["doesn't offer", "catalog", false],
+    ] as const) {
+      it(`${verb} a regular user to edit a ${source} node`, fakeAsync(() => {
+        const project = projectA();
+        project.pipeline.nodes.get("node_two").source = source;
+        const page = setup("node_two", project);
+
+        page.click(page.element.querySelector("[aria-label=Actions]"));
+        tick();
+        page.detectChanges();
+
+        const shown = !!editOption();
+        page.component.toolsOpen = false;
+        page.detectChanges();
+
+        expect(shown).toBe(offered);
+        finish();
+      }));
+    }
+
     it("opens the script editor for the node", fakeAsync(() => {
       const { component, router } = setup("node_two");
       const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);

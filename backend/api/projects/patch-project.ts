@@ -15,7 +15,7 @@ import { decrypt, encrypt } from "packages/environment/crypt-environment";
 import { applyBindings } from "packages/environment/bind-environment";
 import { hide } from "packages/environment/hide-environment";
 import { dropRevealedSecrets } from "packages/environment/reveal-environment";
-import { ensureSign } from "packages/nodes/sign-node";
+import { ensurePipelineNodeTrust } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
 import {
@@ -104,7 +104,7 @@ api.patch(
       }
 
       for (const [id, node] of patched.nodes) {
-        ensureSign(node, id, isEngineer(currentUser));
+        ensurePipelineNodeTrust(node, id, isEngineer(currentUser));
       }
 
       assign(update, {

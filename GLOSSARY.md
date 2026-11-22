@@ -38,6 +38,10 @@ _Avoid_: Bundle, plugin file
 An edited script belonging to one Node in a Pipeline. It leaves the published Node Definition unchanged.
 _Avoid_: Package patch, package edit
 
+**Script Node**:
+A Node whose inputs, outputs and script are written by the user who places it, rather than taken from a Node Package. Every user can place one without installing anything. Each one stands alone: reusing it means publishing a Node Package. It runs isolated and never reads an Environment.
+_Avoid_: Custom node, code node, builtin node
+
 **Package Registry**:
 Where Piper keeps the code of every published Node Package version, and where Nodes load it from when they run.
 _Avoid_: CDN, repository, package store

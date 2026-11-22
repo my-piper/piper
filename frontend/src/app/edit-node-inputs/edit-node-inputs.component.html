@@ -167,7 +167,9 @@
 
   <ng-template #toolsMenu>
     <tui-data-list>
-      @if (userRole.engineer | can | async) {
+      @if (
+        node.source === scriptNodeSource || (userRole.engineer | can | async)
+      ) {
         <button tuiOption type="button" (click)="edit()">
           <tui-icon icon="@tui.pencil" />
           <ng-container i18n="@@action.edit_with_shortcut">(E)dit</ng-container>

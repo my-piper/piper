@@ -42,6 +42,7 @@ import {
   LogEntry,
 } from "packages/deno";
 import { readChildren, startChildren } from "packages/launches/child-launches";
+import { isScriptNode } from "packages/nodes/script-node";
 import { LaunchChildrenNode, NodeJobResult, RepeatNode } from "types/node";
 import { PipelineEventType } from "types/pipeline";
 import { checkInputs, convertInputs, getNodeInputs } from "utils/node";
@@ -275,7 +276,8 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       },
       {
         timeout: getTimeout(node.execution),
-        isolation: node.sign ? "none" : "process",
+        // a Script Node is written by its user, so a sign on it is never trusted
+        isolation: node.sign && !isScriptNode(node) ? "none" : "process",
       }
     );
     finishedAt = Date.now();

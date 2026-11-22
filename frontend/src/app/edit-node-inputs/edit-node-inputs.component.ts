@@ -10,7 +10,7 @@ import { merge } from "lodash";
 import { filter, Subscription, takeUntil } from "rxjs";
 import { Asset } from "src/models/assets";
 import { NodeToLaunch } from "src/models/launch-request";
-import { Node, NodeInput } from "src/models/node";
+import { Node, NodeInput, SCRIPT_NODE_SOURCE } from "src/models/node";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
@@ -36,6 +36,7 @@ const logger = createLogger("edit_node_inputs", LogLevel.debug);
 })
 export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   userRole = UserRole;
+  scriptNodeSource = SCRIPT_NODE_SOURCE;
   ui = UI;
 
   project!: Project;

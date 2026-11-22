@@ -10,7 +10,7 @@ import {
 import { FormBuilder } from "@angular/forms";
 import { debounceTime, delay, finalize, map } from "rxjs";
 import { DisplayError } from "src/models/errors";
-import { Node, NodesFilter } from "src/models/node";
+import { Node, NodesFilter, SCRIPT_NODE_ID } from "src/models/node";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
@@ -26,6 +26,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
 })
 export class SelectNodeComponent implements OnInit, AfterViewInit {
   userRole = UserRole;
+  scriptNodeId = SCRIPT_NODE_ID;
   languages = Languages;
 
   progress: { loading: boolean; removing: boolean } = {

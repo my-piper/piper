@@ -5,6 +5,7 @@ import {
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME } from "../../fixtures/launch";
 import {
+  GLOBAL_ENVIRONMENT_KEY,
   LAUNCH_EXPIRED,
   LAUNCH_HEARTBEAT,
   NODE_LOGS,
@@ -12,10 +13,13 @@ import {
   NODE_STATE,
   NODE_STATUS,
 } from "consts/redis";
-import { toInstance } from "core-kit/packages/transform";
+import { toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import { NodeExecution } from "enums/node-execution";
+import { Environment } from "models/environment";
+import { NodeEnvironment } from "models/node";
 import { ExecutionError } from "packages/deno/classes";
+import { encrypt } from "packages/environment/crypt-environment";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let context: ReturnType<typeof nodeExecutionFixture>;
@@ -71,6 +75,35 @@ describe("node execution lifecycle", () => {
       "run",
       expect.any(Object),
       { timeout: 3000, isolation: "none" }
+    );
+  });
+
+  it("runs a Script Node process-isolated without any Environment, even if signed", async () => {
+    const node = context.launch.pipeline.nodes.get("echo_node");
+    Object.assign(node, {
+      source: "script",
+      sign: "forged-signature",
+      environment: new Map([
+        ["OPENAI_KEY", toInstance({ scope: "global" }, NodeEnvironment)],
+      ]),
+    });
+    const global = toInstance(
+      { variables: { OPENAI_KEY: "platform secret" } },
+      Environment
+    );
+    encrypt(global);
+    context.responses.set(
+      GLOBAL_ENVIRONMENT_KEY,
+      JSON.stringify(toPlain(global))
+    );
+
+    await context.run();
+
+    expect(doubles.execute).toHaveBeenCalledWith(
+      expect.any(String),
+      "run",
+      expect.objectContaining({ env: { scope: {}, variables: {} } }),
+      { timeout: 3000, isolation: "process" }
     );
   });
 

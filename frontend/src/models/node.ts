@@ -257,6 +257,15 @@ type GroupOfInputs = {
 
 const DEFAULT_ORDER = 999;
 
+/**
+ * Marks a Script Node: the Node whose user writes its inputs, outputs
+ * and script. It is never signed and never reads an Environment.
+ */
+export const SCRIPT_NODE_SOURCE = "script";
+
+/** The id the Script Node has in the catalog, which is served from code. */
+export const SCRIPT_NODE_ID = "script";
+
 export class Node {
   @Expose()
   @Type(() => String)

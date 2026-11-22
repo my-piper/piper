@@ -67,7 +67,9 @@
         @for (node of c.nodes; track node._id) {
           <div class="card" [dragClone]="{ payload: { node: node._id } }">
             <header>
-              @if (userRole.admin | can | async) {
+              @if (
+                node._id !== scriptNodeId && (userRole.admin | can | async)
+              ) {
                 <ng-template #actionsTemplate>
                   <tui-data-list>
                     <button
