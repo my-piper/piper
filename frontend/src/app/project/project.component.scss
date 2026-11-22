@@ -97,3 +97,15 @@ header {
     padding: variables.$gutter-normal;
   }
 }
+
+// Reserves the tabs' height while the role check resolves, so the canvas below
+// doesn't jump when they appear.
+.sections-row {
+  min-block-size: var(--tui-height-m);
+}
+
+// The section tabs take the row's free width and scroll when they overflow.
+tui-tabs.sections {
+  flex: 1;
+  min-inline-size: 0;
+}

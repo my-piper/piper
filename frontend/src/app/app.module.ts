@@ -21,7 +21,7 @@ import {
   TuiRoot,
 } from "@taiga-ui/core";
 import { TuiTable } from "@taiga-ui/addon-table";
-import { TuiBadge, TuiButtonLoading } from "@taiga-ui/kit";
+import { TuiBadge, TuiButtonLoading, TuiTabs } from "@taiga-ui/kit";
 import { TuiNavigation } from "@taiga-ui/layout";
 import { NgHcaptchaModule } from "ng-hcaptcha";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
@@ -328,6 +328,7 @@ import { UsersComponent } from "./users/users.component";
     TuiBadge,
     TuiButtonLoading,
     ...TuiNavigation,
+    ...TuiTabs,
   ],
   providers: [
     provideTaiga(),

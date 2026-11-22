@@ -14,9 +14,11 @@
   overflow: scroll;
   gap: variables.$gutter-normal;
 
+  // A hidden drawer slides out over the canvas; it must never take the pointer.
   &.hidden {
     opacity: 0;
     transform: translateX(100%);
+    pointer-events: none;
   }
 
   &.left,

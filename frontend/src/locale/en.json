@@ -191,6 +191,8 @@
     "label.last_days_short": "last {$INTERPOLATION} days",
     "message.no_node_runs": " No node runs recorded. ",
     "label.avg_wait": "Avg wait",
+    "action.back": "Back",
+    "action.share": "Share",
     "link.canvas": "Canvas",
     "link.artefacts": "Artefacts",
     "link.deploy": "Deploy",
