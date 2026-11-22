@@ -20,7 +20,6 @@ import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/consts/ui";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { toInstance, toPlain } from "src/utils/models";
 
 @Component({
@@ -43,7 +42,7 @@ export class ProjectPlaygroundComponent implements OnDestroy {
     inputs: this.inputsGroup,
   });
 
-  references: { popover: PopoverComponent } = { popover: null };
+  toolsOpen = false;
 
   constructor(
     private fb: FormBuilder,
@@ -188,6 +187,6 @@ export class ProjectPlaygroundComponent implements OnDestroy {
 
     this.inputsGroup.setValue(state, { emitEvent: false });
     this.fillRequest();
-    this.references.popover?.hide();
+    this.toolsOpen = false;
   }
 }

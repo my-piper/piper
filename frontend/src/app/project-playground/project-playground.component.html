@@ -74,22 +74,24 @@
     </div>
   </button>
 
-  <ng-template #toolsPopover>
-    <ul class="context-menu">
-      <li>
-        <button (click)="reset()">
-          <app-icon class="icon" icon="close"></app-icon>
-          <ng-container i18n="@@action.reset">Reset</ng-container>
-        </button>
-      </li>
-    </ul>
+  <ng-template #toolsMenu>
+    <tui-data-list>
+      <button tuiOption type="button" (click)="reset()">
+        <tui-icon icon="@tui.x" />
+        <ng-container i18n="@@action.reset">Reset</ng-container>
+      </button>
+    </tui-data-list>
   </ng-template>
 
   <button
-    class="primary with-icon only-icon"
-    [appPopover]="{ content: toolsPopover, trigger: 'click' }"
-    (attached)="references.popover = $event"
-  >
-    <app-icon class="icon" icon="menu"></app-icon>
-  </button>
+    tuiIconButton
+    appearance="primary"
+    size="m"
+    type="button"
+    iconStart="@tui.ellipsis-vertical"
+    aria-label="Actions"
+    i18n-aria-label="@@label.actions"
+    [tuiDropdown]="toolsMenu"
+    [(tuiDropdownOpen)]="toolsOpen"
+  ></button>
 </footer>

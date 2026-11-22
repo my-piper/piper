@@ -58,26 +58,31 @@
     <div class="card">
       <header class="stack justify-end">
         <ng-template #actionsTemplate>
-          <ul class="context-menu" [class.busy]="progress.removing[i]">
-            <li>
-              <button (click)="remove(i, c)">
-                <app-icon
-                  class="icon left"
-                  icon="delete"
-                  [size]="18"
-                ></app-icon>
-                Delete
-              </button>
-            </li>
-          </ul>
+          <tui-data-list>
+            <button
+              tuiOption
+              type="button"
+              [disabled]="progress.removing[i]"
+              (click)="remove(i, c)"
+            >
+              <tui-icon icon="@tui.trash-2" />
+              <ng-container i18n="@@action.delete">Delete</ng-container>
+            </button>
+          </tui-data-list>
         </ng-template>
         <button
+          tuiIconButton
           class="actions"
-          [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-          (attached)="references.popover = $event"
-        >
-          <app-icon class="icon" icon="menu"></app-icon>
-        </button>
+          appearance="secondary"
+          size="s"
+          type="button"
+          iconStart="@tui.ellipsis-vertical"
+          aria-label="Actions"
+          i18n-aria-label="@@label.actions"
+          [tuiDropdown]="actionsTemplate"
+          [tuiDropdownOpen]="actionsOpen === c._id"
+          (tuiDropdownOpenChange)="actionsOpen = $event ? c._id : null"
+        ></button>
         <div>{{ c.createdAt | date: "short" }}</div>
       </header>
       <article

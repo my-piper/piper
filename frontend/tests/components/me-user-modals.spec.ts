@@ -5,6 +5,7 @@ import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ReactiveFormsModule } from "@angular/forms";
+import { TuiButton, TuiDataList, TuiDropdown, TuiIcon } from "@taiga-ui/core";
 import { provideRouter } from "@angular/router";
 import { ChangePasswordComponent } from "src/app/change-password/change-password.component";
 import { MeUserComponent } from "src/app/me-user/me-user.component";
@@ -16,7 +17,6 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { ModalComponent } from "src/ui-kit/modal/modal.component";
-import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { provideTestConfig } from "../helpers/config";
 import { provideSocketDouble } from "../helpers/socket";
 
@@ -38,11 +38,17 @@ async function render() {
       NsfwDisclaimer,
       IconComponent,
       InformerComponent,
-      PopoverDirective,
       I18nPipe,
       InvalidFieldPipe,
     ],
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [
+      CommonModule,
+      ReactiveFormsModule,
+      TuiButton,
+      TuiIcon,
+      ...TuiDataList,
+      ...TuiDropdown,
+    ],
     providers: [
       provideTestConfig(),
       provideSocketDouble(),

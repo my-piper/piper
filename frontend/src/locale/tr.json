@@ -32,7 +32,7 @@
 		"message.already_registered": " Zaten kayıtlı mısınız? {$START_LINK}Login{$CLOSE_LINK}",
 		"link.report_bug": " Hata bildir {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.community": " Topluluk {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Oturum Kapatma",
+		"action.logout": "Oturum Kapatma",
 		"label.theme_light": "Açık",
 		"label.theme_dark": "Koyu",
 		"label.theme_system": "Sistem",

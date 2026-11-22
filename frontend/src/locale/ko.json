@@ -31,7 +31,7 @@
 		"message.already_registered": " 이미 등록하셨나요? {$START_LINK}로그인{$CLOSE_LINK}",
 		"link.report_bug": " 버그 신고 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.community": " 커뮤니티 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 로그아웃",
+		"action.logout": "로그아웃",
 		"label.theme_light": "라이트",
 		"label.theme_dark": "다크",
 		"label.theme_system": "시스템",

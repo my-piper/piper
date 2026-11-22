@@ -1,11 +1,15 @@
-<ng-template #toolsPopover>
-  <ul class="context-menu" [class.busy]="progress.organizing">
-    <li>
-      <button [disabled]="progress.organizing" (click)="organize()">
-        <ng-container i18n="@@action.organize">Organize</ng-container>
-      </button>
-    </li>
-  </ul>
+<ng-template #toolsMenu>
+  <tui-data-list>
+    <button
+      tuiOption
+      type="button"
+      [disabled]="progress.organizing"
+      (click)="organize()"
+    >
+      <tui-icon icon="@tui.list-ordered" />
+      <ng-container i18n="@@action.organize">Organize</ng-container>
+    </button>
+  </tui-data-list>
 </ng-template>
 
 <header class="stack align-center">
@@ -15,12 +19,17 @@
   <h1 i18n="@@label.select_app">Select app</h1>
   @if (userRole.admin | can | async) {
     <button
-      class="tools button circle"
-      [appPopover]="{ content: toolsPopover, trigger: 'click' }"
-      (attached)="references.popover = $event"
-    >
-      <app-icon class="icon" icon="menu"></app-icon>
-    </button>
+      tuiIconButton
+      class="tools"
+      appearance="flat"
+      size="m"
+      type="button"
+      iconStart="@tui.ellipsis-vertical"
+      aria-label="Actions"
+      i18n-aria-label="@@label.actions"
+      [tuiDropdown]="toolsMenu"
+      [(tuiDropdownOpen)]="toolsOpen"
+    ></button>
   }
 </header>
 

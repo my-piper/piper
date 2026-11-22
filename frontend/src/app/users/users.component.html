@@ -60,26 +60,30 @@
         <tr>
           <td>
             <ng-template #actionsTemplate>
-              <ul class="context-menu" [class.busy]="progress.deleting">
-                <li>
-                  <button (click)="remove(i, u)">
-                    <app-icon
-                      class="icon left"
-                      icon="delete"
-                      [size]="18"
-                    ></app-icon>
-                    <ng-container i18n="@@action.delete">Delete</ng-container>
-                  </button>
-                </li>
-              </ul>
+              <tui-data-list>
+                <button
+                  tuiOption
+                  type="button"
+                  [disabled]="progress.deleting"
+                  (click)="remove(i, u)"
+                >
+                  <tui-icon icon="@tui.trash-2" />
+                  <ng-container i18n="@@action.delete">Delete</ng-container>
+                </button>
+              </tui-data-list>
             </ng-template>
             <button
-              class="circle"
-              [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-              (attached)="references.popover = $event"
-            >
-              <app-icon class="icon" icon="menu"></app-icon>
-            </button>
+              tuiIconButton
+              appearance="flat"
+              size="s"
+              type="button"
+              iconStart="@tui.ellipsis-vertical"
+              aria-label="Actions"
+              i18n-aria-label="@@label.actions"
+              [tuiDropdown]="actionsTemplate"
+              [tuiDropdownOpen]="actionsOpen === u._id"
+              (tuiDropdownOpenChange)="actionsOpen = $event ? u._id : null"
+            ></button>
           </td>
           <td title="Login" i18n-title="@@label.login">
             <a class="default" [routerLink]="[u._id]">

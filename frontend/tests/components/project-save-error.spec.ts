@@ -6,6 +6,7 @@ import {
 } from "@angular/common/http/testing";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { TuiButton, TuiDataList, TuiDropdown, TuiIcon } from "@taiga-ui/core";
 import {
   provideRouter,
   RouterLink,
@@ -72,6 +73,10 @@ describe("ProjectComponent save errors", () => {
         RouterLink,
         RouterLinkActive,
         RouterOutlet,
+        TuiButton,
+        TuiIcon,
+        ...TuiDataList,
+        ...TuiDropdown,
       ],
       providers: [
         provideTestConfig(),

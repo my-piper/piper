@@ -15,7 +15,6 @@ import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 
 @Component({
@@ -29,13 +28,14 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
   userRole = UserRole;
   languages = Languages;
 
-  progress: { loading: boolean } = {
+  progress: { loading: boolean; removing: boolean } = {
+    removing: false,
     loading: false,
   };
   error: DisplayError;
 
   nodes: Node[] = [];
-  references: { popover: PopoverComponent } = { popover: null };
+  actionsOpen: string | null = null;
 
   searchControl = this.fb.control<string>(null);
   form = this.fb.group({
@@ -102,18 +102,29 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
 
   remove(node: Node) {
     const { _id } = node;
-    this.http.delete(`nodes/${_id}`).subscribe({
-      next: () => {
-        this.references.popover?.hide();
-        const index = this.nodes.indexOf(node);
-        if (index !== -1) {
-          this.nodes.splice(index, 1);
-          this.nodes = [...this.nodes];
+    this.progress.removing = true;
+    this.cd.detectChanges();
+
+    this.http
+      .delete(`nodes/${_id}`)
+      .pipe(
+        finalize(() => {
+          this.progress.removing = false;
+          this.actionsOpen = null;
           this.cd.detectChanges();
-        }
-      },
-      error: (err) => (this.error = err),
-    });
+        }),
+      )
+      .subscribe({
+        next: () => {
+          const index = this.nodes.indexOf(node);
+          if (index !== -1) {
+            this.nodes.splice(index, 1);
+            this.nodes = [...this.nodes];
+            this.cd.detectChanges();
+          }
+        },
+        error: (err) => (this.error = err),
+      });
   }
 
   toggle(group: string) {

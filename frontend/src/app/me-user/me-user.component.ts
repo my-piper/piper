@@ -4,7 +4,6 @@ import { Router } from "@angular/router";
 import { AppConfig } from "src/models/app-config";
 import { HttpService } from "src/services/http.service";
 import { MeManager } from "src/services/me.service";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { ModalService } from "../../ui-kit/modal/modal.service";
 import { ChangePasswordComponent } from "../change-password/change-password.component";
 import { NsfwDisclaimer } from "../nsfw-disclaimer/nsfw-disclaimer.component";
@@ -17,7 +16,7 @@ import { NsfwDisclaimer } from "../nsfw-disclaimer/nsfw-disclaimer.component";
   standalone: false,
 })
 export class MeUserComponent implements OnInit {
-  references: { popover?: PopoverComponent } = { popover: null };
+  menuOpen = false;
 
   nsfwControl = this.fb.control<boolean>(
     localStorage.getItem("nsfw") === "allow",
@@ -57,7 +56,7 @@ export class MeUserComponent implements OnInit {
   }
 
   changePassword() {
-    this.references.popover?.hide();
+    this.menuOpen = false;
     const component = this.modal.openComponent(ChangePasswordComponent, {
       title: $localize`:@@label.change_password:Change password`,
     });
@@ -65,6 +64,7 @@ export class MeUserComponent implements OnInit {
   }
 
   logout() {
+    this.menuOpen = false;
     this.config.authorization = null;
     this.router.navigate(["/login"]);
   }

@@ -1,5 +1,4 @@
 @use "variables";
-@use "reset";
 
 .cards {
   display: grid;
@@ -36,27 +35,11 @@
       }
     }
 
-    button.actions {
-      @include reset.reset-button();
+    .actions {
       position: absolute;
       z-index: 5;
       top: -(variables.$gutter-small);
       left: -(variables.$gutter-small);
-      padding: variables.$gutter-tiny;
-      border-radius: variables.$corner-base;
-      cursor: pointer;
-      border: 1px solid variables.$button-border-color;
-      background-color: variables.$button-background-color;
-      display: flex;
-      align-items: center;
-
-      .icon {
-        display: block;
-      }
-
-      &:hover {
-        background: variables.$button-hover-background-color;
-      }
     }
   }
 

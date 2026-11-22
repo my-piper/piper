@@ -13,7 +13,6 @@ import { User, UserRole, UsersFilter } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
 import { mapTo, toPlain } from "src/utils/models";
-import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { EditUserComponent } from "./edit/edit-user.component";
 
 @Component({
@@ -31,7 +30,7 @@ export class UsersComponent {
   error!: DisplayError;
   progress = { loading: false, deleting: false };
 
-  references: { popover: PopoverComponent } = { popover: null };
+  actionsOpen: string | null = null;
 
   set modal(modal: EditUserComponent) {
     this._modal = modal;
@@ -116,7 +115,7 @@ export class UsersComponent {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.deleting = false;
-          this.references?.popover?.hide();
+          this.actionsOpen = null;
           this.cd.detectChanges();
         }),
       )

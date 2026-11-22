@@ -16,7 +16,6 @@ import {
 } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 
 @Component({
@@ -39,7 +38,7 @@ export class ProjectCommentsComponent {
   chunk: ProjectComment[] = [];
   comments: ProjectComment[] = [];
 
-  references: { popover: PopoverComponent } = { popover: null };
+  actionsOpen: string | null = null;
 
   messageControl = this.fb.control<string>(null, [Validators.required]);
   form = this.fb.group({
@@ -135,7 +134,7 @@ export class ProjectCommentsComponent {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.removing[index] = false;
-          this.references?.popover?.hide();
+          this.actionsOpen = null;
           this.cd.detectChanges();
         }),
       )

@@ -165,36 +165,31 @@
     <ng-container i18n="@@action.reset">Reset</ng-container>
   </button>
 
-  <ng-template #toolsPopover>
-    <ul class="context-menu">
-      <li>
-        @if (userRole.engineer | can | async) {
-          <a (click)="edit()">
-            <app-icon
-              class="icon left"
-              [icon]="node.locked ? 'lock' : 'lock'"
-              [size]="16"
-            ></app-icon>
-            <ng-container i18n="@@action.edit_with_shortcut"
-              >(E)dit</ng-container
-            >
-          </a>
-        }
-      </li>
-      <li>
-        <button (click)="reorder()">
-          <ng-container i18n="@@action.organize">Organize</ng-container>
+  <ng-template #toolsMenu>
+    <tui-data-list>
+      @if (userRole.engineer | can | async) {
+        <button tuiOption type="button" (click)="edit()">
+          <tui-icon icon="@tui.pencil" />
+          <ng-container i18n="@@action.edit_with_shortcut">(E)dit</ng-container>
         </button>
-      </li>
-    </ul>
+      }
+      <button tuiOption type="button" (click)="reorder()">
+        <tui-icon icon="@tui.list-ordered" />
+        <ng-container i18n="@@action.organize">Organize</ng-container>
+      </button>
+    </tui-data-list>
   </ng-template>
   <button
+    tuiIconButton
+    appearance="primary"
+    size="s"
+    type="button"
+    iconStart="@tui.ellipsis-vertical"
+    aria-label="Actions"
+    i18n-aria-label="@@label.actions"
+    [tuiDropdown]="toolsMenu"
+    [(tuiDropdownOpen)]="toolsOpen"
     [hotKey]="'meta+e'"
-    class="primary small with-icon icon-only"
-    [appPopover]="{ content: toolsPopover }"
     (hotKeyPressed)="edit()"
-    (attached)="references.popover = $event"
-  >
-    <app-icon class="icon" icon="menu" [size]="18"></app-icon>
-  </button>
+  ></button>
 </footer>

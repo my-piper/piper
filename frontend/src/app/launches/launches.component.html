@@ -7,45 +7,44 @@
       <div class="card">
         <header>
           <ng-template #actionsTemplate>
-            <ul class="context-menu" [class.busy]="progress.removing[i]">
-              <li>
-                <a
-                  class="link"
-                  target="_blank"
-                  [routerLink]="['/launches', l._id]"
-                  (click)="references.popover?.hide()"
-                >
-                  <app-icon
-                    class="icon left"
-                    icon="open-link"
-                    [size]="18"
-                  ></app-icon>
-                  <ng-container i18n="@@link.open_pipeline">
-                    Open pipeline
-                  </ng-container>
-                </a>
-              </li>
+            <tui-data-list>
+              <a
+                tuiOption
+                target="_blank"
+                [routerLink]="['/launches', l._id]"
+                (click)="actionsOpen = null"
+              >
+                <tui-icon icon="@tui.external-link" />
+                <ng-container i18n="@@link.open_pipeline">
+                  Open pipeline
+                </ng-container>
+              </a>
               @if (userRole.admin | can: l.launchedBy | async) {
-                <li>
-                  <button (click)="remove(i, l)">
-                    <app-icon
-                      class="icon left"
-                      icon="delete"
-                      [size]="18"
-                    ></app-icon>
-                    <ng-container i18n="@@action.delete">Delete</ng-container>
-                  </button>
-                </li>
+                <button
+                  tuiOption
+                  type="button"
+                  [disabled]="progress.removing[i]"
+                  (click)="remove(i, l)"
+                >
+                  <tui-icon icon="@tui.trash-2" />
+                  <ng-container i18n="@@action.delete">Delete</ng-container>
+                </button>
               }
-            </ul>
+            </tui-data-list>
           </ng-template>
           <button
+            tuiIconButton
             class="actions"
-            [appPopover]="{ content: actionsTemplate, trigger: 'click' }"
-            (attached)="references.popover = $event"
-          >
-            <app-icon class="icon" icon="menu"></app-icon>
-          </button>
+            appearance="secondary"
+            size="s"
+            type="button"
+            iconStart="@tui.ellipsis-vertical"
+            aria-label="Actions"
+            i18n-aria-label="@@label.actions"
+            [tuiDropdown]="actionsTemplate"
+            [tuiDropdownOpen]="actionsOpen === l._id"
+            (tuiDropdownOpenChange)="actionsOpen = $event ? l._id : null"
+          ></button>
           @if (l._id | pipelineFinishedMetric | async; as metric) {
             <div class="metric">{{ metric.fromStart }} sec</div>
           }

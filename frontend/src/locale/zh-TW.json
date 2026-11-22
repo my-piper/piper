@@ -31,7 +31,7 @@
 		"message.already_registered": "已註冊？ {$START_LINK}登入{$CLOSE_LINK}",
 		"link.report_bug": " 舉報錯誤 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
 		"link.community": "社區 {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-		"action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} 登出",
+		"action.logout": "登出",
 		"label.theme_light": "淺色",
 		"label.theme_dark": "深色",
 		"label.theme_system": "跟隨系統",

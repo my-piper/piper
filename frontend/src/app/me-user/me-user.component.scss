@@ -11,6 +11,10 @@
   overflow: hidden;
 }
 
+.panel {
+  padding: variables.$gutter-small;
+}
+
 .user {
   small {
     color: variables.$graphite-color-100;

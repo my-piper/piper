@@ -18,7 +18,6 @@ import { Primitive } from "src/types/primitive";
 import { UI } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { UntilDestroyed } from "src/utils/until-destroyed";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { createLogger, LogLevel } from "src/utils/logger";
@@ -44,7 +43,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   node!: Node;
 
   subscriptions: { changes?: Subscription } = {};
-  references: { popover: PopoverComponent } = { popover: null };
+  toolsOpen = false;
 
   startControl = this.fb.control<boolean>(false);
   inputsGroup = this.fb.group({});
@@ -258,7 +257,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   }
 
   edit() {
-    this.references.popover?.hide();
+    this.toolsOpen = false;
     this.router.navigate(
       [{ outlets: { primary: ["nodes", this.id, "edit", "script"] } }],
       { relativeTo: this.route.parent },
@@ -288,7 +287,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   }
 
   reorder() {
-    this.references.popover?.hide();
+    this.toolsOpen = false;
 
     let i = 1;
     for (const { group } of this.node.render.inputs) {

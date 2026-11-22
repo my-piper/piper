@@ -33,7 +33,7 @@
     "message.already_registered": " Уже зарегистрированы? {$START_LINK}Войти{$CLOSE_LINK}",
     "link.report_bug": " Сообщить об ошибке {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
     "link.community": " Сообщество {$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON}",
-    "action.logout": "{$START_TAG_APP_ICON}{$CLOSE_TAG_APP_ICON} Выйти",
+    "action.logout": "Выйти",
     "label.theme_light": "Светлая",
     "label.theme_dark": "Тёмная",
     "label.theme_system": "Системная",

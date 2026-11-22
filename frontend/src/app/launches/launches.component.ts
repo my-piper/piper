@@ -24,7 +24,6 @@ import { MeManager } from "src/services/me.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/consts/ui";
 import { UntilDestroyed } from "src/utils/until-destroyed";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { mapTo, toPlain } from "src/utils/models";
 
 @Component({
@@ -45,7 +44,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
   };
   error: Error;
 
-  references: { popover: PopoverComponent } = { popover: null };
+  actionsOpen: string | null = null;
 
   @Input()
   set filter(filter: LaunchesFilter) {
@@ -185,6 +184,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.removing[index] = false;
+          this.actionsOpen = null;
           this.cd.detectChanges();
         }),
       )

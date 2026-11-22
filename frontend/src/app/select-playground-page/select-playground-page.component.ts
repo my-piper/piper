@@ -10,7 +10,6 @@ import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 
 @Component({
   selector: "app-select-playground-page",
@@ -29,7 +28,7 @@ export class SelectPlaygroundPageComponent implements OnInit {
 
   tag!: string;
 
-  references: { popover: PopoverComponent } = { popover: null };
+  toolsOpen = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,7 +53,7 @@ export class SelectPlaygroundPageComponent implements OnInit {
           this.progress.organizing = false;
           this.cd.detectChanges();
 
-          this.references.popover?.hide();
+          this.toolsOpen = false;
         }),
       )
       .subscribe({

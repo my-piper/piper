@@ -8,6 +8,9 @@ import {
   TestBed,
   tick,
 } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { Router } from "@angular/router";
+import { AppComponent } from "src/app/app.component";
 import { LaunchesComponent } from "src/app/launches/launches.component";
 import { Launch, LaunchesFilter, StringData } from "src/models/launch";
 import { PipelineLaunchedSignal } from "src/models/signals/launch";
@@ -50,7 +53,8 @@ function listedLaunch(_id = LAUNCH_ID) {
 }
 
 describe("LaunchesComponent", () => {
-  let fixture: ComponentFixture<LaunchesComponent>;
+  let fixture: ComponentFixture<AppComponent>;
+  let component: LaunchesComponent;
   let controller: HttpTestingController;
   let socket: SocketDouble;
   let element: HTMLElement;
@@ -65,17 +69,22 @@ describe("LaunchesComponent", () => {
     return cards;
   }
 
+  /** Renders the launches inside the real app root, where Taiga popups live. */
   function setup(launches: object[] = [listedLaunch()]) {
     seedAuthorization(userPlain("owner"));
-    configureAppTestingModule();
+    configureAppTestingModule([
+      { path: "launches", component: LaunchesComponent },
+    ]);
     controller = TestBed.inject(HttpTestingController);
     socket = TestBed.inject(SocketDouble);
-    fixture = TestBed.createComponent(LaunchesComponent);
-    element = fixture.nativeElement;
-    fixture.componentRef.setInput(
-      "filter",
-      new LaunchesFilter({ project: PROJECT_A_ID }),
-    );
+    fixture = TestBed.createComponent(AppComponent);
+    TestBed.inject(Router).navigateByUrl("/launches");
+    tick();
+    fixture.detectChanges();
+    const debug = fixture.debugElement.query(By.directive(LaunchesComponent));
+    component = debug.componentInstance as LaunchesComponent;
+    element = debug.nativeElement as HTMLElement;
+    component.filter = new LaunchesFilter({ project: PROJECT_A_ID });
     fixture.detectChanges();
     controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
     const list = controller.expectOne((r) => r.url === "/api/launches");
@@ -101,7 +110,7 @@ describe("LaunchesComponent", () => {
 
     expect(list.request.params.get("project")).toBe(PROJECT_A_ID);
     expect(element.querySelectorAll(".card").length).toBe(1);
-    expect(fixture.componentInstance.launches[0]).toBeInstanceOf(Launch);
+    expect(component.launches[0]).toBeInstanceOf(Launch);
     finish();
   }));
 
@@ -117,13 +126,12 @@ describe("LaunchesComponent", () => {
     setup();
 
     socket.receive("set_output", setOutputEventPlain("launch_other"));
-    const before =
-      fixture.componentInstance.launches[0].outputs.get("result").data;
+    const before = component.launches[0].outputs.get("result").data;
     socket.receive("set_output", setOutputEventPlain());
     fixture.detectChanges();
     answerCards();
 
-    const output = fixture.componentInstance.launches[0].outputs.get("result");
+    const output = component.launches[0].outputs.get("result");
     expect(before).toBeUndefined();
     expect(output.data).toEqual(
       expect.objectContaining({ value: { answer: 42 } }),
@@ -152,7 +160,7 @@ describe("LaunchesComponent", () => {
     fixture.detectChanges();
     answerCards();
 
-    const output = fixture.componentInstance.launches[0].outputs.get("summary");
+    const output = component.launches[0].outputs.get("summary");
     expect(output?.data).toBeInstanceOf(StringData);
     expect((output.data as StringData).value).toBe("Done");
     finish();
@@ -168,9 +176,7 @@ describe("LaunchesComponent", () => {
     answerCards();
 
     expect(before).toBeNull();
-    expect(fixture.componentInstance.launches[0].errors).toEqual([
-      "node_two: failed",
-    ]);
+    expect(component.launches[0].errors).toEqual(["node_two: failed"]);
     expect(element.querySelector(".errors")).not.toBeNull();
     finish();
   }));
@@ -186,17 +192,30 @@ describe("LaunchesComponent", () => {
     fixture.detectChanges();
     answerCards();
 
-    expect(fixture.componentInstance.launches.map((l) => l._id)).toEqual([
+    expect(component.launches.map((l) => l._id)).toEqual([
       "launch_new",
       LAUNCH_ID,
     ]);
     finish();
   }));
 
-  it("removes a launch after the server confirms", fakeAsync(() => {
+  function chooseFromMenu(card: number, label: string) {
+    const cards = element.querySelectorAll(".card");
+    cards[card]
+      .querySelector<HTMLButtonElement>("button[aria-label=Actions]")
+      .click();
+    fixture.detectChanges();
+    Array.from(
+      document.querySelectorAll<HTMLElement>("tui-data-list [tuiOption]"),
+    )
+      .find((option) => option.textContent.includes(label))
+      .click();
+  }
+
+  it("removes a launch through its card menu after the server confirms", fakeAsync(() => {
     setup([listedLaunch(), listedLaunch("launch_two")]);
 
-    fixture.componentInstance.remove(0, fixture.componentInstance.launches[0]);
+    chooseFromMenu(0, "Delete");
     const request = controller.expectOne(`/api/launches/${LAUNCH_ID}`);
     request.flush(null);
     tick(UI_DELAY);
@@ -204,17 +223,16 @@ describe("LaunchesComponent", () => {
     answerCards();
 
     expect(request.request.method).toBe("DELETE");
-    expect(fixture.componentInstance.launches.map((l) => l._id)).toEqual([
-      "launch_two",
-    ]);
-    expect(fixture.componentInstance.progress.removing[0]).toBe(false);
+    expect(component.launches.map((l) => l._id)).toEqual(["launch_two"]);
+    expect(component.progress.removing[0]).toBe(false);
+    // a closed dropdown stays in the DOM until its leave animation ends
+    expect(document.querySelector("tui-dropdown:not(.tui-leave)")).toBeNull();
     finish();
   }));
 
   it("stops reacting and releases its rooms when destroyed", fakeAsync(() => {
     setup();
     const live = TestBed.inject(LiveService);
-    const component = fixture.componentInstance;
 
     fixture.destroy();
     TestBed.inject(SignalsService).emit(

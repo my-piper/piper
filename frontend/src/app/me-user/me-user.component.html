@@ -1,5 +1,5 @@
-<ng-template #userPopover>
-  <div class="stack vertical">
+<ng-template #userMenu>
+  <div class="panel stack vertical">
     @if (me.user$ | async; as user) {
       <div class="user">
         {{ user._id }}<br />
@@ -16,29 +16,29 @@
       </div>
       <small>NSFW</small>
     </div>
-    <ul class="context-menu">
-      <li>
-        <button (click)="changePassword()">
-          <app-icon class="icon left" [icon]="'password'"></app-icon>
-          <ng-container i18n="@@action.change_password">
-            Change password
-          </ng-container>
-        </button>
-      </li>
-      <li>
-        <button (click)="logout()" i18n="@@action.logout">
-          <app-icon class="icon left" [icon]="'logout'"></app-icon>
-          Logout
-        </button>
-      </li>
-    </ul>
+    <tui-data-list>
+      <button tuiOption type="button" (click)="changePassword()">
+        <tui-icon icon="@tui.key-round" />
+        <ng-container i18n="@@action.change_password">
+          Change password
+        </ng-container>
+      </button>
+      <button tuiOption type="button" (click)="logout()">
+        <tui-icon icon="@tui.log-out" />
+        <ng-container i18n="@@action.logout">Logout</ng-container>
+      </button>
+    </tui-data-list>
   </div>
 </ng-template>
 
 <button
-  class="circle"
-  [appPopover]="{ content: userPopover, trigger: 'click' }"
-  (attached)="references.popover = $event"
->
-  <app-icon class="icon" [icon]="'user'" [size]="18"></app-icon>
-</button>
+  tuiIconButton
+  appearance="flat"
+  size="s"
+  type="button"
+  iconStart="@tui.user"
+  aria-label="Account"
+  i18n-aria-label="@@label.account"
+  [tuiDropdown]="userMenu"
+  [(tuiDropdownOpen)]="menuOpen"
+></button>
