@@ -17,6 +17,11 @@
     <button class="copy" [tuiButtonCopy]="current.code">
       <ng-container i18n="@@action.copy">Copy</ng-container>
     </button>
-    <pre><code>{{ current.code }}</code></pre>
+    @let colored = highlighted.hasValue() ? highlighted.value() : null;
+    @if (colored) {
+      <pre><code [innerHTML]="colored"></code></pre>
+    } @else {
+      <pre><code>{{ current.code }}</code></pre>
+    }
   </div>
 </section>
