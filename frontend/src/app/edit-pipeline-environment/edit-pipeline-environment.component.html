@@ -1,141 +1,114 @@
-<p i18n="@@message.project_environment_explained_binding">
+<p class="explanation" i18n="@@message.project_environment_explained_source">
   Set the variables this pipeline's nodes read, or take one from a variable of
-  <a [routerLink]="['/me', 'environment']">your environment</a>, shared by all
-  your projects. A variable you leave empty is taken from your variable of the
-  same name; greyed out variables can only be set there.
+  <a tuiLink [routerLink]="['/me', 'environment']">your environment</a>, shared
+  by all your projects. A variable you leave empty is taken from your variable
+  of the same name; variables without a field can only be set there.
 </p>
 
 @if (variables.length > 0) {
   <form [formGroup]="form">
-    <table class="default">
-      <thead>
-        <tr>
-          <th i18n="@@label.name">Name</th>
-          <th i18n="@@label.type">Type</th>
-          <th i18n="@@label.source">Source</th>
-          <th i18n="@@label.value">Value</th>
-          <th width="64px" i18n="@@label.secret">Secret</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (variable of variables.controls; track variable) {
-          <tr class="variable" [formGroup]="variable">
-            @if (variable.controls.meta.value; as meta) {
-              <td title="Name" i18n-title="@@label.name">
-                <input
-                  class="key input-primary fluid"
-                  formControlName="key"
-                  [readOnly]="true"
-                />
+    <div class="table-container">
+      <table tuiTable size="m">
+        <thead>
+          <tr>
+            <th tuiTh class="name-column" i18n="@@label.name">Name</th>
+            <th tuiTh class="type-column" i18n="@@label.type">Type</th>
+            <th tuiTh class="source-column" i18n="@@label.source">Source</th>
+            <th tuiTh i18n="@@label.value">Value</th>
+            <th tuiTh class="secret-column" i18n="@@label.secret">Secret</th>
+          </tr>
+        </thead>
+        <tbody tuiTbody>
+          @for (variable of variables.controls; track variable) {
+            @let meta = variable.controls.meta.value;
+            @let type = variable.controls.type.value!;
+            @let bound = variable.controls.bind.value;
+            @let missing = !!bound && !hasUserVariable(bound);
+            <tr class="variable" [formGroup]="variable">
+              <td tuiTd>
+                <code class="key">{{ variable.controls.key.value }}</code>
                 @if (meta.description) {
-                  <small
-                    class="description"
-                    [innerHTML]="meta.description"
-                  ></small>
+                  <div class="description" [innerHTML]="meta.description"></div>
                 }
               </td>
-              <td title="Type" i18n-title="@@label.type">
-                <select class="type select-primary" formControlName="type">
-                  <option value="string" i18n="@@label.string">String</option>
-                  <option value="number" i18n="@@label.number">Number</option>
-                  <option value="boolean" i18n="@@label.boolean">
-                    Boolean
-                  </option>
-                </select>
-              </td>
-              <td title="Source" i18n-title="@@label.source">
-                @if (!meta.readonly) {
-                  <select class="bind select-primary" formControlName="bind">
-                    <option value="" i18n="@@label.this_project">
-                      This project
-                    </option>
-                    @for (
-                      name of userNames(variable.controls.bind.value);
-                      track name
-                    ) {
-                      <option [value]="name">{{ name }}</option>
-                    }
-                  </select>
-                }
-              </td>
-              <td title="Value" i18n-title="@@label.value">
-                <input
-                  class="value input-primary fluid"
-                  [class.error]="variable.errors?.['valueType']"
-                  formControlName="value"
-                  [readOnly]="meta.readonly || !!variable.controls.bind.value"
-                  [type]="
-                    variable.controls.type.value === 'string' &&
-                    variable.controls.secret.value
-                      ? 'password'
-                      : 'text'
-                  "
-                  [placeholder]="
-                    placeholder(
-                      meta,
-                      variable.controls.type.value!,
-                      variable.controls.secret.value,
-                      variable.controls.bind.value
-                    )
-                  "
-                />
-                @if (variable.controls.bind.value; as bound) {
-                  @if (!hasUserVariable(bound)) {
+              <td tuiTd class="type">{{ typeLabel(type) }}</td>
+              @if (meta.readonly) {
+                <td tuiTd class="source">{{ sourceLabel(meta) }}</td>
+                <td tuiTd class="value">{{ inheritedValue(meta) }}</td>
+                <td tuiTd></td>
+              } @else {
+                <td tuiTd>
+                  <tui-textfield
+                    tuiChevron
+                    tuiTextfieldSize="s"
+                    [stringify]="bindLabel"
+                    [invalid]="missing"
+                  >
+                    <select
+                      tuiSelect
+                      class="bind"
+                      formControlName="bind"
+                      [items]="sources(bound)"
+                    ></select>
+                  </tui-textfield>
+                  @if (missing) {
                     <small
-                      class="inherited missing"
+                      class="missing"
                       i18n="@@message.bound_variable_missing"
                       >Not in your environment</small
                     >
                   }
-                } @else if (meta.inherited && !variable.controls.value.value) {
-                  <small class="inherited">
-                    @switch (meta.inherited.source) {
-                      @case ("user") {
-                        <ng-container i18n="@@label.source_user_environment"
-                          >Your environment</ng-container
-                        >
-                      }
-                      @case ("platform") {
-                        <ng-container i18n="@@label.source_platform"
-                          >Platform</ng-container
-                        >
-                      }
-                      @default {
-                        <ng-container i18n="@@label.not_set"
-                          >Not set</ng-container
-                        >
-                      }
-                    }
-                  </small>
-                }
-              </td>
-              <td title="Secret" i18n-title="@@label.secret">
-                @if (
-                  variable.controls.type.value === "string" &&
-                  !meta.readonly &&
-                  !variable.controls.bind.value
-                ) {
-                  <div class="checkbox small">
-                    <label class="switch">
-                      <input
-                        class="secret"
-                        type="checkbox"
-                        formControlName="secret"
-                      />
-                      <span class="slider"></span>
-                    </label>
-                  </div>
-                }
-              </td>
-            }
-          </tr>
-        }
-      </tbody>
-    </table>
-    <footer class="stack horizontal justify-between">
+                </td>
+                <td tuiTd>
+                  <tui-textfield
+                    tuiTextfieldSize="s"
+                    [invalid]="!!variable.errors?.['valueType']"
+                  >
+                    <input
+                      tuiInput
+                      class="value"
+                      formControlName="value"
+                      [readOnly]="!!bound"
+                      [type]="
+                        type === 'string' && variable.controls.secret.value
+                          ? 'password'
+                          : 'text'
+                      "
+                      [placeholder]="
+                        placeholder(
+                          meta,
+                          type,
+                          variable.controls.secret.value,
+                          bound
+                        )
+                      "
+                    />
+                  </tui-textfield>
+                </td>
+                <td tuiTd>
+                  @if (type === "string" && !bound) {
+                    <input
+                      type="checkbox"
+                      tuiSwitch
+                      size="s"
+                      class="secret"
+                      formControlName="secret"
+                      aria-label="Secret"
+                      i18n-aria-label="@@label.secret"
+                    />
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer>
       <button
+        tuiButton
         type="button"
-        class="primary"
+        size="m"
         [disabled]="form.invalid"
         (click)="save()"
         i18n="@@action.save"
@@ -143,8 +116,10 @@
         Save
       </button>
       <button
+        tuiButton
         type="button"
-        class="delete-button"
+        size="m"
+        appearance="flat"
         (click)="clear()"
         i18n="@@action.clear"
       >

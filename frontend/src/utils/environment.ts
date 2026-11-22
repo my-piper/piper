@@ -24,6 +24,17 @@ export interface VariableMeta {
   storedSecret: boolean;
 }
 
+/** How each Variable type is named on screen. */
+export const VARIABLE_TYPE_LABELS: Record<VariableType, string> = {
+  string: $localize`:@@label.string:String`,
+  number: $localize`:@@label.number:Number`,
+  boolean: $localize`:@@label.boolean:Boolean`,
+};
+
+export const VARIABLE_TYPES = Object.keys(
+  VARIABLE_TYPE_LABELS,
+) as VariableType[];
+
 const storedTexts = {
   kept: $localize`:@@message.stored_value_leave_empty:Stored, leave empty to keep`,
   dropped: $localize`:@@message.stored_secret_dropped_on_save:The stored value is dropped on save`,

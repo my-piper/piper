@@ -27,8 +27,11 @@ import {
   parseValue,
   storedPlaceholder,
   uniqueNames,
+  VARIABLE_TYPE_LABELS,
+  VARIABLE_TYPES,
   VariableGroup,
   variableGroup,
+  VariableType,
   variableType,
   visibleNames,
 } from "src/utils/environment";
@@ -62,6 +65,9 @@ export class MeEnvironmentComponent implements OnInit {
   });
 
   form = this.fb.group({ variables: this.variables });
+
+  types = VARIABLE_TYPES;
+  typeLabel = (type: VariableType) => VARIABLE_TYPE_LABELS[type];
 
   constructor(
     private fb: FormBuilder,

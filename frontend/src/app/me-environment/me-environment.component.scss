@@ -1,12 +1,11 @@
-@use "src/ui-kit/styles/variables";
-@use "src/ui-kit/styles/mixins";
-
 :host {
   display: block;
 }
 
 .app-container {
-  @include mixins.vertical-stack();
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 h1,
@@ -15,15 +14,54 @@ p {
 }
 
 form {
-  @include mixins.vertical-stack();
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-table.default {
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  inline-size: 100%;
+
   td {
     vertical-align: middle;
   }
+}
 
-  .type {
-    width: 100%;
-  }
+.name-column {
+  inline-size: 30%;
+}
+
+.type-column {
+  inline-size: 9rem;
+}
+
+.secret-column {
+  inline-size: 4.5rem;
+}
+
+.actions-column {
+  inline-size: 3rem;
+}
+
+.duplicate-name {
+  color: var(--tui-text-negative);
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

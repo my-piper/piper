@@ -17,10 +17,12 @@ import { Primitive } from "src/types/primitive";
 import {
   parseValue,
   storedPlaceholder,
+  VARIABLE_TYPE_LABELS,
   variableGroup,
   VariableMeta,
   VariableOptions,
   VariableSource,
+  VariableType,
   variableType,
   visibleNames,
 } from "src/utils/environment";
@@ -79,9 +81,20 @@ export class EditPipelineEnvironmentComponent implements OnInit {
   variables = this.fb.array<ProjectVariableGroup>([]);
   form = this.fb.group({ variables: this.variables });
 
+  typeLabel = (type: VariableType) => VARIABLE_TYPE_LABELS[type];
+
   private texts = {
     stored: $localize`:@@label.stored:Stored`,
+    thisProject: $localize`:@@label.this_project:This project`,
+    sources: {
+      user: $localize`:@@label.source_user_environment:Your environment`,
+      platform: $localize`:@@label.source_platform:Platform`,
+      none: $localize`:@@label.not_set:Not set`,
+    } satisfies Record<VariableSource, string>,
   };
+
+  /** The Source select names the User Variable a row is bound to. */
+  bindLabel = (name: string) => name || this.texts.thisProject;
 
   constructor(
     private projectManager: ProjectManager,
@@ -99,13 +112,16 @@ export class EditPipelineEnvironmentComponent implements OnInit {
     });
   }
 
-  /** User Variables a row can be bound to, and the name it is bound to. */
-  userNames(bound: string): string[] {
+  /**
+   * The Source choices: the project itself (`""`), then the User Variables a
+   * row can be bound to, keeping a bound name that is gone.
+   */
+  sources(bound: string): string[] {
     const names = [...(this.userEnvironment?.variables?.keys() ?? [])];
     if (bound && !names.includes(bound)) {
       names.push(bound);
     }
-    return names.sort();
+    return ["", ...names.sort()];
   }
 
   hasUserVariable(name: string) {
@@ -191,6 +207,18 @@ export class EditPipelineEnvironmentComponent implements OnInit {
       default:
         return { source: "none" };
     }
+  }
+
+  /** Where a read-only row's value is read from. */
+  sourceLabel({ inherited }: ProjectVariableMeta) {
+    return this.texts.sources[inherited?.source ?? "none"];
+  }
+
+  /** A read-only row's inherited value, never a secret one. */
+  inheritedValue({ inherited }: ProjectVariableMeta) {
+    return !inherited || inherited.source === "none"
+      ? ""
+      : this.shown(inherited.value);
   }
 
   placeholder(

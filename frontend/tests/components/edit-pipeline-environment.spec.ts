@@ -13,12 +13,21 @@ import { Project } from "src/models/project";
 import { ProjectManager } from "src/services/project.manager";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { provideTaiga } from "@taiga-ui/core";
+import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { toInstance, toPlain } from "src/utils/models";
+import { getDeclaredVariables } from "src/utils/pipeline";
 import { projectA, projectWith } from "../fixtures/models";
 import { Plain, smallGraphPipeline } from "../fixtures/plain";
 import { provideTestConfig } from "../helpers/config";
 import { finish } from "../helpers/editor";
+import {
+  expectNativeSelectReadOnly,
+  optionLabels,
+  selectByLabel,
+  selectedLabel,
+} from "../helpers/taiga";
 
 /**
  * Route data: `project`, the user `environment` (GET /api/me/environment,
@@ -74,10 +83,17 @@ describe("EditPipelineEnvironmentComponent", () => {
     }),
     platform: string[] = ["API_URL"],
   ) {
+    // only Variables the project can set get a Source select
+    const declared = [...getDeclaredVariables(project.pipeline).values()];
+    if (declared.some(({ scope }) => scope === "pipeline")) {
+      expectNativeSelectReadOnly();
+    }
     TestBed.configureTestingModule({
+      errorOnUnknownProperties: false,
       declarations: [EditPipelineEnvironmentComponent],
-      imports: [ReactiveFormsModule, RouterLink, UiKitModule],
+      imports: [ReactiveFormsModule, RouterLink, UiKitModule, TaigaFormsModule],
       providers: [
+        provideTaiga(),
         provideTestConfig(),
         provideRouter([]),
         provideHttpClient(withXhr()),
@@ -98,22 +114,37 @@ describe("EditPipelineEnvironmentComponent", () => {
     return project;
   }
 
+  /**
+   * What each row shows: a read-only row has no inputs and says in text where
+   * its value comes from; an editable row picks its source and value.
+   */
   function rows() {
     return Array.from(element.querySelectorAll("tr.variable")).map((row) => {
-      const value = row.querySelector("input.value") as HTMLInputElement;
+      const input = row.querySelector("input.value") as HTMLInputElement | null;
       return {
-        key: (row.querySelector("input.key") as HTMLInputElement).value,
-        type: (row.querySelector("select.type") as HTMLSelectElement).value,
-        value: value.value,
-        readonly: value.readOnly,
-        inherited: row.querySelector(".inherited")?.textContent.trim() || "",
+        key: text(row, ".key"),
+        type: text(row, ".type"),
+        source: row.querySelector("select.bind")
+          ? source(row)
+          : text(row, ".source"),
+        value: input ? input.value || input.placeholder : text(row, ".value"),
+        editable: !!input && !input.readOnly,
       };
     });
   }
 
+  function text(parent: Element, selector: string) {
+    return parent.querySelector(selector)?.textContent.trim() ?? "";
+  }
+
+  /** The Source a row's select shows. */
+  function source(row: Element) {
+    return selectedLabel(row.querySelector("select.bind"));
+  }
+
   function row(key: string) {
     return Array.from(element.querySelectorAll("tr.variable")).find(
-      (r) => (r.querySelector("input.key") as HTMLInputElement).value === key,
+      (r) => text(r, ".key") === key,
     );
   }
 
@@ -147,45 +178,45 @@ describe("EditPipelineEnvironmentComponent", () => {
     expect(rows()).toEqual([
       {
         key: "OPENAI_KEY",
-        type: "string",
-        value: "",
-        readonly: true,
-        inherited: "Your environment",
+        type: "String",
+        source: "Your environment",
+        value: "Stored",
+        editable: false,
       },
       {
         key: "API_URL",
-        type: "string",
-        value: "",
-        readonly: true,
-        inherited: "Platform",
+        type: "String",
+        source: "Platform",
+        value: "Stored",
+        editable: false,
       },
       {
         key: "MODEL",
-        type: "string",
+        type: "String",
+        source: "Not set",
         value: "",
-        readonly: true,
-        inherited: "Not set",
+        editable: false,
       },
       {
         key: "RETRIES",
-        type: "number",
+        type: "Number",
+        source: "This project",
         value: "0",
-        readonly: false,
-        inherited: "",
+        editable: true,
       },
       {
         key: "VERBOSE",
-        type: "boolean",
-        value: "",
-        readonly: false,
-        inherited: "Your environment",
+        type: "Boolean",
+        source: "This project",
+        value: "true",
+        editable: true,
       },
       {
         key: "TOKEN",
-        type: "string",
+        type: "String",
+        source: "This project",
         value: "",
-        readonly: false,
-        inherited: "Not set",
+        editable: true,
       },
     ]);
     finish();
@@ -194,25 +225,26 @@ describe("EditPipelineEnvironmentComponent", () => {
   it("shows an inherited value but never a secret", fakeAsync(() => {
     setup();
 
-    const placeholder = (key: string) =>
-      (row(key).querySelector("input.value") as HTMLInputElement).placeholder;
-
-    expect(placeholder("VERBOSE")).toBe("true");
-    expect(placeholder("OPENAI_KEY")).toBe("Stored");
-    expect(placeholder("API_URL")).toBe("Stored");
+    expect(
+      (row("VERBOSE").querySelector("input.value") as HTMLInputElement)
+        .placeholder,
+    ).toBe("true");
+    expect(text(row("OPENAI_KEY"), ".value")).toBe("Stored");
+    expect(text(row("API_URL"), ".value")).toBe("Stored");
     finish();
   }));
 
   it("fixes names and types to the node declarations", fakeAsync(() => {
     setup();
 
-    expect(
-      (row("RETRIES").querySelector("input.key") as HTMLInputElement).readOnly,
-    ).toBe(true);
-    expect(
-      (row("RETRIES").querySelector("select.type") as HTMLSelectElement)
-        .disabled,
-    ).toBe(true);
+    const controls = (key: string) =>
+      Array.from(row(key).querySelectorAll("input, select")).map(
+        (control) => control.className.split(" ")[0],
+      );
+
+    expect(controls("RETRIES")).toEqual(["bind", "value"]);
+    expect(controls("TOKEN")).toEqual(["bind", "value", "secret"]);
+    expect(controls("OPENAI_KEY")).toEqual([]);
     expect(element.querySelector("button.remove")).toBeNull();
     expect(button("Add variable")).toBeUndefined();
     finish();
@@ -282,10 +314,7 @@ describe("EditPipelineEnvironmentComponent", () => {
       userEnvironment({ OPENAI_KEY: "sk-shown" }, ["OPENAI_KEY"]),
     );
 
-    expect(
-      (row("OPENAI_KEY").querySelector("input.value") as HTMLInputElement)
-        .placeholder,
-    ).toBe("sk-shown");
+    expect(text(row("OPENAI_KEY"), ".value")).toBe("sk-shown");
     expect(row("OPENAI_KEY").querySelector("input.secret")).toBeNull();
     finish();
   }));
@@ -354,19 +383,21 @@ describe("EditPipelineEnvironmentComponent", () => {
     finish();
   }));
 
-  function bind(key: string, name: string) {
-    const select = row(key).querySelector("select.bind") as HTMLSelectElement;
-    select.value = name;
-    select.dispatchEvent(new Event("change"));
+  /** The labels of a row's Source choices. */
+  function sources(key: string) {
+    return optionLabels(row(key).querySelector("select.bind"));
+  }
+
+  /** Picks a Source by its label; "This project" unbinds. */
+  function bind(key: string, label: string) {
+    selectByLabel(row(key).querySelector("select.bind"), label);
     fixture.detectChanges();
   }
 
   it("offers binding only for variables the project can set", fakeAsync(() => {
     setup();
 
-    const options = Array.from(
-      row("TOKEN").querySelectorAll("select.bind option"),
-    ).map((option) => option.textContent.trim());
+    const options = sources("TOKEN");
 
     expect(options).toEqual(["This project", "OPENAI_KEY", "VERBOSE"]);
     expect(row("OPENAI_KEY").querySelector("select.bind")).toBeNull();
@@ -412,9 +443,7 @@ describe("EditPipelineEnvironmentComponent", () => {
       "input.value",
     ) as HTMLInputElement;
 
-    expect(
-      (row("RETRIES").querySelector("select.bind") as HTMLSelectElement).value,
-    ).toBe("VERBOSE");
+    expect(source(row("RETRIES"))).toBe("VERBOSE");
     expect({ value: input.value, placeholder: input.placeholder }).toEqual({
       value: "",
       placeholder: "true",
@@ -427,11 +456,8 @@ describe("EditPipelineEnvironmentComponent", () => {
     project.environment.bindings = new Map([["TOKEN", "OLD_TOKEN"]]);
     setup(project);
 
-    const select = row("TOKEN").querySelector(
-      "select.bind",
-    ) as HTMLSelectElement;
     const shown = {
-      value: select.value,
+      value: source(row("TOKEN")),
       placeholder: (
         row("TOKEN").querySelector("input.value") as HTMLInputElement
       ).placeholder,
@@ -459,7 +485,7 @@ describe("EditPipelineEnvironmentComponent", () => {
     setup(project);
 
     bind("TOKEN", "OPENAI_KEY");
-    bind("TOKEN", "");
+    bind("TOKEN", "This project");
     button("Save").click();
     fixture.detectChanges();
 
@@ -475,7 +501,7 @@ describe("EditPipelineEnvironmentComponent", () => {
     project.environment.bindings = new Map([["TOKEN", "OPENAI_KEY"]]);
     setup(project);
 
-    bind("TOKEN", "");
+    bind("TOKEN", "This project");
     type(row("TOKEN").querySelector("input.value"), "sk-own");
     button("Save").click();
     fixture.detectChanges();

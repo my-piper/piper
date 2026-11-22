@@ -17,11 +17,18 @@ import { Environment } from "src/models/environment";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { provideTaiga } from "@taiga-ui/core";
+import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { toInstance } from "src/utils/models";
 import { provideTestConfig } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
 import { finish } from "../helpers/editor";
+import {
+  expectNativeSelectReadOnly,
+  selectByLabel,
+  selectedLabel,
+} from "../helpers/taiga";
 
 /**
  * Wire contracts (backend/api/environment):
@@ -46,10 +53,13 @@ describe("MeEnvironmentComponent", () => {
     },
     visible: string[] = [],
   ) {
+    expectNativeSelectReadOnly();
     TestBed.configureTestingModule({
+      errorOnUnknownProperties: false,
       declarations: [MeEnvironmentComponent],
-      imports: [ReactiveFormsModule, UiKitModule],
+      imports: [ReactiveFormsModule, UiKitModule, TaigaFormsModule],
       providers: [
+        provideTaiga(),
         provideTestConfig(),
         provideRouter([]),
         provideHttpClient(withXhr()),
@@ -78,9 +88,19 @@ describe("MeEnvironmentComponent", () => {
   }[] {
     return Array.from(element.querySelectorAll("tr.variable")).map((row) => ({
       key: (row.querySelector("input.key") as HTMLInputElement).value,
-      type: (row.querySelector("select.type") as HTMLSelectElement).value,
+      type: typeOf(row),
       value: (row.querySelector("input.value") as HTMLInputElement).value,
     }));
+  }
+
+  /** The type a row's select shows. */
+  function typeOf(row: Element) {
+    return selectedLabel(row.querySelector("select.type"));
+  }
+
+  function pickType(index: number, label: string) {
+    selectByLabel(row(index).querySelector("select.type"), label);
+    fixture.detectChanges();
   }
 
   function valueInput(index: number) {
@@ -124,9 +144,9 @@ describe("MeEnvironmentComponent", () => {
     setup();
 
     expect(rows()).toEqual([
-      { key: "OPENAI_KEY", type: "string", value: "" },
-      { key: "RETRIES", type: "number", value: "3" },
-      { key: "DEBUG", type: "boolean", value: "true" },
+      { key: "OPENAI_KEY", type: "String", value: "" },
+      { key: "RETRIES", type: "Number", value: "3" },
+      { key: "DEBUG", type: "Boolean", value: "true" },
     ]);
     expect(
       (row(0).querySelector("input.key") as HTMLInputElement).readOnly,
@@ -355,9 +375,7 @@ describe("MeEnvironmentComponent", () => {
 
   it("keeps a stored value whose input is left empty, whatever its type", fakeAsync(() => {
     setup({ OPENAI_KEY: "[encrypted]", RETRIES: 3 });
-    const select = row(0).querySelector("select.type") as HTMLSelectElement;
-    select.value = "number";
-    select.dispatchEvent(new Event("change"));
+    pickType(0, "Number");
     type(row(1).querySelector("input.value"), "");
 
     button("Save").click();

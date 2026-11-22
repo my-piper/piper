@@ -104,6 +104,7 @@ import {
 } from "src/providers/current-language";
 import { DATE_LOCALE, dateLocaleFactory } from "src/providers/date-locale";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { TaigaFormsModule } from "./taiga-forms.module";
 import { AppComponent } from "./app.component";
 import { ArtefactsComponent } from "./artefacts/artefacts.component";
 import { AssistantComponent } from "./assistant/assistant.component";
@@ -311,6 +312,7 @@ import { UsersComponent } from "./users/users.component";
       options: { transports: ["websocket"] },
     }),
     UiKitModule,
+    TaigaFormsModule,
     NgHcaptchaModule.forRoot(),
     TuiRoot,
     TuiButton,
