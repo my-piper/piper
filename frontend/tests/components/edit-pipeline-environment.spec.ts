@@ -244,7 +244,8 @@ describe("EditPipelineEnvironmentComponent", () => {
 
     expect(controls("RETRIES")).toEqual(["bind", "value"]);
     expect(controls("TOKEN")).toEqual(["bind", "value", "secret"]);
-    expect(controls("OPENAI_KEY")).toEqual([]);
+    expect(controls("OPENAI_KEY")).toEqual(["secret"]);
+    expect(controls("API_URL")).toEqual([]);
     expect(element.querySelector("button.remove")).toBeNull();
     expect(button("Add variable")).toBeUndefined();
     finish();
@@ -314,8 +315,31 @@ describe("EditPipelineEnvironmentComponent", () => {
       userEnvironment({ OPENAI_KEY: "sk-shown" }, ["OPENAI_KEY"]),
     );
 
+    const secret = row("OPENAI_KEY").querySelector(
+      "input.secret",
+    ) as HTMLInputElement;
+
     expect(text(row("OPENAI_KEY"), ".value")).toBe("sk-shown");
-    expect(row("OPENAI_KEY").querySelector("input.secret")).toBeNull();
+    expect({ checked: secret.checked, disabled: secret.disabled }).toEqual({
+      checked: false,
+      disabled: true,
+    });
+    finish();
+  }));
+
+  it("shows that an inherited User Variable is secret without letting it change", fakeAsync(() => {
+    setup();
+
+    const secret = row("OPENAI_KEY").querySelector(
+      "input.secret",
+    ) as HTMLInputElement;
+
+    expect({ checked: secret.checked, disabled: secret.disabled }).toEqual({
+      checked: true,
+      disabled: true,
+    });
+    expect(row("API_URL").querySelector("input.secret")).toBeNull();
+    expect(row("MODEL").querySelector("input.secret")).toBeNull();
     finish();
   }));
 

@@ -35,7 +35,19 @@
               @if (meta.readonly) {
                 <td tuiTd class="source">{{ sourceLabel(meta) }}</td>
                 <td tuiTd class="value">{{ inheritedValue(meta) }}</td>
-                <td tuiTd></td>
+                <td tuiTd>
+                  @if (showsInheritedSecret(meta)) {
+                    <input
+                      type="checkbox"
+                      tuiSwitch
+                      size="s"
+                      class="secret"
+                      formControlName="secret"
+                      aria-label="Secret"
+                      i18n-aria-label="@@label.secret"
+                    />
+                  }
+                </td>
               } @else {
                 <td tuiTd>
                   <tui-textfield

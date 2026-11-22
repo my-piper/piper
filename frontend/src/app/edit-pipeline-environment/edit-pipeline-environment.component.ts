@@ -138,20 +138,24 @@ export class EditPipelineEnvironmentComponent implements OnInit {
     )) {
       const editable = declaration.scope === "pipeline";
       const bound = (editable && bindings?.get(key)) || "";
+      const inherited = this.inherited(key, declaration, own?.has(key));
       const group = projectVariableGroup(
         this.fb,
         {
           key,
           type: variableType(declaration.type),
           value: editable && !bound ? (own?.get(key) ?? null) : null,
-          secret: !visible.has(key),
+          // a read-only row shows the secrecy of the User Variable it reads
+          secret: editable
+            ? !visible.has(key)
+            : inherited?.value === HIDDEN_STRING,
           fixed: true,
           readonly: !editable,
           meta: {
             description: declaration.description
               ? (marked.parse(declaration.description) as string)
               : null,
-            inherited: this.inherited(key, declaration, own?.has(key)),
+            inherited,
           },
         },
         bound,
@@ -212,6 +216,11 @@ export class EditPipelineEnvironmentComponent implements OnInit {
   /** Where a read-only row's value is read from. */
   sourceLabel({ inherited }: ProjectVariableMeta) {
     return this.texts.sources[inherited?.source ?? "none"];
+  }
+
+  /** Only a string read from the User Environment can be a Secret Variable. */
+  showsInheritedSecret({ inherited }: ProjectVariableMeta) {
+    return inherited?.source === "user" && typeof inherited.value === "string";
   }
 
   /** A read-only row's inherited value, never a secret one. */
