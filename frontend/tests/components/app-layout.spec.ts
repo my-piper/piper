@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import {
   provideRouter,
+  Router,
   RouterLink,
   RouterLinkActive,
   RouterOutlet,
@@ -46,6 +47,7 @@ describe("AppLayoutComponent", () => {
     breakpoint: Breakpoint = "desktopLarge",
   ) {
     seedAuthorization(userPlain(kind));
+    const viewport = signal<Breakpoint>(breakpoint);
     TestBed.configureTestingModule({
       declarations: [
         AppLayoutComponent,
@@ -73,7 +75,7 @@ describe("AppLayoutComponent", () => {
         provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },
-        { provide: TUI_BREAKPOINT, useValue: signal(breakpoint) },
+        { provide: TUI_BREAKPOINT, useValue: viewport },
         provideRouter([
           {
             path: "",
@@ -92,7 +94,7 @@ describe("AppLayoutComponent", () => {
     });
     const harness = await RouterTestingHarness.create();
     const controller = TestBed.inject(HttpTestingController);
-    return { harness, controller };
+    return { harness, controller, viewport };
   }
 
   async function open(harness: RouterTestingHarness, url: string) {
@@ -186,6 +188,36 @@ describe("AppLayoutComponent", () => {
     expect(
       element.querySelector("[data-testid=navigation-drawer]"),
     ).not.toBeNull();
+  });
+
+  it("closes the drawer after navigating", async () => {
+    const { harness } = await render("owner", "mobile");
+    await open(harness, "/projects");
+    const component = harness.fixture.debugElement.query(
+      (node) => node.componentInstance instanceof AppLayoutComponent,
+    ).componentInstance as AppLayoutComponent;
+    component.drawerOpen.set(true);
+
+    await open(harness, "/canvas");
+
+    expect(TestBed.inject(Router).url).toBe("/canvas");
+    expect(component.drawerOpen()).toBe(false);
+  });
+
+  it("closes the drawer when the viewport leaves the mobile breakpoint", async () => {
+    const { harness, viewport } = await render("owner", "mobile");
+    await open(harness, "/projects");
+    const component = harness.fixture.debugElement.query(
+      (node) => node.componentInstance instanceof AppLayoutComponent,
+    ).componentInstance as AppLayoutComponent;
+    component.drawerOpen.set(true);
+
+    viewport.set("desktopSmall");
+    harness.detectChanges();
+    viewport.set("mobile");
+    harness.detectChanges();
+
+    expect(component.drawerOpen()).toBe(false);
   });
 
   it("keeps the aside and no drawer on desktop", async () => {

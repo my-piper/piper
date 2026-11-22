@@ -4,10 +4,11 @@ import {
   ViewEncapsulation,
   afterNextRender,
   computed,
+  effect,
   inject,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
 import { TUI_BREAKPOINT } from "@taiga-ui/core";
 import { filter, map } from "rxjs";
@@ -64,10 +65,13 @@ export class AppLayoutComponent {
   readonly expanded = signal(readExpanded());
   /** On phones the aside gives way to a drawer opened from the header. */
   readonly mobile = computed(() => this.breakpoint() === "mobile");
-  drawerOpen = false;
+  /** Closed after every navigation and whenever the viewport leaves mobile. */
+  readonly drawerOpen = signal(false);
+  private readonly navigated = this.router.events.pipe(
+    filter((event) => event instanceof NavigationEnd),
+  );
   readonly fullBleed = toSignal(
-    this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
+    this.navigated.pipe(
       map(() => isFullBleed(this.router.routerState.snapshot.root)),
     ),
     { initialValue: isFullBleed(this.router.routerState.snapshot.root) },
@@ -78,6 +82,14 @@ export class AppLayoutComponent {
 
   constructor() {
     afterNextRender(() => requestAnimationFrame(() => this.ready.set(true)));
+    this.navigated
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.drawerOpen.set(false));
+    effect(() => {
+      if (!this.mobile()) {
+        this.drawerOpen.set(false);
+      }
+    });
   }
 
   toggleAside() {

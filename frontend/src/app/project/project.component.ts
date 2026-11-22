@@ -43,6 +43,8 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   project!: Project;
 
   child!: unknown;
+  /** Index of the active section tab; Canvas is the first. */
+  activeTab = 0;
 
   form = this.fb.group({
     name: this.fb.control<string>(null, [Validators.required]),
@@ -124,5 +126,17 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
       .subscribe((project) => {
         this.router.navigate(["/projects", project._id]);
       });
+  }
+
+  /**
+   * The canvas owns no route of its own beyond the project root (drawers add
+   * outlets to it), so its tab is selected from the routed child instead of
+   * RouterLinkActive.
+   */
+  activate(child: unknown) {
+    this.child = child;
+    if (child instanceof EditPipelineVisualComponent) {
+      this.activeTab = 0;
+    }
   }
 }

@@ -9,12 +9,13 @@
       i18n-aria-label="@@label.menu"
       [(open)]="drawerOpen"
     >
-      <tui-data-list>
+      <tui-data-list class="app-navigation-drawer">
         @if (userRole.admin | can | async) {
           <a
             tuiOption
             [routerLink]="['/', 'packages']"
-            (click)="drawerOpen = false"
+            routerLinkActive="active"
+            [state]="{ scroll: 'top' }"
             i18n="@@link.node_packages"
             >Node packages</a
           >
@@ -22,35 +23,40 @@
         <a
           tuiOption
           [routerLink]="['/', 'projects']"
-          (click)="drawerOpen = false"
+          routerLinkActive="active"
+          [state]="{ scroll: 'top' }"
           i18n="@@link.pipelines"
           >Pipelines</a
         >
         <a
           tuiOption
           [routerLink]="['/', 'play']"
-          (click)="drawerOpen = false"
+          routerLinkActive="active"
+          [state]="{ scroll: 'top' }"
           i18n="@@link.apps"
           >Apps</a
         >
         <a
           tuiOption
           [routerLink]="['/', 'launches']"
-          (click)="drawerOpen = false"
+          routerLinkActive="active"
+          [state]="{ scroll: 'top' }"
           i18n="@@link.launches"
           >Launches</a
         >
         <a
           tuiOption
           [routerLink]="['/', 'assets']"
-          (click)="drawerOpen = false"
+          routerLinkActive="active"
+          [state]="{ scroll: 'top' }"
           i18n="@@link.assets"
           >Assets</a
         >
         <a
           tuiOption
           [routerLink]="['/', 'me', 'environment']"
-          (click)="drawerOpen = false"
+          routerLinkActive="active"
+          [state]="{ scroll: 'top' }"
           i18n="@@link.environment"
           >Environment</a
         >
@@ -58,7 +64,8 @@
           <a
             tuiOption
             [routerLink]="['/', 'users']"
-            (click)="drawerOpen = false"
+            routerLinkActive="active"
+            [state]="{ scroll: 'top' }"
             i18n="@@link.users"
             >Users</a
           >

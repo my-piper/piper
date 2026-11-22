@@ -98,7 +98,12 @@
   </div>
   <div class="sections-row stack align-center justify-between">
     @if (userRole.admin | can: project.createdBy | async) {
-      <tui-tabs size="m" class="sections" data-testid="project-sections">
+      <tui-tabs
+        size="m"
+        class="sections"
+        data-testid="project-sections"
+        [(activeItemIndex)]="activeTab"
+      >
         <a
           tuiTab
           iconStart="@tui.workflow"
@@ -387,7 +392,7 @@
 
 <div class="child" [class.edit]="child | is: editPipelineVisualComponent">
   <router-outlet
-    (activate)="child = $event"
+    (activate)="activate($event)"
     (deactivate)="child = null"
   ></router-outlet>
 </div>

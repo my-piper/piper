@@ -27,6 +27,13 @@ app-layout .app-frame {
   min-block-size: calc(100dvh - 3rem);
 }
 
+// The aside stays one viewport tall and sticky, so its items and the collapse
+// toggle stay on screen while long pages scroll.
+app-layout aside[tuiNavigationAside] {
+  align-self: flex-start;
+  block-size: calc(100dvh - 3rem);
+}
+
 app-layout main[tuiNavigationMain] {
   min-inline-size: 0;
 }
@@ -34,9 +41,12 @@ app-layout main[tuiNavigationMain] {
 // Canvases and editors take the whole area right of the aside. Layout
 // containment makes this area the box their fixed drawers attach to, so the
 // drawers open under the header and next to the aside instead of beneath them.
+// Containment keeps overflow out of the document's scroll area, so pages taller
+// than the viewport (project YAML, README, playground) scroll inside it.
 app-layout main[tuiNavigationMain].full-bleed {
   contain: layout;
   block-size: calc(100dvh - 3rem);
+  overflow: auto;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -64,4 +74,9 @@ app-layout .app-footer {
     gap: 0.5rem;
     padding-block: 1rem;
   }
+}
+
+// The drawer list renders in a dropdown portal, outside app-layout.
+.app-navigation-drawer a[tuiOption].active {
+  background: var(--tui-background-neutral-1);
 }
