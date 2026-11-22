@@ -39,6 +39,14 @@ real Deno without any execution double: it checks that falsy inputs survive the
 worker/Deno round trip into the pipeline output and node logs, and that a script
 exception is recorded as the node's error status without publishing an output.
 
+The Child Launch suite starts children from Deploys stored in Redis
+(`publishDeploy`) through the real node workers, with deterministic Deno
+results. A parent node's delay is long, so each test promotes the delayed node
+itself once the child is in the state under test: finished, still running,
+failed, or interrupted along a three-level chain. The end-to-end suite repeats
+the finished case with real Deno scripts and a short delay, pinning the
+`{ __type: "launch" }` result and `children` payload contract of ADR 0001.
+
 Suite teardown closes all application queues/workers and observer queues, drops
 the test database, clears both Redis databases, and closes all clients. A failure
 case checks BullMQ deduplication and queue/event/worker cleanup. The outer runner

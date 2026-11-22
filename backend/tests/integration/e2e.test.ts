@@ -1,5 +1,5 @@
-import { redis } from "./runtime";
-import { pipelineLaunch } from "./fixture";
+import { mongo, redis } from "./runtime";
+import { DEPLOY_PREFIX, pipelineLaunch, publishDeploy } from "./fixture";
 import {
   NODE_LOGS,
   NODE_PROCESSED_LOCK,
@@ -18,6 +18,22 @@ const sinkScript = `export function run({ inputs }) {
 }`;
 const failingScript = `export function run() {
   throw new Error("sink rejected the value");
+}`;
+// asks for a Child Launch until it has finished, then passes its output on
+const callingScript = (slug: string) => `export function run({ children }) {
+  const child = children?.summary;
+  if (child?.status === "finished") {
+    return { __type: "next", outputs: { result: child.outputs.result } };
+  }
+  return {
+    __type: "launch",
+    launches: [{
+      key: "summary",
+      deploy: { prefix: "${DEPLOY_PREFIX}", slug: "${slug}" },
+      inputs: { text: "from parent" },
+    }],
+    delay: 200,
+  };
 }`;
 
 describe("pipeline executed by the real Deno service", () => {
@@ -70,5 +86,31 @@ describe("pipeline executed by the real Deno service", () => {
     expect(
       await redis.exists(NODE_PROCESSED_LOCK(launch._id, "sink_node"))
     ).toBe(0);
+  });
+
+  it("runs a Child Launch in Deno and resumes the parent with its output", async () => {
+    const child = pipelineLaunch();
+    child.pipeline.nodes.get("echo_node").script = echoScript;
+    child.pipeline.nodes.get("sink_node").script = sinkScript;
+    const deploy = await publishDeploy(child);
+    const source = pipelineLaunch();
+    source.pipeline.nodes.get("echo_node").script = callingScript(deploy.slug);
+    source.pipeline.nodes.get("sink_node").script = sinkScript;
+
+    const launch = await run(source);
+    await vi.waitFor(
+      async () =>
+        expect(
+          await redis.exists(NODE_PROCESSED_LOCK(launch._id, "sink_node"))
+        ).toBe(1),
+      { timeout: 20_000, interval: 50 }
+    );
+
+    expect(
+      JSON.parse(await redis.get(PIPELINE_OUTPUT(launch._id, "result")))
+    ).toEqual({ enabled: false, count: 0, text: "from parent" });
+    expect(
+      await mongo.launches.countDocuments({ parent: launch._id, depth: 1 })
+    ).toBe(1);
   });
 });
