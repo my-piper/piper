@@ -14,7 +14,9 @@ import { ulid } from "ulid";
 import { sid } from "utils/string";
 import * as YAML from "yaml";
 
-const SPLITTER = /\n------\n/;
+// A line of six dashes between the Pipeline YAML and the Launch request JSON;
+// pasted text may end there, or carry spaces and Windows line endings.
+const SPLITTER = /\r?\n------[ \t]*(?:\r?\n|$)/;
 
 export async function importPipeline(user: User, source: string) {
   let yaml = source;
@@ -52,7 +54,7 @@ export async function importPipeline(user: User, source: string) {
       launchRequest: null,
     };
 
-    if (chunk2) {
+    if (chunk2?.trim()) {
       const launchRequest = JSON.parse(chunk2) as object;
       const validate = ajv.compile(SCHEMAS.launchRequest);
       if (!validate(launchRequest)) {

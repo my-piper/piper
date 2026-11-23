@@ -89,6 +89,13 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   creation data reports `Project schema invalid`; invalid settings currently
   report `Pipeline schema invalid`. Malformed JSON is rejected by Express's
   body parser with 400 before the route writes data.
+- `POST /api/pipelines/import` takes `{ yaml }`: a Pipeline as YAML (or a URL
+  to one), optionally followed by a line `------` and the Launch request as
+  JSON. The separator line may carry trailing spaces and Windows line endings,
+  and an empty Launch request after it imports as empty. It creates a private
+  Project owned by the caller, titled with the Pipeline's `name`, and keeps
+  each Node's `sign` as given. A Pipeline copied from a Piper v1 Project's YAML
+  page imports unchanged.
 - Settings updates persist visibility, slug, order, update time, and updater;
   client-supplied ownership/title fields do not replace the existing metadata.
 - Reading projects serializes nested maps and dates and omits unexposed fields.
