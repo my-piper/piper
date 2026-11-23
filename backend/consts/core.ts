@@ -23,6 +23,8 @@ export const JWT_EXPIRES = env["JWT_EXPIRES"] || "30d";
 export const CLAUDE_API_KEY = env["CLAUDE_API_KEY"] || "xyzXYZ";
 
 export const HIDDEN_STRING = "[encrypted]";
+/** What Piper v1 showed in place of a Secret Variable's value. */
+export const V1_HIDDEN_STRING = "[hidden]";
 export const SITE_URL = env["SITE_URL"] || "/";
 export const NODE_SIGN_SALT = env["NODE_SIGN_SALT"] || "xyzXYZ";
 

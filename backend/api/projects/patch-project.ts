@@ -1,7 +1,6 @@
 import ajv from "app/ajv";
 import api from "app/api";
 import mongo from "app/mongo";
-import { HIDDEN_STRING } from "consts/core";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import { DataError, NotFoundError } from "core-kit/types/errors";
 import { patch } from "jsondiffpatch/with-text-diffs";
@@ -15,6 +14,7 @@ import { decrypt, encrypt } from "packages/environment/crypt-environment";
 import { applyBindings } from "packages/environment/bind-environment";
 import { hide } from "packages/environment/hide-environment";
 import { dropRevealedSecrets } from "packages/environment/reveal-environment";
+import { isSecretPlaceholder } from "packages/environment/secret-placeholder";
 import { ensurePipelineNodeTrust } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
@@ -146,7 +146,7 @@ api.patch(
       decrypt(stored);
       const changed = new Set<string>();
       for (const [k, v] of patched.variables ?? new Map<string, Primitive>()) {
-        if (v === HIDDEN_STRING) {
+        if (isSecretPlaceholder(v)) {
           const secret = stored.variables?.get(k);
           if (typeof secret === "string") {
             patched.variables.set(k, secret);

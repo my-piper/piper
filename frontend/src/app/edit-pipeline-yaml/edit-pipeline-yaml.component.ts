@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
+import { HIDDEN_STRING, V1_HIDDEN_STRING } from "src/consts/core";
 import { Project } from "src/models/project";
 import { Ajv } from "src/providers/ajv";
 import SCHEMAS from "src/schemas/compiled.json";
@@ -86,6 +87,7 @@ export class EditPipelineYamlComponent implements OnInit {
     }
 
     this.error = null;
+    this.resolveSecretPlaceholders(plain.environment);
     const { pipeline, launchRequest, environment } = plainToInstance(
       Project,
       plain,
@@ -98,5 +100,28 @@ export class EditPipelineYamlComponent implements OnInit {
       environment,
     });
     this.projectManager.markDirty();
+  }
+
+  /**
+   * A placeholder in place of a Secret Variable's value, the current one or
+   * Piper v1's from a pasted v1 Environment, keeps the stored secret; under a
+   * name with no stored secret it is no value. The server applies the same
+   * rule, so the project stays as it will be saved.
+   */
+  private resolveSecretPlaceholders(environment: {
+    variables?: Record<string, unknown>;
+  }) {
+    const variables = environment?.variables ?? {};
+    const stored = this.project.environment?.variables;
+    for (const [name, value] of Object.entries(variables)) {
+      if (value !== HIDDEN_STRING && value !== V1_HIDDEN_STRING) {
+        continue;
+      }
+      if (stored?.get(name) === HIDDEN_STRING) {
+        variables[name] = HIDDEN_STRING;
+      } else {
+        delete variables[name];
+      }
+    }
   }
 }

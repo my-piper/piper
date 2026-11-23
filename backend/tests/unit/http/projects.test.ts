@@ -815,6 +815,28 @@ describe("project environment patch", () => {
     });
   });
 
+  it("keeps a stored secret when the placeholder pasted from Piper v1 is sent", async () => {
+    storeProjectEnvironment({ OPENAI_KEY: "sk-project" });
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(
+      { variables: { OPENAI_KEY: "[encrypted]" } },
+      {
+        variables: { OPENAI_KEY: "[hidden]", MULEROUTER_API_KEY: "[hidden]" },
+      }
+    );
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    expect(writtenEnvironment()).toEqual({
+      variables: { OPENAI_KEY: "sk-project" },
+      visible: undefined,
+    });
+  });
+
   it("binds a project variable to a user variable and drops its own value", async () => {
     storeProjectEnvironment({ OPENAI_KEY: "sk-project", RETRIES: 3 });
     httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });

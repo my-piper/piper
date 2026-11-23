@@ -110,6 +110,22 @@ describe("user environment save", () => {
     });
   });
 
+  it("keeps a stored secret when the placeholder pasted from Piper v1 is sent", async () => {
+    storeUserEnvironment("owner-user", { OPENAI_KEY: "sk-user" });
+
+    const response = await context.request
+      .put("/api/me/environment")
+      .set("user-token", userToken())
+      .send({
+        variables: { OPENAI_KEY: "[hidden]", MULEROUTER_API_KEY: "[hidden]" },
+      });
+
+    expect(response.status).toBe(204);
+    expect(writtenEnvironments()).toEqual({
+      [USER_ENVIRONMENT_KEY("owner-user")]: { OPENAI_KEY: "sk-user" },
+    });
+  });
+
   it("drops the value of a Secret Variable made visible without a new value", async () => {
     storeUserEnvironment("owner-user", { OPENAI_KEY: "sk-user", OTHER: "o" });
 
@@ -401,6 +417,19 @@ describe("platform environment", () => {
     });
     expect(writtenVisible()).toEqual({
       [GLOBAL_ENVIRONMENT_KEY]: ["BASE_URL"],
+    });
+  });
+  it("keeps a stored secret when an admin sends the placeholder pasted from Piper v1", async () => {
+    storePlatformEnvironment({ OPENAI_KEY: "sk-platform" });
+
+    const response = await context.request
+      .put("/api/environment")
+      .set("user-token", userToken("admin-user"))
+      .send({ variables: { OPENAI_KEY: "[hidden]", BASE_URL: "[hidden]" } });
+
+    expect(response.status).toBe(204);
+    expect(writtenEnvironments()).toEqual({
+      [GLOBAL_ENVIRONMENT_KEY]: { OPENAI_KEY: "sk-platform" },
     });
   });
 });

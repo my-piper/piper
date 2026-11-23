@@ -96,6 +96,11 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   Visible Variables named in `environment.visible` are returned in clear, and
   booleans and numbers retain their values. A missing `visible` means every
   string Variable is secret.
+- On every Environment write (`PUT /api/me/environment`, `PUT /api/environment`
+  and the project `environment` PATCH delta), `[encrypted]` and Piper v1's
+  `[hidden]` are placeholders, never values: they keep the stored value, and a
+  name with no stored value is dropped. `[hidden]` arrives when an Environment
+  copied from a v1 Project's YAML page is pasted.
 - Visibility is written with the values: `PUT /api/me/environment`,
   `PUT /api/environment` (admin) and the project `environment` PATCH delta
   replace `visible` when they carry it (a `PUT` without `visible` keeps the

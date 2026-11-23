@@ -155,6 +155,34 @@ describe("EditPipelineYamlComponent", () => {
     finish();
   }));
 
+  it("treats Piper v1's secret placeholder in a pasted environment as no value", fakeAsync(() => {
+    const controller = TestBed.inject(HttpTestingController);
+    project.environment.variables.set("API_KEY", "[encrypted]");
+    fixture.componentInstance.form.patchValue({
+      environment: JSON.stringify({
+        variables: {
+          API_KEY: "[hidden]",
+          NEW_KEY: "[hidden]",
+          API_URL: "http://dummy.piper.test",
+        },
+      }),
+    });
+
+    save();
+    tick(AUTOSAVE_DELAY);
+    expectPatch(controller, "project_aaaa", "rev_a_1").flush(
+      patchResponsePlain("rev_a_2"),
+    );
+    tick(UI_DELAY);
+
+    expect(Object.fromEntries(project.environment.variables)).toEqual({
+      API_KEY: "[encrypted]",
+      API_URL: "http://dummy.piper.test",
+    });
+    controller.verify();
+    finish();
+  }));
+
   it("rejects invalid launch request JSON without touching the pipeline", fakeAsync(() => {
     const before = toPlain(project);
     fixture.componentInstance.form.patchValue({ launchRequest: "{ nope" });
