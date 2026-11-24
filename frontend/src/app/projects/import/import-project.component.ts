@@ -23,7 +23,7 @@ import { toInstance } from "src/utils/models";
 })
 export class ImportProjectComponent {
   progress = { importing: false };
-  error!: AppError;
+  error: AppError | null = null;
 
   form = this.fb.group({
     yaml: this.fb.control<string>(null),
@@ -41,6 +41,8 @@ export class ImportProjectComponent {
   imported = new EventEmitter<Project>();
 
   import() {
+    // a failed import saved nothing: start over from the pasted YAML
+    this.error = null;
     this.progress.importing = true;
     this.cd.detectChanges();
 

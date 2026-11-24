@@ -93,9 +93,31 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   to one), optionally followed by a line `------` and the Launch request as
   JSON. The separator line may carry trailing spaces and Windows line endings,
   and an empty Launch request after it imports as empty. It creates a private
-  Project owned by the caller, titled with the Pipeline's `name`, and keeps
-  each Node's `sign` as given. A Pipeline copied from a Piper v1 Project's YAML
-  page imports unchanged.
+  Project owned by the caller, titled with the Pipeline's `name`. Each Node is
+  brought to what this Piper runs:
+  - A Node from a Node Package (`package` set) is replaced by the installed
+    Node Definition with the same `package` and `_id`, else its Node key, else
+    the v1 id it was renamed from (`ask_llm_artworks` → `ask_llm_agent`). The
+    Definition must have every input and output the Node's Flows use. It takes
+    the Definition's script, sign, ports and Environment and keeps `arrange`.
+  - A Node its user wrote (no `package`, no matching Definition) or one
+    already marked `source: "script"` becomes a Script Node: no sign, no
+    Environment. A Piper v1 script keeps its code
+    behind a prelude defining v1's `DEFINITIONS`, `httpClient`, `download`,
+    `Buffer` and `nested`; `nested.run` asks for a Child Launch of the Deploy
+    whose slug it names, and `nested.state` reads it from `children`.
+  - Every input a Flow reaches is marked `featured`, since the editor drops
+    Flows into other inputs.
+
+  Nothing is saved when any Node can't be brought over (no matching
+  Definition, a Definition missing a used port, or a script that calls
+  `require`, `message()` or reads the Environment): the import answers a
+  DataError "Pipeline can't be imported" whose `details` list every problem.
+  Unparseable YAML ("Pipeline YAML is invalid"), Launch request JSON ("Launch
+  request JSON is invalid"), a URL that can't be loaded ("Pipeline can't be
+  loaded from the URL") and a document failing its schema ("Pipeline schema
+  invalid", "Launch request schema invalid") are DataErrors too. Every one
+  answers 400 `{ message, details }`, `details` being a list of strings.
 - Settings updates persist visibility, slug, order, update time, and updater;
   client-supplied ownership/title fields do not replace the existing metadata.
 - Reading projects serializes nested maps and dates and omits unexposed fields.
@@ -107,7 +129,11 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   and the project `environment` PATCH delta), `[encrypted]` and Piper v1's
   `[hidden]` are placeholders, never values: they keep the stored value, and a
   name with no stored value is dropped. `[hidden]` arrives when an Environment
-  copied from a v1 Project's YAML page is pasted.
+  copied from a v1 Project's YAML page is pasted. Variables v1 named
+  differently take their current names on both the stored and the sent side
+  (`OPEN_PAAS_USER` → `ARTWORKS_USER`, `OPEN_PAAS_PASSWORD` →
+  `ARTWORKS_PASSWORD`, `PAAS_BASE_URL` → `ARTWORKS_URL`); a Variable already
+  set under the current name wins unless it holds only a placeholder.
 - Visibility is written with the values: `PUT /api/me/environment`,
   `PUT /api/environment` (admin) and the project `environment` PATCH delta
   replace `visible` when they carry it (a `PUT` without `visible` keeps the

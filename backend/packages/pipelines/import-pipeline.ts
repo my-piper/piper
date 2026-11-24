@@ -13,27 +13,48 @@ import { Primitive } from "types/primitive";
 import { ulid } from "ulid";
 import { sid } from "utils/string";
 import * as YAML from "yaml";
+import { adoptNodes } from "./adopt-nodes";
 
 // A line of six dashes between the Pipeline YAML and the Launch request JSON;
 // pasted text may end there, or carry spaces and Windows line endings.
 const SPLITTER = /\r?\n------[ \t]*(?:\r?\n|$)/;
 
+// A parser's message quotes the text, which only the caller may see when it
+// pasted the text itself rather than a URL.
+function parse(message: string, read: () => unknown, quote: boolean): object {
+  try {
+    return read() as object;
+  } catch (e) {
+    throw new DataError(message, quote ? [(e as Error).message] : []);
+  }
+}
+
 export async function importPipeline(user: User, source: string) {
   let yaml = source;
-  if (/^http/.test(source)) {
-    const { data } = await axios(source, {
-      headers: {
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-      },
-    });
-    yaml = data;
+  const pasted = !/^http/.test(source);
+  if (!pasted) {
+    try {
+      const { data } = await axios(source, {
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      });
+      yaml = data;
+    } catch {
+      // the reason could tell what answers at an address the server can reach
+      throw new DataError("Pipeline can't be loaded from the URL");
+    }
   }
 
   const { pipeline, launchRequest } = await (async () => {
     const [chunk1, chunk2] = yaml.split(SPLITTER);
 
-    const pipeline = YAML.parse(chunk1) as object;
+    const pipeline = parse(
+      "Pipeline YAML is invalid",
+      () => YAML.parse(chunk1),
+      pasted
+    );
     const validate = ajv.compile(SCHEMAS.pipeline);
     if (!validate(pipeline)) {
       const { errors } = validate;
@@ -55,7 +76,11 @@ export async function importPipeline(user: User, source: string) {
     };
 
     if (chunk2?.trim()) {
-      const launchRequest = JSON.parse(chunk2) as object;
+      const launchRequest = parse(
+        "Launch request JSON is invalid",
+        () => JSON.parse(chunk2),
+        pasted
+      );
       const validate = ajv.compile(SCHEMAS.launchRequest);
       if (!validate(launchRequest)) {
         const { errors } = validate;
@@ -77,6 +102,11 @@ export async function importPipeline(user: User, source: string) {
 
     return results;
   })();
+
+  const problems = await adoptNodes(pipeline);
+  if (problems.length > 0) {
+    throw new DataError("Pipeline can't be imported", problems);
+  }
 
   const { name: title } = pipeline;
 

@@ -38,6 +38,14 @@ export function ensureSign(node: Node, id: string, canResign: boolean) {
   assign(node, { sign });
 }
 
+/**
+ * Whether a script points at published or remote code. A Script Node's script
+ * is its user's own inline code, never such a reference (ADR 0004).
+ */
+export function isScriptReference(script: string | undefined) {
+  return /^(registry:|https?:\/\/)/.test(script ?? "");
+}
+
 // A Script Node is written by whoever edits the Pipeline, so it holds inline
 // code, never carries a sign (it runs process-isolated) and never reads an
 // Environment. Every other Node must keep the sign its script was issued.
@@ -47,8 +55,7 @@ export function ensurePipelineNodeTrust(
   canResign: boolean
 ) {
   if (isScriptNode(node)) {
-    // its script is the user's own inline code, never a published reference
-    if (/^(registry:|https?:\/\/)/.test(node.script ?? "")) {
+    if (isScriptReference(node.script)) {
       throw new DataError(`Script Node ${id} must hold its own code`);
     }
     delete node.sign;

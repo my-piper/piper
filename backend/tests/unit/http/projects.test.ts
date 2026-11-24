@@ -815,6 +815,53 @@ describe("project environment patch", () => {
     });
   });
 
+  it("renames the ArtWorks Variables of a Project Environment pasted from Piper v1", async () => {
+    storeProjectEnvironment({ OPEN_PAAS_PASSWORD: "stored" });
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(
+      { variables: { OPEN_PAAS_PASSWORD: "[encrypted]" } },
+      {
+        variables: { OPEN_PAAS_USER: "artist", OPEN_PAAS_PASSWORD: "[hidden]" },
+      }
+    );
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    expect(writtenEnvironment()).toEqual({
+      variables: { ARTWORKS_USER: "artist", ARTWORKS_PASSWORD: "stored" },
+      visible: undefined,
+    });
+  });
+
+  it("takes a new value sent under a v1 name over the stored secret", async () => {
+    storeProjectEnvironment({ ARTWORKS_PASSWORD: "old" });
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(
+      { variables: { ARTWORKS_PASSWORD: "[encrypted]" } },
+      {
+        variables: {
+          ARTWORKS_PASSWORD: "[encrypted]",
+          OPEN_PAAS_PASSWORD: "new",
+        },
+      }
+    );
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    expect(writtenEnvironment()).toEqual({
+      variables: { ARTWORKS_PASSWORD: "new" },
+      visible: undefined,
+    });
+  });
+
   it("keeps a stored secret when the placeholder pasted from Piper v1 is sent", async () => {
     storeProjectEnvironment({ OPENAI_KEY: "sk-project" });
     httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });

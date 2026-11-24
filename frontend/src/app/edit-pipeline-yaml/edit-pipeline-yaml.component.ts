@@ -9,6 +9,7 @@ import { Ajv } from "src/providers/ajv";
 import SCHEMAS from "src/schemas/compiled.json";
 import { ProjectManager } from "src/services/project.manager";
 import { toPlain } from "src/utils/models";
+import { renameV1Variables, v1VariableName } from "src/utils/v1-variables";
 import * as YAML from "yaml";
 
 @Component({
@@ -87,6 +88,7 @@ export class EditPipelineYamlComponent implements OnInit {
     }
 
     this.error = null;
+    renameV1Variables(plain.environment);
     this.resolveSecretPlaceholders(plain.environment);
     const { pipeline, launchRequest, environment } = plainToInstance(
       Project,
@@ -117,7 +119,10 @@ export class EditPipelineYamlComponent implements OnInit {
       if (value !== HIDDEN_STRING && value !== V1_HIDDEN_STRING) {
         continue;
       }
-      if (stored?.get(name) === HIDDEN_STRING) {
+      // the server renames a stored Variable that still has its v1 name
+      const secret =
+        stored?.get(name) ?? stored?.get(v1VariableName(name) ?? name);
+      if (secret === HIDDEN_STRING) {
         variables[name] = HIDDEN_STRING;
       } else {
         delete variables[name];

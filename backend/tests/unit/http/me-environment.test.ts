@@ -419,6 +419,30 @@ describe("platform environment", () => {
       [GLOBAL_ENVIRONMENT_KEY]: ["BASE_URL"],
     });
   });
+  it("renames the ArtWorks Variables of an Environment pasted from Piper v1", async () => {
+    storeUserEnvironment("owner-user", { OPEN_PAAS_PASSWORD: "stored" });
+
+    const response = await context.request
+      .put("/api/me/environment")
+      .set("user-token", userToken())
+      .send({
+        variables: {
+          OPEN_PAAS_USER: "artist",
+          OPEN_PAAS_PASSWORD: "[hidden]",
+          PAAS_BASE_URL: "https://paas.example",
+        },
+      });
+
+    expect(response.status).toBe(204);
+    expect(writtenEnvironments()).toEqual({
+      [USER_ENVIRONMENT_KEY("owner-user")]: {
+        ARTWORKS_USER: "artist",
+        ARTWORKS_PASSWORD: "stored",
+        ARTWORKS_URL: "https://paas.example",
+      },
+    });
+  });
+
   it("keeps a stored secret when an admin sends the placeholder pasted from Piper v1", async () => {
     storePlatformEnvironment({ OPENAI_KEY: "sk-platform" });
 

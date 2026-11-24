@@ -183,6 +183,35 @@ describe("EditPipelineYamlComponent", () => {
     finish();
   }));
 
+  it("renames the ArtWorks Variables of a pasted Piper v1 environment", fakeAsync(() => {
+    const controller = TestBed.inject(HttpTestingController);
+    project.environment.variables.set("OPEN_PAAS_PASSWORD", "[encrypted]");
+    fixture.componentInstance.form.patchValue({
+      environment: JSON.stringify({
+        variables: {
+          OPEN_PAAS_USER: "artist",
+          OPEN_PAAS_PASSWORD: "[hidden]",
+          PAAS_BASE_URL: "http://dummy.piper.test",
+        },
+      }),
+    });
+
+    save();
+    tick(AUTOSAVE_DELAY);
+    expectPatch(controller, "project_aaaa", "rev_a_1").flush(
+      patchResponsePlain("rev_a_2"),
+    );
+    tick(UI_DELAY);
+
+    expect(Object.fromEntries(project.environment.variables)).toEqual({
+      ARTWORKS_USER: "artist",
+      ARTWORKS_PASSWORD: "[encrypted]",
+      ARTWORKS_URL: "http://dummy.piper.test",
+    });
+    controller.verify();
+    finish();
+  }));
+
   it("rejects invalid launch request JSON without touching the pipeline", fakeAsync(() => {
     const before = toPlain(project);
     fixture.componentInstance.form.patchValue({ launchRequest: "{ nope" });

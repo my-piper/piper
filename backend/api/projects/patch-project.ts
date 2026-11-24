@@ -15,6 +15,7 @@ import { applyBindings } from "packages/environment/bind-environment";
 import { hide } from "packages/environment/hide-environment";
 import { dropRevealedSecrets } from "packages/environment/reveal-environment";
 import { isSecretPlaceholder } from "packages/environment/secret-placeholder";
+import { renameV1Variables } from "packages/environment/v1-variables";
 import { ensurePipelineNodeTrust } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
@@ -144,6 +145,9 @@ api.patch(
       const patched = toInstance(forPatch, Environment);
       await validate(patched);
       decrypt(stored);
+      // a placeholder under a v1 name keeps the value stored under either name
+      renameV1Variables(stored);
+      renameV1Variables(patched);
       const changed = new Set<string>();
       for (const [k, v] of patched.variables ?? new Map<string, Primitive>()) {
         if (isSecretPlaceholder(v)) {
