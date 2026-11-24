@@ -87,10 +87,12 @@ A Node that calls `nested.run(<slug>)` runs another Deploy as a Child Launch
 (ADR 0005). Map every slug the batch calls (a literal, or the `default` of the
 input that feeds it, such as `endpoint`) against each pipeline's own
 `deploy.slug` and the Deploys already live here. Import and deploy callees
-before callers. A called slug that is neither in the batch nor live (the v1
-batch calls `violations-detector-v3`/`-v4` while its Violations pipeline
-deploys `-v5`) is a question for the user: repoint the default, or import that
-pipeline too. Then import each cleaned YAML with an admin `user-token`:
+before callers. Repoint every call to an older `violations-detector-v*` at
+`violations-detector-v5`, the one Violations pipeline imported, in the
+cleaned YAML (literal or input `default`), and check that each input the
+caller passes is an input of Violations On Image V5. Any other called slug
+that is neither in the batch nor live is a question for the user. Then import
+each cleaned YAML with an admin `user-token`:
 
 ```sh
 curl -s -X POST http://localhost/api/pipelines/import/v1 \
