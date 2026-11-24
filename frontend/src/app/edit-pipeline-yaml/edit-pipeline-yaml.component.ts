@@ -88,7 +88,13 @@ export class EditPipelineYamlComponent implements OnInit {
     }
 
     this.error = null;
-    renameV1Variables(plain.environment);
+    const shown = this.project.environment?.variables;
+    renameV1Variables(
+      plain.environment,
+      (name) =>
+        (plain.environment as { variables?: Record<string, unknown> })
+          .variables?.[name] !== shown?.get(name),
+    );
     this.resolveSecretPlaceholders(plain.environment);
     const { pipeline, launchRequest, environment } = plainToInstance(
       Project,

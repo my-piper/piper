@@ -147,7 +147,10 @@ api.patch(
       decrypt(stored);
       // a placeholder under a v1 name keeps the value stored under either name
       renameV1Variables(stored);
-      renameV1Variables(patched);
+      renameV1Variables(
+        patched,
+        (name) => patched.variables?.get(name) !== shown.variables?.get(name)
+      );
       const changed = new Set<string>();
       for (const [k, v] of patched.variables ?? new Map<string, Primitive>()) {
         if (isSecretPlaceholder(v)) {

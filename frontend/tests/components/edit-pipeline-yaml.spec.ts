@@ -212,6 +212,36 @@ describe("EditPipelineYamlComponent", () => {
     finish();
   }));
 
+  it("keeps a secret under its current name when its v1 namesake is shown back", fakeAsync(() => {
+    const controller = TestBed.inject(HttpTestingController);
+    project.environment.variables.set("OPEN_PAAS_PASSWORD", "shown");
+    project.environment.variables.set("ARTWORKS_PASSWORD", "[encrypted]");
+    project.environment.visible = ["OPEN_PAAS_PASSWORD"];
+    fixture.componentInstance.form.patchValue({
+      environment: JSON.stringify({
+        variables: {
+          OPEN_PAAS_PASSWORD: "shown",
+          ARTWORKS_PASSWORD: "[encrypted]",
+        },
+        visible: ["OPEN_PAAS_PASSWORD"],
+      }),
+    });
+
+    save();
+    tick(AUTOSAVE_DELAY);
+    expectPatch(controller, "project_aaaa", "rev_a_1").flush(
+      patchResponsePlain("rev_a_2"),
+    );
+    tick(UI_DELAY);
+
+    expect(Object.fromEntries(project.environment.variables)).toEqual({
+      ARTWORKS_PASSWORD: "[encrypted]",
+    });
+    expect(project.environment.visible).toEqual([]);
+    controller.verify();
+    finish();
+  }));
+
   it("rejects invalid launch request JSON without touching the pipeline", fakeAsync(() => {
     const before = toPlain(project);
     fixture.componentInstance.form.patchValue({ launchRequest: "{ nope" });

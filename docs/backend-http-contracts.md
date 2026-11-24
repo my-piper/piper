@@ -133,7 +133,10 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   differently take their current names on both the stored and the sent side
   (`OPEN_PAAS_USER` → `ARTWORKS_USER`, `OPEN_PAAS_PASSWORD` →
   `ARTWORKS_PASSWORD`, `PAAS_BASE_URL` → `ARTWORKS_URL`); a Variable already
-  set under the current name wins unless it holds only a placeholder.
+  set under the current name wins, unless it holds only a placeholder and a
+  new value was sent under the v1 name. A v1 name in `visible` carries over
+  only with its value, so it never reveals a secret kept under the current
+  name.
 - Visibility is written with the values: `PUT /api/me/environment`,
   `PUT /api/environment` (admin) and the project `environment` PATCH delta
   replace `visible` when they carry it (a `PUT` without `visible` keeps the

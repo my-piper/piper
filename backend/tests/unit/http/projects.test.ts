@@ -815,6 +815,29 @@ describe("project environment patch", () => {
     });
   });
 
+  it("never reveals a secret through a visible Variable of the same v1 name", async () => {
+    storeProjectEnvironment(
+      { OPEN_PAAS_PASSWORD: "shown", ARTWORKS_PASSWORD: "secret" },
+      ["OPEN_PAAS_PASSWORD"]
+    );
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(
+      { variables: { OPEN_PAAS_PASSWORD: "shown" } },
+      { variables: { OPEN_PAAS_PASSWORD: "shown", API_URL: "https://x" } }
+    );
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    expect(writtenEnvironment()).toEqual({
+      variables: { ARTWORKS_PASSWORD: "secret", API_URL: "https://x" },
+      visible: [],
+    });
+  });
+
   it("renames the ArtWorks Variables of a Project Environment pasted from Piper v1", async () => {
     storeProjectEnvironment({ OPEN_PAAS_PASSWORD: "stored" });
     httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
