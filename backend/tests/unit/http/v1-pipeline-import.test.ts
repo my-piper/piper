@@ -52,6 +52,25 @@ const CATALOG: Record<string, object> = {
       ARTWORKS_PASSWORD: { type: "string", scope: "global" },
     },
   },
+  qwen_edit_image: {
+    _id: "qwen_edit_image",
+    version: 1,
+    package: "artworks",
+    title: "en=QWEN Edit image",
+    source: "node",
+    execution: "protracted",
+    script: "registry:artworks@3/qwen_edit_image/script.js",
+    sign: CATALOG_SIGN,
+    inputs: {
+      image1: { title: "Image 1", type: "image" },
+      image2: { title: "Image 2", type: "image" },
+      prompt: { title: "Prompt", type: "string" },
+    },
+    outputs: {
+      images: { title: "Images", type: "image[]" },
+      image1: { title: "Image 1", type: "image" },
+    },
+  },
 };
 
 beforeEach(async () => {
@@ -64,6 +83,12 @@ beforeEach(async () => {
   httpDoubles.nodes.findOne.mockImplementation(async ({ _id }) =>
     CATALOG[_id] ? structuredClone(CATALOG[_id]) : null
   );
+  httpDoubles.nodes.find.mockImplementation((filter: { package?: string }) => ({
+    toArray: async () =>
+      Object.values(CATALOG)
+        .filter((node) => node["package"] === filter?.package)
+        .map((node) => structuredClone(node)),
+  }));
   context = await createHttpApp([() => import("api/pipelines")]);
 });
 
@@ -368,10 +393,10 @@ outputs:
     });
   });
 
-  it("refuses the whole Pipeline and lists every Node that can't be brought over", async () => {
+  it("brings a v1 Node to the one Node Definition of its package that has its ports, when its own name stands for another", async () => {
     const yaml = v1Pipeline(
       v1Node(
-        "qwen_edit",
+        "generate_image",
         `
 package: artworks
 title: en=QWEN Edit image
@@ -382,22 +407,136 @@ inputs:
   image1:
     title: Image 1
     type: image
+  image2:
+    title: Image 2
+    type: image
 outputs:
   image1:
     title: Image 1
     type: image`
       ) +
         v1Node(
-          "generate_image",
+          "show",
           `
+title: Show
+execution: rapid
+script: "export async function run() { return DEFINITIONS.NextNode.from({}); }"
+inputs:
+  image:
+    title: Image
+    type: image`
+        ),
+      `flows:
+  generate_to_show:
+    from: generate_image
+    output: image1
+    to: show
+    input: image
+`
+    ).replace(
+      "inputs: {}",
+      `inputs:
+  image:
+    title: Image
+    type: image
+    flows:
+      to_generate_image:
+        to: generate_image
+        input: image2`
+    );
+
+    const response = await importYaml(yaml);
+
+    expect(response.status).toBe(200);
+    const [project] = inserted;
+    expect(project.pipeline["nodes"]["generate_image"]).toMatchObject({
+      _id: "qwen_edit_image",
+      script: "registry:artworks@3/qwen_edit_image/script.js",
+      sign: CATALOG_SIGN,
+      inputs: { image2: { featured: true } },
+    });
+    expect(response.body.warnings).toEqual([
+      "Node generate_image (artworks): Node Definition generate_image has no input image2, output image1, so it became qwen_edit_image, which has them",
+    ]);
+  });
+
+  it("never takes a Node Definition by its ports alone when the Node's name stands for none", async () => {
+    const yaml = v1Pipeline(
+      v1Node(
+        "qwen_edit",
+        `
 package: artworks
-title: Generate image
+title: en=QWEN Edit image
+source: node
+execution: protracted
+script: "export async function run() {}"
+outputs:
+  image1:
+    title: Image 1
+    type: image`
+      ) +
+        v1Node(
+          "show",
+          `
+title: Show
+execution: rapid
+script: "export async function run() { return DEFINITIONS.NextNode.from({}); }"
+inputs:
+  image:
+    title: Image
+    type: image`
+        ),
+      `flows:
+  qwen_to_show:
+    from: qwen_edit
+    output: image1
+    to: show
+    input: image
+`
+    );
+
+    const response = await importYaml(yaml);
+
+    expect(response.status).toBe(400);
+    expect(response.body.details).toEqual([
+      "Node qwen_edit (artworks): no installed Node Definition matches it",
+    ]);
+  });
+
+  it("refuses the whole Pipeline and lists every Node that can't be brought over", async () => {
+    const yaml = v1Pipeline(
+      v1Node(
+        "segment",
+        `
+package: artworks
+title: en=Segment image
+source: node
 execution: regular
 script: "export async function run() {}"
 outputs:
-  images:
-    title: Images
-    type: image[]`
+  mask:
+    title: Mask
+    type: image`
+      ) +
+        v1Node(
+          "generate_image",
+          `
+package: artworks
+title: Generate video
+execution: regular
+script: "export async function run() {}"
+outputs:
+  video:
+    title: Video
+    type: video`
+        ) +
+        v1Node(
+          "borrowed",
+          `
+title: Borrowed
+source: script
+execution: regular
+script: "registry:artworks@3/generate_image/script.js"`
         ) +
         v1Node(
           "resize",
@@ -405,20 +544,8 @@ outputs:
 title: Resize
 execution: rapid
 script: |-
-  export async function run({ inputs }) {
-      const sharp = require('sharp');
-      return DEFINITIONS.NextNode.from({ outputs: {} });
-  }`
-        ) +
-        v1Node(
-          "notify",
-          `
-title: Notify
-execution: rapid
-script: |-
   export async function run() {
-      const user = env.variables.get('N8N_USER');
-      message('sent', 'info');
+      const sharp = require('sharp');
       return DEFINITIONS.NextNode.from({ outputs: {} });
   }`
         ) +
@@ -431,19 +558,22 @@ script: "export async function run() { return DEFINITIONS.NextNode.from({}); }"
 inputs:
   image:
     title: Image
-    type: image`
+    type: image
+  video:
+    title: Video
+    type: video`
         ),
       `flows:
-  qwen_to_fine:
-    from: qwen_edit
-    output: image1
+  segment_to_fine:
+    from: segment
+    output: mask
     to: fine
     input: image
   generate_to_fine:
     from: generate_image
-    output: images
+    output: video
     to: fine
-    input: image
+    input: video
 `
     );
 
@@ -452,12 +582,77 @@ inputs:
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Pipeline can't be imported");
     expect(response.body.details).toEqual([
-      "Node qwen_edit (artworks): no installed Node Definition matches it",
-      "Node generate_image (artworks): Node Definition generate_image has no output images",
-      "Node resize: uses require('sharp'), which scripts can't load any more",
-      "Node notify: reads the Environment, which a Script Node can't",
-      "Node notify: calls message(), which scripts can't any more",
+      "Node segment (artworks): no installed Node Definition matches it",
+      "Node generate_image (artworks): Node Definition generate_image has no output video",
+      "Node borrowed: points at published code, which a Script Node can't run",
     ]);
     expect(inserted).toEqual([]);
+  });
+
+  it("imports a Pipeline whose scripts need rewriting and warns about each of them", async () => {
+    const yaml = v1Pipeline(
+      v1Node(
+        "resize",
+        `
+title: Resize
+execution: rapid
+script: |-
+  export async function run({ inputs }) {
+      const sharp = require('sharp');
+      return DEFINITIONS.NextNode.from({ outputs: {} });
+  }`
+      ) +
+        v1Node(
+          "notify",
+          `
+title: Notify
+execution: rapid
+script: |-
+  export async function run() {
+      const user = env.variables?.get('N8N_USER');
+      const password = env.variables.get("N8N_PASSWORD");
+      const url = env.scope.get("N8N_URL");
+      message('sent', 'info');
+      return DEFINITIONS.NextNode.from({ outputs: {} });
+  }
+environment:
+  N8N_USER:
+    type: string
+    scope: pipeline
+  N8N_URL:
+    type: string
+    scope: pipeline`
+        ) +
+        v1Node(
+          "fine",
+          `
+title: Fine
+execution: rapid
+script: "export async function run() { return DEFINITIONS.NextNode.from({}); }"`
+        )
+    );
+
+    const response = await importYaml(yaml);
+
+    expect(response.status).toBe(200);
+    expect(response.body.warnings).toEqual([
+      "Node resize: uses require('sharp'), which scripts can't load: rewrite the Node before it runs",
+      "Node notify: reads the Environment, which a Script Node can't: N8N_USER, N8N_PASSWORD, N8N_URL come back empty",
+      "Node notify: calls message(), which only writes to the Node's log now: rewrite it if users must see the message",
+    ]);
+    const [project] = inserted;
+    const nodes = project.pipeline["nodes"];
+    expect(nodes["resize"].source).toBe("script");
+    expect(nodes["resize"].script).toMatch(
+      /^\/\/ Rewrite this Node: require\('sharp'\) can't be loaded/
+    );
+    expect(nodes["notify"]).not.toHaveProperty("environment");
+  });
+
+  it("answers no warnings when every Node is brought over as it was", async () => {
+    const response = await importYaml(V1_PIPELINE_YAML);
+
+    expect(response.status).toBe(200);
+    expect(response.body.warnings).toEqual([]);
   });
 });

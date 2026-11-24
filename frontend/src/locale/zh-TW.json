@@ -60,6 +60,7 @@
 		"link.import": "導入",
 		"link.import_v1": "匯入 v1",
 		"label.import_pipeline": "匯入流水線（YAML 或 URL）",
+		"message.v1_pipeline_imported_with_warnings": "流水線已匯入。以下 Node 需要在執行前重寫：",
 		"label.import_v1_pipeline": "從 Piper v1 匯入流水線（YAML 或 URL）",
 		"label.checking": "檢查",
 		"label.updating": "更新中",

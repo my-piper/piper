@@ -62,6 +62,7 @@
 		"link.import": "インポート",
 		"link.import_v1": "v1 をインポート",
 		"label.import_pipeline": "パイプラインをインポート（YAML または URL）",
+		"message.v1_pipeline_imported_with_warnings": "パイプラインをインポートしました。実行前に次の Node を書き直す必要があります：",
 		"label.import_v1_pipeline": "Piper v1 からパイプラインをインポート（YAML または URL）",
 		"label.checking": "チェック",
 		"label.updating": "更新",

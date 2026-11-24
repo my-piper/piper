@@ -1,39 +1,78 @@
 /**
  * Piper v1 ran Node scripts with globals the current runtime doesn't provide
- * (`DEFINITIONS`, `httpClient`, `download`, `nested`, `Buffer`). A v1 script
- * imported as a Script Node keeps its code and gets a prelude defining them.
- * What can't be defined in a Script Node is reported as a problem instead.
+ * (`DEFINITIONS`, `httpClient`, `download`, `nested`, `Buffer`, `env`,
+ * `message`, `require`). A v1 script imported as a Script Node keeps its code
+ * and gets a prelude defining them. What only works once the script is
+ * rewritten is a warning; what keeps it from running at all is a problem.
  */
 
 const V1_GLOBALS =
   /\bDEFINITIONS\b|\bnested\.(?:run|state)\s*\(|(?<![.\w])httpClient\s*\(|(?<![.\w])download\s*\(/;
 
+const V1_REQUIRE = /(?<![.\w])require\s*\(\s*["'`]([^"'`]+)["'`]/g;
+const V1_ENV = /(?<![.\w])env\.(?:variables|scope)\b/;
+const V1_ENV_NAMES =
+  /(?<![.\w])env\.variables\??\.get\s*\(\s*["'`]([^"'`]+)["'`]/g;
+const V1_MESSAGE = /(?<![.\w])message\s*\(/;
+
 const V1_RUN = /export\s+(async\s+)?function\s+run\s*\(/;
 
-/** Why a v1 script can't run as a Script Node; empty when it can. */
-export function v1ScriptProblems(script: string): string[] {
-  const problems: string[] = [];
-  for (const [, module] of script.matchAll(
-    /(?<![.\w])require\s*\(\s*["'`]([^"'`]+)["'`]/g
-  )) {
-    problems.push(
-      `uses require('${module}'), which scripts can't load any more`
-    );
-  }
-  if (/\benv\.(?:variables|scope)\b/.test(script)) {
-    problems.push("reads the Environment, which a Script Node can't");
-  }
-  if (/(?<![.\w])message\s*\(/.test(script)) {
-    problems.push("calls message(), which scripts can't any more");
-  }
-  if (V1_GLOBALS.test(script) && !V1_RUN.test(script)) {
-    problems.push("has no exported run function");
-  }
-  return problems;
+/** The first capture group of every match, each once, in order. */
+function uniqueMatches(script: string, pattern: RegExp) {
+  return [...new Set([...script.matchAll(pattern)].map(([, found]) => found))];
 }
 
+function requiredModules(script: string) {
+  return uniqueMatches(script, V1_REQUIRE);
+}
+
+/** Why a v1 script can't run as a Script Node at all; empty when it can. */
+export function v1ScriptProblems(script: string): string[] {
+  if (isV1Script(script) && !V1_RUN.test(script)) {
+    return ["has no exported run function"];
+  }
+  return [];
+}
+
+/**
+ * What of a v1 script won't work as a Script Node until it is rewritten. The
+ * Environment warning names the Variables the script reads by name and those
+ * its Node declared (`declared`), as all of them come back empty.
+ */
+export function v1ScriptWarnings(
+  script: string,
+  declared: string[] = []
+): string[] {
+  const warnings = requiredModules(script).map(
+    (module) =>
+      `uses require('${module}'), which scripts can't load: rewrite the Node before it runs`
+  );
+  if (V1_ENV.test(script)) {
+    const names = [
+      ...new Set([...uniqueMatches(script, V1_ENV_NAMES), ...declared]),
+    ];
+    const empty =
+      names.length === 0
+        ? "it comes back empty"
+        : `${names.join(", ")} ${names.length === 1 ? "comes" : "come"} back empty`;
+    warnings.push(`reads the Environment, which a Script Node can't: ${empty}`);
+  }
+  if (V1_MESSAGE.test(script)) {
+    warnings.push(
+      "calls message(), which only writes to the Node's log now: rewrite it if users must see the message"
+    );
+  }
+  return warnings;
+}
+
+/** Whether a script uses anything of v1 the prelude stands in for. */
 export function isV1Script(script: string) {
-  return V1_GLOBALS.test(script);
+  return (
+    V1_GLOBALS.test(script) ||
+    requiredModules(script).length > 0 ||
+    V1_ENV.test(script) ||
+    V1_MESSAGE.test(script)
+  );
 }
 
 /**
@@ -129,14 +168,56 @@ export async function run(payload) {
 
 `;
 
-/** The v1 script with the prelude, its own `run` renamed `v1Run`. */
+/**
+ * Stand-ins for v1 globals, each added only when the script doesn't declare
+ * that name itself: a second declaration would keep the module from loading.
+ */
+const STAND_INS: Record<string, string> = {
+  env: `// Script Nodes never read an Environment: every Variable comes back empty
+const env = { variables: new Map(), scope: new Map() };
+`,
+  message: `function message(text, type = "info") {
+  console.log(\`[\${type}] \${text}\`);
+}
+`,
+  require: `function require(module) {
+  throw new DEFINITIONS.FatalError(
+    \`require('\${module}') isn't available any more: rewrite this Node with an import\`
+  );
+}
+`,
+};
+
+const PRELUDE_END = "// End of Piper v1 compatibility.";
+
+function declares(script: string, name: string) {
+  return new RegExp(
+    `(?<![.\\w$])(?:function\\*?|const|let|var|class)\\s+${name}\\b`
+  ).test(script);
+}
+
+/**
+ * The v1 script with the prelude, its own `run` renamed `v1Run`. A script that
+ * requires a module starts with a note naming it, as it can't run until then.
+ */
 export function fromV1Script(script: string) {
+  const rewrite = requiredModules(script)
+    .map(
+      (module) =>
+        `// Rewrite this Node: require('${module}') can't be loaded; import a module that runs in Deno instead.\n`
+    )
+    .join("");
   const bufferImport = /\bBuffer\b/.test(script)
     ? 'import { Buffer } from "node:buffer";\n'
     : "";
+  const standIns = Object.entries(STAND_INS)
+    .filter(([name]) => !declares(script, name))
+    .map(([, code]) => `${code}\n`)
+    .join("");
   return (
+    rewrite +
     bufferImport +
-    PRELUDE +
+    PRELUDE.replace(PRELUDE_END, `${standIns}${PRELUDE_END}`) +
     script.replace(V1_RUN, (_, async = "") => `${async}function v1Run(`)
   );
 }

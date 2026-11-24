@@ -4,7 +4,12 @@ import { Node } from "models/node";
 import { Pipeline } from "models/pipeline";
 import { SCRIPT_NODE_SOURCE, isScriptNode } from "packages/nodes/script-node";
 import { isScriptReference } from "packages/nodes/sign-node";
-import { fromV1Script, isV1Script, v1ScriptProblems } from "./v1-script";
+import {
+  fromV1Script,
+  isV1Script,
+  v1ScriptProblems,
+  v1ScriptWarnings,
+} from "./v1-script";
 
 /** Node Definitions renamed since Piper v1: v1 id -> current id. */
 const RENAMED_DEFINITIONS: Record<string, string> = {
@@ -51,9 +56,37 @@ function missingPorts(definition: Node, ports: Ports) {
   ];
 }
 
-type Lookup = { definition?: Node; mismatch?: string };
+/**
+ * What the lookup found: the Definition, or why none fits. `stoodFor` names
+ * the Definition the Node's name stands for when its ports chose another.
+ */
+type Lookup = { definition?: Node; mismatch?: string; stoodFor?: string };
 
-/** The installed Node Definition a Node stands for, by its id, then its key. */
+function toDefinition(found: object) {
+  delete found["catalog"];
+  return toInstance(found, Node);
+}
+
+/**
+ * The only Node Definition of the package that has every used port. A v1 Node
+ * could be an edited copy of a catalog Node: its name then stands for another
+ * Definition, and its ports tell which one it became.
+ */
+async function findByPorts(pkg: string, ports: Ports) {
+  if (ports.inputs.size + ports.outputs.size === 0) {
+    return null;
+  }
+  const matching = (await mongo.nodes.find({ package: pkg }).toArray())
+    .map((found) => toDefinition(found as object))
+    .filter((definition) => missingPorts(definition, ports).length === 0);
+  return matching.length === 1 ? matching[0] : null;
+}
+
+/**
+ * The installed Node Definition a Node stands for: by its id, then its key.
+ * When the one its name stands for lacks its ports, a package Node takes the
+ * one Definition of its package that has them.
+ */
 async function findDefinition(
   key: string,
   node: Node,
@@ -70,13 +103,19 @@ async function findDefinition(
       continue;
     }
 
-    delete found["catalog"];
-    const definition = toInstance(found as object, Node);
+    const definition = toDefinition(found as object);
     const missing = missingPorts(definition, ports);
     if (missing.length === 0) {
       return { definition };
     }
     mismatch ??= `Node Definition ${id} has no ${missing.join(", ")}`;
+  }
+
+  if (mismatch && node.package) {
+    const definition = await findByPorts(node.package, ports);
+    if (definition) {
+      return { definition, stoodFor: mismatch };
+    }
   }
   return { mismatch };
 }
@@ -91,22 +130,31 @@ function noPorts(): Ports {
   return { inputs: new Set(), outputs: new Set() };
 }
 
-/** Turns a Node its user wrote into a Script Node, or says why it can't. */
-function toScriptNode(node: Node): string[] {
+type Adoption = { problems: string[]; warnings: string[] };
+
+/**
+ * Turns a Node its user wrote into a Script Node, or says why it can't. The
+ * warnings name what of a v1 script must be rewritten before it runs.
+ */
+function toScriptNode(node: Node): Adoption {
   const script = node.script ?? "";
   if (isScriptReference(script)) {
-    return ["points at published code, which a Script Node can't run"];
+    return {
+      problems: ["points at published code, which a Script Node can't run"],
+      warnings: [],
+    };
   }
   const problems = v1ScriptProblems(script);
   if (problems.length > 0) {
-    return problems;
+    return { problems, warnings: [] };
   }
 
   node.source = SCRIPT_NODE_SOURCE;
   node.script = isV1Script(script) ? fromV1Script(script) : script;
   delete node.sign;
+  const declared = [...(node.environment?.keys() ?? [])];
   delete node.environment;
-  return [];
+  return { problems: [], warnings: v1ScriptWarnings(script, declared) };
 }
 
 /**
@@ -114,22 +162,36 @@ function toScriptNode(node: Node): string[] {
  * from a Node Package becomes its installed Node Definition, standing where it
  * stood, and a Node its user wrote becomes a Script Node. Every input a Flow
  * reaches is made a port, since the editor drops Flows into other inputs.
- * Returns the problems that keep the Pipeline from being imported.
+ * Returns the problems that keep the Pipeline from being imported and the
+ * warnings about Script Nodes to rewrite before they run.
  */
-export async function adoptNodes(pipeline: Pipeline): Promise<string[]> {
+export async function adoptNodes(pipeline: Pipeline): Promise<Adoption> {
   const problems: string[] = [];
+  const warnings: string[] = [];
   const ports = portsInFlows(pipeline);
+  const asScript = (key: string, node: Node) => {
+    const adoption = toScriptNode(node);
+    problems.push(...aboutNode(key, node, adoption.problems));
+    warnings.push(...aboutNode(key, node, adoption.warnings));
+  };
 
   for (const [key, node] of pipeline.nodes ?? new Map<string, Node>()) {
     const used = ports.get(key) ?? noPorts();
 
     if (isScriptNode(node)) {
-      problems.push(...aboutNode(key, node, toScriptNode(node)));
+      asScript(key, node);
       continue;
     }
 
     const lookup = await findDefinition(key, node, used);
     if (lookup.definition) {
+      if (lookup.stoodFor) {
+        warnings.push(
+          ...aboutNode(key, node, [
+            `${lookup.stoodFor}, so it became ${lookup.definition._id}, which has them`,
+          ])
+        );
+      }
       lookup.definition.arrange = node.arrange;
       pipeline.nodes.set(key, lookup.definition);
       continue;
@@ -144,7 +206,7 @@ export async function adoptNodes(pipeline: Pipeline): Promise<string[]> {
       continue;
     }
 
-    problems.push(...aboutNode(key, node, toScriptNode(node)));
+    asScript(key, node);
   }
 
   for (const [key, { inputs }] of ports) {
@@ -157,5 +219,5 @@ export async function adoptNodes(pipeline: Pipeline): Promise<string[]> {
     }
   }
 
-  return problems;
+  return { problems, warnings };
 }

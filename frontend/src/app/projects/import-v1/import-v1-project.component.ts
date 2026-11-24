@@ -24,6 +24,8 @@ import { UI_DELAY } from "src/consts/ui";
 export class ImportV1ProjectComponent {
   progress = { importing: false };
   error: AppError | null = null;
+  // Script Nodes of the imported Project to rewrite before they run
+  warnings: string[] = [];
 
   form = this.fb.group({
     yaml: this.fb.control<string>(null),
@@ -43,6 +45,7 @@ export class ImportV1ProjectComponent {
   import() {
     // a failed import saved nothing: start over from the pasted YAML
     this.error = null;
+    this.warnings = [];
     this.progress.importing = true;
     this.cd.detectChanges();
 
@@ -57,11 +60,20 @@ export class ImportV1ProjectComponent {
         }),
       )
       .subscribe({
-        next: (project) => {
-          this.router.navigate([".."], { relativeTo: this.route });
+        next: ({ project, warnings }) => {
           this.imported.emit(project);
+          if (warnings.length > 0) {
+            // stay open until the user has read which Nodes to rewrite
+            this.warnings = warnings;
+            return;
+          }
+          this.close();
         },
         error: (err) => (this.error = err),
       });
+  }
+
+  close() {
+    this.router.navigate([".."], { relativeTo: this.route });
   }
 }

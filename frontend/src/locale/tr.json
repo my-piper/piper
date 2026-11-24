@@ -62,6 +62,7 @@
 		"link.import": " İthalat",
 		"link.import_v1": "v1 içe aktar",
 		"label.import_pipeline": "Pipeline içe aktar (YAML veya URL)",
+		"message.v1_pipeline_imported_with_warnings": "Pipeline içe aktarıldı. Bu Node'ların çalışmadan önce yeniden yazılması gerekiyor:",
 		"label.import_v1_pipeline": "Piper v1'den pipeline içe aktar (YAML veya URL)",
 		"label.checking": " Kontrol ediliyor",
 		"label.updating": " Güncelleniyor",

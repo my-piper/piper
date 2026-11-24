@@ -7,13 +7,14 @@ import { adoptNodes } from "./adopt-nodes";
 /**
  * Imports a Pipeline copied from Piper v1 as a new Project, its Nodes brought
  * onto what this Piper runs (see `adoptNodes`). Nothing is saved when any
- * Node can't be brought over: the DataError lists every problem.
+ * Node can't be brought over: the DataError lists every problem. The new
+ * Project is answered with `warnings` naming the Script Nodes to rewrite.
  */
 export async function importV1Pipeline(user: User, source: string) {
   const imported = await readPipelineSource(source);
-  const problems = await adoptNodes(imported.pipeline);
+  const { problems, warnings } = await adoptNodes(imported.pipeline);
   if (problems.length > 0) {
     throw new DataError("Pipeline can't be imported", problems);
   }
-  return createImportedProject(user, imported);
+  return { ...(await createImportedProject(user, imported)), warnings };
 }

@@ -5,7 +5,8 @@ import { Router } from "@angular/router";
 import { AppComponent } from "src/app/app.component";
 import { ImportV1ProjectComponent } from "src/app/projects/import-v1/import-v1-project.component";
 import { UI_DELAY } from "src/consts/ui";
-import { userPlain } from "../fixtures/plain";
+import { Project } from "src/models/project";
+import { projectAPlain, userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
 import {
@@ -16,8 +17,9 @@ import {
 
 /**
  * Wire contract (backend/api/pipelines/import-v1-pipeline.ts, admin only):
- * POST /api/pipelines/import/v1 `{ yaml }` → the new Project; a Pipeline that
- * can't be brought over is a DataError whose `details` list every problem.
+ * POST /api/pipelines/import/v1 `{ yaml }` → the new Project with `warnings`
+ * about Script Nodes to rewrite; a Pipeline that can't be brought over is a
+ * DataError whose `details` list every problem.
  */
 const IMPORT_URL = "/api/pipelines/import/v1";
 
@@ -25,6 +27,7 @@ function setup() {
   seedAuthorization(userPlain());
   configureAppTestingModule([
     { path: "", component: OutletStubComponent },
+    { path: "projects", component: OutletStubComponent },
     { path: "projects/import-v1", component: ImportV1ProjectComponent },
   ]);
   const controller = TestBed.inject(HttpTestingController);
@@ -41,6 +44,7 @@ function setup() {
 
   return {
     controller,
+    router,
     component,
     element,
     importYaml: (yaml: string) => {
@@ -108,6 +112,57 @@ describe("ImportV1ProjectComponent", () => {
 
     expect(page.element.querySelector("[role=alert]")).toBeNull();
     page.controller.expectOne(IMPORT_URL);
+    page.controller.verify();
+    finish();
+  }));
+
+  it("closes once the Pipeline is imported with nothing to rewrite", fakeAsync(() => {
+    const page = setup();
+    const imported: Project[] = [];
+    page.component.imported.subscribe((project) => imported.push(project));
+
+    page.importYaml("name: Duo");
+    page.controller
+      .expectOne(IMPORT_URL)
+      .flush({ ...projectAPlain(), warnings: [] });
+    page.settle();
+
+    expect(imported.map((project) => project._id)).toEqual([
+      projectAPlain()["_id"],
+    ]);
+    expect(page.router.url).toBe("/projects");
+    page.controller.verify();
+    finish();
+  }));
+
+  it("lists the Nodes to rewrite after the import and closes when they are read", fakeAsync(() => {
+    const page = setup();
+    const imported: Project[] = [];
+    page.component.imported.subscribe((project) => imported.push(project));
+
+    page.importYaml("name: Duo");
+    page.controller.expectOne(IMPORT_URL).flush({
+      ...projectAPlain(),
+      warnings: [
+        "Node resize: uses require('sharp'), which scripts can't load: rewrite the Node before it runs",
+      ],
+    });
+    page.settle();
+
+    expect(imported.length).toBe(1);
+    expect(page.router.url).toBe("/projects/import-v1");
+    const alert = page.element.querySelector("[role=status]");
+    expect(alert.textContent).toContain("Pipeline imported");
+    expect(alert.textContent).toContain("Node resize: uses require('sharp')");
+    expect(
+      (page.element.querySelector("footer button") as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+
+    (alert.querySelector("button") as HTMLButtonElement).click();
+    page.settle();
+
+    expect(page.router.url).toBe("/projects");
     page.controller.verify();
     finish();
   }));

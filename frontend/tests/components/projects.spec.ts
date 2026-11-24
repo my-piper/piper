@@ -520,7 +520,7 @@ describe("ProjectsComponent tags and groups", () => {
       .querySelector<HTMLButtonElement>("footer button[tuiButton]")
       .click();
     const request = controller.expectOne("/api/pipelines/import/v1");
-    request.flush(projectBPlain());
+    request.flush({ ...projectBPlain(), warnings: [] });
     await expect
       .poll(() => {
         fixture.detectChanges();

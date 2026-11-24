@@ -61,6 +61,7 @@
 		"link.import": " 가져오기",
 		"link.import_v1": "v1 가져오기",
 		"label.import_pipeline": "파이프라인 가져오기 (YAML 또는 URL)",
+		"message.v1_pipeline_imported_with_warnings": "파이프라인을 가져왔습니다. 실행하기 전에 다음 Node를 다시 작성해야 합니다:",
 		"label.import_v1_pipeline": "Piper v1에서 파이프라인 가져오기 (YAML 또는 URL)",
 		"label.checking": " 확인",
 		"label.updating": " 업데이트",

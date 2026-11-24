@@ -60,6 +60,7 @@
 		"link.import": " Importieren",
 		"link.import_v1": "Import v1",
 		"label.import_pipeline": "Pipeline importieren (YAML oder URL)",
+		"message.v1_pipeline_imported_with_warnings": "Pipeline importiert. Diese Nodes müssen vor dem Ausführen umgeschrieben werden:",
 		"label.import_v1_pipeline": "Pipeline aus Piper v1 importieren (YAML oder URL)",
 		"label.checking": " Überprüfen Sie",
 		"label.updating": " Aktualisierung von",

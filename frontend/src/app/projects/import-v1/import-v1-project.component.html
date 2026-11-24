@@ -21,6 +21,29 @@
   </div>
 }
 
+@if (warnings.length) {
+  <div tuiNotification appearance="warning" role="status" class="error-message">
+    <p i18n="@@message.v1_pipeline_imported_with_warnings">
+      Pipeline imported. These Nodes need rewriting before they run:
+    </p>
+    <ul>
+      @for (message of warnings; track $index) {
+        <li>{{ message }}</li>
+      }
+    </ul>
+    <button
+      tuiButton
+      appearance="flat"
+      size="s"
+      type="button"
+      (click)="close()"
+      i18n="@@action.ok"
+    >
+      Ok
+    </button>
+  </div>
+}
+
 <h1 i18n="@@label.import_v1_pipeline">Import a Pipeline from Piper v1 (YAML or URL)</h1>
 <form [formGroup]="form">
   <fieldset>
@@ -39,7 +62,7 @@
       size="m"
       type="button"
       [loading]="progress.importing"
-      [disabled]="form.invalid || progress.importing"
+      [disabled]="form.invalid || progress.importing || warnings.length > 0"
       (click)="import()"
       i18n="@@action.import"
     >

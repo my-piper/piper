@@ -62,6 +62,7 @@
 		"link.import": "आयात",
 		"link.import_v1": "v1 आयात",
 		"label.import_pipeline": "पाइपलाइन आयात करें (YAML या URL)",
+		"message.v1_pipeline_imported_with_warnings": "पाइपलाइन आयात हो गई। चलाने से पहले इन Nodes को फिर से लिखना होगा:",
 		"label.import_v1_pipeline": "Piper v1 से पाइपलाइन आयात करें (YAML या URL)",
 		"label.checking": "जाँच करना",
 		"label.updating": "अपडेट कर रहा है",

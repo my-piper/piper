@@ -114,22 +114,36 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   - A Node from a Node Package (`package` set) is replaced by the installed
     Node Definition with the same `package` and `_id`, else its Node key, else
     the v1 id it was renamed from (`ask_llm_artworks` → `ask_llm_agent`). The
-    Definition must have every input and output the Node's Flows use. It takes
-    the Definition's script, sign, ports and Environment and keeps `arrange`.
+    Definition must have every input and output the Node's Flows use. When
+    the Definition its name stands for lacks some, the one Definition of the
+    same package that has them all is taken, with a warning naming both (a v1
+    Node edited from a catalog Node, e.g. a QWEN Edit node kept under the key
+    `generate_image`); none or several is a problem, and a name that stands
+    for no Definition is never matched by ports. It takes the Definition's
+    script, sign, ports and Environment and keeps `arrange`.
   - A Node its user wrote (no `package`, no matching Definition) or one
     already marked `source: "script"` becomes a Script Node: no sign, no
     Environment. A Piper v1 script keeps its code behind a prelude defining
-    v1's `DEFINITIONS`, `httpClient`, `download`, `Buffer` and `nested`;
-    `nested.run` asks for a Child Launch of the Deploy whose slug it names,
-    and `nested.state` reads it from `children` once the child finished.
+    v1's `DEFINITIONS`, `httpClient`, `download`, `Buffer`, `nested`, `env`,
+    `message` and `require`; `nested.run` asks for a Child Launch of the
+    Deploy whose slug it names, and `nested.state` reads it from `children`
+    once the child finished. `env` holds no Variables, `message()` writes to
+    the Node's log, and `require()` fails the Node with a FATAL_ERROR naming
+    the module; a script that requires one starts with a comment saying to
+    rewrite it.
   - Every input a Flow reaches is marked `featured`, since the editor drops
     Flows into other inputs.
 
   Nothing is saved when any Node can't be brought over (no matching
   Definition, a Definition missing a used port, published code in a Script
-  Node, or a script that calls `require`, `message()` or reads the
-  Environment): the import answers a DataError "Pipeline can't be imported"
-  whose `details` list every problem.
+  Node, or a v1 script without an exported `run`): the import answers a
+  DataError "Pipeline can't be imported" whose `details` list every problem.
+  Otherwise it answers the new Project with `warnings`: a Node brought onto
+  another Definition by its ports, and each Script Node that needs work before
+  it runs (a `require`; Environment reads, naming the Variables the script
+  reads by name or its Node declared, which come back empty; `message()`
+  calls); `[]` when there are none. Stand-ins for `env`, `message` and
+  `require` are left out when the script declares that name itself.
 - Settings updates persist visibility, slug, order, update time, and updater;
   client-supplied ownership/title fields do not replace the existing metadata.
 - Reading projects serializes nested maps and dates and omits unexposed fields.

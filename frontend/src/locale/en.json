@@ -205,6 +205,7 @@
     "link.open_playground": "Playground",
     "label.or": "or",
     "action.clone_pipeline": " Clone ",
+    "message.v1_pipeline_imported_with_warnings": " Pipeline imported. These Nodes need rewriting before they run: ",
     "label.import_v1_pipeline": "Import a Pipeline from Piper v1 (YAML or URL)",
     "label.import_pipeline": "Import a Pipeline (YAML or URL)",
     "link.import_v1": " Import v1 ",

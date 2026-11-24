@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { fromV1Script } from "packages/pipelines/v1/v1-script";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 type Run = (payload: object) => Promise<Record<string, unknown>>;
 
@@ -161,5 +161,67 @@ describe("v1 script as a Script Node", () => {
     const result = await run({ inputs: { user: "a:b" } });
 
     expect(result).toEqual({ __type: "next", outputs: { auth: "YTpi" } });
+  });
+
+  it("reads every Environment Variable as empty, so an optional call is skipped", async () => {
+    const run = await load(`export async function run() {
+    const { NextNode } = DEFINITIONS;
+    const user = env.variables?.get('N8N_USER');
+    const password = env.variables.get('N8N_PASSWORD');
+    return NextNode.from({ outputs: { notified: Boolean(user && password) } });
+}`);
+
+    const result = await run({ inputs: {} });
+
+    expect(result).toEqual({ __type: "next", outputs: { notified: false } });
+  });
+
+  it("fails a Node that requires a module with a fatal error naming it", async () => {
+    const run = await load(`export async function run() {
+    const sharp = require('sharp');
+    return DEFINITIONS.NextNode.from({ outputs: {} });
+}`);
+
+    const failure = run({ inputs: {} });
+
+    await expect(failure).rejects.toMatchObject({
+      code: "FATAL_ERROR",
+      message:
+        "require('sharp') isn't available any more: rewrite this Node with an import",
+    });
+  });
+
+  it("writes a v1 message to the Node's log", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const run = await load(`export async function run() {
+    message('Image sent', 'defect');
+    return DEFINITIONS.NextNode.from({ outputs: {} });
+}`);
+
+    await run({ inputs: {} });
+
+    expect(log).toHaveBeenCalledWith("[defect] Image sent");
+  });
+
+  it("keeps a v1 script's own message, env and require over the stand-ins", async () => {
+    const run = await load(`const env = { variables: new Map([['MODE', 'fast']]) };
+function message(text) {
+    return \`own: \${text}\`;
+}
+const require = (module) => module.toUpperCase();
+
+export async function run() {
+    const { NextNode } = DEFINITIONS;
+    return NextNode.from({
+        outputs: { mode: env.variables.get('MODE'), said: message('hi'), lib: require('sharp') },
+    });
+}`);
+
+    const result = await run({ inputs: {} });
+
+    expect(result).toEqual({
+      __type: "next",
+      outputs: { mode: "fast", said: "own: hi", lib: "SHARP" },
+    });
   });
 });
