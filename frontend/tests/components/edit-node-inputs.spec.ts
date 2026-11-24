@@ -13,6 +13,7 @@ import { projectA, projectWith } from "../fixtures/models";
 import { Plain, smallGraphPipeline, userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
+import { optionLabels, selectByLabel } from "../helpers/taiga";
 
 const PROJECT_URL = "/project";
 
@@ -25,6 +26,20 @@ function inputBlock(element: HTMLElement, title: string): HTMLElement {
     throw new Error(`Input ${title} is not rendered`);
   }
   return block;
+}
+
+/** An icon button found by its accessible name. */
+function buttonLabelled(
+  element: HTMLElement,
+  label: string,
+): HTMLButtonElement {
+  const button = element.querySelector<HTMLButtonElement>(
+    `button[aria-label="${label}"]`,
+  );
+  if (!button) {
+    throw new Error(`Button ${label} is not rendered`);
+  }
+  return button;
 }
 
 function buttonWithText(element: HTMLElement, text: string): HTMLElement {
@@ -63,28 +78,55 @@ function dynamicProject(): Project {
   return projectWith(pipeline);
 }
 
+/** node_two with a single-choice Mode and a grouped multi-choice Styles input. */
+function choicesProject(): Project {
+  const pipeline = smallGraphPipeline() as {
+    nodes: Record<string, { inputs: Record<string, Plain> }>;
+  };
+  pipeline.nodes["node_two"].inputs["mode"] = {
+    order: 5,
+    title: "Mode",
+    type: "string",
+    enum: ["fast|Fast", "slow|Slow"],
+  };
+  pipeline.nodes["node_two"].inputs["styles"] = {
+    order: 6,
+    title: "Styles",
+    type: "string[]",
+    enum: ["warm|Warm", "cold|Cold <Palette>"],
+  };
+  return projectWith(pipeline);
+}
+
 /**
  * Renders EditNodeInputsComponent through the real NodeFromProjectResolver
  * under a componentless parent route that resolves the project, as the canvas
  * route tree does. Project A's launch request stores node_one
  * `temperature: 0` and node_two `flag: true, count: 3, label: "custom"`.
- * Call inside `fakeAsync`.
+ * Pass `nativeSelect` when the node has an enum input. Call inside `fakeAsync`.
  */
-function setup(nodeId: string, project: Project = projectA()) {
+function setup(
+  nodeId: string,
+  project: Project = projectA(),
+  { nativeSelect = false } = {},
+) {
   seedAuthorization(userPlain("owner"));
-  configureAppTestingModule([
-    {
-      path: PROJECT_URL.slice(1),
-      resolve: { project: () => project },
-      children: [
-        {
-          path: "nodes/:id",
-          component: EditNodeInputsComponent,
-          resolve: { node: NodeFromProjectResolver },
-        },
-      ],
-    },
-  ]);
+  configureAppTestingModule(
+    [
+      {
+        path: PROJECT_URL.slice(1),
+        resolve: { project: () => project },
+        children: [
+          {
+            path: "nodes/:id",
+            component: EditNodeInputsComponent,
+            resolve: { node: NodeFromProjectResolver },
+          },
+        ],
+      },
+    ],
+    { nativeSelect },
+  );
   const controller = TestBed.inject(HttpTestingController);
   const manager = TestBed.inject(ProjectManager);
   manager.project = project;
@@ -119,9 +161,14 @@ function setup(nodeId: string, project: Project = projectA()) {
       target.click();
       detectChanges();
     },
-    title: () => element.querySelector("header input") as HTMLInputElement,
+    title: () =>
+      element.querySelector(
+        'input[aria-label="Node title"]',
+      ) as HTMLInputElement,
     start: () =>
-      element.querySelector("header input[type=checkbox]") as HTMLInputElement,
+      element.querySelector(
+        'input[type=checkbox][aria-label="Auto start"]',
+      ) as HTMLInputElement,
     field: (title: string) =>
       inputBlock(element, title).querySelector("input") as HTMLInputElement,
     launchInputs: () => project.launchRequest.nodes.get(nodeId)?.inputs,
@@ -134,8 +181,8 @@ describe("EditNodeInputsComponent", () => {
       const { element, title, start } = setup("node_two");
 
       const titles = Array.from(
-        element.querySelectorAll("fieldset.inputs .input"),
-      ).map((e) => e.textContent.trim().split("\n")[0].trim());
+        element.querySelectorAll("fieldset.inputs .input-title"),
+      ).map((e) => e.textContent.trim());
 
       expect(title().value).toBe("Make JSON");
       expect(start().checked).toBe(false);
@@ -262,22 +309,63 @@ describe("EditNodeInputsComponent", () => {
     }));
   });
 
+  describe("choices", () => {
+    it("offers enum options by label and stores the chosen value", fakeAsync(() => {
+      const { element, detectChanges, launchInputs } = setup(
+        "node_two",
+        choicesProject(),
+        { nativeSelect: true },
+      );
+      const select = inputBlock(element, "Mode").querySelector("select");
+      // Without a value the select also shows an empty, disabled placeholder.
+      const labels = optionLabels(select).filter(Boolean);
+
+      selectByLabel(select, "Slow");
+      detectChanges();
+
+      expect(labels).toEqual(["Fast", "Slow"]);
+      expect(launchInputs().get("mode")).toBe("slow");
+      finish();
+    }));
+
+    it("toggles multi-choice options under their group and stores them joined", fakeAsync(() => {
+      const { element, click, launchInputs } = setup(
+        "node_two",
+        choicesProject(),
+        { nativeSelect: true },
+      );
+      const block = inputBlock(element, "Styles");
+      const chip = (text: string) =>
+        Array.from(block.querySelectorAll("label")).find((l) =>
+          l.textContent.includes(text),
+        );
+
+      click(chip("Warm").querySelector("input"));
+      click(chip("Cold").querySelector("input"));
+
+      expect(block.textContent).toContain("Palette");
+      expect(launchInputs().get("styles")).toBe("warm|cold");
+      finish();
+    }));
+  });
+
   describe("featured inputs", () => {
     it("toggles whether an input is shown on the canvas", fakeAsync(() => {
       const { element, click, project } = setup("node_two");
       const toggle = () =>
-        inputBlock(element, "Label").querySelector(
-          "button.circle",
-        ) as HTMLElement;
+        buttonLabelled(inputBlock(element, "Label"), "Show on canvas");
       const label = () =>
         project.pipeline.nodes.get("node_two").inputs.get("label");
 
       click(toggle());
       const featured = label().featured;
+      const pressed = toggle().getAttribute("aria-pressed");
       click(toggle());
 
       expect(featured).toBe(true);
+      expect(pressed).toBe("true");
       expect(label().featured).toBeUndefined();
+      expect(toggle().getAttribute("aria-pressed")).toBe("false");
       finish();
     }));
   });
@@ -295,11 +383,7 @@ describe("EditNodeInputsComponent", () => {
       const clones = [...inputs.keys()].filter((k) => k.startsWith("image_"));
       const titles = clones.map((k) => inputs.get(k).title);
       const status = manager.status.value;
-      click(
-        inputBlock(element, "Image 1").querySelector(
-          "button.circle",
-        ) as HTMLElement,
-      );
+      click(buttonLabelled(inputBlock(element, "Image 1"), "Remove input"));
 
       expect(clones).toEqual(["image_1", "image_2"]);
       expect(titles).toEqual(["Image 1", "Image 2"]);
@@ -354,6 +438,29 @@ describe("EditNodeInputsComponent", () => {
         finish();
       }));
     }
+
+    it("closes the panel", fakeAsync(() => {
+      const { element, click, router } = setup("node_two");
+      const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
+
+      click(buttonLabelled(element, "Close"));
+
+      const [commands] = vi.mocked(navigate).mock.lastCall;
+      expect(commands).toEqual([{ outlets: { right: null } }]);
+      finish();
+    }));
+
+    it("opens the script editor on meta+E", fakeAsync(() => {
+      const { component } = setup("node_two");
+      const edit = vi.spyOn(component, "edit").mockImplementation(() => {});
+
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "e", metaKey: true }),
+      );
+
+      expect(edit).toHaveBeenCalledOnce();
+      finish();
+    }));
 
     it("opens the script editor for the node", fakeAsync(() => {
       const { component, router } = setup("node_two");

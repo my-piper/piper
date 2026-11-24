@@ -6,12 +6,12 @@
   flex-direction: column;
   position: fixed;
   z-index: 5;
-  background-color: variables.with-alpha(variables.$overlay-background, 0.6);
-  backdrop-filter: blur(5px);
+  color: var(--tui-text-primary);
+  background-color: var(--tui-background-base);
   padding: variables.$gutter-huge;
   transition: transform 150ms ease-in-out;
-  box-shadow: 0 0 10px rgba(black, 0.5);
-  overflow: scroll;
+  box-shadow: var(--tui-shadow-medium);
+  overflow: auto;
   gap: variables.$gutter-normal;
 
   // A hidden drawer slides out over the canvas; it must never take the pointer.
@@ -37,7 +37,7 @@
 
   &.left {
     left: 0;
-    border-right: 1px solid variables.$graphite-color-200;
+    border-right: 1px solid var(--tui-border-normal);
 
     &.hidden {
       transform: translateX(-100%);
@@ -46,7 +46,7 @@
 
   &.right {
     right: 0;
-    border-left: 1px solid variables.$graphite-color-200;
+    border-left: 1px solid var(--tui-border-normal);
 
     &.hidden {
       opacity: 0;
@@ -59,7 +59,7 @@
     right: 0;
     left: 0;
     margin: auto;
-    border-top: 1px solid variables.$graphite-color-200;
+    border-top: 1px solid var(--tui-border-normal);
 
     &.hidden {
       opacity: 0;
@@ -81,7 +81,7 @@
     justify-content: space-between;
 
     .title {
-      font-weight: bold;
+      font: var(--tui-typography-heading-h6);
     }
 
     @include mixins.less-tablet() {

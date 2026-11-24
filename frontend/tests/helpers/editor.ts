@@ -26,6 +26,7 @@ import { userPlain, UserKind } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "./config";
 import { MonacoEditorStubComponent } from "./editor-stubs";
 import { provideSocketDouble, SocketDouble } from "./socket";
+import { expectNativeSelectReadOnly } from "./taiga";
 
 /** Placeholder for routed drawers; the editor's own template stays real. */
 @Component({
@@ -42,9 +43,16 @@ export const EDITOR_URL = "/project";
  * pipes and directives) and test boundaries: HttpTestingController,
  * SocketDouble, test runtime config and the given routes. `<ngx-monaco-editor>`
  * renders MonacoEditorStubComponent: real Monaco starts web workers that fail
- * in the test runner after the spec ends.
+ * in the test runner after the spec ends. Pass `nativeSelect` when the spec
+ * renders a Taiga native select, whose `readOnly` binding TestBed only logs then.
  */
-export function configureAppTestingModule(routes: Routes = []) {
+export function configureAppTestingModule(
+  routes: Routes = [],
+  { nativeSelect = false }: { nativeSelect?: boolean } = {},
+) {
+  if (nativeSelect) {
+    expectNativeSelectReadOnly();
+  }
   TestBed.overrideModule(MonacoEditorModule, {
     remove: { imports: [EditorComponent], exports: [EditorComponent] },
     add: {
@@ -53,6 +61,7 @@ export function configureAppTestingModule(routes: Routes = []) {
     },
   });
   TestBed.configureTestingModule({
+    errorOnUnknownProperties: !nativeSelect,
     imports: [AppModule],
     providers: [
       provideTestConfig(),

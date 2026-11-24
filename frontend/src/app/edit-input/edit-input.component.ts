@@ -5,13 +5,17 @@ import {
   ElementRef,
   forwardRef,
   HostBinding,
+  Inject,
   Input,
+  OnChanges,
   OnInit,
+  SimpleChanges,
   ViewChild,
 } from "@angular/core";
 import {
   ControlValueAccessor,
   FormBuilder,
+  FormControl,
   FormGroup,
   NG_VALUE_ACCESSOR,
 } from "@angular/forms";
@@ -21,9 +25,24 @@ import { Artefact } from "src/models/artefacts";
 import { HttpService } from "src/services/http.service";
 import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/consts/ui";
+import { Languages } from "src/enums/languages";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { getLabel } from "src/utils/i18n";
+import { ChoiceGroup, choiceGroups } from "src/utils/input-choices";
+import { TuiNumberFormatSettings } from "@taiga-ui/core";
 import { ModalService } from "../../ui-kit/modal/modal.service";
 
 const COMPACT_LENGTH = 3;
+
+// The ends of a native <input type="range"> without min or max.
+const RANGE_MIN = 0;
+const RANGE_MAX = 100;
+
+const INTEGER_FORMAT: Partial<TuiNumberFormatSettings> = { precision: 0 };
+// Show only the decimals a value has: 0.5, not 0.50.
+const FLOAT_FORMAT: Partial<TuiNumberFormatSettings> = {
+  decimalMode: "not-zero",
+};
 
 @Component({
   selector: "app-edit-input",
@@ -39,7 +58,9 @@ const COMPACT_LENGTH = 3;
   ],
   standalone: false,
 })
-export class EditInputComponent implements OnInit, ControlValueAccessor {
+export class EditInputComponent
+  implements OnInit, OnChanges, ControlValueAccessor
+{
   i18n = {
     generated: $localize`:@@label.generated:Generated`,
     assets: $localize`:@@label.assets:Assets`,
@@ -53,6 +74,10 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
 
   @Input()
   id!: string;
+
+  /** The input's title, used as the accessible name of its control. */
+  @Input()
+  label: string;
 
   @HostBinding("attr.data-type")
   @Input()
@@ -81,11 +106,28 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
   @Input()
   enum: Primitive[] = [];
 
-  // Enum options are rendered only for string and string[] inputs, whose
-  // values are strings; the nsfw, groupList and split pipes rely on that.
-  get stringEnum(): string[] {
-    return this.enum as string[];
-  }
+  /**
+   * Enum options, grouped. They are rendered only for string and string[]
+   * inputs, whose values are strings.
+   */
+  choices: ChoiceGroup[] = [];
+  /** Option values of each group, in the order of `choices`. */
+  groupValues: string[][] = [];
+  /**
+   * One control per group of a string[] input. Each holds every selected
+   * value: a filter toggles only its own items and keeps the rest, while
+   * filters sharing one control would miss each other's changes.
+   */
+  groupControls: FormControl<string[]>[] = [];
+  /** Option values for a native select: flat, or one list per group. */
+  selectItems: string[] | string[][] = [];
+  selectLabels: string[] = [];
+  private choiceLabels = new Map<string, string>();
+
+  /** Shows an option value by its label. */
+  readonly labelOf = (value: string) => this.choiceLabels.get(value) ?? value;
+  readonly choiceContent = ({ $implicit }: { $implicit: string }) =>
+    this.labelOf($implicit);
 
   @Input()
   freeform: boolean;
@@ -107,6 +149,26 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
 
   @Input()
   step: number;
+
+  get numberFormat() {
+    return this.type === "integer" ? INTEGER_FORMAT : FLOAT_FORMAT;
+  }
+
+  /** A step makes a slider; a missing end falls back to a native range's. */
+  get slider() {
+    return !!this.step;
+  }
+
+  get sliderMin() {
+    return this.min ?? RANGE_MIN;
+  }
+
+  get sliderMax() {
+    return this.max ?? RANGE_MAX;
+  }
+
+  readonly minSafe = Number.MIN_SAFE_INTEGER;
+  readonly maxSafe = Number.MAX_SAFE_INTEGER;
 
   @Input()
   inputs: FormGroup;
@@ -130,14 +192,55 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
   });
 
   constructor(
+    @Inject(CURRENT_LANGUAGE) private language: Languages,
     private fb: FormBuilder,
     private http: HttpService,
     private modal: ModalService,
     public cd: ChangeDetectorRef,
   ) {}
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["enum"]) {
+      this.choices = choiceGroups(this.enum as string[], (label) =>
+        getLabel(label, this.language),
+      );
+      this.choiceLabels = new Map(
+        this.choices.flatMap(({ choices }) =>
+          choices.map(({ value, label }) => [value, label]),
+        ),
+      );
+      const values = this.choices.map(({ choices }) =>
+        choices.map(({ value }) => value),
+      );
+      this.groupValues = values;
+      this.groupControls = values.map(() => {
+        const control = this.fb.nonNullable.control<string[]>([]);
+        control.valueChanges.subscribe((selected) =>
+          this.valueControl.setValue(selected),
+        );
+        return control;
+      });
+      this.syncGroups();
+      const grouped = this.choices.some(({ name }) => !!name);
+      this.selectItems = grouped ? values : values.flat();
+      this.selectLabels = grouped
+        ? this.choices.map(({ name }) => name ?? "")
+        : [];
+    }
+  }
+
+  /** Shows the selected values in every group's filter. */
+  private syncGroups() {
+    const value = this.valueControl.value;
+    const selected = Array.isArray(value) ? value : [];
+    for (const control of this.groupControls) {
+      control.setValue(selected, { emitEvent: false });
+    }
+  }
+
   ngOnInit() {
     this.valueControl.valueChanges.subscribe((value) => {
+      this.syncGroups();
       this.onChange(
         (() => {
           switch (this.type) {
@@ -175,6 +278,7 @@ export class EditInputComponent implements OnInit, ControlValueAccessor {
       })(),
       { emitEvent: false },
     );
+    this.syncGroups();
     this.cd.detectChanges();
   }
 

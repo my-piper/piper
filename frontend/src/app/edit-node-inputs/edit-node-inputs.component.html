@@ -1,154 +1,177 @@
-<header class="stack vertical" [formGroup]="form">
-  <div class="stack horizontal align-center">
-    <input type="text" formControlName="title" />
-    <ng-template #descriptionPopover>
-      <div
-        class="description"
-        [innerHTML]="node.description | markdown | async"
-      ></div>
-    </ng-template>
-    @if (node.description; as description) {
-      <app-icon
-        icon="info"
-        [size]="18"
-        [appPopover]="{ content: descriptionPopover }"
-      ></app-icon>
+<header class="header" [formGroup]="form">
+  <div class="heading">
+    <tui-textfield
+      class="title"
+      tuiTextfieldSize="m"
+      [tuiTextfieldCleaner]="false"
+    >
+      <input
+        tuiInput
+        formControlName="title"
+        aria-label="Node title"
+        i18n-aria-label="@@label.node_title"
+      />
+    </tui-textfield>
+    @if (node.description) {
+      <ng-template #descriptionHint>
+        <div
+          class="description"
+          [innerHTML]="node.description | markdown | async"
+        ></div>
+      </ng-template>
+      <tui-icon icon="@tui.info" [tuiTooltip]="descriptionHint" />
     }
     <button
+      tuiIconButton
+      appearance="flat"
+      size="s"
       type="button"
-      class="primary close with-icon only-icon"
+      iconStart="@tui.x"
+      aria-label="Close"
+      i18n-aria-label="@@action.close"
       (click)="close()"
-    >
-      <app-icon class="icon" icon="close" [size]="18"></app-icon>
-    </button>
+    ></button>
   </div>
 
-  <form [formGroup]="form">
-    <fieldset>
-      <div class="stack align-center">
-        <div class="checkbox">
-          <label class="switch">
-            <input type="checkbox" formControlName="start" />
-            <span class="slider"></span>
-          </label>
-        </div>
-        <span i18n="@@label.auto_start">Auto start</span>
-        <ng-template #autoStartPopover>
-          <div i18n="@@message.auto_start">
-            Will be executed when the pipeline is started.
-          </div>
-        </ng-template>
-        <app-icon
-          icon="info"
-          [appPopover]="{ content: autoStartPopover }"
-          size="18"
-        ></app-icon>
-      </div>
-    </fieldset>
-  </form>
+  <div class="start">
+    <label tuiLabel>
+      <input
+        tuiSwitch
+        type="checkbox"
+        size="s"
+        formControlName="start"
+        aria-label="Auto start"
+        i18n-aria-label="@@label.auto_start"
+      />
+      <ng-container i18n="@@label.auto_start">Auto start</ng-container>
+    </label>
+    <ng-template #autoStartHint>
+      <ng-container i18n="@@message.auto_start">
+        Will be executed when the pipeline is started.
+      </ng-container>
+    </ng-template>
+    <tui-icon icon="@tui.info" [tuiTooltip]="autoStartHint" />
+  </div>
 </header>
-
-<hr />
 
 @if (node.render.inputs; as groups) {
   @if (groups.length > 0) {
-    <form [formGroup]="form">
+    <form class="groups" [formGroup]="form">
       @for (g of groups; track g) {
-        @if (g.group.group?.title; as group) {
-          <h2 class="stack align-center">
-            {{ group | i18n }}
-            @if (userRole.admin | can | async) {
-              <div class="order">
-                {{ g.group.group?.order }}
-              </div>
-            }
-          </h2>
-        }
-        <fieldset class="inputs stack vertical huge" formGroupName="inputs">
-          @for (i of g.group.inputs; track i) {
-            <div class="input stack vertical" [formGroupName]="i.id">
-              <div class="stack align-center justify-between">
-                <div class="stack align-center flex">
+        <section class="group">
+          @if (g.group.group?.title; as group) {
+            <h2 class="group-title">
+              {{ group | i18n }}
+              @if (userRole.admin | can | async) {
+                <span tuiBadge appearance="neutral" size="s">{{
+                  g.group.group?.order
+                }}</span>
+              }
+            </h2>
+          }
+          <fieldset class="inputs" formGroupName="inputs">
+            @for (i of g.group.inputs; track i) {
+              <div class="input" [formGroupName]="i.id">
+                <div class="input-header">
                   @if (userRole.admin | can | async) {
-                    <div class="order">
-                      {{ i.input.order }}
-                    </div>
+                    <span tuiBadge appearance="neutral" size="s">{{
+                      i.input.order
+                    }}</span>
                   }
-                  <div>
+                  <span class="input-title">
                     {{ i.input.title | i18n }}
                     @if (i.input.required) {
                       <span class="required">&ast;</span>
                     }
-                  </div>
-                  <ng-template #inputDescriptionPopover>
-                    <div
-                      [innerHTML]="i.input.description | markdown | async"
-                    ></div>
-                  </ng-template>
+                  </span>
                   @if (i.input.description) {
-                    <app-icon
-                      [appPopover]="{ content: inputDescriptionPopover }"
-                      icon="help"
-                      [color]="ui.color.grey"
-                      [size]="18"
-                    ></app-icon>
+                    <ng-template #inputDescriptionHint>
+                      <div
+                        class="description"
+                        [innerHTML]="i.input.description | markdown | async"
+                      ></div>
+                    </ng-template>
+                    <tui-icon
+                      icon="@tui.circle-help"
+                      [tuiTooltip]="inputDescriptionHint"
+                    />
                   }
+                  <span class="input-actions">
+                    @if (i.input.cloned) {
+                      <button
+                        tuiIconButton
+                        appearance="flat"
+                        size="xs"
+                        type="button"
+                        iconStart="@tui.minus"
+                        aria-label="Remove input"
+                        i18n-aria-label="@@action.remove_input"
+                        [tuiHint]="removeHint"
+                        (click)="removeInput(i.id)"
+                      ></button>
+                    }
+                    <button
+                      tuiIconButton
+                      size="xs"
+                      type="button"
+                      [appearance]="i.input.featured ? 'secondary' : 'flat'"
+                      [iconStart]="
+                        i.input.featured
+                          ? '@tui.arrow-down-left'
+                          : '@tui.arrow-up-right'
+                      "
+                      [attr.aria-pressed]="!!i.input.featured"
+                      aria-label="Show on canvas"
+                      i18n-aria-label="@@action.show_on_canvas"
+                      [tuiHint]="
+                        i.input.featured ? unfeaturedHint : featuredHint
+                      "
+                      (click)="
+                        i.input.featured
+                          ? markUnFeatured(i.id)
+                          : markFeatured(i.input)
+                      "
+                    ></button>
+                  </span>
                 </div>
-                <div class="stack small">
-                  @if (i.input.cloned) {
-                    <button class="circle small" (click)="removeInput(i.id)">
-                      <app-icon
-                        class="icon"
-                        icon="minus"
-                        [size]="12"
-                      ></app-icon>
-                    </button>
-                  }
-                  <button
-                    class="circle small"
-                    (click)="
-                      i.input.featured
-                        ? markUnFeatured(i.id)
-                        : markFeatured(i.input)
-                    "
-                  >
-                    <app-icon
-                      class="icon"
-                      [icon]="i.input.featured ? 'in' : 'out'"
-                      [size]="12"
-                    ></app-icon>
-                  </button>
-                </div>
+                @if (
+                  (project.pipeline | inputFlows: id : i.id | async | length) <=
+                  0
+                ) {
+                  <app-edit-input
+                    [id]="i.id"
+                    [label]="i.input.title | i18n"
+                    [type]="i.input.type"
+                    [enum]="i.input.enum"
+                    [freeform]="i.input.freeform"
+                    [multiline]="i.input.multiline"
+                    [default]="i.input.default"
+                    [placeholder]="i.input.placeholder"
+                    [min]="i.input.min"
+                    [max]="i.input.max"
+                    [step]="i.input.step"
+                    formControlName="value"
+                    [inputs]="inputsGroup"
+                  ></app-edit-input>
+                }
               </div>
-              @if (
-                (project.pipeline | inputFlows: id : i.id | async | length) <= 0
-              ) {
-                <app-edit-input
-                  [id]="i.id"
-                  [type]="i.input.type"
-                  [enum]="i.input.enum"
-                  [freeform]="i.input.freeform"
-                  [multiline]="i.input.multiline"
-                  [default]="i.input.default"
-                  [placeholder]="i.input.placeholder"
-                  [min]="i.input.min"
-                  [max]="i.input.max"
-                  [step]="i.input.step"
-                  formControlName="value"
-                  [inputs]="inputsGroup"
-                ></app-edit-input>
-              }
-            </div>
-          }
-        </fieldset>
+            }
+          </fieldset>
+        </section>
       }
     </form>
-    <div class="dynamic stack horizontal wrap">
+    <div class="dynamic">
       @for (g of groups; track g) {
         @for (i of g.group.inputs; track i) {
           @if (!!i.input.dynamic && !i.input.cloned) {
-            <button class="primary with-icon" (click)="addDynamic(i.input)">
-              <app-icon class="icon left" icon="add" [size]="16"></app-icon>
+            <button
+              tuiButton
+              appearance="secondary"
+              size="s"
+              type="button"
+              iconStart="@tui.plus"
+              (click)="addDynamic(i.input)"
+            >
               {{ i.input.dynamic.title | i18n }}
             </button>
           }
@@ -156,12 +179,35 @@
       }
     </div>
   } @else {
-    <p>No inputs for node.</p>
+    <p class="empty" i18n="@@message.no_node_inputs">No inputs for node.</p>
   }
 }
 
-<footer class="stack justify-between">
-  <button submitButton class="primary" (click)="reset()">
+<ng-template #featuredHint>
+  <ng-container i18n="@@message.show_on_canvas">
+    Show this input on the node's card, where a flow can be attached to it
+  </ng-container>
+</ng-template>
+
+<ng-template #unfeaturedHint>
+  <ng-container i18n="@@message.hide_from_canvas">
+    Hide this input from the node's card
+  </ng-container>
+</ng-template>
+
+<ng-template #removeHint>
+  <ng-container i18n="@@action.remove_input">Remove input</ng-container>
+</ng-template>
+
+<footer class="footer">
+  <button
+    submitButton
+    tuiButton
+    appearance="secondary"
+    size="s"
+    type="button"
+    (click)="reset()"
+  >
     <ng-container i18n="@@action.reset">Reset</ng-container>
   </button>
 

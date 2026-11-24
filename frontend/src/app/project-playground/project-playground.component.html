@@ -46,6 +46,7 @@
         <app-edit-input
           [formControlName]="i.key"
           [id]="i.key"
+          [label]="i.value.title | i18n"
           [type]="i.value.type"
           [enum]="i.value.enum"
           [freeform]="i.value.freeform"

@@ -45,6 +45,8 @@ describe("EditPipelineInputComponent", () => {
     const input = field(fixture);
     input.value = value;
     input.dispatchEvent(new Event("input"));
+    // As zone.js does after a DOM event: Taiga's number input commits from an effect.
+    fixture.detectChanges();
     tick(INPUT_DEBOUNCE);
   }
 

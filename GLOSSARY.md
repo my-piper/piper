@@ -50,6 +50,14 @@ _Avoid_: CDN, repository, package store
 A graph of Nodes joined by Flows. It has no identity of its own and always belongs to a Project, a Deploy or a Launch.
 _Avoid_: Workflow, graph
 
+**Start Node**:
+A Node that runs as soon as a Launch of its Pipeline begins, without waiting for an upstream Node. Any Node can be made a Start Node or stop being one.
+_Avoid_: Entry node, trigger, first node
+
+**Featured Input**:
+A Node input shown on the Node's card on the canvas, where a Flow can be attached to it. Any other input is edited only in the Node's side panel. An input fed by a Flow takes its value from that Flow instead of the value set in the panel.
+_Avoid_: Port, pinned input, exposed input
+
 ### Serving
 
 **Deploy**:

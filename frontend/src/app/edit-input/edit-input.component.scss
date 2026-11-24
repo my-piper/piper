@@ -4,6 +4,12 @@
 :host {
   display: block;
 
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: blur(5px);
+  }
+
   &[data-type="image[]"] {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -24,10 +30,8 @@
   flex-direction: column;
   align-items: center;
   padding: variables.$gutter-normal;
-
-  .icon {
-    opacity: .5;
-  }
+  font-size: 4rem;
+  color: var(--tui-text-tertiary);
 }
 
 .select-asset {
@@ -46,30 +50,34 @@
   }
 }
 
-input,
-select,
-textarea {
-  width: 100%;
+textarea.uploading {
+  opacity: 0.5;
+  cursor: progress;
+  pointer-events: none;
 }
 
-textarea {
-  min-height: 100px;
-
-  &.uploading {
-    opacity: 0.5;
-    cursor: progress;
-    pointer-events: none;
-  }
+.editor {
+  display: block;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: var(--tui-radius-m);
+  overflow: hidden;
 }
 
-textarea {
-  resize: vertical;
+.media {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.option {
-  &.selected {
-    background-color: red;
-  }
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.choices-group {
+  font: var(--tui-typography-body-s);
+  color: var(--tui-text-secondary);
 }
 
 .container {

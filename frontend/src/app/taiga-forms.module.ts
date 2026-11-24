@@ -1,26 +1,47 @@
 import { NgModule } from "@angular/core";
-import { TuiButton, TuiInput, TuiLink, TuiTextfield } from "@taiga-ui/core";
+import {
+  TuiButton,
+  TuiHint,
+  TuiInput,
+  TuiLabel,
+  TuiLink,
+  TuiNumberFormat,
+  TuiSlider,
+  TuiTextfield,
+} from "@taiga-ui/core";
 import { TuiTable } from "@taiga-ui/addon-table";
 import {
   TuiButtonLoading,
   TuiChevron,
   TuiChip,
   TuiFilter,
+  TuiInputNumber,
+  TuiInputSlider,
   TuiSelect,
   TuiSwitch,
+  TuiTextarea,
+  TuiTooltip,
 } from "@taiga-ui/kit";
 
 /**
  * The Taiga UI form controls used by the app's non-standalone components:
- * text fields, native selects, switches, filter chips, buttons, links and
- * tables.
+ * text fields, textareas, number and slider inputs, native selects, switches,
+ * filter chips, labels, hints and tooltips, buttons, links and tables.
  */
 const TAIGA_FORMS = [
   TuiButton,
   TuiButtonLoading,
   TuiLink,
+  TuiLabel,
+  ...TuiHint,
+  TuiTooltip,
   ...TuiTextfield,
   ...TuiInput,
+  ...TuiTextarea,
+  ...TuiInputNumber,
+  ...TuiInputSlider,
+  ...TuiSlider,
+  TuiNumberFormat,
   ...TuiSelect,
   TuiChevron,
   TuiChip,

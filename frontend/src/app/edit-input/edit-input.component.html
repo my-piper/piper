@@ -7,31 +7,29 @@
     <p i18n="@@message.upload_image">
       Just press <span>Ctrl+V</span> to upload image
     </p>
-    @switch (type) {
-      @case ("image[]") {
-        <textarea
-          #inputRef
-          [class.uploading]="progress.uploading"
-          [disabled]="progress.uploading"
-          class="input-primary"
-          cols="50"
-          rows="3"
-          (paste)="pasteFromClipboard($event)"
-        ></textarea>
+    <tui-textfield>
+      @switch (type) {
+        @case ("image[]") {
+          <textarea
+            #inputRef
+            tuiTextarea
+            [class.uploading]="progress.uploading"
+            [disabled]="progress.uploading"
+            (paste)="pasteFromClipboard($event)"
+          ></textarea>
+        }
+        @default {
+          <textarea
+            #inputRef
+            tuiTextarea
+            [class.uploading]="progress.uploading"
+            [disabled]="progress.uploading"
+            formControlName="value"
+            (paste)="pasteFromClipboard($event)"
+          ></textarea>
+        }
       }
-      @default {
-        <textarea
-          #inputRef
-          [class.uploading]="progress.uploading"
-          [disabled]="progress.uploading"
-          formControlName="value"
-          class="input-primary"
-          cols="50"
-          rows="3"
-          (paste)="pasteFromClipboard($event)"
-        ></textarea>
-      }
-    }
+    </tui-textfield>
 
     <ng-template #generatedTab>
       <app-artefacts
@@ -74,52 +72,18 @@
       </ngx-monaco-editor>
     }
     @case ("integer") {
-      @if (!!step) {
-        <app-slider
-          formControlName="value"
-          [min]="min"
-          [max]="max"
-          [step]="step"
-        ></app-slider>
-      } @else {
-        <input
-          class="input-primary"
-          formControlName="value"
-          type="number"
-          [attr.placeholder]="placeholder | i18n"
-          [min]="min"
-          [max]="max"
-          [step]="step"
-        />
-      }
+      <ng-container *ngTemplateOutlet="number"></ng-container>
     }
     @case ("float") {
-      @if (!!step) {
-        <app-slider
-          formControlName="value"
-          [min]="min"
-          [max]="max"
-          [step]="step"
-        ></app-slider>
-      } @else {
-        <input
-          class="input-primary"
-          formControlName="value"
-          type="number"
-          [attr.placeholder]="placeholder | i18n"
-          [min]="min"
-          [max]="max"
-          [step]="step"
-        />
-      }
+      <ng-container *ngTemplateOutlet="number"></ng-container>
     }
     @case ("boolean") {
-      <div class="checkbox">
-        <label class="switch">
-          <input type="checkbox" formControlName="value" />
-          <span class="slider"></span>
-        </label>
-      </div>
+      <input
+        tuiSwitch
+        type="checkbox"
+        formControlName="value"
+        [attr.aria-label]="label"
+      />
     }
     @case ("image") {
       <ng-template #selectImageAssetModal>
@@ -147,12 +111,7 @@
           />
         } @else {
           <div class="upload">
-            <app-icon
-              class="icon"
-              icon="select-image"
-              [stroke]="1"
-              [size]="64"
-            ></app-icon>
+            <tui-icon icon="@tui.image-plus" />
           </div>
         }
       </div>
@@ -168,11 +127,15 @@
           <div class="image">
             <div class="remove">
               <button
-                class="primary with-icon only-icon"
+                tuiIconButton
+                appearance="secondary"
+                size="s"
+                type="button"
+                iconStart="@tui.trash-2"
+                aria-label="Remove"
+                i18n-aria-label="@@action.remove"
                 (click)="removeItem(i)"
-              >
-                <app-icon class="icon" icon="delete" [size]="18"></app-icon>
-              </button>
+              ></button>
             </div>
             @if (compact) {
               <img imageFallback [src]="url | proxyImage: { width: 250 }" />
@@ -194,16 +157,19 @@
         (drop)="dropped($event)"
       >
         <button
-          class="primary with-icon only-icon"
-          [class.busy]="progress.uploading"
-          [disabled]="progress.uploading"
+          tuiIconButton
+          appearance="secondary"
+          size="s"
+          type="button"
+          iconStart="@tui.plus"
+          aria-label="Select image"
+          i18n-aria-label="@@label.select_image"
+          [loading]="progress.uploading"
           [appModal]="{
             title: i18n.selectImage,
             content: selectImageAssetModal,
           }"
-        >
-          <app-icon class="icon" icon="add" [size]="18"></app-icon>
-        </button>
+        ></button>
       </div>
     }
     @case ("archive") {
@@ -212,27 +178,31 @@
           *ngTemplateOutlet="selectAssetTemplate; context: { type: 'archive' }"
         ></ng-container>
       </ng-template>
-      <div class="stack align-center">
+      <div class="media">
         <button
-          class="primary with-icon only-icon"
+          tuiIconButton
+          appearance="secondary"
+          size="s"
           type="button"
+          iconStart="@tui.plus"
+          aria-label="Select archive"
+          i18n-aria-label="@@label.select_archive"
           [appModal]="{
             title: 'Select archive',
             content: selectArchiveAssetModal,
           }"
-        >
-          <app-icon class="icon" icon="add"></app-icon>
-        </button>
+        ></button>
         @if (valueControl.value; as href) {
           <a
-            class="primary with-icon"
+            tuiButton
+            appearance="flat"
+            size="s"
+            iconStart="@tui.download"
             target="_blank"
             [href]="href"
             i18n="@@link.download"
+            >Download</a
           >
-            <app-icon class="icon left" icon="download"></app-icon>
-            Download
-          </a>
         }
       </div>
     }
@@ -242,17 +212,20 @@
           *ngTemplateOutlet="selectAssetTemplate; context: { type: 'audio' }"
         ></ng-container>
       </ng-template>
-      <div class="stack align-center">
+      <div class="media">
         <button
-          class="primary with-icon only-icon"
+          tuiIconButton
+          appearance="secondary"
+          size="s"
           type="button"
+          iconStart="@tui.plus"
+          aria-label="Select audio"
+          i18n-aria-label="@@label.select_audio"
           [appModal]="{
             title: 'Select audio',
             content: selectAudioAssetModal,
           }"
-        >
-          <app-icon class="icon" icon="add"></app-icon>
-        </button>
+        ></button>
         <audio [src]="valueControl.value" controls></audio>
       </div>
     }
@@ -278,101 +251,106 @@
       </div>
     }
     @case ("string[]") {
-      @for (g of stringEnum | nsfw | groupList; track g.name) {
-        <label>{{ g.name }}</label>
-        <div class="switcher">
-          @for (o of g.options; track o) {
-            @if (o | split: "|"; as x) {
-              <label
-                class="option"
-                formControlName="value"
-                [appSelectable]="{ value: x[0], mode: 'multiple' }"
-              >
-                {{ x[1] ? (x[1] | i18n) : x[0] }}
-              </label>
-            }
+      <div class="choices">
+        @for (g of choices; track g.name; let gi = $index) {
+          @if (g.name) {
+            <span class="choices-group">{{ g.name }}</span>
           }
-        </div>
-      }
+          <tui-filter
+            size="s"
+            [formControl]="groupControls[gi]"
+            [items]="groupValues[gi]"
+            [content]="choiceContent"
+          ></tui-filter>
+        }
+      </div>
     }
     @default {
-      @if (enum?.length > 0) {
+      @if (choices.length > 0) {
         @if (freeform) {
-          <input
-            class="input-primary"
-            type="text"
-            formControlName="value"
-            [attr.placeholder]="placeholder | i18n"
-            [attr.list]="id"
-          />
+          <tui-textfield [tuiTextfieldCleaner]="false">
+            <input
+              tuiInput
+              formControlName="value"
+              [attr.placeholder]="placeholder | i18n"
+              [attr.aria-label]="label"
+              [attr.list]="id"
+            />
+          </tui-textfield>
           <datalist [id]="id">
-            @for (g of stringEnum | nsfw | groupList; track g.name) {
-              <optgroup>
-                @for (o of g.options; track o) {
-                  @if (o | split: "|"; as x) {
-                    <option [value]="x[0]">
-                      {{ x[1] ? (x[1] | i18n) : x[0] }}
-                    </option>
-                  }
-                }
-              </optgroup>
+            @for (g of choices; track g.name) {
+              @for (c of g.choices; track c.value) {
+                <option [value]="c.value">{{ c.label }}</option>
+              }
             }
           </datalist>
         } @else {
-          <select
-            class="select-primary"
-            type="text"
-            formControlName="value"
-            [attr.placeholder]="placeholder | i18n"
-            [attr.list]="id"
+          <tui-textfield
+            tuiChevron
+            [stringify]="labelOf"
+            [tuiTextfieldCleaner]="false"
           >
-            <ng-template #optionsTemplate let-options="options">
-              @for (o of options; track o) {
-                @if (o | split: "|"; as x) {
-                  <option [value]="x[0]">
-                    {{ x[1] ? (x[1] | i18n) : x[0] }}
-                  </option>
-                }
-              }
-            </ng-template>
-            @for (g of stringEnum | nsfw | groupList; track g.name) {
-              @if (g.name) {
-                <optgroup [label]="g.name | i18n">
-                  <ng-container
-                    *ngTemplateOutlet="
-                      optionsTemplate;
-                      context: { options: g.options }
-                    "
-                  ></ng-container>
-                </optgroup>
-              } @else {
-                <ng-container
-                  *ngTemplateOutlet="
-                    optionsTemplate;
-                    context: { options: g.options }
-                  "
-                ></ng-container>
-              }
-            }
-          </select>
+            <select
+              tuiSelect
+              formControlName="value"
+              [attr.aria-label]="label"
+              [placeholder]="placeholder | i18n"
+              [items]="selectItems"
+              [labels]="selectLabels"
+            ></select>
+          </tui-textfield>
         }
       } @else {
         @if (multiline) {
-          <textarea
-            formControlName="value"
-            class="input-primary"
-            rows="5"
-            [attr.placeholder]="placeholder | i18n"
-          >
-          </textarea>
+          <tui-textfield>
+            <textarea
+              tuiTextarea
+              formControlName="value"
+              [min]="5"
+              [attr.placeholder]="placeholder | i18n"
+              [attr.aria-label]="label"
+            ></textarea>
+          </tui-textfield>
         } @else {
-          <input
-            formControlName="value"
-            class="input-primary"
-            [attr.placeholder]="placeholder | i18n"
-          />
+          <tui-textfield>
+            <input
+              tuiInput
+              formControlName="value"
+              [attr.placeholder]="placeholder | i18n"
+              [attr.aria-label]="label"
+            />
+          </tui-textfield>
         }
       }
     }
   }
+
+  <ng-template #number>
+    @if (slider) {
+      <tui-textfield [tuiNumberFormat]="numberFormat">
+        <input
+          tuiInputSlider
+          formControlName="value"
+          [attr.aria-label]="label"
+          [min]="sliderMin"
+          [max]="sliderMax"
+        />
+        <input tuiSlider type="range" [step]="step" />
+      </tui-textfield>
+    } @else {
+      <tui-textfield
+        [tuiNumberFormat]="numberFormat"
+        [tuiTextfieldCleaner]="false"
+      >
+        <input
+          tuiInputNumber
+          formControlName="value"
+          [attr.placeholder]="placeholder | i18n"
+          [attr.aria-label]="label"
+          [min]="min ?? minSafe"
+          [max]="max ?? maxSafe"
+        />
+      </tui-textfield>
+    }
+  </ng-template>
 </ng-container>
