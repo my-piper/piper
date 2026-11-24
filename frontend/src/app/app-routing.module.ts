@@ -84,13 +84,16 @@ import { UpdatePipelineNodesComponent } from "./update-pipeline-nodes/update-pip
 import { EditUserComponent } from "./users/edit/edit-user.component";
 import { UsersComponent } from "./users/users.component";
 
+/** Children of the Projects page, which a Project id can never be. */
+const PROJECTS_PAGES = new Set(["import", "import-v1"]);
+
 export function projectIdMatcher(
   segments: UrlSegment[],
 ): { consumed: UrlSegment[]; posParams: { [key: string]: UrlSegment } } | null {
   if (
     segments.length >= 2 &&
     segments[0].path === "projects" &&
-    segments[1].path !== "import"
+    !PROJECTS_PAGES.has(segments[1].path)
   ) {
     return {
       consumed: segments.slice(0, 2),
