@@ -224,13 +224,20 @@
   </button>
   <button
     submitButton
-    tuiButton
+    tuiIconButton
     appearance="flat"
     size="s"
     type="button"
     class="reset"
+    iconStart="@tui.rotate-ccw"
+    aria-label="Reset"
+    i18n-aria-label="@@action.reset"
+    [tuiHint]="resetHint"
     (click)="reset()"
-  >
-    <ng-container i18n="@@action.reset">Reset</ng-container>
-  </button>
+  ></button>
+  <ng-template #resetHint>
+    <ng-container i18n="@@message.reset_node_inputs">
+      Reset the inputs to their defaults
+    </ng-container>
+  </ng-template>
 </footer>

@@ -300,7 +300,7 @@ describe("EditNodeInputsComponent", () => {
       const { element, click, field, launchInputs, manager } =
         setup("node_one");
 
-      click(buttonWithText(element, "Reset"));
+      click(buttonLabelled(element, "Reset"));
 
       expect(launchInputs().size).toBe(0);
       expect(field("Temperature").value).toBe("0.5");
@@ -412,8 +412,8 @@ describe("EditNodeInputsComponent", () => {
 
   describe("tools", () => {
     function footerButtons(element: HTMLElement) {
-      return Array.from(element.querySelectorAll("footer button")).map((b) =>
-        b.textContent.trim(),
+      return Array.from(element.querySelectorAll("footer button")).map(
+        (b) => b.textContent.trim() || b.getAttribute("aria-label"),
       );
     }
 

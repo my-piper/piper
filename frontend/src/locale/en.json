@@ -39,6 +39,7 @@
     "action.edit_with_shortcut": "(E)dit",
     "action.organize": "Organize",
     "action.reset": "Reset",
+    "message.reset_node_inputs": " Reset the inputs to their defaults ",
     "label.rapid": " Rapid ",
     "label.regular": "Regular",
     "label.deferred": "Deferred",
