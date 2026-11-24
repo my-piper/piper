@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { fromV1Script } from "packages/pipelines/v1-script";
+import { fromV1Script } from "packages/pipelines/v1/v1-script";
 import { afterEach, describe, expect, it } from "vitest";
 
 type Run = (payload: object) => Promise<Record<string, unknown>>;

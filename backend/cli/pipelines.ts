@@ -27,7 +27,8 @@ commands
       throw new NotFoundError("User not found");
     }
 
-    await importPipeline(toInstance(user, User), url);
+    // whoever runs the CLI operates this Piper, so it may re-sign Nodes
+    await importPipeline(toInstance(user, User), url, { canResign: true });
     logger.info("✅ Done");
     process.exit();
   });

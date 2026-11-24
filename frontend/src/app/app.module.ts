@@ -163,6 +163,7 @@ import { ProjectAssetsComponent } from "./project-assets/project-assets.componen
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectPlaygroundComponent } from "./project-playground/project-playground.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
+import { ImportV1ProjectComponent } from "./projects/import-v1/import-v1-project.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { SelectPlaygroundComponent } from "./select-playground/select-playground.component";
 import { LoginComponent } from "./signin/login.component";
@@ -263,6 +264,7 @@ import { UsersComponent } from "./users/users.component";
     NodePackagesComponent,
     ImportPackageComponent,
     ImportProjectComponent,
+    ImportV1ProjectComponent,
     PackagesForUpdateCountPipe,
     PackagesUpdateErrorsCountPipe,
     EditPipelineDesignComponent,

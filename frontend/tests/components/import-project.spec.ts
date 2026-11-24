@@ -16,8 +16,8 @@ import {
 
 /**
  * Wire contract (backend/api/pipelines/import-pipeline.ts):
- * POST /api/pipelines/import `{ yaml }` → the new Project; a Pipeline that
- * can't be imported is a DataError whose `details` list every problem.
+ * POST /api/pipelines/import `{ yaml }` (admin only) → the new Project;
+ * refusals are DataErrors whose `details` list what is wrong.
  */
 const IMPORT_URL = "/api/pipelines/import";
 
@@ -56,6 +56,15 @@ function setup() {
 }
 
 describe("ImportProjectComponent", () => {
+  it("says it imports Pipelines in the current format", fakeAsync(() => {
+    const page = setup();
+
+    expect(page.element.querySelector("h1").textContent).toContain(
+      "Import a Pipeline (YAML or URL)",
+    );
+    finish();
+  }));
+
   it("lists every problem that kept the Pipeline out and keeps the pasted YAML", fakeAsync(() => {
     expectConsoleError("Process HTTP error 400");
     const page = setup();

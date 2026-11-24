@@ -89,12 +89,25 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   creation data reports `Project schema invalid`; invalid settings currently
   report `Pipeline schema invalid`. Malformed JSON is rejected by Express's
   body parser with 400 before the route writes data.
-- `POST /api/pipelines/import` takes `{ yaml }`: a Pipeline as YAML (or a URL
-  to one), optionally followed by a line `------` and the Launch request as
-  JSON. The separator line may carry trailing spaces and Windows line endings,
-  and an empty Launch request after it imports as empty. It creates a private
-  Project owned by the caller, titled with the Pipeline's `name`. Each Node is
-  brought to what this Piper runs:
+- Two admin-only routes import a Pipeline as a new private Project owned by
+  the caller, titled with the Pipeline's `name`. Both take `{ yaml }`: a
+  Pipeline as YAML (or a URL to one), optionally followed by a line `------`
+  and the Launch request as JSON. The separator line may carry trailing spaces
+  and Windows line endings, and an empty Launch request after it imports as
+  empty. Unparseable YAML ("Pipeline YAML is invalid"), Launch request JSON
+  ("Launch request JSON is invalid"), a URL that can't be loaded ("Pipeline
+  can't be loaded from the URL"; the reason is never told) and a document
+  failing its schema ("Pipeline schema invalid", "Launch request schema
+  invalid") are DataErrors. Text fetched from a URL is never quoted back. Every
+  refusal answers 400 `{ message, details }`, `details` being a list of
+  strings; a non-admin gets "You aren't admin".
+- `POST /api/pipelines/import` takes a Pipeline in the current format. Its
+  Nodes pass the rule an edited Pipeline passes: a Script Node loses its sign
+  and Environment and may not point at `registry:` or URL code ("Script Node
+  <id> must hold its own code"); any other Node gets the sign this Piper issues
+  for its script, since every admin may re-sign.
+- `POST /api/pipelines/import/v1` takes a Pipeline copied from Piper v1 and
+  brings each Node to what this Piper runs:
   - A Node from a Node Package (`package` set) is replaced by the installed
     Node Definition with the same `package` and `_id`, else its Node key, else
     the v1 id it was renamed from (`ask_llm_artworks` → `ask_llm_agent`). The
@@ -102,22 +115,18 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
     the Definition's script, sign, ports and Environment and keeps `arrange`.
   - A Node its user wrote (no `package`, no matching Definition) or one
     already marked `source: "script"` becomes a Script Node: no sign, no
-    Environment. A Piper v1 script keeps its code
-    behind a prelude defining v1's `DEFINITIONS`, `httpClient`, `download`,
-    `Buffer` and `nested`; `nested.run` asks for a Child Launch of the Deploy
-    whose slug it names, and `nested.state` reads it from `children`.
+    Environment. A Piper v1 script keeps its code behind a prelude defining
+    v1's `DEFINITIONS`, `httpClient`, `download`, `Buffer` and `nested`;
+    `nested.run` asks for a Child Launch of the Deploy whose slug it names,
+    and `nested.state` reads it from `children` once the child finished.
   - Every input a Flow reaches is marked `featured`, since the editor drops
     Flows into other inputs.
 
   Nothing is saved when any Node can't be brought over (no matching
-  Definition, a Definition missing a used port, or a script that calls
-  `require`, `message()` or reads the Environment): the import answers a
-  DataError "Pipeline can't be imported" whose `details` list every problem.
-  Unparseable YAML ("Pipeline YAML is invalid"), Launch request JSON ("Launch
-  request JSON is invalid"), a URL that can't be loaded ("Pipeline can't be
-  loaded from the URL") and a document failing its schema ("Pipeline schema
-  invalid", "Launch request schema invalid") are DataErrors too. Every one
-  answers 400 `{ message, details }`, `details` being a list of strings.
+  Definition, a Definition missing a used port, published code in a Script
+  Node, or a script that calls `require`, `message()` or reads the
+  Environment): the import answers a DataError "Pipeline can't be imported"
+  whose `details` list every problem.
 - Settings updates persist visibility, slug, order, update time, and updater;
   client-supplied ownership/title fields do not replace the existing metadata.
 - Reading projects serializes nested maps and dates and omits unexposed fields.

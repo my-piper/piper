@@ -7,12 +7,11 @@ import {
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { delay, finalize, map } from "rxjs";
+import { delay, finalize } from "rxjs";
 import { AppError } from "src/models/errors";
 import { Project } from "src/models/project";
-import { HttpService } from "src/services/http.service";
+import { PipelineImportService } from "src/services/pipeline-import.service";
 import { UI_DELAY } from "src/consts/ui";
-import { toInstance } from "src/utils/models";
 
 @Component({
   selector: "app-import-project",
@@ -31,7 +30,7 @@ export class ImportProjectComponent {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpService,
+    private pipelines: PipelineImportService,
     private router: Router,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
@@ -47,15 +46,14 @@ export class ImportProjectComponent {
     this.cd.detectChanges();
 
     const { yaml } = this.form.getRawValue();
-    this.http
-      .post("pipelines/import", { yaml })
+    this.pipelines
+      .import(yaml)
       .pipe(
         delay(UI_DELAY),
         finalize(() => {
           this.progress.importing = false;
           this.cd.detectChanges();
         }),
-        map((json) => toInstance(json as object, Project)),
       )
       .subscribe({
         next: (project) => {

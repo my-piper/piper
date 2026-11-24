@@ -76,6 +76,7 @@ import { ProjectAssetsComponent } from "./project-assets/project-assets.componen
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectStatsComponent } from "./project-stats/project-stats.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
+import { ImportV1ProjectComponent } from "./projects/import-v1/import-v1-project.component";
 import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
@@ -495,6 +496,10 @@ const routes: Routes = [
           {
             path: "import",
             component: ImportProjectComponent,
+          },
+          {
+            path: "import-v1",
+            component: ImportV1ProjectComponent,
           },
         ],
       },

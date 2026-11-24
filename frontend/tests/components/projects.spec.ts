@@ -13,6 +13,7 @@ import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { AppComponent } from "src/app/app.component";
 import { ImportProjectComponent } from "src/app/projects/import/import-project.component";
+import { ImportV1ProjectComponent } from "src/app/projects/import-v1/import-v1-project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
 import {
   PROJECT_A_ID,
@@ -74,7 +75,10 @@ describe("ProjectsComponent tags and groups", () => {
       {
         path: "projects",
         component: ProjectsComponent,
-        children: [{ path: "import", component: importPage }],
+        children: [
+          { path: "import", component: importPage },
+          { path: "import-v1", component: importPage },
+        ],
       },
     ]);
     controller = TestBed.inject(HttpTestingController);
@@ -469,6 +473,53 @@ describe("ProjectsComponent tags and groups", () => {
       .querySelector<HTMLButtonElement>("footer button[tuiButton]")
       .click();
     const request = controller.expectOne("/api/pipelines/import");
+    request.flush(projectBPlain());
+    await expect
+      .poll(() => {
+        fixture.detectChanges();
+        return router.url;
+      })
+      .toBe("/projects");
+
+    expect(request.request.body).toEqual({ yaml: "name: Imported" });
+    expect(titles()).toEqual(["Project B", "Project A"]);
+    await expect
+      .poll(() => {
+        fixture.detectChanges();
+        return modal();
+      })
+      .toBeNull();
+    // the short list leaves the scroll sentinel in view, so it asks for a next page
+    controller
+      .match((r) => r.url === "/api/projects")
+      .forEach((r) => r.flush([]));
+  });
+
+  it("adds a project imported from Piper v1 on top of the list", async () => {
+    const modal = () => document.querySelector("tui-dialog");
+    const titles = () =>
+      Array.from(element.querySelectorAll("tbody td.title a")).map((a) =>
+        a.textContent.trim(),
+      );
+    fakeAsync(() => {
+      mount([], [], "/projects/import-v1", ImportV1ProjectComponent);
+      answer(expectList(), [projectAPlain()]);
+      finish();
+    })();
+    const router = TestBed.inject(Router);
+    await expect
+      .poll(() => {
+        fixture.detectChanges();
+        return modal()?.querySelector("textarea");
+      })
+      .toBeTruthy();
+
+    typeInto(modal().querySelector("textarea"), "name: Imported");
+    fixture.detectChanges();
+    modal()
+      .querySelector<HTMLButtonElement>("footer button[tuiButton]")
+      .click();
+    const request = controller.expectOne("/api/pipelines/import/v1");
     request.flush(projectBPlain());
     await expect
       .poll(() => {
