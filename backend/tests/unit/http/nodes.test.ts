@@ -70,6 +70,29 @@ describe("Script Node in the catalog", () => {
     ]);
   });
 
+  it("lists each node with the title of its Node Package", async () => {
+    httpDoubles.nodesCursor.toArray.mockResolvedValue([
+      { _id: "echo_node", title: "Echo", package: "artworks" },
+      { _id: "lone_node", title: "Lone", package: "removed_package" },
+    ]);
+    httpDoubles.nodePackages.find.mockReturnValue({
+      toArray: async () => [{ _id: "artworks", title: "ArtWorks" }],
+    });
+
+    const response = await context.request.get("/api/nodes?search=zz");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        _id: "echo_node",
+        title: "Echo",
+        package: "artworks",
+        packageTitle: "ArtWorks",
+      },
+      { _id: "lone_node", title: "Lone", package: "removed_package" },
+    ]);
+  });
+
   it("is left out of a search its title doesn't match", async () => {
     httpDoubles.nodesCursor.toArray.mockResolvedValue([]);
 

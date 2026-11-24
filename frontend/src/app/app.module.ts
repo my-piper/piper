@@ -10,6 +10,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import {
   provideTaiga,
+  TuiAppearance,
   TuiButton,
   TuiDataList,
   TuiDialog,
@@ -21,8 +22,14 @@ import {
   TuiRoot,
 } from "@taiga-ui/core";
 import { TuiTable } from "@taiga-ui/addon-table";
-import { TuiBadge, TuiButtonLoading, TuiTabs } from "@taiga-ui/kit";
-import { TuiNavigation } from "@taiga-ui/layout";
+import {
+  TuiAccordion,
+  TuiBadge,
+  TuiButtonLoading,
+  TuiSkeleton,
+  TuiTabs,
+} from "@taiga-ui/kit";
+import { TuiCardLarge, TuiNavigation } from "@taiga-ui/layout";
 import { NgHcaptchaModule } from "ng-hcaptcha";
 import { MonacoEditorModule } from "ngx-monaco-editor-v2";
 import { SocketIoModule } from "ngx-socket-io";
@@ -64,7 +71,6 @@ import { DurationPipe } from "src/pipes/duration";
 import { RunDurationPipe } from "src/pipes/run-duration";
 import { FirstPipe } from "src/pipes/first";
 import { GroupListPipe } from "src/pipes/group-list";
-import { GroupNodesPipe } from "src/pipes/group-nodes";
 import { ImageProxyPipe } from "src/pipes/image-proxy";
 import { PipelineInputPipe } from "src/pipes/input";
 import { IsPipe } from "src/pipes/is";
@@ -257,7 +263,6 @@ import { UsersComponent } from "./users/users.component";
     EditPipelineEnvironmentComponent,
     NodeLogsComponent,
     SubmitButtonDirective,
-    GroupNodesPipe,
     EditPackageComponent,
     ExportPackageComponent,
     YamlPipe,
@@ -331,6 +336,10 @@ import { UsersComponent } from "./users/users.component";
     TuiButtonLoading,
     ...TuiNavigation,
     ...TuiTabs,
+    ...TuiAccordion,
+    TuiSkeleton,
+    TuiCardLarge,
+    TuiAppearance,
   ],
   providers: [
     provideTaiga(),

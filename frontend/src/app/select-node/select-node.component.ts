@@ -16,6 +16,7 @@ import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
+import { groupNodes, NodeGroup } from "src/utils/node-groups";
 
 @Component({
   selector: "app-select-node",
@@ -35,7 +36,14 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
   };
   error: DisplayError;
 
-  nodes: Node[] = [];
+  groups: NodeGroup[] = [];
+  /** Chip appearance of the catalog tags that mark a node's price. */
+  tagAppearances: Record<string, string> = {
+    free: "positive",
+    cheap: "warning",
+  };
+  /** Ids of the groups the user has open; every group opens while searching. */
+  openGroups = new Set<string>();
   actionsOpen: string | null = null;
 
   searchControl = this.fb.control<string>(null);
@@ -45,8 +53,6 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
 
   @ViewChild("searchInput")
   searchInput!: ElementRef<HTMLInputElement>;
-
-  state: { currentGroup?: string } = {};
 
   constructor(
     private fb: FormBuilder,
@@ -94,7 +100,11 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
       )
       .subscribe({
         next: (nodes) => {
-          this.nodes = nodes;
+          this.groups = groupNodes(nodes);
+          this.openGroups =
+            search || this.groups.length === 1
+              ? new Set(this.groups.map(({ id }) => id))
+              : new Set();
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
@@ -117,19 +127,26 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
       )
       .subscribe({
         next: () => {
-          const index = this.nodes.indexOf(node);
-          if (index !== -1) {
-            this.nodes.splice(index, 1);
-            this.nodes = [...this.nodes];
-            this.cd.detectChanges();
-          }
+          this.groups = this.groups
+            .map((group) => ({
+              ...group,
+              nodes: group.nodes.filter((n) => n !== node),
+            }))
+            .filter(({ nodes }) => nodes.length > 0);
+          this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
       });
   }
 
-  toggle(group: string) {
-    this.state.currentGroup = this.state.currentGroup === group ? null : group;
+  setOpen(group: string, open: boolean) {
+    const groups = new Set(this.openGroups);
+    if (open) {
+      groups.add(group);
+    } else {
+      groups.delete(group);
+    }
+    this.openGroups = groups;
     this.cd.detectChanges();
   }
 }

@@ -1,30 +1,26 @@
-@use "src/ui-kit/styles/variables";
-@use "src/ui-kit/styles/mixins";
-@use "src/ui-kit/styles/reset";
-@use "src/ui-kit/styles/defs/buttons";
-
 :host {
   display: flex;
   flex-direction: column;
-  gap: variables.$gutter-huge;
+  gap: 1rem;
+  color: var(--tui-text-primary);
 }
 
-p {
+.heading {
   margin: 0;
-  font-size: variables.$font-size-small;
+  font: var(--tui-typography-heading-6);
 }
 
-.search {
-  width: 100%;
+.error ul {
+  margin: 0;
+  padding-inline-start: 1rem;
 }
 
-.category {
-  @extend %button-primary;
-  justify-content: flex-start;
-  gap: variables.$gutter-small;
+[tuiAccordion] {
+  gap: 0.5rem;
 
   .title {
-    max-width: 150px;
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -34,67 +30,53 @@ p {
 .nodes {
   display: flex;
   flex-direction: column;
-  padding: variables.$gutter-normal 0;
+  gap: 0.5rem;
+}
+
+.node {
+  gap: 0.5rem;
+  user-select: none;
+  cursor: grab;
 
   header {
-
-    img {
-      display: block;
-      width: 22px;
-      max-width: 22px;
-      aspect-ratio: 1/1;
-      position: absolute;
-      top: variables.$gutter-small;
-      right: variables.$gutter-small;
-    }
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  article {
-    display: flex;
-    user-select: none;
-    cursor: grab;
+  h3 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font: var(--tui-typography-body-s);
+    font-weight: normal;
+  }
 
-    h3 {
-      flex: 1;
-      text-align: center;
-      font-size: variables.$font-size-base;
-      font-weight: normal;
-    }
+  .thumbnail {
+    display: block;
+    width: 1.375rem;
+    aspect-ratio: 1 / 1;
   }
 
   footer {
-    position: relative;
-
-    .version {
-      position: absolute;
-      bottom: -(variables.$gutter-small);
-      right: -(variables.$gutter-small);
-      padding: variables.$gutter-tiny variables.$gutter-small;
-      line-height: 1;
-      font-size: variables.$font-size-tiny;
-      background: variables.$control-background-color;
-    }
-
-    .tags {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: variables.$gutter-small;
-
-      li {
-        font-size: 0.85em;
-        color: variables.$primary-text-color;
-        &.free {
-          color: variables.$success-color;
-          font-weight: bold;
-        }
-        &.cheap {
-          color: variables.$accent-color;
-          font-weight: bold;
-        }
-      }
-    }
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
   }
+
+  .version {
+    margin-inline-start: auto;
+  }
+}
+
+.skeleton {
+  height: 4rem;
+  border-radius: var(--tui-radius-l);
+}
+
+.empty {
+  margin: 0;
+  font: var(--tui-typography-body-s);
+  color: var(--tui-text-secondary);
 }

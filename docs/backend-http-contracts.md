@@ -52,6 +52,9 @@ permission rules; permission/status changes need an explicit contract decision.
 | `GET /api/projects/:_id/check-node-updates`      | Logged-in user with project access         | 200               |
 
 `GET /api/nodes/:_id` strips `catalog` and returns 404 for a missing node.
+`GET /api/nodes` lists each node with its `package` and, when that Node
+Package is stored with a title, its `packageTitle`; the catalog sidebar groups
+nodes by it.
 Both node reads also serve the builtin Script Node (`_id: "script"`,
 `source: "script"`) from code: `GET /api/nodes` lists it first whenever the
 `search` matches its title, and `GET /api/nodes/script` returns it with no

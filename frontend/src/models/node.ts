@@ -291,6 +291,11 @@ export class Node {
   @Type(() => String)
   package: string;
 
+  /** The title of the Node Package, sent only in the node catalog list. */
+  @Expose()
+  @Type(() => String)
+  packageTitle?: string;
+
   @Expose()
   @Type(() => String)
   title!: string;

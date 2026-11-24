@@ -1,137 +1,142 @@
-<ng-template #errorTemplate>
-  <div class="informer errors">
-    <p>{{ error.message }}</p>
-    <ul>
-      @for (m of error?.details; track $index) {
-        <li>{{ m }}</li>
-      }
-    </ul>
-    <div class="stack justify-center">
-      <button class="primary" (click)="error = null">Ok</button>
-    </div>
+@if (error) {
+  <div tuiNotification appearance="negative" role="alert" class="error">
+    <span>{{ error.message }}</span>
+    @if (error.details?.length) {
+      <ul>
+        @for (m of error.details; track $index) {
+          <li>{{ m }}</li>
+        }
+      </ul>
+    }
+    <button
+      tuiButton
+      appearance="flat"
+      size="s"
+      type="button"
+      (click)="error = null"
+      i18n="@@action.ok"
+    >
+      Ok
+    </button>
   </div>
-</ng-template>
-
-@if (!!error) {
-  <app-informer
-    [contentTemplate]="errorTemplate"
-    (ok)="error = null"
-  ></app-informer>
 }
 
-<p>
-  <ng-container i18n="@@message.select_node">Select node</ng-container>
-</p>
+<h2 class="heading" i18n="@@message.select_node">Select node</h2>
 
 <form [formGroup]="form">
-  <fieldset>
+  <tui-textfield iconStart="@tui.search" tuiTextfieldSize="m">
     <input
       #searchInput
-      class="search input-primary"
+      tuiInput
       formControlName="search"
+      type="search"
       placeholder="Search"
       i18n-placeholder="@@label.search"
     />
-  </fieldset>
+  </tui-textfield>
 </form>
 
-@if (nodes.length > 0) {
-  @for (c of nodes | groupNodes; track c.category?._id) {
-    <button
-      class="category"
-      (click)="toggle($safeNavigationMigration(c.category?._id))"
-    >
-      @if (c.category?.icon; as icon) {
-        <app-icon class="icon" [icon]="icon" [size]="18"></app-icon>
-      }
-      <div class="stack horizontal justify-between flex">
-        <div class="title">
-          {{ $safeNavigationMigration(c.category?.title) | i18n }}
-        </div>
-        <div class="stack">
-          <div class="badge ghost">{{ c.nodes.length }}</div>
-          <app-icon
-            class="icon"
-            [icon]="
-              state.currentGroup === c.category?._id
-                ? 'chevron-up'
-                : 'chevron-down'
-            "
-            [size]="18"
-          ></app-icon>
-        </div>
-      </div>
-    </button>
-    @if (state.currentGroup === c.category?._id) {
-      <div class="cards nodes">
-        @for (node of c.nodes; track node._id) {
-          <div class="card" [dragClone]="{ payload: { node: node._id } }">
-            <header>
-              @if (
-                node._id !== scriptNodeId && (userRole.admin | can | async)
-              ) {
-                <ng-template #actionsTemplate>
-                  <tui-data-list>
-                    <button
-                      tuiOption
-                      type="button"
-                      [disabled]="progress.removing"
-                      (click)="remove(node)"
-                    >
-                      <tui-icon icon="@tui.trash-2" />
-                      <ng-container i18n="@@action.delete">Delete</ng-container>
-                    </button>
-                  </tui-data-list>
-                </ng-template>
-                <button
-                  tuiIconButton
-                  class="actions"
-                  appearance="secondary"
-                  size="s"
-                  type="button"
-                  iconStart="@tui.ellipsis-vertical"
-                  aria-label="Actions"
-                  i18n-aria-label="@@label.actions"
-                  [tuiDropdown]="actionsTemplate"
-                  [tuiDropdownOpen]="actionsOpen === node._id"
-                  (tuiDropdownOpenChange)="
-                    actionsOpen = $event ? node._id : null
-                  "
-                ></button>
-              }
-              @if (node.thumbnail; as thumbnail) {
-                <img class="thumbnail" [src]="thumbnail" />
-              }
-            </header>
-            <article>
-              <h3>{{ node.title | i18n }}</h3>
-            </article>
-            <footer>
-              @if (node.tags; as tags) {
-                <ul class="tags">
-                  @for (t of tags; track t) {
-                    <li
-                      [class.cheap]="(t | i18n: languages.en) === 'cheap'"
-                      [class.free]="(t | i18n: languages.en) === 'free'"
-                    >
-                      #{{ t | i18n }}
-                    </li>
+@if (groups.length > 0) {
+  <tui-accordion size="s" [closeOthers]="false">
+    @for (group of groups; track group.id) {
+      <button
+        type="button"
+        [tuiAccordion]="openGroups.has(group.id)"
+        (tuiAccordionChange)="setOpen(group.id, !!$event)"
+      >
+        <span class="title">{{ group.title | i18n }}</span>
+        <span tuiBadge appearance="neutral" size="m" class="count">{{
+          group.nodes.length
+        }}</span>
+      </button>
+      <tui-expand>
+        <ng-template tuiItem>
+          <div class="nodes">
+            @for (node of group.nodes; track node._id) {
+              <div
+                tuiCardLarge="compact"
+                tuiAppearance="outline-grayscale"
+                class="node"
+                [dragClone]="{ payload: { node: node._id } }"
+              >
+                <header>
+                  @if (node.thumbnail; as thumbnail) {
+                    <img class="thumbnail" [src]="thumbnail" alt="" />
                   }
-                </ul>
-              }
-              @if (userRole.admin | can | async) {
-                <div class="version">ver. {{ node.version }}</div>
-              }
-            </footer>
+                  <h3>{{ node.title | i18n }}</h3>
+                  @if (
+                    node._id !== scriptNodeId && (userRole.admin | can | async)
+                  ) {
+                    <ng-template #actionsTemplate>
+                      <tui-data-list>
+                        <button
+                          tuiOption
+                          type="button"
+                          [disabled]="progress.removing"
+                          (click)="remove(node)"
+                        >
+                          <tui-icon icon="@tui.trash-2" />
+                          <ng-container i18n="@@action.delete"
+                            >Delete</ng-container
+                          >
+                        </button>
+                      </tui-data-list>
+                    </ng-template>
+                    <button
+                      tuiIconButton
+                      class="actions"
+                      appearance="flat-grayscale"
+                      size="xs"
+                      type="button"
+                      iconStart="@tui.ellipsis-vertical"
+                      aria-label="Actions"
+                      i18n-aria-label="@@label.actions"
+                      [tuiDropdown]="actionsTemplate"
+                      [tuiDropdownOpen]="actionsOpen === node._id"
+                      (tuiDropdownOpenChange)="
+                        actionsOpen = $event ? node._id : null
+                      "
+                    ></button>
+                  }
+                </header>
+                @if (node.tags?.length || (userRole.admin | can | async)) {
+                  <footer>
+                    @for (t of node.tags; track t) {
+                      <span
+                        tuiChip
+                        size="xxs"
+                        [appearance]="
+                          tagAppearances[t | i18n: languages.en] ?? 'neutral'
+                        "
+                        >#{{ t | i18n }}</span
+                      >
+                    }
+                    @if (userRole.admin | can | async) {
+                      <span
+                        tuiBadge
+                        appearance="neutral"
+                        size="s"
+                        class="version"
+                        >ver. {{ node.version }}</span
+                      >
+                    }
+                  </footer>
+                }
+              </div>
+            }
           </div>
-        }
-      </div>
+        </ng-template>
+      </tui-expand>
     }
-  }
+  </tui-accordion>
 } @else {
   @if (progress.loading) {
-    <app-skeleton type="cards" [cols]="1"></app-skeleton>
+    <div class="nodes">
+      @for (_ of [1, 2, 3]; track $index) {
+        <div class="skeleton" [tuiSkeleton]="true"></div>
+      }
+    </div>
   } @else {
-    <p i18n="@@message.nothing_found">Nothing found.</p>
+    <p class="empty" i18n="@@message.nothing_found">Nothing found.</p>
   }
 }
