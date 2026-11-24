@@ -64,40 +64,6 @@
                     <img class="thumbnail" [src]="thumbnail" alt="" />
                   }
                   <h3>{{ node.title | i18n }}</h3>
-                  @if (
-                    node._id !== scriptNodeId && (userRole.admin | can | async)
-                  ) {
-                    <ng-template #actionsTemplate>
-                      <tui-data-list>
-                        <button
-                          tuiOption
-                          type="button"
-                          [disabled]="progress.removing"
-                          (click)="remove(node)"
-                        >
-                          <tui-icon icon="@tui.trash-2" />
-                          <ng-container i18n="@@action.delete"
-                            >Delete</ng-container
-                          >
-                        </button>
-                      </tui-data-list>
-                    </ng-template>
-                    <button
-                      tuiIconButton
-                      class="actions"
-                      appearance="flat-grayscale"
-                      size="xs"
-                      type="button"
-                      iconStart="@tui.ellipsis-vertical"
-                      aria-label="Actions"
-                      i18n-aria-label="@@label.actions"
-                      [tuiDropdown]="actionsTemplate"
-                      [tuiDropdownOpen]="actionsOpen === node._id"
-                      (tuiDropdownOpenChange)="
-                        actionsOpen = $event ? node._id : null
-                      "
-                    ></button>
-                  }
                 </header>
                 @if (node.tags?.length || (userRole.admin | can | async)) {
                   <footer>

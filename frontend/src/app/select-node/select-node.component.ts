@@ -10,7 +10,7 @@ import {
 import { FormBuilder } from "@angular/forms";
 import { debounceTime, delay, finalize, map } from "rxjs";
 import { DisplayError } from "src/models/errors";
-import { Node, NodesFilter, SCRIPT_NODE_ID } from "src/models/node";
+import { Node, NodesFilter } from "src/models/node";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
@@ -27,13 +27,9 @@ import { groupNodes, NodeGroup } from "src/utils/node-groups";
 })
 export class SelectNodeComponent implements OnInit, AfterViewInit {
   userRole = UserRole;
-  scriptNodeId = SCRIPT_NODE_ID;
   languages = Languages;
 
-  progress: { loading: boolean; removing: boolean } = {
-    removing: false,
-    loading: false,
-  };
+  progress: { loading: boolean } = { loading: false };
   error: DisplayError;
 
   groups: NodeGroup[] = [];
@@ -44,7 +40,6 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
   };
   /** Ids of the groups the user has open; every group opens while searching. */
   openGroups = new Set<string>();
-  actionsOpen: string | null = null;
 
   searchControl = this.fb.control<string>(null);
   form = this.fb.group({
@@ -105,34 +100,6 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
             search || this.groups.length === 1
               ? new Set(this.groups.map(({ id }) => id))
               : new Set();
-          this.cd.detectChanges();
-        },
-        error: (err) => (this.error = err),
-      });
-  }
-
-  remove(node: Node) {
-    const { _id } = node;
-    this.progress.removing = true;
-    this.cd.detectChanges();
-
-    this.http
-      .delete(`nodes/${_id}`)
-      .pipe(
-        finalize(() => {
-          this.progress.removing = false;
-          this.actionsOpen = null;
-          this.cd.detectChanges();
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.groups = this.groups
-            .map((group) => ({
-              ...group,
-              nodes: group.nodes.filter((n) => n !== node),
-            }))
-            .filter(({ nodes }) => nodes.length > 0);
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
