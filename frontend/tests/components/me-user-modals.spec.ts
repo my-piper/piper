@@ -9,7 +9,6 @@ import { TuiButton, TuiDataList, TuiDropdown, TuiIcon } from "@taiga-ui/core";
 import { provideRouter } from "@angular/router";
 import { ChangePasswordComponent } from "src/app/change-password/change-password.component";
 import { MeUserComponent } from "src/app/me-user/me-user.component";
-import { NsfwDisclaimer } from "src/app/nsfw-disclaimer/nsfw-disclaimer.component";
 import { Languages } from "src/enums/languages";
 import { I18nPipe } from "src/pipes/i18n.pipe";
 import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
@@ -35,7 +34,6 @@ async function render() {
       MeUserComponent,
       ModalComponent,
       ChangePasswordComponent,
-      NsfwDisclaimer,
       IconComponent,
       InformerComponent,
       I18nPipe,
@@ -86,41 +84,5 @@ describe("MeUserComponent modals", () => {
 
     expect(title).toBe("Change password");
     expect(modal.opened).toBe(false);
-  });
-
-  it("allows NSFW once the disclaimer is agreed", async () => {
-    const { fixture, meUser, modal } = await render();
-
-    meUser.nsfwControl.setValue(true);
-    fixture.detectChanges();
-    const title = modalTitle(fixture.nativeElement);
-    (
-      fixture.nativeElement.querySelector(
-        "app-nsfw-disclaimer button.primary",
-      ) as HTMLButtonElement
-    ).click();
-    fixture.detectChanges();
-
-    expect(title).toBe("NSFW disclaimer");
-    expect(localStorage.getItem("nsfw")).toBe("allow");
-    expect(modal.opened).toBe(false);
-    expect(meUser.nsfwControl.value).toBe(true);
-  });
-
-  it("switches NSFW back off when the user dismisses the disclaimer", async () => {
-    const { fixture, meUser, modal } = await render();
-
-    meUser.nsfwControl.setValue(true);
-    fixture.detectChanges();
-    (
-      fixture.nativeElement.querySelector(
-        "app-modal header button.close",
-      ) as HTMLButtonElement
-    ).click();
-    fixture.detectChanges();
-
-    expect(modal.opened).toBe(false);
-    expect(meUser.nsfwControl.value).toBe(false);
-    expect(localStorage.getItem("nsfw")).toBeNull();
   });
 });

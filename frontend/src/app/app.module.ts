@@ -85,7 +85,6 @@ import {
   OutputIndexPipe,
 } from "src/pipes/node";
 import { NotPipe } from "src/pipes/not";
-import { NsfwPipe } from "src/pipes/nsfw";
 import { ObjectPathsPipe } from "src/pipes/object-paths";
 import { OrderByPipe } from "src/pipes/order-by";
 import { PipelineOutputPipe } from "src/pipes/output";
@@ -156,7 +155,6 @@ import {
   PackagesForUpdateCountPipe,
   PackagesUpdateErrorsCountPipe,
 } from "./node-packages/pipes";
-import { NsfwDisclaimer } from "./nsfw-disclaimer/nsfw-disclaimer.component";
 import { PipelineMessagesComponent } from "./pipeline-messages/pipeline-messages.component";
 import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.component";
 import { PipelineToolsComponent } from "./pipeline-tools/pipeline-tools.component";
@@ -247,8 +245,6 @@ import { UsersComponent } from "./users/users.component";
     OrderByPipe,
     LaunchesPageComponent,
     ImageSizeDirective,
-    NsfwPipe,
-    NsfwDisclaimer,
     UsersComponent,
     EditUserComponent,
     BatchesComponent,

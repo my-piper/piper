@@ -12,14 +12,12 @@ import {
 import { By } from "@angular/platform-browser";
 import { provideRouter } from "@angular/router";
 import { debounceTime, Subject } from "rxjs";
-import { NsfwDisclaimer } from "src/app/nsfw-disclaimer/nsfw-disclaimer.component";
 import { AppConfig } from "src/models/app-config";
 import { Node } from "src/models/node";
 import { Project } from "src/models/project";
 import compiled from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
-import { Languages } from "src/enums/languages";
-import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { toInstance, toPlain } from "src/utils/models";
 import { provideTestConfig, TEST_BASE_URL } from "../helpers/config";
 import { expectConsoleError, takeConsoleProblems } from "../helpers/console";
@@ -91,29 +89,29 @@ describe("test harness", () => {
   });
 
   describe("component with an external template", () => {
-    let fixture: ComponentFixture<NsfwDisclaimer>;
+    let fixture: ComponentFixture<InformerComponent>;
 
     beforeEach(async () => {
       await TestBed.configureTestingModule({
-        declarations: [NsfwDisclaimer],
-        providers: [{ provide: CURRENT_LANGUAGE, useValue: Languages.en }],
+        declarations: [InformerComponent],
       }).compileComponents();
-      fixture = TestBed.createComponent(NsfwDisclaimer);
+      fixture = TestBed.createComponent(InformerComponent);
+      fixture.componentRef.setInput("message", "Saved");
       fixture.detectChanges();
     });
 
     it("renders the real template and emits through its output", () => {
-      const agreed = vi.fn().mockName("agree");
-      fixture.componentInstance.agree.subscribe(agreed);
+      const ok = vi.fn().mockName("ok");
+      fixture.componentInstance.ok.subscribe(ok);
 
       fixture.debugElement
-        .query(By.css("button.primary"))
+        .query(By.css("button.primary-button"))
         .triggerEventHandler("click");
 
-      expect(fixture.nativeElement.querySelector("h2").textContent).toContain(
-        "NSFW Content Disclaimer",
+      expect(fixture.nativeElement.querySelector("p").textContent).toBe(
+        "Saved",
       );
-      expect(agreed).toHaveBeenCalledTimes(1);
+      expect(ok).toHaveBeenCalledTimes(1);
     });
   });
 

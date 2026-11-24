@@ -7,15 +7,6 @@
       </div>
     }
 
-    <div [formGroup]="form" class="stack small align-center">
-      <div class="checkbox small">
-        <label class="switch">
-          <input type="checkbox" formControlName="nsfw" />
-          <span class="slider"></span>
-        </label>
-      </div>
-      <small>NSFW</small>
-    </div>
     <tui-data-list>
       <button tuiOption type="button" (click)="changePassword()">
         <tui-icon icon="@tui.key-round" />
