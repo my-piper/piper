@@ -44,7 +44,6 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   node!: Node;
 
   subscriptions: { changes?: Subscription } = {};
-  toolsOpen = false;
 
   startControl = this.fb.control<boolean>(false);
   inputsGroup = this.fb.group({});
@@ -258,7 +257,6 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   }
 
   edit() {
-    this.toolsOpen = false;
     this.router.navigate(
       [{ outlets: { primary: ["nodes", this.id, "edit", "script"] } }],
       { relativeTo: this.route.parent },
@@ -288,8 +286,6 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   }
 
   reorder() {
-    this.toolsOpen = false;
-
     let i = 1;
     for (const { group } of this.node.render.inputs) {
       group.order = i++;

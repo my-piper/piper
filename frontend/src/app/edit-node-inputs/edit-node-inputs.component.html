@@ -199,45 +199,38 @@
   <ng-container i18n="@@action.remove_input">Remove input</ng-container>
 </ng-template>
 
-<footer class="footer">
+<footer class="footer" [hotKey]="'meta+e'" (hotKeyPressed)="edit()">
+  @if (node.source === scriptNodeSource || (userRole.engineer | can | async)) {
+    <button
+      tuiButton
+      appearance="primary"
+      size="s"
+      type="button"
+      iconStart="@tui.pencil"
+      (click)="edit()"
+    >
+      <ng-container i18n="@@action.edit_with_shortcut">(E)dit</ng-container>
+    </button>
+  }
   <button
-    submitButton
     tuiButton
     appearance="secondary"
     size="s"
     type="button"
+    iconStart="@tui.list-ordered"
+    (click)="reorder()"
+  >
+    <ng-container i18n="@@action.organize">Organize</ng-container>
+  </button>
+  <button
+    submitButton
+    tuiButton
+    appearance="flat"
+    size="s"
+    type="button"
+    class="reset"
     (click)="reset()"
   >
     <ng-container i18n="@@action.reset">Reset</ng-container>
   </button>
-
-  <ng-template #toolsMenu>
-    <tui-data-list>
-      @if (
-        node.source === scriptNodeSource || (userRole.engineer | can | async)
-      ) {
-        <button tuiOption type="button" (click)="edit()">
-          <tui-icon icon="@tui.pencil" />
-          <ng-container i18n="@@action.edit_with_shortcut">(E)dit</ng-container>
-        </button>
-      }
-      <button tuiOption type="button" (click)="reorder()">
-        <tui-icon icon="@tui.list-ordered" />
-        <ng-container i18n="@@action.organize">Organize</ng-container>
-      </button>
-    </tui-data-list>
-  </ng-template>
-  <button
-    tuiIconButton
-    appearance="primary"
-    size="s"
-    type="button"
-    iconStart="@tui.ellipsis-vertical"
-    aria-label="Actions"
-    i18n-aria-label="@@label.actions"
-    [tuiDropdown]="toolsMenu"
-    [(tuiDropdownOpen)]="toolsOpen"
-    [hotKey]="'meta+e'"
-    (hotKeyPressed)="edit()"
-  ></button>
 </footer>
