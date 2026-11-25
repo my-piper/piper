@@ -39,15 +39,16 @@ test("adds, connects and moves nodes, edits an input and keeps it after reload",
   const nodeTwo = page.getByTestId("node-node_two");
   await expect(nodeOne).toBeVisible();
 
-  // Add: drag a catalog card from the drawer onto the canvas.
+  // Add: drag a catalog card from the drawer onto the canvas. The catalog's
+  // only group opens by itself.
   await page.getByTestId("add-node").click();
-  await page.getByRole("button", { name: /Text/ }).click();
   const card = page
-    .locator(".card")
+    .locator(".node")
     .filter({ has: page.getByRole("heading", { name: "Uppercase" }) });
+  await expect(card).toBeVisible();
   const pane = await page.locator(".pane").boundingBox();
   const cardBox = await card.boundingBox();
-  const grab = await card.locator("article").boundingBox();
+  const grab = await card.locator("header").boundingBox();
   await page.mouse.move(grab.x + 5, grab.y + 5);
   await page.mouse.down();
   await page.mouse.move(pane.x + 700, pane.y + 400, { steps: 10 });
