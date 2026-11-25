@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Blocks commits whose package.json / package-lock.json `npm ci` would reject,
-# that leave install scripts unapproved, or whose frontend sources leave
+# that leave install scripts unapproved, whose templates drop a data-testid the
+# Playwright workflows select, or whose frontend sources leave
 # src/locale/en.json stale. Enabled by `make install`
 # (git config core.hooksPath .githooks). Checks the working tree of each
 # package whose manifests are staged; skip once with `git commit --no-verify`.
@@ -17,6 +18,11 @@ for pkg in backend frontend; do
     "$root/frontend/scripts/check-denied-deps.mjs" || status=1
   fi
 done
+
+# Templates must keep the selectors the Playwright workflows use.
+if ! git diff --cached --quiet -- 'frontend/src/*.html'; then
+  "$root/frontend/scripts/check-browser-selectors.mjs" || status=1
+fi
 
 # Templates and components carry i18n ids: en.json must match what they extract.
 if ! git diff --cached --quiet -- 'frontend/src/*.html' 'frontend/src/*.ts'; then

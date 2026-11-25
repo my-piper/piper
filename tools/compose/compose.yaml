@@ -43,7 +43,7 @@ services:
       - redis-data:/data
 
   deno:
-    image: ghcr.io/my-piper/piper-deno:sha-31bd0a7
+    image: ghcr.io/my-piper/piper-deno:sha-a49ced9
     ports:
       - "127.0.0.1:9090:80"
     environment:
@@ -136,3 +136,6 @@ services:
       retries: 10
       start_period: 5s
       timeout: 5s
+
+  lgbm-moderation:
+    image: registry.artworks.ai/realistic-ai/ai-lab/services/lgbm-moderation/dev:25817

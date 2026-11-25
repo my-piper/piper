@@ -1,5 +1,10 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { createServer, Server as HttpServer } from "node:http";
+import {
+  createServer,
+  IncomingMessage,
+  Server as HttpServer,
+  ServerResponse,
+} from "node:http";
 import { AddressInfo } from "node:net";
 import path from "node:path";
 import { Server as IoServer, Socket } from "socket.io";
@@ -18,8 +23,9 @@ import {
  *   with the websocket transport) handling `join_room` / `leave_room` like
  *   backend/sockets.ts.
  *
- * `/api/**` is never answered here: each test routes it through its own
- * stateful HTTP fixture (see api.ts), so an unrouted API call surfaces as 404.
+ * In workflows `/api/**` is never answered here: each test routes it through
+ * its own stateful HTTP fixture (see api.ts), so an unrouted API call surfaces
+ * as 404. `serve.ts` passes an `api` handler to answer it over HTTP instead.
  */
 
 export const DIST = path.resolve(import.meta.dirname, "../../../dist-browser");
@@ -44,6 +50,8 @@ const PRERENDER_PLACEHOLDER = "PRERENDER = {};";
 
 export type RoomEvent = { type: "join" | "leave"; room: string; at: number };
 
+export type ApiHandler = (req: IncomingMessage, res: ServerResponse) => void;
+
 export class FixtureServer {
   config: PlainAppConfig = testRuntimeConfig();
   readonly roomEvents: RoomEvent[] = [];
@@ -52,12 +60,14 @@ export class FixtureServer {
   private io: IoServer;
   private sockets = new Set<Socket>();
 
+  constructor(private api: ApiHandler | null = null) {}
+
   get url() {
     const { port } = this.http.address() as AddressInfo;
     return `http://127.0.0.1:${port}`;
   }
 
-  async start() {
+  async start(port = 0) {
     for (const locale of LOCALES) {
       const index = path.join(DIST, locale, "index.html");
       if (!existsSync(index)) {
@@ -69,6 +79,10 @@ export class FixtureServer {
 
     this.http = createServer((req, res) => {
       const url = new URL(req.url, "http://fixture");
+      if (this.api && url.pathname.startsWith("/api/")) {
+        this.api(req, res);
+        return;
+      }
       const [, locale] = url.pathname.split("/");
       if (!(LOCALES as readonly string[]).includes(locale)) {
         res.writeHead(404).end(`Fixture server: no route ${url.pathname}`);
@@ -114,7 +128,7 @@ export class FixtureServer {
     });
 
     await new Promise<void>((resolve) =>
-      this.http.listen(0, "127.0.0.1", resolve),
+      this.http.listen(port, "127.0.0.1", resolve),
     );
   }
 

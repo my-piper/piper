@@ -1,4 +1,4 @@
-import { BrowserContext, Request, Route } from "@playwright/test";
+import type { BrowserContext, Route } from "@playwright/test";
 import Ajv from "ajv";
 import { patch } from "jsondiffpatch/with-text-diffs";
 import { readFileSync } from "node:fs";
@@ -41,7 +41,7 @@ export type ApiCall = {
   status: number;
 };
 
-type Reply = { status: number; json?: unknown; text?: string };
+export type Reply = { status: number; json?: unknown; text?: string };
 
 type Handler = (args: {
   params: Record<string, string>;
@@ -113,8 +113,7 @@ export class ApiFixture {
     await context.route("**/api/**", (route) => this.handle(route));
   }
 
-  private userFor(request: Request): Plain | null {
-    const token = request.headers()["user-token"];
+  private userFor(token: string | undefined): Plain | null {
     const kind = (Object.keys(USER_IDS) as UserKind[]).find(
       (k) => authorizationPlain(k)["token"] === token,
     );
@@ -123,9 +122,30 @@ export class ApiFixture {
 
   private async handle(route: Route) {
     const request = route.request();
-    const url = new URL(request.url());
-    const method = request.method();
-    const raw = request.postData();
+    const reply = await this.respond(
+      request.method(),
+      new URL(request.url()),
+      request.postData(),
+      request.headers()["user-token"],
+    );
+    if (reply.json !== undefined) {
+      await route.fulfill({ status: reply.status, json: reply.json });
+    } else {
+      await route.fulfill({
+        status: reply.status,
+        contentType: "text/plain",
+        body: reply.text ?? "",
+      });
+    }
+  }
+
+  /** Answers one API request; transport-free so `serve.ts` can use it too. */
+  async respond(
+    method: string,
+    url: URL,
+    raw: string | null,
+    token: string | undefined,
+  ): Promise<Reply> {
     let body: unknown = raw;
     try {
       body = raw ? JSON.parse(raw) : null;
@@ -151,7 +171,7 @@ export class ApiFixture {
             params: { ...match.groups },
             query: url.searchParams,
             body,
-            user: this.userFor(request),
+            user: this.userFor(token),
           });
           break;
         }
@@ -164,15 +184,7 @@ export class ApiFixture {
     }
 
     this.calls.push({ method, path: url.pathname, body, status: reply.status });
-    if (reply.json !== undefined) {
-      await route.fulfill({ status: reply.status, json: reply.json });
-    } else {
-      await route.fulfill({
-        status: reply.status,
-        contentType: "text/plain",
-        body: reply.text ?? "",
-      });
-    }
+    return reply;
   }
 
   private requireUser(user: Plain | null): Reply | null {

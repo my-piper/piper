@@ -21,7 +21,8 @@
     "lint:tests": "eslint tests vitest.config.ts",
     "test:browser": "ng build --configuration production,browser-test && playwright test -c tests/browser/playwright.config.ts",
     "test:browser:run": "playwright test -c tests/browser/playwright.config.ts",
-    "test:browser:typecheck": "tsc -p tests/browser/tsconfig.json"
+    "test:browser:typecheck": "tsc -p tests/browser/tsconfig.json",
+    "browser:serve": "ng build --configuration production,browser-test && esbuild tests/browser/support/serve.ts --bundle --platform=node --format=esm --packages=external --log-level=warning --outfile=tests/browser/support/serve.bundle.mjs && node tests/browser/support/serve.bundle.mjs"
   },
   "private": true,
   "dependencies": {

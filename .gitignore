@@ -17,3 +17,5 @@
 
 packages/package.json
 packages/package-lock.json
+
+.playwright-mcp

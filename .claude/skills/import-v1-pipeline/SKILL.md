@@ -1,117 +1,139 @@
 ---
 name: import-v1-pipeline
-description: Bring Piper v1 Pipeline YAMLs into this Piper - classify their Nodes, move secret-reading ones into a Node Package, rewrite v1-only code, then import through Import v1.
+description: Prepare Piper v1 pipelines as self-contained YAML files for the current Piper importer.
 argument-hint: <v1 pipeline .yaml>...
 disable-model-invocation: true
 ---
 
-Import the Piper v1 Pipelines in `$ARGUMENTS` (default: every `tmp/piper-v1/*.yaml`).
-The importer `POST /api/pipelines/import/v1` (`backend/packages/pipelines/v1/`)
-stays the one structural converter: this skill only prepares a **cleaned** copy
-of each YAML so that the import comes back without problems and without
-`require`/Environment warnings. Read `docs/adr/0004-script-nodes-run-unsigned-and-isolated.md`
-and `0005-v1-scripts-imported-behind-a-prelude.md` first: they decide where each
-Node can land. ADR 0007 has since let Script Nodes read an Environment, but the
-v1 importer still drops a Script Node's `environment`, so the rules below hold.
+Prepare `$ARGUMENTS` (default: `tmp/piper-v1/*.yaml`) as current-format YAMLs in
+`tmp/piper-v1/prepared/<same name>`. Keep originals intact.
 
-## 1. Classify every Node
+**Default scope is files only.** Produce inline Script Nodes and a report.
+Publishing packages, importing Projects, changing Environment values, launching
+and deploying require the user to request those actions. Owner confirmation
+alone authorizes none of them. If the user requests packages or catalog reuse,
+read [packages.md](packages.md) for that branch.
 
-From `backend/`:
+“Without packages” changes the packaging, not the required runtime rewrites.
+Preserve behavior, graph topology and defaults while replacing unsupported v1
+code. If the user explicitly requests byte-for-byte original scripts, describe
+those files as unconverted; do not claim they are ready to run.
+
+## 1. Establish the runtime and inventory
+
+Read ADRs 0005, 0007, 0008 and 0009 in `docs/adr/`, then inspect:
+
+- `backend/packages/pipelines/import-pipeline.ts`: **regular Import** preserves
+  inline scripts and declared Environment Variables.
+- `backend/packages/pipelines/v1/adopt-nodes.ts` and `v1-script.ts`: **Import v1**
+  replaces catalog nodes, drops Script Node Environment declarations and adds
+  an empty Environment prelude. It is unsuitable for the inline output here.
+- `backend/packages/deno/execute.ts` and `jobs/process-node/environment.ts`:
+  scripts receive their Environment through the invocation payload.
+
+From `backend/`, inventory every source node:
 
 ```sh
 node ../.claude/skills/import-v1-pipeline/classify.mjs ../tmp/piper-v1/*.yaml
 ```
 
-One line per Node: `package <pkg>/<id>` or `user`, the modules it `require`s,
-the Environment Variables it reads or declares, flags (`n8n`, `nested`,
-`dynamic-require`, `message`) and `same-script` copies in other pipelines.
-Give each Node one **destination**:
+Inspect custom scripts even when they carry a catalog `package` or `_id`.
+A matching catalog name or compatible ports do not prove equivalent defaults,
+model routing, payloads or outputs. Repeated scripts may share preparation
+helpers; they do not require published nodes.
 
-- **Catalog**: a `package` Node. The importer replaces it with the installed
-  Node Definition (by `_id`, then key, then ports), whatever its v1 script
-  required or read. Confirm the Definition is installed (`mongo.nodes`, or the
-  catalog in the UI); a `package` Node whose Definition is missing becomes a
-  user Node below.
-- **Package Node**: a user Node that reads the Environment (secrets such as
-  `OPEN_PAAS_*`, `MULEROUTER_API_KEY`, `HIVE_KEY`, `LGBM_URL`,
-  `OPENROUTER_API_KEY`) or has a `same-script` copy. A Script Node never reads
-  an Environment (ADR 0004), so these need reviewed code. Reach first for an
-  existing piper-nodes Node that does the job (`../piper-nodes/nodes/artworks/*`
-  and the rest); write a new one only when none fits.
-- **Script Node**: everything else, user glue that needs no secret. It keeps
-  its v1 code behind the importer's prelude; only the parts below get rewritten.
+Done when every node, module dependency, Environment read and child target has
+been accounted for. Keep credentials out of tool output and generated code.
 
-Done when every Node of every pipeline has a destination and every Environment
-Variable read by a Script Node is gone from its script.
+## 2. Rewrite every node inline
 
-## 2. Rewrite the code
+Apply **all** rules in [rewrites.md](rewrites.md), including native HTTP and
+multipart, image codecs, dynamic module loading, Environment names and access,
+and obsolete notifications. Renaming Variables alone is incomplete.
 
-Apply [rewrites.md](rewrites.md) to every Script Node and every new Package
-Node: n8n removal, `sharp`, `form-data`, `openai`, `artworks`, dynamic
-`require`, Environment names. Done when no script in the cleaned YAML or the
-package calls `require(`, and no script names an n8n host.
+Use `source: script`. Remove catalog identity (`package`, `catalog`, `_id`,
+`sign`) and obsolete billing metadata. Keep script code inline and retain its
+`environment` declarations, with type/description and current names.
+Every Environment-reading function receives `env` from its invocation;
+helpers receive it explicitly. Script Nodes can read the Environment through
+regular Import (ADR 0007).
 
-## 3. Publish the Package Nodes
+Embed or bundle local helpers into each script. External imports must be
+pinned URLs supported by Deno or supported builtins. A self-contained YAML
+cannot depend on a scratch directory, a sibling checkout or a registry upload.
+Match the original ArtWorks create/poll/cancel return contracts when adapting
+its client. Replace legacy globals with native result/error/HTTP helpers.
+Convert `nested.run/state` to Child Launch instructions; keep child bookkeeping
+local to each invocation so concurrent runs cannot overwrite it.
 
-All new Package Nodes go into one shared Node Package, `v1_pipelines`, in
-`../piper-nodes/nodes/v1_pipelines/`: a `package.yaml` manifest (`_id`,
-positive integer `version`, `title`, `description`) and one folder per Node
-with `schema.yaml` and `script.js` (plus `test.js`), the layout
-`backend/packages/node-packages/archive.ts` reads. Dispatch the
-`node-package-author` subagent per Node with its v1 script, its destination
-ports and the rewrite rules.
+Done when every rewritten script can run without CommonJS `require`, v1 global
+injection, Map-style Environment access or an empty Environment stand-in.
 
-The archive is self-contained: every relative import must stay inside the
-package folder, so copy the helpers a Node needs (`utils/node.js`, the
-`ArtWorks` client from `nodes/artworks/utils.js`) into
-`v1_pipelines/_lib/`. Remote imports must be pinned versions.
+## 3. Preserve the graph and editor behavior
 
-Zip the folder and upload it as an admin:
-`POST /api/node-packages/actions/upload-archive` (multipart `file`). Each
-re-upload needs a greater `version` (ADR 0003). Done when the upload answers
-`200` listing every new Node id.
+Keep original node keys, positions, used ports, flows, pipeline inputs/outputs,
+start nodes and defaults. Add declarations for ports the original script
+already used if needed; record those repairs.
 
-## 4. Write the cleaned YAML
+Normalize these editor contracts in the prepared files:
 
-Copy each v1 YAML to `tmp/piper-v1/cleaned/<same name>` and in it:
+- Include complete `layout.left` and `layout.top`, with `zoom` when needed.
+  Use the new-project template in `frontend/src/app/projects/projects.component.ts`
+  for defaults. An absent layout passes the schema but a first zoom save can
+  create an invalid zoom-only layout.
+- Set `featured: true` on **every connected node input**, including inputs
+  reached from pipeline inputs. `frontend/src/services/project.manager.ts`
+  removes links to non-featured inputs; `frontend/src/pipes/node.ts` omits their
+  port positions. Regular Import does not perform v1's port adoption. The
+  existing contract is tested in
+  `frontend/tests/unit/services/project-manager.sanitize.spec.ts`.
+- Remove unsupported v1 metadata only when schema validation identifies it.
+  Replacing code must not drop flows or change their endpoints.
 
-- point each Package Node at its Definition: `package: v1_pipelines` (or the
-  existing package) and `_id: <node id>`, keeping its key, `arrange` and
-  every port its Flows use;
-- replace each Script Node's `script` with the rewritten code and delete its
-  `environment` (a `sign` is dropped anyway);
-- leave Flows, inputs, outputs and `start` untouched.
+Map literal and input-default child slugs against the batch. For this batch,
+repoint older `violations-detector-v*` targets to `violations-detector-v5` and
+check the supplied input names against V5. Preserve other unresolved slugs and
+report them as runtime dependencies; do not invent replacement targets.
 
-## 5. Import, children first
+Done when all original connections remain and every endpoint resolves to a
+rendered port, including after editor cleanup.
 
-A Node that calls `nested.run(<slug>)` runs another Deploy as a Child Launch
-(ADR 0005). Map every slug the batch calls (a literal, or the `default` of the
-input that feeds it, such as `endpoint`) against each pipeline's own
-`deploy.slug` and the Deploys already live here. Import and deploy callees
-before callers. Repoint every call to an older `violations-detector-v*` at
-`violations-detector-v5`, the one Violations pipeline imported, in the
-cleaned YAML (literal or input `default`), and check that each input the
-caller passes is an input of Violations On Image V5. Any other called slug
-that is neither in the batch nor live is a question for the user. Then import
-each cleaned YAML with an admin `user-token`:
+## 4. Validate the exact deliverables
+
+From `backend/`, run the read-only guard against **every output file**:
 
 ```sh
-curl -s -X POST http://localhost/api/pipelines/import/v1 \
-  -H "user-token: $TOKEN" -H 'Content-Type: application/json' \
-  --data "$(jq -Rs '{yaml: .}' 'tmp/piper-v1/cleaned/<name>.yaml')"
+node --import=tsx tools/validate-prepared-pipelines.ts ../tmp/piper-v1/prepared/*.yaml
 ```
 
-Done when every import answers the new Project and its `warnings` hold only
-ports-adoption notes you have checked. A `require`, Environment or `message()`
-warning means a Node went back to step 2. A `400 Pipeline can't be imported`
-lists its problems in `details`: fix the cleaned YAML or the package and
-import again.
+The guard checks the production schema, model round trip, first zoom save,
+connected ports, inline scripts, module imports and Environment rewrites.
+Its regression tests run in the existing backend fast-test CI job. Schema
+acceptance alone is not the completion criterion.
 
-## 6. Report
+Compare parsed original/prepared graph endpoints and defaults. Exercise the
+exact scripts embedded in the YAML, not just authoring fragments: mock HTTP
+and test submission, polling/completion, error/skip branches, child instructions
+and Environment forwarding. Use the running Deno sandbox for harmless module
+loads or mocked execution when available. A module-load check or missing-key
+guard proves loading, not successful generation.
 
-Per pipeline: the new Project id, each Node's destination, the Package Nodes
-published (package version), every behaviour change the rewrites made (the
-list `rewrites.md` asks you to record), and anything still left for a person,
-such as Environment Variables to set under their new names. A rewrite rule
-you applied in more than one pipeline is a candidate for the importer itself:
-name it.
+Done when the guard passes for every file, graph comparisons pass, and focused
+behavior checks pass. State skipped runtime checks and unresolved dependencies.
+These checks must not call Project creation, publishing or deployment APIs.
+
+## 5. Deliver files and instructions
+
+Report the prepared YAML paths, **regular Import** as the required entrypoint,
+node/connection counts, applied behavior changes, and validation evidence.
+List declared Variable names, optional defaults and needed Global bindings or
+Project overrides without values. Note missing child deploys and callee-first
+configuration/deployment order for later use.
+
+For the local ArtWorks setup, check whether `ARTWORKS_URL` needs binding to a
+Global name such as `ARTWORKS_PAAS_BASE_URL`; do not assume renaming a script
+creates a Global value. Externalize embedded credentials into declared Variables.
+
+Keep README and machine-readable validation records consistent with the final
+YAMLs. State which external actions, if any, were explicitly requested and
+performed. A generated file does not update an already imported Project.

@@ -44,5 +44,6 @@ Thumbs.db
 
 # Browser workflow tests
 /dist-browser
+/tests/browser/support/serve.bundle.mjs
 /test-results
 /playwright-report

@@ -1,7 +1,8 @@
 # v1 rewrite rules
 
-Every rule changes code, never Flows or ports. Record each behaviour change
-(not each edit) for the final report.
+Preserve flow endpoints and port contracts while applying every relevant code
+rewrite. Editor metadata repairs are specified in the main skill. Record each
+behavior change (not each edit) in the report.
 
 ## n8n
 
@@ -35,10 +36,11 @@ const image = await Image.decode(data); // Uint8Array from download()
 | `.rotate()` (EXIF orientation)                                        | none: drop it and record the change (a rotated phone photo may come out sideways)        |
 
 `metadata()` alone (Extend Video's `merge_videos`, `extract_last_frame`) only
-needs the decode. A Node that decodes large images is memory-bound: a Script
-Node runs in a child process with 128 MB, so a Node that resizes several
-images (Duo's `prepare_images`) should stay at one decoded image at a time or
-become a Package Node.
+needs the decode. A Node that decodes large images is memory-bound: a Node
+that resizes several images (Duo's `prepare_images`) should keep only one
+decoded image at a time. Process isolation depends on `isolated: true`, for
+Script and Package Nodes alike; publishing a Package Node does not change
+its memory limits.
 
 ## form-data, openai
 
@@ -53,10 +55,13 @@ become a Package Node.
 
 v1's built-in `artworks` module (`ArtWorks`, `FatalError`) is the piper-nodes
 `ArtWorks` client in `nodes/artworks/utils.js` (`createTask`, `checkTask`,
-`cancelTask` against `/api/v3/tasks`). It needs the Environment, so a Node
-that uses it is a Package Node: copy the client into the package's `_lib/`,
-match the v1 calls to its methods, and return `next`/`repeat` from
-`utils/node.js` instead of v1's `NextNode`/`RepeatNode`.
+`cancelTask` against `/api/v3/tasks`). For inline output, embed the needed client code in the Script Node and retain
+its declared Environment; regular Import preserves it. Package output instead
+keeps the helper inside the archive. Match the v1 return contracts: a current
+client may return a repeat instruction from `createTask` where v1 expected an
+id, or use `checkTask` where v1 called `checkState`. Adapt these deliberately
+against `/api/v3/tasks` and its completed `results.data` response. Preserve task
+payloads, priorities, polling state, cancellation and fallback paths.
 
 ## Dynamic require
 
@@ -68,17 +73,50 @@ above. If a case can't be resolved, stop and ask.
 ## Environment
 
 - Current Nodes read `env.variables` as a plain object: `env.variables.get('X')`
-  becomes `env.variables.X`, and the Node's `schema.yaml` declares `X`.
+  becomes `env.variables.X`. Add `env` to the invocation payload destructuring
+  and pass it to helpers explicitly; renaming a global read is insufficient.
+  Declare every consumed name in the node's inline `environment` (or
+  `schema.yaml` for package output), with type and description. Retain those
+  declarations for regular Import and remove obsolete declaration `scope`
+  fields. Do not embed the v1 importer's empty Environment stand-in.
+- `env.scope` is also a plain object. Rewrite `env.scope.get('X')` to
+  `env.scope.X`. Where `=== 'user'` identifies personal credentials to skip
+  billing, use `=== 'pipeline'` for a Project override. The current values
+  are `global` and `pipeline`; inspect other scope-dependent branches for
+  their intended behavior. Check installed catalog scripts too: adopting a
+  Definition does not repair its script.
 - v1 names map as `backend/packages/environment/v1-variables.ts` maps them:
   `OPEN_PAAS_USER` → `ARTWORKS_USER`, `OPEN_PAAS_PASSWORD` → `ARTWORKS_PASSWORD`,
   `PAAS_BASE_URL` → `ARTWORKS_URL`. List any other Variable the report must
   ask a person to set.
+- Externalize embedded credentials into declared Variables, including HAL9
+  Basic auth as `HAL9_USER` / `HAL9_PASSWORD`. Report values the user must set;
+  keep source credentials out of generated code, logs and fixtures.
+- Each declared name defaults to the Global Variable of the same name. A
+  Project can bind it to another Global name or override it with its own
+  value. Missing Global bindings stay unset; saving the Project removes
+  Environment entries no Node declares. Put personal credentials on the
+  Project that needs them; only admins edit the Global Environment.
+- Configure required values before deploying. A Deploy freezes Project
+  overrides and binding targets, then reads Global values when launched.
+  Deploys and Child Launches use these values regardless of caller, so an
+  override is used for every caller. User Environments no longer exist;
+  never assume a caller supplies their own credentials.
 
-## v1 globals in Package Nodes
+## Runtime helpers in current-format nodes
 
-A Package Node has no prelude: rewrite `DEFINITIONS.NextNode.from({ outputs })`
+Inline nodes imported through regular Import and Package Nodes have no v1
+prelude: rewrite `DEFINITIONS.NextNode.from({ outputs })`
 → `next({ outputs })`, `RepeatNode.from({ state, delay, progress })` →
 `repeat({ … })`, `FatalError`/`DataError`/`TimeoutError` → `throwError.*` or the
 classes from `utils/node.js`, `httpClient` → `fetch` with a timeout and a
 status check, `download(url)` → `fetch` + `new Uint8Array(await r.arrayBuffer())`.
-`nested.*` stays in Script Nodes, where the prelude maps it to Child Launches.
+`nested.run/state` becomes Child Launch instructions. Preserve its repeat/poll
+contract and stable per-run child keys; store child bookkeeping in an invocation
+closure instead of mutable module globals. Embed the helpers in each inline
+script, or keep them inside an explicitly requested package archive.
+
+Downloaded bytes are `Uint8Array`: use `TextDecoder` for FFmpeg/JSON text and an
+explicit byte-to-base64 conversion for image payloads. Buffer-style
+`bytes.toString("utf8")` does not decode a Uint8Array. Replace invalid-JSON
+`message()` diagnostics with node logging and document the change.

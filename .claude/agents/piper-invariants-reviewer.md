@@ -107,6 +107,15 @@ listed before it, so anything `npm ci` resolves from disk must be copied first.
   `backend/tests/integration` caller that passes the same shape, and report
   `high` unless each one is shown to be unaffected.
 
+### Browser workflow selectors (`frontend/src/**/*.html`, `frontend/tests/browser`)
+
+- When the diff changes a template, run
+  `frontend/scripts/check-browser-selectors.mjs HEAD` (working tree against
+  HEAD). An `error` (a dropped `data-testid`) is `high`. For each `warning`
+  (a dropped class), read the cited workflow line and its locator chain: if
+  it reaches the changed template's element, report `high` naming the spec to
+  update and run; otherwise drop it.
+
 ### Coding standards (`CODING_STANDARDS.md`)
 
 When the diff touches a path a section of `CODING_STANDARDS.md` names (for
