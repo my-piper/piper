@@ -1,5 +1,6 @@
 import { DataError } from "core-kit/types/errors";
 import { parsers } from "prettier/plugins/babel";
+import { isScriptReference } from "packages/nodes/script-node";
 import { resolveScript } from "packages/registry/reference";
 
 type SyntaxNode = {
@@ -20,7 +21,7 @@ type SyntaxNode = {
 // An edited module runs inline in Deno, where relative imports would otherwise
 // resolve against a Blob URL. Parse it so comments and ordinary strings survive.
 export async function prepareScriptSource(source: string, base: string) {
-  if (!base || !/^(registry:|https?:\/\/)/.test(base)) {
+  if (!base || !isScriptReference(base)) {
     return source;
   }
   const url = resolveScript(base);

@@ -25,7 +25,6 @@ api.get(
 
     nodePackage.nodes = new Map<string, Node>();
     for (const node of nodes) {
-      delete node.sign;
       nodePackage.nodes.set(node._id, node);
     }
 

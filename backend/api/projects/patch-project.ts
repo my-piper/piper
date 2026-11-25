@@ -16,7 +16,6 @@ import { hide } from "packages/environment/hide-environment";
 import { dropRevealedSecrets } from "packages/environment/reveal-environment";
 import { isSecretPlaceholder } from "packages/environment/secret-placeholder";
 import { renameV1Variables } from "packages/environment/v1-variables";
-import { ensurePipelineNodeTrust } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
 import {
@@ -24,7 +23,6 @@ import {
   checkLogged,
   handle,
   isAdmin,
-  isEngineer,
   toModel,
 } from "utils/http";
 import { sid } from "utils/string";
@@ -102,10 +100,6 @@ api.patch(
 
       if (!!patched.script && !isAdmin(currentUser)) {
         throw new DataError("You can't edit pipeline script");
-      }
-
-      for (const [id, node] of patched.nodes) {
-        ensurePipelineNodeTrust(node, id, isEngineer(currentUser));
       }
 
       assign(update, {

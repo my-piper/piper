@@ -169,6 +169,10 @@ function setup(
       element.querySelector(
         'input[type=checkbox][aria-label="Auto start"]',
       ) as HTMLInputElement,
+    isolated: () =>
+      element.querySelector(
+        'input[type=checkbox][aria-label="Run isolated"]',
+      ) as HTMLInputElement,
     field: (title: string) =>
       inputBlock(element, title).querySelector("input") as HTMLInputElement,
     launchInputs: () => project.launchRequest.nodes.get(nodeId)?.inputs,
@@ -253,6 +257,27 @@ describe("EditNodeInputsComponent", () => {
       finish();
     }));
 
+    it("marks the node isolated and marks the project dirty", fakeAsync(() => {
+      const { isolated, click, project, manager } = setup("node_two");
+
+      click(isolated());
+
+      expect(project.pipeline.nodes.get("node_two").isolated).toBe(true);
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("leaves no mark on a node no longer isolated", fakeAsync(() => {
+      const project = projectA();
+      project.pipeline.nodes.get("node_two").isolated = true;
+      const { isolated, click } = setup("node_two", project);
+
+      click(isolated());
+
+      expect(project.pipeline.nodes.get("node_two").isolated).toBeUndefined();
+      finish();
+    }));
+
     it("stores typed values in a new launch entry for the node", fakeAsync(() => {
       const { field, type, click, launchInputs } = setup(
         "node_two",
@@ -305,6 +330,9 @@ describe("EditNodeInputsComponent", () => {
       expect(launchInputs().size).toBe(0);
       expect(field("Temperature").value).toBe("0.5");
       expect(manager.status.value).toBe("dirty");
+      // the Reset button re-enables after a second, while the switches'
+      // animation frames run; more of them than finish() flushes
+      tick(1000);
       finish();
     }));
   });

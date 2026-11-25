@@ -1,0 +1,134 @@
+[
+  {
+    "update": "projects",
+    "updates": [
+      {
+        "q": {
+          "pipeline.nodes": {
+            "$type": "object"
+          }
+        },
+        "u": [
+          {
+            "$set": {
+              "pipeline.nodes": {
+                "$arrayToObject": {
+                  "$map": {
+                    "input": {
+                      "$objectToArray": "$pipeline.nodes"
+                    },
+                    "as": "node",
+                    "in": {
+                      "k": "$$node.k",
+                      "v": {
+                        "$unsetField": {
+                          "field": "sign",
+                          "input": "$$node.v"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "multi": true
+      }
+    ]
+  },
+  {
+    "update": "deploys",
+    "updates": [
+      {
+        "q": {
+          "pipeline.nodes": {
+            "$type": "object"
+          }
+        },
+        "u": [
+          {
+            "$set": {
+              "pipeline.nodes": {
+                "$arrayToObject": {
+                  "$map": {
+                    "input": {
+                      "$objectToArray": "$pipeline.nodes"
+                    },
+                    "as": "node",
+                    "in": {
+                      "k": "$$node.k",
+                      "v": {
+                        "$unsetField": {
+                          "field": "sign",
+                          "input": "$$node.v"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "multi": true
+      }
+    ]
+  },
+  {
+    "update": "nodePackages",
+    "updates": [
+      {
+        "q": {
+          "nodes": {
+            "$type": "object"
+          }
+        },
+        "u": [
+          {
+            "$set": {
+              "nodes": {
+                "$arrayToObject": {
+                  "$map": {
+                    "input": {
+                      "$objectToArray": "$nodes"
+                    },
+                    "as": "node",
+                    "in": {
+                      "k": "$$node.k",
+                      "v": {
+                        "$unsetField": {
+                          "field": "sign",
+                          "input": "$$node.v"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "multi": true
+      }
+    ]
+  },
+  {
+    "update": "nodes",
+    "updates": [
+      {
+        "q": {
+          "sign": {
+            "$exists": true
+          }
+        },
+        "u": {
+          "$unset": {
+            "sign": ""
+          }
+        },
+        "multi": true
+      }
+    ]
+  }
+]

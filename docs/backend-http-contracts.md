@@ -41,15 +41,15 @@ permission rules; permission/status changes need an explicit contract decision.
 
 ## Node and node package permissions
 
-| Endpoint                                         | Current requirement                        | Successful status |
-| ------------------------------------------------ | ------------------------------------------ | ----------------- |
-| `GET /api/nodes`                                 | None                                       | 200               |
-| `GET /api/nodes/:_id`                            | None                                       | 200               |
-| `POST /api/nodes`                                | Logged-in user; valid sign unless engineer | 204               |
-| `POST /api/node-packages/actions/import-package` | Admin                                      | 204               |
-| `POST /api/node-packages/actions/upload-archive` | Admin                                      | 200               |
-| `DELETE /api/node-packages/:_id`                 | Admin                                      | 204               |
-| `GET /api/projects/:_id/check-node-updates`      | Logged-in user with project access         | 200               |
+| Endpoint                                         | Current requirement                | Successful status |
+| ------------------------------------------------ | ---------------------------------- | ----------------- |
+| `GET /api/nodes`                                 | None                               | 200               |
+| `GET /api/nodes/:_id`                            | None                               | 200               |
+| `POST /api/nodes`                                | Admin/engineer                     | 204               |
+| `POST /api/node-packages/actions/import-package` | Admin                              | 204               |
+| `POST /api/node-packages/actions/upload-archive` | Admin                              | 200               |
+| `DELETE /api/node-packages/:_id`                 | Admin                              | 204               |
+| `GET /api/projects/:_id/check-node-updates`      | Logged-in user with project access | 200               |
 
 `GET /api/nodes/:_id` strips `catalog` and returns 404 for a missing node.
 `GET /api/nodes` lists each node with its `package` and, when that Node
@@ -58,16 +58,12 @@ nodes by it.
 Both node reads also serve the builtin Script Node (`_id: "script"`,
 `source: "script"`) from code: `GET /api/nodes` lists it first whenever the
 `search` matches its title, and `GET /api/nodes/script` returns it with no
-inputs, outputs or sign and an inline `run` script.
-`POST /api/nodes` and project patches share the sign rule: a node whose `sign`
-does not match its script and environment scopes is re-signed for engineers and
-admins, and rejected for anyone else with 400 and `Wrong sign for <id> node`.
-A project patch exempts nodes with `source: "script"`: it accepts their script
-from any editor and stores them without `sign` and `environment` (ADR 0004),
-but rejects a `registry:` or `https://` script with 400 and
-`Script Node <id> must hold its own code`. The id `script` is reserved: node
-publishing and package import reject it with 400 and `Node id script is reserved`.
-`POST /api/nodes` grants no such exemption.
+inputs or outputs and an inline `run` script.
+`POST /api/nodes` publishes a node to the catalog for engineers and admins;
+anyone else gets 400 and `You aren't admin`. Project patches store every node's
+script, environment and `isolated` mark as sent (ADR 0007); a `sign` an older
+client sends is dropped. The id `script` is reserved: node publishing and
+package import reject it with 400 and `Node id script is reserved`.
 Package import and deletion reject non-admins with 400 and `You aren't admin`;
 import stamps every node with the package `_id`. Node update checks return 404
 for a private project unless the current user is its owner or an admin.
@@ -104,11 +100,8 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   invalid") are DataErrors. Text fetched from a URL is never quoted back. Every
   refusal answers 400 `{ message, details }`, `details` being a list of
   strings; a non-admin gets "You aren't admin".
-- `POST /api/pipelines/import` takes a Pipeline in the current format. Its
-  Nodes pass the rule an edited Pipeline passes: a Script Node loses its sign
-  and Environment and may not point at `registry:` or URL code ("Script Node
-  <id> must hold its own code"); any other Node gets the sign this Piper issues
-  for its script, since every admin may re-sign.
+- `POST /api/pipelines/import` takes a Pipeline in the current format and
+  stores its Nodes as they are, dropping the `sign` an older export carried.
 - `POST /api/pipelines/import/v1` takes a Pipeline copied from Piper v1 and
   brings each Node to what this Piper runs:
   - A Node from a Node Package (`package` set) is replaced by the installed
@@ -120,10 +113,10 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
     Node edited from a catalog Node, e.g. a QWEN Edit node kept under the key
     `generate_image`); none or several is a problem, and a name that stands
     for no Definition is never matched by ports. It takes the Definition's
-    script, sign, ports and Environment and keeps `arrange`.
+    script, ports, Environment and `isolated` mark and keeps `arrange`.
   - A Node its user wrote (no `package`, no matching Definition) or one
-    already marked `source: "script"` becomes a Script Node: no sign, no
-    Environment. A Piper v1 script keeps its code behind a prelude defining
+    already marked `source: "script"` becomes a Script Node with no
+    Environment (the v1 importer still drops it). A Piper v1 script keeps its code behind a prelude defining
     v1's `DEFINITIONS`, `httpClient`, `download`, `Buffer`, `nested`, `env`,
     `message` and `require`; `nested.run` asks for a Child Launch of the
     Deploy whose slug it names, and `nested.state` reads it from `children`
@@ -144,6 +137,7 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   reads by name or its Node declared, which come back empty; `message()`
   calls); `[]` when there are none. Stand-ins for `env`, `message` and
   `require` are left out when the script declares that name itself.
+
 - Settings updates persist visibility, slug, order, update time, and updater;
   client-supplied ownership/title fields do not replace the existing metadata.
 - Reading projects serializes nested maps and dates and omits unexposed fields.

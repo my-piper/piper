@@ -136,10 +136,9 @@ describe("node script source", () => {
         'const here = "http://registry:8085/artworks/3/echo_node/script.js";',
       ].join("\n")
     );
-    expect(response.body.sign).toMatch(/^[0-9a-f]{64}$/);
   });
 
-  it("keeps an unchanged module reference when signing an execution-only edit", async () => {
+  it("keeps an unchanged module reference for an execution-only edit", async () => {
     const script = "registry:artworks@3/echo_node/script.js";
 
     const response = await context.request
@@ -149,7 +148,6 @@ describe("node script source", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.script).toBe(script);
-    expect(response.body.sign).toMatch(/^[0-9a-f]{64}$/);
   });
 
   it("reports unsupported computed imports instead of silently breaking them", async () => {

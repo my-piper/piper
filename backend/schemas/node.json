@@ -96,7 +96,12 @@
       "type": "string"
     },
     "sign": {
-      "type": "string"
+      "type": "string",
+      "description": "Deprecated and ignored: Nodes are no longer signed."
+    },
+    "isolated": {
+      "type": "boolean",
+      "description": "Runs the Node in its own process, apart from the Launches running at the same time."
     },
     "costs": {
       "type": "string",

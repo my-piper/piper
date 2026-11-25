@@ -1,5 +1,7 @@
 # Script Nodes run unsigned, process-isolated and without an Environment
 
+Superseded by ADR 0007.
+
 Any user who can edit a Project can place a Script Node and write its script. Until now only engineers could change a Node's script. Every script carries a sign that the server issues, and the sign decides two things: a signed Node runs in Deno without process isolation (`isolation: "none"`), and the sign also covers the Environment scopes the Node may read. A Script Node gets neither. Saving a Pipeline drops its sign and its declared Environment. At run time, a sign on it is ignored and it reads no Environment, so a Pipeline written by a path that skips the sign check (project create or import) can't lift those limits either.
 
 We considered keeping Script Nodes engineer-only, under the existing sign rule. Most users could then place one but not write its script, which defeats the feature. Process isolation is what contains untrusted code. The sign only marks code an engineer has reviewed.

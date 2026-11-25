@@ -9,8 +9,6 @@ let context: Awaited<ReturnType<typeof createHttpApp>>;
 /** Projects as MongoDB received them; the import reuses the object afterwards. */
 let inserted: Record<string, unknown>[];
 
-const CATALOG_SIGN = "catalog-sign";
-
 /** The installed Node Definitions, as `nodes` in MongoDB holds them. */
 const CATALOG: Record<string, object> = {
   generate_image: {
@@ -21,7 +19,7 @@ const CATALOG: Record<string, object> = {
     source: "node",
     execution: "regular",
     script: "registry:artworks@3/generate_image/script.js",
-    sign: CATALOG_SIGN,
+    isolated: true,
     catalog: { _id: "generate_image", version: 7, package: "artworks" },
     inputs: {
       prompt: { title: "Prompt", type: "string", featured: true },
@@ -41,7 +39,7 @@ const CATALOG: Record<string, object> = {
     source: "node",
     execution: "deferred",
     script: "registry:artworks@3/ask_llm_agent/script.js",
-    sign: CATALOG_SIGN,
+    isolated: true,
     inputs: {
       question: { title: "Question", type: "string" },
       instructions: { title: "Instructions", type: "string" },
@@ -60,7 +58,7 @@ const CATALOG: Record<string, object> = {
     source: "node",
     execution: "protracted",
     script: "registry:artworks@3/qwen_edit_image/script.js",
-    sign: CATALOG_SIGN,
+    isolated: true,
     inputs: {
       image1: { title: "Image 1", type: "image" },
       image2: { title: "Image 2", type: "image" },
@@ -272,7 +270,7 @@ describe("v1 pipeline import", () => {
       version: 7,
       title: "en=Generate SDXL & Flux",
       script: "registry:artworks@3/generate_image/script.js",
-      sign: CATALOG_SIGN,
+      isolated: true,
       arrange: { x: 570, y: 100 },
       environment: {
         ARTWORKS_USER: { scope: "global" },
@@ -389,7 +387,7 @@ outputs:
     const [project] = inserted;
     expect(project.pipeline["nodes"]["censor"]).toMatchObject({
       _id: "ask_llm_agent",
-      sign: CATALOG_SIGN,
+      isolated: true,
     });
   });
 
@@ -452,7 +450,7 @@ inputs:
     expect(project.pipeline["nodes"]["generate_image"]).toMatchObject({
       _id: "qwen_edit_image",
       script: "registry:artworks@3/qwen_edit_image/script.js",
-      sign: CATALOG_SIGN,
+      isolated: true,
       inputs: { image2: { featured: true } },
     });
     expect(response.body.warnings).toEqual([

@@ -9,7 +9,6 @@ import assign from "lodash/assign";
 import { PackageUpdatedEvent } from "models/events";
 import { NodePackage } from "models/node-package";
 import { checkNodeIdFree } from "packages/nodes/script-node";
-import { generateSign } from "packages/nodes/sign-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { ulid } from "ulid";
 import * as YAML from "yaml";
@@ -69,7 +68,7 @@ export async function uploadPackage(nodePackage: NodePackage) {
   const bulk = [];
   for (const [nodeId, node] of nodes) {
     logger.info(`Update node ${nodeId}`);
-    assign(node, { package: _id, locked: true, sign: generateSign(node) });
+    assign(node, { package: _id, locked: true });
     bulk.push({
       updateOne: {
         filter: { _id: nodeId },

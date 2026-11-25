@@ -4,7 +4,6 @@ export type ScriptExample = {
   description: string;
   code: string;
   // shown instead when the node is a Script Node
-  scriptNode?: { description: string; code: string };
 };
 
 // Each example follows the contract the backend applies to a node's `run`
@@ -86,24 +85,6 @@ export async function run({ inputs }) {
   return { __type: "next", outputs: { answer } };
 }
 `,
-    scriptNode: {
-      description: $localize`:@@message.script_example_environment_script_node:A Script Node never reads an Environment: add an input for the value and fill it in the Pipeline.`,
-      code: `// "apiKey" is an input of this node
-export async function run({ inputs }) {
-  const response = await fetch("https://api.example.com/v1/answer", {
-    method: "POST",
-    headers: {
-      Authorization: \`Bearer \${inputs.apiKey}\`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ question: inputs.question }),
-  });
-  const { answer } = await response.json();
-
-  return { __type: "next", outputs: { answer } };
-}
-`,
-    },
   },
   {
     id: "images",

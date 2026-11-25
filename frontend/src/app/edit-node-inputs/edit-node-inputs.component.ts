@@ -46,6 +46,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
   subscriptions: { changes?: Subscription } = {};
 
   startControl = this.fb.control<boolean>(false);
+  isolatedControl = this.fb.control<boolean>(false);
   inputsGroup = this.fb.group({});
   form = this.fb.group({
     title: this.fb.control<string>(null, [
@@ -53,6 +54,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
       Validators.minLength(3),
     ]),
     start: this.startControl,
+    isolated: this.isolatedControl,
     inputs: this.inputsGroup,
   });
 
@@ -116,6 +118,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
     this.form.patchValue({
       title: getLabel(this.node.title, this.language),
       start: pipeline.start.nodes.includes(this.id),
+      isolated: !!this.node.isolated,
     });
 
     this.subscriptions.changes = this.form.valueChanges.subscribe(() =>
@@ -134,10 +137,12 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
     const { pipeline, launchRequest } = this.project;
 
-    const { title, start } = this.form.getRawValue();
+    const { title, start, isolated } = this.form.getRawValue();
     if (title !== getLabel(this.node.title, this.language)) {
       this.node.title = title;
     }
+    // a Node that isn't isolated carries no mark at all
+    this.node.isolated = isolated || undefined;
 
     const index = pipeline.start.nodes.indexOf(this.id);
     if (start) {

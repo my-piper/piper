@@ -6,8 +6,7 @@ export const SCRIPT_NODE_ID = "script";
 
 /**
  * Marks a Script Node in a Pipeline: its user writes its inputs, outputs and
- * script, so it is never signed, never reads an Environment and is never
- * replaced by a catalog update.
+ * script, so it is never replaced by a catalog update.
  */
 export const SCRIPT_NODE_SOURCE = "script";
 
@@ -24,6 +23,11 @@ const SCRIPT = `export async function run({ inputs }) {
 
 export function isScriptNode(node: Pick<Node, "source">) {
   return node.source === SCRIPT_NODE_SOURCE;
+}
+
+/** Whether a script points at published or remote code instead of holding it. */
+export function isScriptReference(script: string | undefined) {
+  return /^(registry:|https?:\/\/)/.test(script ?? "");
 }
 
 /** The catalog can't hold a Node under the Script Node's id: it would be hidden. */

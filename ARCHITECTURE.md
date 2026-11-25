@@ -107,7 +107,7 @@ Every boundary (HTTP, Mongo, Redis, queues, Kafka, Deno) goes through `class-tra
 ## Pipeline model
 
 A **pipeline** (`models/pipeline.ts`, `schemas/pipeline.json`) has:
-- `nodes: Map<id, Node>` — each node has typed `inputs`/`outputs`, a JavaScript `script` exporting `run`, an `execution` class, an optional `environment` (variables with a scope), a catalog entry, and a `sign`;
+- `nodes: Map<id, Node>` — each node has typed `inputs`/`outputs`, a JavaScript `script` exporting `run`, an `execution` class, an optional `environment` (variables with a scope), a catalog entry, and an `isolated` mark;
 - `flows: Map<id, NodeFlow>` — edges `from.output → to.input`, with a `mode` (`wait` by default, or `move`) and an optional `transformer` (`json` path extraction, `array` index);
 - `inputs` / `outputs` — pipeline-level I/O. Input flows feed node inputs; output flows collect node outputs;
 - `start.nodes` — entry nodes planned when a launch starts.
@@ -116,11 +116,10 @@ I/O values are typed (`boolean`, `integer`, `float`, `string`, `string[]`, `json
 
 **Projects** wrap a pipeline with a default `launchRequest`, an environment, metadata and visibility. **Node packages** (YAML, validated by `schemas/node-package.json`) publish reusable nodes into the `nodes` catalog. They can be imported from a URL and are checked for updates periodically.
 
-### Node signing and sandbox isolation
-`packages/nodes/sign-node.ts` hashes the node's script (whitespace-stripped) together with its environment scopes and `NODE_SIGN_SALT`.
-- Nodes installed from packages are signed.
-- When a project is patched, a node whose signature no longer matches is rejected, unless the user is an engineer, in which case it is re-signed.
-- At execution time, signed nodes run with `isolation: "none"`; unsigned nodes run with `isolation: "process"` in the Deno sandbox.
+### Sandbox isolation
+Nodes are not signed and their scripts and environment scopes are not checked on save (ADR 0007).
+- A node runs with `isolation: "none"` (a worker in the Deno server's shared process) unless it carries `isolated: true`, which runs it with `isolation: "process"`.
+- A Node Definition can carry `isolated`, and nodes placed from it copy it; the "Run isolated" switch on the node's Design panel sets it per node in a pipeline.
 
 Environment variables are resolved per node in `jobs/process-node/environment.ts`. Each variable's scope (`global`, `user`, `pipeline`) controls where it is read from, first match wins:
 
@@ -209,7 +208,7 @@ These run in the `set_launches_io` worker group and similar, so node processing 
 - Callers poll the launch state and data endpoints under `/api/launches/:id`.
 
 ## Other subsystems
-- **Assistant** (`api/projects/assistant`, `app/llm.ts`): an OpenAI-compatible LLM with tool definitions. It proposes pipeline changes, which are validated against the compiled schema and re-signed before saving. Enabled with `ACTIVATE_ASSISTANT`.
+- **Assistant** (`api/projects/assistant`, `app/llm.ts`): an OpenAI-compatible LLM with tool definitions. It proposes pipeline changes, which are validated against the compiled schema before saving. Enabled with `ACTIVATE_ASSISTANT`.
 - **DMS** (`api/dms`, `app/nocodb.ts`): databases backed by NocoDB.
 - **Batches** (`api/batches`): named batches a user creates; they are stored in Mongo and listed through the API.
 - **Assets / artefacts**: user uploads and saved launch results in S3; images are served through imgproxy.

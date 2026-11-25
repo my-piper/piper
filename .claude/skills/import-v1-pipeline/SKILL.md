@@ -11,7 +11,8 @@ stays the one structural converter: this skill only prepares a **cleaned** copy
 of each YAML so that the import comes back without problems and without
 `require`/Environment warnings. Read `docs/adr/0004-script-nodes-run-unsigned-and-isolated.md`
 and `0005-v1-scripts-imported-behind-a-prelude.md` first: they decide where each
-Node can land.
+Node can land. ADR 0007 has since let Script Nodes read an Environment, but the
+v1 importer still drops a Script Node's `environment`, so the rules below hold.
 
 ## 1. Classify every Node
 
@@ -78,7 +79,7 @@ Copy each v1 YAML to `tmp/piper-v1/cleaned/<same name>` and in it:
   existing package) and `_id: <node id>`, keeping its key, `arrange` and
   every port its Flows use;
 - replace each Script Node's `script` with the rewritten code and delete its
-  `environment` and `sign`;
+  `environment` (a `sign` is dropped anyway);
 - leave Flows, inputs, outputs and `start` untouched.
 
 ## 5. Import, children first

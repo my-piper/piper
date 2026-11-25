@@ -2,8 +2,11 @@ import mongo from "app/mongo";
 import { toInstance } from "core-kit/packages/transform";
 import { Node } from "models/node";
 import { Pipeline } from "models/pipeline";
-import { SCRIPT_NODE_SOURCE, isScriptNode } from "packages/nodes/script-node";
-import { isScriptReference } from "packages/nodes/sign-node";
+import {
+  SCRIPT_NODE_SOURCE,
+  isScriptNode,
+  isScriptReference,
+} from "packages/nodes/script-node";
 import {
   fromV1Script,
   isV1Script,
@@ -151,7 +154,6 @@ function toScriptNode(node: Node): Adoption {
 
   node.source = SCRIPT_NODE_SOURCE;
   node.script = isV1Script(script) ? fromV1Script(script) : script;
-  delete node.sign;
   const declared = [...(node.environment?.keys() ?? [])];
   delete node.environment;
   return { problems: [], warnings: v1ScriptWarnings(script, declared) };

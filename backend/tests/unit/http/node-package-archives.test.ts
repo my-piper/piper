@@ -108,7 +108,6 @@ describe("uploading a package archive", () => {
             $set: expect.objectContaining({
               package: "artworks",
               script: "registry:artworks@3/ask_llm_agent/script.js",
-              sign: expect.any(String),
             }),
           },
           upsert: true,

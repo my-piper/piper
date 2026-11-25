@@ -56,7 +56,7 @@ describe("node execution lifecycle", () => {
           state: { page: 2 },
           env: { scope: {}, variables: {} },
         }),
-        { timeout, isolation: "process" }
+        { timeout, isolation: "none" }
       );
       expect(doubles.redis.del).toHaveBeenCalledWith(
         NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
@@ -65,8 +65,8 @@ describe("node execution lifecycle", () => {
     }
   );
 
-  it("runs signed nodes without process isolation", async () => {
-    context.launch.pipeline.nodes.get("echo_node").sign = "trusted-signature";
+  it("runs a Node marked isolated in its own process", async () => {
+    context.launch.pipeline.nodes.get("echo_node").isolated = true;
 
     await context.run();
 
@@ -74,15 +74,14 @@ describe("node execution lifecycle", () => {
       expect.any(String),
       "run",
       expect.any(Object),
-      { timeout: 3000, isolation: "none" }
+      { timeout: 3000, isolation: "process" }
     );
   });
 
-  it("runs a Script Node process-isolated without any Environment, even if signed", async () => {
+  it("runs a Script Node without isolation and with its Environment", async () => {
     const node = context.launch.pipeline.nodes.get("echo_node");
     Object.assign(node, {
       source: "script",
-      sign: "forged-signature",
       environment: new Map([
         ["OPENAI_KEY", toInstance({ scope: "global" }, NodeEnvironment)],
       ]),
@@ -102,8 +101,13 @@ describe("node execution lifecycle", () => {
     expect(doubles.execute).toHaveBeenCalledWith(
       expect.any(String),
       "run",
-      expect.objectContaining({ env: { scope: {}, variables: {} } }),
-      { timeout: 3000, isolation: "process" }
+      expect.objectContaining({
+        env: {
+          scope: { OPENAI_KEY: "global" },
+          variables: { OPENAI_KEY: "platform secret" },
+        },
+      }),
+      { timeout: 3000, isolation: "none" }
     );
   });
 

@@ -310,9 +310,10 @@ export class Node {
   @Type(() => String)
   app: string;
 
+  /** Runs the Node in its own process, apart from concurrent Launches. */
   @Expose()
-  @Type(() => String)
-  sign: string;
+  @Type(() => Boolean)
+  isolated?: boolean;
 
   @Expose()
   @Type(() => Arrange)

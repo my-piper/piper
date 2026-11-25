@@ -39,7 +39,6 @@ import { toInstance, toPlain } from "src/utils/models";
 })
 export class EditNodeScriptComponent implements OnInit {
   nodeExecution = NodeExecution;
-  readonly scriptNodeSource = SCRIPT_NODE_SOURCE;
 
   helpOpen = false;
   readonly helpOptions = {
@@ -145,10 +144,10 @@ export class EditNodeScriptComponent implements OnInit {
     const { execution, script: source } = this.form.getRawValue();
     const target = this.node;
 
-    // a Script Node is the user's own code: it is stored as typed and never
-    // signed, so it doesn't go through the engineers' prepare-script call
+    // a Script Node is the user's own code: it is stored as typed, so it
+    // doesn't go through the engineers' prepare-script call
     if (target.source === SCRIPT_NODE_SOURCE) {
-      assign(target, { execution, script: source, sign: undefined });
+      assign(target, { execution, script: source });
       this.loadedSource = source;
       this.progress.saving = false;
       this.projectManager.markDirty();
@@ -178,13 +177,13 @@ export class EditNodeScriptComponent implements OnInit {
           this.progress.saving = false;
           if (!this.destroyRef.destroyed) this.cd.detectChanges();
         }),
-        map((result) => result as { script: string; sign: string }),
+        map((result) => result as { script: string }),
         takeUntil(this.route.data.pipe(skip(1))),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: ({ script, sign }) => {
-          assign(target, { execution, script, sign });
+        next: ({ script }) => {
+          assign(target, { execution, script });
           if (changed && this.node === target) {
             this.loadedSource = script;
             this.form.patchValue({ script });

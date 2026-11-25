@@ -72,7 +72,7 @@ describe("pipeline node script editor", () => {
 
     page.save().click();
     const request = page.controller.expectOne("/api/nodes/prepare-script");
-    request.flush({ script: REFERENCE, sign: "new-sign" });
+    request.flush({ script: REFERENCE });
     page.settle();
 
     expect(request.request.body.node.script).toBe(REFERENCE);
@@ -92,13 +92,12 @@ describe("pipeline node script editor", () => {
 
     page.save().click();
     const request = page.controller.expectOne("/api/nodes/prepare-script");
-    request.flush({ script: "normalized source", sign: "new-sign" });
+    request.flush({ script: "normalized source" });
     page.settle();
 
     expect(request.request.body.node.script).toBe(edited);
     expect(request.request.body.base).toBe(REFERENCE);
     expect(page.node.script).toBe("normalized source");
-    expect(page.node.sign).toBe("new-sign");
     expect(page.editor().value).toBe("normalized source");
     page.controller.verify();
     finish();
@@ -129,9 +128,8 @@ describe("pipeline node script editor", () => {
     finish();
   }));
 
-  it("saves a Script Node's script for a regular user without signing it", fakeAsync(() => {
+  it("saves a Script Node's script for a regular user as typed", fakeAsync(() => {
     const page = setup(SOURCE, { role: "owner", source: "script" });
-    page.node.sign = "stale-sign";
     const edited = SOURCE.replace("next({})", 'next({ text: "edited" })');
     typeInto(page.editor(), edited);
     page.fixture.componentInstance.form.controls.execution.setValue(
@@ -143,7 +141,6 @@ describe("pipeline node script editor", () => {
 
     expect(page.node.script).toBe(edited);
     expect(page.node.execution).toBe(NodeExecution.rapid);
-    expect(page.node.sign).toBeUndefined();
     page.controller.verify();
     finish();
   }));

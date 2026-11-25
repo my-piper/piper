@@ -39,8 +39,12 @@ An edited script belonging to one Node in a Pipeline. It leaves the published No
 _Avoid_: Package patch, package edit
 
 **Script Node**:
-A Node whose inputs, outputs and script are written by the user who places it, rather than taken from a Node Package. Every user can place one without installing anything. Each one stands alone: reusing it means publishing a Node Package. It runs isolated and never reads an Environment.
+A Node whose inputs, outputs and script are written by the user who places it, rather than taken from a Node Package. Every user can place one without installing anything. Each one stands alone: reusing it means publishing a Node Package.
 _Avoid_: Custom node, code node, builtin node
+
+**Isolated Node**:
+A Node that runs in its own process, apart from the Launches running at the same time. A Node runs isolated only when someone marks it so; a Node Definition can carry the mark, and each Node in a Pipeline can turn it on or off.
+_Avoid_: Sandboxed node, untrusted node, unsigned node
 
 **Package Registry**:
 Where Piper keeps the code of every published Node Package version, and where Nodes load it from when they run.

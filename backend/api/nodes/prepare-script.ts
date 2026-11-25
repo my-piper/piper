@@ -3,7 +3,6 @@ import { toInstance } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import { Node } from "models/node";
 import { prepareScriptSource } from "packages/nodes/script-source";
-import { generateSign } from "packages/nodes/sign-node";
 import { checkEngineer, handle } from "utils/http";
 
 api.post(
@@ -22,6 +21,6 @@ api.post(
     } catch (err) {
       throw new DataError(`Can't prepare script: ${(err as Error).message}`);
     }
-    return { script: node.script, sign: generateSign(node) };
+    return { script: node.script };
   })
 );

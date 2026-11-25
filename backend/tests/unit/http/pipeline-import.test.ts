@@ -2,9 +2,6 @@ import { httpDoubles } from "../../helpers/http-boundaries";
 import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { userToken } from "../../fixtures/http";
-import { toInstance } from "core-kit/packages/transform";
-import { Node } from "models/node";
-import { generateSign } from "packages/nodes/sign-node";
 import { beforeEach, describe, expect, it } from "vitest";
 
 let context: Awaited<ReturnType<typeof createHttpApp>>;
@@ -24,11 +21,11 @@ beforeEach(async () => {
 
 const SCRIPT = "export async function run({ inputs }) { return inputs; }";
 
-/** The sign this Piper issues for a Node running SCRIPT with no Environment. */
-const ISSUED_SIGN = generateSign(toInstance({ script: SCRIPT }, Node));
-
-/** A Pipeline as this Piper exports it: a signed Node and a Script Node. */
-function pipelineYaml({ sign = ISSUED_SIGN, scriptNode = SCRIPT } = {}) {
+/**
+ * A Pipeline as an older Piper exported it: a Package Node and a Script Node,
+ * both still carrying the sign Nodes no longer have.
+ */
+function pipelineYaml({ scriptNode = SCRIPT } = {}) {
   return `name: Text to Video V5
 version: 1
 start:
@@ -54,7 +51,8 @@ nodes:
     source: node
     execution: regular
     script: "${SCRIPT}"
-    sign: ${sign}
+    sign: issued
+    isolated: true
     arrange:
       x: 570
       y: 100
@@ -106,7 +104,7 @@ describe("pipeline import", () => {
         inputs: { prompt: { flows: { to_generate_image: {} } } },
         nodes: {
           generate_image: {
-            sign: ISSUED_SIGN,
+            isolated: true,
             inputs: { prompt: { featured: true } },
           },
         },
@@ -114,34 +112,27 @@ describe("pipeline import", () => {
     });
   });
 
-  it("re-signs a Node whose sign this Piper didn't issue", async () => {
-    const response = await importYaml(pipelineYaml({ sign: "forged" }));
-
-    expect(response.status).toBe(200);
-    const [project] = inserted;
-    expect(project.pipeline["nodes"]["generate_image"].sign).toBe(ISSUED_SIGN);
-  });
-
-  it("never keeps a sign or an Environment on a Script Node", async () => {
+  it("drops the sign an older export carried on its Nodes", async () => {
     const response = await importYaml(pipelineYaml());
 
     expect(response.status).toBe(200);
     const [project] = inserted;
-    const node = project.pipeline["nodes"]["mine"];
-    expect(node).not.toHaveProperty("sign");
-    expect(node).not.toHaveProperty("environment");
+    const nodes = project.pipeline["nodes"];
+    expect(nodes["generate_image"]).not.toHaveProperty("sign");
+    expect(nodes["mine"]).not.toHaveProperty("sign");
   });
 
-  it("refuses a Script Node that points at published code", async () => {
-    const response = await importYaml(
-      pipelineYaml({ scriptNode: "registry:artworks@3/x/script.js" })
-    );
+  it("keeps a Script Node's Environment and published script", async () => {
+    const script = "registry:artworks@3/x/script.js";
 
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe(
-      "Script Node mine must hold its own code"
-    );
-    expect(inserted).toEqual([]);
+    const response = await importYaml(pipelineYaml({ scriptNode: script }));
+
+    expect(response.status).toBe(200);
+    const [project] = inserted;
+    expect(project.pipeline["nodes"]["mine"]).toMatchObject({
+      script,
+      environment: { OPENAI_KEY: { type: "string", scope: "global" } },
+    });
   });
 
   it("leaves importing to admins", async () => {

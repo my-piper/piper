@@ -12,4 +12,4 @@ Node scripts run in the Deno service without `--allow-ffi` and without access to
 
 - Nodes ported from Piper v1 replace `sharp` (see the `import-v1-pipeline` skill's rewrite rules).
 - A worker shares the server's process, so `/proc/self/environ` still shows a signed Node the server's environment. Both modes still read every other file too, such as Docker secrets under `/run/secrets`. Closing that means narrowing read permission to the paths scripts need.
-- An unsigned Node whose script lives in the Package Registry can't load it any more: its process has no registry token. Only paths that skip the sign check can produce one.
+- An unsigned Node whose script lives in the Package Registry can't load it any more: its process has no registry token. Only paths that skip the sign check can produce one. (ADR 0007 has since removed the sign: every Node now runs without isolation unless marked.)

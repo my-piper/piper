@@ -49,6 +49,7 @@ api.get(
               delete plain["arrange"];
               delete plain["source"];
               delete plain["locked"];
+              delete plain["isolated"];
               return plain;
             })(),
             changes: (() => {
@@ -57,11 +58,12 @@ api.get(
               delete plain["arrange"];
               delete plain["source"];
               delete plain["locked"];
+              delete plain["isolated"];
               return plain;
             })(),
             updated: (() => {
-              const { title, arrange, source, locked } = node;
-              assign(updated, { title, arrange, source, locked });
+              const { title, arrange, source, locked, isolated } = node;
+              assign(updated, { title, arrange, source, locked, isolated });
               return updated;
             })(),
           },

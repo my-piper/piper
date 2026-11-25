@@ -7,7 +7,6 @@ import { Environment } from "models/environment";
 import { Launch } from "models/launch";
 import { Node } from "models/node";
 import { User } from "models/user";
-import { isScriptNode } from "packages/nodes/script-node";
 import { decrypt } from "packages/environment/crypt-environment";
 import { Primitive } from "types/primitive";
 
@@ -37,8 +36,7 @@ export async function getEnvironment({
     scope: new Map<string, EnvironmentScope>(),
     variables: new Map<string, Primitive>(),
   });
-  // a Script Node is written by its user and never reads an Environment
-  if (node.environment && !isScriptNode(node)) {
+  if (node.environment) {
     const environment: {
       global?: Environment;
       user?: Environment;

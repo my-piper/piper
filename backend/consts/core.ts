@@ -26,7 +26,6 @@ export const HIDDEN_STRING = "[encrypted]";
 /** What Piper v1 showed in place of a Secret Variable's value. */
 export const V1_HIDDEN_STRING = "[hidden]";
 export const SITE_URL = env["SITE_URL"] || "/";
-export const NODE_SIGN_SALT = env["NODE_SIGN_SALT"] || "xyzXYZ";
 
 /** What a Variable name may look like. */
 export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;

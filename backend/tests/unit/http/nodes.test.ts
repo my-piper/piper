@@ -15,14 +15,15 @@ beforeEach(async () => {
   ]);
 });
 
-function catalogNode(sign: string) {
+function catalogNode() {
   return {
     _id: "echo_node",
     version: 1,
     title: "Echo",
     execution: "rapid",
     script: "export async function run() { return {}; }",
-    sign,
+    sign: "stale",
+    isolated: true,
     catalog: {
       _id: "echo_catalog",
       version: 7,
@@ -102,7 +103,7 @@ describe("Script Node in the catalog", () => {
     expect(response.body).toEqual([]);
   });
 
-  it("is placed with no inputs or outputs, an inline script and no sign", async () => {
+  it("is placed with no inputs or outputs, an inline script and no isolation", async () => {
     const response = await context.request.get("/api/nodes/script");
 
     expect(response.status).toBe(200);
@@ -113,25 +114,24 @@ describe("Script Node in the catalog", () => {
       outputs: {},
     });
     expect(response.body.script).toContain("export async function run");
-    expect(response.body.sign).toBeUndefined();
+    expect(response.body.isolated).toBeUndefined();
     expect(httpDoubles.nodes.findOne).not.toHaveBeenCalled();
   });
 });
 
 describe("node catalog publishing", () => {
-  it("rejects a forged sign from a regular user before writing", async () => {
+  it("leaves publishing to engineers", async () => {
     const response = await context.request
       .post("/api/nodes")
       .set("user-token", userToken("owner-user"))
-      .send(catalogNode("forged"));
+      .send(catalogNode());
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Wrong sign for echo_catalog node");
     expect(httpDoubles.nodes.updateOne).not.toHaveBeenCalled();
   });
 
   it("rejects publishing a node under the Script Node id", async () => {
-    const node = catalogNode("forged");
+    const node = catalogNode();
     node.catalog._id = "script";
 
     const response = await context.request
@@ -144,11 +144,11 @@ describe("node catalog publishing", () => {
     expect(httpDoubles.nodes.updateOne).not.toHaveBeenCalled();
   });
 
-  it("re-signs a node published by an engineer", async () => {
+  it("publishes an engineer's node with its isolation mark", async () => {
     const response = await context.request
       .post("/api/nodes")
       .set("user-token", userToken("engineer-user"))
-      .send(catalogNode("forged"));
+      .send(catalogNode());
 
     expect(response.status).toBe(204);
     const [[filter, update]] = httpDoubles.nodes.updateOne.mock.calls;
@@ -159,6 +159,7 @@ describe("node catalog publishing", () => {
       package: "echo_package",
       source: "catalog",
     });
-    expect(update.$set.sign).toMatch(/^[0-9a-f]{64}$/);
+    expect(update.$set.isolated).toBe(true);
+    expect(update.$set).not.toHaveProperty("sign");
   });
 });

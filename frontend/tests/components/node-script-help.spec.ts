@@ -3,10 +3,9 @@ import { NodeScriptHelpComponent } from "src/app/node-script-help/node-script-he
 import { SCRIPT_EXAMPLES } from "src/app/node-script-help/script-examples";
 import { configureAppTestingModule } from "../helpers/editor";
 
-function setup({ scriptNode = false } = {}) {
+function setup() {
   configureAppTestingModule();
   const fixture = TestBed.createComponent(NodeScriptHelpComponent);
-  fixture.componentRef.setInput("scriptNode", scriptNode);
   fixture.detectChanges();
   const element = fixture.nativeElement as HTMLElement;
   const tabs = () =>
@@ -111,37 +110,19 @@ describe("node script examples", () => {
     const body = (code: string) =>
       code.replace(/^export /gm, "").replace(/^import .*$/gm, "");
 
-    for (const code of [
-      ...examples.map((example) => example.code),
-      ...examples
-        .filter((example) => example.scriptNode)
-        .map((example) => example.scriptNode.code),
-    ]) {
+    for (const code of examples.map((example) => example.code)) {
       expect(() => new Function(body(code))).not.toThrow();
       expect(body(code)).toMatch(/^async function run\(/m);
     }
   });
 
-  it("reads Variables from env for a catalog node", () => {
+  it("reads Variables from env", () => {
     const page = setup();
 
     page.tab("Environment Variables").click();
     page.fixture.detectChanges();
 
     expect(page.code()).toContain("env.variables");
-  });
-
-  it("passes values through inputs for a Script Node, which has no Environment", () => {
-    const page = setup({ scriptNode: true });
-
-    page.tab("Environment Variables").click();
-    page.fixture.detectChanges();
-
-    expect(page.element.textContent).toContain(
-      "A Script Node never reads an Environment",
-    );
-    expect(page.code()).toContain("inputs.apiKey");
-    expect(page.code()).not.toContain("env");
   });
 });
 

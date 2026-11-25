@@ -259,7 +259,7 @@ const DEFAULT_ORDER = 999;
 
 /**
  * Marks a Script Node: the Node whose user writes its inputs, outputs
- * and script. It is never signed and never reads an Environment.
+ * and script.
  */
 export const SCRIPT_NODE_SOURCE = "script";
 
@@ -328,9 +328,10 @@ export class Node {
   @Type(() => String)
   app!: string;
 
+  /** Runs the Node in its own process, apart from concurrent Launches. */
   @Expose()
-  @Type(() => String)
-  sign!: string;
+  @Type(() => Boolean)
+  isolated?: boolean;
 
   @Expose()
   @Type(() => Boolean)

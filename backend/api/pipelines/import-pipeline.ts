@@ -9,10 +9,7 @@ api.post(
     checkAdmin(currentUser);
 
     return toPlain(
-      await importPipeline(currentUser, body.yaml, {
-        // only admins import, and every admin may re-sign a Node
-        canResign: true,
-      })
+      await importPipeline(currentUser, body.yaml)
     );
   })
 );

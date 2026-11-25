@@ -51,6 +51,24 @@
       </ng-container>
     </ng-template>
     <tui-icon icon="@tui.info" [tuiTooltip]="autoStartHint" />
+    <label tuiLabel>
+      <input
+        tuiSwitch
+        type="checkbox"
+        size="s"
+        formControlName="isolated"
+        aria-label="Run isolated"
+        i18n-aria-label="@@label.run_isolated"
+      />
+      <ng-container i18n="@@label.run_isolated">Run isolated</ng-container>
+    </label>
+    <ng-template #isolatedHint>
+      <ng-container i18n="@@message.run_isolated">
+        Runs the node in its own process, apart from other launches. Slower to
+        start.
+      </ng-container>
+    </ng-template>
+    <tui-icon icon="@tui.info" [tuiTooltip]="isolatedHint" />
   </div>
 </header>
 

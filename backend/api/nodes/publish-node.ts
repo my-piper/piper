@@ -4,13 +4,12 @@ import { toInstance, toPlain, validate } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 import { Node } from "models/node";
 import { checkNodeIdFree } from "packages/nodes/script-node";
-import { ensureSign } from "packages/nodes/sign-node";
-import { checkLogged, handle, isEngineer } from "utils/http";
+import { checkEngineer, handle } from "utils/http";
 
 api.post(
   "/api/nodes",
   handle(({ currentUser }) => async ({ body }) => {
-    checkLogged(currentUser);
+    checkEngineer(currentUser);
 
     const node = toInstance(body, Node);
     await validate(node);
@@ -20,7 +19,6 @@ api.post(
     } = node;
     checkNodeIdFree(_id);
     assign(node, { _id, version, category, package: node.catalog.package });
-    ensureSign(node, _id, isEngineer(currentUser));
 
     const plain = toPlain(node);
     plain["source"] = "catalog";

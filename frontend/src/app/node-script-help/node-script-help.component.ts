@@ -4,7 +4,6 @@ import {
   computed,
   DOCUMENT,
   inject,
-  input,
   resource,
   signal,
 } from "@angular/core";
@@ -34,16 +33,9 @@ export class NodeScriptHelpComponent {
   // the script editor loads Monaco as a global
   private readonly window = inject(DOCUMENT).defaultView as MonacoWindow;
 
-  readonly scriptNode = input(false);
-
   readonly examples = SCRIPT_EXAMPLES;
   readonly active = signal(0);
-  readonly example = computed(() => {
-    const example = this.examples[this.active()];
-    return this.scriptNode() && example.scriptNode
-      ? { ...example, ...example.scriptNode }
-      : example;
-  });
+  readonly example = computed(() => this.examples[this.active()]);
 
   // the code coloured as the editor colours it; plain text until it is ready
   // or while Monaco has not loaded, which is checked again on every example

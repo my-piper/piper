@@ -135,7 +135,6 @@ describe("node package administration", () => {
               _id: "echo_node",
               package: "echo_package",
               locked: true,
-              sign: expect.any(String),
             }),
           },
           upsert: true,

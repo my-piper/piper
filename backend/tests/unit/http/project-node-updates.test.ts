@@ -51,6 +51,28 @@ describe("project node updates", () => {
     });
   });
 
+  it("keeps the isolation mark the pipeline set on the node", async () => {
+    Object.assign(scenario.project.pipeline.nodes.echo_node, {
+      source: "catalog",
+      version: 1,
+    });
+    httpDoubles.nodes.findOne.mockResolvedValue({
+      ...scenario.project.pipeline.nodes.echo_node,
+      version: 2,
+      isolated: true,
+    });
+
+    const response = await context.request
+      .get("/api/projects/project-http/check-node-updates")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(200);
+    const update = response.body.updates.echo_node;
+    expect(update.updated.version).toBe(2);
+    expect(update.updated).not.toHaveProperty("isolated");
+    expect(update.changes).not.toHaveProperty("isolated");
+  });
+
   it("fails instead of reporting an empty update when the catalog lookup fails", async () => {
     Object.assign(scenario.project.pipeline.nodes.echo_node, {
       source: "catalog",
