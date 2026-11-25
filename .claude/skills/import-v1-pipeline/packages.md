@@ -1,7 +1,7 @@
-# Optional catalog and package workflow
+# Package workflow
 
-Read this branch when the user requests catalog reuse or package publication.
-For inline, file-only preparation, use the main skill instead.
+Ported nodes are package nodes in `v1_pipelines` by default; this file covers
+their layout, catalog reuse and publication.
 
 A v1 package label does not prove that its installed Node Definition preserves
 custom behavior. Check the installed script, all used ports, original defaults,
@@ -17,12 +17,16 @@ The archive layout is defined by `backend/packages/node-packages/archive.ts`:
 each node folder contains `schema.yaml`, `script.js` and behavior tests. Schemas
 come from `backend/schemas/node.json` and `node-package.json`.
 
-Copy required helpers into the archive and pin remote imports. All relative
-imports stay inside the archive. Adapt scripts with [rewrites.md](rewrites.md).
+Import shared helpers from where the catalog keeps them (`../../../utils/node.js`,
+`../../artworks/utils.js`) and pin remote imports. Build the archive with
+`deno task pack nodes/v1_pipelines` in `piper-nodes` (`tools/pack.js`): it
+copies those helpers to the archive root and rewrites the imports to
+`../node.js` and `../utils.js`, so every relative import stays inside the
+archive. Never upload a hand-made zip. Adapt scripts with [rewrites.md](rewrites.md).
 Registry scripts cannot run with process isolation; check ADRs 0003 and 0007.
 Validate schemas, archive boundaries and mocked runtime behavior before upload.
 
-If publication was requested, upload the archive through
+If publication was requested, upload `dist/v1_pipelines-<N>.zip` through
 `POST /api/node-packages/actions/upload-archive` as an admin. Each upload needs
 a greater version; published registry versions are immutable. Record the exact
 version and node ids returned. Package creation does not authorize Project

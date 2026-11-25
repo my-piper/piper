@@ -2,20 +2,25 @@ import "reflect-metadata";
 import ajv from "app/ajv";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { Pipeline } from "models/pipeline";
-import { readFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { checkScriptUrl } from "packages/node-packages/script-url";
+import { parseRegistryScript } from "packages/registry/reference";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import ts from "typescript";
 import { parse } from "yaml";
 
+type EnumInput = { default?: unknown; enum?: unknown[] };
 type PreparedNode = {
   source?: string;
   package?: string;
+  version?: number;
+  isolated?: boolean;
   catalog?: object;
   script?: string;
   environment?: Record<string, { type: string; description?: string }>;
-  inputs: Record<string, { featured?: boolean }>;
+  inputs: Record<string, EnumInput & { featured?: boolean }>;
   outputs: Record<string, object>;
 };
 type PreparedPipeline = {
@@ -28,7 +33,7 @@ type PreparedPipeline = {
   >;
   inputs: Record<
     string,
-    { flows?: Record<string, { to: string; input: string }> }
+    EnumInput & { flows?: Record<string, { to: string; input: string }> }
   >;
   outputs: Record<
     string,
@@ -43,7 +48,11 @@ const LEGACY_NAMES = new Set([
   "PAAS_BASE_URL",
 ]);
 
-function scriptProblems(script: string, declared: Set<string>): string[] {
+function scriptProblems(
+  script: string,
+  declared: Set<string>,
+  { relativeImports = false } = {}
+): string[] {
   const errors = new Set<string>();
   const source = ts.createSourceFile(
     "node.js",
@@ -76,11 +85,13 @@ function scriptProblems(script: string, declared: Set<string>): string[] {
   }
   function checkImport(value: string) {
     if (value.startsWith("node:")) return;
+    // Package archives carry their helpers; tools/pack.js checks the paths.
+    if (relativeImports && value.startsWith(".")) return;
     try {
       checkScriptUrl(value);
     } catch {
       errors.add(
-        "imports must be pinned supported HTTPS URLs or node: builtins; embed local helpers"
+        "imports must be pinned supported HTTPS URLs or node: builtins; use a package node for shared helpers"
       );
     }
   }
@@ -173,8 +184,41 @@ function scriptProblems(script: string, declared: Set<string>): string[] {
   return [...errors];
 }
 
-/** Read-only checks for the inline, current-format output of the migration skill. */
-export function validatePreparedPipeline(source: string) {
+/**
+ * The catalog path (`<package>/<node>/script.js`) of a package node's script,
+ * or null when the script is not a `<node>/script.js` of its own package. The
+ * registry version is the package's; `node.version` is the node's own.
+ */
+function packageScriptPath(node: PreparedNode) {
+  try {
+    const { nodePackage, path } = parseRegistryScript(node.script ?? "");
+    return nodePackage === node.package && /^[^/]+\/script\.js$/.test(path)
+      ? `${nodePackage}/${path}`
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * An enum option is `value` or `value|label`, but a default is passed to the
+ * script as it is, so it must be the bare value. Returns that value when the
+ * default repeats a whole labelled option.
+ */
+function labelledDefault({ default: value, enum: options }: EnumInput) {
+  if (typeof value !== "string" || !value.includes("|")) return null;
+  return options?.includes(value) ? value.split("|")[0] : null;
+}
+
+/**
+ * Read-only checks for the current-format output of the migration skill:
+ * inline Script Nodes, and package nodes whose scripts are read from the
+ * piper-nodes catalog in `nodesDir` (its `nodes/` folder).
+ */
+export function validatePreparedPipeline(
+  source: string,
+  { nodesDir }: { nodesDir?: string } = {}
+) {
   const errors: string[] = [];
   let pipeline: PreparedPipeline;
   try {
@@ -207,9 +251,23 @@ export function validatePreparedPipeline(source: string) {
       "pipeline becomes schema-invalid after model conversion and an editor zoom update"
     );
   for (const [key, node] of Object.entries(pipeline.nodes)) {
-    if (node.source !== "script" || node.package || node.catalog)
+    const catalogPath = node.package ? packageScriptPath(node) : null;
+    if (node.package) {
+      if (node.source !== "node")
+        errors.push(`Node ${key}: a package node needs source: node`);
+      if (node.catalog)
+        errors.push(`Node ${key}: a package node can't keep catalog identity`);
+      if (node.isolated)
+        errors.push(
+          `Node ${key}: a registry script can't run with isolated: true`
+        );
+      if (!catalogPath)
+        errors.push(
+          `Node ${key}: a package node's script must be registry:${node.package}@<package version>/<node>/script.js`
+        );
+    } else if (node.source !== "script" || node.catalog)
       errors.push(
-        `Node ${key}: expected an inline Script Node without catalog identity`
+        `Node ${key}: expected an inline Script Node or a package node without catalog identity`
       );
     const declared = new Set(Object.keys(node.environment ?? {}));
     for (const name of declared)
@@ -223,8 +281,35 @@ export function validatePreparedPipeline(source: string) {
       errors.push(
         `Node ${key}: Environment declarations do not survive model conversion`
       );
-    for (const problem of scriptProblems(node.script ?? "", declared))
-      errors.push(`Node ${key}: ${problem}`);
+    if (!node.package)
+      for (const problem of scriptProblems(node.script ?? "", declared))
+        errors.push(`Node ${key}: ${problem}`);
+    else if (catalogPath && nodesDir) {
+      const file = join(nodesDir, catalogPath);
+      if (!existsSync(file))
+        errors.push(`Node ${key}: ${catalogPath} is missing from the catalog`);
+      else
+        for (const problem of scriptProblems(
+          readFileSync(file, "utf8"),
+          declared,
+          { relativeImports: true }
+        ))
+          errors.push(`Node ${key}: ${problem}`);
+    }
+    for (const [name, input] of Object.entries(node.inputs)) {
+      const value = labelledDefault(input);
+      if (value !== null)
+        errors.push(
+          `Node ${key}: input ${name} default must be the enum value ${value}, not the whole option`
+        );
+    }
+  }
+  for (const [name, input] of Object.entries(pipeline.inputs)) {
+    const value = labelledDefault(input);
+    if (value !== null)
+      errors.push(
+        `Pipeline input ${name}: default must be the enum value ${value}, not the whole option`
+      );
   }
 
   let links = 0;
@@ -267,6 +352,10 @@ if (
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   const files = process.argv.slice(2);
+  // The piper-nodes checkout sits next to this repository.
+  const nodesDir =
+    process.env["PIPER_NODES_DIR"] ??
+    join(dirname(fileURLToPath(import.meta.url)), "../../../piper-nodes/nodes");
   if (!files.length) {
     console.error(
       "Usage: node --import=tsx tools/validate-prepared-pipelines.ts <prepared.yaml>..."
@@ -275,7 +364,9 @@ if (
   }
   for (const file of files) {
     try {
-      const result = validatePreparedPipeline(readFileSync(file, "utf8"));
+      const result = validatePreparedPipeline(readFileSync(file, "utf8"), {
+        nodesDir,
+      });
       console.log(
         `${file}: ${result.errors.length ? "INVALID" : "valid"} (${result.nodes} nodes, ${result.links} links)`
       );

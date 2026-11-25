@@ -1,6 +1,6 @@
 ---
 name: import-v1-pipeline
-description: Prepare Piper v1 pipelines as self-contained YAML files for the current Piper importer.
+description: Port Piper v1 pipelines to package nodes in piper-nodes and prepare current-format YAML files that use them.
 argument-hint: <v1 pipeline .yaml>...
 disable-model-invocation: true
 ---
@@ -8,13 +8,16 @@ disable-model-invocation: true
 Prepare `$ARGUMENTS` (default: `tmp/piper-v1/*.yaml`) as current-format YAMLs in
 `tmp/piper-v1/prepared/<same name>`. Keep originals intact.
 
-**Default scope is files only.** Produce inline Script Nodes and a report.
-Publishing packages, importing Projects, changing Environment values, launching
-and deploying require the user to request those actions. Owner confirmation
-alone authorizes none of them. If the user requests packages or catalog reuse,
-read [packages.md](packages.md) for that branch.
+**Default scope is files only.** Write each ported node as a package node in
+`../piper-nodes/nodes/v1_pipelines/`, the prepared YAMLs that reference it, and
+a report. Read [packages.md](packages.md) for the package layout. Publishing
+packages, importing Projects, changing Environment values, launching and
+deploying require the user to request those actions. Owner confirmation alone
+authorizes none of them.
 
-“Without packages” changes the packaging, not the required runtime rewrites.
+Inline Script Nodes are the exception: use one only for a node that needs no
+shared helper, or when the user asks for output without packages. That changes
+the packaging, not the required runtime rewrites.
 Preserve behavior, graph topology and defaults while replacing unsupported v1
 code. If the user explicitly requests byte-for-byte original scripts, describe
 those files as unconverted; do not claim they are ready to run.
@@ -27,7 +30,7 @@ Read ADRs 0005, 0007, 0008 and 0009 in `docs/adr/`, then inspect:
   inline scripts and declared Environment Variables.
 - `backend/packages/pipelines/v1/adopt-nodes.ts` and `v1-script.ts`: **Import v1**
   replaces catalog nodes, drops Script Node Environment declarations and adds
-  an empty Environment prelude. It is unsuitable for the inline output here.
+  an empty Environment prelude. It is unsuitable for the output here.
 - `backend/packages/deno/execute.ts` and `jobs/process-node/environment.ts`:
   scripts receive their Environment through the invocation payload.
 
@@ -45,29 +48,48 @@ helpers; they do not require published nodes.
 Done when every node, module dependency, Environment read and child target has
 been accounted for. Keep credentials out of tool output and generated code.
 
-## 2. Rewrite every node inline
+## 2. Rewrite every node as a package node
 
 Apply **all** rules in [rewrites.md](rewrites.md), including native HTTP and
 multipart, image codecs, dynamic module loading, Environment names and access,
 and obsolete notifications. Renaming Variables alone is incomplete.
 
-Use `source: script`. Remove catalog identity (`package`, `catalog`, `_id`,
-`sign`) and obsolete billing metadata. Keep script code inline and retain its
-`environment` declarations, with type/description and current names.
+Write each node's `script.js`, `schema.yaml` and `test.js` under
+`../piper-nodes/nodes/v1_pipelines/<node>/`. Import the shared helpers the way
+the catalog's own nodes do, never a copy of their code:
+
+```js
+import { next, repeat, FatalError } from "../../../utils/node.js";
+import { ArtWorks } from "../../artworks/utils.js";
+```
+
+`tools/pack.js` copies them to the archive root, so the published script
+imports `../node.js` and `../utils.js`. Don't add a runtime prelude, a
+`DEFINITIONS` object or a local `_lib/` copy: `NextNode.from(x)` becomes
+`next(x)`, and errors are the `node.js` classes.
+
+In the prepared YAML, each such node is `source: node`, `package: v1_pipelines`
+and `script: registry:v1_pipelines@<N>/<node>/script.js`, where `<N>` is the
+package version; its own `version`, inputs, outputs and `environment` come from
+its `schema.yaml`. Leave out `isolated: true`: a registry script can't load
+under process isolation (ADR 0007). Remove catalog identity
+(`catalog`, `_id`, `sign`) and obsolete billing metadata. Retain `environment`
+declarations, with type/description and current names.
 Every Environment-reading function receives `env` from its invocation;
 helpers receive it explicitly. Script Nodes can read the Environment through
 regular Import (ADR 0007).
 
-Embed or bundle local helpers into each script. External imports must be
-pinned URLs supported by Deno or supported builtins. A self-contained YAML
-cannot depend on a scratch directory, a sibling checkout or a registry upload.
+Relative imports may only reach files of `piper-nodes`; external imports must
+be pinned URLs supported by Deno or supported builtins. A prepared YAML depends
+on `v1_pipelines@<N>` being published where it is imported; report that.
 Match the original ArtWorks create/poll/cancel return contracts when adapting
-its client. Replace legacy globals with native result/error/HTTP helpers.
+its client (see [rewrites.md](rewrites.md)). Replace legacy globals with native result/error/HTTP helpers.
 Convert `nested.run/state` to Child Launch instructions; keep child bookkeeping
 local to each invocation so concurrent runs cannot overwrite it.
 
 Done when every rewritten script can run without CommonJS `require`, v1 global
-injection, Map-style Environment access or an empty Environment stand-in.
+injection, Map-style Environment access, an empty Environment stand-in or a
+copied helper.
 
 ## 3. Preserve the graph and editor behavior
 
@@ -87,6 +109,9 @@ Normalize these editor contracts in the prepared files:
   port positions. Regular Import does not perform v1's port adoption. The
   existing contract is tested in
   `frontend/tests/unit/services/project-manager.sanitize.spec.ts`.
+- Write an enum input's `default` as the bare value (`auto`), never the
+  whole `value|label` option v1 stored: the default reaches the script as it
+  is, and the script's own validation rejects the label.
 - Remove unsupported v1 metadata only when schema validation identifies it.
   Replacing code must not drop flows or change their endpoints.
 
@@ -107,12 +132,26 @@ node --import=tsx tools/validate-prepared-pipelines.ts ../tmp/piper-v1/prepared/
 ```
 
 The guard checks the production schema, model round trip, first zoom save,
-connected ports, inline scripts, module imports and Environment rewrites.
+connected ports, enum defaults, module imports and Environment rewrites. It
+checks inline scripts in the YAML and package node scripts in the catalog
+(`../piper-nodes/nodes/<package>/<node>/script.js`, or `$PIPER_NODES_DIR`),
+and that each package node loads a script of its own package.
 Its regression tests run in the existing backend fast-test CI job. Schema
 acceptance alone is not the completion criterion.
 
+From `../piper-nodes`, run the package's tests and pack it; packing fails on
+a missing import or two helpers that would share a root name:
+
+```sh
+deno test nodes/v1_pipelines nodes/artworks/utils.test.js --allow-net --allow-read --allow-env --allow-write --no-check --sloppy-imports
+deno task pack nodes/v1_pipelines
+```
+
+Bump `version` in `nodes/v1_pipelines/package.yaml` whenever its code changes
+after an upload: a published version never changes (ADR 0003).
+
 Compare parsed original/prepared graph endpoints and defaults. Exercise the
-exact scripts embedded in the YAML, not just authoring fragments: mock HTTP
+exact scripts the YAML runs, not just authoring fragments: mock HTTP
 and test submission, polling/completion, error/skip branches, child instructions
 and Environment forwarding. Use the running Deno sandbox for harmless module
 loads or mocked execution when available. A module-load check or missing-key
@@ -124,7 +163,8 @@ These checks must not call Project creation, publishing or deployment APIs.
 
 ## 5. Deliver files and instructions
 
-Report the prepared YAML paths, **regular Import** as the required entrypoint,
+Report the prepared YAML paths, the `v1_pipelines` version they need and the
+packed archive, **regular Import** as the required entrypoint,
 node/connection counts, applied behavior changes, and validation evidence.
 List declared Variable names, optional defaults and needed Global bindings or
 Project overrides without values. Note missing child deploys and callee-first

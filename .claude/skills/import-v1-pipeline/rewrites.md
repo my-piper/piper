@@ -54,14 +54,22 @@ its memory limits.
 ## artworks
 
 v1's built-in `artworks` module (`ArtWorks`, `FatalError`) is the piper-nodes
-`ArtWorks` client in `nodes/artworks/utils.js` (`createTask`, `checkTask`,
-`cancelTask` against `/api/v3/tasks`). For inline output, embed the needed client code in the Script Node and retain
-its declared Environment; regular Import preserves it. Package output instead
-keeps the helper inside the archive. Match the v1 return contracts: a current
-client may return a repeat instruction from `createTask` where v1 expected an
-id, or use `checkTask` where v1 called `checkState`. Adapt these deliberately
-against `/api/v3/tasks` and its completed `results.data` response. Preserve task
-payloads, priorities, polling state, cancellation and fallback paths.
+`ArtWorks` client in `nodes/artworks/utils.js`. Import it
+(`import { ArtWorks } from "../../artworks/utils.js"`); never copy or fork it,
+and don't add a v1-only variant. It answers both ways a Node polls:
+
+- v1's own state machine: `postTask(payload)` answers the task id, as v1's
+  `createTask` did; `checkState(task)` answers `results.data`, or null while
+  the task runs, and throws a `FatalError` for a failed task. The Node keeps
+  its own attempts, delays, cancellation and fallbacks.
+- the catalog's: `createTask` answers a repeat instruction and `checkTask` the
+  data or `{ __repeat }`.
+
+Keep v1's calls on `postTask`/`checkState`, so task payloads, priorities,
+polling state, cancellation and fallback paths stay as they were. v1's
+`ArtWorksError` is `FatalError` from `node.js`. `ARTWORKS_URL` (v1's
+`PAAS_BASE_URL`) replaces the API base when set; tests point it at a mock.
+Declare `ARTWORKS_USER`, `ARTWORKS_PASSWORD` and, if used, `ARTWORKS_URL`.
 
 ## Dynamic require
 
@@ -113,8 +121,9 @@ classes from `utils/node.js`, `httpClient` → `fetch` with a timeout and a
 status check, `download(url)` → `fetch` + `new Uint8Array(await r.arrayBuffer())`.
 `nested.run/state` becomes Child Launch instructions. Preserve its repeat/poll
 contract and stable per-run child keys; store child bookkeeping in an invocation
-closure instead of mutable module globals. Embed the helpers in each inline
-script, or keep them inside an explicitly requested package archive.
+closure instead of mutable module globals. A package node imports the shared
+helpers (`utils/node.js`, `artworks/utils.js`); only an inline Script Node
+embeds the few it needs.
 
 Downloaded bytes are `Uint8Array`: use `TextDecoder` for FFmpeg/JSON text and an
 explicit byte-to-base64 conversion for image payloads. Buffer-style
