@@ -52,6 +52,7 @@ export async function upload(
   bucket: string | null = null
 ): Promise<string> {
   logger.debug(`Upload file ${key}`);
+
   try {
     const { mime } = await getFileInfo(data);
     const target = bucket || S3_DEFAULT_BUCKET_NAME;
@@ -67,6 +68,7 @@ export async function upload(
       })
     );
     logger.debug(`Server returned ${httpStatusCode}`);
+
     return [S3_BASE_URL, target, key].join("/");
   } catch (e) {
     logger.error(e);
