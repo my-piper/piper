@@ -15,6 +15,7 @@ import { ProjectManager } from "src/services/project.manager";
 import { projectA } from "../fixtures/models";
 import { provideTestConfig } from "../helpers/config";
 import { finish } from "../helpers/editor";
+import { chipLabels, typeChip } from "../helpers/taiga";
 
 /**
  * Route data: `project`. The tab edits the Pipeline's name, description,
@@ -64,21 +65,13 @@ describe("EditPipelineDesignComponent", () => {
     fixture.detectChanges();
   }
 
-  /** Types a tag into the focused chip input and confirms it with Enter. */
   function addTag(tag: string) {
-    const input = field<HTMLInputElement>("tags");
-    input.focus();
-    input.value = tag;
-    input.dispatchEvent(new Event("input"));
-    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    typeChip(field("tags"), tag);
     fixture.detectChanges();
   }
 
-  /** The tag chips' labels, without their "Remove" buttons. */
   function chips() {
-    return Array.from(element.querySelectorAll("tui-input-chip")).map((c) =>
-      c.textContent.replace("Remove", "").trim(),
-    );
+    return chipLabels(element);
   }
 
   afterEach(() => controller.verify());
@@ -127,7 +120,6 @@ describe("EditPipelineDesignComponent", () => {
     expect(project.pipeline.tags).toEqual(["fixture", "beta"]);
     expect(chips()).toEqual(["fixture", "beta"]);
     expect(markDirty).toHaveBeenCalledTimes(1);
-    // the focused chip input leaves Taiga timers running until destroyed
     fixture.destroy();
     finish();
   }));

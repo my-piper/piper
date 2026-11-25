@@ -32,3 +32,26 @@ export function selectByLabel(select: Element | null, label: string) {
   element.selectedIndex = optionLabels(element).indexOf(label);
   element.dispatchEvent(new Event("change"));
 }
+
+/**
+ * The labels of a chip input's chips. Reads Taiga's label element, since a
+ * chip's own text also holds its hidden, localized "Remove" button.
+ */
+export function chipLabels(textfield: Element | null): string[] {
+  return Array.from(
+    (textfield as Element).querySelectorAll("tui-input-chip .t-text"),
+  ).map((label) => label.textContent.trim());
+}
+
+/**
+ * Adds a chip as a user would: `input[tuiInputChip]` only reads typing while
+ * focused, and Enter turns the text into a chip. The focused input leaves
+ * Taiga timers running, so destroy the fixture before `finish()`.
+ */
+export function typeChip(input: Element | null, text: string) {
+  const element = input as HTMLInputElement;
+  element.focus();
+  element.value = text;
+  element.dispatchEvent(new Event("input"));
+  element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+}

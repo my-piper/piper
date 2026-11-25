@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "taiga-ui": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@taiga-ui/mcp@0.4.1",
+        "--source-url=https://taiga-ui.dev/llms-full.txt"
+      ]
+    }
+  }
+}

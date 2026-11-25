@@ -64,7 +64,9 @@ JSON Schemas in `backend/schemas/` (pipeline, node, node-package, project, flow,
 
 Angular 22 app in `frontend/src`: feature components in `app/`, HTTP layer in `services/`, route data via `resolvers/`, models mirroring backend classes in `models/` (also `class-transformer`). Runtime config (captcha, auth features, URLs) is injected by the backend into `window.PRERENDER`. Routes are language-prefixed (`/:language/...`); the backend serves each locale's built `index.html`.
 
-`src/ui-kit` holds the legacy UI components and styles that Taiga UI is replacing (#92). Don't add new components there; shared pipes, directives and providers live in the app's own `pipes/`, `directives/` and `providers/`.
+`src/ui-kit` holds the legacy UI components and styles that Taiga UI is replacing (#92). Don't add new components there; shared pipes, directives and providers live in the app's own `pipes/`, `directives/` and `providers/`. Before building Taiga UI screens, read `docs/taiga-ui-notes.md`.
+
+To look at a page in a browser without the backend or an account, run `npm run browser:serve` in `frontend/`: it serves the app with the browser workflows' fixture API on `http://127.0.0.1:4300` and prints the sign-in.
 
 ### Deployment
 
