@@ -9,13 +9,16 @@ beforeEach(async () => {
   context = await createHttpApp([() => import("api/legacy-locales")]);
 });
 
-describe("Russian locale links", () => {
+describe("links to a dropped locale", () => {
   it.each([
     { from: "/ru", to: "/en" },
     {
       from: "/ru/projects/project_a?tab=design",
       to: "/en/projects/project_a?tab=design",
     },
+    { from: "/de/projects", to: "/en/projects" },
+    { from: "/pt-br/launches", to: "/en/launches" },
+    { from: "/zh-CN/projects", to: "/en/projects" },
   ])("redirects $from to $to", async ({ from, to }) => {
     const response = await context.request.get(from).redirects(0);
 
@@ -23,29 +26,35 @@ describe("Russian locale links", () => {
     expect(response.headers["location"]).toBe(to);
   });
 
-  it("forgets a remembered Russian language", async () => {
-    const response = await context.request
-      .get("/ru/projects")
-      .set("Cookie", "language=ru")
-      .redirects(0);
+  it.each(["ru", "de"])(
+    "forgets a remembered %s language",
+    async (language) => {
+      const response = await context.request
+        .get("/de/projects")
+        .set("Cookie", `language=${language}`)
+        .redirects(0);
 
-    expect(response.headers["set-cookie"]).toEqual([
-      expect.stringMatching(/^language=; Path=\/; Expires=Thu, 01 Jan 1970/),
-    ]);
-  });
+      expect(response.headers["set-cookie"]).toEqual([
+        expect.stringMatching(/^language=; Path=\/; Expires=Thu, 01 Jan 1970/),
+      ]);
+    }
+  );
 
-  it("keeps another remembered language", async () => {
+  it("keeps a remembered English language", async () => {
     const response = await context.request
-      .get("/ru/projects")
-      .set("Cookie", "language=de")
+      .get("/de/projects")
+      .set("Cookie", "language=en")
       .redirects(0);
 
     expect(response.headers["set-cookie"]).toBeUndefined();
   });
 
-  it("leaves paths that only start with ru", async () => {
-    const response = await context.request.get("/russia").redirects(0);
+  it.each(["/en/projects", "/russia", "/design"])(
+    "leaves %s alone",
+    async (path) => {
+      const response = await context.request.get(path).redirects(0);
 
-    expect(response.status).not.toBe(301);
-  });
+      expect(response.status).not.toBe(301);
+    }
+  );
 });

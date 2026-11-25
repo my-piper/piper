@@ -13,7 +13,7 @@ import path from "path";
 import { parseURL } from "ufo";
 
 import "./api/artefacts";
-// before the locale route below, which would match the /ru/ prefix
+// before the locale route below, which still matches the dropped locales
 import "./api/legacy-locales";
 import "./api/assets";
 import "./api/batches";
@@ -115,18 +115,19 @@ api.get(
     res.send(output);
   })
 );
+// The app is built in English only, whatever language the visitor prefers.
 api.get(
   "/",
-  handle(({ language }) => async (req, res) => {
+  handle(() => async (req, res) => {
     res.set(NO_CACHE_HEADERS);
-    res.redirect(`/${language}/`);
+    res.redirect("/en/");
   })
 );
 api.get(
   "*",
-  handle(({ language }) => async ({ originalUrl }, res) => {
+  handle(() => async ({ originalUrl }, res) => {
     res.set(NO_CACHE_HEADERS);
-    res.redirect(`/${language}${originalUrl}`);
+    res.redirect(`/en${originalUrl}`);
   })
 );
 

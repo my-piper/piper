@@ -18,9 +18,7 @@ import { IncludesPipe } from "src/pipes/includes.pipe";
 import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
-import { GetUrlPipe } from "src/pipes/get-url-by-lang.pipe";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
-import { SelectLanguageComponent } from "src/ui-kit/select-language/select-language.component";
 import { authorizationPlain } from "../fixtures/plain";
 import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
 import { HcaptchaStubComponent } from "../helpers/captcha-stub";
@@ -43,11 +41,9 @@ async function render(config: Partial<PlainAppConfig> = {}) {
       IconComponent,
       InformerComponent,
       PopoverDirective,
-      SelectLanguageComponent,
       SelectThemeComponent,
       InvalidFieldPipe,
       IncludesPipe,
-      GetUrlPipe,
     ],
     imports: [ReactiveFormsModule, RouterLink, HcaptchaStubComponent],
     providers: [

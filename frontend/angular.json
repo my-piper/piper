@@ -41,52 +41,6 @@
         "sourceLocale": {
           "code": "en",
           "baseHref": "/en/"
-        },
-        "locales": {
-          "de": {
-            "baseHref": "/de/",
-            "translation": "src/locale/de.json"
-          },
-          "es": {
-            "baseHref": "/es/",
-            "translation": "src/locale/es.json"
-          },
-          "pt-br": {
-            "baseHref": "/pt-br/",
-            "translation": "src/locale/pt-BR.json"
-          },
-          "fr": {
-            "baseHref": "/fr/",
-            "translation": "src/locale/fr.json"
-          },
-          "ja": {
-            "baseHref": "/ja/",
-            "translation": "src/locale/ja.json"
-          },
-          "ko": {
-            "baseHref": "/ko/",
-            "translation": "src/locale/ko.json"
-          },
-          "zh-cn": {
-            "baseHref": "/zh-cn/",
-            "translation": "src/locale/zh-CN.json"
-          },
-          "zh-tw": {
-            "baseHref": "/zh-tw/",
-            "translation": "src/locale/zh-TW.json"
-          },
-          "hi": {
-            "baseHref": "/hi/",
-            "translation": "src/locale/hi.json"
-          },
-          "tr": {
-            "baseHref": "/tr/",
-            "translation": "src/locale/tr.json"
-          },
-          "it": {
-            "baseHref": "/it/",
-            "translation": "src/locale/it.json"
-          }
         }
       },
       "architect": {
@@ -158,7 +112,7 @@
                 "base": "dist-browser",
                 "browser": ""
               },
-              "localize": ["en", "de"],
+              "localize": ["en"],
               "sourceMap": true,
               "budgets": []
             },
@@ -181,12 +135,6 @@
             }
           },
           "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n",
-          "options": {
-            "buildTarget": "frontend:build"
-          }
         },
         "test": {
           "builder": "@angular/build:unit-test",

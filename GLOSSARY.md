@@ -18,6 +18,10 @@ _Avoid_: Group, directory, category
 A label on a Project. A Project can have many, and picking Tags narrows the Projects list to the Projects that have all of them.
 _Avoid_: Label, keyword
 
+**Localized Text**:
+A title, description or README in a Pipeline or Node Package that can carry a version per language. Piper shows its English version; the other versions stay in the text untouched.
+_Avoid_: Translation, i18n string
+
 **Node Definition**:
 A reusable kind of Node, published in a Node Package: its inputs, outputs and script.
 _Avoid_: Node type, template

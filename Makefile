@@ -24,8 +24,7 @@ install:
 	git submodule update; \
 	git config core.hooksPath .githooks; \
 	npm --prefix ./backend install; \
-	npm --prefix ./frontend install; \
-	npm --prefix ./translator install
+	npm --prefix ./frontend install
 
 lint: lint-backend lint-frontend
 

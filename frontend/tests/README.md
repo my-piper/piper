@@ -32,7 +32,7 @@ behaviour is covered separately by `backend/tests`.
 | `npm run test:coverage`          | Single run with coverage in `coverage/` (HTML, lcov, json-summary, text summary)               |
 | `npm run test:typecheck`         | `tsc` over all fast-suite specs, helpers and fixtures                                          |
 | `npm run lint:tests`             | ESLint over `tests/` and `vitest.config.ts`                                                    |
-| `npm run test:browser`           | Builds en+de (`production,browser-test` → `dist-browser/`), then runs the Playwright workflows |
+| `npm run test:browser`           | Builds en (`production,browser-test` → `dist-browser/`), then runs the Playwright workflows |
 | `npm run test:browser:run`       | Runs the Playwright workflows against an existing `dist-browser/`                              |
 | `npm run test:browser:typecheck` | `tsc` over `tests/browser` (Node + Playwright types, no Vitest)                                |
 
@@ -134,8 +134,8 @@ and response, DataError bodies, node/launch events, rooms). Notable facts:
 
 ## Browser workflows (`tests/browser/`)
 
-- `support/server.ts` serves `dist-browser/{en,de}` on `127.0.0.1` (random
-  port, SPA fallback per locale) and replaces the HTML's `PRERENDER = {};` in
+- `support/server.ts` serves `dist-browser/en` on `127.0.0.1` (random
+  port, SPA fallback) and replaces the HTML's `PRERENDER = {};` in
   memory, failing unless it occurs exactly once. It also hosts a real Socket.IO
   server (websocket transport) handling `join_room`/`leave_room` like
   `backend/sockets.ts`.

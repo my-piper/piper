@@ -4,10 +4,9 @@
 
 Piper is a visual AI pipeline builder: users compose pipelines of nodes on a canvas (Angular frontend), run them in a playground, and deploy them as APIs. Pipelines and node packages are defined by an open YAML/JSON-schema spec, and node logic is JavaScript executed at runtime.
 
-The repo uses git submodules — clone with `--recurse-submodules` or run `make install`:
+The repo uses a git submodule — clone with `--recurse-submodules` or run `make install`:
 
 - `backend/core-kit` — shared infra library (env, logger, queue, redis, stream, io, server, transform, clickhouse, mailer, …). Imported as `core-kit/...`.
-- `translator` — i18n translation tool.
 
 Sibling checkouts, when present next to this repo: `../piper-deno` is the sandbox runtime that executes node scripts; `../piper-nodes` is the node catalog and its `utils/node.js` helpers (`next`, `repeat`, errors).
 
@@ -17,7 +16,7 @@ Scripts live in the root `Makefile` (reads optional `config.env`) and in `backen
 
 Setup and environment:
 
-- `make install` initializes the submodules, enables the git hooks in `.githooks` (`core.hooksPath`) and installs backend, frontend and translator. The pre-commit hook checks staged `package.json`/lockfile pairs with `tools/check-lockfile.sh` (`npm ci --dry-run`), the install-script and the denied-dependency checks.
+- `make install` initializes the submodule, enables the git hooks in `.githooks` (`core.hooksPath`) and installs backend and frontend. The pre-commit hook checks staged `package.json`/lockfile pairs with `tools/check-lockfile.sh` (`npm ci --dry-run`), the install-script and the denied-dependency checks.
 - Node: the major in `.nvmrc` is the single source (`backend/.nvmrc` and `frontend/.nvmrc` link to it, CI passes it to the Dockerfile; `make check-node-version` checks `engines` and the Dockerfile default).
 - npm 11 runs dependency install scripts only when listed in `allowScripts` in that package's `package.json`, pinned to the locked version. After adding or upgrading a package with install scripts (native modules, esbuild), run `npm install-scripts ls` and `npm install-scripts approve <pkg>`. Pins are exact on purpose (supply-chain review on every bump); `make check-install-scripts` and CI fail while any pin is stale, because npm itself only warns and skips the script.
 - Backend runs TypeScript directly via `tsx` (no build step), configured by `backend/.env` (template `.env.template`). Local infra (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy) comes from `make up` (`tools/compose/compose.yaml`); the frontend dev server is reached through nginx at `http://localhost/`.
@@ -28,7 +27,7 @@ Tests:
 
 - Backend fast tests (`npm test`) need no Docker; integration tests (`npm run test:integration`) start disposable MongoDB/Redis containers, real BullMQ workers and Deno smoke tests, and need Docker Compose v2. Rules: `backend/tests/README.md` and `backend/tests/integration/README.md`.
 - Frontend fast suites (`tests/unit`, `tests/components`) run in Vitest browser mode on Playwright's Chromium; the Playwright workflows (`tests/browser`) run against fixture HTTP/Socket.IO peers, not the full stack. Both need `npx playwright install chromium`. Running, focusing and rules: `frontend/tests/README.md`.
-- `ng build` skips strict template type checks; CI runs them separately (`typecheck:templates`). The pre-commit hook and CI run `i18n:check` for a stale `en.json`.
+- `ng build` skips strict template type checks; CI runs them separately (`typecheck:templates`).
 - Tests separate preparation, action and assertions with blank lines, keep model transformations real and use explicit factories for infrastructure mocks.
 
 VS Code: the "-- all --" launch compound starts server, worker, periodic, sockets, cli and frontend together.
@@ -62,7 +61,7 @@ JSON Schemas in `backend/schemas/` (pipeline, node, node-package, project, flow,
 
 ### Frontend
 
-Angular 22 app in `frontend/src`: feature components in `app/`, HTTP layer in `services/`, route data via `resolvers/`, models mirroring backend classes in `models/` (also `class-transformer`). Runtime config (captcha, auth features, URLs) is injected by the backend into `window.PRERENDER`. Routes are language-prefixed (`/:language/...`); the backend serves each locale's built `index.html`.
+Angular 22 app in `frontend/src`: feature components in `app/`, HTTP layer in `services/`, route data via `resolvers/`, models mirroring backend classes in `models/` (also `class-transformer`). Runtime config (captcha, auth features, URLs) is injected by the backend into `window.PRERENDER`. The app is built in English only, under `/en/`. Templates keep their `i18n` markers, but nothing is extracted or translated, and Localized Texts in data (`en=…;de=…`) always resolve to English.
 
 `src/ui-kit` holds the legacy UI components and styles that Taiga UI is replacing (#92). Don't add new components there; shared pipes, directives and providers live in the app's own `pipes/`, `directives/` and `providers/`. Before building Taiga UI screens, read `docs/taiga-ui-notes.md`.
 

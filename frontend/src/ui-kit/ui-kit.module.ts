@@ -19,8 +19,6 @@ import { TimeDiffPipe } from "src/pipes/time-diff.pipe";
 import { TimePassedPipe } from "src/pipes/time-passed.pipe";
 import { PopoverComponent } from "./popover/popover.component";
 import { PopoverDirective } from "./popover/popover.directive";
-import { GetUrlPipe } from "src/pipes/get-url-by-lang.pipe";
-import { SelectLanguageComponent } from "./select-language/select-language.component";
 import { SkeletonComponent } from "./skeleton/skeleton.component";
 import { SliderComponent } from "./slider/slider.component";
 import { SpinnerComponent } from "./spinner/spinner.component";
@@ -37,8 +35,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     SliderComponent,
     TabsComponent,
     InvalidFieldPipe,
-    GetUrlPipe,
-    SelectLanguageComponent,
     SpinnerComponent,
     TimePassedPipe,
     I18nPipe,
@@ -64,7 +60,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     SliderComponent,
     TabsComponent,
     InvalidFieldPipe,
-    SelectLanguageComponent,
     SpinnerComponent,
     TimePassedPipe,
     I18nPipe,

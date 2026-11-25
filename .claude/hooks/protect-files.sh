@@ -21,7 +21,7 @@ case "$file" in
     echo "Do not edit package-lock.json by hand. Use npm install/uninstall in that package." >&2
     exit 2
     ;;
-  */core-kit/* | */translator/*)
+  */core-kit/*)
     echo "$file is inside a git submodule. Changes there must be committed in the submodule's own repo; confirm with the user first." >&2
     exit 2
     ;;

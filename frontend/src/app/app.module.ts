@@ -104,11 +104,6 @@ import { appConfigFactory } from "src/providers/app-config";
 import { ScrollTopListener } from "src/providers/scroll-top.listener";
 import { applyMonacoTheme, ThemeManager } from "src/services/theme.service";
 import { baseHrefFactory } from "src/providers/base-href";
-import {
-  CURRENT_LANGUAGE,
-  currentLangFactory,
-} from "src/providers/current-language";
-import { DATE_LOCALE, dateLocaleFactory } from "src/providers/date-locale";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { TaigaFormsModule } from "./taiga-forms.module";
 import { AppComponent } from "./app.component";
@@ -347,16 +342,6 @@ import { UsersComponent } from "./users/users.component";
       provide: Ajv,
       useFactory: ajvFactory,
       deps: [],
-    },
-    {
-      provide: CURRENT_LANGUAGE,
-      useFactory: currentLangFactory,
-      deps: [APP_BASE_HREF],
-    },
-    {
-      provide: DATE_LOCALE,
-      useFactory: dateLocaleFactory,
-      deps: [CURRENT_LANGUAGE],
     },
     {
       provide: APP_INITIALIZER,

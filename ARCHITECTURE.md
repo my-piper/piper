@@ -41,9 +41,8 @@ This document describes how the system is put together. For setup and commands s
 |---|---|
 | `backend/` | Node.js/TypeScript backend: all server-side processes share this codebase |
 | `backend/core-kit/` | Submodule: shared infra (env, logger, queue, redis, stream, io, server, transform, clickhouse, mailer, i18n, errors) |
-| `frontend/` | Angular 22 SPA, localized with `@angular/localize` |
+| `frontend/` | Angular 22 SPA, built in English only (`i18n` markers kept) |
 | `frontend/src/ui-kit/` | Legacy UI components and styles, being replaced by Taiga UI (#92) |
-| `translator/` | Submodule: tool for translating locale files |
 | `migrations/` | Mongo (JSON index definitions) and ClickHouse (SQL) migrations |
 | `tools/compose/` | Local infra: docker compose and nginx config |
 | `devops/docker/` | Production Dockerfile (single image for every backend process) |
@@ -55,7 +54,7 @@ One codebase, several entrypoints. Each runs with `node --import=tsx <entry>.ts`
 
 | Entrypoint | Role |
 |---|---|
-| `server.ts` | Express REST API (`/api/**`). Also serves the built frontend: it picks the locale's `index.html` for `/:language/*` and injects runtime config into `window.PRERENDER` (captcha, auth features, assistant, URLs). |
+| `server.ts` | Express REST API (`/api/**`). Also serves the built frontend: it serves the English build's `index.html` for `/en/*` (other locale prefixes redirect there) and injects runtime config into `window.PRERENDER` (captcha, auth features, assistant, URLs). |
 | `worker.ts` | BullMQ consumers. Worker groups (`process_rapid_nodes`, `run_launches`, `set_launches_io`, …) map to one or more queues; `-w` selects the groups. Has graceful shutdown (120s) and an optional `/health` endpoint. |
 | `sockets.ts` | socket.io server. Clients `join_room` / `leave_room`; rooms are user ids, launch ids, or topic names such as `updating_packages`. |
 | `periodic.ts` | In-process scheduler (bottleneck): checks node package updates, deletes launches and artefacts older than `MAX_STORE_LAUNCH_DAYS`. |
@@ -223,7 +222,7 @@ Angular 22 module-based app (`frontend/src`):
 - `services/` — `http.service.ts` (REST), `live.service.ts` (socket.io rooms for launch and user events), `me.service.ts`, `project.manager.ts` (editing state for the open project).
 - `resolvers/` and `guards/` load route data and handle auth. `models/` mirrors backend models with class-transformer.
 - Runtime config comes from `window.PRERENDER`, injected by the backend.
-- Builds are per locale (`ng build --localize`), and every route is language-prefixed.
+- The app is built in English only (`ng build --localize` with no translations), and every route sits under `/en/`.
 
 ## Local infrastructure and deployment
 - `tools/compose/compose.yaml` runs mongo, redis (redis-stack), kafka, clickhouse, the `piper-deno` sandbox image, imgproxy and nginx. The app processes run on the host, and nginx proxies to them via `host.docker.internal`:

@@ -79,7 +79,6 @@ export default defineConfig({
       exclude: [
         "src/ui-kit/**",
         "src/schemas/**",
-        "src/locale/**",
         "tests/**",
         "node_modules/**",
       ],

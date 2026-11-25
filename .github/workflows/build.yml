@@ -98,9 +98,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Check i18n extraction
-        run: npm run i18n:check
-
       - name: Check browser workflow selectors
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
