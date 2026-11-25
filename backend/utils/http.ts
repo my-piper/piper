@@ -162,10 +162,10 @@ export const handle =
     try {
       const answer = await handler(injector)(req, res);
       if (answer === null) {
-        logger.debug("No answer");
+        logger.debug("no answer");
         res.status(204).send();
       } else if (answer !== undefined) {
-        logger.debug("Send answer");
+        logger.debug("send answer");
         res.set(NO_CACHE_HEADERS);
         if (answer) {
           res.status(200).send(answer);
@@ -187,7 +187,7 @@ export const handle =
       } else if (e instanceof TooManyRequestsError) {
         res.status(429).send(e.message);
       } else if (e instanceof PenTestingError) {
-        logger.error("Pen testing detected");
+        logger.error("pen testing detected");
         res.status(200).redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
       } else {
         sentry.captureException(e);

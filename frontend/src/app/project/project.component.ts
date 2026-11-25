@@ -43,6 +43,29 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   /** Index of the active section tab; Canvas is the first. */
   activeTab = 0;
 
+  readonly saveStatuses = {
+    dirty: {
+      label: $localize`:@@message.project_unsaved_changes:Unsaved changes`,
+      icon: "@tui.cloud",
+      appearance: "warning",
+    },
+    saving: {
+      label: $localize`:@@message.project_saving:Saving…`,
+      icon: "@tui.cloud-upload",
+      appearance: "neutral",
+    },
+    saved: {
+      label: $localize`:@@message.project_saved:Saved`,
+      icon: "@tui.cloud-check",
+      appearance: "positive",
+    },
+    error: {
+      label: $localize`:@@message.project_save_failed:Save failed`,
+      icon: "@tui.cloud-alert",
+      appearance: "negative",
+    },
+  };
+
   form = this.fb.group({
     name: this.fb.control<string>(null, [Validators.required]),
   });

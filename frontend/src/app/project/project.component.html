@@ -331,11 +331,19 @@
       </tui-tabs>
     }
 
-    @if (projectManager.status | async; as status) {
-      <div class="status" [attr.data-status]="status">
-        <app-icon icon="cloud"></app-icon>
-      </div>
-    }
+    @let status = projectManager.status | async;
+    <div class="status" role="status" [attr.data-status]="status">
+      @if (status) {
+        @let state = saveStatuses[status];
+        <span
+          tuiBadge
+          size="m"
+          [appearance]="state.appearance"
+          [iconStart]="state.icon"
+          >{{ state.label }}</span
+        >
+      }
+    </div>
   </div>
 </header>
 

@@ -1,6 +1,6 @@
 import api from "app/api";
 import { ALL_LANGUAGES } from "core-kit/packages/locale";
-import { escapeRegExp } from "lodash";
+import escapeRegExp from "lodash/escapeRegExp";
 import { LANGUAGE_COOKIE } from "utils/http";
 
 // Piper is built in English only, but core-kit's language list still matches

@@ -57,31 +57,7 @@ header {
   }
 
   .status {
-    @keyframes saving-animation {
-      0% {
-        opacity: 0.5;
-      }
-
-      100% {
-        opacity: 0;
-      }
-    }
-
-    &[data-status="dirty"] {
-      opacity: 0.3;
-    }
-
-    &[data-status="saving"] {
-      animation: saving-animation 500ms infinite alternate ease-in-out;
-    }
-
-    &[data-status="saved"] {
-      opacity: 0;
-    }
-
-    &[data-status="error"] {
-      stroke: variables.$error-color;
-    }
+    flex-shrink: 0;
   }
 }
 
