@@ -97,7 +97,6 @@ describe("pipeline import", () => {
     const [project] = inserted;
     expect(project).toMatchObject({
       title: "Text to Video V5",
-      visibility: "private",
       createdBy: { _id: "admin-user" },
       launchRequest: { inputs: { prompt: "a red fox" } },
       pipeline: {

@@ -98,7 +98,7 @@ Every boundary (HTTP, Mongo, Redis, queues, Kafka, Deno) goes through `class-tra
 
 | Store | What lives there | Access |
 |---|---|---|
-| **MongoDB** | Users, projects (each embeds its pipeline), deploys, launches (summary, without pipeline), launch artefacts, node catalog (`nodes`), node packages, assets, batches, categories, tags, comments, assistant chat messages | `app/mongo.ts` (one typed collection per entity) |
+| **MongoDB** | Users, projects (each embeds its pipeline), deploys, launches (summary, without pipeline), launch artefacts, node catalog (`nodes`), node packages, assets, batches, comments, assistant chat messages | `app/mongo.ts` (one typed collection per entity) |
 | **Redis** | Everything about a *running* launch: the launch document, node inputs/outputs/state/status/progress/logs/jobs, flow completion sets, processing locks, heartbeats, pipeline outputs and errors, scope queues. Also deploys (the hot copy used by the deploy API), global and per-user environment, API tokens. Also the BullMQ backend and socket.io adapter. | `core-kit/packages/redis`; keys in `consts/redis.ts`; launch keys expire after `LAUNCH_EXPIRED` (7 days by default) |
 | **Kafka** | Append-only event streams: `pipeline.messages`, `pipeline.errors`, `pipeline.metrics.outputs`, `pipeline.metrics.finished` | `app/streams.ts` (`core-kit/packages/stream`) |
 | **ClickHouse** | Analytics tables fed from Kafka by `Kafka` engine tables plus materialized views (see `migrations/clickhouse`) | `core-kit/packages/clickhouse` |
@@ -114,7 +114,7 @@ A **pipeline** (`models/pipeline.ts`, `schemas/pipeline.json`) has:
 
 I/O values are typed (`boolean`, `integer`, `float`, `string`, `string[]`, `json`, `image`, `image[]`, `video`, …). They are stored in Redis as strings via `utils/redis.ts` (`toRedisValue` / `fromRedisValue`; arrays are `|`-joined).
 
-**Projects** wrap a pipeline with a default `launchRequest`, an environment, metadata and visibility. **Node packages** (YAML, validated by `schemas/node-package.json`) publish reusable nodes into the `nodes` catalog. They can be imported from a URL and are checked for updates periodically.
+**Projects** wrap a pipeline with a default `launchRequest`, an environment and metadata. A project is visible only to its owner (and admins); other users run its pipeline through a Deploy (ADR 0008). **Node packages** (YAML, validated by `schemas/node-package.json`) publish reusable nodes into the `nodes` catalog. They can be imported from a URL and are checked for updates periodically.
 
 ### Sandbox isolation
 Nodes are not signed and their scripts and environment scopes are not checked on save (ADR 0007).

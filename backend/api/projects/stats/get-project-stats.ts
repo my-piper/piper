@@ -17,8 +17,8 @@ api.get(
 
     const project = toModel(
       await mongo.projects.findOne(
-        { $or: [{ _id }, { slug: _id }] },
-        { projection: { _id: 1, visibility: 1, createdBy: 1 } }
+        { _id },
+        { projection: { _id: 1, createdBy: 1 } }
       ),
       Project
     );

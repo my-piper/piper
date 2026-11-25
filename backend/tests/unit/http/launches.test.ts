@@ -4,11 +4,10 @@ import { httpScenario } from "../../helpers/http-scenario";
 import { HTTP_TEST_TIME, userToken } from "../../fixtures/http";
 import { beforeEach, describe, expect, it } from "vitest";
 
-let scenario: ReturnType<typeof httpScenario>;
 let context: Awaited<ReturnType<typeof createHttpApp>>;
 
 beforeEach(async () => {
-  scenario = httpScenario();
+  httpScenario();
   context = await createHttpApp([
     () => import("api/projects/launch-project"),
     () => import("api/launches/interrupt-launch"),
@@ -49,11 +48,8 @@ describe("project launch HTTP contract", () => {
     expect(httpDoubles.execute).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ["admin-user", "private"],
-    ["other-user", "public"],
-  ])("lets %s launch a %s project", async (user, visibility) => {
-    scenario.project.visibility = visibility;
+  it("lets an admin launch another user's project", async () => {
+    const user = "admin-user";
 
     const response = await context.request
       .post("/api/projects/project-http/launch")
@@ -65,7 +61,7 @@ describe("project launch HTTP contract", () => {
     expect(httpDoubles.launches.insertOne).toHaveBeenCalledOnce();
   });
 
-  it("hides a private project from a non-owner without launching it", async () => {
+  it("hides a project from a non-owner without launching it", async () => {
     const response = await context.request
       .post("/api/projects/project-http/launch")
       .set("user-token", userToken("other-user"))

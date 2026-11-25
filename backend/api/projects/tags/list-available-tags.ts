@@ -1,7 +1,6 @@
 import api from "app/api";
 import mongo from "app/mongo";
-import { UserRole } from "models/user";
-import { checkLogged, checkRoles, handle } from "utils/http";
+import { checkLogged, handle, ownProjects } from "utils/http";
 
 api.get(
   "/api/projects/tags/available",
@@ -10,14 +9,7 @@ api.get(
 
     const tags = await mongo.projects.distinct(
       "tags",
-      checkRoles(currentUser, UserRole.admin)
-        ? {}
-        : {
-            $or: [
-              { "createdBy._id": currentUser._id },
-              { visibility: "public" },
-            ],
-          }
+      ownProjects(currentUser)
     );
 
     return (tags as string[]).filter((t) => !!t).sort();

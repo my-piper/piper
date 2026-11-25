@@ -12,7 +12,6 @@ import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/consts/ui";
 import { UntilDestroyed } from "src/utils/until-destroyed";
 import { toInstance } from "src/utils/models";
-import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
 @Component({
   selector: "app-play-with-project",
@@ -26,8 +25,6 @@ export class PlayWithProjectComponent extends UntilDestroyed {
 
   project!: Project;
   summary: ProjectSummary;
-
-  instances: { popopver?: PopoverComponent } = { popopver: null };
 
   constructor(
     private route: ActivatedRoute,
@@ -69,13 +66,6 @@ export class PlayWithProjectComponent extends UntilDestroyed {
         },
         error: (err) => (this.error = err),
       });
-  }
-
-  go(project: Project) {
-    this.router.navigate(["..", project.slug || project._id], {
-      relativeTo: this.route,
-    });
-    this.instances.popopver?.hide();
   }
 
   back() {

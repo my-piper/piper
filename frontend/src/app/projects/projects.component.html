@@ -93,11 +93,6 @@
       <thead>
         <tr>
           <th tuiTh i18n="@@label.title">Title</th>
-          <th tuiTh class="icon-column">
-            <span class="visually-hidden" i18n="@@label.visibility"
-              >Visibility</span
-            >
-          </th>
           <th tuiTh class="version-column" i18n="@@label.ver">Ver.</th>
           <th tuiTh class="runs runs-column" i18n="@@label.runs_last_30_days">
             Runs · 30d
@@ -113,11 +108,7 @@
         <td tuiTd i18n-title="@@label.title" title="Title" class="title tree">
           <div class="tree-label">
             <tui-icon class="kind" icon="@tui.workflow" />
-            <a
-              tuiLink
-              [routerLink]="[p.slug || p._id]"
-              [state]="{ scroll: 'top' }"
-            >
+            <a tuiLink [routerLink]="[p._id]" [state]="{ scroll: 'top' }">
               {{ p.title | i18n }}
             </a>
           </div>
@@ -151,11 +142,6 @@
                 </button>
               }
             </div>
-          }
-        </td>
-        <td tuiTd i18n-title="@@label.visibility" title="Visibility">
-          @if (p.visibility === "public") {
-            <tui-icon icon="@tui.share-2" />
           }
         </td>
         <td tuiTd class="version">
@@ -225,7 +211,7 @@
           [style.--depth]="depth"
           (click)="toggleFolder(f)"
         >
-          <td tuiTd colspan="6" class="tree">
+          <td tuiTd colspan="5" class="tree">
             @if (!f.renaming) {
               <button
                 type="button"
@@ -305,14 +291,14 @@
           }
           @if (f.loading) {
             <tr class="loading">
-              <td tuiTd colspan="7">
+              <td tuiTd colspan="6">
                 <tui-loader [loading]="true" />
               </td>
             </tr>
           }
           @if (f.more && !f.loading) {
             <tr class="nested more" [style.--depth]="depth + 1">
-              <td tuiTd colspan="7" class="tree">
+              <td tuiTd colspan="6" class="tree">
                 <button
                   tuiButton
                   appearance="flat"
@@ -349,7 +335,7 @@
         }
         @if (progress.loading) {
           <tr class="loading">
-            <td tuiTd colspan="7">
+            <td tuiTd colspan="6">
               <tui-loader [loading]="true" />
             </td>
           </tr>

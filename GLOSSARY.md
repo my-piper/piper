@@ -7,8 +7,8 @@ Piper is a visual builder for AI pipelines: users compose Nodes on a canvas, try
 ### Authoring
 
 **Project**:
-What a user owns and edits. It holds a draft Pipeline.
-_Avoid_: Workspace, app
+What a user owns and edits. It holds a draft Pipeline. Only its owner (and admins) can open it; anyone else uses its Pipeline through a Deploy.
+_Avoid_: Workspace, app, shared project, public project
 
 **Folder**:
 A named place in the Projects list that holds Projects and other Folders. A Project is in at most one Folder; one in none sits at the top of the list.

@@ -4325,10 +4325,6 @@
 			"_id": {
 				"type": "string"
 			},
-			"slug": {
-				"type": "string",
-				"pattern": "^[a-z0-9_\\-]{5,40}$"
-			},
 			"revision": {
 				"type": "string"
 			},
@@ -4361,23 +4357,6 @@
 					"null"
 				],
 				"maxLength": 100
-			},
-			"visibility": {
-				"type": "string",
-				"title": "Visibility",
-				"enum": [
-					"private",
-					"shared",
-					"public"
-				],
-				"options": {
-					"enum_titles": [
-						"Private",
-						"Shared",
-						"Public"
-					]
-				},
-				"propertyOrder": 1
 			},
 			"pipeline": {
 				"$schema": "http://json-schema.org/draft-07/schema#",
@@ -6376,14 +6355,8 @@
 			},
 			"cursor": {
 				"type": "string"
-			},
-			"order": {
-				"type": "number"
 			}
 		},
-		"required": [
-			"visibility"
-		],
 		"additionalProperties": false
 	},
 	"launchRequest": {

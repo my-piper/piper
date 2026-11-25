@@ -120,7 +120,6 @@ describe("AppLayoutComponent", () => {
 
     expect(asideLabels(element)).toEqual([
       "Pipelines",
-      "Apps",
       "Launches",
       "Assets",
       "Environment",
@@ -135,7 +134,6 @@ describe("AppLayoutComponent", () => {
     expect(asideLabels(element)).toEqual([
       "Node packages",
       "Pipelines",
-      "Apps",
       "Launches",
       "Assets",
       "Environment",

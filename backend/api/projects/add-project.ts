@@ -28,7 +28,6 @@ api.post(
       })(),
       title,
       tags: pipeline?.tags,
-      visibility: "private",
       pipeline,
       launchRequest,
       cursor: ulid(),

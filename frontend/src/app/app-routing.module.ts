@@ -35,7 +35,6 @@ import { NodePackageResolver } from "src/resolvers/node-package";
 import { PipelineInputFromProjectResolver } from "src/resolvers/pipeline";
 import { ProjectResolver } from "src/resolvers/project";
 import { ProjectMessagesFilterResolver } from "src/resolvers/project-messages-filter";
-import { TagResolver } from "src/resolvers/tags";
 import { UserResolver } from "src/resolvers/user";
 import { AssetsComponent } from "./assets/assets.component";
 import { AssistantComponent } from "./assistant/assistant.component";
@@ -77,7 +76,6 @@ import { ProjectCommentsComponent } from "./project-comments/project-comments.co
 import { ProjectStatsComponent } from "./project-stats/project-stats.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
 import { ImportV1ProjectComponent } from "./projects/import-v1/import-v1-project.component";
-import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
 import { UpdatePipelineNodesComponent } from "./update-pipeline-nodes/update-pipeline-nodes.component";
@@ -128,10 +126,7 @@ const routes: Routes = [
           {
             path: "",
             pathMatch: "full",
-            resolve: {
-              tag: TagResolver,
-            },
-            component: SelectPlaygroundPageComponent,
+            redirectTo: "/projects",
           },
           {
             path: ":id",

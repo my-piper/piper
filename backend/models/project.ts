@@ -9,17 +9,12 @@ import { Deploy } from "./deploy";
 import { Environment } from "./environment";
 import { LaunchRequest } from "./launch-request";
 import { Pipeline } from "./pipeline";
-import { PipelineCategory } from "./pipeline-category";
 import { User } from "./user";
 
 export class Project {
   @Expose()
   @Type(() => String)
   _id!: string;
-
-  @Expose()
-  @Type(() => String)
-  slug!: string;
 
   @Expose()
   @Type(() => Date)
@@ -62,10 +57,6 @@ export class Project {
   environment!: Environment;
 
   @Expose()
-  @Type(() => String)
-  visibility!: "public" | "private";
-
-  @Expose()
   @Type(() => Date)
   updatedAt!: Date;
 
@@ -74,16 +65,8 @@ export class Project {
   updatedBy!: User;
 
   @Expose()
-  @Type(() => PipelineCategory)
-  category!: PipelineCategory;
-
-  @Expose()
   @Type(() => String)
   cursor: string;
-
-  @Expose()
-  @Type(() => Number)
-  order: number;
 
   constructor(defs: Partial<Project> = {}) {
     assign(this, defs);

@@ -1,9 +1,8 @@
 import api from "app/api";
 import mongo from "app/mongo";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
-import { UserRole } from "models/user";
 import { getProjectsRunsSummary } from "packages/projects/stats";
-import { checkLogged, checkRoles, handle } from "utils/http";
+import { checkLogged, handle, ownProjects } from "utils/http";
 import { DEFAULT_PERIOD } from "./consts";
 import { ProjectsStatsFilter } from "./models";
 
@@ -21,20 +20,12 @@ api.get(
       return [];
     }
 
-    // the same visibility rule as the projects list
     const visible = (
       await mongo.projects
         .find(
           {
             _id: { $in: projects },
-            ...(checkRoles(currentUser, UserRole.admin)
-              ? {}
-              : {
-                  $or: [
-                    { "createdBy._id": currentUser._id },
-                    { visibility: "public" },
-                  ],
-                }),
+            ...ownProjects(currentUser),
           },
           { projection: { _id: 1 } }
         )

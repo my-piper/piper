@@ -33,27 +33,6 @@
         [routerLink]="['..']"
         [queryParams]="{ folder: project.group || null }"
       ></a>
-      <ng-template #shareProjectPopover>
-        <app-edit-project
-          [project]="project"
-          (updated)="updated($event)"
-        ></app-edit-project>
-      </ng-template>
-      @if (userRole.admin | can | async) {
-        <button
-          tuiIconButton
-          appearance="flat"
-          size="s"
-          type="button"
-          iconStart="@tui.share-2"
-          aria-label="Share"
-          i18n-aria-label="@@action.share"
-          [appPopover]="{
-            trigger: 'click',
-            content: shareProjectPopover,
-          }"
-        ></button>
-      }
       <ng-template #projectSettingsModal>
         <app-project-settings
           [project]="project"
@@ -159,7 +138,7 @@
           <a
             tuiTab
             iconStart="@tui.app-window"
-            [routerLink]="['/', 'play', project.slug || project._id]"
+            [routerLink]="['/', 'play', project._id]"
             target="_blank"
             routerLinkActive="active"
           >
@@ -350,36 +329,6 @@
           ><ng-container i18n="@@link.tools">Tools</ng-container></a
         >
       </tui-tabs>
-    } @else {
-      <header>
-        <p>
-          <ng-container i18n="@@message.not_owner_pipeline">
-            You are not owner of this pipeline, but you can play with it
-            in</ng-container
-          >&nbsp;<a
-            class="primary with-icon"
-            [routerLink]="['/', 'play', project.slug || project._id]"
-            routerLinkActive="active"
-          >
-            <ng-container i18n="@@link.open_playground"
-              >Playground</ng-container
-            >
-            <app-icon
-              class="icon right"
-              icon="open-link"
-              [size]="18"
-            ></app-icon> </a
-          >&nbsp;<ng-container i18n="@@label.or">or</ng-container>&nbsp;<button
-            class="primary"
-            [disabled]="progress.cloning"
-            [class.busy]="progress.cloning"
-            (click)="clone()"
-            i18n="@@action.clone_pipeline"
-          >
-            Clone
-          </button>
-        </p>
-      </header>
     }
 
     @if (projectManager.status | async; as status) {

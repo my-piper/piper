@@ -16,10 +16,6 @@ export default {
   launchArtefacts: db.collection<object & { _id: string }>("launchArtefacts"),
   projects: db.collection<object & { _id: string }>("projects"),
   deploys: db.collection<object & { _id: string }>("deploys"),
-  projectCategories: db.collection<object & { _id: string }>(
-    "projectCategories"
-  ),
-  projectTags: db.collection<object & { _id: string }>("projectTags"),
   projectComments: db.collection<object & { _id: string }>("projectComments"),
   buckets: db.collection<object & { _id: string }>("buckets"),
   assets: db.collection<object & { _id: string }>("assets"),

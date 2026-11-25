@@ -1,19 +1,8 @@
-<ng-template #projectsTemplate>
-  <app-select-playground (selected)="go($event)"></app-select-playground>
-</ng-template>
-
 <header>
   <div class="actions stack">
     <a class="circle" [routerLink]="['..']">
       <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
     </a>
-    <button
-      class="circle"
-      [appPopover]="{ content: projectsTemplate, trigger: 'click' }"
-      (attached)="instances.popopver = $event"
-    >
-      <app-icon class="icon" [icon]="'menu'"></app-icon>
-    </button>
   </div>
   <div class="title">
     <h1>

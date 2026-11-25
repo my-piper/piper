@@ -1,7 +1,6 @@
 import { Expose, Type } from "class-transformer";
 import { Delta } from "jsondiffpatch/with-text-diffs";
 import assign from "lodash/assign";
-import { ProjectVisibility } from "src/enums/project-visibility";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
 import { Deploy } from "./deploy";
@@ -12,10 +11,6 @@ export class Project {
   @Expose()
   @Type(() => String)
   _id!: string;
-
-  @Expose()
-  @Type(() => String)
-  slug!: string;
 
   @Expose()
   @Type(() => Date)
@@ -67,14 +62,6 @@ export class Project {
 
   @Expose()
   @Type(() => String)
-  visibility!: ProjectVisibility;
-
-  @Expose()
-  @Type(() => Number)
-  order?: number;
-
-  @Expose()
-  @Type(() => String)
   cursor!: string;
 
   constructor(defs: Partial<Project> = {}) {
@@ -120,18 +107,6 @@ export class LaunchProject {
 export class ProjectsFilter {
   @Expose()
   @Type(() => String)
-  visibility!: ProjectVisibility;
-
-  @Expose()
-  @Type(() => String)
-  category?: string;
-
-  @Expose()
-  @Type(() => String)
-  tag?: string;
-
-  @Expose()
-  @Type(() => String)
   tags?: string[];
 
   @Expose()
@@ -149,10 +124,6 @@ export class ProjectsFilter {
   @Expose()
   @Type(() => String)
   cursor?: string;
-
-  @Expose()
-  @Type(() => String)
-  sort?: "cursor" | "order";
 
   constructor(defs: Partial<ProjectsFilter> = {}) {
     assign(this, defs);

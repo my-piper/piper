@@ -217,7 +217,7 @@ export class ApiFixture {
       );
     });
 
-    // backend/api/projects/get-project.ts: matches `_id` or `slug`, masks
+    // backend/api/projects/get-project.ts: matches `_id`, masks
     // string environment variables with HIDDEN_STRING (consts/core.ts).
     this.on("GET", "/api/projects/:id", ({ params, user }) => {
       const denied = this.requireUser(user);
@@ -225,7 +225,7 @@ export class ApiFixture {
         return denied;
       }
       const project = [...this.projects.values()].find(
-        (p) => p["_id"] === params["id"] || p["slug"] === params["id"],
+        (p) => p["_id"] === params["id"],
       );
       if (!project) {
         return { status: 404, text: "Project not found" };

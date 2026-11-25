@@ -6,24 +6,21 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
-import { debounceTime, delay, finalize, map, takeUntil } from "rxjs";
+import { debounceTime, takeUntil } from "rxjs";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { AppConfig } from "src/models/app-config";
 import { DisplayError } from "src/models/errors";
 import { Pipeline } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
-import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
-import { UI_DELAY } from "src/consts/ui";
 import { ModalService } from "src/ui-kit/modal/modal.service";
 import { Languages } from "src/enums/languages";
 import { UntilDestroyed } from "src/utils/until-destroyed";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
-import { toInstance } from "src/utils/models";
 
 @Component({
   selector: "app-project",
@@ -36,7 +33,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   userRole = UserRole;
   editPipelineVisualComponent = EditPipelineVisualComponent;
 
-  progress = { launching: false, cloning: false };
+  progress = { launching: false };
   error: DisplayError;
 
   pipeline!: Pipeline;
@@ -53,9 +50,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   constructor(
     @Inject(CURRENT_LANGUAGE) public language: Languages,
     public projectManager: ProjectManager,
-    private http: HttpService,
     public config: AppConfig,
-    private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private cd: ChangeDetectorRef,
@@ -107,25 +102,6 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
   settingsUpdated(project: Project) {
     this.updated(project);
     this.modal.close();
-  }
-
-  clone() {
-    this.progress.cloning = true;
-    this.cd.detectChanges();
-
-    this.http
-      .post(`projects/${this.project._id}/clone`)
-      .pipe(
-        delay(UI_DELAY),
-        finalize(() => {
-          this.progress.cloning = false;
-          this.cd.detectChanges();
-        }),
-        map((json) => toInstance(json as object, Project)),
-      )
-      .subscribe((project) => {
-        this.router.navigate(["/projects", project._id]);
-      });
   }
 
   /**

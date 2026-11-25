@@ -223,11 +223,9 @@ function projectPlain(
 ): Plain {
   return {
     _id,
-    slug: _id.replace("_", "-"),
     title,
     tags: ["fixture"],
     revision,
-    visibility: "private",
     createdAt: "2026-02-01T10:00:00.000Z",
     updatedAt: "2026-02-02T10:00:00.000Z",
     createdBy: { _id: USER_IDS[owner], email: `${owner}@piper.test` },
@@ -265,7 +263,6 @@ export function patchResponsePlain(
   kind: UserKind = "owner",
 ): Plain {
   return {
-    slug: "project-fixture",
     revision,
     createdBy: { _id: USER_IDS[kind] },
     updatedBy: { _id: USER_IDS[kind] },

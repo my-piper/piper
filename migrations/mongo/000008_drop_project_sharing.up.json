@@ -1,0 +1,32 @@
+[
+  {
+    "update": "projects",
+    "updates": [
+      {
+        "q": {
+          "$or": [
+            { "visibility": { "$exists": true } },
+            { "slug": { "$exists": true } },
+            { "order": { "$exists": true } },
+            { "category": { "$exists": true } }
+          ]
+        },
+        "u": {
+          "$unset": {
+            "visibility": "",
+            "slug": "",
+            "order": "",
+            "category": ""
+          }
+        },
+        "multi": true
+      }
+    ]
+  },
+  {
+    "drop": "projectTags"
+  },
+  {
+    "drop": "projectCategories"
+  }
+]

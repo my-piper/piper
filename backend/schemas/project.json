@@ -5,10 +5,6 @@
     "_id": {
       "type": "string"
     },
-    "slug": {
-      "type": "string",
-      "pattern": "^[a-z0-9_\\-]{5,40}$"
-    },
     "revision": {
       "type": "string"
     },
@@ -35,15 +31,6 @@
       "type": ["string", "null"],
       "maxLength": 100
     },
-    "visibility": {
-      "type": "string",
-      "title": "Visibility",
-      "enum": ["private", "shared", "public"],
-      "options": {
-        "enum_titles": ["Private", "Shared", "Public"]
-      },
-      "propertyOrder": 1
-    },
     "pipeline": {
       "$ref": "local://pipeline.json"
     },
@@ -52,11 +39,7 @@
     },
     "cursor": {
       "type": "string"
-    },
-    "order": {
-      "type": "number"
     }
   },
-  "required": ["visibility"],
   "additionalProperties": false
 }

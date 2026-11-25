@@ -31,10 +31,10 @@ import {
 import { typeInto } from "../helpers/editor-stubs";
 
 /**
- * GET /api/projects/tags/available lists tags of visible projects and
+ * GET /api/projects/tags/available lists tags of the user's own projects and
  * GET /api/projects?tags=… returns projects having all of them
  * (backend/api/projects/tags/list-available-tags.ts, backend/api/projects/list.ts).
- * GET /api/projects/groups/counts counts visible projects per group and
+ * GET /api/projects/groups/counts counts the user's own projects per group and
  * GET /api/projects?group=… returns projects of that group while
  * GET /api/projects?ungrouped=true returns projects outside any group
  * (backend/api/projects/groups/list-group-counts.ts).

@@ -18,13 +18,7 @@ import { isSecretPlaceholder } from "packages/environment/secret-placeholder";
 import { renameV1Variables } from "packages/environment/v1-variables";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
-import {
-  checkAdmin,
-  checkLogged,
-  handle,
-  isAdmin,
-  toModel,
-} from "utils/http";
+import { checkAdmin, checkLogged, handle, isAdmin, toModel } from "utils/http";
 import { sid } from "utils/string";
 import { PatchProject } from "./models/update-project";
 

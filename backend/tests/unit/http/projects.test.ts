@@ -22,7 +22,6 @@ beforeEach(async () => {
     () => import("api/projects/groups/rename-group"),
     () => import("api/projects/get-project"),
     () => import("api/projects/add-project"),
-    () => import("api/projects/update-project"),
     () => import("api/projects/update-project-settings"),
     () => import("api/projects/delete-project"),
     () => import("api/projects/patch-project"),
@@ -54,27 +53,24 @@ describe("project read and serialization contracts", () => {
     });
     expect(response.body).not.toHaveProperty("internal");
     expect(httpDoubles.projects.findOne).toHaveBeenCalledExactlyOnceWith({
-      $or: [{ _id: "project-http" }, { slug: "project-http" }],
+      _id: "project-http",
     });
   });
 
-  it.each([
-    ["owner-user", "private"],
-    ["admin-user", "private"],
-    ["other-user", "public"],
-  ])("lets %s read a %s project", async (user, visibility) => {
-    scenario.project.visibility = visibility;
+  it.each(["owner-user", "admin-user"])(
+    "lets %s read a project",
+    async (user) => {
+      const response = await context.request
+        .get("/api/projects/project-http")
+        .set("user-token", userToken(user));
 
-    const response = await context.request
-      .get("/api/projects/project-http")
-      .set("user-token", userToken(user));
-
-    expect(response.status).toBe(200);
-    expect(response.body.pipeline).toEqual(pipelineFixture());
-  });
+      expect(response.status).toBe(200);
+      expect(response.body.pipeline).toEqual(pipelineFixture());
+    }
+  );
 
   it.each(["other-user", "engineer-user"])(
-    "hides a private project from %s as not found",
+    "hides a project from %s as not found",
     async (user) => {
       const response = await context.request
         .get("/api/projects/project-http")
@@ -84,6 +80,16 @@ describe("project read and serialization contracts", () => {
       expect(response.text).toBe("Not found");
     }
   );
+
+  it("hides a project still stored with the dropped public visibility", async () => {
+    Object.assign(scenario.project, { visibility: "public" });
+
+    const response = await context.request
+      .get("/api/projects/project-http")
+      .set("user-token", userToken("other-user"));
+
+    expect(response.status).toBe(404);
+  });
 
   it("rejects an anonymous read before accessing project storage", async () => {
     const response = await context.request.get("/api/projects/project-http");
@@ -106,14 +112,13 @@ describe("project read and serialization contracts", () => {
 });
 
 describe("project creation and validation", () => {
-  it("assigns ownership and private visibility and returns summary fields", async () => {
+  it("assigns ownership and returns summary fields", async () => {
     const body = {
       title: "New project",
       pipeline: pipelineFixture(),
       launchRequest: launchRequestFixture(),
       _id: "client-id",
       createdBy: { _id: "other-user" },
-      visibility: "public",
     };
     let persisted: object;
     // MongoDB consumes this document before the route trims the response object.
@@ -130,7 +135,6 @@ describe("project creation and validation", () => {
     expect(response.body).toMatchObject({
       _id: "http-generated-id",
       title: "New project",
-      visibility: "private",
       createdBy: { _id: "owner-user" },
       createdAt: HTTP_TEST_TIME.toISOString(),
     });
@@ -142,7 +146,6 @@ describe("project creation and validation", () => {
         pipeline: pipelineFixture(),
         launchRequest: launchRequestFixture(),
         createdBy: { _id: "owner-user" },
-        visibility: "private",
         createdAt: HTTP_TEST_TIME,
       })
     );
@@ -202,71 +205,6 @@ describe("project creation and validation", () => {
 
 describe("project ownership and admin permissions", () => {
   it.each(["owner-user", "admin-user"])(
-    "allows %s to update a project",
-    async (user) => {
-      const response = await context.request
-        .post("/api/projects/project-http")
-        .set("user-token", userToken(user))
-        .send({
-          visibility: "public",
-          slug: "published",
-          order: 2,
-          title: "ignored",
-          createdBy: { _id: "client-user" },
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        visibility: "public",
-        slug: "published",
-        order: 2,
-        updatedAt: HTTP_TEST_TIME.toISOString(),
-        updatedBy: { _id: user },
-      });
-      expect(httpDoubles.projects.updateOne).toHaveBeenCalledExactlyOnceWith(
-        { _id: "project-http" },
-        {
-          $set: {
-            visibility: "public",
-            slug: "published",
-            order: 2,
-            updatedAt: HTTP_TEST_TIME,
-            updatedBy: { _id: user },
-          },
-        }
-      );
-    }
-  );
-
-  it.each(["other-user", "engineer-user"])(
-    "rejects project updates by %s",
-    async (user) => {
-      const response = await context.request
-        .post("/api/projects/project-http")
-        .set("user-token", userToken(user))
-        .send({ visibility: "public" });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("You aren't admin");
-      expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
-    }
-  );
-
-  it.each([{ visibility: "invalid" }, { slug: "missing-visibility" }])(
-    "rejects invalid project settings %j",
-    async (body) => {
-      const response = await context.request
-        .post("/api/projects/project-http")
-        .set("user-token", userToken())
-        .send(body);
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Pipeline schema invalid");
-      expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
-    }
-  );
-
-  it.each(["owner-user", "admin-user"])(
     "allows %s to delete a project",
     async (user) => {
       const response = await context.request
@@ -307,7 +245,7 @@ describe("project ownership and admin permissions", () => {
 });
 
 describe("project listing", () => {
-  it("filters owned and public projects by case-insensitive title search", async () => {
+  it("filters the user's own projects by case-insensitive title search", async () => {
     const response = await context.request
       .get("/api/projects")
       .query({ search: "Image" })
@@ -316,7 +254,7 @@ describe("project listing", () => {
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
       title: { $regex: /Image/i },
-      $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+      "createdBy._id": "owner-user",
     });
   });
 
@@ -329,6 +267,7 @@ describe("project listing", () => {
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
       title: { $regex: /a\(b/i },
+      "createdBy._id": "admin-user",
     });
   });
 
@@ -341,6 +280,7 @@ describe("project listing", () => {
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
       tags: { $all: ["image", "video"] },
+      "createdBy._id": "admin-user",
     });
   });
 
@@ -353,6 +293,7 @@ describe("project listing", () => {
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
       tags: { $all: ["image"] },
+      "createdBy._id": "admin-user",
     });
   });
 
@@ -376,6 +317,7 @@ describe("project groups", () => {
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
       group: "Marketing",
+      "createdBy._id": "admin-user",
     });
   });
 
@@ -388,6 +330,7 @@ describe("project groups", () => {
     expect(response.status).toBe(200);
     expect(httpDoubles.projects.find.mock.calls[0][0]).toEqual({
       group: null,
+      "createdBy._id": "admin-user",
     });
   });
 
@@ -410,7 +353,7 @@ describe("project groups", () => {
     expect(httpDoubles.projects.find).not.toHaveBeenCalled();
   });
 
-  it("lists sorted groups of owned and public projects", async () => {
+  it("lists sorted groups of the user's own projects", async () => {
     httpDoubles.projects.distinct.mockResolvedValue(["Sales", null, "Ads"]);
 
     const response = await context.request
@@ -420,11 +363,11 @@ describe("project groups", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(["Ads", "Sales"]);
     expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("group", {
-      $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+      "createdBy._id": "owner-user",
     });
   });
 
-  it("counts projects per group of owned and public projects", async () => {
+  it("counts projects per group of the user's own projects", async () => {
     httpDoubles.projectsAggregation.toArray.mockResolvedValue([
       { group: "Ads", count: 2 },
       { group: "Sales", count: 1 },
@@ -442,18 +385,20 @@ describe("project groups", () => {
     expect(httpDoubles.projects.aggregate.mock.calls[0][0][0]).toEqual({
       $match: {
         group: { $nin: [null, ""] },
-        $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+        "createdBy._id": "owner-user",
       },
     });
   });
 
-  it("lists groups of all projects for admins", async () => {
+  it("lists only an admin's own groups", async () => {
     const response = await context.request
       .get("/api/projects/groups")
       .set("user-token", userToken("admin-user"));
 
     expect(response.status).toBe(200);
-    expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("group", {});
+    expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("group", {
+      "createdBy._id": "admin-user",
+    });
   });
 
   it("renames a folder with its subfolders in owned projects", async () => {
@@ -540,7 +485,7 @@ describe("project settings", () => {
       const response = await context.request
         .post("/api/projects/project-http/settings")
         .set("user-token", userToken(user))
-        .send({ group: "  Marketing ", visibility: "public" });
+        .send({ group: "  Marketing " });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -603,7 +548,7 @@ describe("project settings", () => {
 });
 
 describe("available project tags", () => {
-  it("lists sorted tags of owned and public projects", async () => {
+  it("lists sorted tags of the user's own projects", async () => {
     httpDoubles.projects.distinct.mockResolvedValue(["video", "", "image"]);
 
     const response = await context.request
@@ -613,17 +558,19 @@ describe("available project tags", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(["image", "video"]);
     expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("tags", {
-      $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+      "createdBy._id": "owner-user",
     });
   });
 
-  it("lists tags of all projects for admins", async () => {
+  it("lists only an admin's own tags", async () => {
     const response = await context.request
       .get("/api/projects/tags/available")
       .set("user-token", userToken("admin-user"));
 
     expect(response.status).toBe(200);
-    expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("tags", {});
+    expect(httpDoubles.projects.distinct).toHaveBeenCalledWith("tags", {
+      "createdBy._id": "admin-user",
+    });
   });
 });
 

@@ -129,7 +129,6 @@ import { EditPipelineDesignComponent } from "./edit-pipeline-design/edit-pipelin
 import { EditPipelineEnvironmentComponent } from "./edit-pipeline-environment/edit-pipeline-environment.component";
 import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipeline-readme.component";
 import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
-import { EditProjectComponent } from "./edit-project/edit-project.component";
 import { MeEnvironmentComponent } from "./me-environment/me-environment.component";
 import { ProjectSettingsComponent } from "./project-settings/project-settings.component";
 import { FeedSkeletonComponent } from "./feed-skeleton/feed-skeleton.component";
@@ -168,8 +167,6 @@ import { ProjectCommentsComponent } from "./project-comments/project-comments.co
 import { ProjectPlaygroundComponent } from "./project-playground/project-playground.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
 import { ImportV1ProjectComponent } from "./projects/import-v1/import-v1-project.component";
-import { SelectPlaygroundPageComponent } from "./select-playground-page/select-playground-page.component";
-import { SelectPlaygroundComponent } from "./select-playground/select-playground.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
 import { UpdatePipelineNodesComponent } from "./update-pipeline-nodes/update-pipeline-nodes.component";
@@ -228,12 +225,10 @@ import { UsersComponent } from "./users/users.component";
     NodeOutputsComponent,
     PlaygroundComponent,
     ProjectPlaygroundComponent,
-    SelectPlaygroundComponent,
     EditFlowTransformerComponent,
     PlayWithProjectComponent,
     LaunchOutputsPageComponent,
     ProjectAssetsComponent,
-    SelectPlaygroundPageComponent,
     ImageFallbackDirective,
     FeedSkeletonComponent,
     IoValueComponent,
@@ -269,7 +264,6 @@ import { UsersComponent } from "./users/users.component";
     PackagesForUpdateCountPipe,
     PackagesUpdateErrorsCountPipe,
     EditPipelineDesignComponent,
-    EditProjectComponent,
     ProjectSettingsComponent,
     SelectableDirective,
     CanvasPanDirective,

@@ -234,16 +234,18 @@ export function checkRoles(user: User, roles: UserRole | UserRole[]) {
   );
 }
 
-// Private projects look missing to everyone except their owner and admins.
+// The Mongo filter for the projects a user owns: every projects list, folder,
+// tag and stats query shows only these, for admins too (ADR 0008).
+export function ownProjects(user: User) {
+  return { "createdBy._id": user._id };
+}
+
+// A project looks missing to everyone except its owner and admins.
 export function checkProjectAccess(
   user: User,
-  project: { visibility?: string; createdBy?: { _id?: string } }
+  project: { createdBy?: { _id?: string } }
 ) {
-  if (
-    project.visibility !== "public" &&
-    project.createdBy?._id !== user._id &&
-    !isAdmin(user)
-  ) {
+  if (project.createdBy?._id !== user._id && !isAdmin(user)) {
     throw new NotFoundError();
   }
 }

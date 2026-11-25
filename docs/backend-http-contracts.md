@@ -23,18 +23,18 @@ queues, Deno, and reporting use explicit test doubles.
 
 | Endpoint                           | Current requirement                        | Successful status |
 | ---------------------------------- | ------------------------------------------ | ----------------- |
-| `GET /api/projects/:_id`           | Logged-in user; lookup accepts ID or slug  | 200               |
+| `GET /api/projects/:_id`           | Project owner or admin                     | 200               |
 | `POST /api/projects`               | Logged-in user                             | 200               |
-| `POST /api/projects/:_id`          | Project owner or admin                     | 200               |
 | `DELETE /api/projects/:_id`        | Project owner or admin                     | 204               |
-| `POST /api/projects/:_id/launch`   | Logged-in user                             | 200               |
+| `POST /api/projects/:_id/launch`   | Project owner or admin                     | 200               |
 | `POST /api/launches/:id/interrupt` | Logged-in user and an existing live launch | 204               |
 
-Project read and launch handlers return 404 for a private project unless the
-current user is its owner or an admin; public projects are readable and
-launchable by any logged-in user. Launch interruption checks live-launch existence without an
+Project read and launch handlers, its stats, summary and comments (reading and
+posting) return 404 unless the current user is the project's owner or an admin; there are no shared or public projects, and other
+users reach a pipeline only through a Deploy. Project lists, folders, tags and
+stats cover only the current user's own projects, for admins too. Launch interruption checks live-launch existence without an
 owner lookup, then also interrupts every Child Launch (a launch whose `parent` is
-this launch), recursively. Project update/delete handlers reject other users, including
+this launch), recursively. Project delete and settings handlers reject other users, including
 engineers without an admin role, with 400 and `You aren't admin`. Missing projects
 and interruption of absent launches return 404. These tests record the existing
 permission rules; permission/status changes need an explicit contract decision.
@@ -81,12 +81,11 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
 
 ## Validation and serialization
 
-- Creating a project assigns server-generated IDs, ownership, creation time,
-  and private visibility. The stored document contains pipeline/request data;
+- Creating a project assigns server-generated IDs, ownership and creation
+  time. The stored document contains pipeline/request data;
   the response contains summary fields.
-- Project creation and settings updates use production AJV validation. Invalid
-  creation data reports `Project schema invalid`; invalid settings currently
-  report `Pipeline schema invalid`. Malformed JSON is rejected by Express's
+- Project creation uses production AJV validation; invalid creation data
+  reports `Project schema invalid`. Malformed JSON is rejected by Express's
   body parser with 400 before the route writes data.
 - Two admin-only routes import a Pipeline as a new private Project owned by
   the caller, titled with the Pipeline's `name`. Both take `{ yaml }`: a
@@ -138,8 +137,6 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   calls); `[]` when there are none. Stand-ins for `env`, `message` and
   `require` are left out when the script declares that name itself.
 
-- Settings updates persist visibility, slug, order, update time, and updater;
-  client-supplied ownership/title fields do not replace the existing metadata.
 - Reading projects serializes nested maps and dates and omits unexposed fields.
   Environment strings of Secret Variables are returned as `[encrypted]`; the
   Visible Variables named in `environment.visible` are returned in clear, and
@@ -171,8 +168,8 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   of every bound variable; empty `bindings` are omitted. At launch a bound
   `pipeline`-scoped variable is read only from the owner's User Environment,
   under the bound name, and stays unset when it isn't there; bindings apply
-  only when the project's owner launches it, anyone else (a public project, a
-  Deploy) gets the same-name lookup.
+  only when the project's owner launches it, anyone else (an admin launching
+  another user's project, a Deploy) gets the same-name lookup.
 - The User Environment (`/api/me/environment`) is read with `GET`, merged with
   `PUT` (values equal to `[encrypted]` keep the stored value), cleared with
   `DELETE`, and loses a single variable with `DELETE /api/me/environment/:key`

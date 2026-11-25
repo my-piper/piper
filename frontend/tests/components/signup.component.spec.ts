@@ -225,7 +225,7 @@ describe("SigupComponent", () => {
         "fake-token-owner",
       );
       expect(page.navigate).toHaveBeenCalledTimes(1);
-      expect(page.navigate).toHaveBeenCalledWith(["/play"]);
+      expect(page.navigate).toHaveBeenCalledWith(["/projects"]);
       page.controller.verify();
     }));
 

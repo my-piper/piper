@@ -30,7 +30,6 @@ export function httpProjectFixture() {
   return {
     _id: "project-http",
     title: "Contract project",
-    visibility: "private",
     revision: "revision-1",
     createdAt: new Date("2025-01-01T00:00:00.000Z"),
     createdBy: { _id: "owner-user" },

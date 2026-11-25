@@ -27,7 +27,6 @@ api.post(
             pipeline: 1,
             launchRequest: 1,
             environment: 1,
-            visibility: 1,
           },
         }
       ),

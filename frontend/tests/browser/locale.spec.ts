@@ -18,7 +18,7 @@ test("direct-loads, reloads and navigates a Russian route within its locale", as
   await expect(page).toHaveURL(/\/ru\/projects$/);
   await page.getByText("Project A").first().click();
 
-  await expect(page).toHaveURL(/\/ru\/projects\/project-aaaa$/);
+  await expect(page).toHaveURL(/\/ru\/projects\/project_aaaa$/);
   await expect(page.locator("header .title input")).toHaveValue("Small graph");
   expect(scripts.length).toBeGreaterThan(0);
   expect(scripts.filter((s) => !s.startsWith("/ru/"))).toEqual([]);

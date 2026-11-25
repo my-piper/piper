@@ -4,7 +4,6 @@ import { httpScenario } from "../../helpers/http-scenario";
 import { userToken } from "../../fixtures/http";
 import { beforeEach, describe, expect, it } from "vitest";
 
-let scenario: ReturnType<typeof httpScenario>;
 let context: Awaited<ReturnType<typeof createHttpApp>>;
 
 const rows = (...rowsByQuery: object[][]) => {
@@ -16,7 +15,7 @@ const rows = (...rowsByQuery: object[][]) => {
 };
 
 beforeEach(async () => {
-  scenario = httpScenario();
+  httpScenario();
   context = await createHttpApp([
     () => import("api/projects/stats/list-projects-stats"),
     () => import("api/projects/stats/get-project-stats"),
@@ -218,37 +217,35 @@ describe("project stats", () => {
     }
   );
 
-  it("looks the project up by id or slug with a minimal projection", async () => {
+  it("looks the project up by id with a minimal projection", async () => {
     rows([], [], []);
 
     await context.request
-      .get("/api/projects/project-slug/stats")
+      .get("/api/projects/project-http/stats")
       .set("user-token", userToken());
 
     expect(httpDoubles.projects.findOne).toHaveBeenCalledExactlyOnceWith(
-      { $or: [{ _id: "project-slug" }, { slug: "project-slug" }] },
-      { projection: { _id: 1, visibility: 1, createdBy: 1 } }
+      { _id: "project-http" },
+      { projection: { _id: 1, createdBy: 1 } }
     );
   });
 
-  it.each([
-    ["owner-user", "private"],
-    ["admin-user", "private"],
-    ["other-user", "public"],
-  ])("lets %s read stats of a %s project", async (user, visibility) => {
-    scenario.project.visibility = visibility;
-    rows([], [], []);
+  it.each(["owner-user", "admin-user"])(
+    "lets %s read stats of a project",
+    async (user) => {
+      rows([], [], []);
 
-    const response = await context.request
-      .get("/api/projects/project-http/stats")
-      .set("user-token", userToken(user));
+      const response = await context.request
+        .get("/api/projects/project-http/stats")
+        .set("user-token", userToken(user));
 
-    expect(response.status).toBe(200);
-    expect(httpDoubles.clickhouse.query).toHaveBeenCalledTimes(3);
-  });
+      expect(response.status).toBe(200);
+      expect(httpDoubles.clickhouse.query).toHaveBeenCalledTimes(3);
+    }
+  );
 
   it.each(["other-user", "engineer-user"])(
-    "hides stats of a private project from %s as not found",
+    "hides stats of a project from %s as not found",
     async (user) => {
       const response = await context.request
         .get("/api/projects/project-http/stats")
@@ -296,7 +293,7 @@ describe("projects runs summary", () => {
     lastRunAt: "1735689600000",
   };
 
-  it("converts rows and filters ids by the non-admin visibility rule", async () => {
+  it("converts rows and keeps only the user's own projects", async () => {
     httpDoubles.projectsCursor.toArray.mockResolvedValue([
       { _id: "project-a" },
       { _id: "project-b" },
@@ -345,7 +342,7 @@ describe("projects runs summary", () => {
     expect(httpDoubles.projects.find).toHaveBeenCalledExactlyOnceWith(
       {
         _id: { $in: ["project-a", "project-b", "project-c"] },
-        $or: [{ "createdBy._id": "owner-user" }, { visibility: "public" }],
+        "createdBy._id": "owner-user",
       },
       { projection: { _id: 1 } }
     );
@@ -384,27 +381,6 @@ describe("projects runs summary", () => {
       projects: ["project-a"],
       days: 90,
     });
-  });
-
-  it("does not restrict ids for admins", async () => {
-    httpDoubles.projectsCursor.toArray.mockResolvedValue([
-      { _id: "project-a" },
-      { _id: "project-b" },
-    ]);
-    rows([]);
-
-    await context.request
-      .get("/api/projects/stats")
-      .query({ projects: ["project-a", "project-b"] })
-      .set("user-token", userToken("admin-user"));
-
-    expect(httpDoubles.projects.find).toHaveBeenCalledExactlyOnceWith(
-      { _id: { $in: ["project-a", "project-b"] } },
-      { projection: { _id: 1 } }
-    );
-    expect(
-      httpDoubles.clickhouse.query.mock.calls[0][0].query_params.projects
-    ).toEqual(["project-a", "project-b"]);
   });
 
   it("returns an empty list when no requested project is visible", async () => {

@@ -22,7 +22,6 @@ export async function createImportedProject(
     createdAt: new Date(),
     createdBy: new User({ _id: user._id }),
     title: pipeline.name,
-    visibility: "private",
     pipeline,
     launchRequest:
       launchRequest ??

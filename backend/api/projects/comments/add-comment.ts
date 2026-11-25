@@ -1,20 +1,26 @@
 import api from "app/api";
 import mongo from "app/mongo";
 import { mapTo, toPlain, validate } from "core-kit/packages/transform";
-import { NotFoundError } from "core-kit/types/errors";
-import { ProjectComment } from "models/project";
+import { Project, ProjectComment } from "models/project";
 import { User } from "models/user";
 import { ulid } from "ulid";
-import { checkLogged, handle } from "utils/http";
+import { checkLogged, checkProjectAccess, handle, toModel } from "utils/http";
 
 api.post(
   "/api/projects/:project/comments",
   handle(({ currentUser }) => async ({ params: { project }, body }) => {
     checkLogged(currentUser);
 
-    if ((await mongo.projects.countDocuments({ _id: project })) <= 0) {
-      throw new NotFoundError();
-    }
+    checkProjectAccess(
+      currentUser,
+      toModel(
+        await mongo.projects.findOne(
+          { _id: project },
+          { projection: { createdBy: 1 } }
+        ),
+        Project
+      )
+    );
 
     const request = mapTo(body, ProjectComment);
     await validate(request);
