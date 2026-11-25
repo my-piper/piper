@@ -130,6 +130,16 @@ ${SCRIPT}`,
     );
   });
 
+  it("rejects a package node when the catalog checkout is unknown", () => {
+    const pipeline = packageFixture();
+
+    const result = check(pipeline);
+
+    expect(result.errors).toContain(
+      "Node echo_node: set PIPER_NODES_DIR to the nodes catalog checkout to check v1_pipelines/echo_node/script.js"
+    );
+  });
+
   it("rejects a package node whose script is not its package's registry file", () => {
     const pipeline = packageFixture();
     pipeline.nodes.echo_node.script = "registry:artworks@2/echo_node/script.js";

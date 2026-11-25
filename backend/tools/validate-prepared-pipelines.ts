@@ -3,8 +3,8 @@ import ajv from "app/ajv";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { Pipeline } from "models/pipeline";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { checkScriptUrl } from "packages/node-packages/script-url";
 import { parseRegistryScript } from "packages/registry/reference";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
@@ -213,7 +213,7 @@ function labelledDefault({ default: value, enum: options }: EnumInput) {
 /**
  * Read-only checks for the current-format output of the migration skill:
  * inline Script Nodes, and package nodes whose scripts are read from the
- * piper-nodes catalog in `nodesDir` (its `nodes/` folder).
+ * nodes catalog in `nodesDir` (its `nodes/` folder).
  */
 export function validatePreparedPipeline(
   source: string,
@@ -284,6 +284,10 @@ export function validatePreparedPipeline(
     if (!node.package)
       for (const problem of scriptProblems(node.script ?? "", declared))
         errors.push(`Node ${key}: ${problem}`);
+    else if (catalogPath && !nodesDir)
+      errors.push(
+        `Node ${key}: set PIPER_NODES_DIR to the nodes catalog checkout to check ${catalogPath}`
+      );
     else if (catalogPath && nodesDir) {
       const file = join(nodesDir, catalogPath);
       if (!existsSync(file))
@@ -352,10 +356,9 @@ if (
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   const files = process.argv.slice(2);
-  // The piper-nodes checkout sits next to this repository.
-  const nodesDir =
-    process.env["PIPER_NODES_DIR"] ??
-    join(dirname(fileURLToPath(import.meta.url)), "../../../piper-nodes/nodes");
+  // The nodes catalog checkout (gitlab realistic-ai/piper/nodes).
+  const catalog = process.env["PIPER_NODES_DIR"];
+  const nodesDir = catalog ? join(catalog, "nodes") : undefined;
   if (!files.length) {
     console.error(
       "Usage: node --import=tsx tools/validate-prepared-pipelines.ts <prepared.yaml>..."

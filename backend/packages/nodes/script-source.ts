@@ -1,7 +1,13 @@
 import { DataError } from "core-kit/types/errors";
 import { parsers } from "prettier/plugins/babel";
 import { isScriptReference } from "packages/nodes/script-node";
-import { resolveScript } from "packages/registry/reference";
+import { posix } from "node:path";
+import {
+  isRegistryScript,
+  parseRegistryScript,
+  registryScript,
+  resolveScript,
+} from "packages/registry/reference";
 
 type SyntaxNode = {
   type: string;
@@ -18,13 +24,54 @@ type SyntaxNode = {
   computed?: boolean;
 };
 
+// A relative import of an edited package script, as a reference into the same
+// package version: the registry host is added only when Deno runs it. A
+// protocol-relative import stays a remote URL.
+function registryImport(base: string, specifier: string) {
+  if (specifier.startsWith("//")) {
+    return new URL(`https:${specifier}`).href;
+  }
+  const { nodePackage, version, path } = parseRegistryScript(base);
+  const outside = () =>
+    new DataError(
+      `Import ${specifier} points outside of ${nodePackage}@${version}`
+    );
+  const rooted = /^\/([a-z0-9_]+)\/(\d+)\/(.+)$/.exec(specifier);
+  let target: string;
+  if (rooted) {
+    if (rooted[1] !== nodePackage || Number(rooted[2]) !== version) {
+      throw outside();
+    }
+    target = posix.normalize(rooted[3]);
+  } else if (specifier.startsWith("/")) {
+    throw outside();
+  } else {
+    target = posix.normalize(posix.join(posix.dirname(path), specifier));
+  }
+  if (target === ".." || target.startsWith("../")) {
+    throw outside();
+  }
+  const reference = registryScript(nodePackage, version, target);
+  if (!isRegistryScript(reference)) {
+    throw new DataError(
+      `Import ${specifier} is not a file of ${nodePackage}@${version}`
+    );
+  }
+  return reference;
+}
+
 // An edited module runs inline in Deno, where relative imports would otherwise
 // resolve against a Blob URL. Parse it so comments and ordinary strings survive.
 export async function prepareScriptSource(source: string, base: string) {
   if (!base || !isScriptReference(base)) {
     return source;
   }
-  const url = resolveScript(base);
+  const fromRegistry = base.startsWith("registry:");
+  const url = fromRegistry ? base : resolveScript(base);
+  const resolve = (specifier: string) =>
+    fromRegistry
+      ? registryImport(base, specifier)
+      : new URL(specifier, url).href;
   const edits: Array<{ start: number; end: number; text: string }> = [];
   const ast = await parsers.babel.parse(source, undefined);
 
@@ -55,7 +102,7 @@ export async function prepareScriptSource(source: string, base: string) {
         edits.push({
           start: specifier.start,
           end: specifier.end,
-          text: JSON.stringify(new URL(specifier.value, url).href),
+          text: JSON.stringify(resolve(specifier.value)),
         });
       }
     }

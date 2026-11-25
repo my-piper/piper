@@ -33,10 +33,39 @@ export function registryScript(
   return `${PREFIX}${nodePackage}@${version}/${path}`;
 }
 
-export function resolveScript(script: string): string {
-  if (!script?.startsWith(PREFIX)) {
-    return script;
+// A quoted reference in inline code: an edited package script keeps its
+// imports (and import.meta.url) as references, without the registry host.
+const QUOTED_REFERENCE = /(["'])(registry:[a-z0-9_]+@\d+\/[^"'\s]+)\1/g;
+
+/** Whether `script` is a well-formed registry reference. */
+export function isRegistryScript(script: string) {
+  try {
+    parseRegistryScript(script);
+    return true;
+  } catch {
+    return false;
   }
+}
+
+function registryUrl(script: string) {
   const { nodePackage, version, path } = parseRegistryScript(script);
   return `${REGISTRY_URL}/${nodePackage}/${version}/${path}`;
+}
+
+/**
+ * The script as Deno loads it: a registry reference becomes its registry URL,
+ * and so does each quoted reference inside inline code.
+ */
+export function resolveScript(script: string): string {
+  if (!script?.startsWith(PREFIX)) {
+    return script?.replace(
+      QUOTED_REFERENCE,
+      (match, quote: string, reference: string) =>
+        // a string that only looks like a reference is data: leave it
+        isRegistryScript(reference)
+          ? `${quote}${registryUrl(reference)}${quote}`
+          : match
+    );
+  }
+  return registryUrl(script);
 }

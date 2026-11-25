@@ -26,11 +26,20 @@ Loading failures show an error and leave saving disabled.
 
 Saving without changing the source keeps the original reference, including when
 only the execution type changes. Saving edited source creates a Script Override
-for that pipeline node and signs the resulting code. Relative imports,
+for that pipeline node. Relative imports,
 re-exports, literal dynamic imports and `import.meta.url` are resolved against
-the original module URL. Computed dynamic imports cannot be safely resolved and
+the original module. For a registry module they become host-free references
+into the same package version (`"registry:artworks@3/node.js"`), which the
+backend points at `REGISTRY_URL` when it sends the script to Deno (any quoted
+`registry:<package>@<version>/<path>` string in inline code is resolved this
+way); an import that leaves the package version is a save error. For a remote module they
+become absolute URLs. Computed dynamic imports cannot be safely resolved and
 produce a save error. Comments and ordinary string values are preserved.
 
-Overrides contain absolute dependency URLs, including the current registry host
-when the source came from the registry. Moving the registry therefore requires
-updating those override URLs. Unedited registry references remain portable.
+Overrides of registry modules therefore stay portable across environments, like
+unedited references. Overrides saved before this carry the registry host of the
+environment they were edited in: `npm run cli -- pipelines registry-imports`
+reports them in projects and deploys, and `--apply` rewrites them (`--host`
+adds other old registry hosts). Launch history in Mongo and launches running in
+Redis keep their copies: nothing reruns the former, and the latter run while
+the old host is reachable.

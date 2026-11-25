@@ -1,6 +1,6 @@
 ---
 name: import-v1-pipeline
-description: Port Piper v1 pipelines to package nodes in piper-nodes and prepare current-format YAML files that use them.
+description: Port Piper v1 pipelines to catalog nodes and package nodes in the nodes catalog, and prepare current-format YAML files that use them.
 argument-hint: <v1 pipeline .yaml>...
 disable-model-invocation: true
 ---
@@ -9,7 +9,8 @@ Prepare `$ARGUMENTS` (default: `tmp/piper-v1/*.yaml`) as current-format YAMLs in
 `tmp/piper-v1/prepared/<same name>`. Keep originals intact.
 
 **Default scope is files only.** Write each ported node as a package node in
-`../piper-nodes/nodes/v1_pipelines/`, the prepared YAMLs that reference it, and
+`$PIPER_NODES_DIR/nodes/v1_pipelines/` (the `realistic-ai/piper/nodes` catalog),
+the prepared YAMLs that reference it, and
 a report. Read [packages.md](packages.md) for the package layout. Publishing
 packages, importing Projects, changing Environment values, launching and
 deploying require the user to request those actions. Owner confirmation alone
@@ -18,6 +19,18 @@ authorizes none of them.
 Inline Script Nodes are the exception: use one only for a node that needs no
 shared helper, or when the user asks for output without packages. That changes
 the packaging, not the required runtime rewrites.
+
+**Reuse a catalog node first.** Point the pipeline at an `artworks` node
+(`source: node`, `package: artworks`, `script: registry:artworks@<N>/<node>/script.js`)
+when it submits the same task and payload, with the v1 inputs and defaults set
+on it. Port a node only when the catalog node can't reproduce it, and record
+the concrete reason per node in the report. Known fits: Duo's `generate_image`
+→ `qwen_edit_image`, `prompt_censor_enhancer` → `ask_llm_agent`. Recurring
+reasons to port: a non-ArtWorks service (MuleRouter, Hive, Hal9, Clef, lgbm),
+a custom ffmpeg command, a payload field the catalog node doesn't expose
+(`baseModel`, `loras`, `numFrames`, per-run `priority` or `tags`), skip or
+fallback logic, a different output shape, or a longer polling budget.
+`ask_llm_agent` sends `temperature` (default 1) where v1 sent none.
 Preserve behavior, graph topology and defaults while replacing unsupported v1
 code. If the user explicitly requests byte-for-byte original scripts, describe
 those files as unconverted; do not claim they are ready to run.
@@ -55,7 +68,7 @@ multipart, image codecs, dynamic module loading, Environment names and access,
 and obsolete notifications. Renaming Variables alone is incomplete.
 
 Write each node's `script.js`, `schema.yaml` and `test.js` under
-`../piper-nodes/nodes/v1_pipelines/<node>/`. Import the shared helpers the way
+`$PIPER_NODES_DIR/nodes/v1_pipelines/<node>/`. Import the shared helpers the way
 the catalog's own nodes do, never a copy of their code:
 
 ```js
@@ -63,7 +76,7 @@ import { next, repeat, FatalError } from "../../../utils/node.js";
 import { ArtWorks } from "../../artworks/utils.js";
 ```
 
-`tools/pack.js` copies them to the archive root, so the published script
+`make pack` copies them to the archive root, so the published script
 imports `../node.js` and `../utils.js`. Don't add a runtime prelude, a
 `DEFINITIONS` object or a local `_lib/` copy: `NextNode.from(x)` becomes
 `next(x)`, and errors are the `node.js` classes.
@@ -79,7 +92,7 @@ Every Environment-reading function receives `env` from its invocation;
 helpers receive it explicitly. Script Nodes can read the Environment through
 regular Import (ADR 0007).
 
-Relative imports may only reach files of `piper-nodes`; external imports must
+Relative imports may only reach files of the catalog; external imports must
 be pinned URLs supported by Deno or supported builtins. A prepared YAML depends
 on `v1_pipelines@<N>` being published where it is imported; report that.
 Match the original ArtWorks create/poll/cancel return contracts when adapting
@@ -134,21 +147,23 @@ node --import=tsx tools/validate-prepared-pipelines.ts ../tmp/piper-v1/prepared/
 The guard checks the production schema, model round trip, first zoom save,
 connected ports, enum defaults, module imports and Environment rewrites. It
 checks inline scripts in the YAML and package node scripts in the catalog
-(`../piper-nodes/nodes/<package>/<node>/script.js`, or `$PIPER_NODES_DIR`),
+(`$PIPER_NODES_DIR/nodes/<package>/<node>/script.js`; unset, it fails),
 and that each package node loads a script of its own package.
 Its regression tests run in the existing backend fast-test CI job. Schema
 acceptance alone is not the completion criterion.
 
-From `../piper-nodes`, run the package's tests and pack it; packing fails on
-a missing import or two helpers that would share a root name:
+From `$PIPER_NODES_DIR`, run the package's tests and pack it into
+`dist/v1_pipelines-<N>.zip`; packing fails on a missing import or a helper
+whose name clashes with an archive file:
 
 ```sh
 deno test nodes/v1_pipelines nodes/artworks/utils.test.js --allow-net --allow-read --allow-env --allow-write --no-check --sloppy-imports
-deno task pack nodes/v1_pipelines
+make pack PACKAGE=v1_pipelines
 ```
 
 Bump `version` in `nodes/v1_pipelines/package.yaml` whenever its code changes
-after an upload: a published version never changes (ADR 0003).
+after an upload: a published version never changes (ADR 0003). Packing sets
+each node's `version` to the package version.
 
 Compare parsed original/prepared graph endpoints and defaults. Exercise the
 exact scripts the YAML runs, not just authoring fragments: mock HTTP

@@ -130,12 +130,88 @@ describe("node script source", () => {
       [
         '// import "../comment.js";',
         'const example = "../ordinary-string.js";',
-        'import { next } from "http://registry:8085/artworks/3/node.js";',
-        'export { helper } from "http://registry:8085/artworks/3/echo_node/helper.js";',
-        'const lazy = () => import("http://registry:8085/artworks/3/echo_node/lazy.js");',
-        'const here = "http://registry:8085/artworks/3/echo_node/script.js";',
+        'import { next } from "registry:artworks@3/node.js";',
+        'export { helper } from "registry:artworks@3/echo_node/helper.js";',
+        'const lazy = () => import("registry:artworks@3/echo_node/lazy.js");',
+        'const here = "registry:artworks@3/echo_node/script.js";',
       ].join("\n")
     );
+  });
+
+  it("points an edited remote module's relative imports at its host", async () => {
+    const base =
+      "https://cdn.jsdelivr.net/gh/my-piper/piper-nodes@v2.0.4/nodes/x/script.js";
+
+    const response = await context.request
+      .post("/api/nodes/prepare-script")
+      .set("user-token", userToken("engineer-user"))
+      .send({
+        node: { script: 'import { next } from "../../utils/node.js";' },
+        base,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.script).toBe(
+      'import { next } from "https://cdn.jsdelivr.net/gh/my-piper/piper-nodes@v2.0.4/utils/node.js";'
+    );
+  });
+
+  it.each(["./data.js?v=2", "/other/1/x.js", "/artworks/3/../x.js"])(
+    "refuses an edited package script import %s that can't be a registry file",
+    async (specifier) => {
+      const response = await context.request
+        .post("/api/nodes/prepare-script")
+        .set("user-token", userToken("engineer-user"))
+        .send({
+          node: { script: `import { x } from "${specifier}";` },
+          base: "registry:artworks@3/echo_node/script.js",
+        });
+
+      expect(response.status).toBe(400);
+    }
+  );
+
+  it("keeps a protocol-relative import of an edited package script absolute", async () => {
+    const response = await context.request
+      .post("/api/nodes/prepare-script")
+      .set("user-token", userToken("engineer-user"))
+      .send({
+        node: { script: 'import y from "//cdn.jsdelivr.net/npm/foo@1/+esm";' },
+        base: "registry:artworks@3/echo_node/script.js",
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.script).toBe(
+      'import y from "https://cdn.jsdelivr.net/npm/foo@1/+esm";'
+    );
+  });
+
+  it("keeps a rooted import inside the same package version", async () => {
+    const response = await context.request
+      .post("/api/nodes/prepare-script")
+      .set("user-token", userToken("engineer-user"))
+      .send({
+        node: { script: 'import { x } from "/artworks/3/utils.js";' },
+        base: "registry:artworks@3/echo_node/script.js",
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.script).toBe(
+      'import { x } from "registry:artworks@3/utils.js";'
+    );
+  });
+
+  it("refuses an edited package script that imports outside its package version", async () => {
+    const response = await context.request
+      .post("/api/nodes/prepare-script")
+      .set("user-token", userToken("engineer-user"))
+      .send({
+        node: { script: 'import { x } from "../../../other/1/x.js";' },
+        base: "registry:artworks@3/echo_node/script.js",
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain("outside of artworks@3");
   });
 
   it("keeps an unchanged module reference for an execution-only edit", async () => {

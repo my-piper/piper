@@ -16,7 +16,7 @@ notification is not a behaviour change worth reporting beyond one line.
 ## sharp
 
 `sharp` is a native addon: Deno runs it only with `--allow-ffi`, which neither
-isolation mode grants. Use imagescript, pinned as piper-nodes pins it:
+isolation mode grants. Use imagescript, pinned as the catalog pins it:
 
 ```js
 import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
@@ -53,7 +53,7 @@ its memory limits.
 
 ## artworks
 
-v1's built-in `artworks` module (`ArtWorks`, `FatalError`) is the piper-nodes
+v1's built-in `artworks` module (`ArtWorks`, `FatalError`) is the catalog's
 `ArtWorks` client in `nodes/artworks/utils.js`. Import it
 (`import { ArtWorks } from "../../artworks/utils.js"`); never copy or fork it,
 and don't add a v1-only variant. It answers both ways a Node polls:

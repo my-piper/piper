@@ -26,6 +26,42 @@ describe("registry script references", () => {
     expect(resolved).toBe(script);
   });
 
+  it("points an edited script's registry imports at the configured registry", async () => {
+    vi.stubEnv("REGISTRY_URL", "http://registry:8085/");
+    const { resolveScript } = await loadReference();
+    const script = [
+      'import { next } from "registry:artworks@3/node.js";',
+      "const lazy = () => import('registry:artworks@3/echo_node/lazy.js');",
+      'const here = "registry:artworks@3/echo_node/script.js";',
+      'const text = "a registry:artworks@3/node.js mention";',
+    ].join("\n");
+
+    const resolved = resolveScript(script);
+
+    expect(resolved).toBe(
+      [
+        'import { next } from "http://registry:8085/artworks/3/node.js";',
+        "const lazy = () => import('http://registry:8085/artworks/3/echo_node/lazy.js');",
+        'const here = "http://registry:8085/artworks/3/echo_node/script.js";',
+        'const text = "a registry:artworks@3/node.js mention";',
+      ].join("\n")
+    );
+  });
+
+  it.each([
+    'const tag = "registry:foo@0/a";',
+    "const tag = 'registry:pkg@1/a?b';",
+  ])(
+    "leaves strings that aren't valid references alone: %s",
+    async (script) => {
+      const { resolveScript } = await loadReference();
+
+      const resolved = resolveScript(script);
+
+      expect(resolved).toBe(script);
+    }
+  );
+
   it.each([
     "registry:artworks/ask_llm_agent/script.js",
     "registry:artworks@3",

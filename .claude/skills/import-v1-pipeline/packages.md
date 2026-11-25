@@ -10,7 +10,7 @@ catalog definition can affect other Projects; keep a custom inline node when
 that shared change is outside the user's request.
 
 New package nodes belong together in `v1_pipelines`, normally under the sibling
-`../piper-nodes/nodes/v1_pipelines/`. Respect the session's writable roots; stage
+`$PIPER_NODES_DIR/nodes/v1_pipelines/`. Respect the session's writable roots; stage
 the complete source in an authorized directory if the sibling is read-only.
 The archive layout is defined by `backend/packages/node-packages/archive.ts`:
 `package.yaml` declares `_id`, a positive integer version, title and description;
@@ -19,7 +19,7 @@ come from `backend/schemas/node.json` and `node-package.json`.
 
 Import shared helpers from where the catalog keeps them (`../../../utils/node.js`,
 `../../artworks/utils.js`) and pin remote imports. Build the archive with
-`deno task pack nodes/v1_pipelines` in `piper-nodes` (`tools/pack.js`): it
+`make pack PACKAGE=v1_pipelines` in the catalog (`scripts/pack/pack.js`): it
 copies those helpers to the archive root and rewrites the imports to
 `../node.js` and `../utils.js`, so every relative import stays inside the
 archive. Never upload a hand-made zip. Adapt scripts with [rewrites.md](rewrites.md).

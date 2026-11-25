@@ -8,7 +8,7 @@ The repo uses a git submodule — clone with `--recurse-submodules` or run `make
 
 - `backend/core-kit` — shared infra library (env, logger, queue, redis, stream, io, server, transform, clickhouse, mailer, …). Imported as `core-kit/...`.
 
-Sibling checkouts, when present next to this repo: `../piper-deno` is the sandbox runtime that executes node scripts; `../piper-nodes` is the node catalog and its `utils/node.js` helpers (`next`, `repeat`, errors).
+Sibling checkouts, when present next to this repo: `../piper-deno` is the sandbox runtime that executes node scripts. The node catalog is the `realistic-ai/piper/nodes` GitLab repo (`nodes/<package>/`, the `utils/node.js` helpers `next`, `repeat` and errors, and `make pack` for Package Archives); tools that read it take its checkout from `$PIPER_NODES_DIR`.
 
 ## Commands
 
