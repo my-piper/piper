@@ -9,4 +9,4 @@ export const REGISTRY_TOKEN = env["REGISTRY_TOKEN"] || "";
 export const REGISTRY_PORT = parseInt(env["REGISTRY_PORT"] || "8085");
 // Kept apart from public media: the registry holds private package code.
 export const REGISTRY_BUCKET_NAME =
-  env["REGISTRY_BUCKET_NAME"] || "piper-registry";
+  env["REGISTRY_BUCKET_NAME"] || "registry";

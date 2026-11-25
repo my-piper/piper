@@ -14,7 +14,7 @@ services:
       - mini
       - -dir=/data
       - -s3.config=/etc/seaweedfs/s3.json
-      - -bucket=piper-media,assets,artefacts,outputs,piper-registry
+      - -bucket=piper-media,assets,artefacts,outputs,registry
     ports:
       - "127.0.0.1:8333:8333"
     volumes:
