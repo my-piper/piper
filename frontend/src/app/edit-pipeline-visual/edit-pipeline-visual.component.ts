@@ -8,6 +8,7 @@ import {
   ChangeDetectionStrategy,
   inject,
 } from "@angular/core";
+import { Location } from "@angular/common";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { TuiDialogService } from "@taiga-ui/core";
 import { assign, isEmpty, mapValues, random } from "lodash";
@@ -104,6 +105,8 @@ export class EditPipelineVisualComponent
   error: Error;
 
   launch!: Launch;
+  /** On the launch page: the Launch may still run, so it can be stopped. */
+  running = false;
   launches: {
     [key: string]: Launch;
   } = {};
@@ -164,6 +167,7 @@ export class EditPipelineVisualComponent
     private me: MeManager,
     private socket: Socket,
     private cd: ChangeDetectorRef,
+    private location: Location,
   ) {
     super();
   }
@@ -185,6 +189,7 @@ export class EditPipelineVisualComponent
         launches || {},
         mode || "project",
       ];
+      this.running = this.mode === "launch";
 
       if (this.mode === "project" && this.pipeline.nodes.size <= 0) {
         setTimeout(() => {
@@ -219,11 +224,9 @@ export class EditPipelineVisualComponent
       .pipe(takeUntil(this.destroyed$))
       .subscribe((data) => {
         const { launch } = toInstance(data, PipelineEvent);
-        if (launch === this.launch?._id) {
-          this.launch = null;
+        if (this.running && launch === this.launch._id) {
+          this.running = false;
           this.cd.detectChanges();
-
-          this.saveUrlState();
         }
       });
   }
@@ -355,6 +358,13 @@ export class EditPipelineVisualComponent
       return;
     }
 
+    // Opened in the click itself: browsers block tabs opened after a request.
+    const tab = window.open("", "_blank");
+    if (tab) {
+      tab.opener = null;
+    }
+    let opened = false;
+
     this.progress.launching = true;
     this.cd.detectChanges();
 
@@ -369,8 +379,10 @@ export class EditPipelineVisualComponent
 
     this.projectManager.status
       .pipe(
-        filter((status) => status === null || status === "saved"),
+        filter((status) => [null, "saved", "error"].includes(status)),
         take(1),
+        // A failed save is shown by the project; the Launch is abandoned.
+        filter((status) => status !== "error"),
         switchMap(() =>
           this.http.post(
             `projects/${this.project._id}/launch`,
@@ -386,13 +398,27 @@ export class EditPipelineVisualComponent
       )
       .subscribe({
         next: (launch) => {
-          this.launch = launch;
-          this.cd.detectChanges();
-
-          this.saveUrlState();
+          opened = true;
+          this.openLaunch(launch, tab);
         },
         error: (err) => (this.error = err),
+      })
+      .add(() => {
+        if (!opened) {
+          tab?.close();
+        }
       });
+  }
+
+  /** Shows a started Launch in its tab, or here when the tab was blocked. */
+  private openLaunch({ _id }: Launch, tab: Window | null) {
+    const commands = ["/launches", _id];
+    if (!tab) {
+      this.router.navigate(commands);
+      return;
+    }
+    const url = this.router.serializeUrl(this.router.createUrlTree(commands));
+    tab.location.href = this.location.prepareExternalUrl(url);
   }
 
   interrupt() {
@@ -410,10 +436,8 @@ export class EditPipelineVisualComponent
       )
       .subscribe({
         next: () => {
-          this.launch = null;
+          this.running = false;
           this.cd.detectChanges();
-
-          this.saveUrlState();
         },
         error: (err) => (this.error = err),
       });
@@ -473,9 +497,6 @@ export class EditPipelineVisualComponent
 
   saveUrlState() {
     const params: { [key: string]: string } = {};
-    if (this.launch) {
-      assign(params, { launch: this.launch._id });
-    }
     if (!isEmpty(this.launches)) {
       const launches = mapValues(this.launches, (l) => l._id);
       const qs = stringify(launches, { delimiter: "," }).replace(/=/g, ":");

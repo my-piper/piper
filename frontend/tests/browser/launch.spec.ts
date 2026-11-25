@@ -80,33 +80,38 @@ test("runs the playground, shows scoped live results and launch failures", async
   await expect(page.locator("app-launches .card")).toHaveCount(1);
 });
 
-test("runs from the canvas, follows node events and interrupts", async ({
+test("runs from the canvas in a new tab, follows node events and interrupts there", async ({
   page,
   open,
   api,
   server,
 }) => {
   await open(`/en/projects/${PROJECT_A_ID}`);
-  const run = page.getByTestId("run-pipeline");
   await expect(page.getByTestId("node-node_one")).toBeVisible();
 
-  await run.click();
-  await expect(page).toHaveURL(/;launch=launch_1$/);
+  const [tab] = await Promise.all([
+    page.context().waitForEvent("page"),
+    page.getByTestId("run-pipeline").click(),
+  ]);
+  await expect(tab).toHaveURL(/\/en\/launches\/launch_1$/);
   await joined(server, "launch_1");
   api.nodeStatus.set("launch_1/node_one", { state: "error", error: "Boom" });
   server.emit("launch_1", "node_error", nodeEventPlain("node_one", "launch_1"));
   server.emit("launch_1", "node_error", nodeEventPlain("node_two", "launch_x"));
+
   await expect(
-    page.getByTestId("node-node_one").locator("app-node > div.error"),
+    tab.getByTestId("node-node_one").locator("app-node > div.error"),
   ).toBeVisible();
   await expect(
-    page.getByTestId("node-node_two").locator("app-node > div.error"),
+    tab.getByTestId("node-node_two").locator("app-node > div.error"),
   ).toHaveCount(0);
-  await run.click();
-
-  await expect(page).not.toHaveURL(/launch=/);
-  expect(api.interrupted).toEqual(["launch_1"]);
   expect(api.callsTo("POST", /\/launch$/).map((c) => c.body)).toEqual([
     { options: { bucket: "outputs" } },
   ]);
+
+  await tab.getByTestId("interrupt-launch").click();
+
+  await expect(tab.getByTestId("interrupt-launch")).toHaveCount(0);
+  expect(api.interrupted).toEqual(["launch_1"]);
+  await expect(page).toHaveURL(new RegExp(`/en/projects/${PROJECT_A_ID}$`));
 });

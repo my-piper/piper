@@ -18,6 +18,7 @@ import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { NodeComponent } from "src/app/node/node.component";
+import { Launch } from "src/models/launch";
 import { Project } from "src/models/project";
 import { componentOf } from "./component";
 import { ProjectManager } from "src/services/project.manager";
@@ -83,18 +84,21 @@ export function setupEditor({
   project = projectA(),
   user = "owner",
   mode,
+  launch,
 }: {
   project?: Project;
   user?: UserKind;
   mode?: "project" | "scheme";
+  /** Renders the read-only page of this Launch (`mode: "launch"`). */
+  launch?: Launch;
 } = {}) {
   seedAuthorization(userPlain(user));
   configureAppTestingModule([
     {
       path: EDITOR_URL.slice(1),
       component: EditPipelineVisualComponent,
-      data: mode ? { mode } : {},
-      resolve: { project: () => project },
+      data: launch ? { mode: "launch" } : mode ? { mode } : {},
+      resolve: launch ? { launch: () => launch } : { project: () => project },
       children: [
         {
           path: "add-node",

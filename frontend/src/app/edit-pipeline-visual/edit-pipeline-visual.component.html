@@ -178,15 +178,11 @@
         <button
           class="circle"
           data-testid="run-pipeline"
-          [class.busy]="
-            progress.launching ||
-            progress.interrupting ||
-            (launches | keyvalue).length > 0
-          "
+          [class.busy]="progress.launching || (launches | keyvalue).length > 0"
           [disabled]="(launches | keyvalue).length > 0"
-          (click)="!!launch ? interrupt() : run()"
+          (click)="run()"
         >
-          <app-icon class="icon" [icon]="!!launch ? 'stop' : 'play'"></app-icon>
+          <app-icon class="icon" icon="play"></app-icon>
         </button>
       </div>
       @if (config.assistant.active) {
@@ -200,6 +196,19 @@
           <app-icon class="icon" icon="assistant"></app-icon>
         </a>
       }
+    </div>
+  }
+  @if (running) {
+    <div class="actions stack">
+      <button
+        class="circle"
+        data-testid="interrupt-launch"
+        [class.busy]="progress.interrupting"
+        [disabled]="progress.interrupting"
+        (click)="interrupt()"
+      >
+        <app-icon class="icon" icon="stop"></app-icon>
+      </button>
     </div>
   }
 

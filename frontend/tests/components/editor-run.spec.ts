@@ -1,9 +1,9 @@
 import { HttpRequest } from "@angular/common/http";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
-import { Launch } from "src/models/launch";
 import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { LiveService } from "src/services/live.service";
 import { launchResponsePlain } from "../fixtures/launch-results";
+import { launch } from "../fixtures/models";
 import {
   LAUNCH_ID,
   PROJECT_A_ID,
@@ -30,17 +30,29 @@ const AUTOSAVE = 4000;
 type Editor = ReturnType<typeof setupEditor>;
 
 function runButton(element: HTMLElement): HTMLButtonElement {
-  const actions = element.querySelector("div.actions.stack:not(.align-center)");
-  return Array.from(actions.querySelectorAll("button.circle")).find((b) =>
-    ["play", "stop"].includes(
-      componentOf<IconComponent>(b.querySelector("app-icon"))?.icon,
-    ),
-  ) as HTMLButtonElement;
+  return element.querySelector('[data-testid="run-pipeline"]');
 }
 
 function nodeRunButton(element: HTMLElement, id: string): HTMLButtonElement {
   const node = element.querySelector(`[data-testid="node-${id}"]`);
   return node.querySelector(".actions.align-center button.circle.small");
+}
+
+/** Makes `window.open` return a stand-in browser tab and records its use. */
+function tabDouble() {
+  const tab = {
+    location: { href: "" },
+    closed: false,
+    window: null as unknown as Window,
+    open: null as unknown as ReturnType<typeof vi.spyOn>,
+  };
+  tab.window = {
+    location: tab.location,
+    opener: {},
+    close: () => (tab.closed = true),
+  } as unknown as Window;
+  tab.open = vi.spyOn(window, "open").mockReturnValue(tab.window);
+  return tab;
 }
 
 /**
@@ -67,35 +79,40 @@ function answerSaves({ controller }: Editor, revision = "rev_a_2") {
 }
 
 describe("EditPipelineVisualComponent runs", () => {
-  it("launches the whole pipeline with the outputs bucket", fakeAsync(() => {
+  it("launches the whole pipeline in a new tab and keeps the canvas free", fakeAsync(() => {
+    const tab = tabDouble();
     const editor = setupEditor();
     const { element, controller, detectChanges } = editor;
 
     runButton(element).click();
     detectChanges();
+    const openedBeforeResponse = tab.open.mock.calls.length;
     const request = controller.expectOne(LAUNCH_URL);
     const busy = runButton(element).classList.contains("busy");
     request.flush(launchResponsePlain());
     tick(UI_DELAY);
     detectChanges();
-    answerNodeReads(editor);
 
+    expect(openedBeforeResponse).toBe(1);
     expect(request.request.method).toBe("POST");
     expect(request.request.body).toEqual({ options: { bucket: "outputs" } });
     expect(busy).toBe(true);
-    expect(editor.editor.launch).toBeInstanceOf(Launch);
-    expect(editor.editor.launch._id).toBe(LAUNCH_ID);
+    expect(tab.location.href).toBe(`/launches/${LAUNCH_ID}`);
+    expect(tab.window.opener).toBeNull();
+    expect(tab.closed).toBe(false);
+    expect(editor.editor.launch).toBeFalsy();
     expect(editor.editor.progress.launching).toBe(false);
-    expect(editor.router.url).toContain(`launch=${LAUNCH_ID}`);
+    expect(editor.router.url).not.toContain("launch=");
     expect(
       componentOf<IconComponent>(runButton(element).querySelector("app-icon"))
         ?.icon,
-    ).toBe("stop");
+    ).toBe("play");
     controller.verify();
     finish();
   }));
 
   it("waits for a pending save before launching", fakeAsync(() => {
+    const tab = tabDouble();
     const editor = setupEditor();
     const { controller, manager, detectChanges, element } = editor;
     manager.project.pipeline.nodes.get("node_one").title = "Renamed";
@@ -112,17 +129,42 @@ describe("EditPipelineVisualComponent runs", () => {
     launch.flush(launchResponsePlain());
     tick(UI_DELAY);
     detectChanges();
-    answerNodeReads(editor);
 
     expect(early.length).toBe(0);
     expect(manager.project.revision).toBe("rev_a_2");
-    expect(editor.editor.launch._id).toBe(LAUNCH_ID);
+    expect(tab.location.href).toBe(`/launches/${LAUNCH_ID}`);
     controller.verify();
     finish();
   }));
 
-  it("shows a launch failure and clears progress", fakeAsync(() => {
+  it("abandons the launch and closes the tab when the save fails", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 409");
+    const tab = tabDouble();
+    const editor = setupEditor();
+    const { controller, manager, detectChanges, element } = editor;
+    manager.project.pipeline.nodes.get("node_one").title = "Renamed";
+    manager.markDirty();
+
+    runButton(element).click();
+    detectChanges();
+    tick(AUTOSAVE);
+    controller
+      .expectOne((r) => r.method === "PATCH")
+      .flush("Conflict", { status: 409, statusText: "Conflict" });
+    tick(UI_DELAY);
+    detectChanges();
+
+    expect(controller.match(LAUNCH_URL).length).toBe(0);
+    expect(tab.closed).toBe(true);
+    expect(editor.editor.progress.launching).toBe(false);
+    expect(runButton(element).classList.contains("busy")).toBe(false);
+    controller.verify();
+    finish();
+  }));
+
+  it("shows a launch failure, closes the tab and clears progress", fakeAsync(() => {
     expectConsoleError("Process HTTP error 400");
+    const tab = tabDouble();
     const editor = setupEditor();
     const { element, controller, detectChanges } = editor;
 
@@ -137,81 +179,9 @@ describe("EditPipelineVisualComponent runs", () => {
     expect(element.querySelector("app-informer")?.textContent).toContain(
       "Launch request is invalid",
     );
-    expect(editor.editor.launch).toBeFalsy();
+    expect(tab.closed).toBe(true);
     expect(editor.editor.progress.launching).toBe(false);
     expect(runButton(element).classList.contains("busy")).toBe(false);
-    controller.verify();
-    finish();
-  }));
-
-  it("interrupts the running launch and clears its URL state", fakeAsync(() => {
-    const editor = setupEditor();
-    const { element, controller, detectChanges } = editor;
-    runButton(element).click();
-    controller.expectOne(LAUNCH_URL).flush(launchResponsePlain());
-    tick(UI_DELAY);
-    detectChanges();
-    answerNodeReads(editor);
-
-    runButton(element).click();
-    detectChanges();
-    const interrupt = controller.expectOne(INTERRUPT_URL);
-    const interrupting = editor.editor.progress.interrupting;
-    interrupt.flush(null);
-    tick(UI_DELAY);
-    detectChanges();
-
-    expect(interrupt.request.method).toBe("POST");
-    expect(interrupting).toBe(true);
-    expect(editor.editor.launch).toBeNull();
-    expect(editor.editor.progress.interrupting).toBe(false);
-    expect(editor.router.url).not.toContain("launch=");
-    controller.verify();
-    finish();
-  }));
-
-  it("keeps the launch and shows the error when interrupting fails", fakeAsync(() => {
-    expectConsoleError("Process HTTP error 404");
-    const editor = setupEditor();
-    const { element, controller, detectChanges } = editor;
-    runButton(element).click();
-    controller.expectOne(LAUNCH_URL).flush(launchResponsePlain());
-    tick(UI_DELAY);
-    detectChanges();
-    answerNodeReads(editor);
-
-    runButton(element).click();
-    controller
-      .expectOne(INTERRUPT_URL)
-      .flush("Not found", { status: 404, statusText: "Not Found" });
-    tick(UI_DELAY);
-    detectChanges();
-
-    expect(editor.editor.launch._id).toBe(LAUNCH_ID);
-    expect(editor.editor.progress.interrupting).toBe(false);
-    expect(element.querySelector("app-informer")).not.toBeNull();
-    controller.verify();
-    finish();
-  }));
-
-  it("clears the launch when its pipeline_done arrives, ignoring other launches", fakeAsync(() => {
-    const editor = setupEditor();
-    const { element, controller, detectChanges, socket } = editor;
-    runButton(element).click();
-    controller.expectOne(LAUNCH_URL).flush(launchResponsePlain());
-    tick(UI_DELAY);
-    detectChanges();
-    answerNodeReads(editor);
-
-    socket.receive("pipeline_done", { launch: "launch_other" });
-    const afterOther = editor.editor.launch?._id;
-    socket.receive("pipeline_done", { launch: LAUNCH_ID });
-    tick();
-    detectChanges();
-
-    expect(afterOther).toBe(LAUNCH_ID);
-    expect(editor.editor.launch).toBeNull();
-    expect(editor.router.url).not.toContain("launch=");
     controller.verify();
     finish();
   }));
@@ -281,7 +251,9 @@ describe("EditPipelineVisualComponent runs", () => {
     const editor = setupEditor();
     const { element, controller, detectChanges, socket, fixture } = editor;
     const live = TestBed.inject(LiveService);
-    runButton(element).click();
+    nodeRunButton(element, "node_two").click();
+    detectChanges();
+    answerSaves(editor);
     controller.expectOne(LAUNCH_URL).flush(launchResponsePlain());
     tick(UI_DELAY);
     detectChanges();
@@ -335,6 +307,72 @@ describe("EditPipelineVisualComponent runs", () => {
     ]);
     expect(stale.length).toBe(0);
     current.forEach((r) => r.flush(null));
+    controller.verify();
+    finish();
+  }));
+});
+
+describe("EditPipelineVisualComponent launch page", () => {
+  function interruptButton(element: HTMLElement): HTMLButtonElement | null {
+    return element.querySelector('[data-testid="interrupt-launch"]');
+  }
+
+  it("interrupts the running launch and hides the interrupt button", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { element, controller, detectChanges } = editor;
+    answerNodeReads(editor);
+
+    interruptButton(element).click();
+    detectChanges();
+    const interrupt = controller.expectOne(INTERRUPT_URL);
+    const busy = interruptButton(element).classList.contains("busy");
+    interrupt.flush(null);
+    tick(UI_DELAY);
+    detectChanges();
+
+    expect(interrupt.request.method).toBe("POST");
+    expect(busy).toBe(true);
+    expect(interruptButton(element)).toBeNull();
+    expect(editor.editor.launch._id).toBe(LAUNCH_ID);
+    controller.verify();
+    finish();
+  }));
+
+  it("keeps the interrupt button and shows the error when interrupting fails", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 404");
+    const editor = setupEditor({ launch: launch() });
+    const { element, controller, detectChanges } = editor;
+    answerNodeReads(editor);
+
+    interruptButton(element).click();
+    controller
+      .expectOne(INTERRUPT_URL)
+      .flush("Not found", { status: 404, statusText: "Not Found" });
+    tick(UI_DELAY);
+    detectChanges();
+
+    expect(interruptButton(element)).not.toBeNull();
+    expect(interruptButton(element).classList.contains("busy")).toBe(false);
+    expect(element.querySelector("app-informer")).not.toBeNull();
+    controller.verify();
+    finish();
+  }));
+
+  it("hides the interrupt button when its pipeline_done arrives, ignoring other launches", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { element, controller, detectChanges, socket } = editor;
+    answerNodeReads(editor);
+
+    socket.receive("pipeline_done", { launch: "launch_other" });
+    detectChanges();
+    const afterOther = interruptButton(element);
+    socket.receive("pipeline_done", { launch: LAUNCH_ID });
+    tick();
+    detectChanges();
+
+    expect(afterOther).not.toBeNull();
+    expect(interruptButton(element)).toBeNull();
+    expect(editor.editor.launch._id).toBe(LAUNCH_ID);
     controller.verify();
     finish();
   }));

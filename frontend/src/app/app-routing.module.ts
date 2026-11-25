@@ -367,7 +367,6 @@ const routes: Routes = [
             path: "",
             component: EditPipelineVisualComponent,
             resolve: {
-              launch: LaunchResolver,
               launches: LaunchesResolver,
             },
             runGuardsAndResolvers: "pathParamsChange",

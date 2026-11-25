@@ -26,9 +26,12 @@ test("blocks a pipeline launch without a start node and runs after Auto start is
   await page.getByTestId("node-node_one").locator("h2").click();
   await page.locator('input[formControlName="start"]').check();
   await expectSaved(page);
-  await page.getByTestId("run-pipeline").click();
+  const [tab] = await Promise.all([
+    page.context().waitForEvent("page"),
+    page.getByTestId("run-pipeline").click(),
+  ]);
 
-  await expect(page).toHaveURL(/;launch=launch_1/);
+  await expect(tab).toHaveURL(/\/en\/launches\/launch_1$/);
   expect(api.callsTo("POST", /\/launch$/)).toHaveLength(1);
 });
 
