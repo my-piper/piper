@@ -43,10 +43,6 @@
           "baseHref": "/en/"
         },
         "locales": {
-          "ru": {
-            "baseHref": "/ru/",
-            "translation": "src/locale/ru.json"
-          },
           "de": {
             "baseHref": "/de/",
             "translation": "src/locale/de.json"
@@ -162,7 +158,7 @@
                 "base": "dist-browser",
                 "browser": ""
               },
-              "localize": ["en", "ru"],
+              "localize": ["en", "de"],
               "sourceMap": true,
               "budgets": []
             },

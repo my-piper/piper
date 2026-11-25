@@ -14,9 +14,6 @@ export class TranslatedLabel {
   en: string;
 
   @Expose()
-  ru: string;
-
-  @Expose()
   de: string;
 
   @Expose()

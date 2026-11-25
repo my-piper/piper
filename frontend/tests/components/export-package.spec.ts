@@ -59,11 +59,11 @@ describe("ExportPackageComponent", () => {
   }));
 
   it("shows localized names and identifiers above read-only YAML", fakeAsync(() => {
-    const page = setup(Languages.ru);
+    const page = setup(Languages.de);
     const yaml = YAML.stringify({
       _id: "tools",
       nodes: {
-        echo: { title: "en=Echo;ru=Эхо" },
+        echo: { title: "en=Echo;de=Widerhall" },
         fallback: {},
         same: { title: "same" },
       },
@@ -75,7 +75,7 @@ describe("ExportPackageComponent", () => {
       Array.from(page.element.querySelectorAll(".nodes li")).map((li) =>
         li.textContent.trim(),
       ),
-    ).toEqual(["Эхо (echo)", "fallback", "same"]);
+    ).toEqual(["Widerhall (echo)", "fallback", "same"]);
     expect(page.element.querySelectorAll(".nodes code")).toHaveLength(1);
     expect(
       page.element.querySelector<HTMLTextAreaElement>("textarea").value,

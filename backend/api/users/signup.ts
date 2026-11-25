@@ -124,7 +124,7 @@ api.post(
       }
     }
 
-    const subject = getLabel("en=Your code;ru=Ваш код", language);
+    const subject = getLabel("en=Your code", language);
     const template = markdown(
       await readFile("./emails/confirmation.txt", "utf-8"),
       language

@@ -700,9 +700,10 @@ server, browser fixture contracts, minimal stable UI selectors.
 
 **Work:**
 
-- Build English and one additional locale (Russian is available) with the real
-  Angular compiler. Serve the artifacts on loopback with SPA fallback and the
-  correct `/en/` and `/ru/` base paths; do not require nginx or port 80.
+- Build English and one additional locale (German, Russian until it was
+  dropped) with the real Angular compiler. Serve the artifacts on loopback with
+  SPA fallback and the correct `/en/` and `/de/` base paths; do not require
+  nginx or port 80.
 - The fixture server replaces the HTML's `const PRERENDER` value in memory with
   controlled config before serving it. Assert replacement succeeds exactly once.
   Do not mutate the production HTML or rely solely on `addInitScript` assigning
@@ -758,7 +759,7 @@ against a fixture backend — not a full-stack test.
 - Files: `tests/browser/{playwright.config.ts,tsconfig.json}`,
   `tests/browser/support/{server,api,test}.ts`, specs `auth`, `canvas`, `yaml`,
   `save-retry`, `launch`, `deploy`, `locale`; `angular.json` build configuration
-  `browser-test` (output `dist-browser`, locales en/ru, run as
+  `browser-test` (output `dist-browser`, locales en/de since Russian was dropped, run as
   `production,browser-test`); `.gitignore` (`/dist-browser`, `/test-results`,
   `/playwright-report`); scripts `test:browser`, `test:browser:run`,
   `test:browser:typecheck`; exact-pinned `@playwright/test@1.63.0` and
@@ -773,7 +774,7 @@ against a fixture backend — not a full-stack test.
   launch with `set_output`/`set_errors` events, unrelated-launch event ignored,
   balance 400 visible; canvas run joins the launch room, `node_error` marks only
   the matching node, interrupt clears the URL; deploy failure/retry/list and
-  admin delete; Russian direct load, reload and navigation stay under `/ru/`.
+  admin delete; German (Russian until it was dropped) direct load, reload and navigation stay under `/de/`.
 - Decision: the browser build runs Angular in production mode. With
   `optimization: false` (dev mode) `ProjectComponent` throws NG0100 from its
   `child | is:` class binding — recorded as a follow-up.

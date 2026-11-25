@@ -29,7 +29,7 @@ import {
  */
 
 export const DIST = path.resolve(import.meta.dirname, "../../../dist-browser");
-export const LOCALES = ["en", "ru"] as const;
+export const LOCALES = ["en", "de"] as const;
 
 const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",

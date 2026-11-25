@@ -11,7 +11,6 @@ import {
   it,
   ko,
   ptBR,
-  ru,
   tr,
   zhCN,
   zhTW,
@@ -21,8 +20,6 @@ export const DATE_LOCALE = new InjectionToken<Languages>("date_locale");
 
 export function dateLocaleFactory(currentLang: Languages): Locale {
   switch (currentLang) {
-    case Languages.ru:
-      return ru;
     case Languages.de:
       return de;
     case Languages.es:

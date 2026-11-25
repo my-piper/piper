@@ -55,9 +55,9 @@ describe("MarkdownPipe", () => {
   });
 
   it("renders the Markdown for the current language", () => {
-    const element = render("# English\n---ru---\n# Русский", Languages.ru);
+    const element = render("# English\n---de---\n# Deutsch", Languages.de);
 
-    expect(element.querySelector(".trusted h1").textContent).toBe("Русский");
+    expect(element.querySelector(".trusted h1").textContent).toBe("Deutsch");
   });
 
   it("strips scripts and event handlers when the HTML is not trusted", () => {

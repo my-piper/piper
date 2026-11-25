@@ -2,7 +2,6 @@ import { Languages } from "src/enums/languages";
 
 export const ALL_LANGUAGES = [
   Languages.en,
-  Languages.ru,
   Languages.de,
   Languages.es,
   Languages.ptBR,

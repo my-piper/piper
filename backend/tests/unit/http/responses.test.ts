@@ -159,12 +159,12 @@ describe("HTTP responses and injector", () => {
     );
 
     const response = await context.request
-      .get("/injector?language=ru")
+      .get("/injector?language=it")
       .set("language", "en")
       .set("Cookie", "language=de")
       .set("cf-connecting-ip", "192.0.2.5");
 
-    expect(response.body).toEqual({ language: "ru", ip: "192.0.2.5" });
+    expect(response.body).toEqual({ language: "it", ip: "192.0.2.5" });
   });
 
   it.each([

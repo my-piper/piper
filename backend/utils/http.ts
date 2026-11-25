@@ -29,7 +29,7 @@ const USER_TOKEN_HEADER = "user-token";
 const API_TOKEN_HEADER = "api-token";
 
 const LANGUAGE_QUERY_PARAM = "language";
-const LANGUAGE_COOKIE = "language";
+export const LANGUAGE_COOKIE = "language";
 const LANGUAGE_HEADER = "language";
 const ACCEPT_LANGUAGE_HEADER = "accept-language";
 export const IP_ADDRESS_HEADER = "cf-connecting-ip";

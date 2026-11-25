@@ -13,6 +13,8 @@ import path from "path";
 import { parseURL } from "ufo";
 
 import "./api/artefacts";
+// before the locale route below, which would match the /ru/ prefix
+import "./api/legacy-locales";
 import "./api/assets";
 import "./api/batches";
 import "./api/dms";

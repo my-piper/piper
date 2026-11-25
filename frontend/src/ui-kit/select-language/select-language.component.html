@@ -13,17 +13,6 @@
   <li>
     <a
       class="stack align-center small"
-      [href]="languages.ru | getUrl"
-      (click)="setLanguage($event, languages.ru)"
-      [class.active]="lang === languages.ru"
-    >
-      <app-icon [icon]="'ru'" [size]="18"></app-icon>
-      <span>Русский</span>
-    </a>
-  </li>
-  <li>
-    <a
-      class="stack align-center small"
       [href]="languages.de | getUrl"
       (click)="setLanguage($event, languages.de)"
       [class.active]="lang === languages.de"

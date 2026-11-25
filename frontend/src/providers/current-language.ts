@@ -17,8 +17,6 @@ export function currentLangFactory(baseHref: string) {
   }
 
   switch (baseHref) {
-    case "/ru/":
-      return Languages.ru;
     case "/de/":
       return Languages.de;
     case "/es/":
