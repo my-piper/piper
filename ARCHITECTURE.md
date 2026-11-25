@@ -121,15 +121,9 @@ Nodes are not signed and their scripts and environment scopes are not checked on
 - A node runs with `isolation: "none"` (a worker in the Deno server's shared process) unless it carries `isolated: true`, which runs it with `isolation: "process"`.
 - A Node Definition can carry `isolated`, and nodes placed from it copy it; the "Run isolated" switch on the node's Design panel sets it per node in a pipeline.
 
-Environment variables are resolved per node in `jobs/process-node/environment.ts`. Each variable's scope (`global`, `user`, `pipeline`) controls where it is read from, first match wins:
+Environment variables are resolved per node in `jobs/process-node/environment.ts` (ADR 0009). For each name the node declares, the Project's own value wins (`env.scope` = `pipeline`); otherwise the value is read from the Global Variable the Project binds the name to: the one named in `environment.bindings`, else the one of the same name (`env.scope` = `global`). A missing Global Variable leaves the name unset.
 
-| Scope | Lookup order |
-| --- | --- |
-| `global` | User Environment → Platform Environment |
-| `user` | User Environment |
-| `pipeline` | Project Environment (from the launch) → User Environment |
-
-The Platform Environment (admin, `/api/environment`, CLI `env`) and each User Environment (`/api/me/environment`, page `/me/environment`) live in Redis and are read live, so changing a shared value reaches every Deploy at once. The User Environment is that of the user who started the launch (for a Deploy, the API caller). The Project Environment is frozen into each Launch and Deploy. Secrets are stored encrypted (`packages/environment/crypt-environment.ts`) and masked in API responses.
+The Global Environment (`/api/environment`, page `/environment`, CLI `env`; any signed-in user reads it, admins write it) lives in Redis and is read live, so changing a value reaches every Deploy at once. The Project Environment (own values and bindings) is frozen into each Launch and Deploy, and saving a Project drops entries no node declares (`packages/environment/prune-environment.ts`). Secrets are stored encrypted (`packages/environment/crypt-environment.ts`) and masked in API responses.
 
 ## Launch lifecycle
 

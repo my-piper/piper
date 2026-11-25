@@ -3,7 +3,7 @@ import {
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
 import { launchFixture } from "../../fixtures/launch";
-import { GLOBAL_ENVIRONMENT_KEY, USER_ENVIRONMENT_KEY } from "consts/redis";
+import { GLOBAL_ENVIRONMENT_KEY } from "consts/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { FatalError } from "core-kit/types/errors";
 import { getEnvironment } from "jobs/process-node/environment";
@@ -11,7 +11,7 @@ import { Environment } from "models/environment";
 import { NodeEnvironment } from "models/node";
 import { Project } from "models/project";
 import { encrypt } from "packages/environment/crypt-environment";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 beforeEach(resetExecutionDoubles);
 
@@ -22,220 +22,105 @@ function encryptedEnvironment(variables: object) {
 }
 
 describe("node environment precedence and decryption", () => {
-  it("uses user overrides for global values, isolates scopes, and preserves falsy values", async () => {
-    const launch = launchFixture();
+  function declare(launch: ReturnType<typeof launchFixture>, names: string[]) {
     const node = launch.pipeline.nodes.get("echo_node");
     node.environment = new Map(
-      Object.entries({
-        shared: toInstance({ scope: "global" }, NodeEnvironment),
-        globalOnly: toInstance({ scope: "global" }, NodeEnvironment),
-        userOnly: toInstance({ scope: "user" }, NodeEnvironment),
-        pipelineOnly: toInstance({ scope: "pipeline" }, NodeEnvironment),
-        missingUser: toInstance({ scope: "user" }, NodeEnvironment),
-        enabled: toInstance({ scope: "global" }, NodeEnvironment),
-        count: toInstance({ scope: "user" }, NodeEnvironment),
-        text: toInstance({ scope: "pipeline" }, NodeEnvironment),
-      })
+      names.map((name) => [name, toInstance({}, NodeEnvironment)])
     );
-    const global = encryptedEnvironment({
+    return node;
+  }
+
+  function storeGlobal(variables: object) {
+    const global = encryptedEnvironment(variables);
+    doubles.redis.get.mockImplementation(async (key) =>
+      key === GLOBAL_ENVIRONMENT_KEY ? JSON.stringify(toPlain(global)) : null
+    );
+  }
+
+  it("reads each variable from the project's override, else the global variable of the same name", async () => {
+    const launch = launchFixture();
+    const node = declare(launch, [
+      "shared",
+      "globalOnly",
+      "overridden",
+      "enabled",
+      "count",
+      "text",
+      "missing",
+    ]);
+    storeGlobal({
       shared: "global",
       globalOnly: "global only",
-      missingUser: "must not leak",
+      overridden: "global must not win",
       enabled: true,
       undeclared: "secret",
     });
-    const user = encryptedEnvironment({
-      shared: "user",
-      userOnly: "user only",
-      pipelineOnly: "must not override pipeline",
+    launch.environment = encryptedEnvironment({
+      overridden: "project",
       enabled: false,
       count: 0,
-    });
-    launch.environment = encryptedEnvironment({
-      pipelineOnly: "pipeline only",
       text: "",
     });
-    const userCiphertext = user.variables.get("shared");
-    doubles.redis.get.mockImplementation(async (key) =>
-      key === GLOBAL_ENVIRONMENT_KEY
-        ? JSON.stringify(toPlain(global))
-        : key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
-          ? JSON.stringify(toPlain(user))
-          : null
-    );
-    vi.spyOn(console, "log").mockImplementation(() => {});
 
-    const environment = await getEnvironment({
-      launch,
-      node,
-      launchedBy: launch.launchedBy,
-    });
+    const environment = await getEnvironment({ launch, node });
 
     expect(toPlain(environment)).toEqual({
       variables: {
-        shared: "user",
+        shared: "global",
         globalOnly: "global only",
-        userOnly: "user only",
-        pipelineOnly: "pipeline only",
+        overridden: "project",
         enabled: false,
         count: 0,
         text: "",
       },
       scope: {
-        shared: "user",
+        shared: "global",
         globalOnly: "global",
-        userOnly: "user",
-        pipelineOnly: "pipeline",
-        enabled: "user",
-        count: "user",
+        overridden: "pipeline",
+        enabled: "pipeline",
+        count: "pipeline",
         text: "pipeline",
       },
     });
-    expect(user.variables.get("shared")).toBe(userCiphertext);
     expect(launch.environment.variables.get("text")).not.toBe("");
   });
 
-  it("fills project variables the project leaves empty from the user environment", async () => {
-    const launch = launchFixture();
-    const node = launch.pipeline.nodes.get("echo_node");
-    node.environment = new Map(
-      Object.entries({
-        token: toInstance({ scope: "pipeline" }, NodeEnvironment),
-        endpoint: toInstance({ scope: "pipeline" }, NodeEnvironment),
-        unset: toInstance({ scope: "pipeline" }, NodeEnvironment),
-      })
-    );
-    const global = encryptedEnvironment({ unset: "platform must not leak" });
-    const user = encryptedEnvironment({
-      token: "user token",
-      endpoint: "user endpoint",
-    });
-    launch.environment = encryptedEnvironment({ endpoint: "project endpoint" });
-    doubles.redis.get.mockImplementation(async (key) =>
-      key === GLOBAL_ENVIRONMENT_KEY
-        ? JSON.stringify(toPlain(global))
-        : key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
-          ? JSON.stringify(toPlain(user))
-          : null
-    );
-
-    const environment = await getEnvironment({
-      launch,
-      node,
-      launchedBy: launch.launchedBy,
-    });
-
-    expect(toPlain(environment)).toEqual({
-      variables: { token: "user token", endpoint: "project endpoint" },
-      scope: { token: "user", endpoint: "pipeline" },
-    });
-  });
-
-  it("reads a bound project variable from the owner's user variable it names", async () => {
-    const launch = launchFixture();
-    launch.project = toInstance(
-      { _id: "project", createdBy: { _id: launch.launchedBy._id } },
-      Project
-    );
-    const node = launch.pipeline.nodes.get("echo_node");
-    node.environment = new Map(
-      Object.entries({
-        token: toInstance({ scope: "pipeline" }, NodeEnvironment),
-        missing: toInstance({ scope: "pipeline" }, NodeEnvironment),
-        userOnly: toInstance({ scope: "user" }, NodeEnvironment),
-      })
-    );
-    const user = encryptedEnvironment({
-      token: "same-name token",
-      work_token: "bound token",
-      missing: "same-name must not be used",
-      other: "binding of a user-scoped variable is ignored",
-      userOnly: "user only",
-    });
-    launch.environment = toInstance(
-      {
-        variables: {},
-        bindings: { token: "work_token", missing: "gone", userOnly: "other" },
-      },
-      Environment
-    );
-    doubles.redis.get.mockImplementation(async (key) =>
-      key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
-        ? JSON.stringify(toPlain(user))
-        : null
-    );
-
-    const environment = await getEnvironment({
-      launch,
-      node,
-      launchedBy: launch.launchedBy,
-    });
-
-    expect(toPlain(environment)).toEqual({
-      variables: { token: "bound token", userOnly: "user only" },
-      scope: { token: "user", userOnly: "user" },
-    });
-  });
-
-  it("ignores bindings when someone other than the project owner launches it", async () => {
+  it("reads a bound variable from the global variable it names, for whoever launches it", async () => {
     const launch = launchFixture();
     launch.project = toInstance(
       { _id: "project", createdBy: { _id: "owner" } },
       Project
     );
-    const node = launch.pipeline.nodes.get("echo_node");
-    node.environment = new Map([
-      ["token", toInstance({ scope: "pipeline" }, NodeEnvironment)],
-    ]);
-    const user = encryptedEnvironment({
-      token: "launcher token",
-      OPENAI_KEY: "launcher secret must not leak",
+    const node = declare(launch, ["token", "missing"]);
+    storeGlobal({
+      token: "same-name token",
+      work_token: "bound token",
+      missing: "same-name must not be used",
     });
     launch.environment = toInstance(
-      { variables: {}, bindings: { token: "OPENAI_KEY" } },
+      { variables: {}, bindings: { token: "work_token", missing: "gone" } },
       Environment
     );
-    doubles.redis.get.mockImplementation(async (key) =>
-      key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
-        ? JSON.stringify(toPlain(user))
-        : null
-    );
 
-    const environment = await getEnvironment({
-      launch,
-      node,
-      launchedBy: launch.launchedBy,
-    });
+    const environment = await getEnvironment({ launch, node });
 
     expect(toPlain(environment)).toEqual({
-      variables: { token: "launcher token" },
-      scope: { token: "user" },
+      variables: { token: "bound token" },
+      scope: { token: "global" },
     });
   });
 
-  it("fills project variables from the user environment when the launch has no environment", async () => {
+  it("reads global variables when the launch has no environment", async () => {
     const launch = launchFixture();
-    const node = launch.pipeline.nodes.get("echo_node");
-    node.environment = new Map([
-      ["token", toInstance({ scope: "pipeline" }, NodeEnvironment)],
-    ]);
+    const node = declare(launch, ["token"]);
     launch.environment = undefined;
-    const user = encryptedEnvironment({ token: "user token" });
-    doubles.redis.get.mockImplementation(async (key) =>
-      key === USER_ENVIRONMENT_KEY(launch.launchedBy._id)
-        ? JSON.stringify(toPlain(user))
-        : null
-    );
+    storeGlobal({ token: "global token" });
 
-    const environment = await getEnvironment({
-      launch,
-      node,
-      launchedBy: launch.launchedBy,
-    });
+    const environment = await getEnvironment({ launch, node });
 
     expect(toPlain(environment)).toEqual({
-      variables: { token: "user token" },
-      scope: { token: "user" },
+      variables: { token: "global token" },
+      scope: { token: "global" },
     });
   });
 
@@ -244,7 +129,6 @@ describe("node environment precedence and decryption", () => {
 
     const environment = await getEnvironment({
       launch,
-      launchedBy: launch.launchedBy,
       node: launch.pipeline.nodes.get("echo_node"),
     });
 
@@ -255,16 +139,12 @@ describe("node environment precedence and decryption", () => {
   it("wraps corrupted ciphertext as a fatal decryption error", async () => {
     const launch = launchFixture();
     const node = launch.pipeline.nodes.get("echo_node");
-    node.environment = new Map([
-      ["key", toInstance({ scope: "pipeline" }, NodeEnvironment)],
-    ]);
+    node.environment = new Map([["key", toInstance({}, NodeEnvironment)]]);
     launch.environment = toInstance(
       { variables: { key: "invalid ciphertext" } },
       Environment
     );
 
-    await expect(
-      getEnvironment({ launch, node, launchedBy: launch.launchedBy })
-    ).rejects.toThrow(FatalError);
+    await expect(getEnvironment({ launch, node })).rejects.toThrow(FatalError);
   });
 });

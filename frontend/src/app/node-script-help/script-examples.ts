@@ -65,12 +65,12 @@ export async function run({ inputs }) {
     code: `export async function run({ inputs, env }) {
   const { API_KEY } = env.variables;
   if (!API_KEY) {
-    throw Object.assign(new Error("Set API_KEY in your Environment"), {
+    throw Object.assign(new Error("Set API_KEY in the Environment"), {
       code: "FATAL_ERROR",
     });
   }
   // env.scope.API_KEY tells where the value came from:
-  // "pipeline", "user" or "global"
+  // "pipeline" (the project's own value) or "global"
 
   const response = await fetch("https://api.example.com/v1/answer", {
     method: "POST",

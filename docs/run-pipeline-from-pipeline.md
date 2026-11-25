@@ -142,8 +142,9 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
   (`process-node-handler.ts:269`, `transformers/primitive.ts:26-38`). Declared
   variables follow the node schema: `title`, `type` (`boolean|number|string`)
   and `scope` (`global|user|pipeline`) (`backend/schemas/node.json:111-113,436-466`).
-  A user stores secrets with `PUT /api/me/environment`, which encrypts them
-  (`api/environment/set-me-environment.ts:11-33`).
+  Since ADR 0009 the Variable `scope` is gone: a value comes from the
+  Project's own override or the Global Environment it is bound to, so a user
+  stores such secrets as overrides on the Project.
 - The child launch runs as the token's owner. `launchedBy` is the current user
   (`launch-deploy.ts:32-35`, `launch-project.ts:52-55`). This is not
   necessarily the parent launch's user. **(inference)**
@@ -237,8 +238,8 @@ This is built only from the facts above. Assumptions:
 
 - the child project is deployed under slug `my-child` with prefix
   `<userId>`, has a pipeline input `prompt` and a pipeline output `result`;
-- the user stored `PIPER_URL` and `PIPER_API_TOKEN` with
-  `PUT /api/me/environment`.
+- the user set `PIPER_URL` and `PIPER_API_TOKEN` as overrides in the
+  Project Environment.
 
 The node returns plain `{__type: ...}` objects, so it does not depend on the
 external `utils/node.js`.
@@ -250,11 +251,9 @@ environment:
   PIPER_URL:
     description: Piper base URL
     type: string
-    scope: user
   PIPER_API_TOKEN:
     description: Piper API token
     type: string
-    scope: user
 inputs:
   prompt: { type: string, required: true }
 outputs:

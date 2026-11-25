@@ -13,9 +13,6 @@ export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 export type VariableType = "string" | "number" | "boolean";
 
-/** Where a Variable the Project doesn't set is read from. */
-export type VariableSource = "user" | "platform" | "none";
-
 /** What a row knows about its stored value. */
 export interface VariableMeta {
   /** The value is stored server-side: an empty input keeps it. */
@@ -86,7 +83,7 @@ function valueMatchesType(group: AbstractControl): ValidationErrors | null {
 
 /**
  * A row of an Environment form. `fixed` locks the type to a Node
- * declaration; `readonly` locks the value and the secret switch.
+ * declaration.
  */
 export interface VariableOptions<M> {
   key?: string;
@@ -94,7 +91,6 @@ export interface VariableOptions<M> {
   value?: Primitive | null;
   secret?: boolean;
   fixed?: boolean;
-  readonly?: boolean;
   meta?: M & Partial<VariableMeta>;
 }
 
@@ -106,7 +102,6 @@ export function variableGroup<M extends object = object>(
     value = null,
     secret = true,
     fixed = false,
-    readonly = false,
     meta = {} as M & Partial<VariableMeta>,
   }: VariableOptions<M> = {},
 ) {
@@ -119,18 +114,13 @@ export function variableGroup<M extends object = object>(
       ]),
       type: fb.control<VariableType>({ value: type, disabled: fixed }),
       // only string Variables can be secret; off makes a Visible Variable
-      secret: fb.nonNullable.control({
-        value: secret,
-        disabled: readonly,
-      }),
+      secret: fb.nonNullable.control(secret),
       // stored strings are never sent back: leave empty to keep them
-      value: fb.control({
-        value:
-          value === null || value === undefined || storedSecret
-            ? ""
-            : String(value),
-        disabled: readonly,
-      }),
+      value: fb.control(
+        value === null || value === undefined || storedSecret
+          ? ""
+          : String(value),
+      ),
       meta: fb.control<M & VariableMeta>({
         ...meta,
         stored: !!meta.stored || storedSecret,

@@ -130,7 +130,7 @@ describe("pipeline import", () => {
     const [project] = inserted;
     expect(project.pipeline["nodes"]["mine"]).toMatchObject({
       script,
-      environment: { OPENAI_KEY: { type: "string", scope: "global" } },
+      environment: { OPENAI_KEY: { type: "string" } },
     });
   });
 

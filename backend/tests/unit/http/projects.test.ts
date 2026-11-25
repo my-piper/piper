@@ -609,7 +609,7 @@ describe("Node in a pipeline patch", () => {
       script,
       sign: "stale",
       isolated: true,
-      environment: { OPENAI_KEY: { type: "string", scope: "global" } },
+      environment: { OPENAI_KEY: { type: "string" } },
       inputs: { a: { type: "string", title: "A" } },
       outputs: { b: { type: "string", title: "B" } },
     });
@@ -617,7 +617,7 @@ describe("Node in a pipeline patch", () => {
     expect(written).toMatchObject({
       script,
       isolated: true,
-      environment: { OPENAI_KEY: { type: "string", scope: "global" } },
+      environment: { OPENAI_KEY: { type: "string" } },
       inputs: { a: { type: "string", title: "A" } },
       outputs: { b: { type: "string", title: "B" } },
     });
@@ -660,6 +660,24 @@ describe("Node in a pipeline patch", () => {
 });
 
 describe("project environment patch", () => {
+  beforeEach(() => {
+    const declared = [
+      "API_URL",
+      "ARTWORKS_PASSWORD",
+      "ARTWORKS_URL",
+      "ARTWORKS_USER",
+      "BASE_URL",
+      "MULEROUTER_API_KEY",
+      "OPENAI_KEY",
+      "RETRIES",
+    ];
+    Object.assign(scenario.project.pipeline.nodes.echo_node, {
+      environment: Object.fromEntries(
+        declared.map((name) => [name, { type: "string" }])
+      ),
+    });
+  });
+
   function storeProjectEnvironment(variables: object, visible?: string[]) {
     const environment = toInstance({ variables, visible }, Environment);
     encrypt(environment);
@@ -840,7 +858,7 @@ describe("project environment patch", () => {
     });
   });
 
-  it("binds a project variable to a user variable and drops its own value", async () => {
+  it("binds a project variable to a global variable and drops its own value", async () => {
     storeProjectEnvironment({ OPENAI_KEY: "sk-project", RETRIES: 3 });
     httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
     const delta = diff(
@@ -862,6 +880,66 @@ describe("project environment patch", () => {
       OPENAI_KEY: "OPENAI_KEY_WORK",
     });
     expect(writtenEnvironment().variables).toEqual({ RETRIES: 3 });
+  });
+
+  it("drops the overrides and bindings of Variables no Node declares", async () => {
+    storeProjectEnvironment({ OPENAI_KEY: "sk-project", STALE: "old" }, [
+      "STALE",
+    ]);
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(
+      { variables: { OPENAI_KEY: "[encrypted]", STALE: "old" } },
+      {
+        variables: { OPENAI_KEY: "[encrypted]", STALE: "old" },
+        visible: ["STALE"],
+        bindings: { RETRIES: "RETRIES_WORK", GONE: "OPENAI_KEY" },
+      }
+    );
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ environment: delta });
+
+    expect(response.status).toBe(200);
+    const [, { $set }] = httpDoubles.projects.updateOne.mock.calls[0];
+    expect($set.environment.bindings).toEqual({ RETRIES: "RETRIES_WORK" });
+    expect(writtenEnvironment()).toEqual({
+      variables: { OPENAI_KEY: "sk-project" },
+      visible: [],
+    });
+  });
+
+  it("drops the overrides of a removed Node's Variables when the pipeline is saved", async () => {
+    storeProjectEnvironment({ OPENAI_KEY: "sk-project", RETRIES: 3 });
+    const { pipeline } = scenario.project;
+    Object.assign(pipeline.nodes.echo_node, {
+      environment: {
+        OPENAI_KEY: { type: "string" },
+        RETRIES: { type: "number" },
+      },
+    });
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+    const delta = diff(pipeline, {
+      ...pipeline,
+      nodes: {
+        echo_node: {
+          ...pipeline.nodes.echo_node,
+          environment: { OPENAI_KEY: { type: "string" } },
+        },
+      },
+    });
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: delta });
+
+    expect(response.status).toBe(200);
+    expect(writtenEnvironment()).toEqual({
+      variables: { OPENAI_KEY: "sk-project" },
+      visible: undefined,
+    });
   });
 
   it.each([

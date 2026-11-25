@@ -30,39 +30,37 @@ import {
 } from "../helpers/taiga";
 
 /**
- * Route data: `project`, the user `environment` (GET /api/me/environment,
- * Secret Variables masked as `[encrypted]`, Visible Variables in clear) and the `platform` variable names
- * (GET /api/environment/keys). The tab edits only `project.environment`,
- * which reaches the backend through the regular project autosave; it never
- * calls the environment API itself.
+ * Route data: `project` and the Global `environment` (GET /api/environment,
+ * Secret Variables masked as `[encrypted]`, Visible Variables in clear). The
+ * tab edits only `project.environment` (`{ variables, visible, bindings? }`:
+ * an own value overrides, `bindings` names a differently named Global
+ * Variable, neither binds the Global Variable of the same name), which
+ * reaches the backend through the regular project autosave; it never calls
+ * the environment API itself.
  */
 
 /**
- * Project A (environment `API_URL`, `RETRIES: 0`) whose nodes declare
- * variables of every scope.
+ * Project A (own values `API_URL`, `RETRIES: 0`) whose nodes declare six
+ * variables.
  */
 function projectWithEnvironment(): Project {
   const pipeline = smallGraphPipeline() as {
     nodes: Record<string, Record<string, unknown>>;
   };
   pipeline.nodes["node_one"]["environment"] = {
-    OPENAI_KEY: {
-      type: "string",
-      scope: "user",
-      description: "Get it from **OpenAI**",
-    },
-    API_URL: { type: "string", scope: "global" },
-    MODEL: { type: "string", scope: "global" },
+    OPENAI_KEY: { type: "string", description: "Get it from **OpenAI**" },
+    API_URL: { type: "string" },
+    MODEL: { type: "string" },
   };
   pipeline.nodes["node_two"]["environment"] = {
-    RETRIES: { type: "integer", scope: "pipeline" },
-    VERBOSE: { type: "boolean", scope: "pipeline" },
-    TOKEN: { type: "string", scope: "pipeline" },
+    RETRIES: { type: "integer" },
+    VERBOSE: { type: "boolean" },
+    TOKEN: { type: "string" },
   };
   return projectWith(pipeline);
 }
 
-function userEnvironment(
+function globalEnvironment(
   variables: Plain,
   visible: string[] = [],
 ): Environment {
@@ -77,15 +75,13 @@ describe("EditPipelineEnvironmentComponent", () => {
 
   function setup(
     project: Project = projectWithEnvironment(),
-    environment: Environment = userEnvironment({
-      OPENAI_KEY: "[encrypted]",
-      VERBOSE: true,
-    }),
-    platform: string[] = ["API_URL"],
+    environment: Environment | null = globalEnvironment(
+      { OPENAI_KEY: "[encrypted]", VERBOSE: true, MODEL: "gpt-5" },
+      ["MODEL"],
+    ),
   ) {
-    // only Variables the project can set get a Source select
-    const declared = [...getDeclaredVariables(project.pipeline).values()];
-    if (declared.some(({ scope }) => scope === "pipeline")) {
+    // every declared Variable gets a Source select
+    if (getDeclaredVariables(project.pipeline).size > 0) {
       expectNativeSelectReadOnly();
     }
     TestBed.configureTestingModule({
@@ -101,7 +97,7 @@ describe("EditPipelineEnvironmentComponent", () => {
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },
         {
           provide: ActivatedRoute,
-          useValue: { data: of({ project, environment, platform }) },
+          useValue: { data: of({ project, environment }) },
         },
       ],
     });
@@ -114,21 +110,16 @@ describe("EditPipelineEnvironmentComponent", () => {
     return project;
   }
 
-  /**
-   * What each row shows: a read-only row has no inputs and says in text where
-   * its value comes from; an editable row picks its source and value.
-   */
+  /** What each row shows: its source, and its value or placeholder. */
   function rows() {
     return Array.from(element.querySelectorAll("tr.variable")).map((row) => {
-      const input = row.querySelector("input.value") as HTMLInputElement | null;
+      const input = row.querySelector("input.value") as HTMLInputElement;
       return {
         key: text(row, ".key"),
         type: text(row, ".type"),
-        source: row.querySelector("select.bind")
-          ? source(row)
-          : text(row, ".source"),
-        value: input ? input.value || input.placeholder : text(row, ".value"),
-        editable: !!input && !input.readOnly,
+        source: source(row),
+        value: input.value || input.placeholder,
+        editable: !input.readOnly,
       };
     });
   }
@@ -160,6 +151,17 @@ describe("EditPipelineEnvironmentComponent", () => {
     );
   }
 
+  /** The labels of a row's Source choices. */
+  function sources(key: string) {
+    return optionLabels(row(key).querySelector("select.bind"));
+  }
+
+  /** Picks a Source by its label; "This project" overrides. */
+  function bind(key: string, label: string) {
+    selectByLabel(row(key).querySelector("select.bind"), label);
+    fixture.detectChanges();
+  }
+
   afterEach(() => controller.verify());
 
   it("explains that no node needs variables", fakeAsync(() => {
@@ -179,22 +181,22 @@ describe("EditPipelineEnvironmentComponent", () => {
       {
         key: "OPENAI_KEY",
         type: "String",
-        source: "Your environment",
+        source: "OPENAI_KEY",
         value: "Stored",
         editable: false,
       },
       {
         key: "API_URL",
         type: "String",
-        source: "Platform",
-        value: "Stored",
-        editable: false,
+        source: "This project",
+        value: "http://dummy.piper.test",
+        editable: true,
       },
       {
         key: "MODEL",
         type: "String",
-        source: "Not set",
-        value: "",
+        source: "MODEL",
+        value: "gpt-5",
         editable: false,
       },
       {
@@ -207,34 +209,51 @@ describe("EditPipelineEnvironmentComponent", () => {
       {
         key: "VERBOSE",
         type: "Boolean",
-        source: "This project",
+        source: "VERBOSE",
         value: "true",
-        editable: true,
+        editable: false,
       },
       {
         key: "TOKEN",
         type: "String",
-        source: "This project",
+        source: "TOKEN",
         value: "",
-        editable: true,
+        editable: false,
       },
     ]);
     finish();
   }));
 
-  it("shows an inherited value but never a secret", fakeAsync(() => {
+  it("shows a bound Visible Variable's value but never a secret", fakeAsync(() => {
     setup();
 
-    expect(
-      (row("VERBOSE").querySelector("input.value") as HTMLInputElement)
-        .placeholder,
-    ).toBe("true");
-    expect(text(row("OPENAI_KEY"), ".value")).toBe("Stored");
-    expect(text(row("API_URL"), ".value")).toBe("Stored");
+    const input = (key: string) =>
+      row(key).querySelector("input.value") as HTMLInputElement;
+
+    expect({
+      value: input("MODEL").value,
+      placeholder: input("MODEL").placeholder,
+    }).toEqual({ value: "", placeholder: "gpt-5" });
+    expect(input("OPENAI_KEY").placeholder).toBe("Stored");
+    expect(row("OPENAI_KEY").querySelector("input.secret")).toBeNull();
     finish();
   }));
 
-  it("fixes names and types to the node declarations", fakeAsync(() => {
+  it("flags a variable bound to a missing global variable", fakeAsync(() => {
+    setup();
+
+    const missing = Array.from(element.querySelectorAll(".missing")).map(
+      (note) => note.closest("tr").querySelector(".key").textContent.trim(),
+    );
+
+    expect(missing).toEqual(["TOKEN"]);
+    expect(text(row("TOKEN"), ".missing")).toBe(
+      "Not in the global environment",
+    );
+    finish();
+  }));
+
+  it("lets every variable be set or bound, with its type fixed", fakeAsync(() => {
     setup();
 
     const controls = (key: string) =>
@@ -243,9 +262,8 @@ describe("EditPipelineEnvironmentComponent", () => {
       );
 
     expect(controls("RETRIES")).toEqual(["bind", "value"]);
-    expect(controls("TOKEN")).toEqual(["bind", "value", "secret"]);
-    expect(controls("OPENAI_KEY")).toEqual(["secret"]);
-    expect(controls("API_URL")).toEqual([]);
+    expect(controls("API_URL")).toEqual(["bind", "value", "secret"]);
+    expect(controls("OPENAI_KEY")).toEqual(["bind", "value"]);
     expect(element.querySelector("button.remove")).toBeNull();
     expect(button("Add variable")).toBeUndefined();
     finish();
@@ -262,6 +280,8 @@ describe("EditPipelineEnvironmentComponent", () => {
 
   it("saves only the project's own variables, typed, without calling the API", fakeAsync(() => {
     const project = setup();
+    bind("VERBOSE", "This project");
+    bind("TOKEN", "This project");
     type(row("RETRIES").querySelector("input.value"), "5");
     type(row("VERBOSE").querySelector("input.value"), "false");
     type(row("TOKEN").querySelector("input.value"), "sk-project");
@@ -271,14 +291,19 @@ describe("EditPipelineEnvironmentComponent", () => {
 
     controller.expectNone(() => true);
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 5, VERBOSE: false, TOKEN: "sk-project" },
+      variables: {
+        API_URL: "http://dummy.piper.test",
+        RETRIES: 5,
+        VERBOSE: false,
+        TOKEN: "sk-project",
+      },
       visible: [],
     });
     expect(manager.status.value).toBe("dirty");
     finish();
   }));
 
-  it("doesn't store emptied variables so they inherit", fakeAsync(() => {
+  it("doesn't store emptied variables so they read the same-name global variable", fakeAsync(() => {
     const project = setup();
     type(row("RETRIES").querySelector("input.value"), "");
 
@@ -286,9 +311,10 @@ describe("EditPipelineEnvironmentComponent", () => {
     fixture.detectChanges();
 
     expect(toPlain(project.environment)).toEqual({
-      variables: {},
+      variables: { API_URL: "http://dummy.piper.test" },
       visible: [],
     });
+    expect(source(row("RETRIES"))).toBe("RETRIES");
     finish();
   }));
 
@@ -302,44 +328,15 @@ describe("EditPipelineEnvironmentComponent", () => {
     fixture.detectChanges();
 
     expect(input.value).toBe("");
+    expect(source(row("TOKEN"))).toBe("This project");
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 0, TOKEN: "[encrypted]" },
+      variables: {
+        API_URL: "http://dummy.piper.test",
+        RETRIES: 0,
+        TOKEN: "[encrypted]",
+      },
       visible: [],
     });
-    finish();
-  }));
-
-  it("shows the value of an inherited Visible Variable", fakeAsync(() => {
-    setup(
-      projectWithEnvironment(),
-      userEnvironment({ OPENAI_KEY: "sk-shown" }, ["OPENAI_KEY"]),
-    );
-
-    const secret = row("OPENAI_KEY").querySelector(
-      "input.secret",
-    ) as HTMLInputElement;
-
-    expect(text(row("OPENAI_KEY"), ".value")).toBe("sk-shown");
-    expect({ checked: secret.checked, disabled: secret.disabled }).toEqual({
-      checked: false,
-      disabled: true,
-    });
-    finish();
-  }));
-
-  it("shows that an inherited User Variable is secret without letting it change", fakeAsync(() => {
-    setup();
-
-    const secret = row("OPENAI_KEY").querySelector(
-      "input.secret",
-    ) as HTMLInputElement;
-
-    expect({ checked: secret.checked, disabled: secret.disabled }).toEqual({
-      checked: true,
-      disabled: true,
-    });
-    expect(row("API_URL").querySelector("input.secret")).toBeNull();
-    expect(row("MODEL").querySelector("input.secret")).toBeNull();
     finish();
   }));
 
@@ -356,7 +353,11 @@ describe("EditPipelineEnvironmentComponent", () => {
 
     expect(shown).toEqual({ value: "tk-shown", type: "text" });
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 0, TOKEN: "tk-shown" },
+      variables: {
+        API_URL: "http://dummy.piper.test",
+        RETRIES: 0,
+        TOKEN: "tk-shown",
+      },
       visible: ["TOKEN"],
     });
     finish();
@@ -364,6 +365,7 @@ describe("EditPipelineEnvironmentComponent", () => {
 
   it("saves a string Variable as visible when it isn't secret", fakeAsync(() => {
     const project = setup();
+    bind("TOKEN", "This project");
     type(row("TOKEN").querySelector("input.value"), "tk-new");
     (row("TOKEN").querySelector("input.secret") as HTMLInputElement).click();
 
@@ -371,7 +373,11 @@ describe("EditPipelineEnvironmentComponent", () => {
     fixture.detectChanges();
 
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 0, TOKEN: "tk-new" },
+      variables: {
+        API_URL: "http://dummy.piper.test",
+        RETRIES: 0,
+        TOKEN: "tk-new",
+      },
       visible: ["TOKEN"],
     });
     finish();
@@ -392,7 +398,7 @@ describe("EditPipelineEnvironmentComponent", () => {
 
     expect(placeholder).toBe("The stored value is dropped on save");
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 0 },
+      variables: { API_URL: "http://dummy.piper.test", RETRIES: 0 },
       visible: [],
     });
     finish();
@@ -407,28 +413,29 @@ describe("EditPipelineEnvironmentComponent", () => {
     finish();
   }));
 
-  /** The labels of a row's Source choices. */
-  function sources(key: string) {
-    return optionLabels(row(key).querySelector("select.bind"));
-  }
-
-  /** Picks a Source by its label; "This project" unbinds. */
-  function bind(key: string, label: string) {
-    selectByLabel(row(key).querySelector("select.bind"), label);
-    fixture.detectChanges();
-  }
-
-  it("offers binding only for variables the project can set", fakeAsync(() => {
+  it("offers this project and every global variable as the source", fakeAsync(() => {
     setup();
 
     const options = sources("TOKEN");
 
-    expect(options).toEqual(["This project", "OPENAI_KEY", "VERBOSE"]);
-    expect(row("OPENAI_KEY").querySelector("select.bind")).toBeNull();
+    expect(options).toEqual([
+      "This project",
+      "MODEL",
+      "OPENAI_KEY",
+      "TOKEN",
+      "VERBOSE",
+    ]);
+    expect(sources("RETRIES")).toEqual([
+      "This project",
+      "MODEL",
+      "OPENAI_KEY",
+      "RETRIES",
+      "VERBOSE",
+    ]);
     finish();
   }));
 
-  it("binds a variable to a user variable instead of its own value", fakeAsync(() => {
+  it("binds a variable to another global variable instead of its own value", fakeAsync(() => {
     const project = projectWithEnvironment();
     project.environment.variables.set("TOKEN", "[encrypted]");
     setup(project);
@@ -451,17 +458,33 @@ describe("EditPipelineEnvironmentComponent", () => {
       secret: null,
     });
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 0 },
+      variables: { API_URL: "http://dummy.piper.test", RETRIES: 0 },
       visible: [],
       bindings: { TOKEN: "OPENAI_KEY" },
     });
     finish();
   }));
 
+  it("stores nothing for a variable bound to the global variable of its name", fakeAsync(() => {
+    const project = setup();
+
+    bind("RETRIES", "RETRIES");
+    button("Save").click();
+    fixture.detectChanges();
+
+    expect(toPlain(project.environment)).toEqual({
+      variables: { API_URL: "http://dummy.piper.test" },
+      visible: [],
+    });
+    expect(row("RETRIES").querySelector(".missing")).not.toBeNull();
+    finish();
+  }));
+
   it("shows the value of a bound Visible Variable", fakeAsync(() => {
     const project = projectWithEnvironment();
+    project.environment.variables.delete("RETRIES");
     project.environment.bindings = new Map([["RETRIES", "VERBOSE"]]);
-    setup(project, userEnvironment({ VERBOSE: true }, ["VERBOSE"]));
+    setup(project, globalEnvironment({ VERBOSE: true }, ["VERBOSE"]));
 
     const input = row("RETRIES").querySelector(
       "input.value",
@@ -475,7 +498,7 @@ describe("EditPipelineEnvironmentComponent", () => {
     finish();
   }));
 
-  it("keeps a binding whose user variable is gone and says so", fakeAsync(() => {
+  it("keeps a binding whose global variable is gone and says so", fakeAsync(() => {
     const project = projectWithEnvironment();
     project.environment.bindings = new Map([["TOKEN", "OLD_TOKEN"]]);
     setup(project);
@@ -494,7 +517,7 @@ describe("EditPipelineEnvironmentComponent", () => {
     expect(shown).toEqual({
       value: "OLD_TOKEN",
       placeholder: "",
-      note: "Not in your environment",
+      note: "Not in the global environment",
     });
     expect(toPlain(project.environment).bindings).toEqual({
       TOKEN: "OLD_TOKEN",
@@ -514,7 +537,11 @@ describe("EditPipelineEnvironmentComponent", () => {
     fixture.detectChanges();
 
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 0, TOKEN: "tk-shown" },
+      variables: {
+        API_URL: "http://dummy.piper.test",
+        RETRIES: 0,
+        TOKEN: "tk-shown",
+      },
       visible: ["TOKEN"],
     });
     finish();
@@ -531,14 +558,20 @@ describe("EditPipelineEnvironmentComponent", () => {
     fixture.detectChanges();
 
     expect(toPlain(project.environment)).toEqual({
-      variables: { RETRIES: 0, TOKEN: "sk-own" },
+      variables: {
+        API_URL: "http://dummy.piper.test",
+        RETRIES: 0,
+        TOKEN: "sk-own",
+      },
       visible: [],
     });
     finish();
   }));
 
-  it("clears only the project's own variables", fakeAsync(() => {
-    const project = setup();
+  it("clears the project's overrides and bindings so every variable reads its global variable", fakeAsync(() => {
+    const project = projectWithEnvironment();
+    project.environment.bindings = new Map([["TOKEN", "OPENAI_KEY"]]);
+    setup(project);
 
     button("Clear").click();
     fixture.detectChanges();
@@ -546,10 +579,39 @@ describe("EditPipelineEnvironmentComponent", () => {
     controller.expectNone(() => true);
     expect(toPlain(project.environment)).toEqual({ variables: {} });
     expect(manager.status.value).toBe("dirty");
-    expect(row("RETRIES").querySelector("input.value")).toHaveProperty(
-      "value",
-      "",
-    );
+    expect(rows().map(({ key, source }) => [key, source])).toEqual([
+      ["OPENAI_KEY", "OPENAI_KEY"],
+      ["API_URL", "API_URL"],
+      ["MODEL", "MODEL"],
+      ["RETRIES", "RETRIES"],
+      ["VERBOSE", "VERBOSE"],
+      ["TOKEN", "TOKEN"],
+    ]);
+    finish();
+  }));
+
+  it("links to the global environment", fakeAsync(() => {
+    setup();
+
+    const link = element.querySelector(".explanation a") as HTMLAnchorElement;
+
+    expect(link.getAttribute("href")).toBe("/environment");
+    expect(element.textContent).not.toContain("your environment");
+    finish();
+  }));
+
+  it("binds every variable by name when there is no global environment", fakeAsync(() => {
+    setup(projectWithEnvironment(), null);
+
+    expect(rows().map(({ key, source }) => [key, source])).toEqual([
+      ["OPENAI_KEY", "OPENAI_KEY"],
+      ["API_URL", "This project"],
+      ["MODEL", "MODEL"],
+      ["RETRIES", "This project"],
+      ["VERBOSE", "VERBOSE"],
+      ["TOKEN", "TOKEN"],
+    ]);
+    expect(element.querySelectorAll(".missing")).toHaveLength(4);
     finish();
   }));
 });

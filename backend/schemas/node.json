@@ -453,17 +453,9 @@
             "title": "Type",
             "type": "string",
             "enum": ["boolean", "number", "string"]
-          },
-          "scope": {
-            "title": "Scope",
-            "type": "string",
-            "enum": ["global", "user", "pipeline"],
-            "options": {
-              "enum_titles": ["Global", "User", "Pipeline"]
-            }
           }
         },
-        "required": ["type", "scope"]
+        "required": ["type"]
       }
     }
   }

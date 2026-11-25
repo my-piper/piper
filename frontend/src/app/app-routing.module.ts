@@ -25,8 +25,7 @@ import {
   NestedLaunchesFilterResolver,
   ProjectPlaygroundLaunchesFilterResolver,
 } from "src/resolvers/launches-filter";
-import { MeEnvironmentResolver } from "src/resolvers/me-environment";
-import { PlatformEnvironmentResolver } from "src/resolvers/platform-environment";
+import { GlobalEnvironmentResolver } from "src/resolvers/global-environment";
 import {
   NodeFromLaunchResolver,
   NodeFromProjectResolver,
@@ -53,7 +52,7 @@ import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipelin
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
-import { MeEnvironmentComponent } from "./me-environment/me-environment.component";
+import { EnvironmentComponent } from "./environment/environment.component";
 import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
 import { NodeInputsComponent } from "./node-inputs/node-inputs.component";
@@ -275,8 +274,7 @@ const routes: Routes = [
           {
             path: "environment",
             resolve: {
-              environment: MeEnvironmentResolver,
-              platform: PlatformEnvironmentResolver,
+              environment: GlobalEnvironmentResolver,
             },
             component: EditPipelineEnvironmentComponent,
           },
@@ -507,11 +505,11 @@ const routes: Routes = [
         canActivate: [SigninNeededGuard],
       },
       {
-        path: "me/environment",
-        component: MeEnvironmentComponent,
+        path: "environment",
+        component: EnvironmentComponent,
         canActivate: [SigninNeededGuard],
         resolve: {
-          environment: MeEnvironmentResolver,
+          environment: GlobalEnvironmentResolver,
         },
       },
       {

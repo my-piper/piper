@@ -243,11 +243,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     );
     notifyNode(nodeJob.node, "node_running");
 
-    const environment = await getEnvironment({
-      launch,
-      launchedBy: launch.launchedBy,
-      node,
-    });
+    const environment = await getEnvironment({ launch, node });
 
     const due = await redis.get(DUE);
     run = {

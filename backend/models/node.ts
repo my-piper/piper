@@ -1,5 +1,4 @@
 import { Expose, Transform, Type } from "core-kit/packages/transform";
-import { EnvironmentScope } from "enums/environment-scope";
 import { NodeExecution } from "enums/node-execution";
 import assign from "lodash/assign";
 import merge from "lodash/merge";
@@ -21,10 +20,6 @@ export class NodeEnvironment {
   @Expose()
   @Type(() => String)
   type: string;
-
-  @Expose()
-  @Type(() => String)
-  scope: EnvironmentScope;
 
   constructor(defs: Partial<NodeEnvironment> = {}) {
     assign(this, defs);

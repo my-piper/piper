@@ -47,6 +47,23 @@ table {
   inline-size: 3rem;
 }
 
+.key {
+  font: var(--tui-font-text-s);
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.type,
+.value,
+.admins-only {
+  color: var(--tui-text-secondary);
+}
+
+.value {
+  word-break: break-all;
+}
+
 .duplicate-name {
   color: var(--tui-text-negative);
 }

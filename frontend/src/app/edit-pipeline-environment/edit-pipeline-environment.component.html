@@ -1,8 +1,9 @@
-<p class="explanation" i18n="@@message.project_environment_explained_source">
-  Set the variables this pipeline's nodes read, or take one from a variable of
-  <a tuiLink [routerLink]="['/me', 'environment']">your environment</a>, shared
-  by all your projects. A variable you leave empty is taken from your variable
-  of the same name; variables without a field can only be set there.
+<p class="explanation" i18n="@@message.project_environment_explained_global">
+  Each variable this pipeline's nodes read comes from the
+  <a tuiLink [routerLink]="['/', 'environment']">global environment</a>, shared
+  by every project: from the global variable of the same name, or from another
+  one you pick. Pick “This project” to override it with a value of this
+  project's own; left empty, it reads the global variable of the same name.
 </p>
 
 @if (variables.length > 0) {
@@ -23,7 +24,7 @@
             @let meta = variable.controls.meta.value;
             @let type = variable.controls.type.value!;
             @let bound = variable.controls.bind.value;
-            @let missing = !!bound && !hasUserVariable(bound);
+            @let missing = !!bound && !hasGlobalVariable(bound);
             <tr class="variable" [formGroup]="variable">
               <td tuiTd>
                 <code class="key">{{ variable.controls.key.value }}</code>
@@ -32,85 +33,71 @@
                 }
               </td>
               <td tuiTd class="type">{{ typeLabel(type) }}</td>
-              @if (meta.readonly) {
-                <td tuiTd class="source">{{ sourceLabel(meta) }}</td>
-                <td tuiTd class="value">{{ inheritedValue(meta) }}</td>
-                <td tuiTd>
-                  @if (showsInheritedSecret(meta)) {
-                    <input
-                      type="checkbox"
-                      tuiSwitch
-                      size="s"
-                      class="secret"
-                      formControlName="secret"
-                      aria-label="Secret"
-                      i18n-aria-label="@@label.secret"
-                    />
-                  }
-                </td>
-              } @else {
-                <td tuiTd>
-                  <tui-textfield
-                    tuiChevron
-                    tuiTextfieldSize="s"
-                    [stringify]="bindLabel"
-                    [invalid]="missing"
+              <td tuiTd>
+                <tui-textfield
+                  tuiChevron
+                  tuiTextfieldSize="s"
+                  [stringify]="bindLabel"
+                  [invalid]="missing"
+                >
+                  <select
+                    tuiSelect
+                    class="bind"
+                    formControlName="bind"
+                    aria-label="Source"
+                    i18n-aria-label="@@label.source"
+                    [items]="sources(variable.controls.key.value!, bound)"
+                  ></select>
+                </tui-textfield>
+                @if (missing) {
+                  <small
+                    class="missing"
+                    i18n="@@message.global_variable_missing"
+                    >Not in the global environment</small
                   >
-                    <select
-                      tuiSelect
-                      class="bind"
-                      formControlName="bind"
-                      [items]="sources(bound)"
-                    ></select>
-                  </tui-textfield>
-                  @if (missing) {
-                    <small
-                      class="missing"
-                      i18n="@@message.bound_variable_missing"
-                      >Not in your environment</small
-                    >
-                  }
-                </td>
-                <td tuiTd>
-                  <tui-textfield
-                    tuiTextfieldSize="s"
-                    [invalid]="!!variable.errors?.['valueType']"
-                  >
-                    <input
-                      tuiInput
-                      class="value"
-                      formControlName="value"
-                      [readOnly]="!!bound"
-                      [type]="
-                        type === 'string' && variable.controls.secret.value
-                          ? 'password'
-                          : 'text'
-                      "
-                      [placeholder]="
-                        placeholder(
-                          meta,
-                          type,
-                          variable.controls.secret.value,
-                          bound
-                        )
-                      "
-                    />
-                  </tui-textfield>
-                </td>
-                <td tuiTd>
-                  @if (type === "string" && !bound) {
-                    <input
-                      type="checkbox"
-                      tuiSwitch
-                      size="s"
-                      class="secret"
-                      formControlName="secret"
-                      aria-label="Secret"
-                      i18n-aria-label="@@label.secret"
-                    />
-                  }
-                </td>
-              }
+                }
+              </td>
+              <td tuiTd>
+                <tui-textfield
+                  tuiTextfieldSize="s"
+                  [invalid]="!!variable.errors?.['valueType']"
+                >
+                  <input
+                    tuiInput
+                    class="value"
+                    formControlName="value"
+                    aria-label="Value"
+                    i18n-aria-label="@@label.value"
+                    [readOnly]="!!bound"
+                    [type]="
+                      type === 'string' && variable.controls.secret.value
+                        ? 'password'
+                        : 'text'
+                    "
+                    [placeholder]="
+                      placeholder(
+                        meta,
+                        type,
+                        variable.controls.secret.value,
+                        bound
+                      )
+                    "
+                  />
+                </tui-textfield>
+              </td>
+              <td tuiTd>
+                @if (type === "string" && !bound) {
+                  <input
+                    type="checkbox"
+                    tuiSwitch
+                    size="s"
+                    class="secret"
+                    formControlName="secret"
+                    aria-label="Secret"
+                    i18n-aria-label="@@label.secret"
+                  />
+                }
+              </td>
             </tr>
           }
         </tbody>

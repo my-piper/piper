@@ -11,11 +11,13 @@ import {
 } from "@angular/router";
 import { Observable } from "rxjs";
 import { Deploy } from "src/models/deploy";
+import { Environment } from "src/models/environment";
 import { NotFoundError } from "src/models/errors";
 import { Launch } from "src/models/launch";
 import { Node } from "src/models/node";
 import { Project } from "src/models/project";
 import { DeployResolver } from "src/resolvers/deploy";
+import { GlobalEnvironmentResolver } from "src/resolvers/global-environment";
 import { LaunchResolver } from "src/resolvers/launch";
 import {
   NodeFromLaunchResolver,
@@ -229,6 +231,39 @@ describe("route resolvers", () => {
       req.flush(deployPlain());
 
       expect(req.request.method).toBe("GET");
+      controller.verify();
+    });
+  });
+
+  describe("GlobalEnvironmentResolver", () => {
+    it("loads the typed Global Environment", () => {
+      const controller = setup();
+
+      const result = capture(
+        TestBed.inject(GlobalEnvironmentResolver).resolve(),
+      );
+      const req = controller.expectOne("/api/environment");
+      req.flush({
+        variables: { OPENAI_KEY: "[encrypted]", BASE_URL: "https://a" },
+        visible: ["BASE_URL"],
+      });
+
+      expect(req.request.method).toBe("GET");
+      expect(result.value).toBeInstanceOf(Environment);
+      expect(result.value.variables.get("BASE_URL")).toBe("https://a");
+      expect(result.value.visible).toEqual(["BASE_URL"]);
+      controller.verify();
+    });
+
+    it("hands on an absent Global Environment as null", () => {
+      const controller = setup();
+
+      const result = capture(
+        TestBed.inject(GlobalEnvironmentResolver).resolve(),
+      );
+      controller.expectOne("/api/environment").flush(null);
+
+      expect(result.value).toBeNull();
       controller.verify();
     });
   });

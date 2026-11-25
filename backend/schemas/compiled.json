@@ -214,27 +214,10 @@
 											"number",
 											"string"
 										]
-									},
-									"scope": {
-										"title": "Scope",
-										"type": "string",
-										"enum": [
-											"global",
-											"user",
-											"pipeline"
-										],
-										"options": {
-											"enum_titles": [
-												"Global",
-												"User",
-												"Pipeline"
-											]
-										}
 									}
 								},
 								"required": [
-									"type",
-									"scope"
+									"type"
 								]
 							}
 						},
@@ -1184,27 +1167,10 @@
 											"number",
 											"string"
 										]
-									},
-									"scope": {
-										"title": "Scope",
-										"type": "string",
-										"enum": [
-											"global",
-											"user",
-											"pipeline"
-										],
-										"options": {
-											"enum_titles": [
-												"Global",
-												"User",
-												"Pipeline"
-											]
-										}
 									}
 								},
 								"required": [
-									"type",
-									"scope"
+									"type"
 								]
 							}
 						}
@@ -1379,27 +1345,10 @@
 								"number",
 								"string"
 							]
-						},
-						"scope": {
-							"title": "Scope",
-							"type": "string",
-							"enum": [
-								"global",
-								"user",
-								"pipeline"
-							],
-							"options": {
-								"enum_titles": [
-									"Global",
-									"User",
-									"Pipeline"
-								]
-							}
 						}
 					},
 					"required": [
-						"type",
-						"scope"
+						"type"
 					]
 				}
 			},
@@ -2349,27 +2298,10 @@
 								"number",
 								"string"
 							]
-						},
-						"scope": {
-							"title": "Scope",
-							"type": "string",
-							"enum": [
-								"global",
-								"user",
-								"pipeline"
-							],
-							"options": {
-								"enum_titles": [
-									"Global",
-									"User",
-									"Pipeline"
-								]
-							}
 						}
 					},
 					"required": [
-						"type",
-						"scope"
+						"type"
 					]
 				}
 			}
@@ -2959,27 +2891,10 @@
 											"number",
 											"string"
 										]
-									},
-									"scope": {
-										"title": "Scope",
-										"type": "string",
-										"enum": [
-											"global",
-											"user",
-											"pipeline"
-										],
-										"options": {
-											"enum_titles": [
-												"Global",
-												"User",
-												"Pipeline"
-											]
-										}
 									}
 								},
 								"required": [
-									"type",
-									"scope"
+									"type"
 								]
 							}
 						},
@@ -3929,27 +3844,10 @@
 											"number",
 											"string"
 										]
-									},
-									"scope": {
-										"title": "Scope",
-										"type": "string",
-										"enum": [
-											"global",
-											"user",
-											"pipeline"
-										],
-										"options": {
-											"enum_titles": [
-												"Global",
-												"User",
-												"Pipeline"
-											]
-										}
 									}
 								},
 								"required": [
-									"type",
-									"scope"
+									"type"
 								]
 							}
 						}
@@ -4942,27 +4840,10 @@
 													"number",
 													"string"
 												]
-											},
-											"scope": {
-												"title": "Scope",
-												"type": "string",
-												"enum": [
-													"global",
-													"user",
-													"pipeline"
-												],
-												"options": {
-													"enum_titles": [
-														"Global",
-														"User",
-														"Pipeline"
-													]
-												}
 											}
 										},
 										"required": [
-											"type",
-											"scope"
+											"type"
 										]
 									}
 								},
@@ -5912,27 +5793,10 @@
 													"number",
 													"string"
 												]
-											},
-											"scope": {
-												"title": "Scope",
-												"type": "string",
-												"enum": [
-													"global",
-													"user",
-													"pipeline"
-												],
-												"options": {
-													"enum_titles": [
-														"Global",
-														"User",
-														"Pipeline"
-													]
-												}
 											}
 										},
 										"required": [
-											"type",
-											"scope"
+											"type"
 										]
 									}
 								}

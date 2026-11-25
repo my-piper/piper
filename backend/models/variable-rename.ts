@@ -2,7 +2,7 @@ import { VARIABLE_NAME } from "consts/core";
 import { Expose, Matches, Type } from "core-kit/packages/transform";
 import assign from "lodash/assign";
 
-/** The new name for a Variable in the User Environment. */
+/** The new name for a Variable in the Global Environment. */
 export class VariableRename {
   @Matches(VARIABLE_NAME)
   @Expose()

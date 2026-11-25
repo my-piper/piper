@@ -13,6 +13,7 @@ import { User } from "models/user";
 import { decrypt, encrypt } from "packages/environment/crypt-environment";
 import { applyBindings } from "packages/environment/bind-environment";
 import { hide } from "packages/environment/hide-environment";
+import { pruneEnvironment } from "packages/environment/prune-environment";
 import { dropRevealedSecrets } from "packages/environment/reveal-environment";
 import { isSecretPlaceholder } from "packages/environment/secret-placeholder";
 import { renameV1Variables } from "packages/environment/v1-variables";
@@ -39,9 +40,11 @@ api.patch(
           projection: {
             revision: 1,
             createdBy: 1,
-            ...(request.pipeline ? { pipeline: 1 } : {}),
             ...(request.launchRequest ? { launchRequest: 1 } : {}),
-            ...(request.environment ? { environment: 1 } : {}),
+            // the Project Environment is pruned to what the pipeline declares
+            ...(request.pipeline || request.environment
+              ? { pipeline: 1, environment: 1 }
+              : {}),
           },
         }
       ),
@@ -154,9 +157,17 @@ api.patch(
       }
       dropRevealedSecrets(patched, stored.visible, changed);
       applyBindings(patched);
+      pruneEnvironment(patched, update.pipeline ?? project.pipeline);
 
       encrypt(patched);
       assign(update, { environment: patched });
+    } else if (
+      update.pipeline &&
+      project.environment &&
+      pruneEnvironment(project.environment, update.pipeline)
+    ) {
+      // values stay encrypted: pruning only drops names
+      assign(update, { environment: project.environment });
     }
 
     const { matchedCount } = await mongo.projects.updateOne(

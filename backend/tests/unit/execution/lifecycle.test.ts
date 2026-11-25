@@ -83,7 +83,7 @@ describe("node execution lifecycle", () => {
     Object.assign(node, {
       source: "script",
       environment: new Map([
-        ["OPENAI_KEY", toInstance({ scope: "global" }, NodeEnvironment)],
+        ["OPENAI_KEY", toInstance({}, NodeEnvironment)],
       ]),
     });
     const global = toInstance(

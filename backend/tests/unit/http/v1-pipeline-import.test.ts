@@ -27,8 +27,8 @@ const CATALOG: Record<string, object> = {
     },
     outputs: { image: { title: "Image", type: "image" } },
     environment: {
-      ARTWORKS_USER: { type: "string", scope: "global" },
-      ARTWORKS_PASSWORD: { type: "string", scope: "global" },
+      ARTWORKS_USER: { type: "string" },
+      ARTWORKS_PASSWORD: { type: "string" },
     },
   },
   ask_llm_agent: {
@@ -46,8 +46,8 @@ const CATALOG: Record<string, object> = {
     },
     outputs: { text: { title: "Text", type: "string" } },
     environment: {
-      ARTWORKS_USER: { type: "string", scope: "global" },
-      ARTWORKS_PASSWORD: { type: "string", scope: "global" },
+      ARTWORKS_USER: { type: "string" },
+      ARTWORKS_PASSWORD: { type: "string" },
     },
   },
   qwen_edit_image: {
@@ -273,8 +273,8 @@ describe("v1 pipeline import", () => {
       isolated: true,
       arrange: { x: 570, y: 100 },
       environment: {
-        ARTWORKS_USER: { scope: "global" },
-        ARTWORKS_PASSWORD: { scope: "global" },
+        ARTWORKS_USER: {},
+        ARTWORKS_PASSWORD: {},
       },
     });
     expect(node.inputs).toHaveProperty("seed");

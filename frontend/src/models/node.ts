@@ -11,8 +11,6 @@ import { Primitive } from "src/types/primitive";
 import { mapTo } from "src/utils/models";
 import { Arrange } from "./arrange";
 
-export type EnvironmentScope = "global" | "user" | "pipeline";
-
 export class NodeEnvironment {
   @Expose()
   @Type(() => String)
@@ -21,10 +19,6 @@ export class NodeEnvironment {
   @Expose()
   @Type(() => String)
   type: string;
-
-  @Expose()
-  @Type(() => String)
-  scope: EnvironmentScope;
 
   constructor(defs: Partial<NodeEnvironment>) {
     assign(this, defs);

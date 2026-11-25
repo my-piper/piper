@@ -1,16 +1,16 @@
 import api from "app/api";
-import { USER_ENVIRONMENT_KEY } from "consts/redis";
+import { GLOBAL_ENVIRONMENT_KEY } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { Environment } from "models/environment";
-import { checkLogged, handle } from "utils/http";
+import { checkAdmin, handle } from "utils/http";
 
 api.delete(
-  "/api/me/environment/:key",
+  "/api/environment/:key",
   handle(({ currentUser }) => async ({ params: { key } }) => {
-    checkLogged(currentUser);
+    checkAdmin(currentUser);
 
-    const json = await redis.get(USER_ENVIRONMENT_KEY(currentUser._id));
+    const json = await redis.get(GLOBAL_ENVIRONMENT_KEY);
     if (!json) {
       return null;
     }
@@ -19,7 +19,7 @@ api.delete(
     environment.variables?.delete(key);
     environment.visible = environment.visible?.filter((name) => name !== key);
     await redis.set(
-      USER_ENVIRONMENT_KEY(currentUser._id),
+      GLOBAL_ENVIRONMENT_KEY,
       JSON.stringify(toPlain(environment))
     );
 

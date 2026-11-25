@@ -4,7 +4,7 @@ import { Environment } from "models/environment";
 
 /**
  * Checks the Bound Variables of a Project Environment and drops the own value
- * of each: a Bound Variable is read only from the User Variable it names.
+ * of each: a Bound Variable is read only from the Global Variable it names.
  */
 export function applyBindings(environment: Environment) {
   const { bindings, variables } = environment;

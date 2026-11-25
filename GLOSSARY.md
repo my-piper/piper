@@ -89,7 +89,7 @@ _Avoid_: Outer launch, root launch
 ### Configuration
 
 **Environment**:
-Named values that Nodes read when they run, such as API keys and endpoints. A Node declares each Variable it needs and the scope it is read from.
+Named values that Nodes read when they run, such as API keys and endpoints. A Node declares each Variable it needs by name.
 _Avoid_: Env, config, settings
 
 **Variable**:
@@ -101,25 +101,21 @@ A string Variable whose value is never shown again once it is saved; it can only
 _Avoid_: Hidden variable, masked variable, encrypted variable
 
 **Visible Variable**:
-A string Variable whose value is shown to whoever can edit its Environment.
+A string Variable whose value is shown to anyone who can see its Environment.
 _Avoid_: Plain variable, public variable
 
-**User Environment**:
-The Variables a user shares across all of their Projects. It fills Project Variables the Project leaves empty and overrides the Platform Environment.
-_Avoid_: Global environment, shared environment
-
-**Platform Environment**:
-The Variables an admin provides for every user.
-_Avoid_: Global environment, system environment
+**Global Environment**:
+The one Environment shared by every Project. Everyone can see it, but only admins edit it. Every Project Variable is bound to it unless the Project overrides that Variable.
+_Avoid_: Platform environment, user environment, system environment, shared environment
 
 **Project Environment**:
-The Variables set or bound on one Project. They override the User Environment and are frozen into each Deploy.
+One Variable for each name its Nodes declare, each either a Bound Variable or an Overridden Variable.
 _Avoid_: Pipeline environment, local environment
 
-**Inherited Variable**:
-A Variable a Project's Nodes declare but the Project neither sets nor binds, so its value is read from the Variable of the same name in the User Environment or the Platform Environment.
-_Avoid_: Default variable, fallback
-
 **Bound Variable**:
-A Project Variable that names a User Variable to read its value from, which may have a different name. It has no value of its own, and when the User Variable is missing it stays unset rather than falling back to the Variable of the same name. Only a Variable a Node reads from the Project can be bound, and a binding counts only when the Project's owner launches it; for anyone else the Variable is an Inherited Variable.
-_Avoid_: Linked variable, alias, reference
+A Project Variable that reads its value from a Global Variable, by default the one of the same name, though it may name another. It has no value of its own, and when that Global Variable is missing it stays unset.
+_Avoid_: Linked variable, alias, reference, inherited variable
+
+**Overridden Variable**:
+A Project Variable with its own value, which the Project uses instead of the Global Environment. A Deploy keeps the value it had when it was made.
+_Avoid_: Local variable, project secret

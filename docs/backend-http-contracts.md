@@ -142,8 +142,7 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   Visible Variables named in `environment.visible` are returned in clear, and
   booleans and numbers retain their values. A missing `visible` means every
   string Variable is secret.
-- On every Environment write (`PUT /api/me/environment`, `PUT /api/environment`
-  and the project `environment` PATCH delta), `[encrypted]` and Piper v1's
+- On every Environment write (`PUT /api/environment` and the project `environment` PATCH delta), `[encrypted]` and Piper v1's
   `[hidden]` are placeholders, never values: they keep the stored value, and a
   name with no stored value is dropped. `[hidden]` arrives when an Environment
   copied from a v1 Project's YAML page is pasted. Variables v1 named
@@ -154,33 +153,30 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   new value was sent under the v1 name. A v1 name in `visible` carries over
   only with its value, so it never reveals a secret kept under the current
   name.
-- Visibility is written with the values: `PUT /api/me/environment`,
-  `PUT /api/environment` (admin) and the project `environment` PATCH delta
-  replace `visible` when they carry it (a `PUT` without `visible` keeps the
-  stored list). A Secret Variable made visible without a new value is removed, so
-  a stored secret is never revealed and launches fall back to the next
-  Environment. Only names of string Variables stay in `visible`. `GET /api/environment` (admin) masks the Platform
-  Environment the same way as the User Environment.
+- Visibility is written with the values: `PUT /api/environment` (admin) and
+  the project `environment` PATCH delta replace `visible` when they carry it
+  (a `PUT` without `visible` keeps the stored list). A Secret Variable made
+  visible without a new value is removed, so a stored secret is never
+  revealed. Only names of string Variables stay in `visible`.
+- The Global Environment (`/api/environment`) is read with `GET` by any
+  logged-in user, masked as above. `PUT` (merge; `[encrypted]` keeps the
+  stored value), `DELETE /api/environment/:key` (204, also when nothing is
+  stored) and `POST /api/environment/:key/rename` with `{ name }` (moves the
+  value and its visibility; 400 for a name that isn't
+  `^[A-Za-z_][A-Za-z0-9_]*$` or that another variable already has, 404 when
+  `:key` isn't stored) require an admin; anyone else gets 400. Removing a
+  variable also removes it from `visible`.
 - The project `environment` may carry `bindings`, a map from a Project Variable
-  name to the User Variable name it is read from (a Bound Variable). The
-  project `environment` PATCH delta answers 400 when either name isn't
-  `^[A-Za-z_][A-Za-z0-9_]*$`, and drops the own value and the `visible` entry
-  of every bound variable; empty `bindings` are omitted. At launch a bound
-  `pipeline`-scoped variable is read only from the owner's User Environment,
-  under the bound name, and stays unset when it isn't there; bindings apply
-  only when the project's owner launches it, anyone else (an admin launching
-  another user's project, a Deploy) gets the same-name lookup.
-- The User Environment (`/api/me/environment`) is read with `GET`, merged with
-  `PUT` (values equal to `[encrypted]` keep the stored value), cleared with
-  `DELETE`, and loses a single variable with `DELETE /api/me/environment/:key`
-  (204, also when nothing is stored). `POST /api/me/environment/:key/rename`
-  with `{ name }` moves the stored value, and its visibility, to the new name
-  (204); removing a variable also removes it from `visible`. Rename answers 400
-  for a name that isn't `^[A-Za-z_][A-Za-z0-9_]*$` or that another variable
-  already has, and 404 when `:key` isn't stored. All require a logged-in user.
-- `GET /api/environment/keys` returns `{ keys: string[] }`: the names of the
-  Platform Environment's variables, never their values (`{ keys: [] }` when
-  nothing is stored). Requires a logged-in user; anonymous requests get 400.
+  name to the Global Variable name it is read from when that differs (a Bound
+  Variable); a name with neither an own value nor a binding reads the Global
+  Variable of the same name. The project `environment` PATCH delta answers 400
+  when either name isn't `^[A-Za-z_][A-Za-z0-9_]*$`, and drops the own value
+  and the `visible` entry of every bound variable; empty `bindings` are
+  omitted. Any project PATCH that carries `pipeline` or `environment` drops
+  own values, bindings and `visible` entries of names no node of the
+  resulting pipeline declares. At launch a bound variable is read only under
+  the bound name and stays unset when the Global Environment lacks it; this
+  holds for every launch (owner, admin, Deploy, Child Launch).
 - Launching merges the saved launch request with the request body and runs model
   validation before initializing/scheduling the launch. Falsy inputs survive the
   HTTP-to-model-to-Redis path. Responses omit the pipeline and include the merged

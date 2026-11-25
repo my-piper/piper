@@ -14,7 +14,8 @@ export class Environment {
 
   /**
    * Bound Variables: the name of a Project Variable mapped to the name of the
-   * User Variable it is read from.
+   * Global Variable it is read from; a Variable with neither an own value nor
+   * a binding reads the Global Variable of the same name.
    */
   @Expose()
   @Transform(primitiveMapTransformer)

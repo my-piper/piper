@@ -12,7 +12,7 @@ import {
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { of } from "rxjs";
-import { MeEnvironmentComponent } from "src/app/me-environment/me-environment.component";
+import { EnvironmentComponent } from "src/app/environment/environment.component";
 import { Environment } from "src/models/environment";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
@@ -21,9 +21,11 @@ import { provideTaiga } from "@taiga-ui/core";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { toInstance } from "src/utils/models";
-import { provideTestConfig } from "../helpers/config";
+import { userPlain, UserKind } from "../fixtures/plain";
+import { provideTestConfig, seedAuthorization } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
 import { finish } from "../helpers/editor";
+import { provideSocketDouble } from "../helpers/socket";
 import {
   expectNativeSelectReadOnly,
   selectByLabel,
@@ -31,17 +33,19 @@ import {
 } from "../helpers/taiga";
 
 /**
- * Wire contracts (backend/api/environment):
- * - GET /api/me/environment → `{ variables, visible }`, Secret Variables
- *   masked as `[encrypted]`, Visible Variables (named in `visible`) in clear;
- * - PUT /api/me/environment `{ variables, visible }` merges into the user
- *   environment; a Secret Variable made visible without a value is dropped;
- * - DELETE /api/me/environment/:key removes one variable.
+ * Wire contracts (backend/api/environment), for the one Global Environment:
+ * - GET /api/environment (anyone signed in) → `{ variables, visible }`,
+ *   Secret Variables masked as `[encrypted]`, Visible Variables (named in
+ *   `visible`) in clear;
+ * - PUT /api/environment (admin) `{ variables, visible }` merges into it; a
+ *   Secret Variable made visible without a value is dropped;
+ * - DELETE /api/environment/:key (admin) removes one variable;
+ * - POST /api/environment/:key/rename `{ name }` (admin) renames one.
  */
-const ENVIRONMENT_URL = "/api/me/environment";
+const ENVIRONMENT_URL = "/api/environment";
 
-describe("MeEnvironmentComponent", () => {
-  let fixture: ComponentFixture<MeEnvironmentComponent>;
+describe("EnvironmentComponent", () => {
+  let fixture: ComponentFixture<EnvironmentComponent>;
   let controller: HttpTestingController;
   let element: HTMLElement;
 
@@ -52,11 +56,16 @@ describe("MeEnvironmentComponent", () => {
       DEBUG: true,
     },
     visible: string[] = [],
+    user: UserKind = "admin",
   ) {
-    expectNativeSelectReadOnly();
+    const admin = user === "admin";
+    if (admin) {
+      expectNativeSelectReadOnly();
+    }
+    seedAuthorization(userPlain(user));
     TestBed.configureTestingModule({
       errorOnUnknownProperties: false,
-      declarations: [MeEnvironmentComponent],
+      declarations: [EnvironmentComponent],
       imports: [ReactiveFormsModule, UiKitModule, TaigaFormsModule],
       providers: [
         provideTaiga(),
@@ -64,6 +73,7 @@ describe("MeEnvironmentComponent", () => {
         provideRouter([]),
         provideHttpClient(withXhr()),
         provideHttpClientTesting(),
+        provideSocketDouble(),
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },
         {
           provide: ActivatedRoute,
@@ -76,8 +86,10 @@ describe("MeEnvironmentComponent", () => {
       ],
     });
     controller = TestBed.inject(HttpTestingController);
-    fixture = TestBed.createComponent(MeEnvironmentComponent);
+    fixture = TestBed.createComponent(EnvironmentComponent);
     element = fixture.nativeElement;
+    fixture.detectChanges();
+    controller.match("/api/me").forEach((r) => r.flush(userPlain(user)));
     fixture.detectChanges();
   }
 
@@ -409,6 +421,61 @@ describe("MeEnvironmentComponent", () => {
     type(row(0).querySelector("input.key"), "bad key");
 
     expect(button("Save").disabled).toBe(true);
+    finish();
+  }));
+
+  describe("for a user who isn't an admin", () => {
+    /** What a read-only row shows, as text. */
+    function shown() {
+      return Array.from(element.querySelectorAll("tr.variable")).map((row) => ({
+        key: row.querySelector(".key").textContent.trim(),
+        type: row.querySelector(".type").textContent.trim(),
+        value: row.querySelector(".value").textContent.trim(),
+        secret: (row.querySelector("input.secret") as HTMLInputElement | null)
+          ?.checked,
+      }));
+    }
+
+    it("shows the variables without letting them change", fakeAsync(() => {
+      setup(
+        { OPENAI_KEY: "[encrypted]", BASE_URL: "https://a", RETRIES: 3 },
+        ["BASE_URL"],
+        "owner",
+      );
+
+      expect(shown()).toEqual([
+        { key: "OPENAI_KEY", type: "String", value: "Stored", secret: true },
+        { key: "BASE_URL", type: "String", value: "https://a", secret: false },
+        { key: "RETRIES", type: "Number", value: "3", secret: undefined },
+      ]);
+      expect(
+        Array.from(element.querySelectorAll("tr.variable input")).every(
+          (input) => (input as HTMLInputElement).disabled,
+        ),
+      ).toBe(true);
+      expect(element.querySelector("select")).toBeNull();
+      expect(element.querySelector("button")).toBeNull();
+      finish();
+    }));
+
+    it("says only admins can change the variables", fakeAsync(() => {
+      setup(undefined, [], "owner");
+
+      expect(element.querySelector("h1").textContent.trim()).toBe(
+        "Environment",
+      );
+      expect(element.textContent).toContain("Only admins can change them.");
+      finish();
+    }));
+  });
+
+  it("explains that every project shares the variables", fakeAsync(() => {
+    setup();
+
+    expect(element.querySelector("h1").textContent.trim()).toBe("Environment");
+    expect(element.textContent).toContain("shared by every project");
+    expect(element.textContent).not.toContain("Only admins can change them.");
+    expect(element.textContent).not.toContain("bill");
     finish();
   }));
 });

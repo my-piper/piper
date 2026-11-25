@@ -47,11 +47,10 @@ describe("domain pipes", () => {
         OPENAI_KEY: {
           type: "string",
           description: "Get it here",
-          scope: "user",
         },
       };
       plain.nodes["node_two"]["environment"] = {
-        RETRIES: { type: "integer", scope: "pipeline" },
+        RETRIES: { type: "integer" },
       };
 
       const variables = getDeclaredVariables(toInstance(plain, Pipeline));
@@ -60,9 +59,8 @@ describe("domain pipes", () => {
       expect(variables.get("OPENAI_KEY")).toMatchObject({
         type: "string",
         description: "Get it here",
-        scope: "user",
       });
-      expect(variables.get("RETRIES").scope).toBe("pipeline");
+      expect(variables.get("RETRIES").type).toBe("integer");
     });
 
     it("returns nothing when no node declares environment", () => {

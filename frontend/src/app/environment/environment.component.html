@@ -1,0 +1,194 @@
+@if (!!error) {
+  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
+}
+
+<div class="app-container">
+  <h1 i18n="@@label.environment">Environment</h1>
+  <p i18n="@@message.global_environment_explained">
+    These variables are shared by every project. A project uses them unless it
+    overrides one with a value of its own.
+  </p>
+  @if (!admin) {
+    <p class="admins-only" i18n="@@message.global_environment_admins_only">
+      Only admins can change them.
+    </p>
+  }
+
+  <form [formGroup]="form">
+    @if (variables.length > 0) {
+      <div class="table-container">
+        <table tuiTable size="m">
+          <thead>
+            <tr>
+              <th tuiTh class="name-column" i18n="@@label.name">Name</th>
+              <th tuiTh class="type-column" i18n="@@label.type">Type</th>
+              <th tuiTh i18n="@@label.value">Value</th>
+              <th tuiTh class="secret-column" i18n="@@label.secret">Secret</th>
+              @if (admin) {
+                <th tuiTh class="actions-column">
+                  <span class="visually-hidden" i18n="@@label.actions"
+                    >Actions</span
+                  >
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody tuiTbody>
+            @for (
+              variable of variables.controls;
+              track variable;
+              let i = $index
+            ) {
+              @let type = variable.controls.type.value!;
+              @if (admin) {
+                <tr class="variable" [formGroup]="variable">
+                  <td tuiTd>
+                    <tui-textfield
+                      tuiTextfieldSize="s"
+                      [invalid]="variable.controls.key.invalid"
+                    >
+                      <input
+                        tuiInput
+                        class="key"
+                        formControlName="key"
+                        placeholder="API_KEY"
+                        aria-label="Name"
+                        i18n-aria-label="@@label.name"
+                      />
+                    </tui-textfield>
+                  </td>
+                  <td tuiTd>
+                    <tui-textfield
+                      tuiChevron
+                      tuiTextfieldSize="s"
+                      [stringify]="typeLabel"
+                    >
+                      <select
+                        tuiSelect
+                        class="type"
+                        formControlName="type"
+                        aria-label="Type"
+                        i18n-aria-label="@@label.type"
+                        [items]="types"
+                      ></select>
+                    </tui-textfield>
+                  </td>
+                  <td tuiTd>
+                    <tui-textfield
+                      tuiTextfieldSize="s"
+                      [invalid]="!!variable.errors?.['valueType']"
+                    >
+                      <input
+                        tuiInput
+                        class="value"
+                        formControlName="value"
+                        aria-label="Value"
+                        i18n-aria-label="@@label.value"
+                        [type]="
+                          type === 'string' && variable.controls.secret.value
+                            ? 'password'
+                            : 'text'
+                        "
+                        [placeholder]="
+                          placeholder(
+                            variable.controls.meta.value!,
+                            type,
+                            variable.controls.secret.value
+                          )
+                        "
+                      />
+                    </tui-textfield>
+                  </td>
+                  <td tuiTd>
+                    @if (type === "string") {
+                      <input
+                        type="checkbox"
+                        tuiSwitch
+                        size="s"
+                        class="secret"
+                        formControlName="secret"
+                        aria-label="Secret"
+                        i18n-aria-label="@@label.secret"
+                      />
+                    }
+                  </td>
+                  <td tuiTd>
+                    <button
+                      tuiIconButton
+                      type="button"
+                      size="s"
+                      appearance="flat"
+                      class="remove"
+                      iconStart="@tui.trash-2"
+                      [loading]="busy(variable)"
+                      [disabled]="busy(variable)"
+                      (click)="remove(i)"
+                      title="Remove"
+                      i18n-title="@@action.remove"
+                    ></button>
+                  </td>
+                </tr>
+              } @else {
+                <tr class="variable" [formGroup]="variable">
+                  <td tuiTd>
+                    <code class="key">{{ variable.controls.key.value }}</code>
+                  </td>
+                  <td tuiTd class="type">{{ typeLabel(type) }}</td>
+                  <td tuiTd class="value">{{ shown(variable) }}</td>
+                  <td tuiTd>
+                    @if (type === "string") {
+                      <input
+                        type="checkbox"
+                        tuiSwitch
+                        size="s"
+                        class="secret"
+                        formControlName="secret"
+                        aria-label="Secret"
+                        i18n-aria-label="@@label.secret"
+                      />
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+    @if (variables.errors?.["duplicateName"]) {
+      <p class="duplicate-name" i18n="@@message.duplicate_variable_name">
+        Two variables can't share a name. To swap names, save one rename first.
+      </p>
+    }
+    @if (variables.length === 0) {
+      <p i18n="@@message.no_global_variables">There are no variables yet.</p>
+    }
+
+    @if (admin) {
+      <footer>
+        <button
+          tuiButton
+          type="button"
+          size="m"
+          appearance="secondary"
+          iconStart="@tui.plus"
+          (click)="add()"
+          i18n="@@action.add_variable"
+        >
+          Add variable
+        </button>
+        <button
+          tuiButton
+          type="button"
+          size="m"
+          [loading]="progress.saving"
+          [disabled]="form.invalid || progress.saving"
+          (click)="save()"
+          i18n="@@action.save"
+        >
+          Save
+        </button>
+      </footer>
+    }
+  </form>
+</div>

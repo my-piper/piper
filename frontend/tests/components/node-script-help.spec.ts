@@ -123,6 +123,10 @@ describe("node script examples", () => {
     page.fixture.detectChanges();
 
     expect(page.code()).toContain("env.variables");
+    expect(page.code()).toContain("Set API_KEY in the Environment");
+    expect(page.code()).toContain('"pipeline"');
+    expect(page.code()).toContain('"global"');
+    expect(page.code()).not.toContain('"user"');
   });
 });
 

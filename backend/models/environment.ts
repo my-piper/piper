@@ -24,8 +24,10 @@ export class Environment {
   visible?: string[];
 
   /**
-   * Bound Variables: the name of a Project Variable mapped to the name of the
-   * User Variable it is read from.
+   * Bound Variables bound to a Global Variable of another name: the name of a
+   * Project Variable mapped to the Global Variable it is read from. A Project
+   * Variable without an own value or an entry here reads the Global Variable
+   * of the same name.
    */
   @Expose()
   @IsOptional()

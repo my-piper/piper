@@ -82,7 +82,11 @@ export const NODE_JOB_DUE = (launch: string, node: string, job: string) =>
   `launch:${launch}:nodes:${node}:jobs:${job}:due`;
 
 export const GLOBAL_ENVIRONMENT_KEY = "environment";
-export const USER_ENVIRONMENT_KEY = (user: string) => `environment:${user}`;
+/**
+ * Legacy User Environments, read only by `env migrate-user-environments`;
+ * remove together with that command.
+ */
+export const LEGACY_USER_ENVIRONMENT_PREFIX = "environment:";
 
 export const USER_API_TOKEN_KEY = (id: string) => `user:${id}:api-token`;
 export const USER_API_TOKEN_EXPIRED = 5 * 365 * SECONDS_IN_DAY;
