@@ -7,10 +7,12 @@ import {
 import { createLogger } from "core-kit/packages/logger";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
+import { Deploy } from "models/deploy";
 import { Environment } from "models/environment";
 import { Project } from "models/project";
 import { decrypt, encrypt } from "packages/environment/crypt-environment";
 import { merge } from "packages/environment/merge-environment";
+import { declaredVariables } from "packages/environment/prune-environment";
 import { overridesFromUserEnvironment } from "packages/environment/user-environment-migration";
 import { Primitive } from "types/primitive";
 
@@ -71,9 +73,10 @@ commands.command("remove <name>").action(async (name: string) => {
 
 /**
  * One-off move away from User Environments: each User Variable an owner's
- * Project or Deploy read becomes that Project's or Deploy's own value, then
- * the User Environment is deleted. Nothing is merged into the Global
- * Environment.
+ * Project read becomes that Project's own value, then the User Environment is
+ * deleted. Deploys are left alone: a Deploy read the caller's User
+ * Environment, so copying the owner's values would hand them to every caller.
+ * Nothing is merged into the Global Environment.
  */
 commands
   .command("migrate-user-environments")
@@ -95,45 +98,25 @@ commands
           { projection: { pipeline: 1, environment: 1 } }
         )
         .toArray();
-      const deploys = await mongo.deploys
-        .find(
-          {
-            // a regular user's Deploys live under their own prefix, even
-            // when the Project is gone
-            $or: [
-              { "project._id": { $in: projects.map(({ _id }) => _id) } },
-              { prefix: owner },
-            ],
-          },
-          { projection: { pipeline: 1, environment: 1 } }
-        )
-        .toArray();
-      for (const [label, collection, documents] of [
-        ["Project", mongo.projects, projects],
-        ["Deploy", mongo.deploys, deploys],
-      ] as const) {
-        for (const plain of documents) {
-          const { _id, pipeline, environment } = toInstance(plain, Project);
-          const migrated = overridesFromUserEnvironment(
-            pipeline,
-            environment,
-            user
+      for (const plain of projects) {
+        const { _id, pipeline, environment } = toInstance(plain, Project);
+        const migrated = overridesFromUserEnvironment(
+          pipeline,
+          environment,
+          user
+        );
+        migrated.used.forEach((name) => used.add(name));
+        logger.info(`Project ${_id}: ${[...migrated.used].join(", ") || "-"}`);
+        if (migrated.unresolved.length > 0) {
+          logger.warn(
+            `Project ${_id} binds missing User Variables, now read from the Global Environment: ${migrated.unresolved.join(", ")}`
           );
-          migrated.used.forEach((name) => used.add(name));
-          logger.info(
-            `${label} ${_id}: ${[...migrated.used].join(", ") || "-"}`
+        }
+        if (!dryRun && migrated.used.size > 0) {
+          await mongo.projects.updateOne(
+            { _id },
+            { $set: { environment: toPlain(migrated.environment) } }
           );
-          if (migrated.unresolved.length > 0) {
-            logger.warn(
-              `${label} ${_id} binds missing User Variables, now read from the Global Environment: ${migrated.unresolved.join(", ")}`
-            );
-          }
-          if (!dryRun && migrated.used.size > 0) {
-            await collection.updateOne(
-              { _id },
-              { $set: { environment: toPlain(migrated.environment) } }
-            );
-          }
         }
       }
 
@@ -143,6 +126,26 @@ commands
       logger.info(`User ${owner} drops: ${dropped.join(", ") || "-"}`);
       if (!dryRun) {
         await redis.del(key);
+      }
+    }
+
+    // a Deploy whose Variables its callers set in their User Environment now
+    // reads the Global Environment; its owner redeploys with overrides
+    const deploys = await mongo.deploys
+      .find(
+        {},
+        { projection: { prefix: 1, slug: 1, pipeline: 1, environment: 1 } }
+      )
+      .toArray();
+    for (const plain of deploys) {
+      const { prefix, slug, pipeline, environment } = toInstance(plain, Deploy);
+      const unset = [...declaredVariables(pipeline)].filter(
+        (name) => !environment?.variables?.has(name)
+      );
+      if (unset.length > 0) {
+        logger.warn(
+          `Deploy ${prefix}/${slug} now reads from the Global Environment: ${unset.join(", ")}`
+        );
       }
     }
     logger.info("✅ Done");
