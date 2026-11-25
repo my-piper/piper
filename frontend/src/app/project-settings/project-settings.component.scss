@@ -1,12 +1,19 @@
-@use "src/ui-kit/styles/variables";
-@use "src/ui-kit/styles/mixins";
-
 :host {
   display: block;
-  min-width: 250px;
+  min-inline-size: 16rem;
 }
 
-form,
-fieldset {
-  @include mixins.vertical-stack();
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.error {
+  margin-block-end: 1rem;
+}
+
+footer {
+  display: flex;
+  justify-content: flex-end;
 }

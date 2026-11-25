@@ -15,9 +15,12 @@ import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
 import { toInstance } from "src/utils/models";
 
-// option value that can never collide with a real group name
-const NEW_GROUP = "\u0000new";
+// option values that can never collide with a real Folder name; "no Folder"
+// gets one too, as Taiga shows a null select value as empty
+const NO_FOLDER = "\u0000none";
+const NEW_FOLDER = "\u0000new";
 
+/** Moves a Project into a Folder (`group` on the wire), a new one or none. */
 @Component({
   selector: "app-project-settings",
   templateUrl: "./project-settings.component.html",
@@ -26,13 +29,28 @@ const NEW_GROUP = "\u0000new";
   standalone: false,
 })
 export class ProjectSettingsComponent implements OnInit {
-  readonly NEW_GROUP = NEW_GROUP;
+  readonly NEW_FOLDER = NEW_FOLDER;
+
+  private texts = {
+    noFolder: $localize`:@@label.no_folder:No folder`,
+    newFolder: $localize`:@@label.new_folder_option:+ New folder…`,
+  };
+
+  /** The Folder select's labels: its sentinel options and Folder names. */
+  folderLabel = (folder: string) =>
+    folder === NO_FOLDER
+      ? this.texts.noFolder
+      : folder === NEW_FOLDER
+        ? this.texts.newFolder
+        : folder;
 
   _project!: Project;
 
   progress = { saving: false };
   error!: AppError;
-  groups: string[] = [];
+  private groups: string[] = [];
+  /** The Folder select's choices: none, every existing Folder, a new one. */
+  folders = [NO_FOLDER, NEW_FOLDER];
 
   @Input()
   set project(project: Project) {
@@ -47,7 +65,7 @@ export class ProjectSettingsComponent implements OnInit {
   updated = new EventEmitter<Project>();
 
   form = this.fb.group({
-    group: this.fb.control<string>(null),
+    group: this.fb.control<string>(NO_FOLDER),
     newGroup: this.fb.control<string>({ value: null, disabled: true }, [
       Validators.required,
       Validators.pattern(/\S/),
@@ -63,7 +81,7 @@ export class ProjectSettingsComponent implements OnInit {
   ngOnInit() {
     this.form.controls.group.valueChanges.subscribe((group) => {
       const { newGroup } = this.form.controls;
-      if (group === NEW_GROUP) {
+      if (group === NEW_FOLDER) {
         newGroup.enable();
       } else {
         newGroup.disable();
@@ -75,22 +93,25 @@ export class ProjectSettingsComponent implements OnInit {
       .pipe(map((arr) => arr as string[]))
       .subscribe({
         next: (groups) => {
-          this.groups = this.withCurrent(groups);
+          this.setFolders(groups);
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
       });
   }
 
-  private withCurrent(groups: string[]) {
+  /** Lists the Folders, keeping the Project's own even when the API omits it. */
+  private setFolders(groups: string[]) {
     const { group } = this.project;
-    return group && !groups.includes(group) ? [group, ...groups] : groups;
+    this.groups =
+      group && !groups.includes(group) ? [group, ...groups] : groups;
+    this.folders = [NO_FOLDER, ...this.groups, NEW_FOLDER];
   }
 
   private build() {
     const { group } = this.project;
-    this.groups = this.withCurrent(this.groups);
-    this.form.patchValue({ group: group ?? null, newGroup: null });
+    this.setFolders(this.groups);
+    this.form.patchValue({ group: group || NO_FOLDER, newGroup: null });
   }
 
   save() {
@@ -98,7 +119,8 @@ export class ProjectSettingsComponent implements OnInit {
     this.cd.detectChanges();
 
     const { group, newGroup } = this.form.getRawValue();
-    const value = group === NEW_GROUP ? newGroup : group;
+    const value =
+      group === NEW_FOLDER ? newGroup : group === NO_FOLDER ? null : group;
     const request = new ProjectSettings({ group: value?.trim() || null });
     this.http
       .post(`projects/${this.project._id}/settings`, request)

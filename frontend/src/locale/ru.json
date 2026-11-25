@@ -173,6 +173,15 @@
     "message.stored_value_leave_empty": "Сохранено, оставьте пустым, чтобы не менять",
     "message.no_artefacts_found": "Артефакты не найдены.",
     "message.no_node_updates": "В узлах из каталога нет обновлений.",
-    "action.edit_with_shortcut": "(E) Редактировать"
+    "action.edit_with_shortcut": "(E) Редактировать",
+    "label.tags": "Теги",
+    "label.folder": "Папка",
+    "label.new_folder": "Новая папка",
+    "label.no_folder": "Без папки",
+    "label.new_folder_option": "+ Новая папка…",
+    "message.data_not_saved": "Данные не сохранены!",
+    "message.pipeline_name_length": "От 5 до 160 символов",
+    "action.ok": "Ок",
+    "message.version_required": "Укажите версию"
   }
 }

@@ -15,6 +15,7 @@ import {
   TuiChevron,
   TuiChip,
   TuiFilter,
+  TuiInputChip,
   TuiInputNumber,
   TuiInputSlider,
   TuiSelect,
@@ -25,7 +26,7 @@ import {
 
 /**
  * The Taiga UI form controls used by the app's non-standalone components:
- * text fields, textareas, number and slider inputs, native selects, switches,
+ * text fields, textareas, chip inputs, number and slider inputs, native selects, switches,
  * filter chips, labels, hints and tooltips, buttons, links and tables.
  */
 const TAIGA_FORMS = [
@@ -38,6 +39,7 @@ const TAIGA_FORMS = [
   ...TuiTextfield,
   ...TuiInput,
   ...TuiTextarea,
+  ...TuiInputChip,
   ...TuiInputNumber,
   ...TuiInputSlider,
   ...TuiSlider,

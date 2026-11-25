@@ -1,8 +1,46 @@
-<form [formGroup]="form">
-  <fieldset>
-    <app-json-editor
-      [schema]="schemas.pipeline"
-      formControlName="pipeline"
-    ></app-json-editor>
-  </fieldset>
+<form class="design" [formGroup]="form">
+  <tui-textfield>
+    <label tuiLabel for="pipeline-name" i18n="@@label.name">Name</label>
+    <input tuiInput id="pipeline-name" formControlName="name" maxlength="160" />
+  </tui-textfield>
+  @if (form.controls.name.invalid && form.controls.name.dirty) {
+    <small class="error" i18n="@@message.pipeline_name_length"
+      >Use 5 to 160 characters</small
+    >
+  }
+
+  <tui-textfield>
+    <label tuiLabel for="pipeline-description" i18n="@@label.description"
+      >Description</label
+    >
+    <textarea
+      tuiTextarea
+      id="pipeline-description"
+      formControlName="description"
+      [min]="3"
+    ></textarea>
+  </tui-textfield>
+
+  <tui-textfield multi>
+    <label tuiLabel for="pipeline-tags" i18n="@@label.tags">Tags</label>
+    <input tuiInputChip id="pipeline-tags" formControlName="tags" />
+    <tui-input-chip *tuiItem />
+  </tui-textfield>
+
+  <tui-textfield class="version" [tuiTextfieldCleaner]="false">
+    <label tuiLabel for="pipeline-version" i18n="@@label.version"
+      >Version</label
+    >
+    <input
+      tuiInputNumber
+      id="pipeline-version"
+      formControlName="version"
+      [tuiNumberFormat]="{ thousandSeparator: '' }"
+    />
+  </tui-textfield>
+  @if (form.controls.version.invalid && form.controls.version.dirty) {
+    <small class="error" i18n="@@message.version_required"
+      >Enter a version</small
+    >
+  }
 </form>

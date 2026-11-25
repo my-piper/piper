@@ -1,16 +1,15 @@
-import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { plainToInstance } from "class-transformer";
-import { assign } from "lodash";
-import { shrink } from "src/app/utils/objects";
-import { AppError } from "src/models/errors";
-import { Pipeline } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import SCHEMAS from "src/schemas/compiled.json";
 import { ProjectManager } from "src/services/project.manager";
-import { toPlain } from "src/utils/models";
 
+/**
+ * The Project's Design tab: the Pipeline's name, description, tags and
+ * version. A valid edit goes straight into the Project (the name is also its
+ * title) and is persisted by the project autosave.
+ */
 @Component({
   selector: "app-edit-pipeline-design",
   templateUrl: "./edit-pipeline-design.component.html",
@@ -19,42 +18,16 @@ import { toPlain } from "src/utils/models";
   standalone: false,
 })
 export class EditPipelineDesignComponent implements OnInit {
-  schemas = (() => {
-    const {
-      name,
-      description,
-      tags,
-      version,
-      url,
-      checkUpdates,
-      thumbnail,
-      category,
-    } = SCHEMAS.pipeline.properties;
-    return {
-      pipeline: {
-        ...SCHEMAS.pipeline,
-        properties: {
-          name,
-          description,
-          tags,
-          version,
-          url,
-          checkUpdates,
-          thumbnail,
-          category,
-        },
-        required: ["name", "version"],
-      },
-    };
-  })();
-
-  progress = { saving: false };
-  error!: AppError;
-
   project!: Project;
 
   form = this.fb.group({
-    pipeline: this.fb.control<object>(null),
+    name: this.fb.control<string>(null, [
+      Validators.required,
+      Validators.pattern(SCHEMAS.pipeline.properties.name.pattern),
+    ]),
+    description: this.fb.control<string>(null),
+    tags: this.fb.control<string[]>([]),
+    version: this.fb.control<number>(null, Validators.required),
   });
 
   constructor(
@@ -72,61 +45,30 @@ export class EditPipelineDesignComponent implements OnInit {
   }
 
   private build() {
-    const { pipeline } = this.project;
-    const {
-      name,
-      description,
-      tags,
-      version,
-      url,
-      checkUpdates,
-      thumbnail,
-      category,
-    } = toPlain(pipeline);
-    this.form.patchValue({
-      pipeline: shrink({
-        name,
-        description,
-        tags,
-        version,
-        url,
-        checkUpdates,
-        thumbnail,
-        category,
-      }),
-    });
+    const { name, description, tags, version } = this.project.pipeline;
+    this.form.setValue(
+      {
+        name: name ?? null,
+        description: description ?? null,
+        tags: tags ?? [],
+        version: version ?? null,
+      },
+      { emitEvent: false },
+    );
   }
 
-  save() {
-    const {
-      name,
-      description,
-      tags,
-      version,
-      url,
-      checkUpdates,
-      thumbnail,
-      category,
-    } = plainToInstance(
-      Pipeline,
-      (() => {
-        const { pipeline } = this.form.getRawValue();
-        return pipeline;
-      })(),
-    );
+  private save() {
+    if (this.form.invalid) {
+      return;
+    }
 
-    assign(this.project, { title: name });
-
-    const { pipeline } = this.project;
-    assign(pipeline, {
+    const { name, description, tags, version } = this.form.getRawValue();
+    this.project.title = name;
+    Object.assign(this.project.pipeline, {
       name,
-      description,
-      tags,
+      description: description || undefined,
+      tags: tags.length > 0 ? tags : undefined,
       version,
-      url,
-      checkUpdates,
-      thumbnail,
-      category,
     });
     this.projectManager.markDirty();
   }

@@ -10,12 +10,14 @@ import { Project } from "src/models/project";
 import { toInstance } from "src/utils/models";
 import { PROJECT_A_ID, projectAPlain, userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
+import { expectConsoleError } from "../helpers/console";
 import { configureAppTestingModule, finish } from "../helpers/editor";
+import { optionLabels, selectByLabel, selectedLabel } from "../helpers/taiga";
 
 /**
- * GET /api/projects/groups lists existing groups for the dropdown and
- * POST /api/projects/:_id/settings stores the trimmed group or null
- * (backend/api/projects/update-project-settings.ts).
+ * GET /api/projects/groups lists existing Folders for the dropdown and
+ * POST /api/projects/:_id/settings stores the trimmed Folder (`group` on the
+ * wire) or null (backend/api/projects/update-project-settings.ts).
  */
 const UI_DELAY = 250;
 
@@ -26,7 +28,7 @@ describe("ProjectSettingsComponent", () => {
 
   function setup(group?: string) {
     seedAuthorization(userPlain("owner"));
-    configureAppTestingModule();
+    configureAppTestingModule([], { nativeSelect: true });
     controller = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ProjectSettingsComponent);
     fixture.componentInstance.project = toInstance(
@@ -44,11 +46,7 @@ describe("ProjectSettingsComponent", () => {
   }
 
   function pick(label: string) {
-    const field = select();
-    field.selectedIndex = Array.from(field.options).findIndex(
-      (o) => o.textContent.trim() === label,
-    );
-    field.dispatchEvent(new Event("change"));
+    selectByLabel(select(), label);
     fixture.detectChanges();
   }
 
@@ -57,7 +55,7 @@ describe("ProjectSettingsComponent", () => {
   }
 
   function saveButton(): HTMLButtonElement {
-    return element.querySelector<HTMLButtonElement>("footer button");
+    return element.querySelector<HTMLButtonElement>("button[type=submit]");
   }
 
   function save() {
@@ -67,32 +65,42 @@ describe("ProjectSettingsComponent", () => {
 
   afterEach(() => controller.verify());
 
-  it("selects the current group among existing ones", fakeAsync(() => {
+  it("selects the current folder among existing ones", fakeAsync(() => {
     setup("Marketing");
 
-    const options = Array.from(select().options).map((o) =>
-      o.textContent.trim(),
-    );
-    expect(options).toEqual(["No group", "Marketing", "Sales", "+ New group…"]);
-    expect(select().selectedOptions[0].textContent.trim()).toBe("Marketing");
+    expect(
+      element.querySelector("label[for=project-folder]").textContent.trim(),
+    ).toBe("Folder");
+    expect(optionLabels(select())).toEqual([
+      "No folder",
+      "Marketing",
+      "Sales",
+      "+ New folder…",
+    ]);
+    expect(selectedLabel(select())).toBe("Marketing");
     expect(newGroup()).toBeNull();
     fixture.destroy();
     finish();
   }));
 
-  it("keeps a current group missing from the suggestions", fakeAsync(() => {
+  it("keeps a current folder missing from the suggestions", fakeAsync(() => {
     setup("Legacy");
 
-    const options = Array.from(select().options).map((o) =>
-      o.textContent.trim(),
-    );
-    expect(options).toContain("Legacy");
-    expect(select().selectedOptions[0].textContent.trim()).toBe("Legacy");
+    expect(optionLabels(select())).toContain("Legacy");
+    expect(selectedLabel(select())).toBe("Legacy");
     fixture.destroy();
     finish();
   }));
 
-  it("saves a selected group and emits the update", fakeAsync(() => {
+  it("shows a project outside any folder as in no folder", fakeAsync(() => {
+    setup();
+
+    expect(selectedLabel(select())).toBe("No folder");
+    fixture.destroy();
+    finish();
+  }));
+
+  it("saves a selected folder and emits the update", fakeAsync(() => {
     setup();
     const emitted: Project[] = [];
     fixture.componentInstance.updated.subscribe((p) => emitted.push(p));
@@ -111,9 +119,9 @@ describe("ProjectSettingsComponent", () => {
     finish();
   }));
 
-  it("saves a trimmed new group", fakeAsync(() => {
+  it("saves a trimmed new folder", fakeAsync(() => {
     setup("Marketing");
-    pick("+ New group…");
+    pick("+ New folder…");
     newGroup().value = "  Support ";
     newGroup().dispatchEvent(new Event("input"));
     fixture.detectChanges();
@@ -129,9 +137,9 @@ describe("ProjectSettingsComponent", () => {
     finish();
   }));
 
-  it("requires a name for a new group", fakeAsync(() => {
+  it("requires a name for a new folder", fakeAsync(() => {
     setup();
-    pick("+ New group…");
+    pick("+ New folder…");
     newGroup().value = "   ";
     newGroup().dispatchEvent(new Event("input"));
 
@@ -142,9 +150,9 @@ describe("ProjectSettingsComponent", () => {
     finish();
   }));
 
-  it("removes the group when no group is selected", fakeAsync(() => {
+  it("removes the folder when no folder is selected", fakeAsync(() => {
     setup("Marketing");
-    pick("No group");
+    pick("No folder");
 
     const request = save();
     request.flush({ group: null });
@@ -153,6 +161,25 @@ describe("ProjectSettingsComponent", () => {
     expect(request.request.body).toEqual(
       expect.objectContaining({ group: null }),
     );
+    fixture.destroy();
+    finish();
+  }));
+
+  it("tells that a rejected folder was not saved", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 400");
+    setup();
+    pick("Sales");
+
+    save().flush("Folder name is too long", {
+      status: 400,
+      statusText: "Bad Request",
+    });
+    tick(UI_DELAY);
+    fixture.detectChanges();
+
+    const alert = element.querySelector("[role=alert]");
+    expect(alert.textContent).toContain("Folder name is too long");
+    expect(alert.textContent).toContain("Your data were not saved!");
     fixture.destroy();
     finish();
   }));

@@ -1,60 +1,64 @@
-<ng-template #errorTemplate>
-  <div class="informer errors">
+@if (error) {
+  <div tuiNotification appearance="negative" role="alert" class="error">
     <p>{{ error.message }}</p>
-    <ul>
-      @for (m of error?.details; track $index) {
-        <li>{{ m }}</li>
-      }
-    </ul>
-    <p>Your data were not saved!</p>
-    <div class="stack justify-center">
-      <button class="primary" (click)="error = null">Ok</button>
-    </div>
+    @if (error.details?.length) {
+      <ul>
+        @for (message of error.details; track $index) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    }
+    <p i18n="@@message.data_not_saved">Your data were not saved!</p>
+    <button
+      tuiButton
+      appearance="flat"
+      size="s"
+      type="button"
+      (click)="error = null"
+      i18n="@@action.ok"
+    >
+      Ok
+    </button>
   </div>
-</ng-template>
-
-@if (!!error) {
-  <app-informer
-    [contentTemplate]="errorTemplate"
-    (ok)="error = null"
-  ></app-informer>
 }
 
-<form [formGroup]="form">
-  <fieldset>
-    <label for="project-group">Group</label>
+<form class="settings" [formGroup]="form" (ngSubmit)="save()">
+  <tui-textfield
+    tuiChevron
+    [stringify]="folderLabel"
+    [tuiTextfieldCleaner]="false"
+  >
+    <label tuiLabel for="project-folder" i18n="@@label.folder">Folder</label>
     <select
-      id="project-group"
-      class="select-primary fluid"
+      tuiSelect
+      id="project-folder"
       formControlName="group"
-    >
-      <option [ngValue]="null">No group</option>
-      @for (g of groups; track g) {
-        <option [ngValue]="g">{{ g }}</option>
-      }
-      <option [ngValue]="NEW_GROUP">+ New group…</option>
-    </select>
-  </fieldset>
-  @if (form.controls.group.value === NEW_GROUP) {
-    <fieldset>
-      <label for="project-new-group">New group</label>
+      [items]="folders"
+    ></select>
+  </tui-textfield>
+
+  @if (form.controls.group.value === NEW_FOLDER) {
+    <tui-textfield>
+      <label tuiLabel for="project-new-folder" i18n="@@label.new_folder"
+        >New folder</label
+      >
       <input
-        id="project-new-group"
-        class="input-primary fluid"
-        type="text"
+        tuiInput
+        id="project-new-folder"
         formControlName="newGroup"
-        placeholder="Group name"
         maxlength="100"
       />
-    </fieldset>
+    </tui-textfield>
   }
+
   <footer>
     <button
-      class="primary"
-      type="button"
-      [class.busy]="progress.saving"
+      tuiButton
+      size="m"
+      type="submit"
+      [loading]="progress.saving"
       [disabled]="progress.saving || form.invalid"
-      (click)="save()"
+      i18n="@@action.save"
     >
       Save
     </button>
