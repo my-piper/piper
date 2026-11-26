@@ -103,7 +103,7 @@ describe("connected accounts", () => {
     });
   });
 
-  it("issues a single-use link ticket in Redis", async () => {
+  it("issues a single-use link ticket as an HttpOnly cookie", async () => {
     vi.stubEnv("OIDC_AUTH", "yes");
     context = await createHttpApp([() => import("api/me/link-identity")]);
 
@@ -111,10 +111,13 @@ describe("connected accounts", () => {
       .post("/api/me/identities/oidc/link")
       .set("user-token", userToken());
 
-    expect(response.status).toBe(200);
-    expect(response.body.ticket).toMatch(/^[\w-]{43}$/);
+    expect(response.status).toBe(204);
+    const [cookie] = response.headers["set-cookie"];
+    const [, ticket] = cookie.match(
+      /^oidc_link=([\w-]{43}); Max-Age=300; Path=\/; .*HttpOnly; SameSite=Lax/
+    );
     expect(httpDoubles.redis.setEx).toHaveBeenCalledWith(
-      `oidc:link:${response.body.ticket}`,
+      `oidc:link:${ticket}`,
       300,
       "owner-user"
     );

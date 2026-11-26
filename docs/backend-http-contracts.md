@@ -210,7 +210,7 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
 | `POST /api/me/api-token/generate`     | Logged-in user                       | 200                |
 | `GET /api/me`                         | Logged-in user                       | 200                |
 | `POST /api/me/change-password`        | Logged-in user                       | 204                |
-| `POST /api/me/identities/oidc/link`   | Logged-in user; `OIDC_AUTH=yes`      | 200                |
+| `POST /api/me/identities/oidc/link`   | Logged-in user; `OIDC_AUTH=yes`      | 204                |
 | `DELETE /api/me/identities/:provider` | Logged-in user; 404 if not connected | 204                |
 | `GET /api/users/:_id`                 | Logged-in user                       | 200, 204 if absent |
 | `GET /api/users`                      | Admin                                | 200                |
@@ -231,9 +231,10 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   can set one.
 - `/api/me` adds `identities` (connected single sign-on accounts) and
   `hasPassword`.
-- `/api/me/identities/oidc/link` returns `{ ticket }`, stored in Redis for 5
-  minutes; the browser opens `/oauth/oidc?link=<ticket>` to connect an account
-  (see `docs/sso.md`); with `OIDC_AUTH` off it answers 400
+- `/api/me/identities/oidc/link` answers 204 and sets a single-use ticket
+  (Redis, 5 minutes) as the HttpOnly cookie `oidc_link`; the browser then
+  opens `/oauth/oidc?link` to connect an account (see `docs/sso.md`). With
+  `OIDC_AUTH` off it answers 400
   `Single sign-on is disabled`. Disconnecting is refused (400) when the user would be
   left without a password or another identity.
 - Admin user creation and updates use the production user schema

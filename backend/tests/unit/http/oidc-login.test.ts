@@ -277,10 +277,20 @@ describe("OIDC callback", () => {
 
 describe("connecting an identity to a signed-in user", () => {
   async function connect(claims: Record<string, unknown> = CLAIMS) {
-    const start = await context.request.get("/oidc?link=ticket-1");
+    const start = await context.request
+      .get("/oidc?link")
+      .set("Cookie", "oidc_link=ticket-1");
     const query = issuer.authorize(start.headers.location, claims);
     return context.request.get(`/oidc/callback?${query}`);
   }
+
+  it("ignores a ticket in the URL: a link from someone else binds nothing", async () => {
+    const response = await context.request.get("/oidc?link=ticket-1");
+
+    expect(response.headers.location).toBe("/en/?sso=sso_failed");
+    expect(states.get("oidc:link:ticket-1")).toBe("other-user");
+    expect(httpDoubles.redis.setEx).not.toHaveBeenCalled();
+  });
 
   it("binds the identity to the ticket's user", async () => {
     httpDoubles.users.updateOne.mockResolvedValue({ matchedCount: 1 });
@@ -305,9 +315,11 @@ describe("connecting an identity to a signed-in user", () => {
   });
 
   it("uses a ticket only once", async () => {
-    await context.request.get("/oidc?link=ticket-1");
+    await context.request.get("/oidc?link").set("Cookie", "oidc_link=ticket-1");
 
-    const replay = await context.request.get("/oidc?link=ticket-1");
+    const replay = await context.request
+      .get("/oidc?link")
+      .set("Cookie", "oidc_link=ticket-1");
 
     expect(replay.headers.location).toBe("/en/?sso=sso_failed");
   });
@@ -315,7 +327,9 @@ describe("connecting an identity to a signed-in user", () => {
   it("keeps the ticket when the provider is unreachable", async () => {
     vi.mocked(fetch).mockRejectedValue(new Error("provider down"));
 
-    const response = await context.request.get("/oidc?link=ticket-1");
+    const response = await context.request
+      .get("/oidc?link")
+      .set("Cookie", "oidc_link=ticket-1");
 
     expect(response.headers.location).toBe("/en/?sso=sso_failed");
     expect(states.get("oidc:link:ticket-1")).toBe("other-user");
