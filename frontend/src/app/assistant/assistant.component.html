@@ -54,8 +54,10 @@
     @if (messages.length > 0 && !progress.loading && !progress.sending) {
       <div class="stack justify-center">
         <button
-          class="primary small with-icon"
-          [class.busy]="progress.clearing"
+          tuiButton
+          appearance="outline-grayscale"
+          size="xs"
+          [loading]="progress.clearing"
           [disabled]="progress.clearing"
           (click)="clear()"
         >

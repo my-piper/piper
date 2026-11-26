@@ -16,6 +16,7 @@ import { EditUserComponent } from "src/app/users/edit/edit-user.component";
 import { Languages } from "src/enums/languages";
 import { User } from "src/models/user";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { toInstance } from "src/utils/models";
 import { userPlain } from "../fixtures/plain";
@@ -33,7 +34,12 @@ function setup(user?: User) {
   seedAuthorization(userPlain("admin"));
   TestBed.configureTestingModule({
     declarations: [EditUserComponent],
-    imports: [ReactiveFormsModule, UiKitModule, JsonEditorStubComponent],
+    imports: [
+      ReactiveFormsModule,
+      UiKitModule,
+      TaigaFormsModule,
+      JsonEditorStubComponent,
+    ],
     providers: [
       provideTestConfig(),
       provideHttpClient(withXhr()),

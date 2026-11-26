@@ -60,7 +60,9 @@
 <div class="modal" [class.hidden]="!modal">
   <header>
     <a
-      class="primary with-icon"
+      tuiButton
+      appearance="outline-grayscale"
+      size="s"
       [hotKey]="'escape'"
       (hotKeyPressed)="back()"
       [routerLink]="[{ outlets: { primary: [] } }]"

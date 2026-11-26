@@ -5,7 +5,9 @@
 <div class="modal" [class.hidden]="!modal">
   <header>
     <a
-      class="primary with-icon"
+      tuiButton
+      appearance="outline-grayscale"
+      size="s"
       [hotKey]="'escape'"
       (hotKeyPressed)="back()"
       [routerLink]="['./']"
@@ -32,9 +34,11 @@
   </fieldset>
   <footer class="stack">
     <button
-      class="primary"
+      tuiButton
+      appearance="outline-grayscale"
+      size="s"
       type="button"
-      [class.busy]="progress.deploying"
+      [loading]="progress.deploying"
       [disabled]="progress.deploying"
       (click)="deploy()"
     >

@@ -42,6 +42,13 @@ app-root > tui-root > .t-root-content {
   border-radius: 50%;
 }
 
+// A full-width Taiga button (form footers, auth pages); in a flex row it
+// shrinks to leave room for its neighbours, like the ui-kit one did.
+[tuiButton].fluid {
+  inline-size: 100%;
+  flex-shrink: 1;
+}
+
 .money {
   font-family: "Quantico", sans-serif;
   font-size: 0.8rem;

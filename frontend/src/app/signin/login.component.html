@@ -72,8 +72,11 @@
       </fieldset>
       <footer>
         <button
-          class="primary fluid"
-          [class.busy]="progress.login"
+          tuiButton
+          appearance="outline-grayscale"
+          size="s"
+          class="fluid"
+          [loading]="progress.login"
           [disabled]="progress.login"
           i18n="@@action.login"
           type="submit"

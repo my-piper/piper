@@ -14,17 +14,28 @@
     </fieldset>
     <footer class="stack justify-between">
       <button
-        class="button primary"
-        [class.busy]="progress.publishing"
+        tuiButton
+        appearance="outline-grayscale"
+        size="s"
+        [loading]="progress.publishing"
         [disabled]="progress.publishing || form.invalid"
         (click)="publish()"
       >
         Publish
       </button>
-      <button class="delete-button" (click)="remove()">Remove</button>
+      <button
+        tuiButton
+        appearance="outline-destructive"
+        size="s"
+        (click)="remove()"
+      >
+        Remove
+      </button>
     </footer>
   </form>
 } @else {
   <p>You can publish your node to common catalog for reusing.</p>
-  <button class="button primary" (click)="create()">Create config</button>
+  <button tuiButton appearance="outline-grayscale" size="s" (click)="create()">
+    Create config
+  </button>
 }
