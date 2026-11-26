@@ -175,29 +175,37 @@
         </p>
       }
       @if (s.nodes.length > 0) {
-        <table class="default" data-testid="stats-nodes">
+        <table tuiTable size="m" data-testid="stats-nodes">
           <thead>
-            <th i18n="@@label.node">Node</th>
-            <th class="number" i18n="@@label.runs">Runs</th>
-            <th class="number" i18n="@@label.failed_runs">Failed</th>
-            <th class="number" i18n="@@label.avg_duration">Avg duration</th>
-            <th class="number">p95</th>
-            <th class="number" i18n="@@label.avg_wait">Avg wait</th>
+            <tr>
+              <th tuiTh i18n="@@label.node">Node</th>
+              <th tuiTh class="number" i18n="@@label.runs">Runs</th>
+              <th tuiTh class="number" i18n="@@label.failed_runs">Failed</th>
+              <th tuiTh class="number" i18n="@@label.avg_duration">
+                Avg duration
+              </th>
+              <th tuiTh class="number">p95</th>
+              <th tuiTh class="number" i18n="@@label.avg_wait">Avg wait</th>
+            </tr>
           </thead>
           <tbody>
             @for (n of s.nodes; track n.node) {
               <tr>
-                <td>
+                <td tuiTd>
                   <div>{{ nodeTitle(n.node) | i18n }}</div>
                   <small>{{ n.node }}</small>
                 </td>
-                <td class="number">{{ n.runs | number }}</td>
-                <td class="number">
+                <td tuiTd class="number">{{ n.runs | number }}</td>
+                <td tuiTd class="number">
                   {{ n.failed | number }}
                 </td>
-                <td class="number">{{ n.avgDurationMs | runDuration }}</td>
-                <td class="number">{{ n.p95DurationMs | runDuration }}</td>
-                <td class="number">{{ n.avgWaitMs | runDuration }}</td>
+                <td tuiTd class="number">
+                  {{ n.avgDurationMs | runDuration }}
+                </td>
+                <td tuiTd class="number">
+                  {{ n.p95DurationMs | runDuration }}
+                </td>
+                <td tuiTd class="number">{{ n.avgWaitMs | runDuration }}</td>
               </tr>
             }
           </tbody>

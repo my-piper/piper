@@ -1,13 +1,15 @@
 <div class="modal" [class.hidden]="!modal">
   <header>
     <a
-      class="primary with-icon"
+      tuiButton
+      appearance="outline-grayscale"
+      size="s"
       [hotKey]="'escape'"
       (hotKeyPressed)="back()"
       [routerLink]="['./']"
     >
       <app-icon class="icon right" icon="close"></app-icon>
-      <span class="badge">ESC</span>
+      <span tuiBadge appearance="neutral" size="s">ESC</span>
     </a>
   </header>
   <div class="content filled">
@@ -28,10 +30,14 @@
     </ngx-monaco-editor>
   </div>
   <footer class="stack">
-    <a class="primary" [routerLink]="['view']">View</a>
+    <a tuiButton appearance="outline-grayscale" size="s" [routerLink]="['view']"
+      >View</a
+    >
     <button
+      tuiButton
+      appearance="outline-grayscale"
+      size="s"
       submitButton
-      class="primary"
       [disabled]="form.invalid"
       (click)="save()"
     >

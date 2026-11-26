@@ -165,7 +165,7 @@ describe("ProjectsComponent tags and groups", () => {
   it("toggles the filter from a project row tag", fakeAsync(() => {
     setup();
     const rowTag = (): HTMLButtonElement =>
-      element.querySelector("td button.tag");
+      element.querySelector("td button[tuiChip]:not(.group)");
 
     rowTag().click();
     const selected = expectList();

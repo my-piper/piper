@@ -10,7 +10,6 @@
 @use "src/ui-kit/styles/animations";
 @use "src/ui-kit/styles/typography";
 @use "src/ui-kit/styles/badges";
-@use "src/ui-kit/styles/drawler";
 @use "src/ui-kit/styles/tags";
 
 // https://coolors.co/palettes/popular/5468ff
@@ -35,6 +34,18 @@ body {
 // Absolute-positioned routed canvases do not give Taiga's content wrapper a height.
 app-root > tui-root > .t-root-content {
   min-block-size: 100dvh;
+}
+
+// A round Taiga icon button (the ui-kit circle buttons).
+[tuiIconButton].round {
+  border-radius: 50%;
+}
+
+// A full-width Taiga button (form footers, auth pages); in a flex row it
+// shrinks to leave room for its neighbours, like the ui-kit one did.
+[tuiButton].fluid {
+  inline-size: 100%;
+  flex-shrink: 1;
 }
 
 .money {

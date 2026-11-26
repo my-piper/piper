@@ -4,5 +4,13 @@
 
 <ng-template #defaultContentTemplate>
   <p>{{ message }}</p>
-  <button #okRef class="primary-button" (click)="ok.emit()">OK</button>
+  <button
+    tuiButton
+    appearance="outline-grayscale"
+    size="s"
+    #okRef
+    (click)="ok.emit()"
+  >
+    OK
+  </button>
 </ng-template>

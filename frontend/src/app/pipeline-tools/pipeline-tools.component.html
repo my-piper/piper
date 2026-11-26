@@ -4,18 +4,20 @@
 
 <ng-template #publishTab>
   <div class="publish">
-    <table class="default">
+    <table tuiTable size="m">
       <thead>
-        <th i18n="@@label.node">Node</th>
-        <th i18n="@@label.id">Id</th>
-        <th i18n="@@label.category">Category</th>
-        <th i18n="@@label.package">Package</th>
-        <th i18n="@@label.version" style="width: 100px">Version</th>
+        <tr>
+          <th tuiTh i18n="@@label.node">Node</th>
+          <th tuiTh i18n="@@label.id">Id</th>
+          <th tuiTh i18n="@@label.category">Category</th>
+          <th tuiTh i18n="@@label.package">Package</th>
+          <th tuiTh i18n="@@label.version" style="width: 100px">Version</th>
+        </tr>
       </thead>
       <tbody>
         @for (n of project.pipeline.nodes | keyvalue; track n.key) {
           <tr>
-            <td title="Node" i18n-title="@@label.node" class="stack">
+            <td tuiTd title="Node" i18n-title="@@label.node" class="stack">
               <app-icon
                 class="icon"
                 [icon]="
@@ -33,19 +35,19 @@
                 </ul>
               </div>
             </td>
-            <td title="Id" i18n-title="@@label.id">
+            <td tuiTd title="Id" i18n-title="@@label.id">
               {{ n.value.catalog?._id }}
             </td>
-            <td title="Category" i18n-title="@@label.category">
+            <td tuiTd title="Category" i18n-title="@@label.category">
               {{
                 $safeNavigationMigration(n.value.catalog?.category?.title)
                   | i18n
               }}
             </td>
-            <td title="Package" i18n-title="@@label.package">
+            <td tuiTd title="Package" i18n-title="@@label.package">
               {{ n.value.catalog?.package }}
             </td>
-            <td title="Version" i18n-title="@@label.version">
+            <td tuiTd title="Version" i18n-title="@@label.version">
               {{ n.value.catalog?.version || "-" }}
             </td>
           </tr>
@@ -65,9 +67,11 @@
       </fieldset>
       <footer>
         <button
-          class="primary"
+          tuiButton
+          appearance="outline-grayscale"
+          size="s"
           type="button"
-          [class.busy]="progress.publishing"
+          [loading]="progress.publishing"
           [disabled]="form.invalid || progress.publishing"
           (click)="publish()"
         >

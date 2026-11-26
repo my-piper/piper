@@ -24,17 +24,17 @@ behaviour is covered separately by `backend/tests`.
 
 ## Commands (run in `frontend/`)
 
-| Command                          | What it does                                                                                   |
-| -------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `npm test`                       | Unit + component suites, headless, single run                                                  |
-| `npm run test:agent`             | Same, but prints only failed tests and the summary (Vitest `agent` reporter); for agent runs   |
-| `npm run test:watch`             | Same, rebuilding and re-running on file changes                                                |
-| `npm run test:coverage`          | Single run with coverage in `coverage/` (HTML, lcov, json-summary, text summary)               |
-| `npm run test:typecheck`         | `tsc` over all fast-suite specs, helpers and fixtures                                          |
-| `npm run lint:tests`             | ESLint over `tests/` and `vitest.config.ts`                                                    |
-| `npm run test:browser`           | Builds en (`production,browser-test` → `dist-browser/`), then runs the Playwright workflows |
-| `npm run test:browser:run`       | Runs the Playwright workflows against an existing `dist-browser/`                              |
-| `npm run test:browser:typecheck` | `tsc` over `tests/browser` (Node + Playwright types, no Vitest)                                |
+| Command                          | What it does                                                                                 |
+| -------------------------------- | -------------------------------------------------------------------------------------------- |
+| `npm test`                       | Unit + component suites, headless, single run                                                |
+| `npm run test:agent`             | Same, but prints only failed tests and the summary (Vitest `agent` reporter); for agent runs |
+| `npm run test:watch`             | Same, rebuilding and re-running on file changes                                              |
+| `npm run test:coverage`          | Single run with coverage in `coverage/` (HTML, lcov, json-summary, text summary)             |
+| `npm run test:typecheck`         | `tsc` over all fast-suite specs, helpers and fixtures                                        |
+| `npm run lint:tests`             | ESLint over `tests/` and `vitest.config.ts`                                                  |
+| `npm run test:browser`           | Builds en (`production,browser-test` → `dist-browser/`), then runs the Playwright workflows  |
+| `npm run test:browser:run`       | Runs the Playwright workflows against an existing `dist-browser/`                            |
+| `npm run test:browser:typecheck` | `tsc` over `tests/browser` (Node + Playwright types, no Vitest)                              |
 
 Narrow a run while iterating: `npm run test:agent --
 --include=../tests/unit/models` picks files (paths are relative to `src/`, the
@@ -141,6 +141,10 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
   marks the active item only after its ResizeObserver fires: await two
   animation frames before reading `activeSegment` (see
   `select-theme.spec.ts`). Radios bound to a form control are marked at once.
+- `isLoading(button)` tells whether a `tuiButton` shows its `[loading]` state
+  (Taiga sets `aria-disabled`; it has no `.busy` class).
+- Read a `<tui-tabs>` with `tabLabels` and `activeTab`; with `routerLink` +
+  `routerLinkActive` tabs, the active one follows the route after navigation.
 - `tests/components/taiga-forms.spec.ts` shows these on a test-only form.
 
 ## Wire contracts

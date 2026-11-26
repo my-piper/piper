@@ -102,3 +102,26 @@ export function pickSegment(segmented: Element | null, label: string) {
   ) as HTMLElement;
   (item.querySelector<HTMLElement>("input") ?? item).click();
 }
+
+/**
+ * Whether a `tuiButton` / `tuiIconButton` shows its loader (`[loading]`):
+ * Taiga marks it `aria-disabled` and swallows clicks while it loads.
+ */
+export function isLoading(button: Element | null): boolean {
+  return (button as Element).getAttribute("aria-disabled") === "true";
+}
+
+/** The labels of a `<tui-tabs>`' tabs. */
+export function tabLabels(tabs: Element | null): string[] {
+  return Array.from((tabs as Element).querySelectorAll("[tuiTab]")).map((tab) =>
+    tab.textContent.trim(),
+  );
+}
+
+/** The label of the tab a `<tui-tabs>` marks active (Taiga's `_active`). */
+export function activeTab(tabs: Element | null): string {
+  return (
+    (tabs as Element).querySelector("[tuiTab]._active")?.textContent.trim() ??
+    ""
+  );
+}

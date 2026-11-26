@@ -26,7 +26,7 @@ import { SelectThemeComponent } from "src/app/select-theme/select-theme.componen
 import { authorizationPlain } from "../fixtures/plain";
 import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
 import { provideTestConfig } from "../helpers/config";
-import { markedInvalid, togglePassword } from "../helpers/taiga";
+import { isLoading, markedInvalid, togglePassword } from "../helpers/taiga";
 
 async function render(config: Partial<PlainAppConfig> = {}) {
   await TestBed.configureTestingModule({
@@ -115,6 +115,7 @@ describe("LoginComponent", () => {
     submit(fixture);
     const req = controller.expectOne("/api/login");
     const busy = submitButton(element).disabled;
+    const loading = isLoading(submitButton(element));
     req.flush(authorizationPlain("owner"));
     tick(UI_DELAY);
     fixture.detectChanges();
@@ -122,7 +123,9 @@ describe("LoginComponent", () => {
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({ identity: "owner", password: "secret" });
     expect(busy).toBe(true);
+    expect(loading).toBe(true);
     expect(submitButton(element).disabled).toBe(false);
+    expect(isLoading(submitButton(element))).toBe(false);
     expect(config.authorization.token).toBe("fake-token-owner");
     expect(JSON.parse(localStorage.getItem(AUTHORIZATION_KEY)).token).toBe(
       "fake-token-owner",
