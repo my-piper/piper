@@ -18,12 +18,17 @@ type PreparedNode = {
   version?: number;
   isolated?: boolean;
   catalog?: object;
+  costs?: string;
   script?: string;
   environment?: Record<string, { type: string; description?: string }>;
-  inputs: Record<string, EnumInput & { featured?: boolean }>;
+  inputs: Record<
+    string,
+    EnumInput & { featured?: boolean; required?: boolean }
+  >;
   outputs: Record<string, object>;
 };
 type PreparedPipeline = {
+  script?: string;
   layout?: { left?: number; top?: number; zoom?: number };
   start: { nodes: string[] };
   nodes: Record<string, PreparedNode>;
@@ -152,6 +157,19 @@ function scriptProblems(
     ) {
       checkImport(node.moduleSpecifier.text);
     }
+    // Billing is gone: a ported script keeps no costs function or result key.
+    // Catalog scripts (relativeImports) still carry their own.
+    if (
+      !relativeImports &&
+      (ts.isFunctionDeclaration(node) ||
+        ts.isVariableDeclaration(node) ||
+        ts.isPropertyAssignment(node) ||
+        ts.isShorthandPropertyAssignment(node)) &&
+      node.name &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === "costs"
+    )
+      errors.add("obsolete costs needs removal");
     if (ts.isIdentifier(node) && node.text === "DEFINITIONS")
       errors.add(
         "DEFINITIONS needs rewriting to core's next, repeat and error classes"
@@ -271,6 +289,9 @@ export function validatePreparedPipeline(
     );
   }
 
+  if (pipeline.script && /\bcosts\b/.test(pipeline.script))
+    errors.push("pipeline script with obsolete costs needs removal");
+
   const restored = toPlain(toInstance(pipeline, Pipeline)) as PreparedPipeline;
   const zoomed = { ...restored, layout: { ...restored.layout, zoom: 1 } };
   if (!validateSchema(zoomed))
@@ -296,6 +317,8 @@ export function validatePreparedPipeline(
       errors.push(
         `Node ${key}: expected an inline Script Node or a package node without catalog identity`
       );
+    if (node.costs !== undefined)
+      errors.push(`Node ${key}: obsolete costs needs removal`);
     const declared = new Set(Object.keys(node.environment ?? {}));
     for (const name of declared)
       if (LEGACY_NAMES.has(name))
@@ -343,6 +366,33 @@ export function validatePreparedPipeline(
       errors.push(
         `Pipeline input ${name}: default must be the enum value ${value}, not the whole option`
       );
+  }
+
+  // A required input without a default that nothing feeds holds its node
+  // back forever (checkInputs), and everything downstream with it: v1 kept
+  // such values in saved node inputs that its export dropped. A node nothing
+  // reaches never runs, so it can't wait.
+  const fed = new Set<string>();
+  for (const flow of Object.values(pipeline.flows ?? {}))
+    fed.add(`${flow.to}.${flow.input}`);
+  for (const input of Object.values(pipeline.inputs ?? {}))
+    for (const flow of Object.values(input.flows ?? {}))
+      fed.add(`${flow.to}.${flow.input}`);
+  const reached = new Set([
+    ...pipeline.start.nodes,
+    ...[...fed].map((port) => port.split(".")[0]),
+  ]);
+  for (const [key, node] of Object.entries(pipeline.nodes)) {
+    if (!reached.has(key)) continue;
+    for (const [name, input] of Object.entries(node.inputs))
+      if (
+        input.required &&
+        input.default === undefined &&
+        !fed.has(`${key}.${name}`)
+      )
+        errors.push(
+          `Node ${key}: required input ${name} has no default and nothing feeds it, so the node never runs`
+        );
   }
 
   let links = 0;
