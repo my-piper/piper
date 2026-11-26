@@ -335,7 +335,7 @@ describe("PlayWithProjectComponent", () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector("h1").textContent).toContain("Project A");
-    expect(element.querySelector(".badge").textContent.trim()).toBe("3");
+    expect(element.querySelector("[tuiBadge]").textContent.trim()).toBe("3");
     finish();
   }));
 
