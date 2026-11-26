@@ -32,6 +32,7 @@ import {
   configureAppTestingModule,
   finish as flushAll,
 } from "../helpers/editor";
+import { hover, unhover } from "../helpers/taiga";
 import { SocketDouble } from "../helpers/socket";
 
 /**
@@ -175,9 +176,19 @@ describe("LaunchesComponent", () => {
     fixture.detectChanges();
     answerCards();
 
+    const button = element.querySelector<HTMLElement>(".errors button");
+    button.scrollIntoView();
+    hover(button);
+    tick(1000);
+    fixture.detectChanges();
+    const hint = document.querySelector("tui-hint")?.textContent;
+    unhover(button);
+    tick(1000);
+    fixture.detectChanges();
+
     expect(before).toBeNull();
     expect(component.launches[0].errors).toEqual(["node_two: failed"]);
-    expect(element.querySelector(".errors")).not.toBeNull();
+    expect(hint).toContain("node_two: failed");
     finish();
   }));
 

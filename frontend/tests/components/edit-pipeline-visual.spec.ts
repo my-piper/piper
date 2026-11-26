@@ -1,4 +1,4 @@
-import { openDialog } from "../helpers/taiga";
+import { hover, openDialog, unhover } from "../helpers/taiga";
 import { fakeAsync, tick } from "@angular/core/testing";
 import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
@@ -980,6 +980,28 @@ describe("EditPipelineVisualComponent", () => {
       expect(added).toBeDefined();
       expect(project.revision).toBe("rev_a_2");
       controller.verify();
+      finish();
+    }));
+  });
+
+  describe("canvas hint", () => {
+    it("shows the pan and zoom hint on hover", fakeAsync(() => {
+      const { detectChanges, element } = setupEditor();
+      const toggle = element.querySelector<HTMLElement>(
+        "[data-testid=canvas-hint-toggle]",
+      );
+
+      toggle.scrollIntoView();
+      hover(toggle);
+      tick(1000);
+      detectChanges();
+
+      const shown = document.querySelector("tui-hint")?.textContent;
+      unhover(toggle);
+      tick(1000);
+      detectChanges();
+
+      expect(shown).toContain("Drag empty space");
       finish();
     }));
   });
