@@ -48,6 +48,12 @@ export class PipelineInputComponent {
     return this.input.multiline;
   }
 
+  /** Sized to its longest option instead of the 150px string cap. */
+  @HostBinding("class.choices")
+  get choices() {
+    return this.input.enum?.length > 0;
+  }
+
   @Output()
   output = new EventEmitter<string>();
 
