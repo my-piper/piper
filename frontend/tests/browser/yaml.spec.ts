@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
 import { Plain, PROJECT_A_ID } from "../fixtures/plain";
-import { expect, expectSaved, test } from "./support/test";
+import { dismissDialog, expect, expectSaved, test } from "./support/test";
 
 // Monaco renders spaces as U+00A0; anchors keep nested lines from matching.
 const topLevel = (text: string) =>
@@ -36,14 +36,14 @@ test("edits YAML in Monaco, rejects invalid input, then applies a valid edit", a
   await expect(page.locator("tui-dialog")).toContainText(
     "Nested mappings are not allowed",
   );
-  await page.locator("tui-dialog").getByRole("button", { name: "OK" }).click();
+  await dismissDialog(page);
   await replaceLine(page, "name: Broken: yaml", "name: YAML graph");
   await replaceLine(page, "version: 1", "version: wrong");
   await save.click();
   await expect(page.locator("tui-dialog")).toContainText(
     "Pipeline schema invalid",
   );
-  await page.locator("tui-dialog").getByRole("button", { name: "OK" }).click();
+  await dismissDialog(page);
   expect(api.callsTo("PATCH", /\/patch\//)).toEqual([]);
 
   await replaceLine(page, "version: wrong", "version: 1");
