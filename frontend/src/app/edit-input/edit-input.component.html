@@ -267,42 +267,52 @@
     }
     @default {
       @if (choices.length > 0) {
-        @if (freeform) {
-          <tui-textfield [tuiTextfieldCleaner]="false">
-            <input
-              tuiInput
-              formControlName="value"
-              [attr.placeholder]="placeholder | i18n"
-              [attr.aria-label]="label"
-            />
-            @if (suggestionsFor(valueControl.value); as found) {
-              @if (found.length > 0) {
-                <tui-data-list *tuiDropdown>
-                  @for (c of found; track c.value) {
-                    <button tuiOption type="button" [value]="c.value">
-                      {{ c.label }}
-                    </button>
-                  }
-                </tui-data-list>
+        <div class="fit-choices">
+          @if (freeform) {
+            <tui-textfield [tuiTextfieldCleaner]="false">
+              <input
+                tuiInput
+                formControlName="value"
+                [attr.placeholder]="placeholder | i18n"
+                [attr.aria-label]="label"
+              />
+              @if (suggestionsFor(valueControl.value); as found) {
+                @if (found.length > 0) {
+                  <tui-data-list *tuiDropdown>
+                    @for (c of found; track c.value) {
+                      <button tuiOption type="button" [value]="c.value">
+                        {{ c.label }}
+                      </button>
+                    }
+                  </tui-data-list>
+                }
               }
-            }
-          </tui-textfield>
-        } @else {
-          <tui-textfield
-            tuiChevron
-            [stringify]="labelOf"
-            [tuiTextfieldCleaner]="false"
-          >
-            <select
-              tuiSelect
-              formControlName="value"
-              [attr.aria-label]="label"
-              [placeholder]="placeholder | i18n"
-              [items]="selectItems"
-              [labels]="selectLabels"
-            ></select>
-          </tui-textfield>
-        }
+            </tui-textfield>
+          } @else {
+            <tui-textfield
+              tuiChevron
+              [stringify]="labelOf"
+              [tuiTextfieldCleaner]="false"
+            >
+              <select
+                tuiSelect
+                formControlName="value"
+                [attr.aria-label]="label"
+                [placeholder]="placeholder | i18n"
+                [items]="selectItems"
+                [labels]="selectLabels"
+              ></select>
+            </tui-textfield>
+          }
+          @if (fitChoices) {
+            <!-- Shares the field's grid column, so the column is as wide as the longest option. -->
+            <div class="choices-sizer" aria-hidden="true">
+              @for (c of suggestions; track c.value) {
+                <span>{{ c.label }}</span>
+              }
+            </div>
+          }
+        </div>
       } @else {
         @if (multiline) {
           <tui-textfield>

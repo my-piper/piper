@@ -104,6 +104,14 @@ export class EditInputComponent
   enum: Primitive[] = [];
 
   /**
+   * Sizes a field with options to its longest option label, up to a cap,
+   * instead of to its container. For the canvas input nodes.
+   */
+  @HostBinding("class.fit")
+  @Input()
+  fitChoices = false;
+
+  /**
    * Enum options, grouped. They are rendered only for string and string[]
    * inputs, whose values are strings.
    */

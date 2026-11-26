@@ -1,5 +1,5 @@
-@use 'src/ui-kit/styles/mixins';
-@use 'src/ui-kit/styles/variables';
+@use "src/ui-kit/styles/mixins";
+@use "src/ui-kit/styles/variables";
 
 :host {
   display: block;
@@ -95,7 +95,7 @@ textarea.uploading {
     left: 0;
     align-items: center;
     justify-content: center;
-    background-color: rgba($color: #000000, $alpha: .5);
+    background-color: rgba($color: #000000, $alpha: 0.5);
     color: white;
   }
 
@@ -160,4 +160,24 @@ video {
 
 audio {
   max-width: 100%;
+}
+
+.fit-choices {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+
+  :host(.fit) & {
+    max-width: 300px;
+  }
+}
+
+.choices-sizer {
+  display: flex;
+  flex-direction: column;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  white-space: nowrap;
+  // The field's own inline padding and chevron.
+  padding-inline: var(--tui-padding-l) calc(var(--tui-padding-l) + 2rem);
 }
