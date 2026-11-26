@@ -64,6 +64,7 @@ beforeEach(async () => {
   httpDoubles.redis.setEx.mockImplementation(async (key, _ttl, value) => {
     states.set(key, value);
   });
+  states.set("oidc:link:ticket-1", "other-user");
   httpDoubles.redis.getDel.mockImplementation(async (key) => {
     const value = states.get(key) ?? null;
     states.delete(key);
@@ -271,5 +272,86 @@ describe("OIDC callback", () => {
     const response = await signIn({ sub: SUBJECT });
 
     expect(response.headers.location).toBe("/en/login?error=sso_failed");
+  });
+});
+
+describe("connecting an identity to a signed-in user", () => {
+  async function connect(claims: Record<string, unknown> = CLAIMS) {
+    const start = await context.request.get("/oidc?link=ticket-1");
+    const query = issuer.authorize(start.headers.location, claims);
+    return context.request.get(`/oidc/callback?${query}`);
+  }
+
+  it("binds the identity to the ticket's user", async () => {
+    httpDoubles.users.updateOne.mockResolvedValue({ matchedCount: 1 });
+
+    const response = await connect({ ...CLAIMS, email_verified: false });
+
+    expect(response.headers.location).toBe("/en/?sso=linked");
+    expect(httpDoubles.users.updateOne).toHaveBeenCalledWith(
+      { _id: "other-user", "identities.provider": { $ne: "oidc" } },
+      {
+        $push: {
+          identities: {
+            provider: "oidc",
+            subject: SUBJECT,
+            email: "jane@example.com",
+            linkedAt: HTTP_TEST_TIME,
+          },
+        },
+      }
+    );
+    expect(httpDoubles.users.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("uses a ticket only once", async () => {
+    await context.request.get("/oidc?link=ticket-1");
+
+    const replay = await context.request.get("/oidc?link=ticket-1");
+
+    expect(replay.headers.location).toBe("/en/?sso=sso_failed");
+  });
+
+  it("keeps the ticket when the provider is unreachable", async () => {
+    vi.mocked(fetch).mockRejectedValue(new Error("provider down"));
+
+    const response = await context.request.get("/oidc?link=ticket-1");
+
+    expect(response.headers.location).toBe("/en/?sso=sso_failed");
+    expect(states.get("oidc:link:ticket-1")).toBe("other-user");
+  });
+
+  it("refuses an identity connected to another user", async () => {
+    linkUser(scenario.users.get("owner-user"), SUBJECT);
+
+    const response = await connect();
+
+    expect(response.headers.location).toBe("/en/?sso=sso_linked_elsewhere");
+    expect(httpDoubles.users.updateOne).not.toHaveBeenCalled();
+  });
+
+  it("accepts the identity the user already has", async () => {
+    linkUser(scenario.users.get("other-user"), SUBJECT);
+
+    const response = await connect();
+
+    expect(response.headers.location).toBe("/en/?sso=linked");
+    expect(httpDoubles.users.updateOne).not.toHaveBeenCalled();
+  });
+
+  it("refuses a second identity of the same provider", async () => {
+    httpDoubles.users.updateOne.mockResolvedValue({ matchedCount: 0 });
+
+    const response = await connect();
+
+    expect(response.headers.location).toBe("/en/?sso=sso_already_connected");
+  });
+
+  it("maps a race on the identity index to linked elsewhere", async () => {
+    httpDoubles.users.updateOne.mockRejectedValue({ code: 11000 });
+
+    const response = await connect();
+
+    expect(response.headers.location).toBe("/en/?sso=sso_linked_elsewhere");
   });
 });

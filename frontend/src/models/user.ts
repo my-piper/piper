@@ -57,6 +57,11 @@ export class User {
   @Type(() => UserIdentity)
   identities?: UserIdentity[];
 
+  /** Only on `GET /api/me`. */
+  @Expose()
+  @Type(() => Boolean)
+  hasPassword?: boolean;
+
   @Expose()
   @Type(() => String)
   cursor?: string;
