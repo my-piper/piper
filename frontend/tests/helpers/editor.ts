@@ -111,6 +111,7 @@ export function setupEditor({
           component: OutletStubComponent,
         },
         { path: "inputs/:id", component: OutletStubComponent },
+        { path: "nodes/:id/edit/script", component: OutletStubComponent },
       ],
     },
   ]);

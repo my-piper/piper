@@ -310,37 +310,34 @@
           !drag.dragged ? togglePick($event, 'input:' + input.key) : null
         "
       >
-        <ng-template #actionsTemplate>
-          <ul class="context-menu">
-            <li>
-              <button (click)="removeInput(input.key)">
-                <tui-icon
-                  icon="delete"
-                  class="icon left"
-                  style="--app-icon-size: 18px"
-                />
-                <span i18n="@@action.delete">Delete</span>
-              </button>
-            </li>
-          </ul>
-        </ng-template>
         @if (
           mode === "project" &&
           (userRole.admin | can: project.createdBy | async)
         ) {
-          <button
-            tuiIconButton
-            appearance="flat-grayscale"
-            size="xs"
-            class="more"
-            [appPopover]="{
-              content: actionsTemplate,
-              trigger: 'click',
-              position: 'right',
-            }"
-            iconStart="more-bold"
-            style="--app-icon-size: 16px"
-          ></button>
+          <div class="item-actions">
+            <button
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="xs"
+              class="edit"
+              title="Edit"
+              i18n-title="@@action.edit"
+              iconStart="edit"
+              style="--app-icon-size: 16px"
+              (click)="editPipelineInput(input.key)"
+            ></button>
+            <button
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="xs"
+              class="delete"
+              title="Delete"
+              i18n-title="@@action.delete"
+              iconStart="delete"
+              style="--app-icon-size: 16px"
+              (click)="confirmRemoveInput(input.key)"
+            ></button>
+          </div>
         }
         <app-pipeline-input
           [id]="input.key"
@@ -382,32 +379,16 @@
                 | position
             "
           >
-            <ng-template #actionsTemplate>
-              <ul class="context-menu">
-                <li>
-                  <button (click)="removeInputFlow(input.key, f.key)">
-                    <tui-icon
-                      icon="delete"
-                      class="icon left"
-                      style="--app-icon-size: 18px"
-                    />
-                    <span i18n="@@action.delete">Delete</span>
-                  </button>
-                </li>
-              </ul>
-            </ng-template>
             <button
               tuiIconButton
               appearance="flat-grayscale"
               size="xs"
-              class="more"
-              [appPopover]="{
-                content: actionsTemplate,
-                trigger: 'click',
-                position: 'right',
-              }"
-              iconStart="more-bold"
+              class="delete"
+              title="Delete"
+              i18n-title="@@action.delete"
+              iconStart="delete"
               style="--app-icon-size: 16px"
+              (click)="removeInputFlow(input.key, f.key)"
             ></button>
           </div>
         }
@@ -443,20 +424,6 @@
           [id]="output.key"
           [output]="output.value"
         ></app-pipeline-output>
-        <ng-template #actionsTemplate>
-          <ul class="context-menu">
-            <li>
-              <button (click)="removeOutput(output.key)">
-                <tui-icon
-                  icon="delete"
-                  class="icon left"
-                  style="--app-icon-size: 18px"
-                />
-                <span i18n="@@action.delete">Delete</span>
-              </button>
-            </li>
-          </ul>
-        </ng-template>
         @if (
           mode === "project" &&
           (userRole.admin | can: project.createdBy | async)
@@ -465,13 +432,12 @@
             tuiIconButton
             appearance="flat-grayscale"
             size="xs"
-            [appPopover]="{
-              content: actionsTemplate,
-              trigger: 'click',
-              position: 'right',
-            }"
-            iconStart="more-bold"
+            class="delete"
+            title="Delete"
+            i18n-title="@@action.delete"
+            iconStart="delete"
             style="--app-icon-size: 16px"
+            (click)="confirmRemoveOutput(output.key)"
           ></button>
         }
       </div>
@@ -529,38 +495,40 @@
             }
           </div>
         }
-        <ng-template #actionsTemplate>
-          <ul class="context-menu">
-            <li>
-              <button (click)="removeNode(node.key)">
-                <tui-icon
-                  icon="delete"
-                  class="icon left"
-                  style="--app-icon-size: 18px"
-                />
-                <span i18n="@@action.delete">Delete</span>
-              </button>
-            </li>
-          </ul>
-        </ng-template>
         @if (
           mode === "project" &&
           (userRole.admin | can: project.createdBy | async) &&
           !launches[node.key]
         ) {
-          <button
-            tuiIconButton
-            appearance="flat-grayscale"
-            size="xs"
-            class="more"
-            [appPopover]="{
-              content: actionsTemplate,
-              trigger: 'click',
-              position: 'right',
-            }"
-            iconStart="more-bold"
-            style="--app-icon-size: 16px"
-          ></button>
+          <div class="item-actions">
+            @if (
+              node.value.source === scriptNodeSource ||
+              (userRole.engineer | can | async)
+            ) {
+              <button
+                tuiIconButton
+                appearance="flat-grayscale"
+                size="xs"
+                class="edit"
+                title="Edit"
+                i18n-title="@@action.edit"
+                iconStart="edit"
+                style="--app-icon-size: 16px"
+                (click)="editNode(node.key)"
+              ></button>
+            }
+            <button
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="xs"
+              class="delete"
+              title="Delete"
+              i18n-title="@@action.delete"
+              iconStart="delete"
+              style="--app-icon-size: 16px"
+              (click)="confirmRemoveNode(node.key, node.value)"
+            ></button>
+          </div>
         }
         <app-node
           [class.active]="currentNode === node.value"
@@ -659,32 +627,16 @@
               }"
             ></app-edit-flow-transformer>
           }
-          <ng-template #actionsTemplate>
-            <ul class="context-menu">
-              <li>
-                <button (click)="removeFlow(f.key)">
-                  <tui-icon
-                    icon="delete"
-                    class="icon left"
-                    style="--app-icon-size: 18px"
-                  />
-                  <span i18n="@@action.delete">Delete</span>
-                </button>
-              </li>
-            </ul>
-          </ng-template>
           <button
             tuiIconButton
             appearance="flat-grayscale"
             size="xs"
-            class="more"
-            [appPopover]="{
-              content: actionsTemplate,
-              trigger: 'click',
-              position: 'right',
-            }"
-            iconStart="more-bold"
+            class="delete"
+            title="Delete"
+            i18n-title="@@action.delete"
+            iconStart="delete"
             style="--app-icon-size: 16px"
+            (click)="removeFlow(f.key)"
           ></button>
         </div>
       }
