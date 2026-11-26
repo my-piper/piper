@@ -8,8 +8,7 @@ a.primary,
 a.primary-button {
   @extend %button-primary;
 
-  &.small,
-  &.small-button {
+  &.small {
     @extend %button-small;
   }
 
