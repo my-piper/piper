@@ -74,9 +74,7 @@ describe("ProjectsComponent tags and groups", () => {
       {
         path: "projects",
         component: ProjectsComponent,
-        children: [
-          { path: "import", component: importPage },
-        ],
+        children: [{ path: "import", component: importPage }],
       },
     ]);
     controller = TestBed.inject(HttpTestingController);
@@ -418,6 +416,23 @@ describe("ProjectsComponent tags and groups", () => {
     fixture.destroy();
     finish();
   }));
+
+  it("loads the next page after the last project once the end of the list is in view", async () => {
+    const nextPage = () =>
+      controller.match(
+        (r) =>
+          r.url === "/api/projects" && r.params.get("cursor") === "cursor_a",
+      );
+    fakeAsync(() => {
+      mount([], []);
+      answer(expectList(), [{ ...projectAPlain(), cursor: "cursor_a" }]);
+      finish();
+    })();
+
+    element.querySelector("[data-testid=load-more]").scrollIntoView();
+
+    await expect.poll(() => nextPage().length).toBe(1);
+  });
 
   it("shows the import page in a dialog and returns to projects on close", async () => {
     const modal = () => document.querySelector("tui-dialog");

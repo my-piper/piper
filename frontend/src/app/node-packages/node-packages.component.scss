@@ -21,20 +21,21 @@
   flex-wrap: wrap;
 }
 
-.table-container {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-}
-
 .icon-column {
   width: 2.5rem;
 }
 
 .title-column {
   width: 16rem;
+}
+
+// version text plus the release-notes button
+.version-column {
+  width: 7rem;
+}
+
+.nodes-column {
+  width: 4.5rem;
 }
 
 .updates,

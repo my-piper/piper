@@ -1,4 +1,5 @@
 @use "src/ui-kit/styles/variables";
+@use "src/styles/cards";
 
 :host {
   display: flex;
@@ -38,4 +39,8 @@ ul {
 
 .monaco {
   min-height: 400px;
+}
+
+.card-skeleton {
+  @include cards.card-skeleton;
 }

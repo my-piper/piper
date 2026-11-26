@@ -12,7 +12,6 @@ import { delay, finalize, map } from "rxjs";
 import { LaunchArtefact } from "src/models/launch";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { toInstance, toPlain } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { ArtefactsFilter } from "./models";
@@ -24,7 +23,7 @@ import { ArtefactsFilter } from "./models";
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class ArtefactsComponent extends UntilDestroyed {
+export class ArtefactsComponent {
   private _filter!: ArtefactsFilter;
 
   progress: { loading: boolean } = {
@@ -39,6 +38,7 @@ export class ArtefactsComponent extends UntilDestroyed {
   references: { popover: PopoverComponent } = { popover: null };
   artefacts: LaunchArtefact[] = [];
 
+  /** Every use binds a filter; setting it loads the matching artefacts. */
   @Input()
   set filter(filter: Partial<ArtefactsFilter>) {
     this._filter = toInstance(filter, ArtefactsFilter);
@@ -55,13 +55,7 @@ export class ArtefactsComponent extends UntilDestroyed {
   constructor(
     private http: HttpService,
     private cd: ChangeDetectorRef,
-  ) {
-    super();
-  }
-
-  ngOnInit() {
-    this.load();
-  }
+  ) {}
 
   private load() {
     this.progress.loading = true;

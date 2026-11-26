@@ -34,6 +34,7 @@
     "@angular/router": "^22.2.6",
     "@apidevtools/json-schema-ref-parser": "^11.7.3",
     "@json-editor/json-editor": "^2.15.2",
+    "@ng-web-apis/intersection-observer": "5.4.1",
     "@taiga-ui/addon-table": "5.33.0",
     "@taiga-ui/core": "5.33.0",
     "@taiga-ui/icons": "5.33.0",

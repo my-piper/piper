@@ -3,18 +3,20 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
-import { map, takeUntil } from "rxjs";
+import { map } from "rxjs";
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
 import { Node, NodeStatus } from "src/models/node";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 
 @Component({
   selector: "app-node-outputs",
@@ -23,7 +25,9 @@ import { UntilDestroyed } from "src/utils/until-destroyed";
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
+export class NodeOutputsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   launch: Launch;
   id!: string;
   node!: Node;
@@ -40,9 +44,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
     private http: HttpService,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     this.listen();
@@ -67,15 +69,14 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
     return launch === this.launch?._id && node === this.id;
   }
 
-  override ngOnDestroy() {
-    super.ngOnDestroy();
+  ngOnDestroy() {
     this.subscriptions.launch?.();
   }
 
   private listen() {
     this.socket
       .fromEvent<object>("node_running")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: object) => {
         if (this.isMine(data)) {
           this.loadStatus();
@@ -84,7 +85,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
 
     this.socket
       .fromEvent<object>("node_done")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         if (this.isMine(data)) {
           this.loadStatus();
@@ -94,7 +95,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
 
     this.socket
       .fromEvent<object>("node_not_ready")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         if (this.isMine(data)) {
           this.loadStatus();
@@ -104,7 +105,7 @@ export class NodeOutputsComponent extends UntilDestroyed implements OnInit {
 
     this.socket
       .fromEvent<object>("node_flow")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         if (this.isMine(data)) {
           this.loadInputs();

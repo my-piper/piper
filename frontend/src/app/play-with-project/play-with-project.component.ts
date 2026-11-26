@@ -2,15 +2,17 @@ import {
   ChangeDetectorRef,
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { delay, map, takeUntil } from "rxjs";
+import { delay, map } from "rxjs";
 import { Project, ProjectSummary } from "src/models/project";
 import { PipelineLaunchedSignal } from "src/models/signals/launch";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/consts/ui";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { toInstance } from "src/utils/models";
 
 @Component({
@@ -20,7 +22,9 @@ import { toInstance } from "src/utils/models";
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class PlayWithProjectComponent extends UntilDestroyed {
+export class PlayWithProjectComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
   error!: Error;
 
   project!: Project;
@@ -32,9 +36,7 @@ export class PlayWithProjectComponent extends UntilDestroyed {
     private router: Router,
     private http: HttpService,
     private cd: ChangeDetectorRef,
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     this.route.data.subscribe(({ project }) => {
@@ -43,13 +45,15 @@ export class PlayWithProjectComponent extends UntilDestroyed {
       this.loadSummary();
     });
 
-    this.signals.feed.pipe(takeUntil(this.destroyed$)).subscribe((event) => {
-      if (event instanceof PipelineLaunchedSignal) {
-        this.router.navigate(["./"], {
-          relativeTo: this.route,
-        });
-      }
-    });
+    this.signals.feed
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (event instanceof PipelineLaunchedSignal) {
+          this.router.navigate(["./"], {
+            relativeTo: this.route,
+          });
+        }
+      });
   }
 
   loadSummary() {
