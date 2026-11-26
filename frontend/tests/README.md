@@ -130,6 +130,13 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
 - Drive a `<tui-segmented>` with `pickSegment(segmented, label)`; read it with
   `segmentLabels` and `activeSegment` (Taiga marks the active item with
   `.tui-segmented_active`).
+- A textfield dropdown (`*tuiDropdown`) renders in `<tui-root>`'s portal:
+  render the component inside a host whose template wraps it in
+  `<tui-root>` (declare the host in `AppModule` with `TestBed.overrideModule`)
+  and read options from `document`. Clicking an editable input doesn't open
+  it; focus the input and dispatch ArrowDown. Blur the input before
+  `fixture.destroy()`: an open dropdown at teardown leaves an iframe in
+  `<body>`. See `tests/components/edit-input.spec.ts`.
 - `tests/components/taiga-forms.spec.ts` shows these on a test-only form.
 
 ## Wire contracts
