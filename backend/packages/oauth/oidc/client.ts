@@ -49,8 +49,9 @@ function config(): Promise<Configuration> {
 }
 
 /**
- * Starts a flow. With a `link` ticket from `POST /api/me/identities/oidc/link`
- * the flow binds the identity to that ticket's user instead of signing in.
+ * Starts a flow. With the `link` ticket that `POST /api/me/identities/oidc/link`
+ * set as a cookie, the flow binds the identity to the ticket's user instead of
+ * signing in.
  */
 export async function authorizationUrl(link?: string): Promise<{
   url: string;

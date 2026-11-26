@@ -31,9 +31,12 @@ Authentik. Password login keeps working next to it. The design is in #204.
 A user who signs in with a password connects SSO from the app:
 
 1. The app calls `POST /api/me/identities/oidc/link`, which stores a
-   single-use ticket for the user in Redis (5 minutes).
-2. The browser opens `/oauth/oidc?link=<ticket>`. The oauth process uses up
-   the ticket and keeps the user in the flow's state.
+   single-use ticket for the user in Redis (5 minutes) and sets it as the
+   HttpOnly cookie `oidc_link`.
+2. The browser opens `/oauth/oidc?link`. The oauth process takes the ticket
+   from the cookie only, never from the URL, so a link someone else sends
+   can't bind the visitor's provider account to the sender's Piper account.
+   It uses up the ticket and keeps the user in the flow's state.
 3. After the provider, the callback binds `(oidc, sub)` to that user and
    redirects to `/en/?sso=linked`, or `/en/?sso=<error>`:
    - `sso_linked_elsewhere`: the provider account is connected to another
