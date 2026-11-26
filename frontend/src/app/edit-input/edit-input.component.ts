@@ -69,6 +69,8 @@ export class EditInputComponent
 
   error!: Error;
   progress: { uploading: boolean } = { uploading: false };
+  /** Tab of the asset picker: generated artefacts or uploaded assets. */
+  assetTab = 0;
 
   state = { dragging: false };
 

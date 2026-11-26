@@ -37,14 +37,26 @@
 </ng-template>
 
 <form>
-  <app-tabs
-    class="tabs"
-    [tabs]="[
-      { title: 'Pipeline', content: pipelineTab },
-      { title: 'Launch request', content: launchRequestTab },
-      { title: 'Environment', content: environmentTab },
-    ]"
-  ></app-tabs>
+  <div class="tabs">
+    <tui-tabs size="m" [(activeItemIndex)]="activeTab">
+      <button tuiTab type="button">Pipeline</button>
+      <button tuiTab type="button">Launch request</button>
+      <button tuiTab type="button">Environment</button>
+    </tui-tabs>
+    <div class="content">
+      @switch (activeTab) {
+        @case (0) {
+          <ng-container *ngTemplateOutlet="pipelineTab"></ng-container>
+        }
+        @case (1) {
+          <ng-container *ngTemplateOutlet="launchRequestTab"></ng-container>
+        }
+        @case (2) {
+          <ng-container *ngTemplateOutlet="environmentTab"></ng-container>
+        }
+      }
+    </div>
+  </div>
   <footer>
     <button
       tuiButton

@@ -1,4 +1,5 @@
 @use "src/ui-kit/styles/variables";
+@use "src/styles/tabs";
 @use "src/ui-kit/styles/mixins";
 
 :host {
@@ -22,4 +23,8 @@
 .publish {
     @include mixins.vertical-stack();
     align-items: flex-start;
+}
+
+.tabs {
+    @include tabs.content-tabs;
 }

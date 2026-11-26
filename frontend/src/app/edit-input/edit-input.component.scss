@@ -1,5 +1,6 @@
 @use "src/ui-kit/styles/mixins";
 @use "src/ui-kit/styles/variables";
+@use "src/styles/tabs";
 
 :host {
   display: block;
@@ -180,4 +181,8 @@ audio {
   white-space: nowrap;
   // The field's own inline padding and chevron.
   padding-inline: var(--tui-padding-l) calc(var(--tui-padding-l) + 2rem);
+}
+
+.tabs {
+  @include tabs.content-tabs;
 }
