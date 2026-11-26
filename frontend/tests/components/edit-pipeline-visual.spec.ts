@@ -307,7 +307,7 @@ describe("EditPipelineVisualComponent", () => {
     it("shows a visible error when the node cannot be loaded", fakeAsync(() => {
       expectConsoleError("Process HTTP error 404");
       const project = projectA();
-      const { editor, controller, detectChanges, element } = setupEditor({
+      const { editor, controller, detectChanges } = setupEditor({
         project,
       });
 
