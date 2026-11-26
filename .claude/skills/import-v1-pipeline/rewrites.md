@@ -22,7 +22,7 @@ v1 loading and the byte types:
 
 ```js
 import sharp from "sharp";
-const image = sharp(data); // Uint8Array from download()
+const image = sharp(data); // Buffer from core's download()
 ```
 
 `require('sharp')` becomes the import, and a `Buffer` result
@@ -44,23 +44,34 @@ images (Duo's `prepare_images`) should keep only one decoded image at a time.
 
 ## artworks
 
-v1's built-in `artworks` module (`ArtWorks`, `FatalError`) is the catalog's
-`ArtWorks` client in `nodes/artworks/utils.js`. Import it
-(`import { ArtWorks } from "../../artworks/utils.js"`); never copy or fork it,
-and don't add a v1-only variant. It answers both ways a Node polls:
+v1's built-in `artworks` module (`ArtWorks`, `FatalError`) is the published
+artworks package's client. Import it by quoted reference, pinned to the version
+the registry serves, and catch its errors as that package's own `FatalError`
+(the class the client throws, distinct from core's):
+
+```js
+import { ArtWorks } from "registry:artworks@<N>/utils.js";
+import { FatalError as ArtWorksError } from "registry:artworks@<N>/node.js";
+const artworks = new ArtWorks(env);
+```
+
+Use the client as it is, one copy for every Node. It answers both ways a Node
+polls:
 
 - v1's own state machine: `postTask(payload)` answers the task id, as v1's
   `createTask` did; `checkState(task)` answers `results.data`, or null while
-  the task runs, and throws a `FatalError` for a failed task. The Node keeps
-  its own attempts, delays, cancellation and fallbacks.
+  the task runs, and throws a `FatalError` for a failed, canceled or unknown
+  task (a `TimeoutError` for a timed out one). The Node keeps its own
+  attempts, delays, cancellation and fallbacks.
 - the catalog's: `createTask` answers a repeat instruction and `checkTask` the
   data or `{ __repeat }`.
 
-Keep v1's calls on `postTask`/`checkState`, so task payloads, priorities,
-polling state, cancellation and fallback paths stay as they were. v1's
-`ArtWorksError` is `FatalError` from `node.js`. `ARTWORKS_URL` (v1's
-`PAAS_BASE_URL`) replaces the API base when set; tests point it at a mock.
-Declare `ARTWORKS_USER`, `ARTWORKS_PASSWORD` and, if used, `ARTWORKS_URL`.
+Keep v1's calls on `postTask`/`checkState` (rename v1's `createTask` call to
+`postTask`), so task payloads, priorities, polling state, cancellation and
+fallback paths stay as they were; the client adds `priority: 1` unless the
+payload sets one. `ARTWORKS_URL` (v1's `PAAS_BASE_URL`) replaces the API base
+when set; tests point it at a mock. Declare `ARTWORKS_USER`,
+`ARTWORKS_PASSWORD` and, if used, `ARTWORKS_URL`.
 
 ## Dynamic require
 
@@ -74,8 +85,8 @@ above. If a case can't be resolved, stop and ask.
 - Current Nodes read `env.variables` as a plain object: `env.variables.get('X')`
   becomes `env.variables.X`. Add `env` to the invocation payload destructuring
   and pass it to helpers explicitly; renaming a global read is insufficient.
-  Declare every consumed name in the node's inline `environment` (or
-  `schema.yaml` for package output), with type and description. Retain those
+  Declare every consumed name in the node's inline `environment`, with type
+  and description. Retain those
   declarations for regular Import and remove obsolete declaration `scope`
   fields. Do not embed the v1 importer's empty Environment stand-in.
 - `env.scope` is also a plain object. Rewrite `env.scope.get('X')` to
@@ -102,28 +113,67 @@ above. If a case can't be resolved, stop and ask.
   override is used for every caller. User Environments no longer exist;
   never assume a caller supplies their own credentials.
 
-## Runtime helpers in current-format nodes
+## v1 globals
 
-Inline nodes imported through regular Import and Package Nodes have no v1
-prelude: rewrite `DEFINITIONS.NextNode.from({ outputs })`
-→ `next({ outputs })`, `RepeatNode.from({ state, delay, progress })` →
-`repeat({ … })`, `FatalError`/`DataError`/`TimeoutError` → `throwError.*` or the
-classes from `utils/node.js`, `httpClient` → `fetch` with a timeout and a
-status check, `download(url)` → `fetch` + `new Uint8Array(await r.arrayBuffer())`.
-`nested.run/state` becomes Child Launch instructions. Preserve its repeat/poll
-contract and stable per-run child keys; store child bookkeeping in an invocation
-closure instead of mutable module globals. A package node imports the shared
-helpers (`utils/node.js`, `artworks/utils.js`). An inline Script Node imports
-them by quoted reference, which the server resolves to the registry: v1's
-helpers (`next`, `repeat`, errors, `createNested`, `httpClient`, `download`
-with v1's `{ mimeType, data }` and Buffer bytes) from the built-in
-`"registry:core@<N>/node.js"` (ADR 0010), and the ArtWorks client from
-`"registry:artworks@<N>/utils.js"`, catching its errors as the `FatalError` of
-`"registry:artworks@<N>/node.js"`. No other package may be referenced, and the
-Node must not be `isolated: true`, as its process has no registry token.
+v1 ran scripts in a `node:vm` context whose globals current scripts import from
+the built-in core package instead (ADR 0010). Keep v1's code and add the
+imports at the top of the script, with one line that gives `DEFINITIONS` back
+its shape:
 
-`core`'s `download` and `httpClient` answer bytes as a `Buffer`, as v1 did,
-so `data.toString("utf8")` and `.toString("base64")` keep working. Bytes from
+```js
+import {
+  DataError,
+  FatalError,
+  TimeoutError,
+  download,
+  httpClient,
+  next,
+  repeat,
+} from "registry:core@1/node.js";
+const DEFINITIONS = {
+  FatalError,
+  TimeoutError,
+  DataError,
+  NextNode: { from: next },
+  RepeatNode: { from: repeat },
+};
+```
+
+Import only the names the script uses.
+
+| v1 global                                      | in a current script                                                                                                                                           |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DEFINITIONS.NextNode` / `RepeatNode` / errors | the `DEFINITIONS` line above                                                                                                                                  |
+| `httpClient` (an axios instance)               | core's `httpClient`: same config, `.get`/`.post`/… shortcuts, `{ status, headers, data }`, axios-shaped errors, `validateStatus`                              |
+| `download(url)`                                | core's `download`: `{ mimeType, data }` with a Buffer, v1's headers; an `application/octet-stream` answer keeps that type, where v1 relabelled it `video/mp4` |
+| `nested.run` / `nested.state`                  | core's `createNested`, wrapped as below                                                                                                                       |
+| `Buffer`                                       | `import { Buffer } from "node:buffer"`                                                                                                                        |
+| `message(text)`                                | `console.log(text)`: Node logs replace pipeline messages; report the change                                                                                   |
+| `env.variables` / `env.scope`                  | `env` from the invocation, see Environment                                                                                                                    |
+| `useTempFolder`, `launch`, `NODE_ENV`          | no equivalent: stop and ask                                                                                                                                   |
+
+`nested` becomes Child Launch instructions (ADR 0001). Wrap v1's `run` so each
+invocation gets its own bookkeeping:
+
+```js
+import { createNested } from "registry:core@1/node.js";
+async function v1Run({ nested, ...payload }) {
+  /* v1's run, reading nested from here */
+}
+export async function run(payload) {
+  const { nested, launches } = createNested(payload.children ?? {});
+  const result = await v1Run({ ...payload, nested });
+  return launches.length > 0
+    ? { __type: "launch", launches, delay: result?.delay }
+    : result;
+}
+```
+
+A child's key is the order of its `nested.run` call, so the script must make
+the same calls on every run until its children exist; v1's start-then-poll
+pattern does.
+
+core's `download` and `httpClient` answer bytes as a `Buffer`, as v1 did, so
+`data.toString("utf8")` and `.toString("base64")` keep working. Bytes from
 `fetch` itself are a `Uint8Array`: decode those with `TextDecoder` and
-`Buffer.from(bytes)` before Buffer-style calls. Replace invalid-JSON
-`message()` diagnostics with node logging and document the change.
+`Buffer.from(bytes)` before Buffer-style calls.
