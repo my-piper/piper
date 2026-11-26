@@ -14,7 +14,10 @@
         iconStart="theme"
         aria-label="Theme"
         i18n-aria-label="@@label.theme"
-        [appPopover]="{ content: selectThemePopover, trigger: 'click' }"
+        [tuiDropdown]="selectThemePopover"
+        tuiDropdownOpen
+        tuiDropdownAlign="center"
+        tuiDropdownDirection="bottom"
       ></button>
     </div>
 
