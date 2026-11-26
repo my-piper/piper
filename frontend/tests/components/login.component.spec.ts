@@ -17,7 +17,6 @@ import { AppConfig } from "src/models/app-config";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
-import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { IncludesPipe } from "src/pipes/includes.pipe";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
@@ -32,7 +31,6 @@ async function render(config: Partial<PlainAppConfig> = {}) {
   await TestBed.configureTestingModule({
     declarations: [
       LoginComponent,
-      IconComponent,
       InformerComponent,
       PopoverDirective,
       SelectThemeComponent,
