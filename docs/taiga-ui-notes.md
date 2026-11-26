@@ -61,3 +61,9 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   through `::ng-deep` with Taiga variables (`--tui-background-base` for
   fields, `--tui-border-normal`, `--tui-background-neutral-1` for its buttons),
   so it follows the theme like a `tui-textfield` without wrapping each control.
+- **ui-kit `@keyframes` are global and live in unrelated files**: `spinner`
+  was defined only in `tables.scss` and `defs/buttons.scss`, while
+  `menus.scss` and the `busy-animation` mixin in `animations.scss` animate
+  with it. Before deleting a ui-kit stylesheet, grep `animation:` for its
+  keyframes (#160); `busy-animation` has no callers left and stays broken
+  until phase 10 deletes it.

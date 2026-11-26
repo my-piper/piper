@@ -1,164 +1,63 @@
 @use "reset";
 @use "variables";
-@use "animations";
-@use "mixins";
 
-.menu {
-    @include mixins.horizontal-stack();
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-
-    li {
-
-        button {
-            @include reset.reset-button();
-        }
-
-        a {
-            @include reset.reset-link();
-        }
-
-        button,
-        a {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: variables.$link-text-color;
-            font-size: variables.$button-font-size;
-            line-height: 1.45em;
-            padding: variables.$gutter-small variables.$gutter-normal;
-            border-radius: variables.$corner-large;
-
-            &.with-icon {
-
-                .icon {
-                    svg {
-                        stroke: variables.$link-text-color;
-                    }
-
-                    &.left {
-                        margin-right: variables.$gutter-small;
-                    }
-
-                    &.right {
-                        margin-left: variables.$gutter-small;
-                    }
-                }
-            }
-
-            &.active {
-                background-color: variables.$graphite-color-400;
-            }
-
-            .badge {
-                margin-left: variables.$gutter-tiny;
-
-                &::before {
-                    content: '|';
-                    padding: 0 variables.$gutter-small 0 0;
-                }
-
-                &.success {
-                    background: rgba($color: variables.$success-color, $alpha: .5);
-                }
-            }
-        }
-    }
-}
-
+// Popover menus (appPopover content). Phase 6 of #92 moves them to
+// tuiDropdown and deletes this file; route menus are tui-tabs since #158.
 .context-menu {
-    display: flex;
-    flex-direction: column;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    position: relative;
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
 
-    &.busy {
-        &:before {
-            content: "";
-            position: absolute;
-            z-index: 1;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background-color: variables.with-alpha(variables.$overlay-background, .5);
-            backdrop-filter: blur(2px);
-        }
+  li {
+    line-height: 1.5rem;
 
-        &:after {
-            content: "";
-            box-sizing: border-box;
-            position: absolute;
-            z-index: 2;
-            top: calc(50% - 10px);
-            left: calc(50% - 10px);
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border-top: 2px solid variables.$strong-text-color;
-            border-right: 2px solid transparent;
-            animation: spinner 0.6s linear infinite;
-        }
+    button {
+      @include reset.reset-button();
     }
 
-    li {
-        line-height: 1.5rem;
-
-        button {
-            @include reset.reset-button();
-        }
-
-        a {
-            @include reset.reset-link();
-        }
-
-        button,
-        a {
-            display: flex;
-            align-items: center;
-            position: relative;
-            color: variables.$primary-text-color;
-            font-size: variables.$button-font-size;
-            padding: variables.$gutter-small;
-            white-space: nowrap;
-            cursor: pointer;
-            width: 100%;
-
-            &.busy {
-                @include animations.busy-animation();
-            }
-
-            .icon {
-                svg {
-                    stroke: variables.$primary-text-color;
-                }
-
-                &.right {
-                    margin-left: variables.$gutter-small;
-                }
-
-                &.left {
-                    margin-right: variables.$gutter-small;
-                }
-            }
-
-            &:not(:disabled) {
-
-                &:hover,
-                &.active {
-                    color: variables.$button-hover-text-color;
-
-                    .icon svg {
-                        stroke: variables.$button-hover-text-color;
-                    }
-                }
-            }
-        }
+    a {
+      @include reset.reset-link();
     }
+
+    button,
+    a {
+      display: flex;
+      align-items: center;
+      position: relative;
+      color: variables.$primary-text-color;
+      font-size: variables.$button-font-size;
+      padding: variables.$gutter-small;
+      white-space: nowrap;
+      cursor: pointer;
+      width: 100%;
+
+      .icon {
+        svg {
+          stroke: variables.$primary-text-color;
+        }
+
+        &.right {
+          margin-left: variables.$gutter-small;
+        }
+
+        &.left {
+          margin-right: variables.$gutter-small;
+        }
+      }
+
+      &:not(:disabled) {
+        &:hover,
+        &.active {
+          color: variables.$button-hover-text-color;
+
+          .icon svg {
+            stroke: variables.$button-hover-text-color;
+          }
+        }
+      }
+    }
+  }
 }
