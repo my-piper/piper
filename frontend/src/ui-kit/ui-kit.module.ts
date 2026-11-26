@@ -11,7 +11,6 @@ import { ModalComponent } from "./modal/modal.component";
 import { ModalDirective } from "./modal/modal.directive";
 import { FileTypePipe } from "src/pipes/file-type.pipe";
 import { I18nPipe, LabelsPipe } from "src/pipes/i18n.pipe";
-import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
 import { LengthPipe } from "src/pipes/length.pipe";
 import { MockArrayPipe } from "src/pipes/mock-array.pipe";
 import { TickerPipe } from "src/pipes/ticker.pipe";
@@ -32,7 +31,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     PopoverComponent,
     PopoverDirective,
     TabsComponent,
-    InvalidFieldPipe,
     SpinnerComponent,
     TimePassedPipe,
     I18nPipe,
@@ -56,7 +54,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     PopoverComponent,
     PopoverDirective,
     TabsComponent,
-    InvalidFieldPipe,
     SpinnerComponent,
     TimePassedPipe,
     I18nPipe,

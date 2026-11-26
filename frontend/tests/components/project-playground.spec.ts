@@ -1,5 +1,10 @@
 import { HttpTestingController } from "@angular/common/http/testing";
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import {
+  Component,
+  ChangeDetectionStrategy,
+  getDebugNode,
+} from "@angular/core";
+import { NgControl } from "@angular/forms";
 import {
   ComponentFixture,
   fakeAsync,
@@ -9,7 +14,6 @@ import {
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { AppComponent } from "src/app/app.component";
-import { EditInputComponent } from "src/app/edit-input/edit-input.component";
 import { PlayWithProjectComponent } from "src/app/play-with-project/play-with-project.component";
 import { ProjectPlaygroundComponent } from "src/app/project-playground/project-playground.component";
 import { Launch } from "src/models/launch";
@@ -27,7 +31,6 @@ import {
   smallGraphPipeline,
   userPlain,
 } from "../fixtures/plain";
-import { componentOf } from "../helpers/component";
 import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
@@ -97,9 +100,10 @@ describe("ProjectPlaygroundComponent", () => {
     return create(project);
   }
 
+  /** The control of the pipeline input `id`, whose form control is named after it. */
   function field(id: string): HTMLInputElement {
     const host = Array.from(element.querySelectorAll("app-edit-input")).find(
-      (e) => componentOf<EditInputComponent>(e)?.id === id,
+      (e) => getDebugNode(e)?.injector.get(NgControl, null)?.name === id,
     );
     return host?.querySelector("input, textarea");
   }
