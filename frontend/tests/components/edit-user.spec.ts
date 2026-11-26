@@ -18,6 +18,7 @@ import { User } from "src/models/user";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { toInstance } from "src/utils/models";
 import { userPlain } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../helpers/config";
@@ -37,6 +38,7 @@ function setup(user?: User) {
     imports: [
       ReactiveFormsModule,
       UiKitModule,
+      ErrorDialogComponent,
       TaigaFormsModule,
       JsonEditorStubComponent,
     ],

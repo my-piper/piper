@@ -1,6 +1,4 @@
-@if (!!error) {
-  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
-}
+<app-error-dialog [error]="error" (closed)="error = null" />
 
 <div class="app-container">
   <h1 i18n="@@label.environment">Environment</h1>
