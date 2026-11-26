@@ -53,6 +53,22 @@ export default tseslint.config(
     },
   },
   {
+    // Built-in package modules run in Deno, which has the web platform APIs.
+    files: ["builtin-packages/**/*.js"],
+    languageOptions: {
+      globals: {
+        AbortSignal: "readonly",
+        Blob: "readonly",
+        btoa: "readonly",
+        fetch: "readonly",
+        FormData: "readonly",
+        Headers: "readonly",
+        URL: "readonly",
+        URLSearchParams: "readonly",
+      },
+    },
+  },
+  {
     // A focused test silently skips the rest of the suite in CI.
     files: ["tests/**"],
     rules: {

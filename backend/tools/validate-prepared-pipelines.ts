@@ -48,13 +48,13 @@ const LEGACY_NAMES = new Set([
   "PAAS_BASE_URL",
 ]);
 
-/**
- * A `registry:artworks@<N>/<path>` reference: inline scripts may share the
- * published artworks package's helpers instead of depending on a new package.
- */
-function isArtworksReference(value: string) {
+// Packages an inline script may import by quoted registry reference: the
+// built-in core helpers and the published artworks package's ArtWorks client.
+const SHARED_PACKAGES = new Set(["core", "artworks"]);
+
+function isSharedReference(value: string) {
   try {
-    return parseRegistryScript(value).nodePackage === "artworks";
+    return SHARED_PACKAGES.has(parseRegistryScript(value).nodePackage);
   } catch {
     return false;
   }
@@ -103,7 +103,7 @@ function scriptProblems(
     // piper-deno maps bare "sharp" to its pinned npm:sharp (its ADR 0002).
     // Both load only in Worker isolation, not in a process-isolated Node:
     // that process has no registry token and no native code (ADRs 0006, 0007).
-    if (!relativeImports && (value === "sharp" || isArtworksReference(value))) {
+    if (!relativeImports && (value === "sharp" || isSharedReference(value))) {
       if (isolated)
         errors.add(
           `${value === "sharp" ? "sharp loads" : "registry imports load"} only in a node without isolated: true`
@@ -114,7 +114,7 @@ function scriptProblems(
       checkScriptUrl(value);
     } catch {
       errors.add(
-        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts"
+        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:core and registry:artworks helpers in inline scripts"
       );
     }
   }

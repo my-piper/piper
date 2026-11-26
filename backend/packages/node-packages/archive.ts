@@ -1,4 +1,5 @@
 import { toInstance } from "core-kit/packages/transform";
+import { BUILTIN_PACKAGES } from "consts/registry";
 import { DataError } from "core-kit/types/errors";
 import { strFromU8, unzipSync } from "fflate";
 import { Node } from "models/node";
@@ -120,6 +121,11 @@ export function readArchive(data: Buffer): PackageArchive {
     throw new DataError("Package version must be a positive integer");
   }
   const nodePackage = toInstance(plain, NodePackage);
+  if (BUILTIN_PACKAGES.has(nodePackage._id)) {
+    throw new DataError(
+      `${nodePackage._id} is built into Piper and can't be uploaded`
+    );
+  }
   nodePackage.nodes = new Map<string, Node>();
 
   for (const [path, content] of files) {

@@ -30,6 +30,10 @@ _Avoid_: Node type, template
 A Node Definition placed in a Pipeline, with its own inputs and position.
 _Avoid_: Step, block, task
 
+**Core Package**:
+The `core` Node Package built into Piper: the helpers every Node script may import (results, errors, Child Launches, HTTP, downloads). Every installation has all its versions without uploading it.
+_Avoid_: runtime, prelude, globals
+
 **Node Package**:
 A versioned, published collection of Node Definitions that users add to their Pipelines. Once a version is published, its code never changes; a fix is a new version.
 _Avoid_: Plugin, library, module

@@ -279,6 +279,21 @@ describe("package archive layout", () => {
     }
   );
 
+  it("rejects a package that would shadow the built-in core package", () => {
+    const data = archive(
+      artworks({
+        "package.yaml": YAML.stringify({
+          ...YAML.parse(MANIFEST),
+          _id: "core",
+        }),
+      })
+    );
+
+    expect(() => readArchive(data)).toThrow(
+      "core is built into Piper and can't be uploaded"
+    );
+  });
+
   it("rejects a node folder without a script", () => {
     const data = archive({
       "package.yaml": MANIFEST,

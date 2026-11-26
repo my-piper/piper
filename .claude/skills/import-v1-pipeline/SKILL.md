@@ -18,8 +18,9 @@ authorizes none of them.
 
 Inline Script Nodes are the exception: use one only for a node that needs no
 shared helper, or when the user asks for output without packages. An inline
-node may still import the published artworks package's helpers by quoted
-`registry:artworks@<N>/…` reference (see [rewrites.md](rewrites.md)). That
+node still imports shared helpers by quoted reference: the built-in
+`registry:core@<N>/node.js` and the ArtWorks client of `registry:artworks@<N>/…`
+(see [rewrites.md](rewrites.md)). That
 changes the packaging, not the required runtime rewrites.
 
 **Reuse a catalog node first.** Point the pipeline at an `artworks` node

@@ -128,6 +128,16 @@ ${SCRIPT}`);
     expect(result.errors).toEqual([]);
   });
 
+  it("accepts an inline script that imports the built-in core package", () => {
+    const pipeline =
+      preparedFixture(`import { download, next } from "registry:core@1/node.js";
+${SCRIPT}`);
+
+    const result = check(pipeline);
+
+    expect(result.errors).toEqual([]);
+  });
+
   it("rejects an inline script that imports helpers of any other package", () => {
     const pipeline =
       preparedFixture(`import { next } from "registry:v1_pipelines@2/node.js";
@@ -136,7 +146,7 @@ ${SCRIPT}`);
     const result = check(pipeline);
 
     expect(result.errors).toContain(
-      "Node echo_node: imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts"
+      "Node echo_node: imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:core and registry:artworks helpers in inline scripts"
     );
   });
 
@@ -173,7 +183,7 @@ ${SCRIPT}`,
     });
 
     expect(result.errors).toContain(
-      "Node echo_node: imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts"
+      "Node echo_node: imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:core and registry:artworks helpers in inline scripts"
     );
   });
 
@@ -378,13 +388,13 @@ ${SCRIPT}`,
     {
       script: "import { run } from './helper.js'; export { run };",
       problem:
-        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts",
+        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:core and registry:artworks helpers in inline scripts",
     },
     {
       script:
         "export async function run() { return import('https://deno.land/x/imagescript/mod.ts'); }",
       problem:
-        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts",
+        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:core and registry:artworks helpers in inline scripts",
     },
     {
       script:

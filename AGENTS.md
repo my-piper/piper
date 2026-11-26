@@ -55,6 +55,8 @@ Several separate entrypoints share one codebase: `server.ts`, `worker.ts`, `peri
 
 A Node Package is published from a YAML (scripts inline or by CDN URL) or from a Package Archive: a zip uploaded to `api/node-packages/upload-archive.ts`, checked by `packages/node-packages/archive.ts` and written to a private S3 bucket per `<package>/<version>`. Its nodes store `script: registry:<package>@<version>/<path>`, which `packages/deno/execute.ts` resolves against `REGISTRY_URL` before calling Deno; `registry.ts` serves those files to Deno, and `piper-deno` must list the registry host in `ALLOW_IMPORT_HOSTS`. A published version never changes, so each upload needs a greater version (ADR 0003).
 
+The built-in `core` package (`backend/builtin-packages/core/<version>/node.js`: `next`, `repeat`, errors, `createNested`, `httpClient`, `download`) ships in the image and is served by the registry without an upload; inline scripts import `"registry:core@<version>/node.js"`. Released versions are frozen by `tests/unit/registry/builtin-releases.test.ts`: change it in a new version folder (ADR 0010).
+
 ### Schemas
 
 JSON Schemas in `backend/schemas/` (pipeline, node, node-package, project, flow, launch-request, user) are the source of truth for the pipeline spec. They are dereferenced into `compiled.json`, used for AJV validation on the backend (`app/ajv.ts`) and for editors on the frontend. Never edit `compiled.json` by hand — run `make schemas`.

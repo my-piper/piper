@@ -114,12 +114,16 @@ status check, `download(url)` → `fetch` + `new Uint8Array(await r.arrayBuffer(
 contract and stable per-run child keys; store child bookkeeping in an invocation
 closure instead of mutable module globals. A package node imports the shared
 helpers (`utils/node.js`, `artworks/utils.js`). An inline Script Node imports
-them from the published artworks package by quoted reference
-(`"registry:artworks@<N>/node.js"`, `"registry:artworks@<N>/utils.js"`), which
-the server resolves to the registry; no other package may be referenced, and
-the Node must not be `isolated: true`, as its process has no registry token.
+them by quoted reference, which the server resolves to the registry: v1's
+helpers (`next`, `repeat`, errors, `createNested`, `httpClient`, `download`
+with v1's `{ mimeType, data }` and Buffer bytes) from the built-in
+`"registry:core@<N>/node.js"` (ADR 0010), and the ArtWorks client from
+`"registry:artworks@<N>/utils.js"`, catching its errors as the `FatalError` of
+`"registry:artworks@<N>/node.js"`. No other package may be referenced, and the
+Node must not be `isolated: true`, as its process has no registry token.
 
-Downloaded bytes are `Uint8Array`: use `TextDecoder` for FFmpeg/JSON text and an
-explicit byte-to-base64 conversion for image payloads. Buffer-style
-`bytes.toString("utf8")` does not decode a Uint8Array. Replace invalid-JSON
+`core`'s `download` and `httpClient` answer bytes as a `Buffer`, as v1 did,
+so `data.toString("utf8")` and `.toString("base64")` keep working. Bytes from
+`fetch` itself are a `Uint8Array`: decode those with `TextDecoder` and
+`Buffer.from(bytes)` before Buffer-style calls. Replace invalid-JSON
 `message()` diagnostics with node logging and document the change.
