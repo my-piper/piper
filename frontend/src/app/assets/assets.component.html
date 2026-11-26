@@ -33,7 +33,10 @@
   <form [formGroup]="form">
     <fieldset class="stack small align-center">
       <button
-        class="circle"
+        tuiIconButton
+        appearance="outline-grayscale"
+        size="s"
+        class="round"
         type="button"
         [disabled]="folders.length <= 0"
         [appPopover]="{ content: foldersPopover, trigger: 'click' }"
@@ -65,8 +68,11 @@
         }
         <div class="actions">
           <button
-            class="circle"
-            [class.busy]="progress.removing[asset._id]"
+            tuiIconButton
+            appearance="outline-grayscale"
+            size="s"
+            class="round"
+            [loading]="progress.removing[asset._id]"
             [disabled]="progress.removing[asset._id]"
             (click)="remove(asset)"
           >
@@ -98,7 +104,14 @@
           }
           @case ("audio") {
             <div class="audio">
-              <button class="circle" type="button" (click)="select(asset)">
+              <button
+                tuiIconButton
+                appearance="outline-grayscale"
+                size="s"
+                class="round"
+                type="button"
+                (click)="select(asset)"
+              >
                 <app-icon class="icon" icon="add-circle"></app-icon>
               </button>
               <audio controls [src]="asset.url"></audio>

@@ -38,7 +38,13 @@
       <ng-container i18n="@@label.ai_assistant">AI assistant</ng-container
       ><sup style="margin-left: 5px">BETA</sup>
     </div>
-    <a class="circle" [routerLink]="[{ outlets: { bottom: null } }]">
+    <a
+      tuiIconButton
+      appearance="outline-grayscale"
+      size="s"
+      class="round"
+      [routerLink]="[{ outlets: { bottom: null } }]"
+    >
       <app-icon class="icon" icon="close"></app-icon>
     </a>
   </header>
@@ -73,7 +79,10 @@
 
 <div class="zoom stack">
   <button
-    class="circle small"
+    tuiIconButton
+    appearance="outline-grayscale"
+    size="xs"
+    class="round"
     data-testid="zoom-out"
     i18n-title="@@action.zoom_out"
     title="Zoom out"
@@ -83,7 +92,10 @@
     <app-icon class="icon" icon="minus" [size]="18"></app-icon>
   </button>
   <button
-    class="transparent level"
+    tuiButton
+    appearance="flat-grayscale"
+    size="s"
+    class="level"
     data-testid="zoom-reset"
     i18n-title="@@action.reset_zoom"
     title="Reset zoom"
@@ -92,7 +104,10 @@
     {{ pipeline.layout?.zoom || 1 | percent }}
   </button>
   <button
-    class="circle small"
+    tuiIconButton
+    appearance="outline-grayscale"
+    size="xs"
+    class="round"
     data-testid="zoom-in"
     i18n-title="@@action.zoom_in"
     title="Zoom in"
@@ -102,7 +117,10 @@
     <app-icon class="icon" icon="plus" [size]="18"></app-icon>
   </button>
   <button
-    class="circle small"
+    tuiIconButton
+    appearance="outline-grayscale"
+    size="xs"
+    class="round"
     data-testid="zoom-fit"
     i18n-title="@@action.fit_to_screen"
     title="Fit to screen"
@@ -141,7 +159,10 @@
     </dl>
   </ng-template>
   <button
-    class="circle small"
+    tuiIconButton
+    appearance="outline-grayscale"
+    size="xs"
+    class="round"
     data-testid="canvas-hint-toggle"
     [appPopover]="{ content: canvasHintTemplate, maxWidth: '320px' }"
   >
@@ -167,7 +188,10 @@
   ) {
     <div class="actions stack">
       <a
-        class="circle"
+        tuiIconButton
+        appearance="outline-grayscale"
+        size="s"
+        class="round"
         data-testid="add-node"
         [class.toggled]="drawlers.left"
         [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
@@ -176,9 +200,12 @@
       </a>
       <div>
         <button
-          class="circle"
+          tuiIconButton
+          appearance="outline-grayscale"
+          size="s"
+          class="round"
           data-testid="run-pipeline"
-          [class.busy]="progress.launching || (launches | keyvalue).length > 0"
+          [loading]="progress.launching || (launches | keyvalue).length > 0"
           [disabled]="(launches | keyvalue).length > 0"
           (click)="run()"
         >
@@ -187,7 +214,10 @@
       </div>
       @if (config.assistant.active) {
         <a
-          class="circle"
+          tuiIconButton
+          appearance="outline-grayscale"
+          size="s"
+          class="round"
           [class.toggled]="drawlers.bottom"
           [routerLink]="[
             { outlets: { bottom: drawlers.bottom ? null : ['assistant'] } },
@@ -202,9 +232,12 @@
     <div class="actions stack">
       @if (running) {
         <button
-          class="circle"
+          tuiIconButton
+          appearance="outline-grayscale"
+          size="s"
+          class="round"
           data-testid="interrupt-launch"
-          [class.busy]="progress.interrupting"
+          [loading]="progress.interrupting"
           [disabled]="progress.interrupting"
           (click)="interrupt()"
         >
@@ -212,7 +245,10 @@
         </button>
       }
       <a
-        class="circle"
+        tuiIconButton
+        appearance="outline-grayscale"
+        size="s"
+        class="round"
         data-testid="launch-logs"
         title="Launch logs"
         [class.toggled]="drawlers.right | is: launchLogsComponent"
@@ -296,7 +332,10 @@
           (userRole.admin | can: project.createdBy | async)
         ) {
           <button
-            class="more transparent"
+            tuiIconButton
+            appearance="flat-grayscale"
+            size="xs"
+            class="more"
             [appPopover]="{
               content: actionsTemplate,
               trigger: 'click',
@@ -366,7 +405,10 @@
               </ul>
             </ng-template>
             <button
-              class="more transparent"
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="xs"
+              class="more"
               [appPopover]="{
                 content: actionsTemplate,
                 trigger: 'click',
@@ -433,7 +475,9 @@
           (userRole.admin | can: project.createdBy | async)
         ) {
           <button
-            class="transparent"
+            tuiIconButton
+            appearance="flat-grayscale"
+            size="xs"
             [appPopover]="{
               content: actionsTemplate,
               trigger: 'click',
@@ -472,8 +516,11 @@
         @if (mode !== "scheme" && !launch) {
           <div class="actions stack align-center">
             <button
-              class="circle small"
-              [class.busy]="progress.nodes.launching[node.key]"
+              tuiIconButton
+              appearance="outline-grayscale"
+              size="xs"
+              class="round"
+              [loading]="progress.nodes.launching[node.key]"
               [disabled]="progress.nodes.launching[node.key]"
               (click)="
                 !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
@@ -492,7 +539,13 @@
               ></app-icon>
             </button>
             @if (!!node.value.app) {
-              <a class="circle" [routerLink]="['apps', node.key]">
+              <a
+                tuiIconButton
+                appearance="outline-grayscale"
+                size="s"
+                class="round"
+                [routerLink]="['apps', node.key]"
+              >
                 <app-icon class="icon" icon="cursor" [size]="18"></app-icon>
               </a>
             }
@@ -518,7 +571,10 @@
           !launches[node.key]
         ) {
           <button
-            class="transparent more"
+            tuiIconButton
+            appearance="flat-grayscale"
+            size="xs"
+            class="more"
             [appPopover]="{
               content: actionsTemplate,
               trigger: 'click',
@@ -645,7 +701,10 @@
             </ul>
           </ng-template>
           <button
-            class="more transparent"
+            tuiIconButton
+            appearance="flat-grayscale"
+            size="xs"
+            class="more"
             [appPopover]="{
               content: actionsTemplate,
               trigger: 'click',

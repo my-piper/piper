@@ -30,13 +30,18 @@
           @if (i.value.icon; as icon) {
             <app-icon class="icon" [icon]="icon"></app-icon>
           }
-          {{ i.value.title | i18n }}@if (i.value.required) {<sup>*</sup>}
+          {{ i.value.title | i18n }}
+          @if (i.value.required) {
+            <sup>*</sup>
+          }
           <ng-template #inputDescriptionPopover>
             <div [innerHTML]="i.value.description | markdown | async"></div>
           </ng-template>
           @if (i.value.description) {
             <button
-              class="transparent"
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="s"
               [appPopover]="{ content: inputDescriptionPopover }"
             >
               <app-icon class="icon" icon="help"></app-icon>

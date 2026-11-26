@@ -56,9 +56,12 @@
       <tr>
         <td>
           <button
-            class="circle small"
+            tuiIconButton
+            appearance="outline-grayscale"
+            size="xs"
+            class="round"
             (click)="remove(d)"
-            [class.busy]="progress.removing[d._id]"
+            [loading]="progress.removing[d._id]"
             [disabled]="progress.removing[d._id]"
           >
             <app-icon class="icon" icon="delete" [size]="16"></app-icon>

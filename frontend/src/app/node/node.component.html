@@ -5,7 +5,9 @@
 @if (status?.state === "error") {
   <div class="error">
     <button
-      class="transparent with-icon only-icon"
+      tuiIconButton
+      appearance="flat-grayscale"
+      size="m"
       [appPopover]="{ content: errorPopover }"
     >
       <app-icon class="icon" icon="error" [size]="32"></app-icon>
@@ -34,7 +36,7 @@
           <li>
             <div class="title">{{ i.input.title | i18n }}</div>
             <button
-              class="circle"
+              class="port"
               [appPopover]="{
                 content: inputMenuPopover,
                 trigger: 'click',
@@ -66,7 +68,7 @@
         </ng-template>
         <div class="title">{{ o.value.title | i18n }}</div>
         <button
-          class="circle"
+          class="port"
           [appPopover]="{
             content: outputMenuPopover,
             trigger: 'click',
@@ -92,7 +94,10 @@
             ></app-artefacts>
           </ng-template>
           <button
-            class="pick-output circle"
+            tuiIconButton
+            appearance="outline-grayscale"
+            size="s"
+            class="round pick-output"
             [appModal]="{
               title: 'Pick artefact',
               content: pickArtefactModal,

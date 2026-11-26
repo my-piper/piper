@@ -60,7 +60,9 @@
           @if (l.errors?.length > 0) {
             <div class="errors">
               <button
-                class="transparent"
+                tuiIconButton
+                appearance="flat-grayscale"
+                size="s"
                 [appPopover]="{ content: errorsTemplate }"
               >
                 <app-icon icon="error" [color]="'red'"></app-icon>
@@ -108,7 +110,9 @@
           </ng-template>
           <div class="stack horizontal align-center">
             <button
-              class="transparent"
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="s"
               [appPopover]="{ content: inputsPopover }"
             >
               <app-icon icon="info"></app-icon>

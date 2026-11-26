@@ -62,7 +62,7 @@ $node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
   }
 
   &.disabled {
-    .circle {
+    .port {
       pointer-events: none;
     }
     .pick-output {
@@ -150,9 +150,12 @@ $node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
         transition: opacity 250ms;
       }
 
-      .circle {
+      // Port handles; once ui-kit's button.circle, now styled only here.
+      .port {
         @include reset.reset-button();
         position: absolute;
+        box-sizing: border-box;
+        transition: all 0.15s;
         width: 18px;
         height: 18px;
         aspect-ratio: 1;
@@ -172,7 +175,7 @@ $node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
       transform: translate(calc(-100% - 6px), -2px);
 
       li {
-        .circle {
+        .port {
           right: -14px;
         }
 
@@ -187,7 +190,7 @@ $node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
       right: 0;
 
       li {
-        .circle {
+        .port {
           left: -14px;
         }
 

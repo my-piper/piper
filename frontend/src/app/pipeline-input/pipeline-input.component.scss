@@ -16,21 +16,21 @@
   border-radius: variables.$corner-huge;
   padding: variables.$gutter-big;
 
-  &.multiline[data-type=string] {
+  &.multiline[data-type="string"] {
     min-width: 250px;
   }
 
-  &:not(.multiline)[data-type=string] {
+  &:not(.multiline)[data-type="string"] {
     max-width: 150px;
   }
 
   &[data-type="image"],
-  &[data-type='image[]'],
-  &[data-type='video'] {
+  &[data-type="image[]"],
+  &[data-type="video"] {
     max-width: 200px;
   }
 
-  &[disabled=true] {
+  &[disabled="true"] {
     pointer-events: none;
   }
 }
@@ -39,8 +39,10 @@
   margin-right: variables.$gutter-huge;
 }
 
-.circle {
+.port {
   @include reset.reset-button();
+  box-sizing: border-box;
+  transition: all 0.15s;
 
   position: absolute;
   top: 0;

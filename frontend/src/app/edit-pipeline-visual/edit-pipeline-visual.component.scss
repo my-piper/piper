@@ -259,3 +259,8 @@
     }
   }
 }
+
+// A toolbar button whose panel is open (ui-kit's .toggled).
+[tuiIconButton].toggled {
+  background: var(--tui-background-neutral-2);
+}

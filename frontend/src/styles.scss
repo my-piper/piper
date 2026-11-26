@@ -37,6 +37,11 @@ app-root > tui-root > .t-root-content {
   min-block-size: 100dvh;
 }
 
+// A round Taiga icon button (the ui-kit circle buttons).
+[tuiIconButton].round {
+  border-radius: 50%;
+}
+
 .money {
   font-family: "Quantico", sans-serif;
   font-size: 0.8rem;
