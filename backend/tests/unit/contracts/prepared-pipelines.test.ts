@@ -200,6 +200,93 @@ ${SCRIPT}`,
     );
   });
 
+  it("accepts a catalog script's own costs, which billing ignores", () => {
+    const pipeline = packageFixture();
+
+    const result = checkPackages(pipeline, {
+      "v1_pipelines/echo_node/script.js": `export async function costs() { return 0; }
+${SCRIPT}`,
+    });
+
+    expect(result.errors).toEqual([]);
+  });
+
+  it("rejects a required input of a running node that nothing can fill", () => {
+    const pipeline = preparedFixture();
+    Object.assign(pipeline.nodes.echo_node.inputs, {
+      question: {
+        title: "Question",
+        type: "string",
+        required: true,
+      },
+    });
+
+    const result = check(pipeline);
+
+    expect(result.errors).toContain(
+      "Node echo_node: required input question has no default and nothing feeds it, so the node never runs"
+    );
+  });
+
+  it("accepts an unfilled required input on a node nothing reaches", () => {
+    const pipeline = preparedFixture();
+    Object.assign(pipeline.nodes.echo_node.inputs, {
+      question: {
+        title: "Question",
+        type: "string",
+        required: true,
+      },
+    });
+    pipeline.start.nodes = [];
+    Object.assign(pipeline, { inputs: {} });
+
+    const result = check(pipeline);
+
+    expect(result.errors).not.toContain(
+      "Node echo_node: required input question has no default and nothing feeds it, so the node never runs"
+    );
+  });
+
+  it("accepts an unfed required input that has a default", () => {
+    const pipeline = preparedFixture();
+    Object.assign(pipeline.nodes.echo_node.inputs, {
+      question: {
+        title: "Question",
+        type: "string",
+        required: true,
+        default: "",
+      },
+    });
+
+    const result = check(pipeline);
+
+    expect(result.errors).toEqual([]);
+  });
+
+  it("rejects a node's obsolete costs field", () => {
+    const pipeline = preparedFixture();
+    Object.assign(pipeline.nodes.echo_node, { costs: "0.1" });
+
+    const result = check(pipeline);
+
+    expect(result.errors).toContain(
+      "Node echo_node: obsolete costs needs removal"
+    );
+  });
+
+  it("rejects a pipeline script that keeps v1's costs", () => {
+    const pipeline = {
+      ...preparedFixture(),
+      script: "export async function costs() {\n  return 0;\n}",
+    };
+
+    const result = check(pipeline);
+
+    expect(result.errors).toContain(
+      "pipeline script with obsolete costs needs removal"
+    );
+  });
+
   it("checks a package node's catalog script like an inline script", () => {
     const pipeline = packageFixture();
 
@@ -413,6 +500,21 @@ ${SCRIPT}`,
       script:
         "export function run() { return 'https://n8n.artworks.ai/webhook/blocked-images'; }",
       problem: "obsolete n8n endpoint needs removal",
+    },
+    {
+      script:
+        "export async function costs() { return 0.00004; }\nexport async function run() { return { __type: 'next', outputs: {} }; }",
+      problem: "obsolete costs needs removal",
+    },
+    {
+      script:
+        "export async function run({ costs }) { return { __type: 'next', outputs: {}, costs }; }",
+      problem: "obsolete costs needs removal",
+    },
+    {
+      script:
+        "export async function run() { return { __type: 'next', outputs: {}, costs: 1 }; }",
+      problem: "obsolete costs needs removal",
     },
     {
       script: "function run() { return {}; }",

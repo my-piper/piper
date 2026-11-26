@@ -18,8 +18,11 @@ Every node ends up as one of two kinds:
 
 - **Catalog node** first. Point the node at an `artworks` catalog node
   (`source: node`, `package: artworks`, `script: registry:artworks@<N>/<node>/script.js`)
-  when it submits the same task and payload, with the v1 inputs and defaults
-  set on it. Known fits: Duo's `generate_image` → `qwen_edit_image`,
+  when it submits the same task and payload, with the v1 inputs, defaults and
+  `required` flags set on it: launching saves a default only for a required
+  input, so a v1-required input the catalog declares optional (`model`) reaches
+  the script unset. Where v1 set no default, check the catalog script's own
+  fallback (`ask_llm_agent` asks "What do you think about AI?"). Known fits: Duo's `generate_image` → `qwen_edit_image`,
   `prompt_censor_enhancer` → `ask_llm_agent` (which sends `temperature`,
   default 1, where v1 sent none). Check fits as [delivery.md](delivery.md) says.
 - **Inline Script Node** otherwise (`source: script`): the v1 script, rewritten,
@@ -67,15 +70,16 @@ generated code.
 Write each node's script as a plain ES module in
 `tmp/piper-v1/work/<pipeline>/<node>.js`, next to its tests, and apply **all**
 rules in [rewrites.md](rewrites.md): v1 globals from core, `sharp`, native HTTP
-and multipart, dynamic module loading, Environment names and access, and
-obsolete notifications. Renaming Variables alone is incomplete.
+and multipart, dynamic module loading, Environment names and access, obsolete
+notifications, and removed costs. Renaming Variables alone is incomplete.
 
 A script's imports are exactly: `"registry:core@1/node.js"`,
 `"registry:artworks@<N>/utils.js"` for the ArtWorks client, bare `"sharp"`,
 `node:` builtins and pinned HTTPS URLs on hosts Deno allows. The script itself goes into the YAML as the node's `script`, with
 `source: script`, without `isolated: true` (its process has no registry token
 and no native code). Remove catalog identity (`catalog`, `_id`, `sign`,
-`package`) and obsolete billing metadata. Retain `environment` declarations
+`package`) and obsolete billing metadata: `costs` in the script, its result and
+the node, and a pipeline `script` that only exports `costs`. Retain `environment` declarations
 with type/description and current names. Convert `nested.run/state` to Child
 Launch instructions with core's `createNested`, keeping child bookkeeping local
 to each invocation.
@@ -104,6 +108,13 @@ Normalize these editor contracts in the prepared files:
 - Write an enum input's `default` as the bare value (`auto`), never the
   whole `value|label` option v1 stored: the default reaches the script as it
   is, and the script's own validation rejects the label.
+- Give every required input of a node that runs a value: a default, a flow or
+  a pipeline input. v1 kept some values (such as Violations' `ask_qwen3`
+  question) in a Project's saved node inputs, which its export drops; a
+  required input left empty holds the node back for good (`checkInputs`) and
+  everything downstream with it. Make such an input optional when the script
+  can skip without it, have the script fail clearly when it can't, and report
+  the value the user must set.
 - Remove unsupported v1 metadata only when schema validation identifies it.
   Replacing code must not drop flows or change their endpoints.
 
@@ -124,8 +135,8 @@ node --import=tsx tools/validate-prepared-pipelines.ts ../tmp/piper-v1/prepared/
 ```
 
 The guard checks the production schema, model round trip, first zoom save,
-connected ports, enum defaults, the allowed imports and isolation, and
-Environment rewrites. Schema acceptance alone is not the completion criterion.
+connected ports, enum defaults, required inputs nothing fills, leftover costs,
+the allowed imports and isolation, and Environment rewrites. Schema acceptance alone is not the completion criterion.
 
 Compare parsed original/prepared graph endpoints and defaults. Exercise the
 exact scripts the YAML carries, not authoring fragments, with `deno test`:

@@ -13,6 +13,22 @@ block and the `N8N_USER`/`N8N_PASSWORD` reads and declarations. The logic
 around it (`blockedBy` → `FatalError`) stays as it is. Removing the
 notification is not a behaviour change worth reporting beyond one line.
 
+## costs
+
+Billing is gone, and nothing reads costs any more. Delete all of it:
+
+- a node script's `costs` function (v1 exported it as
+  `export async function costs() { … }`) and every call to it;
+- the `costs` key in a returned result (`next({ outputs, costs: costs(…) })`
+  becomes `next({ outputs })`). Left in place, the async `costs()` puts a
+  Promise into the result, and piper-deno's Worker fails with
+  `#<Promise> could not be cloned`;
+- the node's `costs` field;
+- the pipeline-level `script` when it only exports `costs`, as v1 pipelines do.
+
+Catalog nodes keep their own `costs`; only ported scripts change. Removing
+costs is not a behaviour change worth reporting.
+
 ## sharp
 
 Keep `sharp`. piper-deno grants `--allow-ffi` and loads its pinned
@@ -168,14 +184,29 @@ import { createNested } from "registry:core@1/node.js";
 async function v1Run({ nested, ...payload }) {
   /* v1's run, reading nested from here */
 }
+// v1's nested.state answered a child's outputs as they arrived; the backend
+// reports a child finished only once every pipeline output is set.
+const visible = (children) =>
+  Object.fromEntries(
+    Object.entries(children ?? {}).map(([key, child]) => [
+      key,
+      { ...child, status: "finished" },
+    ])
+  );
 export async function run(payload) {
-  const { nested, launches } = createNested(payload.children ?? {});
+  const { nested, launches } = createNested(visible(payload.children));
   const result = await v1Run({ ...payload, nested });
   return launches.length > 0
     ? { __type: "launch", launches, delay: result?.delay }
     : result;
 }
 ```
+
+`visible` keeps v1's partial outputs. Without it, `nested.state` answers no
+outputs until the child sets **every** output its pipeline declares, and a
+child that skips branches never does: Violations V5 asked for `siglip2` alone
+never sets its Hive, HAL9 or faces outputs, so the caller polls until "Max
+attempts exceeded". Test a child with `status: "running"` and partial outputs.
 
 A child's key is the order of its `nested.run` call, so the script must make
 the same calls on every run until its children exist; v1's start-then-poll
