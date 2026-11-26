@@ -1,0 +1,63 @@
+// Card lists (launches, node jobs, comments), formerly ui-kit's global
+// .cards / .card rules (#157). Components include these mixins in their own
+// styles; colors come from Taiga so cards follow the light and dark themes.
+
+@mixin cards {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+@mixin card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  background: var(--tui-background-neutral-1);
+  color: var(--tui-text-primary);
+  position: relative;
+
+  &.disabled {
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  header {
+    margin: 4px 0;
+
+    h2 {
+      margin: 0;
+      padding: 0 2px;
+      font-size: 16px;
+      text-align: center;
+      vertical-align: middle;
+
+      .icon {
+        margin-right: 5px;
+        display: inline-block;
+      }
+    }
+
+    .actions {
+      position: absolute;
+      z-index: 5;
+      top: -4px;
+      left: -4px;
+    }
+  }
+
+  article {
+    position: relative;
+    padding: 8px;
+    flex: 1;
+
+    h3 {
+      font-size: 1.2rem;
+      margin: 4px 0;
+    }
+  }
+
+  footer {
+    padding: 4px;
+    font-size: 13px;
+  }
+}

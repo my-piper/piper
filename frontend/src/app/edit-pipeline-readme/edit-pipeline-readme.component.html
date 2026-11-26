@@ -1,7 +1,9 @@
 <div class="modal" [class.hidden]="!modal">
   <header>
     <a
-      class="primary with-icon"
+      tuiButton
+      appearance="outline-grayscale"
+      size="s"
       [hotKey]="'escape'"
       (hotKeyPressed)="back()"
       [routerLink]="['./']"
@@ -28,10 +30,14 @@
     </ngx-monaco-editor>
   </div>
   <footer class="stack">
-    <a class="primary" [routerLink]="['view']">View</a>
+    <a tuiButton appearance="outline-grayscale" size="s" [routerLink]="['view']"
+      >View</a
+    >
     <button
+      tuiButton
+      appearance="outline-grayscale"
+      size="s"
       submitButton
-      class="primary"
       [disabled]="form.invalid"
       (click)="save()"
     >

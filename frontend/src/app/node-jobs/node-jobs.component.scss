@@ -1,5 +1,11 @@
 @use "src/ui-kit/styles/variables";
 @use "src/ui-kit/styles/mixins";
+@use "src/styles/cards";
+
+// Card base styles first; the rules below refine them.
+.card {
+  @include cards.card;
+}
 
 :host {
   display: grid;

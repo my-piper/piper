@@ -24,7 +24,7 @@ import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
 import { HcaptchaStubComponent } from "../helpers/captcha-stub";
 import { provideTestConfig } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
-import { markedInvalid } from "../helpers/taiga";
+import { isLoading, markedInvalid } from "../helpers/taiga";
 
 /**
  * Wire contracts (backend/api/users/signup.ts):
@@ -45,7 +45,12 @@ async function render(config: Partial<PlainAppConfig> = {}) {
       SelectThemeComponent,
       IncludesPipe,
     ],
-    imports: [ReactiveFormsModule, RouterLink, TaigaFormsModule, HcaptchaStubComponent],
+    imports: [
+      ReactiveFormsModule,
+      RouterLink,
+      TaigaFormsModule,
+      HcaptchaStubComponent,
+    ],
     providers: [
       provideTestConfig(config),
       provideRouter([]),
@@ -143,6 +148,7 @@ describe("SigupComponent", () => {
       const request = page.controller.expectOne(CONFIRM_URL);
       const button = page.signupForm().querySelector("button[type=submit]");
       const busy = (button as HTMLButtonElement).disabled;
+      const loading = isLoading(button);
       request.flush("");
       tick(UI_DELAY);
       page.fixture.detectChanges();
@@ -154,7 +160,9 @@ describe("SigupComponent", () => {
       });
       expect(request.request.responseType).toBe("text");
       expect(busy).toBe(true);
+      expect(loading).toBe(true);
       expect((button as HTMLButtonElement).disabled).toBe(false);
+      expect(isLoading(button)).toBe(false);
       expect(page.captcha.siteKey).toBe("10000000-ffff-ffff-ffff-000000000001");
       expect(page.confirmationForm()).not.toBeNull();
       page.controller.verify();
@@ -245,10 +253,7 @@ describe("SigupComponent", () => {
       expect(localStorage.getItem(AUTHORIZATION_KEY)).toBeNull();
       expect(page.navigate).not.toHaveBeenCalled();
       expect(
-        page
-          .confirmationForm()
-          .querySelector("button[type=submit]")
-          ?.classList.contains("busy"),
+        isLoading(page.confirmationForm().querySelector("button[type=submit]")),
       ).toBe(false);
       page.controller.verify();
     }));
