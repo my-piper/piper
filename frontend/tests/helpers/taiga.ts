@@ -125,3 +125,11 @@ export function activeTab(tabs: Element | null): string {
     ""
   );
 }
+
+/**
+ * The icon a Taiga button (`iconStart`) or `<tui-icon icon>` draws. Taiga puts
+ * a registry icon's name in `data-icon-start` (`tui` for its own `@tui.*`).
+ */
+export function iconName(host: Element | null): string | null {
+  return host?.getAttribute("data-icon-start") ?? null;
+}

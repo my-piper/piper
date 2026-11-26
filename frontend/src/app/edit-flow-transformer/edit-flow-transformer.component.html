@@ -22,9 +22,9 @@
           size="xs"
           type="button"
           (click)="down()"
-        >
-          <app-icon class="icon" [size]="16" icon="chevron-left"></app-icon>
-        </button>
+          iconStart="chevron-left"
+          style="--app-icon-size: 16px"
+        ></button>
         @switch (from.node.outputs.get(flow.output).type) {
           @case ("image[]") {
             @switch (to.node.inputs.get(flow.input).type) {
@@ -44,9 +44,9 @@
           size="xs"
           type="button"
           (click)="up()"
-        >
-          <app-icon class="icon" [size]="16" icon="chevron-right"></app-icon>
-        </button>
+          iconStart="chevron-right"
+          style="--app-icon-size: 16px"
+        ></button>
       </fieldset>
     </form>
   }
