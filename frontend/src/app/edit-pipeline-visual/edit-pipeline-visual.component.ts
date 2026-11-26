@@ -28,7 +28,6 @@ import {
   take,
 } from "rxjs";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
-import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { UI, UI_DELAY } from "src/consts/ui";
 import { SelectArea } from "src/directives/canvas-select.directive";
 import {
@@ -100,7 +99,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
   zoom = { min: MIN_SCALE, max: MAX_SCALE, step: ZOOM_STEP };
   selectNodeComponent = SelectNodeComponent;
   editNodeComponent = EditNodeComponent;
-  editPipelineInputComponent = EditPipelineInputComponent;
   editNodeInputsComponent = EditNodeInputsComponent;
   launchLogsComponent = LaunchLogsComponent;
 
@@ -122,11 +120,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
     [key: string]: Launch;
   } = {};
 
-  modal!:
-    | EditNodeComponent
-    | EditPipelineInputComponent
-    | SelectNodeComponent
-    | null;
+  modal!: EditNodeComponent | SelectNodeComponent | null;
 
   drawlers: {
     left: SelectNodeComponent | null;
@@ -533,10 +527,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.cd.detectChanges();
 
     this.saveUrlState();
-  }
-
-  editPipelineInput(input: string) {
-    this.router.navigate(["inputs", input], { relativeTo: this.route });
   }
 
   addNode(left: number, top: number, payload: { node: string }) {
