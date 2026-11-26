@@ -122,7 +122,7 @@ export function setupEditor({
   const socket = TestBed.inject(SocketDouble);
   const router = TestBed.inject(Router);
 
-  // The real root hosts <app-popover>/<app-modal>, which popovers need.
+  // The real root hosts tui-root, which Taiga overlays render into.
   const fixture: ComponentFixture<AppComponent> =
     TestBed.createComponent(AppComponent);
   router.navigateByUrl(EDITOR_URL);

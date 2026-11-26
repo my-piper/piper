@@ -14,7 +14,6 @@ import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { IncludesPipe } from "src/pipes/includes.pipe";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
-import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
@@ -40,7 +39,6 @@ async function render(config: Partial<PlainAppConfig> = {}) {
   await TestBed.configureTestingModule({
     declarations: [
       SigupComponent,
-      PopoverDirective,
       SelectThemeComponent,
       IncludesPipe,
     ],
