@@ -15,6 +15,9 @@ a {
         &.with-icon {
 
             .icon {
+                // tui-icon (src/styles/icons.scss); the svg rule is app-icon's
+                --app-icon-color: #{variables.$primary-dark-color};
+
                 svg {
                     stroke: variables.$primary-dark-color;
                 }

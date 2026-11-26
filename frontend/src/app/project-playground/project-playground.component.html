@@ -35,7 +35,7 @@
       <div>
         <label>
           @if (i.value.icon; as icon) {
-            <app-icon class="icon" [icon]="icon"></app-icon>
+            <tui-icon [icon]="icon" class="icon" />
           }
           {{ i.value.title | i18n }}
           @if (i.value.required) {
@@ -50,9 +50,8 @@
               appearance="flat-grayscale"
               size="s"
               [appPopover]="{ content: inputDescriptionPopover }"
-            >
-              <app-icon class="icon" icon="help"></app-icon>
-            </button>
+              iconStart="help"
+            ></button>
           }
         </label>
         <app-edit-input
