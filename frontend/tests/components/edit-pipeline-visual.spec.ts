@@ -91,7 +91,7 @@ describe("EditPipelineVisualComponent", () => {
     it("offers editing controls to the owner only", fakeAsync(() => {
       const owner = setupEditor({ user: "owner" });
 
-      const ownerAdd = owner.element.querySelector(".actions a.circle");
+      const ownerAdd = owner.element.querySelector(".actions a[tuiIconButton]");
       const ownerDisabled = owner.element.querySelectorAll(".node.disabled");
 
       expect(ownerAdd).not.toBeNull();
@@ -102,7 +102,7 @@ describe("EditPipelineVisualComponent", () => {
     it("hides editing controls from another user", fakeAsync(() => {
       const { element } = setupEditor({ user: "stranger" });
 
-      const add = element.querySelector(".actions a.circle");
+      const add = element.querySelector(".actions a[tuiIconButton]");
       const menus = element.querySelectorAll(".node button.more");
 
       expect(add).toBeNull();
@@ -767,7 +767,7 @@ describe("EditPipelineVisualComponent", () => {
 
       (
         nodeElement(element, "node_two").querySelector(
-          "ul.inputs button.circle",
+          "ul.inputs button.port",
         ) as HTMLElement
       ).click();
       tick();

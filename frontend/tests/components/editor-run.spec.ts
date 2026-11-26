@@ -14,6 +14,7 @@ import {
 import { componentOf } from "../helpers/component";
 import { finish, setupEditor } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
+import { isLoading } from "../helpers/taiga";
 
 /**
  * Wire contracts: POST /api/projects/:_id/launch merges the body into the
@@ -35,7 +36,7 @@ function runButton(element: HTMLElement): HTMLButtonElement {
 
 function nodeRunButton(element: HTMLElement, id: string): HTMLButtonElement {
   const node = element.querySelector(`[data-testid="node-${id}"]`);
-  return node.querySelector(".actions.align-center button.circle.small");
+  return node.querySelector(".actions.align-center button[tuiIconButton]");
 }
 
 /** Makes `window.open` return a stand-in browser tab and records its use. */
@@ -88,7 +89,7 @@ describe("EditPipelineVisualComponent runs", () => {
     detectChanges();
     const openedBeforeResponse = tab.open.mock.calls.length;
     const request = controller.expectOne(LAUNCH_URL);
-    const busy = runButton(element).classList.contains("busy");
+    const busy = isLoading(runButton(element));
     request.flush(launchResponsePlain());
     tick(UI_DELAY);
     detectChanges();
@@ -157,7 +158,7 @@ describe("EditPipelineVisualComponent runs", () => {
     expect(controller.match(LAUNCH_URL).length).toBe(0);
     expect(tab.closed).toBe(true);
     expect(editor.editor.progress.launching).toBe(false);
-    expect(runButton(element).classList.contains("busy")).toBe(false);
+    expect(isLoading(runButton(element))).toBe(false);
     controller.verify();
     finish();
   }));
@@ -181,7 +182,7 @@ describe("EditPipelineVisualComponent runs", () => {
     );
     expect(tab.closed).toBe(true);
     expect(editor.editor.progress.launching).toBe(false);
-    expect(runButton(element).classList.contains("busy")).toBe(false);
+    expect(isLoading(runButton(element))).toBe(false);
     controller.verify();
     finish();
   }));
@@ -325,7 +326,7 @@ describe("EditPipelineVisualComponent launch page", () => {
     interruptButton(element).click();
     detectChanges();
     const interrupt = controller.expectOne(INTERRUPT_URL);
-    const busy = interruptButton(element).classList.contains("busy");
+    const busy = isLoading(interruptButton(element));
     interrupt.flush(null);
     tick(UI_DELAY);
     detectChanges();
@@ -352,7 +353,7 @@ describe("EditPipelineVisualComponent launch page", () => {
     detectChanges();
 
     expect(interruptButton(element)).not.toBeNull();
-    expect(interruptButton(element).classList.contains("busy")).toBe(false);
+    expect(isLoading(interruptButton(element))).toBe(false);
     expect(element.querySelector("app-informer")).not.toBeNull();
     controller.verify();
     finish();

@@ -36,6 +36,11 @@ app-root > tui-root > .t-root-content {
   min-block-size: 100dvh;
 }
 
+// A round Taiga icon button (the ui-kit circle buttons).
+[tuiIconButton].round {
+  border-radius: 50%;
+}
+
 // A full-width Taiga button (form footers, auth pages); in a flex row it
 // shrinks to leave room for its neighbours, like the ui-kit one did.
 [tuiButton].fluid {

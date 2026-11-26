@@ -177,7 +177,7 @@ function portPin(node: HTMLElement, selector: string, title: string) {
   if (!port) {
     throw new Error(`Port ${title} is not rendered`);
   }
-  return port.querySelector("button.circle") as HTMLElement;
+  return port.querySelector("button.port") as HTMLElement;
 }
 
 export function mouse(

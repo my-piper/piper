@@ -260,6 +260,11 @@
   }
 }
 
+// A toolbar button whose panel is open (ui-kit's .toggled).
+[tuiIconButton].toggled {
+  background: var(--tui-background-neutral-2);
+}
+
 // The canvas side panels (left, right, bottom), formerly ui-kit's global
 // drawler.scss (#159). They stay custom panels: Taiga's drawer is a dialog.
 .drawler {

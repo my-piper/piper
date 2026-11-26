@@ -46,7 +46,9 @@
           </ng-template>
           @if (i.value.description) {
             <button
-              class="transparent"
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="s"
               [appPopover]="{ content: inputDescriptionPopover }"
             >
               <app-icon class="icon" icon="help"></app-icon>

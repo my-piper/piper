@@ -61,7 +61,10 @@
     </ng-template>
     <div class="frame-actions stack small">
       <button
-        class="circle"
+        tuiIconButton
+        appearance="outline-grayscale"
+        size="s"
+        class="round"
         [appPopover]="{ content: selectThemePopover, trigger: 'click' }"
       >
         <app-icon class="icon" icon="theme"></app-icon>
@@ -150,10 +153,22 @@
 
     <div class="stack vertical align-center">
       <div class="stack small align-center">
-        <a class="button circle light" href="/oauth/google">
+        <a
+          tuiIconButton
+          appearance="outline-grayscale"
+          size="s"
+          class="round"
+          href="/oauth/google"
+        >
           <app-icon class="icon" icon="google"></app-icon>
         </a>
-        <a class="button circle light" href="/oauth/yandex">
+        <a
+          tuiIconButton
+          appearance="outline-grayscale"
+          size="s"
+          class="round"
+          href="/oauth/yandex"
+        >
           <app-icon class="icon" icon="yandex"></app-icon>
         </a>
       </div>
