@@ -1,6 +1,14 @@
 import { Authorization } from "api/users/models/authorization";
 import { toPlain } from "core-kit/packages/transform";
 
+// A JSON string literal that cannot close the surrounding <script>.
+function scriptString(value: string): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 export function redirect(authorization: Authorization) {
   return `
   <html>
@@ -22,7 +30,7 @@ export function redirect(authorization: Authorization) {
           </head>
           <body>
               <script>
-                  localStorage.setItem('authorization', '${JSON.stringify(toPlain(authorization))}');
+                  localStorage.setItem('authorization', ${scriptString(JSON.stringify(toPlain(authorization)))});
                   setTimeout(()=> location.href = '/', 1000);
               </script>
               <p>Redirecting...</p>

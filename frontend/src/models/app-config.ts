@@ -8,7 +8,11 @@ import { Authorization } from "./authorisation";
 export class UiConfig {
   @Expose()
   @Type(() => String)
-  features?: ("signup" | "google_auth" | "yandex_auth")[];
+  features?: ("signup" | "google_auth" | "yandex_auth" | "oidc_auth")[];
+
+  @Expose()
+  @Type(() => String)
+  oidcLabel?: string;
 
   @Expose()
   @Type(() => String)

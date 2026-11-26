@@ -34,6 +34,7 @@ import "./packages/debug";
 
 import { CAPTCHA_REQUIRED, CAPTCHA_SITE_KEY } from "consts/captcha";
 import { ACTIVATE_ASSISTANT } from "consts/llm";
+import { OIDC_AUTH, OIDC_LABEL } from "consts/oidc";
 import { ALLOW_SIGNUP, APP_FOOTER, GOOGLE_AUTH, YANDEX_AUTH } from "consts/ui";
 import { ALL_LANGUAGES } from "core-kit/packages/locale";
 import { writeFile } from "fs/promises";
@@ -99,7 +100,9 @@ api.get(
               ...(ALLOW_SIGNUP ? ["signup"] : []),
               ...(GOOGLE_AUTH ? ["google_auth"] : []),
               ...(YANDEX_AUTH ? ["yandex_auth"] : []),
+              ...(OIDC_AUTH ? ["oidc_auth"] : []),
             ],
+            ...(OIDC_AUTH ? { oidcLabel: OIDC_LABEL } : {}),
             appFooter: APP_FOOTER,
           },
           baseUrl: BASE_URL,
