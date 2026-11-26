@@ -1,3 +1,4 @@
+import { HttpTestingController } from "@angular/common/http/testing";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { fakeAsync, TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
@@ -141,6 +142,76 @@ describe("EditInputComponent suggestions", () => {
     expect(page.input.value).toBe("purple");
     expect(page.control.value).toBe("purple");
     expect(labels()).toEqual([]);
+    page.fixture.destroy();
+    finish();
+  }));
+});
+
+/** An image input; its asset picker opens in the app's modal. */
+@Component({
+  selector: "app-edit-image-input-host",
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `
+    <tui-root>
+      <app-modal></app-modal>
+      <app-edit-input
+        type="image"
+        label="Picture"
+        [formControl]="control"
+      ></app-edit-input>
+    </tui-root>
+  `,
+})
+class EditImageInputHostComponent {
+  control = new FormControl<string>(null);
+}
+
+describe("EditInputComponent asset picker", () => {
+  function setupPicker() {
+    TestBed.overrideModule(AppModule, {
+      add: { declarations: [EditImageInputHostComponent] },
+    });
+    configureAppTestingModule();
+    const fixture = TestBed.createComponent(EditImageInputHostComponent);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+
+    return {
+      fixture,
+      element,
+      openPicker: () => {
+        element.querySelector<HTMLElement>("app-edit-input .container").click();
+        fixture.detectChanges();
+      },
+      /** A tab of the picker, found by its label whatever renders the tab bar. */
+      tab: (label: string) =>
+        Array.from(
+          element.querySelectorAll<HTMLElement>(
+            "app-modal a, app-modal button",
+          ),
+        ).find((t) => t.textContent.trim() === label),
+    };
+  }
+
+  it("shows generated artefacts first and switches to the assets", fakeAsync(() => {
+    const page = setupPicker();
+    page.openPicker();
+
+    expect(page.tab("Generated")).toBeTruthy();
+    expect(
+      page.element.querySelector("app-modal app-artefacts"),
+    ).not.toBeNull();
+    expect(page.element.querySelector("app-modal app-assets")).toBeNull();
+
+    page.tab("Assets").click();
+    page.fixture.detectChanges();
+
+    expect(page.element.querySelector("app-modal app-assets")).not.toBeNull();
+    expect(page.element.querySelector("app-modal app-artefacts")).toBeNull();
+    TestBed.inject(HttpTestingController)
+      .match(() => true)
+      .forEach((r) => r.flush([]));
     page.fixture.destroy();
     finish();
   }));

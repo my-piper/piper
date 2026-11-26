@@ -19,7 +19,6 @@ import { TimePassedPipe } from "src/pipes/time-passed.pipe";
 import { PopoverComponent } from "./popover/popover.component";
 import { PopoverDirective } from "./popover/popover.directive";
 import { SpinnerComponent } from "./spinner/spinner.component";
-import { TabsComponent } from "./tabs/tabs.component";
 
 @NgModule({
   declarations: [
@@ -29,7 +28,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     ModalDirective,
     PopoverComponent,
     PopoverDirective,
-    TabsComponent,
     SpinnerComponent,
     TimePassedPipe,
     I18nPipe,
@@ -49,7 +47,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     ModalDirective,
     PopoverComponent,
     PopoverDirective,
-    TabsComponent,
     SpinnerComponent,
     TimePassedPipe,
     I18nPipe,

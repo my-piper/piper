@@ -1,3 +1,5 @@
+import { provideTaiga } from "@taiga-ui/core";
+import { TuiTabs } from "@taiga-ui/kit";
 import { provideHttpClient, withXhr } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import {
@@ -59,8 +61,15 @@ describe("EditPipelineYamlComponent", () => {
     project = projectA();
     TestBed.configureTestingModule({
       declarations: [EditPipelineYamlComponent, SubmitButtonDirective],
-      imports: [ReactiveFormsModule, UiKitModule, MonacoEditorStubComponent],
+      imports: [
+        ReactiveFormsModule,
+        UiKitModule,
+        MonacoEditorStubComponent,
+        ...TuiTabs,
+      ],
       providers: [
+        // Taiga's event plugins: tabs activate through `tui-tab-activate.stop`
+        provideTaiga(),
         provideTestConfig(),
         provideRouter([]),
         provideHttpClient(withXhr()),
@@ -82,6 +91,31 @@ describe("EditPipelineYamlComponent", () => {
 
     expect(editor().dataset["language"]).toBe("yaml");
     expect(parsed).toEqual(toPlain(project.pipeline));
+  });
+
+  it("switches between the pipeline, launch request and environment editors", () => {
+    const tab = (label: string) =>
+      Array.from(element.querySelectorAll<HTMLElement>("a, button")).find(
+        (t) => t.textContent.trim() === label,
+      );
+
+    tab("Launch request").click();
+    fixture.detectChanges();
+
+    expect(editor().dataset["language"]).toBe("json");
+    expect(JSON.parse(editor().value)).toEqual(toPlain(project.launchRequest));
+
+    tab("Environment").click();
+    fixture.detectChanges();
+
+    expect(JSON.parse(editor().value)).toEqual({
+      variables: { API_URL: "http://dummy.piper.test", RETRIES: 0 },
+    });
+
+    tab("Pipeline").click();
+    fixture.detectChanges();
+
+    expect(editor().dataset["language"]).toBe("yaml");
   });
 
   it("loads launch request and environment as JSON", () => {
