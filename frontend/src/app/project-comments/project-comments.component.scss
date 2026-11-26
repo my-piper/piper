@@ -1,43 +1,53 @@
 @use "src/ui-kit/styles/variables";
 @use "src/ui-kit/styles/mixins";
+@use "src/styles/cards";
+
+// Card base styles first; the rules below refine them.
+.cards {
+  @include cards.cards;
+}
+
+.card {
+  @include cards.card;
+}
 
 :host {
-    display: block;
-    @include mixins.vertical-stack();
+  display: block;
+  @include mixins.vertical-stack();
 }
 
 form {
-    @include mixins.vertical-stack(variables.$gutter-small);
+  @include mixins.vertical-stack(variables.$gutter-small);
 }
 
 .cards {
-    min-height: 100px;
+  min-height: 100px;
 
-    .card {
-        header {
-            padding: variables.$gutter-small;
-            font-size: .85em;
-            margin: 0;
-        }
-
-        article {
-            ::ng-deep {
-                @include mixins.vertical-stack(variables.$gutter-small);
-
-                p {
-                    margin: 0;
-                }
-            }
-        }
-
-        footer {
-            text-align: right;
-            color: variables.$graphite-color-100;
-            font-size: .85em;
-
-            .created-by {
-                font-weight: bold;
-            }
-        }
+  .card {
+    header {
+      padding: variables.$gutter-small;
+      font-size: 0.85em;
+      margin: 0;
     }
+
+    article {
+      ::ng-deep {
+        @include mixins.vertical-stack(variables.$gutter-small);
+
+        p {
+          margin: 0;
+        }
+      }
+    }
+
+    footer {
+      text-align: right;
+      color: variables.$graphite-color-100;
+      font-size: 0.85em;
+
+      .created-by {
+        font-weight: bold;
+      }
+    }
+  }
 }
