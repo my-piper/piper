@@ -49,53 +49,57 @@
 
 <h2>Current deploys</h2>
 
-<table tuiTable size="m">
-  <thead>
-    <tr>
-      <th tuiTh width="20px"></th>
-      <th tuiTh i18n="@@label.deployed_at" width="150px">Deployed at</th>
-      <th tuiTh i18n="@@label.slug">Slug</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (d of deploys; track d._id) {
+<div class="table-container">
+  <table tuiTable size="m">
+    <thead>
       <tr>
-        <td tuiTd>
-          <button
-            tuiIconButton
-            appearance="outline-grayscale"
-            size="xs"
-            class="round"
-            (click)="remove(d)"
-            [loading]="progress.removing[d._id]"
-            [disabled]="progress.removing[d._id]"
-          >
-            <app-icon class="icon" icon="delete" [size]="16"></app-icon>
-          </button>
-        </td>
-        <td tuiTd title="Deployed at" i18n-title="@@label.deployed_at">
-          {{ d.deployedAt | date: "short" }}
-        </td>
-        <td tuiTd title="Path" i18n-title="@@label.path">
-          <a
-            class="default with-icon"
-            [routerLink]="!!d.prefix ? [d.prefix, d.slug] : [d.slug]"
-          >
-            {{ d.prefix ? d.prefix + "/" : "" }}{{ d.slug }}
-            <app-icon
-              class="icon right"
-              icon="open-link"
-              [size]="16"
-              [stroke]="2"
-            ></app-icon>
-          </a>
-        </td>
+        <th tuiTh class="actions-column"></th>
+        <th tuiTh class="deployed-column" i18n="@@label.deployed_at">
+          Deployed at
+        </th>
+        <th tuiTh i18n="@@label.slug">Slug</th>
       </tr>
-    }
-    @if (progress.loading) {
-      <tr class="loading">
-        <td tuiTd colspan="3"><tui-loader [loading]="true" /></td>
-      </tr>
-    }
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      @for (d of deploys; track d._id) {
+        <tr>
+          <td tuiTd>
+            <button
+              tuiIconButton
+              appearance="outline-grayscale"
+              size="xs"
+              class="round"
+              (click)="remove(d)"
+              [loading]="progress.removing[d._id]"
+              [disabled]="progress.removing[d._id]"
+            >
+              <app-icon class="icon" icon="delete" [size]="16"></app-icon>
+            </button>
+          </td>
+          <td tuiTd title="Deployed at" i18n-title="@@label.deployed_at">
+            {{ d.deployedAt | date: "short" }}
+          </td>
+          <td tuiTd title="Path" i18n-title="@@label.path">
+            <a
+              class="default with-icon"
+              [routerLink]="!!d.prefix ? [d.prefix, d.slug] : [d.slug]"
+            >
+              {{ d.prefix ? d.prefix + "/" : "" }}{{ d.slug }}
+              <app-icon
+                class="icon right"
+                icon="open-link"
+                [size]="16"
+                [stroke]="2"
+              ></app-icon>
+            </a>
+          </td>
+        </tr>
+      }
+      @if (progress.loading) {
+        <tr class="loading">
+          <td tuiTd colspan="3"><tui-loader [loading]="true" /></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

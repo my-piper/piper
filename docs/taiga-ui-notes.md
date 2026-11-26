@@ -67,3 +67,9 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   with it. Before deleting a ui-kit stylesheet, grep `animation:` for its
   keyframes (#160); `busy-animation` has no callers left and stays broken
   until phase 10 deletes it.
+- **Tables are full width by default** (#184): `src/styles.scss` gives every
+  `table` `inline-size: 100%` and a `.table-container` wrapper that scrolls
+  sideways on narrow screens. Wrap each table in `.table-container`, leave one
+  main column without a width to take the spare space and give the others
+  fixed widths through component classes, not `width="…"` attributes. Taiga's
+  `tuiTable` sets no width of its own.
