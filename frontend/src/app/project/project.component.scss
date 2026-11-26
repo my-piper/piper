@@ -1,6 +1,5 @@
 @use "src/ui-kit/styles/variables";
 @use "src/ui-kit/styles/mixins";
-@use "src/ui-kit/styles/reset";
 
 :host {
   display: flex;
@@ -12,7 +11,8 @@ header {
   display: flex;
   flex-direction: column;
   gap: variables.$gutter-normal;
-  padding: variables.$gutter-normal variables.$gutter-big variables.$gutter-small variables.$gutter-big;
+  padding: variables.$gutter-normal variables.$gutter-big
+    variables.$gutter-small variables.$gutter-big;
 
   .title {
     display: flex;
@@ -46,10 +46,13 @@ header {
       }
     }
 
-    input {
-      @include reset.reset-input();
+    // Spans the header like the native input did; long names are clipped.
+    tui-input-inline {
+      overflow: hidden;
+      line-height: normal;
       font-size: variables.$font-size-large;
       font-weight: variables.$font-weight-bold;
+      color: variables.$primary-text-color;
       &.error {
         border-bottom: 1px dotted variables.$error-color;
       }

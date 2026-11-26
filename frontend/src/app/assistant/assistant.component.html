@@ -73,15 +73,17 @@
   }
 
   <fieldset>
-    <textarea
-      [hotKey]="'enter'"
-      class="input-primary"
-      formControlName="question"
-      placeholder="Ask me anything..."
-      i18n-placeholder="@@label.ask_me_anything"
-      type="text"
-      rows="3"
-      (hotKeyPressed)="send()"
-    ></textarea>
+    <tui-textfield tuiTextfieldSize="s" [tuiTextfieldCleaner]="false">
+      <textarea
+        tuiTextarea
+        [hotKey]="'enter'"
+        formControlName="question"
+        placeholder="Ask me anything..."
+        i18n-placeholder="@@label.ask_me_anything"
+        [minRows]="3"
+        [maxRows]="3"
+        (hotKeyPressed)="send()"
+      ></textarea>
+    </tui-textfield>
   </fieldset>
 </form>

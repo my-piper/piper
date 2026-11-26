@@ -41,11 +41,9 @@
       >
         <app-icon class="icon" icon="menu" [size]="20"></app-icon>
       </button>
-      <input
-        class="input-primary"
-        formControlName="folder"
-        placeholder="Folder name"
-      />
+      <tui-textfield tuiTextfieldSize="s" [tuiTextfieldCleaner]="false">
+        <input tuiInput formControlName="folder" placeholder="Folder name" />
+      </tui-textfield>
     </fieldset>
   </form>
 }
