@@ -202,19 +202,21 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
 
 ## Users and current user
 
-| Endpoint                          | Requirement                        | Successful status  |
-| --------------------------------- | ---------------------------------- | ------------------ |
-| `POST /api/login`                 | None; identity is login or email   | 200                |
-| `POST /api/signup/confirm`        | `ALLOW_SIGNUP=yes`; captcha if set | 204                |
-| `POST /api/signup`                | `ALLOW_SIGNUP=yes`; emailed code   | 200                |
-| `POST /api/me/api-token/generate` | Logged-in user                     | 200                |
-| `GET /api/me`                     | Logged-in user                     | 200                |
-| `POST /api/me/change-password`    | Logged-in user                     | 204                |
-| `GET /api/users/:_id`             | Logged-in user                     | 200, 204 if absent |
-| `GET /api/users`                  | Admin                              | 200                |
-| `POST /api/users`                 | Admin                              | 200                |
-| `PATCH /api/users/:_id`           | Admin                              | 200                |
-| `DELETE /api/users/:_id`          | Admin; 404 if absent               | 204                |
+| Endpoint                              | Requirement                          | Successful status  |
+| ------------------------------------- | ------------------------------------ | ------------------ |
+| `POST /api/login`                     | None; identity is login or email     | 200                |
+| `POST /api/signup/confirm`            | `ALLOW_SIGNUP=yes`; captcha if set   | 204                |
+| `POST /api/signup`                    | `ALLOW_SIGNUP=yes`; emailed code     | 200                |
+| `POST /api/me/api-token/generate`     | Logged-in user                       | 200                |
+| `GET /api/me`                         | Logged-in user                       | 200                |
+| `POST /api/me/change-password`        | Logged-in user                       | 204                |
+| `POST /api/me/identities/oidc/link`   | Logged-in user; `OIDC_AUTH=yes`      | 200                |
+| `DELETE /api/me/identities/:provider` | Logged-in user; 404 if not connected | 204                |
+| `GET /api/users/:_id`                 | Logged-in user                       | 200, 204 if absent |
+| `GET /api/users`                      | Admin                                | 200                |
+| `POST /api/users`                     | Admin                                | 200                |
+| `PATCH /api/users/:_id`               | Admin                                | 200                |
+| `DELETE /api/users/:_id`              | Admin; 404 if absent                 | 204                |
 
 - Login returns `Email or password is incorrect` (400) for both unknown users
   and wrong passwords, and `You need to reset your password` for users without
@@ -225,7 +227,15 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
 - API token generation stores a bcrypt hash of the issued JWT in Redis.
 - `/api/me` and the auth middleware load users without password hashes. Password
   changes require 6–32 characters, update only the current user's hash, and do
-  not ask for the current password.
+  not ask for the current password, so users created through single sign-on
+  can set one.
+- `/api/me` adds `identities` (connected single sign-on accounts) and
+  `hasPassword`.
+- `/api/me/identities/oidc/link` returns `{ ticket }`, stored in Redis for 5
+  minutes; the browser opens `/oauth/oidc?link=<ticket>` to connect an account
+  (see `docs/sso.md`); with `OIDC_AUTH` off it answers 400
+  `Single sign-on is disabled`. Disconnecting is refused (400) when the user would be
+  left without a password or another identity.
 - Admin user creation and updates use the production user schema
   (`User schema invalid`, unknown fields rejected); duplicate users report
   `User exists`. Non-admins, including engineers, get 400.

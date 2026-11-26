@@ -5,7 +5,11 @@ import {
   OIDC_ISSUER,
   OIDC_SCOPE,
 } from "consts/oidc";
-import { OIDC_STATE_EXPIRED, OIDC_STATE_KEY } from "consts/redis";
+import {
+  OIDC_LINK_KEY,
+  OIDC_STATE_EXPIRED,
+  OIDC_STATE_KEY,
+} from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import {
@@ -44,10 +48,25 @@ function config(): Promise<Configuration> {
   return configuration;
 }
 
-export async function authorizationUrl(): Promise<{
+/**
+ * Starts a flow. With a `link` ticket from `POST /api/me/identities/oidc/link`
+ * the flow binds the identity to that ticket's user instead of signing in.
+ */
+export async function authorizationUrl(link?: string): Promise<{
   url: string;
   state: string;
 }> {
+  // Discover first, so a provider outage doesn't use up the link ticket.
+  const provider = await config();
+
+  let userId: string | undefined;
+  if (link) {
+    userId = (await redis.getDel(OIDC_LINK_KEY(link))) ?? undefined;
+    if (!userId) {
+      throw new OidcSignInError("sso_failed", "Unknown or expired link ticket");
+    }
+  }
+
   const verifier = randomPKCECodeVerifier();
   const state = randomState();
   const nonce = randomNonce();
@@ -55,10 +74,10 @@ export async function authorizationUrl(): Promise<{
   await redis.setEx(
     OIDC_STATE_KEY(state),
     OIDC_STATE_EXPIRED,
-    JSON.stringify(toPlain(new OidcState({ verifier, nonce })))
+    JSON.stringify(toPlain(new OidcState({ verifier, nonce, userId })))
   );
 
-  const url = buildAuthorizationUrl(await config(), {
+  const url = buildAuthorizationUrl(provider, {
     redirect_uri: OIDC_CALLBACK_URL,
     scope: OIDC_SCOPE,
     code_challenge: await calculatePKCECodeChallenge(verifier),
@@ -77,7 +96,7 @@ export async function authorizationUrl(): Promise<{
 export async function exchangeCode(
   query: string,
   browserState: string | undefined
-): Promise<OidcClaims> {
+): Promise<{ claims: OidcClaims; userId?: string }> {
   const callback = new URL(OIDC_CALLBACK_URL);
   callback.search = query;
   const state = callback.searchParams.get("state");
@@ -89,7 +108,7 @@ export async function exchangeCode(
   if (!stored) {
     throw new OidcSignInError("sso_failed", "Unknown or expired state");
   }
-  const { verifier, nonce } = toInstance(JSON.parse(stored), OidcState);
+  const { verifier, nonce, userId } = toInstance(JSON.parse(stored), OidcState);
 
   const tokens = await authorizationCodeGrant(await config(), callback, {
     pkceCodeVerifier: verifier,
@@ -99,12 +118,15 @@ export async function exchangeCode(
   });
   const claims = tokens.claims();
   return {
-    subject: claims.sub,
-    email: typeof claims.email === "string" ? claims.email : undefined,
-    emailVerified: claims.email_verified === true,
-    preferredUsername:
-      typeof claims.preferred_username === "string"
-        ? claims.preferred_username
-        : undefined,
+    userId,
+    claims: {
+      subject: claims.sub,
+      email: typeof claims.email === "string" ? claims.email : undefined,
+      emailVerified: claims.email_verified === true,
+      preferredUsername:
+        typeof claims.preferred_username === "string"
+          ? claims.preferred_username
+          : undefined,
+    },
   };
 }

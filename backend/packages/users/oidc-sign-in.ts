@@ -6,7 +6,11 @@ import { ulid } from "ulid";
 import { getToken } from "./auth";
 import { usernameCandidates } from "./username";
 
-export type OidcSignInErrorCode = "sso_account_exists" | "sso_failed";
+export type OidcSignInErrorCode =
+  | "sso_account_exists"
+  | "sso_failed"
+  | "sso_linked_elsewhere"
+  | "sso_already_connected";
 
 export class OidcSignInError extends Error {
   constructor(

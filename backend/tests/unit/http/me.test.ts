@@ -3,15 +3,18 @@ import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { userToken } from "../../fixtures/http";
 import bcrypt from "bcrypt";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let context: Awaited<ReturnType<typeof createHttpApp>>;
+let scenario: ReturnType<typeof httpScenario>;
 
 beforeEach(async () => {
-  httpScenario();
+  scenario = httpScenario();
   context = await createHttpApp([
     () => import("api/me/get-me"),
     () => import("api/me/change-me-password"),
+    () => import("api/me/link-identity"),
+    () => import("api/me/unlink-identity"),
   ]);
 });
 
@@ -27,6 +30,7 @@ describe("current user", () => {
       email: "admin-user@example.com",
       roles: ["admin"],
       createdAt: "2025-01-01T00:00:00.000Z",
+      hasPassword: true,
     });
   });
 
@@ -73,5 +77,90 @@ describe("password change", () => {
 
     expect(response.status).toBe(400);
     expect(httpDoubles.users.updateOne).not.toHaveBeenCalled();
+  });
+});
+
+const IDENTITY = {
+  provider: "oidc",
+  subject: "sso-subject",
+  email: "jane@sso.example.com",
+  linkedAt: new Date("2026-01-01T00:00:00.000Z"),
+};
+
+describe("connected accounts", () => {
+  it("lists identities and reports a missing password", async () => {
+    const owner = scenario.users.get("owner-user");
+    delete owner.password;
+    Object.assign(owner, { identities: [IDENTITY] });
+
+    const response = await context.request
+      .get("/api/me")
+      .set("user-token", userToken());
+
+    expect(response.body).toMatchObject({
+      hasPassword: false,
+      identities: [{ ...IDENTITY, linkedAt: "2026-01-01T00:00:00.000Z" }],
+    });
+  });
+
+  it("issues a single-use link ticket in Redis", async () => {
+    vi.stubEnv("OIDC_AUTH", "yes");
+    context = await createHttpApp([() => import("api/me/link-identity")]);
+
+    const response = await context.request
+      .post("/api/me/identities/oidc/link")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(200);
+    expect(response.body.ticket).toMatch(/^[\w-]{43}$/);
+    expect(httpDoubles.redis.setEx).toHaveBeenCalledWith(
+      `oidc:link:${response.body.ticket}`,
+      300,
+      "owner-user"
+    );
+  });
+
+  it("refuses link tickets when SSO is disabled", async () => {
+    const response = await context.request
+      .post("/api/me/identities/oidc/link")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(400);
+    expect(httpDoubles.redis.setEx).not.toHaveBeenCalled();
+  });
+
+  it("disconnects an identity when a password remains", async () => {
+    Object.assign(scenario.users.get("owner-user"), { identities: [IDENTITY] });
+
+    const response = await context.request
+      .delete("/api/me/identities/oidc")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(204);
+    expect(httpDoubles.users.updateOne).toHaveBeenCalledWith(
+      { _id: "owner-user" },
+      { $pull: { identities: { provider: "oidc" } } }
+    );
+  });
+
+  it("keeps the only way to sign in", async () => {
+    const owner = scenario.users.get("owner-user");
+    delete owner.password;
+    Object.assign(owner, { identities: [IDENTITY] });
+
+    const response = await context.request
+      .delete("/api/me/identities/oidc")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(400);
+    expect(httpDoubles.users.updateOne).not.toHaveBeenCalled();
+  });
+
+  it("answers 404 for an identity that is not connected", async () => {
+    const response = await context.request
+      .delete("/api/me/identities/oidc")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(404);
   });
 });
