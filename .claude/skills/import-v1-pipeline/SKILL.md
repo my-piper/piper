@@ -71,9 +71,8 @@ and multipart, dynamic module loading, Environment names and access, and
 obsolete notifications. Renaming Variables alone is incomplete.
 
 A script's imports are exactly: `"registry:core@1/node.js"`,
-`"registry:artworks@<N>/utils.js"` and `"registry:artworks@<N>/node.js"` for the
-ArtWorks client, bare `"sharp"`, `node:` builtins and pinned HTTPS URLs on hosts
-Deno allows. The script itself goes into the YAML as the node's `script`, with
+`"registry:artworks@<N>/utils.js"` for the ArtWorks client, bare `"sharp"`,
+`node:` builtins and pinned HTTPS URLs on hosts Deno allows. The script itself goes into the YAML as the node's `script`, with
 `source: script`, without `isolated: true` (its process has no registry token
 and no native code). Remove catalog identity (`catalog`, `_id`, `sign`,
 `package`) and obsolete billing metadata. Retain `environment` declarations

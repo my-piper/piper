@@ -44,34 +44,47 @@ images (Duo's `prepare_images`) should keep only one decoded image at a time.
 
 ## artworks
 
-v1's built-in `artworks` module (`ArtWorks`, `FatalError`) is the published
-artworks package's client. Import it by quoted reference, pinned to the version
-the registry serves, and catch its errors as that package's own `FatalError`
-(the class the client throws, distinct from core's):
+v1's built-in `artworks` module is the published artworks package's client
+(source: `nodes/artworks/utils.js` in the catalog, `$PIPER_NODES_DIR`). Let it
+run the task: `createTask` posts and answers the first repeat, `checkTask`
+answers the task data, or `{ __repeat }` while it runs, and itself cancels and
+throws a `TimeoutError` after `maxAttempts` and a `FatalError` for a failed,
+canceled or unknown task. Pass the Node's own interval and attempt budget:
 
 ```js
+import { next } from "registry:core@1/node.js";
 import { ArtWorks } from "registry:artworks@<N>/utils.js";
-import { FatalError as ArtWorksError } from "registry:artworks@<N>/node.js";
-const artworks = new ArtWorks(env);
+
+const artworks = new ArtWorks(env, { checkInterval: 3_000, maxAttempts: 20 });
+if (!state) return await artworks.createTask(payload);
+const results = await artworks.checkTask(state);
+if ("__repeat" in results) return results.__repeat;
+return next({ outputs: { image: results.images[0].url } });
 ```
 
-Use the client as it is, one copy for every Node. It answers both ways a Node
-polls:
+This replaces v1's hand-written loop (`createTask` + `checkState`, attempt
+counters, cancel on timeout) and its `ARTWORKS_*` presence checks: the client
+requires `ARTWORKS_USER` and `ARTWORKS_PASSWORD` and defaults the URL, which
+`ARTWORKS_URL` replaces when set (tests point it at a mock). Errors are
+classified by their `code`, so v1's `catch (e) { if (e instanceof
+ArtWorksError) throw new FatalError(e.message) }` goes too.
 
-- v1's own state machine: `postTask(payload)` answers the task id, as v1's
-  `createTask` did; `checkState(task)` answers `results.data`, or null while
-  the task runs, and throws a `FatalError` for a failed, canceled or unknown
-  task (a `TimeoutError` for a timed out one). The Node keeps its own
-  attempts, delays, cancellation and fallbacks.
-- the catalog's: `createTask` answers a repeat instruction and `checkTask` the
-  data or `{ __repeat }`.
+State a later poll still needs (labels to map back, a fallback queue, a phase)
+rides on the repeat the client answers:
 
-Keep v1's calls on `postTask`/`checkState` (rename v1's `createTask` call to
-`postTask`), so task payloads, priorities, polling state, cancellation and
-fallback paths stay as they were; the client adds `priority: 1` unless the
-payload sets one. `ARTWORKS_URL` (v1's `PAAS_BASE_URL`) replaces the API base
-when set; tests point it at a mock. Declare `ARTWORKS_USER`,
-`ARTWORKS_PASSWORD` and, if used, `ARTWORKS_URL`.
+```js
+const started = await artworks.createTask(payload);
+return { ...started, state: { ...started.state, queue } };
+// …
+const { __repeat } = results;
+return { ...__repeat, state: { ...__repeat.state, queue: state.queue } };
+```
+
+A fallback (GPU → CPU, fast → plain) catches the error `checkTask` throws,
+by its `code`, and starts the next variant with `createTask`; it rethrows when
+none is left. Payloads stay as v1 wrote them; the client adds `priority: 1`
+unless the payload sets one. Declare `ARTWORKS_USER`, `ARTWORKS_PASSWORD` and
+`ARTWORKS_URL`.
 
 ## Dynamic require
 
