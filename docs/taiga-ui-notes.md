@@ -61,12 +61,11 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   through `::ng-deep` with Taiga variables (`--tui-background-base` for
   fields, `--tui-border-normal`, `--tui-background-neutral-1` for its buttons),
   so it follows the theme like a `tui-textfield` without wrapping each control.
-- **ui-kit `@keyframes` are global and live in unrelated files**: `spinner`
-  was defined only in `tables.scss` and `defs/buttons.scss`, while
-  `menus.scss` and the `busy-animation` mixin in `animations.scss` animate
-  with it. Before deleting a ui-kit stylesheet, grep `animation:` for its
-  keyframes (#160); `busy-animation` has no callers left and stays broken
-  until phase 10 deletes it.
+- **`@keyframes` are global and can live in unrelated files**: the ui-kit
+  `spinner` was defined only in `tables.scss` and `defs/buttons.scss`, while
+  `menus.scss` and a mixin in `animations.scss` animated with it. Before
+  deleting a stylesheet in `src/styles/`, grep `animation:` for its
+  keyframes (#160).
 - **Piper's icons are a Taiga registry, not `app-icon`** (#178). The SVGs in
   `frontend/src/icons/` load as text (the `.svg` loader in `angular.json`)
   and are registered with `tuiIconsProvider(PIPER_ICONS)` under their old bare

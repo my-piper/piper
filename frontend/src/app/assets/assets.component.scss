@@ -1,6 +1,6 @@
-@use "src/ui-kit/styles/variables";
-@use "src/ui-kit/styles/mixins";
-@use "src/ui-kit/styles/reset";
+@use "src/styles/variables";
+@use "src/styles/mixins";
+@use "src/styles/reset";
 
 :host {
   display: block;
