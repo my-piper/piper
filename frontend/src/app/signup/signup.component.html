@@ -46,13 +46,15 @@
   </form>
 </ng-template>
 
-@if (state.confirm) {
-  <app-informer [contentTemplate]="confirmEmailTemplate"></app-informer>
-}
+<ng-template
+  [tuiDialog]="state.confirm"
+  [tuiDialogOptions]="{ size: 's', closable: false, dismissible: false }"
+  (tuiDialogChange)="state.confirm = $event"
+>
+  <ng-container *ngTemplateOutlet="confirmEmailTemplate"></ng-container>
+</ng-template>
 
-@if (!!error) {
-  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
-}
+<app-error-dialog [error]="error" (closed)="error = null" />
 
 <div class="app-container">
   <div class="frame">

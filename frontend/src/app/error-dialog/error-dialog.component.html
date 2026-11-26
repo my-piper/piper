@@ -1,0 +1,29 @@
+<ng-template
+  [tuiDialog]="!!error()"
+  [tuiDialogOptions]="{ size: 's' }"
+  (tuiDialogChange)="!$event && closed.emit()"
+>
+  @if (error(); as error) {
+    <div class="error" role="alert">
+      <p>{{ error.message }}</p>
+      @if (details(error); as details) {
+        @if (details.length > 0) {
+          <ul>
+            @for (detail of details; track $index) {
+              <li>{{ detail }}</li>
+            }
+          </ul>
+        }
+      }
+      <button
+        tuiButton
+        appearance="outline-grayscale"
+        size="s"
+        type="button"
+        (click)="closed.emit()"
+      >
+        OK
+      </button>
+    </div>
+  }
+</ng-template>

@@ -12,18 +12,20 @@ import { AUTHORIZATION_KEY } from "src/consts/core";
 import { AppConfig } from "src/models/app-config";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
-import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { IncludesPipe } from "src/pipes/includes.pipe";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
+import { NgTemplateOutlet } from "@angular/common";
+import { provideTaiga, TuiDialog } from "@taiga-ui/core";
 import { authorizationPlain } from "../fixtures/plain";
 import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
 import { HcaptchaStubComponent } from "../helpers/captcha-stub";
 import { provideTestConfig } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
-import { isLoading, markedInvalid } from "../helpers/taiga";
+import { isLoading, markedInvalid, popupRoot } from "../helpers/taiga";
 
 /**
  * Wire contracts (backend/api/users/signup.ts):
@@ -38,7 +40,6 @@ async function render(config: Partial<PlainAppConfig> = {}) {
   await TestBed.configureTestingModule({
     declarations: [
       SigupComponent,
-      InformerComponent,
       PopoverDirective,
       SelectThemeComponent,
       IncludesPipe,
@@ -48,8 +49,12 @@ async function render(config: Partial<PlainAppConfig> = {}) {
       RouterLink,
       TaigaFormsModule,
       HcaptchaStubComponent,
+      ErrorDialogComponent,
+      TuiDialog,
+      NgTemplateOutlet,
     ],
     providers: [
+      provideTaiga(),
       provideTestConfig(config),
       provideRouter([]),
       provideHttpClient(withXhr()),
@@ -59,23 +64,31 @@ async function render(config: Partial<PlainAppConfig> = {}) {
   }).compileComponents();
   const fixture = TestBed.createComponent(SigupComponent);
   fixture.detectChanges();
+  const root = popupRoot();
   const element = fixture.nativeElement as HTMLElement;
+  // the confirmation step and errors render in dialogs, in the root's portal
+  const detect = () => {
+    fixture.detectChanges();
+    root.detectChanges();
+  };
   const router = TestBed.inject(Router);
 
   const input = (id: string) =>
-    element.querySelector(`#${id}`) as HTMLInputElement;
+    (element.querySelector(`#${id}`) ??
+      document.querySelector(`tui-dialog #${id}`)) as HTMLInputElement;
   const type = (id: string, value: string) => {
     input(id).value = value;
     input(id).dispatchEvent(new Event("input"));
-    fixture.detectChanges();
+    detect();
   };
   const submit = (form: HTMLFormElement) => {
     form.dispatchEvent(new Event("submit"));
-    fixture.detectChanges();
+    detect();
   };
 
   return {
     fixture,
+    detect,
     element,
     controller: TestBed.inject(HttpTestingController),
     router,
@@ -88,11 +101,10 @@ async function render(config: Partial<PlainAppConfig> = {}) {
     signupForm: () =>
       element.querySelector("form:not(.confirmation)") as HTMLFormElement,
     confirmationForm: () =>
-      element.querySelector("form.confirmation") as HTMLFormElement,
+      document.querySelector("tui-dialog form.confirmation") as HTMLFormElement,
     submit,
-    // The error informer is the one with the default (message) template.
-    informerText: () =>
-      element.querySelector("app-informer > p")?.textContent.trim(),
+    errorText: () =>
+      document.querySelector("tui-dialog [role=alert] p")?.textContent.trim(),
   };
 }
 
@@ -105,7 +117,7 @@ function passConfirmation(page: Rendered, email = "new.user@example.com") {
   page.submit(page.signupForm());
   page.controller.expectOne(CONFIRM_URL).flush("");
   tick(UI_DELAY);
-  page.fixture.detectChanges();
+  page.detect();
 }
 
 describe("SigupComponent", () => {
@@ -149,7 +161,7 @@ describe("SigupComponent", () => {
       const loading = isLoading(button);
       request.flush("");
       tick(UI_DELAY);
-      page.fixture.detectChanges();
+      page.detect();
 
       expect(request.request.method).toBe("POST");
       expect(request.request.body).toEqual({
@@ -176,14 +188,14 @@ describe("SigupComponent", () => {
         .expectOne(CONFIRM_URL)
         .flush("Wrong captcha", { status: 400, statusText: "Bad Request" });
       tick(UI_DELAY);
-      page.fixture.detectChanges();
+      page.detect();
 
-      expect(page.informerText()).toBe("Wrong captcha");
+      expect(page.errorText()).toBe("Wrong captcha");
       expect(page.confirmationForm()).toBeNull();
       page.controller.verify();
     }));
 
-    it("dismisses the error informer", fakeAsync(async () => {
+    it("clears the error when its dialog is closed with OK", fakeAsync(async () => {
       expectConsoleError("Process HTTP error 400");
       const page = await render();
       page.type("email", "new.user@example.com");
@@ -192,14 +204,14 @@ describe("SigupComponent", () => {
         .expectOne(CONFIRM_URL)
         .flush("Wrong captcha", { status: 400, statusText: "Bad Request" });
       tick(UI_DELAY);
-      page.fixture.detectChanges();
+      page.detect();
 
-      (
-        page.element.querySelector("app-informer button") as HTMLElement
-      ).click();
-      page.fixture.detectChanges();
+      Array.from(document.querySelectorAll("tui-dialog button"))
+        .find((b) => b.textContent.trim() === "OK")
+        .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      page.detect();
 
-      expect(page.element.querySelector("app-informer")).toBeNull();
+      expect(page.fixture.componentInstance.error).toBeNull();
     }));
   });
 
@@ -244,9 +256,9 @@ describe("SigupComponent", () => {
         statusText: "Bad Request",
       });
       tick(UI_DELAY);
-      page.fixture.detectChanges();
+      page.detect();
 
-      expect(page.informerText()).toBe("Wrong confirmation code");
+      expect(page.errorText()).toBe("Wrong confirmation code");
       expect(page.config.authorization).toBeNull();
       expect(localStorage.getItem(AUTHORIZATION_KEY)).toBeNull();
       expect(page.navigate).not.toHaveBeenCalled();
