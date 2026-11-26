@@ -65,11 +65,15 @@ test-integration:
 up:
 	docker compose ${COMPOSE_ARGS} up --remove-orphans
 
+# `up` plus a local Authentik for single sign-on (see tools/compose/authentik).
+up-sso:
+	docker compose ${COMPOSE_ARGS} --profile sso up --remove-orphans
+
 down:
-	docker compose ${COMPOSE_ARGS} down
+	docker compose ${COMPOSE_ARGS} --profile sso down
 
 stop:
-	docker compose ${COMPOSE_ARGS} stop
+	docker compose ${COMPOSE_ARGS} --profile sso stop
 
 # -- local development --
 # Start the infra first with `make up` in another terminal.

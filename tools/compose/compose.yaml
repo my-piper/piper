@@ -6,6 +6,7 @@ volumes:
   clickhouse-data:
   clickhouse-logs:
   seaweedfs-data:
+  authentik-db:
 
 services:
   seaweedfs:
@@ -139,3 +140,53 @@ services:
 
   lgbm-moderation:
     image: registry.artworks.ai/realistic-ai/ai-lab/services/lgbm-moderation/dev:25817
+
+  # Local single sign-on (Authentik), only with `make up-sso`.
+  # Admin UI: http://localhost:9080/ (akadmin / piper-local-password).
+  authentik-db:
+    image: postgres:16-alpine
+    profiles: [sso]
+    environment:
+      POSTGRES_DB: authentik
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: authentik
+    volumes:
+      - authentik-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d authentik -U authentik"]
+      interval: 2s
+      retries: 30
+      start_period: 5s
+      timeout: 5s
+
+  authentik-server:
+    image: &authentik-image ghcr.io/goauthentik/server:2026.8.5
+    profiles: [sso]
+    command: server
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+    environment: &authentik-env
+      AUTHENTIK_SECRET_KEY: piper-local-authentik-secret-key-not-for-production
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik
+      AUTHENTIK_BOOTSTRAP_PASSWORD: piper-local-password
+      AUTHENTIK_BOOTSTRAP_EMAIL: admin@example.com
+    ports:
+      # 9000 is ClickHouse's; Piper's OIDC_ISSUER uses this port.
+      - "127.0.0.1:9080:9000"
+    volumes:
+      - ./authentik/piper.yaml:/blueprints/custom/piper.yaml:ro
+
+  authentik-worker:
+    image: *authentik-image
+    profiles: [sso]
+    command: worker
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+    environment: *authentik-env
+    volumes:
+      - ./authentik/piper.yaml:/blueprints/custom/piper.yaml:ro
