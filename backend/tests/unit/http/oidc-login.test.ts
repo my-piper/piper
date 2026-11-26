@@ -287,7 +287,7 @@ describe("connecting an identity to a signed-in user", () => {
   it("ignores a ticket in the URL: a link from someone else binds nothing", async () => {
     const response = await context.request.get("/oidc?link=ticket-1");
 
-    expect(response.headers.location).toBe("/en/?sso=sso_failed");
+    expect(response.headers.location).toBe("/en/projects?sso=sso_failed");
     expect(states.get("oidc:link:ticket-1")).toBe("other-user");
     expect(httpDoubles.redis.setEx).not.toHaveBeenCalled();
   });
@@ -297,7 +297,7 @@ describe("connecting an identity to a signed-in user", () => {
 
     const response = await connect({ ...CLAIMS, email_verified: false });
 
-    expect(response.headers.location).toBe("/en/?sso=linked");
+    expect(response.headers.location).toBe("/en/projects?sso=linked");
     expect(httpDoubles.users.updateOne).toHaveBeenCalledWith(
       { _id: "other-user", "identities.provider": { $ne: "oidc" } },
       {
@@ -321,7 +321,7 @@ describe("connecting an identity to a signed-in user", () => {
       .get("/oidc?link")
       .set("Cookie", "oidc_link=ticket-1");
 
-    expect(replay.headers.location).toBe("/en/?sso=sso_failed");
+    expect(replay.headers.location).toBe("/en/projects?sso=sso_failed");
   });
 
   it("keeps the ticket when the provider is unreachable", async () => {
@@ -331,7 +331,7 @@ describe("connecting an identity to a signed-in user", () => {
       .get("/oidc?link")
       .set("Cookie", "oidc_link=ticket-1");
 
-    expect(response.headers.location).toBe("/en/?sso=sso_failed");
+    expect(response.headers.location).toBe("/en/projects?sso=sso_failed");
     expect(states.get("oidc:link:ticket-1")).toBe("other-user");
   });
 
@@ -340,7 +340,9 @@ describe("connecting an identity to a signed-in user", () => {
 
     const response = await connect();
 
-    expect(response.headers.location).toBe("/en/?sso=sso_linked_elsewhere");
+    expect(response.headers.location).toBe(
+      "/en/projects?sso=sso_linked_elsewhere"
+    );
     expect(httpDoubles.users.updateOne).not.toHaveBeenCalled();
   });
 
@@ -349,7 +351,7 @@ describe("connecting an identity to a signed-in user", () => {
 
     const response = await connect();
 
-    expect(response.headers.location).toBe("/en/?sso=linked");
+    expect(response.headers.location).toBe("/en/projects?sso=linked");
     expect(httpDoubles.users.updateOne).not.toHaveBeenCalled();
   });
 
@@ -358,7 +360,9 @@ describe("connecting an identity to a signed-in user", () => {
 
     const response = await connect();
 
-    expect(response.headers.location).toBe("/en/?sso=sso_already_connected");
+    expect(response.headers.location).toBe(
+      "/en/projects?sso=sso_already_connected"
+    );
   });
 
   it("maps a race on the identity index to linked elsewhere", async () => {
@@ -366,6 +370,8 @@ describe("connecting an identity to a signed-in user", () => {
 
     const response = await connect();
 
-    expect(response.headers.location).toBe("/en/?sso=sso_linked_elsewhere");
+    expect(response.headers.location).toBe(
+      "/en/projects?sso=sso_linked_elsewhere"
+    );
   });
 });

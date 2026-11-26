@@ -38,7 +38,7 @@ A user who signs in with a password connects SSO from the app:
    can't bind the visitor's provider account to the sender's Piper account.
    It uses up the ticket and keeps the user in the flow's state.
 3. After the provider, the callback binds `(oidc, sub)` to that user and
-   redirects to `/en/?sso=linked`, or `/en/?sso=<error>`:
+   redirects to `/en/projects?sso=linked`, or `/en/projects?sso=<error>`:
    - `sso_linked_elsewhere`: the provider account is connected to another
      Piper user;
    - `sso_already_connected`: the user has another account of this provider

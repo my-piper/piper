@@ -24,7 +24,8 @@ function loginError(err: unknown): string {
 
 /** Where a signed-in user lands after connecting an identity. */
 function linkResult(result: string): string {
-  return `/en/?sso=${result}`;
+  // The app's root redirect drops the query, so land on a real page.
+  return `/en/projects?sso=${result}`;
 }
 
 if (OIDC_AUTH) {
