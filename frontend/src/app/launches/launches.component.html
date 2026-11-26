@@ -119,7 +119,7 @@
             </button>
             @if (l._id | launchHeartbeat | ticker | async; as heartbeat) {
               @if ((heartbeat | timeDiff: "s") < 10) {
-                <app-spinner size="small"></app-spinner>
+                <tui-loader size="s" />
               }
             }
           </div>

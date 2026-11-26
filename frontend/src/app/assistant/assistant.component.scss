@@ -8,6 +8,12 @@
 .chat {
   display: flex;
   flex-direction: column;
+
+  // tui-loader spans the line and centers its ring; app-spinner sat at the
+  // start of it, under the question (#189).
+  tui-loader {
+    justify-items: start;
+  }
   height: 200px;
   overflow-y: scroll;
   border: 1px solid variables.$control-border-color;
