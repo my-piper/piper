@@ -96,3 +96,6 @@ export const LEGACY_USER_ENVIRONMENT_PREFIX = "environment:";
 
 export const USER_API_TOKEN_KEY = (id: string) => `user:${id}:api-token`;
 export const USER_API_TOKEN_EXPIRED = 5 * 365 * SECONDS_IN_DAY;
+
+export const OIDC_STATE_KEY = (state: string) => `oidc:state:${state}`;
+export const OIDC_STATE_EXPIRED = 10 * 60;
