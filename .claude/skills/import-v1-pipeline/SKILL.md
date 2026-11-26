@@ -17,8 +17,10 @@ deploying require the user to request those actions. Owner confirmation alone
 authorizes none of them.
 
 Inline Script Nodes are the exception: use one only for a node that needs no
-shared helper, or when the user asks for output without packages. That changes
-the packaging, not the required runtime rewrites.
+shared helper, or when the user asks for output without packages. An inline
+node may still import the published artworks package's helpers by quoted
+`registry:artworks@<N>/…` reference (see [rewrites.md](rewrites.md)). That
+changes the packaging, not the required runtime rewrites.
 
 **Reuse a catalog node first.** Point the pipeline at an `artworks` node
 (`source: node`, `package: artworks`, `script: registry:artworks@<N>/<node>/script.js`)

@@ -96,6 +96,63 @@ describe("prepared pipeline guard", () => {
     );
   });
 
+  it("accepts an inline script that imports sharp when the node runs without isolation", () => {
+    const pipeline = preparedFixture(`import sharp from "sharp";
+${SCRIPT}`);
+
+    const result = check(pipeline);
+
+    expect(result.errors).toEqual([]);
+  });
+
+  it("rejects sharp in an isolated node, whose process can't load native code", () => {
+    const pipeline = preparedFixture(`import sharp from "sharp";
+${SCRIPT}`);
+    Object.assign(pipeline.nodes.echo_node, { isolated: true });
+
+    const result = check(pipeline);
+
+    expect(result.errors).toContain(
+      "Node echo_node: sharp loads only in a node without isolated: true"
+    );
+  });
+
+  it("accepts an inline script that imports helpers of the artworks package", () => {
+    const pipeline =
+      preparedFixture(`import { ArtWorks } from "registry:artworks@50/utils.js";
+import { next } from "registry:artworks@50/node.js";
+${SCRIPT}`);
+
+    const result = check(pipeline);
+
+    expect(result.errors).toEqual([]);
+  });
+
+  it("rejects an inline script that imports helpers of any other package", () => {
+    const pipeline =
+      preparedFixture(`import { next } from "registry:v1_pipelines@2/node.js";
+${SCRIPT}`);
+
+    const result = check(pipeline);
+
+    expect(result.errors).toContain(
+      "Node echo_node: imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts"
+    );
+  });
+
+  it("rejects an artworks import in an isolated node, whose process has no registry token", () => {
+    const pipeline =
+      preparedFixture(`import { next } from "registry:artworks@50/node.js";
+${SCRIPT}`);
+    Object.assign(pipeline.nodes.echo_node, { isolated: true });
+
+    const result = check(pipeline);
+
+    expect(result.errors).toContain(
+      "Node echo_node: registry imports load only in a node without isolated: true"
+    );
+  });
+
   it("accepts a package node whose catalog script passes the script checks", () => {
     const pipeline = packageFixture();
 
@@ -105,6 +162,19 @@ ${SCRIPT}`,
     });
 
     expect(result.errors).toEqual([]);
+  });
+
+  it("rejects an artworks registry import in a catalog script, which the server doesn't resolve", () => {
+    const pipeline = packageFixture();
+
+    const result = checkPackages(pipeline, {
+      "v1_pipelines/echo_node/script.js": `import { next } from "registry:artworks@50/node.js";
+${SCRIPT}`,
+    });
+
+    expect(result.errors).toContain(
+      "Node echo_node: imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts"
+    );
   });
 
   it("checks a package node's catalog script like an inline script", () => {
@@ -308,13 +378,13 @@ ${SCRIPT}`,
     {
       script: "import { run } from './helper.js'; export { run };",
       problem:
-        "imports must be pinned supported HTTPS URLs or node: builtins; use a package node for shared helpers",
+        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts",
     },
     {
       script:
         "export async function run() { return import('https://deno.land/x/imagescript/mod.ts'); }",
       problem:
-        "imports must be pinned supported HTTPS URLs or node: builtins; use a package node for shared helpers",
+        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts",
     },
     {
       script:

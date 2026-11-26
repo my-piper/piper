@@ -48,10 +48,22 @@ const LEGACY_NAMES = new Set([
   "PAAS_BASE_URL",
 ]);
 
+/**
+ * A `registry:artworks@<N>/<path>` reference: inline scripts may share the
+ * published artworks package's helpers instead of depending on a new package.
+ */
+function isArtworksReference(value: string) {
+  try {
+    return parseRegistryScript(value).nodePackage === "artworks";
+  } catch {
+    return false;
+  }
+}
+
 function scriptProblems(
   script: string,
   declared: Set<string>,
-  { relativeImports = false } = {}
+  { relativeImports = false, isolated = false } = {}
 ): string[] {
   const errors = new Set<string>();
   const source = ts.createSourceFile(
@@ -87,11 +99,22 @@ function scriptProblems(
     if (value.startsWith("node:")) return;
     // Package archives carry their helpers; tools/pack.js checks the paths.
     if (relativeImports && value.startsWith(".")) return;
+    // The server resolves quoted registry references only in inline code, and
+    // piper-deno maps bare "sharp" to its pinned npm:sharp (its ADR 0002).
+    // Both load only in Worker isolation, not in a process-isolated Node:
+    // that process has no registry token and no native code (ADRs 0006, 0007).
+    if (!relativeImports && (value === "sharp" || isArtworksReference(value))) {
+      if (isolated)
+        errors.add(
+          `${value === "sharp" ? "sharp loads" : "registry imports load"} only in a node without isolated: true`
+        );
+      return;
+    }
     try {
       checkScriptUrl(value);
     } catch {
       errors.add(
-        "imports must be pinned supported HTTPS URLs or node: builtins; use a package node for shared helpers"
+        "imports must be pinned supported HTTPS URLs, node: builtins, sharp or registry:artworks helpers in inline scripts"
       );
     }
   }
@@ -282,7 +305,9 @@ export function validatePreparedPipeline(
         `Node ${key}: Environment declarations do not survive model conversion`
       );
     if (!node.package)
-      for (const problem of scriptProblems(node.script ?? "", declared))
+      for (const problem of scriptProblems(node.script ?? "", declared, {
+        isolated: node.isolated,
+      }))
         errors.push(`Node ${key}: ${problem}`);
     else if (catalogPath && !nodesDir)
       errors.push(

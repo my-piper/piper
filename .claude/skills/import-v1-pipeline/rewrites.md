@@ -15,32 +15,23 @@ notification is not a behaviour change worth reporting beyond one line.
 
 ## sharp
 
-`sharp` is a native addon: Deno runs it only with `--allow-ffi`, which neither
-isolation mode grants. Use imagescript, pinned as the catalog pins it:
+Keep `sharp`. piper-deno grants `--allow-ffi` and loads its pinned
+`npm:sharp` for the bare specifier, but only in Worker isolation (piper-deno
+ADR 0002): never mark a Node that uses it `isolated: true`. Rewrite only the
+v1 loading and the byte types:
 
 ```js
-import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
-const image = await Image.decode(data); // Uint8Array from download()
+import sharp from "sharp";
+const image = sharp(data); // Uint8Array from download()
 ```
 
-| sharp                                                                 | imagescript                                                                              |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `.resize({ width: W })`                                               | `image.resize(W, Image.RESIZE_AUTO)`                                                     |
-| `.resize({ height: H })`                                              | `image.resize(Image.RESIZE_AUTO, H)`                                                     |
-| `.resize({ width: M, height: M, fit: 'inside', withoutEnlargement })` | scale by `Math.min(1, M / image.width, M / image.height)`, resize only when below 1      |
-| `.jpeg({ quality: Q }).toBuffer()`                                    | `await image.encodeJPEG(Q)`                                                              |
-| `(await sharp(b).metadata()).width/.height`                           | `(await Image.decode(b)).width/.height`                                                  |
-| `sharp({ create: { width, height, background: black } })`             | `new Image(width, height).fill(0x000000ff)`                                              |
-| `.composite([{ input, left, top }])`                                  | `canvas.composite(decoded, left, top)` per input                                         |
-| `.blur(15)`                                                           | no blur: downscale to 1/16 and resize back up (pixelated, which is enough for a preview) |
-| `.rotate()` (EXIF orientation)                                        | none: drop it and record the change (a rotated phone photo may come out sideways)        |
+`require('sharp')` becomes the import, and a `Buffer` result
+(`.toBuffer()`) is used as it is or passed to `Buffer`-free code as a
+`Uint8Array`. Sizing, `fit`, `withoutEnlargement`, `.rotate()`, `.blur()`,
+`.composite()` and encoder options stay as v1 wrote them.
 
-`metadata()` alone (Extend Video's `merge_videos`, `extract_last_frame`) only
-needs the decode. A Node that decodes large images is memory-bound: a Node
-that resizes several images (Duo's `prepare_images`) should keep only one
-decoded image at a time. Process isolation depends on `isolated: true`, for
-Script and Package Nodes alike; publishing a Package Node does not change
-its memory limits.
+A Node that decodes large images is memory-bound: a Node that resizes several
+images (Duo's `prepare_images`) should keep only one decoded image at a time.
 
 ## form-data, openai
 
@@ -122,8 +113,11 @@ status check, `download(url)` → `fetch` + `new Uint8Array(await r.arrayBuffer(
 `nested.run/state` becomes Child Launch instructions. Preserve its repeat/poll
 contract and stable per-run child keys; store child bookkeeping in an invocation
 closure instead of mutable module globals. A package node imports the shared
-helpers (`utils/node.js`, `artworks/utils.js`); only an inline Script Node
-embeds the few it needs.
+helpers (`utils/node.js`, `artworks/utils.js`). An inline Script Node imports
+them from the published artworks package by quoted reference
+(`"registry:artworks@<N>/node.js"`, `"registry:artworks@<N>/utils.js"`), which
+the server resolves to the registry; no other package may be referenced, and
+the Node must not be `isolated: true`, as its process has no registry token.
 
 Downloaded bytes are `Uint8Array`: use `TextDecoder` for FFmpeg/JSON text and an
 explicit byte-to-base64 conversion for image payloads. Buffer-style
