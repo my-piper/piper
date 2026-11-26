@@ -72,9 +72,6 @@ export class EditInputComponent
 
   state = { dragging: false };
 
-  @Input()
-  id!: string;
-
   /** The input's title, used as the accessible name of its control. */
   @Input()
   label: string;

@@ -1,30 +1,5 @@
-@use "variables";
-@use "mixins";
-@use "defs/forms";
-
-form {
-  .errors {
-    font-size: variables.$font-size-small;
-    color: variables.$error-color;
-  }
-}
-
-.input-primary {
-  @extend %input-primary;
-
-  &.error {
-    border-color: variables.$error-color;
-  }
-
-  &.fluid {
-    width: 100%;
-  }
-}
-
-.select-primary {
-  @extend %select-primary;
-}
-
+// Form controls are Taiga UI (#134); only the fieldset reset remains, as
+// templates group controls in <fieldset> without its default frame.
 fieldset {
   border: none;
   padding: 0;
