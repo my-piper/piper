@@ -3,13 +3,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
+import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { debounceTime, Subject } from "rxjs";
 import { AppConfig } from "src/models/app-config";
@@ -17,12 +11,14 @@ import { Node } from "src/models/node";
 import { Project } from "src/models/project";
 import compiled from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
-import { InformerComponent } from "src/ui-kit/informer/informer.component";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
+import { provideTaiga } from "@taiga-ui/core";
 import { toInstance, toPlain } from "src/utils/models";
 import { provideTestConfig, TEST_BASE_URL } from "../helpers/config";
 import { expectConsoleError, takeConsoleProblems } from "../helpers/console";
 import { takeNetworkViolations } from "../helpers/isolation";
 import { provideSocketDouble, SocketDouble } from "../helpers/socket";
+import { openDialog, popupRoot } from "../helpers/taiga";
 
 describe("test harness", () => {
   it("resolves src/... imports through DI with the production config factory", () => {
@@ -88,31 +84,22 @@ describe("test harness", () => {
     expect(toPlain(project).pipeline.nodes.n1.title).toBe("First");
   });
 
-  describe("component with an external template", () => {
-    let fixture: ComponentFixture<InformerComponent>;
+  it("renders a component's external template and emits through its output", () => {
+    TestBed.configureTestingModule({ providers: [provideTaiga()] });
+    const fixture = TestBed.createComponent(ErrorDialogComponent);
+    const root = popupRoot();
+    const closed = vi.fn().mockName("closed");
+    fixture.componentInstance.closed.subscribe(closed);
 
-    beforeEach(async () => {
-      await TestBed.configureTestingModule({
-        declarations: [InformerComponent],
-      }).compileComponents();
-      fixture = TestBed.createComponent(InformerComponent);
-      fixture.componentRef.setInput("message", "Saved");
-      fixture.detectChanges();
-    });
+    fixture.componentRef.setInput("error", new Error("Saved"));
+    fixture.detectChanges();
+    root.detectChanges();
+    Array.from(openDialog().querySelectorAll("button"))
+      .find((b) => b.textContent.trim() === "OK")
+      .click();
 
-    it("renders the real template and emits through its output", () => {
-      const ok = vi.fn().mockName("ok");
-      fixture.componentInstance.ok.subscribe(ok);
-
-      fixture.debugElement
-        .query(By.css("button[tuiButton]"))
-        .triggerEventHandler("click");
-
-      expect(fixture.nativeElement.querySelector("p").textContent).toBe(
-        "Saved",
-      );
-      expect(ok).toHaveBeenCalledTimes(1);
-    });
+    expect(openDialog().querySelector("p").textContent).toBe("Saved");
+    expect(closed).toHaveBeenCalledTimes(1);
   });
 
   it("drives timed observables with a fake clock", fakeAsync(() => {

@@ -1,5 +1,4 @@
 @use "variables";
-@use "mixins";
 
 a {
     cursor: pointer;
@@ -30,18 +29,6 @@ a {
         &:visited {
             color: variables.$primary-text-color;
         }
-    }
-}
-
-.informer.errors {
-    @include mixins.vertical-stack();
-    color: white;
-    font-size: variables.$font-size-big;
-
-    ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
     }
 }
 
