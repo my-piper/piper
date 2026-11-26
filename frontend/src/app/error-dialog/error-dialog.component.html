@@ -1,9 +1,12 @@
-<ng-template
-  [tuiDialog]="!!error()"
-  [tuiDialogOptions]="{ size: 's' }"
-  (tuiDialogChange)="!$event && closed.emit()"
->
-  @if (error(); as error) {
+<!-- The dialog exists only while there is an error: Taiga's dialog needs the
+     tui-root portal host as soon as it is created, and removing it closes
+     the dialog. -->
+@if (error(); as error) {
+  <ng-template
+    [tuiDialog]="true"
+    [tuiDialogOptions]="{ size: 's' }"
+    (tuiDialogChange)="!$event && closed.emit()"
+  >
     <div class="error" role="alert">
       <p>{{ error.message }}</p>
       @if (details(error); as details) {
@@ -25,5 +28,5 @@
         OK
       </button>
     </div>
-  }
-</ng-template>
+  </ng-template>
+}

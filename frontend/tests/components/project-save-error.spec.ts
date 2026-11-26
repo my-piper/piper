@@ -6,7 +6,13 @@ import {
 } from "@angular/common/http/testing";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
-import { TuiButton, TuiDataList, TuiDropdown, TuiIcon } from "@taiga-ui/core";
+import {
+  provideTaiga,
+  TuiButton,
+  TuiDataList,
+  TuiDropdown,
+  TuiIcon,
+} from "@taiga-ui/core";
 import { TuiBadge, TuiInputInline, TuiTabs } from "@taiga-ui/kit";
 import {
   provideRouter,
@@ -24,7 +30,7 @@ import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
-import { InformerComponent } from "src/ui-kit/informer/informer.component";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { I18nPipe } from "src/pipes/i18n.pipe";
 import { LengthPipe } from "src/pipes/length.pipe";
 import { ModalDirective } from "src/ui-kit/modal/modal.directive";
@@ -39,6 +45,7 @@ import {
   userPlain,
 } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../helpers/config";
+import { openDialog, popupRoot } from "../helpers/taiga";
 import { provideSocketDouble } from "../helpers/socket";
 
 const NODE_UPDATES_URL = `/api/projects/${PROJECT_A_ID}/check-node-updates`;
@@ -50,7 +57,6 @@ describe("ProjectComponent save errors", () => {
     TestBed.configureTestingModule({
       declarations: [
         ProjectComponent,
-          InformerComponent,
         ModalDirective,
         PopoverDirective,
         CanPipe,
@@ -73,8 +79,10 @@ describe("ProjectComponent save errors", () => {
         TuiBadge,
         TuiInputInline,
         ...TuiTabs,
+        ErrorDialogComponent,
       ],
       providers: [
+        provideTaiga(),
         provideTestConfig(),
         provideSocketDouble(),
         provideHttpClient(withXhr()),
@@ -98,7 +106,8 @@ describe("ProjectComponent save errors", () => {
     });
     const controller = TestBed.inject(HttpTestingController);
     const harness = await RouterTestingHarness.create();
-    return { harness, controller, project };
+    const root = popupRoot();
+    return { harness, root, controller, project };
   }
 
   function flushBackground(controller: HttpTestingController) {
@@ -108,7 +117,7 @@ describe("ProjectComponent save errors", () => {
 
   it("shows a failed save, keeps the project and recovers on retry", fakeAsync(async () => {
     vi.spyOn(console, "error").mockReturnValue(undefined);
-    const { harness, controller, project } = await render();
+    const { harness, root, controller, project } = await render();
     harness.navigateByUrl(`/projects/${PROJECT_A_ID}`);
     tick();
     flushBackground(controller);
@@ -123,11 +132,15 @@ describe("ProjectComponent save errors", () => {
       .flush(conflict.body, conflict);
     tick(UI_DELAY);
     harness.detectChanges();
-    const informer = harness.routeNativeElement.querySelector("app-informer");
-    const message = informer?.textContent;
-    (informer.querySelector("button[tuiButton]") as HTMLButtonElement).click();
+    root.detectChanges();
+    const message = openDialog()?.textContent;
+    (
+      openDialog().querySelector("button[tuiButton]") as HTMLButtonElement
+    ).click();
     harness.detectChanges();
-    const dismissed = harness.routeNativeElement.querySelector("app-informer");
+    const dismissed = (
+      harness.routeDebugElement.componentInstance as ProjectComponent
+    ).error;
     manager.kick();
     controller
       .expectOne(PATCH_PROJECT_URL(PROJECT_A_ID, "rev_a_1"))

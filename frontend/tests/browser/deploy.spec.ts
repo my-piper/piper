@@ -32,11 +32,8 @@ test("creates a deployment after a failed attempt and lists it", async ({
   );
 
   await page.getByRole("button", { name: "Deploy", exact: true }).click();
-  await expect(page.locator("app-informer")).toContainText("SERVICE_OFFLINE");
-  await page
-    .locator("app-informer")
-    .getByRole("button", { name: "OK" })
-    .click();
+  await expect(page.locator("tui-dialog")).toContainText("SERVICE_OFFLINE");
+  await page.locator("tui-dialog").getByRole("button", { name: "OK" }).click();
   const posts = await deploy(page, api, "user_owner/project-a-v1");
 
   expect(posts.map((c) => [c.status, c.body])).toEqual([

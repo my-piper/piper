@@ -1,4 +1,6 @@
-import { provideTaiga } from "@taiga-ui/core";
+import { provideTaiga, TuiRoot } from "@taiga-ui/core";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
+import { openDialog, popupRoot } from "../helpers/taiga";
 import { TuiTabs } from "@taiga-ui/kit";
 import { provideHttpClient, withXhr } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
@@ -42,6 +44,7 @@ describe("EditPipelineYamlComponent", () => {
   let fixture: ComponentFixture<EditPipelineYamlComponent>;
   let manager: ProjectManager;
   let element: HTMLElement;
+  let root: ComponentFixture<TuiRoot>;
 
   function editor(): HTMLTextAreaElement {
     return element.querySelector("textarea.monaco-stub");
@@ -50,6 +53,7 @@ describe("EditPipelineYamlComponent", () => {
   function save() {
     (element.querySelector("footer button") as HTMLButtonElement).click();
     fixture.detectChanges();
+    root.detectChanges();
   }
 
   function finish() {
@@ -66,6 +70,7 @@ describe("EditPipelineYamlComponent", () => {
         UiKitModule,
         MonacoEditorStubComponent,
         ...TuiTabs,
+        ErrorDialogComponent,
       ],
       providers: [
         // Taiga's event plugins: tabs activate through `tui-tab-activate.stop`
@@ -84,6 +89,7 @@ describe("EditPipelineYamlComponent", () => {
     fixture = TestBed.createComponent(EditPipelineYamlComponent);
     element = fixture.nativeElement;
     fixture.detectChanges();
+    root = popupRoot();
   });
 
   it("loads the current pipeline as YAML", () => {
@@ -168,7 +174,7 @@ describe("EditPipelineYamlComponent", () => {
     expect(project.pipeline).toBe(pipeline);
     expect(toPlain(project.pipeline)).toEqual(before);
     expect(manager.status.value).toBeNull();
-    expect(element.querySelector("app-informer")).not.toBeNull();
+    expect(openDialog()).not.toBeNull();
     finish();
   }));
 
@@ -183,9 +189,7 @@ describe("EditPipelineYamlComponent", () => {
     expect(toPlain(project.pipeline)).toEqual(before);
     expect(project.title).toBe("Project A");
     expect(manager.status.value).toBeNull();
-    expect(element.querySelector("app-informer").textContent).toContain(
-      "title",
-    );
+    expect(openDialog().textContent).toContain("title");
     finish();
   }));
 
@@ -283,7 +287,7 @@ describe("EditPipelineYamlComponent", () => {
     save();
 
     expect(toPlain(project)).toEqual(before);
-    expect(element.querySelector("app-informer")).not.toBeNull();
+    expect(openDialog()).not.toBeNull();
     finish();
   }));
 });

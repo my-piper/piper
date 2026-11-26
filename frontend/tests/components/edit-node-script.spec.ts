@@ -12,7 +12,13 @@ import { seedAuthorization } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { typeInto } from "../helpers/editor-stubs";
-import { activeSegment, pickSegment, segmentLabels } from "../helpers/taiga";
+import {
+  activeSegment,
+  pickSegment,
+  segmentLabels,
+  openDialog,
+  popupRoot,
+} from "../helpers/taiga";
 
 const REFERENCE = "registry:artworks@3/echo_node/script.js";
 const SOURCE =
@@ -133,15 +139,17 @@ describe("pipeline node script editor", () => {
   it("keeps Save disabled when source loading fails", fakeAsync(() => {
     expectConsoleError("Process HTTP error 404");
     const page = setup();
+    const root = popupRoot();
 
     page.controller
       .expectOne("/api/nodes/script-source")
       .flush("Missing script", { status: 404, statusText: "Not Found" });
     page.settle();
+    root.detectChanges();
 
     expect(page.save().disabled).toBe(true);
     expect(page.node.script).toBe(REFERENCE);
-    expect(page.fixture.nativeElement.textContent).toContain("Missing script");
+    expect(openDialog().textContent).toContain("Missing script");
     page.controller.verify();
     finish();
   }));

@@ -1,4 +1,6 @@
 .error {
+  // clear the dialog's close button in the top corner
+  padding-block-start: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;

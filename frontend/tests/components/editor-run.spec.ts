@@ -12,7 +12,7 @@ import {
 } from "../fixtures/plain";
 import { finish, setupEditor } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
-import { isLoading, iconName } from "../helpers/taiga";
+import { isLoading, iconName, openDialog } from "../helpers/taiga";
 
 /**
  * Wire contracts: POST /api/projects/:_id/launch merges the body into the
@@ -172,9 +172,7 @@ describe("EditPipelineVisualComponent runs", () => {
     tick(UI_DELAY);
     detectChanges();
 
-    expect(element.querySelector("app-informer")?.textContent).toContain(
-      "Launch request is invalid",
-    );
+    expect(openDialog()?.textContent).toContain("Launch request is invalid");
     expect(tab.closed).toBe(true);
     expect(editor.editor.progress.launching).toBe(false);
     expect(isLoading(runButton(element))).toBe(false);
@@ -349,7 +347,7 @@ describe("EditPipelineVisualComponent launch page", () => {
 
     expect(interruptButton(element)).not.toBeNull();
     expect(isLoading(interruptButton(element))).toBe(false);
-    expect(element.querySelector("app-informer")).not.toBeNull();
+    expect(openDialog()).not.toBeNull();
     controller.verify();
     finish();
   }));

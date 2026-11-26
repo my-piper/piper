@@ -1,6 +1,4 @@
-@if (!!error) {
-  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
-}
+<app-error-dialog [error]="error" (closed)="error = null" />
 
 <ng-template #selectAssetTemplate let-filterType="type">
   <div [formGroup]="form" class="select-asset">

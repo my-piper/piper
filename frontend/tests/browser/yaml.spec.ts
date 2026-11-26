@@ -33,28 +33,22 @@ test("edits YAML in Monaco, rejects invalid input, then applies a valid edit", a
 
   await replaceLine(page, "name: Small graph", "name: Broken: yaml");
   await save.click();
-  await expect(page.locator("app-informer")).toContainText(
+  await expect(page.locator("tui-dialog")).toContainText(
     "Nested mappings are not allowed",
   );
-  await page
-    .locator("app-informer")
-    .getByRole("button", { name: "OK" })
-    .click();
+  await page.locator("tui-dialog").getByRole("button", { name: "OK" }).click();
   await replaceLine(page, "name: Broken: yaml", "name: YAML graph");
   await replaceLine(page, "version: 1", "version: wrong");
   await save.click();
-  await expect(page.locator("app-informer")).toContainText(
+  await expect(page.locator("tui-dialog")).toContainText(
     "Pipeline schema invalid",
   );
-  await page
-    .locator("app-informer")
-    .getByRole("button", { name: "OK" })
-    .click();
+  await page.locator("tui-dialog").getByRole("button", { name: "OK" }).click();
   expect(api.callsTo("PATCH", /\/patch\//)).toEqual([]);
 
   await replaceLine(page, "version: wrong", "version: 1");
   await save.click();
-  await expect(page.locator("app-informer")).toHaveCount(0);
+  await expect(page.locator("tui-dialog")).toHaveCount(0);
   await page.getByRole("link", { name: "Canvas" }).click();
 
   await expect(page.getByTestId("node-node_one")).toBeVisible();
