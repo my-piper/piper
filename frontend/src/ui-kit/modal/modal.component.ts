@@ -16,10 +16,12 @@ import {
   ViewContainerRef,
   DOCUMENT,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
-import { filter, takeUntil } from "rxjs/operators";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { filter } from "rxjs/operators";
 import { UI } from "src/consts/ui";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { ModalService } from "./modal.service";
 import { ModalClosedReason, ModalContent, ModalOptions } from "./modal.types";
 
@@ -36,7 +38,9 @@ const MAX_HEIGHT_COEFFICIENT = 0.9;
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class ModalComponent extends UntilDestroyed implements OnInit {
+export class ModalComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   ui = UI;
 
   contentTemplate: TemplateRef<any>;
@@ -92,17 +96,14 @@ export class ModalComponent extends UntilDestroyed implements OnInit {
     private cd: ChangeDetectorRef,
     @Inject(DOCUMENT) private document: Document,
     @Inject(PLATFORM_ID) private platform: string,
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     this.modalService.register(this);
   }
 
-  override ngOnDestroy() {
+  ngOnDestroy() {
     this.modalService.unregister();
-    super.ngOnDestroy();
   }
 
   // TODO: options to type with optionals?.
@@ -148,7 +149,7 @@ export class ModalComponent extends UntilDestroyed implements OnInit {
       this.options
         .beforeClose(reason)
         .pipe(
-          takeUntil(this.destroyed$),
+          takeUntilDestroyed(this.destroyRef),
           filter((close: boolean) => close),
         )
         .subscribe(() => action());

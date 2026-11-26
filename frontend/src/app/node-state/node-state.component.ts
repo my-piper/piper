@@ -3,16 +3,18 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
-import { takeUntil } from "rxjs";
+
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
 import { Node } from "src/models/node";
 import { HttpService } from "src/services/http.service";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 
 @Component({
   selector: "app-node-state",
@@ -21,7 +23,9 @@ import { UntilDestroyed } from "src/utils/until-destroyed";
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class NodeStateComponent extends UntilDestroyed implements OnInit {
+export class NodeStateComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   launch: Launch;
   id!: string;
   node!: Node;
@@ -33,9 +37,7 @@ export class NodeStateComponent extends UntilDestroyed implements OnInit {
     private http: HttpService,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     this.listen();
@@ -48,7 +50,7 @@ export class NodeStateComponent extends UntilDestroyed implements OnInit {
   private listen() {
     this.socket
       .fromEvent<object>("node_gonna_repeat")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {

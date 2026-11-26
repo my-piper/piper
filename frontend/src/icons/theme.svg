@@ -1,0 +1,14 @@
+<svg
+  stroke-width="1"
+  stroke="currentColor"
+  viewBox="0 0 24 24"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <circle cx="12" cy="12" r="9" />
+  <path
+    d="M12 3V21C16.971 21 21 16.971 21 12C21 7.029 16.971 3 12 3Z"
+    fill="currentColor"
+    stroke-linejoin="round"
+  />
+</svg>

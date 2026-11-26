@@ -5,8 +5,6 @@ import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IncludesPipe } from "src/pipes/includes.pipe";
 import { HotKeyDirective } from "src/directives/hot-key.directive";
-import { InViewportDirective } from "src/directives/in-viewport.directive";
-import { LetDirective } from "src/directives/let.directive";
 import { IconComponent } from "./icon/icon.component";
 import { InformerComponent } from "./informer/informer.component";
 import { ModalComponent } from "./modal/modal.component";
@@ -20,7 +18,6 @@ import { TimeDiffPipe } from "src/pipes/time-diff.pipe";
 import { TimePassedPipe } from "src/pipes/time-passed.pipe";
 import { PopoverComponent } from "./popover/popover.component";
 import { PopoverDirective } from "./popover/popover.directive";
-import { SkeletonComponent } from "./skeleton/skeleton.component";
 import { SpinnerComponent } from "./spinner/spinner.component";
 import { TabsComponent } from "./tabs/tabs.component";
 
@@ -37,14 +34,11 @@ import { TabsComponent } from "./tabs/tabs.component";
     TimePassedPipe,
     I18nPipe,
     IncludesPipe,
-    InViewportDirective,
     HotKeyDirective,
     FileTypePipe,
     LengthPipe,
-    SkeletonComponent,
     MockArrayPipe,
     LabelsPipe,
-    LetDirective,
     TimeDiffPipe,
     TickerPipe,
   ],
@@ -60,14 +54,11 @@ import { TabsComponent } from "./tabs/tabs.component";
     TimePassedPipe,
     I18nPipe,
     IncludesPipe,
-    InViewportDirective,
     HotKeyDirective,
     FileTypePipe,
     LengthPipe,
-    SkeletonComponent,
     MockArrayPipe,
     LabelsPipe,
-    LetDirective,
     TimeDiffPipe,
     TickerPipe,
   ],

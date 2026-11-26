@@ -124,3 +124,7 @@
     }
   }
 }
+
+.card-skeleton {
+  @include cards.card-skeleton;
+}

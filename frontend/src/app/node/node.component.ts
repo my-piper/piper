@@ -7,10 +7,13 @@ import {
   OnDestroy,
   Output,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
-import { catchError, filter, map, of, takeUntil } from "rxjs";
+import { catchError, filter, map, of } from "rxjs";
 import { UI } from "src/consts/ui";
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
@@ -26,7 +29,6 @@ import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { ModalService } from "src/ui-kit/modal/modal.service";
 import { createLogger } from "src/utils/logger";
 import { toInstance } from "src/utils/models";
@@ -39,7 +41,9 @@ import { PopoverComponent } from "../../ui-kit/popover/popover.component";
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class NodeComponent extends UntilDestroyed implements OnDestroy {
+export class NodeComponent implements OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   private _launch!: Launch;
   private _id!: string;
 
@@ -172,12 +176,9 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
     private cd: ChangeDetectorRef,
     private live: LiveService,
     private modal: ModalService,
-  ) {
-    super();
-  }
+  ) {}
 
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
+  ngOnDestroy(): void {
     this.subscriptions.launch?.();
     this.silent();
   }
@@ -203,7 +204,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
     this.socket
       .fromEvent<object>("node_running")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         const { launch, node } = toInstance(data, PipelineEvent);
         if (launch === this.launch?._id && node === this.id) {
@@ -214,7 +215,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
     this.socket
       .fromEvent<object>("node_done")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
@@ -225,7 +226,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
     this.socket
       .fromEvent<object>("node_progress")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
@@ -236,7 +237,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
     this.socket
       .fromEvent<object>("node_not_ready")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
@@ -247,7 +248,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
     this.socket
       .fromEvent<object>("node_error")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
@@ -258,7 +259,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
     this.socket
       .fromEvent<object>("node_flow")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: object) => {
         const { launch, node } = plainToInstance(PipelineEvent, data as object);
         if (launch === this.launch?._id && node === this.id) {
@@ -269,7 +270,7 @@ export class NodeComponent extends UntilDestroyed implements OnDestroy {
 
     this.socket
       .fromEvent<object>("node_reset")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
