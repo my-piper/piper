@@ -174,6 +174,20 @@ describe("ProjectPlaygroundComponent", () => {
     finish();
   }));
 
+  it("draws no icon for a name outside the Piper icon set, such as a URL", fakeAsync(() => {
+    const project = playgroundProject();
+    project.pipeline.inputs.get("topic").icon =
+      "https://tracker.example/pixel.svg";
+    setup(project);
+
+    const label = Array.from(element.querySelectorAll("label")).find((l) =>
+      l.textContent.includes("Topic"),
+    );
+
+    expect(label.querySelector("tui-icon")).toBeNull();
+    finish();
+  }));
+
   it("does not submit while a required input is empty", fakeAsync(() => {
     setup();
 
