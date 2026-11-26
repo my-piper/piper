@@ -25,7 +25,7 @@ import { Ajv, ajvFactory } from "src/providers/ajv";
 import { ProjectManager } from "src/services/project.manager";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
-import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { SharedModule } from "src/app/shared.module";
 import { toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import { projectA } from "../fixtures/models";
@@ -67,7 +67,7 @@ describe("EditPipelineYamlComponent", () => {
       declarations: [EditPipelineYamlComponent, SubmitButtonDirective],
       imports: [
         ReactiveFormsModule,
-        UiKitModule,
+        SharedModule,
         MonacoEditorStubComponent,
         ...TuiTabs,
         ErrorDialogComponent,

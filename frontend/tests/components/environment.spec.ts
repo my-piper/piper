@@ -19,7 +19,7 @@ import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { provideTaiga } from "@taiga-ui/core";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
-import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { SharedModule } from "src/app/shared.module";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { toInstance } from "src/utils/models";
 import { userPlain, UserKind } from "../fixtures/plain";
@@ -71,7 +71,7 @@ describe("EnvironmentComponent", () => {
       declarations: [EnvironmentComponent],
       imports: [
         ReactiveFormsModule,
-        UiKitModule,
+        SharedModule,
         TaigaFormsModule,
         ErrorDialogComponent,
       ],

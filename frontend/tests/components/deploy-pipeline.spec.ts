@@ -21,7 +21,7 @@ import { ProjectManager } from "src/services/project.manager";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
-import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { SharedModule } from "src/app/shared.module";
 import { deploysPlain } from "../fixtures/launch-results";
 import { projectA } from "../fixtures/models";
 import { PROJECT_A_ID, USER_IDS, userPlain, UserKind } from "../fixtures/plain";
@@ -62,7 +62,7 @@ describe("DeployPipelineComponent", () => {
       imports: [
         ReactiveFormsModule,
         RouterModule,
-        UiKitModule,
+        SharedModule,
         TaigaFormsModule,
         TuiLoader,
         JsonEditorStubComponent,

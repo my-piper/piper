@@ -18,7 +18,7 @@ import { Languages } from "src/enums/languages";
 import { NodeCatalog } from "src/models/node";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { ProjectManager } from "src/services/project.manager";
-import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { SharedModule } from "src/app/shared.module";
 import { toInstance } from "src/utils/models";
 import { projectA } from "../fixtures/models";
 import { userPlain } from "../fixtures/plain";
@@ -40,7 +40,7 @@ function setup(catalog?: object) {
     declarations: [EditNodeCatalogComponent],
     imports: [
       ReactiveFormsModule,
-      UiKitModule,
+      SharedModule,
       TaigaFormsModule,
       JsonEditorStubComponent,
     ],

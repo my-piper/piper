@@ -17,7 +17,7 @@ import { Languages } from "src/enums/languages";
 import { User } from "src/models/user";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
-import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { SharedModule } from "src/app/shared.module";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { toInstance } from "src/utils/models";
 import { userPlain } from "../fixtures/plain";
@@ -37,7 +37,7 @@ function setup(user?: User) {
     declarations: [EditUserComponent],
     imports: [
       ReactiveFormsModule,
-      UiKitModule,
+      SharedModule,
       ErrorDialogComponent,
       TaigaFormsModule,
       JsonEditorStubComponent,
