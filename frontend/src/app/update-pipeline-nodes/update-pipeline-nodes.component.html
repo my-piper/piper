@@ -3,10 +3,10 @@
     <ul>
       @for (node of updates; track node.key) {
         <li>
-          <app-icon
+          <tui-icon
             [icon]="state.updated[node.key] ? 'checked' : 'unchecked'"
-            [size]="24"
-          ></app-icon>
+            style="--app-icon-size: 24px"
+          />
           <a
             (click)="select(node.key)"
             [class.active]="state.active == node.key"

@@ -34,7 +34,7 @@ import {
 import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
-import { isLoading } from "../helpers/taiga";
+import { isLoading, iconName } from "../helpers/taiga";
 
 /**
  * POST /api/projects/:_id/launch merges this body into the stored launch
@@ -154,6 +154,23 @@ describe("ProjectPlaygroundComponent", () => {
       label: "fallback",
       note: null,
     });
+    finish();
+  }));
+
+  it("draws an input's icon, named in the pipeline, from the Piper icon set", fakeAsync(() => {
+    const project = playgroundProject();
+    project.pipeline.inputs.get("topic").icon = "text_generation";
+    setup(project);
+
+    const label = Array.from(element.querySelectorAll("label")).find((l) =>
+      l.textContent.includes("Topic"),
+    );
+    const icon = label.querySelector("tui-icon");
+
+    expect(iconName(icon)).toBe("text_generation");
+    expect(getComputedStyle(icon).getPropertyValue("--t-icon-start")).toContain(
+      "data:image/svg+xml",
+    );
     finish();
   }));
 

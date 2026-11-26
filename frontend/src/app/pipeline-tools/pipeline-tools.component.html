@@ -21,14 +21,14 @@
           @for (n of project.pipeline.nodes | keyvalue; track n.key) {
             <tr>
               <td tuiTd title="Node" i18n-title="@@label.node" class="stack">
-                <app-icon
-                  class="icon"
+                <tui-icon
                   [icon]="
                     (progress.published | includes: n.key)
                       ? 'checked'
                       : 'unchecked'
                   "
-                ></app-icon>
+                  class="icon"
+                />
                 <div class="stack vertical tiny">
                   <div>{{ n.value.title | i18n }}</div>
                   <ul class="tags">
