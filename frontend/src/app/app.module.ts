@@ -20,6 +20,7 @@ import {
   TuiNotification,
   TuiRoot,
 } from "@taiga-ui/core";
+import { WaIntersectionObserver } from "@ng-web-apis/intersection-observer";
 import { TuiTable } from "@taiga-ui/addon-table";
 import {
   TuiAccordion,
@@ -318,6 +319,7 @@ import { UsersComponent } from "./users/users.component";
     TuiSkeleton,
     TuiCardLarge,
     TuiAppearance,
+    ...WaIntersectionObserver,
   ],
   providers: [
     provideTaiga(),

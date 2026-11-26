@@ -334,6 +334,11 @@
     </table>
   </div>
   @if (chunk.length > 0 && !progress.loading) {
-    <div inViewport (visible)="loadMore()"></div>
+    <div
+      data-testid="load-more"
+      waIntersectionObserver
+      waIntersectionThreshold="0.5"
+      (waIntersectionObservee)="$event[0]?.isIntersecting && loadMore()"
+    ></div>
   }
 </div>
