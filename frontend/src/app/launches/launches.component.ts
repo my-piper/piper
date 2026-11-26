@@ -4,11 +4,14 @@ import {
   Input,
   OnDestroy,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { plainToInstance } from "class-transformer";
 import { assign, merge } from "lodash";
 import last from "lodash/last";
-import { delay, finalize, map, takeUntil } from "rxjs";
+import { delay, finalize, map } from "rxjs";
 import { AppConfig } from "src/models/app-config";
 import {
   SetLaunchErrorsEvent,
@@ -23,7 +26,6 @@ import { LiveService } from "src/services/live.service";
 import { MeManager } from "src/services/me.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/consts/ui";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { mapTo, toPlain } from "src/utils/models";
 
 @Component({
@@ -33,7 +35,9 @@ import { mapTo, toPlain } from "src/utils/models";
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
+export class LaunchesComponent implements OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   userRole = UserRole;
 
   private _filter!: LaunchesFilter;
@@ -71,20 +75,20 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
     private me: MeManager,
     private signals: SignalsService,
     private cd: ChangeDetectorRef,
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     this.listen();
 
-    this.signals.feed.pipe(takeUntil(this.destroyed$)).subscribe((event) => {
-      if (event instanceof PipelineLaunchedSignal) {
-        const { launch } = event;
-        this.launches.unshift(launch);
-        this.cd.detectChanges();
-      }
-    });
+    this.signals.feed
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (event instanceof PipelineLaunchedSignal) {
+          const { launch } = event;
+          this.launches.unshift(launch);
+          this.cd.detectChanges();
+        }
+      });
   }
 
   private listen() {
@@ -92,7 +96,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
     this.live.socket
       .fromEvent<object>("set_inputs")
       .pipe(
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
         map((json) => plainToInstance(SetLaunchInputsEvent, json)),
       )
       .subscribe(({ launch, inputs }) => {
@@ -107,7 +111,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
     this.live.socket
       .fromEvent<object>("set_output")
       .pipe(
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
         map((json) => plainToInstance(SetLaunchOutputEvent, json)),
       )
       .subscribe(({ launch, id, output }) => {
@@ -124,7 +128,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
     this.live.socket
       .fromEvent<object>("set_errors")
       .pipe(
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
         map((json) => plainToInstance(SetLaunchErrorsEvent, json)),
       )
       .subscribe(({ launch, errors }) => {
@@ -137,8 +141,7 @@ export class LaunchesComponent extends UntilDestroyed implements OnDestroy {
       });
   }
 
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
+  ngOnDestroy(): void {
     this.subscriptions.user?.();
   }
 

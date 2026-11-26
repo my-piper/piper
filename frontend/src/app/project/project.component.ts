@@ -4,11 +4,14 @@ import {
   Inject,
   OnInit,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
-import { debounceTime, takeUntil } from "rxjs";
+import { debounceTime } from "rxjs";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { AppConfig } from "src/models/app-config";
 import { DisplayError } from "src/models/errors";
@@ -18,7 +21,6 @@ import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
 import { ModalService } from "src/ui-kit/modal/modal.service";
 import { Languages } from "src/enums/languages";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 
@@ -29,7 +31,9 @@ import { getLabel } from "src/utils/i18n";
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class ProjectComponent extends UntilDestroyed implements OnInit {
+export class ProjectComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   userRole = UserRole;
   editPipelineVisualComponent = EditPipelineVisualComponent;
 
@@ -78,9 +82,7 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
     private fb: FormBuilder,
     private cd: ChangeDetectorRef,
     private modal: ModalService,
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     this.route.data.subscribe(({ project }) => {
@@ -89,15 +91,15 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
     });
 
     this.projectManager.error
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((error) => (this.error = error));
 
     this.projectManager.updates
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.cd.detectChanges());
 
     this.form.valueChanges
-      .pipe(takeUntil(this.destroyed$), debounceTime(300))
+      .pipe(takeUntilDestroyed(this.destroyRef), debounceTime(300))
       .subscribe(({ name }) => {
         if (
           this.form.valid &&
@@ -107,10 +109,6 @@ export class ProjectComponent extends UntilDestroyed implements OnInit {
           this.projectManager.markDirty();
         }
       });
-  }
-
-  override ngOnDestroy() {
-    super.ngOnDestroy();
   }
 
   build() {

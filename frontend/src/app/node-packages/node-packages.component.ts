@@ -4,18 +4,20 @@ import {
   ChangeDetectorRef,
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
-import { EMPTY, delay, finalize, map, merge, takeUntil } from "rxjs";
+import { EMPTY, delay, finalize, map, merge } from "rxjs";
 import { PackageUpdatedEvent } from "src/models/events";
 import { NodePackage, NodePackageUpdatesState } from "src/models/node-package";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { UI_DELAY } from "src/consts/ui";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { EditPackageComponent } from "./edit/edit-package.component";
 import { ImportPackageComponent } from "./import/import-package.component";
 
@@ -31,7 +33,9 @@ import { ImportPackageComponent } from "./import/import-package.component";
     { provide: TUI_DIALOGS_CLOSE, useValue: EMPTY },
   ],
 })
-export class NodePackagesComponent extends UntilDestroyed {
+export class NodePackagesComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
   error!: Error;
   progress = {
     loading: { packages: false, state: false },
@@ -95,7 +99,6 @@ export class NodePackagesComponent extends UntilDestroyed {
     private router: Router,
     private cd: ChangeDetectorRef,
   ) {
-    super();
     // The root popup host must exist before opening a dialog on direct route entry.
     afterNextRender(() => this.dialogReady.set(true));
   }
@@ -106,8 +109,7 @@ export class NodePackagesComponent extends UntilDestroyed {
     this.listen();
   }
 
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
+  ngOnDestroy(): void {
     this.subscriptions.updatingPackages?.();
   }
 
@@ -117,7 +119,7 @@ export class NodePackagesComponent extends UntilDestroyed {
     this.live.socket
       .fromEvent("package_updated")
       .pipe(
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
         map((json) => plainToInstance(PackageUpdatedEvent, json)),
       )
       .subscribe(() => this.load());
