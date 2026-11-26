@@ -1,0 +1,18 @@
+[
+  {
+    "createIndexes": "users",
+    "indexes": [
+      {
+        "name": "identities_provider_subject",
+        "key": {
+          "identities.provider": 1,
+          "identities.subject": 1
+        },
+        "unique": true,
+        "partialFilterExpression": {
+          "identities": { "$exists": true }
+        }
+      }
+    ]
+  }
+]
