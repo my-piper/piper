@@ -7,11 +7,15 @@ import { toInstance } from "src/utils/models";
 import { projectA } from "../fixtures/models";
 import { configureAppTestingModule } from "../helpers/editor";
 
-/** The cap on a field with options, from edit-input.component.scss. */
+/**
+ * The bounds of a single-line field, from pipeline-input.component.scss.
+ * Specs run without the global styles (Taiga's theme and fonts), so whether
+ * a value fits its field in the real build is checked by the browser workflow
+ * tests/browser/canvas-inputs.spec.ts.
+ */
+const FIELD_MIN_WIDTH = 200;
 const FIELD_MAX_WIDTH = 300;
-/** The cap on a node with a plain single-line text input. */
-const TEXT_MAX_WIDTH = 150;
-/** An option wider than the text cap, narrower than the field cap. */
+/** An option wider than the minimum field, narrower than the maximum. */
 const LONG = "Cinematic portrait lighting";
 
 describe("PipelineInputComponent", () => {
@@ -93,7 +97,6 @@ describe("PipelineInputComponent", () => {
     const longWidth = width(long);
 
     expect(longWidth).toBeGreaterThan(shortWidth);
-    expect(longWidth).toBeGreaterThan(TEXT_MAX_WIDTH);
   });
 
   it("shows the longest option without cutting it off", () => {
@@ -121,9 +124,9 @@ describe("PipelineInputComponent", () => {
       }),
     );
 
-    const nodeWidth = width(node);
+    const fieldWidth = width(field(node));
 
-    expect(nodeWidth).toBeGreaterThan(TEXT_MAX_WIDTH);
+    expect(fieldWidth).toBeGreaterThan(FIELD_MIN_WIDTH);
   });
 
   it("caps a field with a very long option", () => {
@@ -139,15 +142,30 @@ describe("PipelineInputComponent", () => {
     expect(fieldWidth).toBeGreaterThan(FIELD_MAX_WIDTH - 1);
   });
 
-  it("keeps the 150px cap on a plain text input", () => {
+  it("keeps a plain text input at the minimum width for a long value", () => {
     setup(false);
     const node = render(
       "topic",
       stringInput({ default: "A very long default value for the topic" }),
     );
 
-    const nodeWidth = width(node);
+    const fieldWidth = width(field(node));
 
-    expect(nodeWidth).toBeLessThanOrEqual(TEXT_MAX_WIDTH);
+    expect(fieldWidth).toBe(FIELD_MIN_WIDTH);
+  });
+
+  it("gives a number input the minimum field width", () => {
+    setup(false);
+    const node = render("steps", {
+      title: "Steps",
+      type: "integer",
+      default: 30,
+      flows: {},
+      arrange: { x: 0, y: 0 },
+    });
+
+    const fieldWidth = width(field(node));
+
+    expect(fieldWidth).toBe(FIELD_MIN_WIDTH);
   });
 });

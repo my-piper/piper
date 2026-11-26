@@ -106,8 +106,10 @@ export class EditInputComponent
   enum: Primitive[] = [];
 
   /**
-   * Sizes a field with options to its longest option label, up to a cap,
-   * instead of to its container. For the canvas input nodes.
+   * For the canvas input nodes: sizes a field with options to its longest
+   * option label, up to its container's max width, instead of to its
+   * container; ends a cut-off option with an ellipsis and shows it whole in a
+   * tooltip; shows the clear button only on hover or focus.
    */
   @HostBinding("class.fit")
   @Input()

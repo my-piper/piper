@@ -307,6 +307,7 @@
                 tuiSelect
                 formControlName="value"
                 [attr.aria-label]="label"
+                [attr.title]="fitChoices ? labelOf(valueControl.value) : null"
                 [placeholder]="placeholder | i18n"
                 [items]="selectItems"
                 [labels]="selectLabels"
