@@ -257,8 +257,10 @@ table {
     font-variant-numeric: tabular-nums;
   }
 
-  // headers sit right above their values, cells use the table's 10px padding
+  // headers sit right above their values, cells use the table's 10px padding;
+  // the node column takes the spare width
   th.number {
+    width: 7rem;
     padding-right: 10px;
   }
 

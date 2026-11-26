@@ -175,41 +175,43 @@
         </p>
       }
       @if (s.nodes.length > 0) {
-        <table tuiTable size="m" data-testid="stats-nodes">
-          <thead>
-            <tr>
-              <th tuiTh i18n="@@label.node">Node</th>
-              <th tuiTh class="number" i18n="@@label.runs">Runs</th>
-              <th tuiTh class="number" i18n="@@label.failed_runs">Failed</th>
-              <th tuiTh class="number" i18n="@@label.avg_duration">
-                Avg duration
-              </th>
-              <th tuiTh class="number">p95</th>
-              <th tuiTh class="number" i18n="@@label.avg_wait">Avg wait</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (n of s.nodes; track n.node) {
+        <div class="table-container">
+          <table tuiTable size="m" data-testid="stats-nodes">
+            <thead>
               <tr>
-                <td tuiTd>
-                  <div>{{ nodeTitle(n.node) | i18n }}</div>
-                  <small>{{ n.node }}</small>
-                </td>
-                <td tuiTd class="number">{{ n.runs | number }}</td>
-                <td tuiTd class="number">
-                  {{ n.failed | number }}
-                </td>
-                <td tuiTd class="number">
-                  {{ n.avgDurationMs | runDuration }}
-                </td>
-                <td tuiTd class="number">
-                  {{ n.p95DurationMs | runDuration }}
-                </td>
-                <td tuiTd class="number">{{ n.avgWaitMs | runDuration }}</td>
+                <th tuiTh i18n="@@label.node">Node</th>
+                <th tuiTh class="number" i18n="@@label.runs">Runs</th>
+                <th tuiTh class="number" i18n="@@label.failed_runs">Failed</th>
+                <th tuiTh class="number" i18n="@@label.avg_duration">
+                  Avg duration
+                </th>
+                <th tuiTh class="number">p95</th>
+                <th tuiTh class="number" i18n="@@label.avg_wait">Avg wait</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (n of s.nodes; track n.node) {
+                <tr>
+                  <td tuiTd>
+                    <div>{{ nodeTitle(n.node) | i18n }}</div>
+                    <small>{{ n.node }}</small>
+                  </td>
+                  <td tuiTd class="number">{{ n.runs | number }}</td>
+                  <td tuiTd class="number">
+                    {{ n.failed | number }}
+                  </td>
+                  <td tuiTd class="number">
+                    {{ n.avgDurationMs | runDuration }}
+                  </td>
+                  <td tuiTd class="number">
+                    {{ n.p95DurationMs | runDuration }}
+                  </td>
+                  <td tuiTd class="number">{{ n.avgWaitMs | runDuration }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       }
     </section>
   </div>

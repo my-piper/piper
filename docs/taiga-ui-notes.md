@@ -84,3 +84,9 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
     size with more specific selectors.
   - A masked icon differs from the old inline SVG only in edge antialiasing
     (at most 11/255 per channel in the screenshot diffs).
+- **Tables are full width by default** (#184): `src/styles.scss` gives every
+  `table` `inline-size: 100%` and a `.table-container` wrapper that scrolls
+  sideways on narrow screens. Wrap each table in `.table-container`, leave one
+  main column without a width to take the spare space and give the others
+  fixed widths through component classes, not `width="…"` attributes. Taiga's
+  `tuiTable` sets no width of its own.

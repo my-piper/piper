@@ -56,79 +56,83 @@
     </a>
   </header>
 
-  <table tuiTable size="m">
-    <thead>
-      <tr>
-        <th tuiTh width="24px"></th>
-        <th tuiTh i18n="@@label.login">Login</th>
-        <th tuiTh i18n="@@label.email">Email</th>
-        <th tuiTh i18n="@@label.created_at" width="180px">Created at</th>
-        <th tuiTh width="48px"></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (u of users; track u._id; let i = $index) {
+  <div class="table-container">
+    <table tuiTable size="m">
+      <thead>
         <tr>
-          <td tuiTd>
-            <ng-template #actionsTemplate>
-              <tui-data-list>
-                <button
-                  tuiOption
-                  type="button"
-                  [disabled]="progress.deleting"
-                  (click)="remove(i, u)"
-                >
-                  <tui-icon icon="@tui.trash-2" />
-                  <ng-container i18n="@@action.delete">Delete</ng-container>
-                </button>
-              </tui-data-list>
-            </ng-template>
-            <button
-              tuiIconButton
-              appearance="flat"
-              size="s"
-              type="button"
-              iconStart="@tui.ellipsis-vertical"
-              aria-label="Actions"
-              i18n-aria-label="@@label.actions"
-              [tuiDropdown]="actionsTemplate"
-              [tuiDropdownOpen]="actionsOpen === u._id"
-              (tuiDropdownOpenChange)="actionsOpen = $event ? u._id : null"
-            ></button>
-          </td>
-          <td tuiTd title="Login" i18n-title="@@label.login">
-            <a class="default" [routerLink]="[u._id]">
-              {{ u._id }}
-            </a>
-          </td>
-          <td tuiTd title="Email" i18n-title="@@label.email">
-            {{ u.email }}
-          </td>
-          <td tuiTd title="Created at" i18n-title="@@label.created_at">
-            {{ u.createdAt | date }}
-          </td>
-          <td tuiTd>
-            <div class="stack tiny align-center">
-              @if (u.roles | includes: userRole.admin) {
-                <app-icon [icon]="'admin'" [size]="20"></app-icon>
-              }
-              @if (u.provider === "yandex") {
-                <app-icon [icon]="'yandex'" [size]="20"></app-icon>
-              }
-              @if (u.provider === "google") {
-                <app-icon [icon]="'google'" [size]="20"></app-icon>
-              }
-            </div>
-          </td>
+          <th tuiTh class="actions-column"></th>
+          <th tuiTh class="login-column" i18n="@@label.login">Login</th>
+          <th tuiTh i18n="@@label.email">Email</th>
+          <th tuiTh class="created-column" i18n="@@label.created_at">
+            Created at
+          </th>
+          <th tuiTh class="badges-column"></th>
         </tr>
-      }
-      @if (progress.loading) {
-        <tr class="loading">
-          <td tuiTd colspan="6"><tui-loader [loading]="true" /></td>
-        </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        @for (u of users; track u._id; let i = $index) {
+          <tr>
+            <td tuiTd>
+              <ng-template #actionsTemplate>
+                <tui-data-list>
+                  <button
+                    tuiOption
+                    type="button"
+                    [disabled]="progress.deleting"
+                    (click)="remove(i, u)"
+                  >
+                    <tui-icon icon="@tui.trash-2" />
+                    <ng-container i18n="@@action.delete">Delete</ng-container>
+                  </button>
+                </tui-data-list>
+              </ng-template>
+              <button
+                tuiIconButton
+                appearance="flat"
+                size="s"
+                type="button"
+                iconStart="@tui.ellipsis-vertical"
+                aria-label="Actions"
+                i18n-aria-label="@@label.actions"
+                [tuiDropdown]="actionsTemplate"
+                [tuiDropdownOpen]="actionsOpen === u._id"
+                (tuiDropdownOpenChange)="actionsOpen = $event ? u._id : null"
+              ></button>
+            </td>
+            <td tuiTd title="Login" i18n-title="@@label.login">
+              <a class="default" [routerLink]="[u._id]">
+                {{ u._id }}
+              </a>
+            </td>
+            <td tuiTd title="Email" i18n-title="@@label.email">
+              {{ u.email }}
+            </td>
+            <td tuiTd title="Created at" i18n-title="@@label.created_at">
+              {{ u.createdAt | date }}
+            </td>
+            <td tuiTd>
+              <div class="stack tiny align-center">
+                @if (u.roles | includes: userRole.admin) {
+                  <app-icon [icon]="'admin'" [size]="20"></app-icon>
+                }
+                @if (u.provider === "yandex") {
+                  <app-icon [icon]="'yandex'" [size]="20"></app-icon>
+                }
+                @if (u.provider === "google") {
+                  <app-icon [icon]="'google'" [size]="20"></app-icon>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+        @if (progress.loading) {
+          <tr class="loading">
+            <td tuiTd colspan="6"><tui-loader [loading]="true" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
   @if (chunk.length > 0 && !progress.loading) {
     <div
       waIntersectionObserver
