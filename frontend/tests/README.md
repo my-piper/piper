@@ -143,6 +143,8 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
   `select-theme.spec.ts`). Radios bound to a form control are marked at once.
 - `isLoading(button)` tells whether a `tuiButton` shows its `[loading]` state
   (Taiga sets `aria-disabled`; it has no `.busy` class).
+- Read a `<tui-tabs>` with `tabLabels` and `activeTab`; with `routerLink` +
+  `routerLinkActive` tabs, the active one follows the route after navigation.
 - `tests/components/taiga-forms.spec.ts` shows these on a test-only form.
 
 ## Wire contracts
