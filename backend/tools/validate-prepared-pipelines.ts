@@ -152,6 +152,10 @@ function scriptProblems(
     ) {
       checkImport(node.moduleSpecifier.text);
     }
+    if (ts.isIdentifier(node) && node.text === "DEFINITIONS")
+      errors.add(
+        "DEFINITIONS needs rewriting to core's next, repeat and error classes"
+      );
     if (ts.isIdentifier(node) && LEGACY_NAMES.has(node.text))
       errors.add(`legacy Environment name ${node.text}`);
     if (ts.isStringLiteralLike(node)) {

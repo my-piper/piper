@@ -116,34 +116,29 @@ above. If a case can't be resolved, stop and ask.
 ## v1 globals
 
 v1 ran scripts in a `node:vm` context whose globals current scripts import from
-the built-in core package instead (ADR 0010). Keep v1's code and add the
-imports at the top of the script, with one line that gives `DEFINITIONS` back
-its shape:
+the built-in core package instead (ADR 0010). Import each name the script uses
+from `"registry:core@1/node.js"` and call it directly: delete every
+`const { … } = DEFINITIONS;`, write `NextNode.from(x)` as `next(x)`,
+`RepeatNode.from(x)` as `repeat(x)` and `DEFINITIONS.FatalError` as
+`FatalError`:
 
 ```js
 import {
-  DataError,
-  FatalError,
-  TimeoutError,
-  download,
-  httpClient,
   next,
   repeat,
-} from "registry:core@1/node.js";
-const DEFINITIONS = {
   FatalError,
   TimeoutError,
-  DataError,
-  NextNode: { from: next },
-  RepeatNode: { from: repeat },
-};
+} from "registry:core@1/node.js";
 ```
 
-Import only the names the script uses.
+When the script declares its own `next` or `repeat` (a variable, parameter or
+helper, such as WAN's `const repeat = (softError) => …`), import that one as
+`next as nextNode` or `repeat as repeatNode` and call the alias, so the
+script's own name keeps its meaning.
 
 | v1 global                                      | in a current script                                                                                                                                           |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DEFINITIONS.NextNode` / `RepeatNode` / errors | the `DEFINITIONS` line above                                                                                                                                  |
+| `DEFINITIONS.NextNode` / `RepeatNode` / errors | core's `next`, `repeat` and error classes, as above                                                                                                           |
 | `httpClient` (an axios instance)               | core's `httpClient`: same config, `.get`/`.post`/… shortcuts, `{ status, headers, data }`, axios-shaped errors, `validateStatus`                              |
 | `download(url)`                                | core's `download`: `{ mimeType, data }` with a Buffer, v1's headers; an `application/octet-stream` answer keeps that type, where v1 relabelled it `video/mp4` |
 | `nested.run` / `nested.state`                  | core's `createNested`, wrapped as below                                                                                                                       |

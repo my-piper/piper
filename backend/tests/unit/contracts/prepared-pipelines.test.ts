@@ -128,6 +128,19 @@ ${SCRIPT}`);
     expect(result.errors).toEqual([]);
   });
 
+  it("rejects v1's DEFINITIONS object instead of core's own functions", () => {
+    const pipeline =
+      preparedFixture(`import { next, repeat } from "registry:core@1/node.js";
+const DEFINITIONS = { NextNode: { from: next }, RepeatNode: { from: repeat } };
+${SCRIPT}`);
+
+    const result = check(pipeline);
+
+    expect(result.errors).toContain(
+      "Node echo_node: DEFINITIONS needs rewriting to core's next, repeat and error classes"
+    );
+  });
+
   it("accepts an inline script that imports the built-in core package", () => {
     const pipeline =
       preparedFixture(`import { download, next } from "registry:core@1/node.js";
