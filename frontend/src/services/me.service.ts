@@ -68,6 +68,11 @@ export class MeManager {
     this.subscriptions.room = null;
   }
 
+  /** Loads the current user again, e.g. after connecting an account. */
+  reload() {
+    this.loadUser();
+  }
+
   private loadUser() {
     this.http
       .get("me")

@@ -5,8 +5,22 @@ import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ReactiveFormsModule } from "@angular/forms";
-import { TuiButton, TuiDataList, TuiDropdown, TuiIcon } from "@taiga-ui/core";
-import { provideRouter } from "@angular/router";
+import {
+  provideTaiga,
+  TuiButton,
+  TuiDataList,
+  TuiDialog,
+  TuiDropdown,
+  TuiIcon,
+} from "@taiga-ui/core";
+import { provideRouter, Router } from "@angular/router";
+import { ConnectedAccountsComponent } from "src/app/connected-accounts/connected-accounts.component";
+import { User } from "src/models/user";
+import { MeManager } from "src/services/me.service";
+import { toInstance } from "src/utils/models";
+import { userPlain } from "../fixtures/plain";
+import { PlainAppConfig } from "../fixtures/runtime-config";
+import { openDialog, popupRoot } from "../helpers/taiga";
 import { ChangePasswordComponent } from "src/app/change-password/change-password.component";
 import { MeUserComponent } from "src/app/me-user/me-user.component";
 import { Languages } from "src/enums/languages";
@@ -27,7 +41,10 @@ import { provideSocketDouble } from "../helpers/socket";
 })
 class MeUserHost {}
 
-async function render() {
+async function render(
+  config: Partial<PlainAppConfig> = {},
+  url: string | null = null,
+) {
   await TestBed.configureTestingModule({
     declarations: [
       MeUserHost,
@@ -38,6 +55,8 @@ async function render() {
     ],
     imports: [
       ErrorDialogComponent,
+      ConnectedAccountsComponent,
+      TuiDialog,
       CommonModule,
       ReactiveFormsModule,
       TaigaFormsModule,
@@ -47,7 +66,8 @@ async function render() {
       ...TuiDropdown,
     ],
     providers: [
-      provideTestConfig(),
+      provideTaiga(),
+      provideTestConfig(config),
       provideValidationErrors(),
       provideSocketDouble(),
       provideHttpClient(withXhr()),
@@ -56,13 +76,20 @@ async function render() {
       { provide: CURRENT_LANGUAGE, useValue: Languages.en },
     ],
   }).compileComponents();
+  const router = TestBed.inject(Router);
+  const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
+  if (url) {
+    vi.spyOn(router, "url", "get").mockReturnValue(url);
+  }
   const fixture = TestBed.createComponent(MeUserHost);
+  // Before the first change detection: an `?sso=` result opens a dialog.
+  const root = popupRoot();
   fixture.detectChanges();
   const meUser = fixture.debugElement.query(By.directive(MeUserComponent))
     .componentInstance as MeUserComponent;
   const modal = fixture.debugElement.query(By.directive(ModalComponent))
     .componentInstance as ModalComponent;
-  return { fixture, meUser, modal };
+  return { fixture, meUser, modal, root, navigate };
 }
 
 function modalTitle(element: HTMLElement) {
@@ -84,5 +111,51 @@ describe("MeUserComponent modals", () => {
 
     expect(title).toBe("Change password");
     expect(modal.opened).toBe(false);
+  });
+
+  it("offers to set a password to a user without one", async () => {
+    const { fixture, meUser } = await render();
+    TestBed.inject(MeManager).user$.next(
+      toInstance({ ...userPlain(), hasPassword: false }, User),
+    );
+
+    meUser.changePassword();
+    fixture.detectChanges();
+
+    expect(modalTitle(fixture.nativeElement)).toBe("Set password");
+  });
+
+  it("opens connected accounts after an account was connected", async () => {
+    const reload = vi.spyOn(MeManager.prototype, "reload");
+
+    const { fixture, root, meUser, navigate } = await render(
+      { ui: { features: ["oidc_auth"], oidcLabel: "Authentik" } },
+      "/projects?sso=linked",
+    );
+    fixture.detectChanges();
+    root.detectChanges();
+
+    expect(meUser.accountsOpen).toBe(true);
+    expect(openDialog().textContent).toContain("Connected accounts");
+    expect(reload).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith([], {
+      queryParams: { sso: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  });
+
+  it("explains why connecting an account failed", async () => {
+    const { fixture, root, meUser } = await render(
+      { ui: { features: ["oidc_auth"], oidcLabel: "Authentik" } },
+      "/projects?sso=sso_linked_elsewhere",
+    );
+    fixture.detectChanges();
+    root.detectChanges();
+
+    expect(meUser.accountsOpen).toBe(false);
+    expect(openDialog().textContent).toContain(
+      "This Authentik account is already connected to another user.",
+    );
   });
 });

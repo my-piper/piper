@@ -10,7 +10,13 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
-import { provideRouter, Router, RouterLink } from "@angular/router";
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  provideRouter,
+  Router,
+  RouterLink,
+} from "@angular/router";
 import { LoginComponent } from "src/app/signin/login.component";
 import { AUTHORIZATION_KEY } from "src/consts/core";
 import { AppConfig } from "src/models/app-config";
@@ -34,7 +40,10 @@ import {
   togglePassword,
 } from "../helpers/taiga";
 
-async function render(config: Partial<PlainAppConfig> = {}) {
+async function render(
+  config: Partial<PlainAppConfig> = {},
+  query: Record<string, string> = {},
+) {
   await TestBed.configureTestingModule({
     declarations: [
       LoginComponent,
@@ -55,11 +64,16 @@ async function render(config: Partial<PlainAppConfig> = {}) {
       provideHttpClient(withXhr()),
       provideHttpClientTesting(),
       { provide: CURRENT_LANGUAGE, useValue: Languages.en },
+      {
+        provide: ActivatedRoute,
+        useValue: { snapshot: { queryParamMap: convertToParamMap(query) } },
+      },
     ],
   }).compileComponents();
   const fixture = TestBed.createComponent(LoginComponent);
-  fixture.detectChanges();
+  // Before the first change detection: an SSO error opens a dialog at once.
   const root = popupRoot();
+  fixture.detectChanges();
   return {
     fixture,
     root,
@@ -149,7 +163,8 @@ describe("LoginComponent", () => {
 
   it("shows the error, resets progress and stores nothing on failure", fakeAsync(async () => {
     vi.spyOn(console, "error").mockReturnValue(undefined);
-    const { fixture, root, element, controller, router, config } = await render();
+    const { fixture, root, element, controller, router, config } =
+      await render();
     const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
     type(fixture, "identity", "owner");
     type(fixture, "password", "wrong");
@@ -211,4 +226,41 @@ describe("LoginComponent", () => {
     expect(element.querySelector("a[href='/oauth/google']")).not.toBeNull();
     expect(element.querySelector("a[href='/oauth/yandex']")).toBeNull();
   }));
+
+  it("offers single sign-on whenever it is enabled, even without signup", fakeAsync(async () => {
+    const enabled = await render({
+      ui: { features: ["oidc_auth"], oidcLabel: "Authentik" },
+    });
+    const button = enabled.element.querySelector("a[href='/oauth/oidc']");
+    const label = button?.textContent.trim();
+    TestBed.resetTestingModule();
+
+    const disabled = await render();
+
+    expect(label).toBe("Sign in with Authentik");
+    expect(disabled.element.querySelector("a[href='/oauth/oidc']")).toBeNull();
+  }));
+
+  for (const { code, message } of [
+    {
+      code: "sso_account_exists",
+      message:
+        "An account with this email already exists. Sign in with your password, then connect Authentik under Connected accounts in the account menu.",
+    },
+    {
+      code: "sso_failed",
+      message: "Single sign-on with Authentik failed. Please try again.",
+    },
+  ]) {
+    it(`explains the single sign-on error ${code}`, fakeAsync(async () => {
+      const { root } = await render(
+        { ui: { features: ["oidc_auth"], oidcLabel: "Authentik" } },
+        { error: code },
+      );
+
+      root.detectChanges();
+
+      expect(openDialog().textContent).toContain(message);
+    }));
+  }
 });

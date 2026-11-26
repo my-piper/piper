@@ -7,7 +7,7 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
 import { ENV_MODE } from "src/consts/env";
 import { AppConfig } from "src/models/app-config";
@@ -16,6 +16,7 @@ import { AppError } from "src/models/errors";
 import { UserCredentials } from "src/models/user-credentials";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
+import { ssoErrorMessage } from "src/consts/sso";
 import { toInstance, toPlain } from "src/utils/models";
 
 @Component({
@@ -43,10 +44,21 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpService,
     private router: Router,
+    private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
   ) {}
 
+  get ssoLabel(): string {
+    return this.config.ui?.oidcLabel || "SSO";
+  }
+
   ngOnInit() {
+    // Single sign-on failures come back as `?error=<code>`.
+    const code = this.route.snapshot.queryParamMap.get("error");
+    if (code?.startsWith("sso_")) {
+      this.error = new AppError(ssoErrorMessage(code, this.ssoLabel));
+    }
+
     if (ENV_MODE == "development") {
       this.form.patchValue(
         {
