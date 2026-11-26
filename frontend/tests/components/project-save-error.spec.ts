@@ -7,7 +7,7 @@ import {
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TuiButton, TuiDataList, TuiDropdown, TuiIcon } from "@taiga-ui/core";
-import { TuiBadge, TuiTabs } from "@taiga-ui/kit";
+import { TuiBadge, TuiInputInline, TuiTabs } from "@taiga-ui/kit";
 import {
   provideRouter,
   RouterLink,
@@ -27,7 +27,6 @@ import { Languages } from "src/enums/languages";
 import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { I18nPipe } from "src/pipes/i18n.pipe";
-import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
 import { LengthPipe } from "src/pipes/length.pipe";
 import { ModalDirective } from "src/ui-kit/modal/modal.directive";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
@@ -60,7 +59,6 @@ describe("ProjectComponent save errors", () => {
         IsPipe,
         LengthPipe,
         I18nPipe,
-        InvalidFieldPipe,
         DeclaredVariablesPipe,
         PipelineNodeUpdatesPipe,
       ],
@@ -75,6 +73,7 @@ describe("ProjectComponent save errors", () => {
         ...TuiDataList,
         ...TuiDropdown,
         TuiBadge,
+        TuiInputInline,
         ...TuiTabs,
       ],
       providers: [

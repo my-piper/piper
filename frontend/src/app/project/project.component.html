@@ -65,10 +65,13 @@
             >{{ project.group }}</a
           >
         }
-        <input
-          [class.error]="form | invalidField: 'name'"
-          formControlName="name"
-        />
+        <tui-input-inline
+          [class.error]="
+            form.controls.name.touched && form.controls.name.invalid
+          "
+        >
+          <input formControlName="name" />
+        </tui-input-inline>
         @if (pipeline.description; as description) {
           <small>{{ description | i18n }}</small>
         }

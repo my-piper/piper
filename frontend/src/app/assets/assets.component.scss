@@ -150,3 +150,7 @@
     }
   }
 }
+// A text field shrinks in the flex row; keep the native input's width.
+form tui-textfield {
+  inline-size: 166px;
+}
