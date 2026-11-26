@@ -20,12 +20,13 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { IncludesPipe } from "src/pipes/includes.pipe";
-import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
+import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { authorizationPlain } from "../fixtures/plain";
 import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
 import { provideTestConfig } from "../helpers/config";
+import { markedInvalid, togglePassword } from "../helpers/taiga";
 
 async function render(config: Partial<PlainAppConfig> = {}) {
   await TestBed.configureTestingModule({
@@ -35,10 +36,9 @@ async function render(config: Partial<PlainAppConfig> = {}) {
       InformerComponent,
       PopoverDirective,
       SelectThemeComponent,
-      InvalidFieldPipe,
       IncludesPipe,
     ],
-    imports: [ReactiveFormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink, TaigaFormsModule],
     providers: [
       provideTestConfig(config),
       provideRouter([]),
@@ -87,9 +87,23 @@ describe("LoginComponent", () => {
 
     submit(fixture);
 
-    expect(element.querySelector("#identity").classList).toContain("error");
-    expect(element.querySelector("#password").classList).toContain("error");
+    expect(markedInvalid(element.querySelector("#identity"))).toBe(true);
+    expect(markedInvalid(element.querySelector("#password"))).toBe(true);
     controller.verify();
+  }));
+
+  it("shows and hides the typed password", fakeAsync(async () => {
+    const { fixture, element } = await render();
+    const password = element.querySelector<HTMLInputElement>("#password");
+    const textfield = password.closest("tui-textfield");
+
+    togglePassword(textfield);
+    fixture.detectChanges();
+    const shown = password.type;
+    togglePassword(textfield);
+    fixture.detectChanges();
+
+    expect([shown, password.type]).toEqual(["text", "password"]);
   }));
 
   it("signs in, stores the authorization and opens projects", fakeAsync(async () => {

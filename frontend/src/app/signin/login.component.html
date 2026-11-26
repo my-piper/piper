@@ -23,29 +23,44 @@
 
     <form data-cy="form-login" [formGroup]="form" (ngSubmit)="login()">
       <fieldset>
-        <input
-          class="input-primary"
-          id="identity"
-          name="identity"
-          [class.error]="form | invalidField: 'identity'"
-          formControlName="identity"
-          placeholder="User name or email"
-          i18n-placeholder="@@label.login_or_email"
-          data-cy="user-name"
-          type="text"
-        />
-        <div class="vertical stack tiny align-stretch">
+        <tui-textfield
+          tuiTextfieldSize="s"
+          [tuiTextfieldCleaner]="false"
+          [invalid]="
+            form.controls.identity.touched && form.controls.identity.invalid
+          "
+        >
           <input
-            class="input-primary"
-            id="password"
-            name="password"
-            [class.error]="form | invalidField: 'password'"
-            formControlName="password"
-            data-cy="password"
-            placeholder="Password"
-            i18n-placeholder="@@label.password"
-            type="password"
+            tuiInput
+            id="identity"
+            name="identity"
+            formControlName="identity"
+            placeholder="User name or email"
+            i18n-placeholder="@@label.login_or_email"
+            data-cy="user-name"
+            type="text"
           />
+        </tui-textfield>
+        <div class="vertical stack tiny align-stretch">
+          <tui-textfield
+            tuiTextfieldSize="s"
+            [tuiTextfieldCleaner]="false"
+            [invalid]="
+              form.controls.password.touched && form.controls.password.invalid
+            "
+          >
+            <input
+              tuiInput
+              id="password"
+              name="password"
+              formControlName="password"
+              data-cy="password"
+              placeholder="Password"
+              i18n-placeholder="@@label.password"
+              type="password"
+            />
+            <tui-icon tuiPassword />
+          </tui-textfield>
           <p class="restore" i18n="@@message.your_can_restore_password">
             You can also
             <a [routerLink]="['/restore']">restore password</a>

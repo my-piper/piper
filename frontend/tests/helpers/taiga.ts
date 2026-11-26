@@ -56,6 +56,14 @@ export function typeChip(input: Element | null, text: string) {
   element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
 }
 
+/**
+ * Whether a `tui-textfield` shows its input as invalid: Taiga draws the red
+ * border from the textfield's `data-mode`, set by its `[invalid]` binding.
+ */
+export function markedInvalid(input: Element | null): boolean {
+  return !!(input as Element).closest('tui-textfield[data-mode~="invalid"]');
+}
+
 /** The message a `<tui-error>` shows; empty while the field has none. */
 export function fieldError(error: Element | null): string {
   return (error as Element).textContent.trim();
