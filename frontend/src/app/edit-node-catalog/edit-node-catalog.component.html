@@ -1,9 +1,7 @@
 @if (form.errors?.["validate"]; as errors) {
-  <ul class="errors">
-    @for (e of errors; track $index) {
-      <li>{{ e }}</li>
-    }
-  </ul>
+  @for (e of errors; track $index) {
+    <tui-error [error]="e" />
+  }
 }
 
 @if (!!catalogControl.value) {
