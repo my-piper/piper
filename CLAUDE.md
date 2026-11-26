@@ -8,6 +8,7 @@ The project instructions are maintained in `AGENTS.md` (shared with other agents
 
 ## Additions for Claude Code
 
+- Working beside another session: `make worktree NAME=<name>` creates `../piper-<name>` with its own submodule and `node_modules`; work and run servers there, not in the shared checkout. Shells start on the system Node, so prefix commands with `. ~/.nvm/nvm.sh && nvm use`.
 - The Node major is pinned only in the root `.nvmrc`; to upgrade, change it and run `make check-node-version` to find the `engines` ranges and Dockerfile default that must follow.
 - Run a single backend test: `cd backend && npx vitest run path/to/file.test.ts` (add `-t "<name>"` to filter by test name). Integration tests: `npm run test:integration` uses `vitest.integration.config.ts`.
 - Run frontend tests with `cd frontend && npm run test:agent`: it prints only failed tests and the summary. Focusing a run (files, names, Playwright without rebuilding) is described in `frontend/tests/README.md`.

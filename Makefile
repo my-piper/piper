@@ -9,7 +9,7 @@ COMPOSE_ARGS=-f tools/compose/compose.yaml
 BACKEND=npm --prefix ./backend
 FRONTEND=npm --prefix ./frontend
 
-.PHONY: lint lint-backend lint-frontend lint-fix
+.PHONY: lint lint-backend lint-frontend lint-fix worktree
 
 install:
 	@set -e; \
@@ -143,3 +143,8 @@ check-install-scripts:
 
 check-lockfile:
 	./tools/check-lockfile.sh
+
+# A sibling checkout for a parallel session: make worktree NAME=<name> [BRANCH=<branch>]
+worktree:
+	@test -n "$(NAME)" || { echo "usage: make worktree NAME=<name> [BRANCH=<branch>]" >&2; exit 1; }
+	./tools/worktree.sh "$(NAME)" $(BRANCH)
