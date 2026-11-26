@@ -34,7 +34,7 @@
     ) {
       <div>
         <label>
-          @if (i.value.icon; as icon) {
+          @if (i.value.icon | piperIcon; as icon) {
             <tui-icon [icon]="icon" class="icon" />
           }
           {{ i.value.title | i18n }}
