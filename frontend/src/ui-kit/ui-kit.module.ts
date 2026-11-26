@@ -20,7 +20,6 @@ import { TimePassedPipe } from "src/pipes/time-passed.pipe";
 import { PopoverComponent } from "./popover/popover.component";
 import { PopoverDirective } from "./popover/popover.directive";
 import { SkeletonComponent } from "./skeleton/skeleton.component";
-import { SliderComponent } from "./slider/slider.component";
 import { SpinnerComponent } from "./spinner/spinner.component";
 import { TabsComponent } from "./tabs/tabs.component";
 
@@ -32,7 +31,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     ModalDirective,
     PopoverComponent,
     PopoverDirective,
-    SliderComponent,
     TabsComponent,
     InvalidFieldPipe,
     SpinnerComponent,
@@ -57,7 +55,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     ModalDirective,
     PopoverComponent,
     PopoverDirective,
-    SliderComponent,
     TabsComponent,
     InvalidFieldPipe,
     SpinnerComponent,
