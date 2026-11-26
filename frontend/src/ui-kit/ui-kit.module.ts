@@ -1,4 +1,5 @@
 import { CommonModule } from "@angular/common";
+import { TuiBadge } from "@taiga-ui/kit";
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IncludesPipe } from "src/pipes/includes.pipe";
@@ -69,6 +70,7 @@ import { TabsComponent } from "./tabs/tabs.component";
     TimeDiffPipe,
     TickerPipe,
   ],
-  imports: [CommonModule, ReactiveFormsModule],
+  // TuiBadge: the modal's ESC hint (#155).
+  imports: [CommonModule, ReactiveFormsModule, TuiBadge],
 })
 export class UiKitModule {}
