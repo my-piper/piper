@@ -60,7 +60,6 @@ import { CanvasPanDirective } from "src/directives/canvas-pan.directive";
 import { CanvasSelectDirective } from "src/directives/canvas-select.directive";
 import { PitchZoomDirective } from "src/directives/pitch-zoom.directive";
 import { ScrollInsideDirective } from "src/directives/scroll-inside.directive";
-import { SelectableDirective } from "src/directives/selectable.directive";
 import { SubmitButtonDirective } from "src/directives/submit-button.directive";
 import { AppConfig } from "src/models/app-config";
 import { CanPipe } from "src/pipes/can";
@@ -258,7 +257,6 @@ import { UsersComponent } from "./users/users.component";
     PackagesUpdateErrorsCountPipe,
     EditPipelineDesignComponent,
     ProjectSettingsComponent,
-    SelectableDirective,
     CanvasPanDirective,
     CanvasSelectDirective,
     PitchZoomDirective,

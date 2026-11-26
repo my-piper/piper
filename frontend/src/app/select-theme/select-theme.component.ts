@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { Component, ChangeDetectionStrategy, HostBinding } from "@angular/core";
 import { ThemeManager, ThemeMode } from "src/services/theme.service";
 
 @Component({
@@ -12,4 +12,13 @@ export class SelectThemeComponent {
   modes: ThemeMode[] = ["light", "dark", "system"];
 
   constructor(public themes: ThemeManager) {}
+
+  /**
+   * Taiga colors follow the app's theme here too: the header's menu opens in
+   * a dropdown that inherits the navigation header's dark theme.
+   */
+  @HostBinding("attr.tuiTheme")
+  get tuiTheme() {
+    return this.themes.theme;
+  }
 }
