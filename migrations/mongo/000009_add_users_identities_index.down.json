@@ -1,0 +1,6 @@
+[
+  {
+    "dropIndexes": "users",
+    "index": "identities_provider_subject"
+  }
+]

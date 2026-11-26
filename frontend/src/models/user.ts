@@ -6,6 +6,28 @@ export enum UserRole {
   engineer = "engineer",
 }
 
+export enum IdentityProvider {
+  oidc = "oidc",
+}
+
+export class UserIdentity {
+  @Expose()
+  @Type(() => String)
+  provider!: IdentityProvider;
+
+  @Expose()
+  @Type(() => String)
+  subject!: string;
+
+  @Expose()
+  @Type(() => String)
+  email!: string;
+
+  @Expose()
+  @Type(() => Date)
+  linkedAt!: Date;
+}
+
 export class User {
   @Expose()
   @Type(() => String)
@@ -30,6 +52,10 @@ export class User {
   @Expose()
   @Type(() => String)
   provider: "yandex" | "google";
+
+  @Expose()
+  @Type(() => UserIdentity)
+  identities?: UserIdentity[];
 
   @Expose()
   @Type(() => String)

@@ -17,10 +17,37 @@ import {
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
 import { Node, NodeInput } from "models/node";
 import { Pipeline, PipelineInput } from "models/pipeline";
+import { User, UserIdentity } from "models/user";
 import { describe, expect, it } from "vitest";
 import { launchRequestFixture, pipelineFixture } from "../../fixtures/pipeline";
 
 describe("model storage contracts", () => {
+  it("round trips a user with linked identities and dates", () => {
+    const source = {
+      _id: "jane",
+      email: "jane@example.com",
+      createdAt: "2026-01-02T03:04:05.000Z",
+      identities: [
+        {
+          provider: "oidc",
+          subject: "8f2c",
+          email: "jane@sso.example.com",
+          linkedAt: "2026-01-03T03:04:05.000Z",
+        },
+      ],
+    };
+
+    const user = toInstance(source, User);
+    const restored = toInstance(
+      JSON.parse(JSON.stringify(toPlain(user))),
+      User
+    );
+
+    expect(restored.identities[0]).toBeInstanceOf(UserIdentity);
+    expect(restored.identities[0].linkedAt).toBeInstanceOf(Date);
+    expect(JSON.parse(JSON.stringify(toPlain(restored)))).toEqual(source);
+  });
+
   it("round trips a pipeline with typed nodes and nested input flows", () => {
     const source = pipelineFixture();
 
