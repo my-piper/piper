@@ -1,3 +1,4 @@
+import { openDialog } from "../helpers/taiga";
 import { fakeAsync, tick } from "@angular/core/testing";
 import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
@@ -318,7 +319,7 @@ describe("EditPipelineVisualComponent", () => {
       detectChanges();
 
       expect(project.pipeline.nodes.size).toBe(2);
-      expect(element.querySelector("app-informer")).not.toBeNull();
+      expect(openDialog()).not.toBeNull();
       finish();
     }));
 

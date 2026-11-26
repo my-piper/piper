@@ -34,7 +34,7 @@ import {
 import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
-import { isLoading, iconName } from "../helpers/taiga";
+import { iconName, isLoading, openDialog, popupRoot } from "../helpers/taiga";
 
 /**
  * POST /api/projects/:_id/launch merges this body into the stored launch
@@ -236,6 +236,7 @@ describe("ProjectPlaygroundComponent", () => {
   it("shows launch errors with their details and resets progress", fakeAsync(() => {
     expectConsoleError("Process HTTP error 400");
     setup();
+    const root = popupRoot();
     const { status, statusText, body } = schemaInvalid();
 
     runButton().click();
@@ -244,10 +245,11 @@ describe("ProjectPlaygroundComponent", () => {
       .flush(body, { status, statusText });
     tick(UI_DELAY);
     fixture.detectChanges();
+    root.detectChanges();
 
-    const informer = element.querySelector("app-informer");
-    expect(informer.textContent).toContain("Pipeline schema invalid");
-    expect(informer.textContent).toContain("must have required property");
+    const dialog = openDialog();
+    expect(dialog.textContent).toContain("Pipeline schema invalid");
+    expect(dialog.textContent).toContain("must have required property");
     expect(fixture.componentInstance.progress.launching).toBe(false);
     finish();
   }));

@@ -1,3 +1,4 @@
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -10,7 +11,7 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
-import { TuiLoader } from "@taiga-ui/core";
+import { provideTaiga, TuiLoader, TuiRoot } from "@taiga-ui/core";
 import { ActivatedRoute, provideRouter, RouterModule } from "@angular/router";
 import { of } from "rxjs";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
@@ -29,7 +30,7 @@ import { finish } from "../helpers/editor";
 import { editJson, JsonEditorStubComponent } from "../helpers/json-editor-stub";
 import { provideSocketDouble } from "../helpers/socket";
 import { expectConsoleError } from "../helpers/console";
-import { isLoading } from "../helpers/taiga";
+import { isLoading, openDialog, popupRoot } from "../helpers/taiga";
 
 /**
  * Wire contracts:
@@ -44,6 +45,7 @@ const DEPLOYS_URL = `/api/projects/${PROJECT_A_ID}/deploys`;
 
 describe("DeployPipelineComponent", () => {
   let fixture: ComponentFixture<DeployPipelineComponent>;
+  let root: ComponentFixture<TuiRoot>;
   let controller: HttpTestingController;
   let element: HTMLElement;
 
@@ -64,8 +66,10 @@ describe("DeployPipelineComponent", () => {
         TaigaFormsModule,
         TuiLoader,
         JsonEditorStubComponent,
+        ErrorDialogComponent,
       ],
       providers: [
+        provideTaiga(),
         provideTestConfig(),
         provideRouter([]),
         provideHttpClient(withXhr()),
@@ -82,6 +86,7 @@ describe("DeployPipelineComponent", () => {
     fixture.detectChanges();
     controller.match("/api/me").forEach((r) => r.flush(userPlain(user)));
     fixture.detectChanges();
+    root = popupRoot();
     return project;
   }
 
@@ -218,8 +223,9 @@ describe("DeployPipelineComponent", () => {
       });
     tick(UI_DELAY);
     fixture.detectChanges();
+    root.detectChanges();
 
-    expect(element.querySelector("app-informer p").textContent.trim()).toBe(
+    expect(openDialog().querySelector("p").textContent.trim()).toBe(
       "You can't deploy this project in this prefix",
     );
     expect(fixture.componentInstance.progress.deploying).toBe(false);
@@ -270,8 +276,9 @@ describe("DeployPipelineComponent", () => {
       .flush("Forbidden", { status: 403, statusText: "Forbidden" });
     tick(UI_DELAY);
     fixture.detectChanges();
+    root.detectChanges();
 
-    expect(element.querySelector("app-informer p").textContent.trim()).toBe(
+    expect(openDialog().querySelector("p").textContent.trim()).toBe(
       "Forbidden",
     );
     expect(rows().length).toBe(2);
