@@ -35,6 +35,10 @@ describe("EditFlowTransformerComponent", () => {
       to: { id: flow.to, node: project.pipeline.nodes.get(flow.to) },
     });
     fixture.detectChanges();
+    // The real root hosts the Taiga dropdown of the JSON path picker. It comes
+    // after the component: each TestBed.createComponent removes earlier roots.
+    root = TestBed.createComponent(AppComponent);
+    root.detectChanges();
     return { fixture, element: fixture.nativeElement as HTMLElement, flow };
   }
 
@@ -55,9 +59,6 @@ describe("EditFlowTransformerComponent", () => {
     }
     manager = TestBed.inject(ProjectManager);
     manager.project = project;
-    // The real root registers the popover host used by the JSON path picker.
-    root = TestBed.createComponent(AppComponent);
-    root.detectChanges();
   }
 
   describe("image array transformer", () => {
@@ -111,6 +112,9 @@ describe("EditFlowTransformerComponent", () => {
       ) as HTMLElement;
       answer.click();
       fixture.detectChanges();
+      // picking a path closes the dropdown; let the root remove it
+      root.detectChanges();
+      tick();
 
       expect(paths.map((a) => a.textContent.trim())).toContain("data.answer");
       expect(flow.transformer.path).toBe("data.answer");

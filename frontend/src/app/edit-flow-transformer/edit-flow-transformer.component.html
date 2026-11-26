@@ -67,8 +67,8 @@
         }
       </ng-template>
       <button
-        [appPopover]="{ content: jsonTransformerTemplate, trigger: 'click' }"
-        (attached)="instances.popover = $event"
+        [tuiDropdown]="jsonTransformerTemplate"
+        [(tuiDropdownOpen)]="pathsOpen"
       >
         {{ pathControl.value || "JSON" }}
       </button>

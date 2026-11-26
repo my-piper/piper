@@ -26,7 +26,7 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { IncludesPipe } from "src/pipes/includes.pipe";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
-import { provideTaiga } from "@taiga-ui/core";
+import { provideTaiga, TuiDropdown } from "@taiga-ui/core";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { authorizationPlain } from "../fixtures/plain";
@@ -56,6 +56,7 @@ async function render(
       RouterLink,
       TaigaFormsModule,
       ErrorDialogComponent,
+      ...TuiDropdown,
     ],
     providers: [
       provideTaiga(),
