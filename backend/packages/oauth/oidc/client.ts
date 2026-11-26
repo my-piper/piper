@@ -9,6 +9,7 @@ import { OIDC_STATE_EXPIRED, OIDC_STATE_KEY } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import {
+  allowInsecureRequests,
   authorizationCodeGrant,
   buildAuthorizationUrl,
   calculatePKCECodeChallenge,
@@ -21,13 +22,21 @@ import {
 import { OidcClaims, OidcSignInError } from "packages/users/oidc-sign-in";
 import { OidcState } from "./models";
 
+const LOCAL_HOSTS = ["localhost", "127.0.0.1"];
+
 let configuration: Promise<Configuration> | null = null;
 
 function config(): Promise<Configuration> {
+  const issuer = new URL(OIDC_ISSUER);
   configuration ??= discovery(
-    new URL(OIDC_ISSUER),
+    issuer,
     OIDC_CLIENT_ID,
-    OIDC_CLIENT_SECRET
+    OIDC_CLIENT_SECRET,
+    undefined,
+    // Plain HTTP only for a local provider, such as the compose `sso` profile.
+    issuer.protocol === "http:" && LOCAL_HOSTS.includes(issuer.hostname)
+      ? { execute: [allowInsecureRequests] }
+      : {}
   ).catch((err) => {
     configuration = null;
     throw err;
@@ -35,7 +44,10 @@ function config(): Promise<Configuration> {
   return configuration;
 }
 
-export async function authorizationUrl(): Promise<string> {
+export async function authorizationUrl(): Promise<{
+  url: string;
+  state: string;
+}> {
   const verifier = randomPKCECodeVerifier();
   const state = randomState();
   const nonce = randomNonce();
@@ -54,15 +66,23 @@ export async function authorizationUrl(): Promise<string> {
     state,
     nonce,
   });
-  return url.href;
+  return { url: url.href, state };
 }
 
-export async function exchangeCode(query: string): Promise<OidcClaims> {
+/**
+ * `browserState` is the state cookie set when this browser started the flow;
+ * requiring it stops a callback link from signing a victim into someone
+ * else's account (login CSRF).
+ */
+export async function exchangeCode(
+  query: string,
+  browserState: string | undefined
+): Promise<OidcClaims> {
   const callback = new URL(OIDC_CALLBACK_URL);
   callback.search = query;
   const state = callback.searchParams.get("state");
-  if (!state) {
-    throw new OidcSignInError("sso_failed", "Callback without state");
+  if (!state || state !== browserState) {
+    throw new OidcSignInError("sso_failed", "State does not match browser");
   }
 
   const stored = await redis.getDel(OIDC_STATE_KEY(state));
@@ -81,6 +101,7 @@ export async function exchangeCode(query: string): Promise<OidcClaims> {
   return {
     subject: claims.sub,
     email: typeof claims.email === "string" ? claims.email : undefined,
+    emailVerified: claims.email_verified === true,
     preferredUsername:
       typeof claims.preferred_username === "string"
         ? claims.preferred_username

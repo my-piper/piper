@@ -20,6 +20,7 @@ export class OidcSignInError extends Error {
 export type OidcClaims = {
   subject: string;
   email?: string;
+  emailVerified?: boolean;
   preferredUsername?: string;
 };
 
@@ -33,6 +34,7 @@ function authorize(user: User): Authorization {
 export async function signInWithOidc({
   subject,
   email,
+  emailVerified,
   preferredUsername,
 }: OidcClaims): Promise<Authorization> {
   if (!subject || !email) {
@@ -55,6 +57,12 @@ export async function signInWithOidc({
       }
     );
     return authorize(linked);
+  }
+
+  // A new account takes the email as its own; Google and Yandex sign-in
+  // match accounts by email, so it must be one the provider has verified.
+  if (!emailVerified) {
+    throw new OidcSignInError("sso_failed", "Email is not verified");
   }
 
   const owner = await mongo.users.findOne(
