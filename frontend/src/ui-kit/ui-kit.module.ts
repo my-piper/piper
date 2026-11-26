@@ -18,7 +18,6 @@ import { TimeDiffPipe } from "src/pipes/time-diff.pipe";
 import { TimePassedPipe } from "src/pipes/time-passed.pipe";
 import { PopoverComponent } from "./popover/popover.component";
 import { PopoverDirective } from "./popover/popover.directive";
-import { SpinnerComponent } from "./spinner/spinner.component";
 
 @NgModule({
   declarations: [
@@ -28,7 +27,6 @@ import { SpinnerComponent } from "./spinner/spinner.component";
     ModalDirective,
     PopoverComponent,
     PopoverDirective,
-    SpinnerComponent,
     TimePassedPipe,
     I18nPipe,
     IncludesPipe,
@@ -47,7 +45,6 @@ import { SpinnerComponent } from "./spinner/spinner.component";
     ModalDirective,
     PopoverComponent,
     PopoverDirective,
-    SpinnerComponent,
     TimePassedPipe,
     I18nPipe,
     IncludesPipe,
