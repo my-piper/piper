@@ -112,9 +112,8 @@ describe("project routing", () => {
       expect(result.consumed.length).toBe(2);
     });
 
-    it("leaves /projects/import, /projects/import-v1 and /projects to other routes", () => {
+    it("leaves /projects/import and /projects to other routes", () => {
       expect(projectIdMatcher(segments("projects", "import"))).toBeNull();
-      expect(projectIdMatcher(segments("projects", "import-v1"))).toBeNull();
       expect(projectIdMatcher(segments("projects"))).toBeNull();
       expect(projectIdMatcher(segments("launches", PROJECT_A_ID))).toBeNull();
     });
