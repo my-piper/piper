@@ -11,13 +11,12 @@ import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { provideValidationErrors } from "src/providers/validation-errors";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
-import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { provideTestConfig } from "../helpers/config";
 import { fieldError, markedInvalid } from "../helpers/taiga";
 
 async function render() {
   await TestBed.configureTestingModule({
-    declarations: [ChangePasswordComponent, InformerComponent, IconComponent],
+    declarations: [ChangePasswordComponent, InformerComponent],
     imports: [ReactiveFormsModule, TaigaFormsModule],
     providers: [
       provideTestConfig(),

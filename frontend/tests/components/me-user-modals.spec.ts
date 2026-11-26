@@ -14,7 +14,6 @@ import { I18nPipe } from "src/pipes/i18n.pipe";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { provideValidationErrors } from "src/providers/validation-errors";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
-import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { ModalComponent } from "src/ui-kit/modal/modal.component";
 import { provideTestConfig } from "../helpers/config";
@@ -35,7 +34,6 @@ async function render() {
       MeUserComponent,
       ModalComponent,
       ChangePasswordComponent,
-      IconComponent,
       InformerComponent,
       I18nPipe,
     ],

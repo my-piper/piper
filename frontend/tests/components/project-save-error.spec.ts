@@ -24,7 +24,6 @@ import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
-import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { I18nPipe } from "src/pipes/i18n.pipe";
 import { LengthPipe } from "src/pipes/length.pipe";
@@ -51,8 +50,7 @@ describe("ProjectComponent save errors", () => {
     TestBed.configureTestingModule({
       declarations: [
         ProjectComponent,
-        IconComponent,
-        InformerComponent,
+          InformerComponent,
         ModalDirective,
         PopoverDirective,
         CanPipe,

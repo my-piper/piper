@@ -104,23 +104,6 @@
     backdrop-filter: blur(5px);
   }
 
-  .locked {
-    position: absolute;
-    top: -(variables.$gutter-small);
-    right: -(variables.$gutter-small);
-    z-index: 1;
-    background: white;
-    border-radius: 50%;
-    padding: 1px;
-    display: flex;
-
-    .icon,
-    .icon ::ng-deep svg {
-      display: block;
-      stroke: variables.$graphite-color-100;
-    }
-  }
-
   .input,
   .output {
     display: block;
