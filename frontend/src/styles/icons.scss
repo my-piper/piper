@@ -1,0 +1,22 @@
+// Piper's own icons (src/icons, registered with tuiIconsProvider) keep the
+// look app-icon gave them (#178): 22px, drawn in --icon-color. A use sets
+// --app-icon-size / --app-icon-color for another size or color.
+//
+// Taiga puts an icon's mode in data-icon-start / data-icon-end: "tui" for its
+// Lucide set, "img" and "font" for those kinds, and the icon's own name for a
+// registry icon, so the rules below leave Taiga's icons alone. They are
+// !important because Taiga sizes and colors button icons per size and
+// appearance with more specific selectors; the variables stay overridable.
+
+$taiga-modes: '[data-icon-start="tui"], [data-icon-start="img"], [data-icon-start="font"]';
+
+[tuiIcons][data-icon-start]:not(#{$taiga-modes})::before {
+  font-size: var(--app-icon-size, 22px) !important;
+  background: var(--app-icon-color, var(--icon-color)) !important;
+}
+
+// A <tui-icon> host is a 1em square: make it the size of the icon it draws,
+// like app-icon's host was.
+tui-icon[data-icon-start]:not(#{$taiga-modes}) {
+  font-size: var(--app-icon-size, 22px);
+}

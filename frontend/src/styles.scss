@@ -6,6 +6,7 @@
 @use "src/ui-kit/styles/menus";
 @use "src/ui-kit/styles/animations";
 @use "src/ui-kit/styles/typography";
+@use "src/styles/icons";
 
 // https://coolors.co/palettes/popular/5468ff
 
@@ -41,6 +42,17 @@ app-root > tui-root > .t-root-content {
 [tuiButton].fluid {
   inline-size: 100%;
   flex-shrink: 1;
+}
+
+// Tables fill their container; one column without a width takes the spare
+// space, the rest get fixed widths in the component. On narrow screens the
+// table scrolls inside its wrapper, not the page.
+table {
+  inline-size: 100%;
+}
+
+.table-container {
+  overflow-x: auto;
 }
 
 .money {

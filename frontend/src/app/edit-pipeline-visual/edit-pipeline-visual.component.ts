@@ -7,7 +7,9 @@ import {
   ViewChild,
   ChangeDetectionStrategy,
   inject,
+  DestroyRef,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { TuiDialogService } from "@taiga-ui/core";
@@ -23,7 +25,6 @@ import {
   Subscription,
   switchMap,
   take,
-  takeUntil,
 } from "rxjs";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
@@ -60,7 +61,6 @@ import { ProjectManager } from "src/services/project.manager";
 import { NodeOutputs } from "src/types/node";
 import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { sid } from "src/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
@@ -80,10 +80,9 @@ function salt() {
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class EditPipelineVisualComponent
-  extends UntilDestroyed
-  implements OnDestroy
-{
+export class EditPipelineVisualComponent implements OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   private readonly dialogs = inject(TuiDialogService);
 
   userRole = UserRole;
@@ -170,9 +169,7 @@ export class EditPipelineVisualComponent
     private socket: Socket,
     private cd: ChangeDetectorRef,
     private location: Location,
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     this.route.data.subscribe(({ project, launch, launches, mode }) => {
@@ -220,10 +217,10 @@ export class EditPipelineVisualComponent
 
   private listen() {
     const release = this.live.subscribe(this.me.user._id);
-    this.destroyed$.subscribe(() => release());
+    this.destroyRef.onDestroy(release);
     this.socket
       .fromEvent<object>("pipeline_done")
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
         const { launch } = toInstance(data, PipelineEvent);
         if (this.running && launch === this.launch._id) {
@@ -239,8 +236,7 @@ export class EditPipelineVisualComponent
     });
   }
 
-  override ngOnDestroy() {
-    super.ngOnDestroy();
+  ngOnDestroy() {
     this.unsubscribe();
   }
 
@@ -355,7 +351,7 @@ export class EditPipelineVisualComponent
             size: "s",
           },
         )
-        .pipe(takeUntil(this.destroyed$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe();
       return;
     }

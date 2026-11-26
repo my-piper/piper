@@ -9,6 +9,23 @@
 .app-container {
   @include mixins.vertical-stack();
 }
+
+.actions-column {
+  width: 24px;
+}
+
+.login-column {
+  width: 12rem;
+}
+
+.created-column {
+  width: 180px;
+}
+
+.badges-column {
+  width: 48px;
+}
+
 // The loading row centers its tui-loader.
 .loading td {
   text-align: center;

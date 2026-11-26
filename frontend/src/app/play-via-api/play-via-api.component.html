@@ -57,63 +57,65 @@
         <sup>*</sup>
       }
     </h3>
-    <table>
-      <tbody>
-        <tr>
-          <td i18n="@@label.title">Title</td>
-          <td>
-            {{ i.value.title | i18n }}
-          </td>
-        </tr>
-        <tr>
-          <td i18n="@@label.type">Type</td>
-          <td>
-            <b>
-              {{ i.value.type }}
-            </b>
-          </td>
-        </tr>
-        @if (i.value.default !== undefined) {
+    <div class="table-container">
+      <table>
+        <tbody>
           <tr>
-            <td i18n="@@label.default">Default</td>
+            <td i18n="@@label.title">Title</td>
             <td>
-              @switch (i.value.type) {
-                @case ("boolean") {
-                  <code>{{ i.value.default ? "true" : "false" }}</code>
-                }
-                @default {
-                  {{ i.value.default }}
-                }
-              }
+              {{ i.value.title | i18n }}
             </td>
           </tr>
-        }
-        @if (i.value.enum; as enum) {
           <tr>
-            <td i18n="@@label.enum">Enum</td>
+            <td i18n="@@label.type">Type</td>
             <td>
-              <table>
-                <tbody>
-                  @for (o of enum; track o) {
-                    <tr>
-                      @if (o | split: "|"; as x) {
-                        <td>
-                          {{ x[0] }}
-                        </td>
-                        <td>
-                          @if (x[1]; as label) {
-                            {{ label | i18n }}
-                          }
-                        </td>
-                      }
-                    </tr>
+              <b>
+                {{ i.value.type }}
+              </b>
+            </td>
+          </tr>
+          @if (i.value.default !== undefined) {
+            <tr>
+              <td i18n="@@label.default">Default</td>
+              <td>
+                @switch (i.value.type) {
+                  @case ("boolean") {
+                    <code>{{ i.value.default ? "true" : "false" }}</code>
                   }
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+                  @default {
+                    {{ i.value.default }}
+                  }
+                }
+              </td>
+            </tr>
+          }
+          @if (i.value.enum; as enum) {
+            <tr>
+              <td i18n="@@label.enum">Enum</td>
+              <td>
+                <table>
+                  <tbody>
+                    @for (o of enum; track o) {
+                      <tr>
+                        @if (o | split: "|"; as x) {
+                          <td>
+                            {{ x[0] }}
+                          </td>
+                          <td>
+                            @if (x[1]; as label) {
+                              {{ label | i18n }}
+                            }
+                          </td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </ng-container>

@@ -25,6 +25,24 @@
     align-items: flex-start;
 }
 
+// the publish form stays compact, the table spans the tab
+.publish > .table-container {
+    align-self: stretch;
+}
+
+.id-column {
+    width: 12rem;
+}
+
+.category-column,
+.package-column {
+    width: 10rem;
+}
+
+.version-column {
+    width: 100px;
+}
+
 .tabs {
     @include tabs.content-tabs;
 }

@@ -55,6 +55,9 @@
             "polyfills": ["zone.js", "@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "loader": {
+              ".svg": "text"
+            },
             "assets": [
               "src/favicon.ico",
               "src/assets",

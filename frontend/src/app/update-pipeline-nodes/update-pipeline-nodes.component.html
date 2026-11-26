@@ -62,7 +62,11 @@
     }
   } @else {
     @if (progress.loading) {
-      <app-skeleton type="cards" [cols]="2"></app-skeleton>
+      <div class="card-skeleton" data-testid="loading" style="--cols: 2">
+        @for (cell of 6 | mockArray; track $index) {
+          <div [tuiSkeleton]="true"></div>
+        }
+      </div>
     } @else {
       <p i18n="@@message.no_node_updates">No updates in nodes from catalog.</p>
     }

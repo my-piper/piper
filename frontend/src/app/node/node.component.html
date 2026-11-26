@@ -9,9 +9,9 @@
       appearance="flat-grayscale"
       size="m"
       [appPopover]="{ content: errorPopover }"
-    >
-      <app-icon class="icon" icon="error" [size]="32"></app-icon>
-    </button>
+      iconStart="error"
+      style="--app-icon-size: 32px"
+    ></button>
   </div>
 }
 
@@ -102,9 +102,9 @@
               title: 'Pick artefact',
               content: pickArtefactModal,
             }"
-          >
-            <app-icon icon="grid" [size]="18"></app-icon>
-          </button>
+            iconStart="grid"
+            style="--app-icon-size: 18px"
+          ></button>
           @switch (o.value.type) {
             @case ("image") {
               <div class="image">
@@ -117,7 +117,7 @@
                   />
                 } @else {
                   <div class="no-value">
-                    <app-icon icon="image" [size]="64"></app-icon>
+                    <tui-icon icon="image" style="--app-icon-size: 64px" />
                   </div>
                 }
               </div>
@@ -139,7 +139,7 @@
               } @else {
                 <div class="images">
                   <div class="no-value">
-                    <app-icon icon="image" [size]="64"></app-icon>
+                    <tui-icon icon="image" style="--app-icon-size: 64px" />
                   </div>
                 </div>
               }
@@ -154,7 +154,7 @@
                   ></video>
                 } @else {
                   <div class="no-value">
-                    <app-icon icon="video" [size]="64"></app-icon>
+                    <tui-icon icon="video" style="--app-icon-size: 64px" />
                   </div>
                 }
               </div>
@@ -165,7 +165,7 @@
                   <audio [src]="value" controls></audio>
                 } @else {
                   <div class="no-value">
-                    <app-icon icon="audio" [size]="64"></app-icon>
+                    <tui-icon icon="audio" style="--app-icon-size: 64px" />
                   </div>
                 }
               </div>
@@ -177,7 +177,7 @@
                 }}</pre>
               } @else {
                 <div class="no-value">
-                  <app-icon icon="json" [size]="64"></app-icon>
+                  <tui-icon icon="json" style="--app-icon-size: 64px" />
                 </div>
               }
             }
@@ -205,7 +205,7 @@
                 }
               } @else {
                 <div class="no-value">
-                  <app-icon icon="text" [size]="64"></app-icon>
+                  <tui-icon icon="text" style="--app-icon-size: 64px" />
                 </div>
               }
             }
@@ -214,7 +214,7 @@
                 {{ value }}
               } @else {
                 <div class="no-value">
-                  <app-icon icon="text" [size]="64"></app-icon>
+                  <tui-icon icon="text" style="--app-icon-size: 64px" />
                 </div>
               }
             }

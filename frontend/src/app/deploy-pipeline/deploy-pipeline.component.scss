@@ -10,6 +10,15 @@
 form {
   @include mixins.vertical-stack();
 }
+
+.actions-column {
+  width: 20px;
+}
+
+.deployed-column {
+  width: 150px;
+}
+
 // The loading row centers its tui-loader.
 .loading td {
   text-align: center;

@@ -44,9 +44,8 @@
       size="s"
       class="round"
       [routerLink]="[{ outlets: { bottom: null } }]"
-    >
-      <app-icon class="icon" icon="close"></app-icon>
-    </a>
+      iconStart="close"
+    ></a>
   </header>
   <div class="content">
     <router-outlet
@@ -67,7 +66,7 @@
       (hotKeyPressed)="back()"
       [routerLink]="[{ outlets: { primary: [] } }]"
     >
-      <app-icon class="icon right" icon="close"></app-icon>
+      <tui-icon icon="close" class="icon right" />
       <span tuiBadge appearance="neutral" size="s">ESC</span>
     </a>
   </header>
@@ -90,9 +89,9 @@
     title="Zoom out"
     [disabled]="(pipeline.layout?.zoom || 1) <= zoom.min"
     (click)="zoomRef.zoomBy(1 / zoom.step)"
-  >
-    <app-icon class="icon" icon="minus" [size]="18"></app-icon>
-  </button>
+    iconStart="minus"
+    style="--app-icon-size: 18px"
+  ></button>
   <button
     tuiButton
     appearance="flat-grayscale"
@@ -115,9 +114,9 @@
     title="Zoom in"
     [disabled]="(pipeline.layout?.zoom || 1) >= zoom.max"
     (click)="zoomRef.zoomBy(zoom.step)"
-  >
-    <app-icon class="icon" icon="plus" [size]="18"></app-icon>
-  </button>
+    iconStart="plus"
+    style="--app-icon-size: 18px"
+  ></button>
   <button
     tuiIconButton
     appearance="outline-grayscale"
@@ -167,9 +166,9 @@
     class="round"
     data-testid="canvas-hint-toggle"
     [appPopover]="{ content: canvasHintTemplate, maxWidth: '320px' }"
-  >
-    <app-icon class="icon" icon="help" [size]="18"></app-icon>
-  </button>
+    iconStart="help"
+    style="--app-icon-size: 18px"
+  ></button>
 </div>
 
 <div
@@ -197,9 +196,8 @@
         data-testid="add-node"
         [class.toggled]="drawlers.left"
         [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
-      >
-        <app-icon class="icon" icon="add-node"></app-icon>
-      </a>
+        iconStart="add-node"
+      ></a>
       <div>
         <button
           tuiIconButton
@@ -210,9 +208,8 @@
           [loading]="progress.launching || (launches | keyvalue).length > 0"
           [disabled]="(launches | keyvalue).length > 0"
           (click)="run()"
-        >
-          <app-icon class="icon" icon="play"></app-icon>
-        </button>
+          iconStart="play"
+        ></button>
       </div>
       @if (config.assistant.active) {
         <a
@@ -224,9 +221,8 @@
           [routerLink]="[
             { outlets: { bottom: drawlers.bottom ? null : ['assistant'] } },
           ]"
-        >
-          <app-icon class="icon" icon="assistant"></app-icon>
-        </a>
+          iconStart="assistant"
+        ></a>
       }
     </div>
   }
@@ -242,9 +238,8 @@
           [loading]="progress.interrupting"
           [disabled]="progress.interrupting"
           (click)="interrupt()"
-        >
-          <app-icon class="icon" icon="stop"></app-icon>
-        </button>
+          iconStart="stop"
+        ></button>
       }
       <a
         tuiIconButton
@@ -319,11 +314,11 @@
           <ul class="context-menu">
             <li>
               <button (click)="removeInput(input.key)">
-                <app-icon
-                  class="icon left"
+                <tui-icon
                   icon="delete"
-                  [size]="18"
-                ></app-icon>
+                  class="icon left"
+                  style="--app-icon-size: 18px"
+                />
                 <span i18n="@@action.delete">Delete</span>
               </button>
             </li>
@@ -343,14 +338,9 @@
               trigger: 'click',
               position: 'right',
             }"
-          >
-            <app-icon
-              class="icon"
-              icon="more"
-              [size]="16"
-              [stroke]="2"
-            ></app-icon>
-          </button>
+            iconStart="more-bold"
+            style="--app-icon-size: 16px"
+          ></button>
         }
         <app-pipeline-input
           [id]="input.key"
@@ -396,11 +386,11 @@
               <ul class="context-menu">
                 <li>
                   <button (click)="removeInputFlow(input.key, f.key)">
-                    <app-icon
-                      class="icon left"
+                    <tui-icon
                       icon="delete"
-                      [size]="18"
-                    ></app-icon>
+                      class="icon left"
+                      style="--app-icon-size: 18px"
+                    />
                     <span i18n="@@action.delete">Delete</span>
                   </button>
                 </li>
@@ -416,14 +406,9 @@
                 trigger: 'click',
                 position: 'right',
               }"
-            >
-              <app-icon
-                class="icon"
-                icon="more"
-                [size]="16"
-                [stroke]="2"
-              ></app-icon>
-            </button>
+              iconStart="more-bold"
+              style="--app-icon-size: 16px"
+            ></button>
           </div>
         }
       }
@@ -462,11 +447,11 @@
           <ul class="context-menu">
             <li>
               <button (click)="removeOutput(output.key)">
-                <app-icon
-                  class="icon left"
+                <tui-icon
                   icon="delete"
-                  [size]="18"
-                ></app-icon>
+                  class="icon left"
+                  style="--app-icon-size: 18px"
+                />
                 <span i18n="@@action.delete">Delete</span>
               </button>
             </li>
@@ -485,14 +470,9 @@
               trigger: 'click',
               position: 'right',
             }"
-          >
-            <app-icon
-              class="icon"
-              icon="more"
-              [size]="16"
-              [stroke]="2"
-            ></app-icon>
-          </button>
+            iconStart="more-bold"
+            style="--app-icon-size: 16px"
+          ></button>
         }
       </div>
     }
@@ -527,19 +507,15 @@
               (click)="
                 !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
               "
-            >
-              <app-icon
-                class="icon"
-                [icon]="
-                  !!launches[node.key]
-                    ? 'stop'
-                    : (pipeline.start.nodes | includes: node.key)
-                      ? 'play-filled'
-                      : 'play'
-                "
-                [size]="20"
-              ></app-icon>
-            </button>
+              [iconStart]="
+                !!launches[node.key]
+                  ? 'stop'
+                  : (pipeline.start.nodes | includes: node.key)
+                    ? 'play-filled'
+                    : 'play'
+              "
+              style="--app-icon-size: 20px"
+            ></button>
             @if (!!node.value.app) {
               <a
                 tuiIconButton
@@ -547,9 +523,9 @@
                 size="s"
                 class="round"
                 [routerLink]="['apps', node.key]"
-              >
-                <app-icon class="icon" icon="cursor" [size]="18"></app-icon>
-              </a>
+                iconStart="cursor"
+                style="--app-icon-size: 18px"
+              ></a>
             }
           </div>
         }
@@ -557,11 +533,11 @@
           <ul class="context-menu">
             <li>
               <button (click)="removeNode(node.key)">
-                <app-icon
-                  class="icon left"
+                <tui-icon
                   icon="delete"
-                  [size]="18"
-                ></app-icon>
+                  class="icon left"
+                  style="--app-icon-size: 18px"
+                />
                 <span i18n="@@action.delete">Delete</span>
               </button>
             </li>
@@ -582,14 +558,9 @@
               trigger: 'click',
               position: 'right',
             }"
-          >
-            <app-icon
-              class="icon"
-              icon="more"
-              [size]="16"
-              [stroke]="2"
-            ></app-icon>
-          </button>
+            iconStart="more-bold"
+            style="--app-icon-size: 16px"
+          ></button>
         }
         <app-node
           [class.active]="currentNode === node.value"
@@ -692,11 +663,11 @@
             <ul class="context-menu">
               <li>
                 <button (click)="removeFlow(f.key)">
-                  <app-icon
-                    class="icon left"
+                  <tui-icon
                     icon="delete"
-                    [size]="18"
-                  ></app-icon>
+                    class="icon left"
+                    style="--app-icon-size: 18px"
+                  />
                   <span i18n="@@action.delete">Delete</span>
                 </button>
               </li>
@@ -712,14 +683,9 @@
               trigger: 'click',
               position: 'right',
             }"
-          >
-            <app-icon
-              class="icon"
-              icon="more"
-              [size]="16"
-              [stroke]="2"
-            ></app-icon>
-          </button>
+            iconStart="more-bold"
+            style="--app-icon-size: 16px"
+          ></button>
         </div>
       }
     }
