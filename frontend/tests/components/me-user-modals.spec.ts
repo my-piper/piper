@@ -11,8 +11,9 @@ import { ChangePasswordComponent } from "src/app/change-password/change-password
 import { MeUserComponent } from "src/app/me-user/me-user.component";
 import { Languages } from "src/enums/languages";
 import { I18nPipe } from "src/pipes/i18n.pipe";
-import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { provideValidationErrors } from "src/providers/validation-errors";
+import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { ModalComponent } from "src/ui-kit/modal/modal.component";
@@ -37,11 +38,11 @@ async function render() {
       IconComponent,
       InformerComponent,
       I18nPipe,
-      InvalidFieldPipe,
     ],
     imports: [
       CommonModule,
       ReactiveFormsModule,
+      TaigaFormsModule,
       TuiButton,
       TuiIcon,
       ...TuiDataList,
@@ -49,6 +50,7 @@ async function render() {
     ],
     providers: [
       provideTestConfig(),
+      provideValidationErrors(),
       provideSocketDouble(),
       provideHttpClient(withXhr()),
       provideHttpClientTesting(),

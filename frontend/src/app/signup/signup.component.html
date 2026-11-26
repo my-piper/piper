@@ -12,16 +12,21 @@
       </p>
     </header>
     <fieldset>
-      <input
-        class="input-primary fluid"
-        id="code"
-        name="code"
-        [class.error]="form | invalidField: 'code'"
-        formControlName="code"
-        placeholder="Code from email"
-        i18n-placeholder="@@label.code_from_email"
-        type="text"
-      />
+      <tui-textfield
+        tuiTextfieldSize="s"
+        [tuiTextfieldCleaner]="false"
+        [invalid]="form.controls.code.touched && form.controls.code.invalid"
+      >
+        <input
+          tuiInput
+          id="code"
+          name="code"
+          formControlName="code"
+          placeholder="Code from email"
+          i18n-placeholder="@@label.code_from_email"
+          type="text"
+        />
+      </tui-textfield>
     </fieldset>
     <footer>
       <button
@@ -67,37 +72,55 @@
 
     <form data-cy="form-login" [formGroup]="form" (ngSubmit)="confirm()">
       <fieldset>
-        <input
-          class="input-primary"
-          id="email"
-          name="email"
-          [class.error]="form | invalidField: 'email'"
-          formControlName="email"
-          placeholder="Your email"
-          i18n-placeholder="@@label.your_email"
-          type="text"
-        />
-        <input
-          class="input-primary"
-          id="login"
-          name="login"
-          [class.error]="form | invalidField: 'login'"
-          formControlName="login"
-          placeholder="Choose a login"
-          i18n-placeholder="@@label.choose_login"
-          type="text"
-        />
-        <input
-          class="input-primary"
-          id="password"
-          name="password"
-          [class.error]="form | invalidField: 'password'"
-          formControlName="password"
-          i18n-placeholder="@@label.password"
-          data-cy="password"
-          placeholder="Password"
-          type="password"
-        />
+        <tui-textfield
+          tuiTextfieldSize="s"
+          [tuiTextfieldCleaner]="false"
+          [invalid]="form.controls.email.touched && form.controls.email.invalid"
+        >
+          <input
+            tuiInput
+            id="email"
+            name="email"
+            formControlName="email"
+            placeholder="Your email"
+            i18n-placeholder="@@label.your_email"
+            type="text"
+          />
+        </tui-textfield>
+        <tui-textfield
+          tuiTextfieldSize="s"
+          [tuiTextfieldCleaner]="false"
+          [invalid]="form.controls.login.touched && form.controls.login.invalid"
+        >
+          <input
+            tuiInput
+            id="login"
+            name="login"
+            formControlName="login"
+            placeholder="Choose a login"
+            i18n-placeholder="@@label.choose_login"
+            type="text"
+          />
+        </tui-textfield>
+        <tui-textfield
+          tuiTextfieldSize="s"
+          [tuiTextfieldCleaner]="false"
+          [invalid]="
+            form.controls.password.touched && form.controls.password.invalid
+          "
+        >
+          <input
+            tuiInput
+            id="password"
+            name="password"
+            formControlName="password"
+            i18n-placeholder="@@label.password"
+            data-cy="password"
+            placeholder="Password"
+            type="password"
+          />
+          <tui-icon tuiPassword />
+        </tui-textfield>
       </fieldset>
       <fieldset>
         <ng-hcaptcha

@@ -4,6 +4,7 @@ import {
   EventEmitter,
   Output,
   ChangeDetectionStrategy,
+  inject,
 } from "@angular/core";
 import {
   AbstractControl,
@@ -11,6 +12,8 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
+import { TUI_VALIDATION_ERRORS } from "@taiga-ui/core";
+import { TuiValidationError } from "@taiga-ui/cdk";
 import { delay, finalize } from "rxjs";
 import { ChangePasswordRequest } from "src/models/change-password-request";
 import { AppError } from "src/models/errors";
@@ -44,6 +47,11 @@ export class ChangePasswordComponent {
   @Output()
   changed = new EventEmitter();
 
+  /** The app-wide message for the form-level `passwordMismatch` error. */
+  readonly mismatchError = new TuiValidationError(
+    inject(TUI_VALIDATION_ERRORS)["passwordMismatch"],
+  );
+
   form = this.fb.group(
     {
       password: this.fb.control<string | null>(null, [
@@ -57,6 +65,11 @@ export class ChangePasswordComponent {
     },
     { validators: passwordMatchValidator },
   );
+
+  /** The passwords differ once the user has touched the form. */
+  get mismatch(): boolean {
+    return this.form.touched && !!this.form.errors?.["passwordMismatch"];
+  }
 
   constructor(
     private fb: FormBuilder,
