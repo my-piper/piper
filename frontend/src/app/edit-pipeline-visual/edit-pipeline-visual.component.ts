@@ -14,7 +14,7 @@ import { Location } from "@angular/common";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { TuiDialogService } from "@taiga-ui/core";
 import { TUI_CONFIRM, type TuiConfirmData } from "@taiga-ui/kit";
-import { assign, isEmpty, mapValues, random } from "lodash";
+import { assign, escape, isEmpty, mapValues, random } from "lodash";
 import { customAlphabet } from "nanoid";
 import { Socket } from "ngx-socket-io";
 import { stringify } from "qs";
@@ -744,22 +744,23 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   confirmRemoveNode(id: string, node: Node) {
     this.confirmRemove(
-      $localize`:@@message.confirm_delete_node:Delete node «${getLabel(node.title, this.language)}:title:»? Its connections are deleted too.`,
+      $localize`:@@message.confirm_delete_node:Delete node «${escape(getLabel(node.title, this.language))}:title:»? Its connections are deleted too.`,
     ).subscribe(() => this.removeNode(id));
   }
 
   confirmRemoveInput(input: string) {
     this.confirmRemove(
-      $localize`:@@message.confirm_delete_pipeline_input:Delete pipeline input «${input}:input:»? Its connections are deleted too.`,
+      $localize`:@@message.confirm_delete_pipeline_input:Delete pipeline input «${escape(input)}:input:»? Its connections are deleted too.`,
     ).subscribe(() => this.removeInput(input));
   }
 
   confirmRemoveOutput(output: string) {
     this.confirmRemove(
-      $localize`:@@message.confirm_delete_pipeline_output:Delete pipeline output «${output}:output:»? Its connections are deleted too.`,
+      $localize`:@@message.confirm_delete_pipeline_output:Delete pipeline output «${escape(output)}:output:»? Its connections are deleted too.`,
     ).subscribe(() => this.removeOutput(output));
   }
 
+  /** `content` is HTML (TUI_CONFIRM binds it to innerHTML): escape values. */
   private confirmRemove(content: string) {
     return this.dialogs
       .open<boolean>(TUI_CONFIRM, {

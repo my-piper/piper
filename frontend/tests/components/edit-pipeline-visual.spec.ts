@@ -567,6 +567,25 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
+    it("shows a node title with markup as text in the confirmation", fakeAsync(() => {
+      const pipeline = smallGraphPipeline() as {
+        nodes: Record<string, Record<string, unknown>>;
+      };
+      pipeline.nodes["node_one"]["title"] = "<b>bold</b> & co";
+      const { element, detectChanges } = setupEditor({
+        project: projectWith(pipeline),
+      });
+
+      click(
+        nodeBox(element, "node_one").querySelector("button.delete"),
+        detectChanges,
+      );
+
+      expect(openDialog().querySelector("b")).toBeNull();
+      expect(openDialog().textContent).toContain("«<b>bold</b> & co»");
+      finish();
+    }));
+
     it("keeps the node when the confirmation is cancelled", fakeAsync(() => {
       const project = projectA();
       const { element, detectChanges, manager } = setupEditor({ project });
