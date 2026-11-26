@@ -16,7 +16,13 @@
   @case ("array") {
     <form>
       <fieldset class="stack small align-center">
-        <button type="button" class="transparent" (click)="down()">
+        <button
+          tuiIconButton
+          appearance="flat-grayscale"
+          size="xs"
+          type="button"
+          (click)="down()"
+        >
           <app-icon class="icon" [size]="16" icon="chevron-left"></app-icon>
         </button>
         @switch (from.node.outputs.get(flow.output).type) {
@@ -32,7 +38,13 @@
             }
           }
         }
-        <button type="button" class="transparent" (click)="up()">
+        <button
+          tuiIconButton
+          appearance="flat-grayscale"
+          size="xs"
+          type="button"
+          (click)="up()"
+        >
           <app-icon class="icon" [size]="16" icon="chevron-right"></app-icon>
         </button>
       </fieldset>

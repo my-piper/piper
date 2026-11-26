@@ -259,3 +259,109 @@
     }
   }
 }
+
+// A toolbar button whose panel is open (ui-kit's .toggled).
+[tuiIconButton].toggled {
+  background: var(--tui-background-neutral-2);
+}
+
+// The canvas side panels (left, right, bottom), formerly ui-kit's global
+// drawler.scss (#159). They stay custom panels: Taiga's drawer is a dialog.
+.drawler {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  z-index: 5;
+  color: var(--tui-text-primary);
+  background-color: var(--tui-background-base);
+  padding: 16px;
+  transition: transform 150ms ease-in-out;
+  box-shadow: var(--tui-shadow-medium);
+  overflow: auto;
+  gap: 8px;
+
+  // A hidden drawer slides out over the canvas; it must never take the pointer.
+  &.hidden {
+    opacity: 0;
+    transform: translateX(100%);
+    pointer-events: none;
+  }
+
+  &.left,
+  &.right {
+    top: 0;
+    bottom: 0;
+    transform: translateX(0);
+    width: 250px;
+    max-width: 250px;
+
+    &.wide {
+      width: 500px;
+      max-width: 500px;
+    }
+  }
+
+  &.left {
+    left: 0;
+    border-right: 1px solid var(--tui-border-normal);
+
+    &.hidden {
+      transform: translateX(-100%);
+    }
+  }
+
+  &.right {
+    right: 0;
+    border-left: 1px solid var(--tui-border-normal);
+
+    &.hidden {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+
+  &.bottom {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+    border-top: 1px solid var(--tui-border-normal);
+
+    &.hidden {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+
+    &.shift-left {
+      left: 290px;
+    }
+
+    &.shift-right {
+      right: 290px;
+    }
+  }
+
+  > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .title {
+      font: var(--tui-typography-heading-h6);
+    }
+
+    @media only screen and (max-width: 768px) {
+      margin: 4px;
+    }
+  }
+
+  > .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    @media only screen and (max-width: 768px) {
+      margin: 4px;
+    }
+  }
+}

@@ -10,6 +10,7 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { TuiLoader } from "@taiga-ui/core";
 import { ActivatedRoute, provideRouter, RouterModule } from "@angular/router";
 import { of } from "rxjs";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
@@ -28,6 +29,7 @@ import { finish } from "../helpers/editor";
 import { editJson, JsonEditorStubComponent } from "../helpers/json-editor-stub";
 import { provideSocketDouble } from "../helpers/socket";
 import { expectConsoleError } from "../helpers/console";
+import { isLoading } from "../helpers/taiga";
 
 /**
  * Wire contracts:
@@ -60,6 +62,7 @@ describe("DeployPipelineComponent", () => {
         RouterModule,
         UiKitModule,
         TaigaFormsModule,
+        TuiLoader,
         JsonEditorStubComponent,
       ],
       providers: [
@@ -95,7 +98,9 @@ describe("DeployPipelineComponent", () => {
   }
 
   function removeButtons(): HTMLButtonElement[] {
-    return Array.from(element.querySelectorAll("tbody tr button.circle"));
+    return Array.from(
+      element.querySelectorAll("tbody tr button[tuiIconButton]"),
+    );
   }
 
   afterEach(() => controller.verify());
@@ -230,7 +235,7 @@ describe("DeployPipelineComponent", () => {
     const request = controller.expectOne(
       "/api/deploys/user_owner/small-graph-v1",
     );
-    const busy = removeButtons()[0].classList.contains("busy");
+    const busy = isLoading(removeButtons()[0]);
     request.flush(null);
     tick(UI_DELAY);
     list([deploysPlain()[1]]);
@@ -270,7 +275,7 @@ describe("DeployPipelineComponent", () => {
       "Forbidden",
     );
     expect(rows().length).toBe(2);
-    expect(removeButtons()[0].classList.contains("busy")).toBe(false);
+    expect(isLoading(removeButtons()[0])).toBe(false);
     finish();
   }));
 });

@@ -13,7 +13,7 @@
       [routerLink]="['./']"
     >
       <app-icon class="icon right" icon="close"></app-icon>
-      <span class="badge">ESC</span>
+      <span tuiBadge appearance="neutral" size="s">ESC</span>
     </a>
   </header>
   <div class="content filled">
@@ -49,29 +49,34 @@
 
 <h2>Current deploys</h2>
 
-<table class="default">
+<table tuiTable size="m">
   <thead>
-    <th width="20px"></th>
-    <th i18n="@@label.deployed_at" width="150px">Deployed at</th>
-    <th i18n="@@label.slug">Slug</th>
+    <tr>
+      <th tuiTh width="20px"></th>
+      <th tuiTh i18n="@@label.deployed_at" width="150px">Deployed at</th>
+      <th tuiTh i18n="@@label.slug">Slug</th>
+    </tr>
   </thead>
   <tbody>
     @for (d of deploys; track d._id) {
       <tr>
-        <td>
+        <td tuiTd>
           <button
-            class="circle small"
+            tuiIconButton
+            appearance="outline-grayscale"
+            size="xs"
+            class="round"
             (click)="remove(d)"
-            [class.busy]="progress.removing[d._id]"
+            [loading]="progress.removing[d._id]"
             [disabled]="progress.removing[d._id]"
           >
             <app-icon class="icon" icon="delete" [size]="16"></app-icon>
           </button>
         </td>
-        <td title="Deployed at" i18n-title="@@label.deployed_at">
+        <td tuiTd title="Deployed at" i18n-title="@@label.deployed_at">
           {{ d.deployedAt | date: "short" }}
         </td>
-        <td title="Path" i18n-title="@@label.path">
+        <td tuiTd title="Path" i18n-title="@@label.path">
           <a
             class="default with-icon"
             [routerLink]="!!d.prefix ? [d.prefix, d.slug] : [d.slug]"
@@ -89,7 +94,7 @@
     }
     @if (progress.loading) {
       <tr class="loading">
-        <td colspan="3"></td>
+        <td tuiTd colspan="3"><tui-loader [loading]="true" /></td>
       </tr>
     }
   </tbody>

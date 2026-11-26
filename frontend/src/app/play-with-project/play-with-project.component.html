@@ -1,6 +1,12 @@
 <header>
   <div class="actions stack">
-    <a class="circle" [routerLink]="['..']">
+    <a
+      tuiIconButton
+      appearance="outline-grayscale"
+      size="s"
+      class="round"
+      [routerLink]="['..']"
+    >
       <app-icon class="icon" [icon]="'chevron-left'"></app-icon>
     </a>
   </div>
@@ -37,7 +43,7 @@
     <a tuiTab [routerLink]="['comments']" routerLinkActive>
       <ng-container i18n="@@link.comments">Comments</ng-container>
       @if (summary?.comments; as comments) {
-        <div class="badge">
+        <div tuiBadge appearance="neutral" size="s">
           {{ comments }}
         </div>
       }

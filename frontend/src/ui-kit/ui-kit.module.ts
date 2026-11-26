@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { TuiButton } from "@taiga-ui/core";
+import { TuiBadge } from "@taiga-ui/kit";
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IncludesPipe } from "src/pipes/includes.pipe";
@@ -70,7 +71,8 @@ import { TabsComponent } from "./tabs/tabs.component";
     TimeDiffPipe,
     TickerPipe,
   ],
-  // TuiButton: the informer's OK and the modal's close button (#153).
-  imports: [CommonModule, ReactiveFormsModule, TuiButton],
+  // TuiButton: the informer's OK and the modal's close button (#153);
+  // TuiBadge: the modal's ESC hint (#155).
+  imports: [CommonModule, ReactiveFormsModule, TuiButton, TuiBadge],
 })
 export class UiKitModule {}
