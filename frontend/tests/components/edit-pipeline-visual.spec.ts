@@ -18,7 +18,6 @@ import {
   setupEditor,
 } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
-import { openDialog } from "../helpers/taiga";
 
 /** Debounce chain of ProjectManager.markDirty → PATCH (1000 + 3000 ms). */
 const AUTOSAVE = 4000;
