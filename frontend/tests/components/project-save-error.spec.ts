@@ -34,7 +34,6 @@ import { Languages } from "src/enums/languages";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { I18nPipe } from "src/pipes/i18n.pipe";
 import { LengthPipe } from "src/pipes/length.pipe";
-import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { projectA } from "../fixtures/models";
 import {
@@ -57,7 +56,6 @@ describe("ProjectComponent save errors", () => {
     TestBed.configureTestingModule({
       declarations: [
         ProjectComponent,
-        PopoverDirective,
         CanPipe,
         IsPipe,
         LengthPipe,

@@ -13,7 +13,6 @@ import { LaunchArtefact } from "src/models/launch";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
 import { toInstance, toPlain } from "src/utils/models";
-import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 import { ArtefactsFilter } from "./models";
 
 @Component({
@@ -35,7 +34,6 @@ export class ArtefactsComponent {
   @Input()
   mode: "view" | "select" = "view";
 
-  references: { popover: PopoverComponent } = { popover: null };
   artefacts: LaunchArtefact[] = [];
 
   /** Every use binds a filter; setting it loads the matching artefacts. */

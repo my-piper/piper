@@ -27,7 +27,6 @@ import { IncludesPipe } from "src/pipes/includes.pipe";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { provideTaiga, TuiDropdown } from "@taiga-ui/core";
-import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { authorizationPlain } from "../fixtures/plain";
 import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
@@ -47,7 +46,6 @@ async function render(
   await TestBed.configureTestingModule({
     declarations: [
       LoginComponent,
-      PopoverDirective,
       SelectThemeComponent,
       IncludesPipe,
     ],
