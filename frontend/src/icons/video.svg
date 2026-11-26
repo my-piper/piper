@@ -1,0 +1,22 @@
+<svg
+  stroke-width="1"
+  stroke="currentColor"
+  viewBox="0 0 24 24"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M10.941 9.058L14.823 11.354C15.314 11.644 15.314 12.355 14.823 12.645L10.941 14.941C10.441 15.237 9.809 14.876 9.809 14.295V9.704C9.809 9.123 10.441 8.762 10.941 9.058V9.058Z"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M18 21H6C4.343 21 3 19.657 3 18V6C3 4.343 4.343 3 6 3H18C19.657 3 21 4.343 21 6V18C21 19.657 19.657 21 18 21Z"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

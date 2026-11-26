@@ -67,6 +67,23 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   with it. Before deleting a ui-kit stylesheet, grep `animation:` for its
   keyframes (#160); `busy-animation` has no callers left and stays broken
   until phase 10 deletes it.
+- **Piper's icons are a Taiga registry, not `app-icon`** (#178). The SVGs in
+  `frontend/src/icons/` load as text (the `.svg` loader in `angular.json`)
+  and are registered with `tuiIconsProvider(PIPER_ICONS)` under their old bare
+  names, which pipelines use in data. Draw one with `<tui-icon icon="name">`,
+  or with `iconStart="name"` on a Taiga button.
+  - Taiga paints the icon as a mask in `currentColor`. The SVG must be opaque
+    (`stroke`/`fill="currentColor"`) and carries its own `stroke-width`: a
+    stroke of 2 is a separate `-bold` entry. Multicolor logos are `@img.`
+    entries, which Taiga draws as images.
+  - `src/styles/icons.scss` gives every registry icon app-icon's 22px and
+    `--icon-color`. Taiga marks the mode in `data-icon-start`: `tui`, `img`,
+    `font`, or the icon's own name for a registry icon. Set
+    `--app-icon-size`/`--app-icon-color` on the host for another size or
+    color. The rule is `!important`, because Taiga sizes button icons per
+    size with more specific selectors.
+  - A masked icon differs from the old inline SVG only in edge antialiasing
+    (at most 11/255 per channel in the screenshot diffs).
 - **Tables are full width by default** (#184): `src/styles.scss` gives every
   `table` `inline-size: 100%` and a `.table-container` wrapper that scrolls
   sideways on narrow screens. Wrap each table in `.table-container`, leave one

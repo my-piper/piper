@@ -1,0 +1,18 @@
+<svg
+  stroke-width="1"
+  stroke="currentColor"
+  viewBox="0 0 24 24"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M18.3048 10.7697L9.26238 5.22259C8.27812 4.61915 7 5.3136 7 6.45327V17.5461C7 18.6858 8.27812 19.3817 9.26238 18.7768L18.3033 13.2297C19.232 12.6626 19.232 11.3382 18.3048 10.7697Z"
+  />
+  <path
+    d="M11.1846 6.52871L11.1882 17.4375"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

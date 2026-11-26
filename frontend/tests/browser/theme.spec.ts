@@ -26,7 +26,10 @@ test("switches theme from the header and keeps it after reload", async ({
   await open("/en/projects");
 
   await page.getByTestId("theme-menu").click();
-  await page.locator("app-select-theme tui-segmented label").filter({ hasText: "Dark" }).click();
+  await page
+    .locator("app-select-theme tui-segmented label")
+    .filter({ hasText: "Dark" })
+    .click();
   await page.reload();
 
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -43,10 +46,11 @@ test.describe("auth pages", () => {
     await page.emulateMedia({ colorScheme: "dark" });
     await open("/en/login");
 
+    await page.getByRole("button", { name: "Theme" }).click();
     await page
-      .locator(".frame-actions button:has(app-icon[icon='theme'])")
+      .locator("app-select-theme tui-segmented label")
+      .filter({ hasText: "Light" })
       .click();
-    await page.locator("app-select-theme tui-segmented label").filter({ hasText: "Light" }).click();
 
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.locator(".frame")).toHaveCSS(
