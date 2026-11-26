@@ -20,6 +20,7 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { provideTaiga } from "@taiga-ui/core";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { toInstance } from "src/utils/models";
 import { userPlain, UserKind } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../helpers/config";
@@ -28,6 +29,8 @@ import { finish } from "../helpers/editor";
 import { provideSocketDouble } from "../helpers/socket";
 import {
   expectNativeSelectReadOnly,
+  openDialog,
+  popupRoot,
   selectByLabel,
   selectedLabel,
 } from "../helpers/taiga";
@@ -66,7 +69,12 @@ describe("EnvironmentComponent", () => {
     TestBed.configureTestingModule({
       errorOnUnknownProperties: false,
       declarations: [EnvironmentComponent],
-      imports: [ReactiveFormsModule, UiKitModule, TaigaFormsModule],
+      imports: [
+        ReactiveFormsModule,
+        UiKitModule,
+        TaigaFormsModule,
+        ErrorDialogComponent,
+      ],
       providers: [
         provideTaiga(),
         provideTestConfig(),
@@ -322,6 +330,8 @@ describe("EnvironmentComponent", () => {
   it("retries a save without repeating renames that already landed", fakeAsync(() => {
     expectConsoleError("Process HTTP error 500");
     setup();
+    // the failed save opens the error dialog, which needs a tui-root
+    const root = popupRoot();
     type(row(0).querySelector("input.key"), "OPENAI_API_KEY");
     type(row(1).querySelector("input.key"), "MAX_RETRIES");
 
@@ -331,6 +341,8 @@ describe("EnvironmentComponent", () => {
       .expectOne(`${ENVIRONMENT_URL}/RETRIES/rename`)
       .flush("failed", { status: 500, statusText: "Server Error" });
     settle();
+    root.detectChanges();
+    const shown = openDialog()?.textContent;
     button("Save").click();
     const retry = controller.expectOne(`${ENVIRONMENT_URL}/RETRIES/rename`);
     retry.flush(null);
@@ -340,6 +352,7 @@ describe("EnvironmentComponent", () => {
       variables: { OPENAI_API_KEY: "[encrypted]", MAX_RETRIES: 3, DEBUG: true },
     });
 
+    expect(shown).toContain("failed");
     expect(retry.request.body).toEqual({ name: "MAX_RETRIES" });
     controller.expectNone(`${ENVIRONMENT_URL}/OPENAI_KEY/rename`);
     finish();
