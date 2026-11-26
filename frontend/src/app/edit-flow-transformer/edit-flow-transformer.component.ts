@@ -22,7 +22,8 @@ import { ProjectManager } from "src/services/project.manager";
 export class EditFlowTransformerComponent implements OnInit {
   _flow!: NodeFlow;
 
-  instances = { popover: null as any };
+  /** Whether the JSON path list dropdown is open. */
+  pathsOpen = false;
 
   @Input()
   project!: Project;
@@ -96,7 +97,7 @@ export class EditFlowTransformerComponent implements OnInit {
 
   setPath(path: string) {
     this.pathControl.setValue(path);
-    this.instances.popover?.hide();
+    this.pathsOpen = false;
   }
 
   save() {

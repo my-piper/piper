@@ -31,7 +31,6 @@ import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
 import { createLogger } from "src/utils/logger";
 import { toInstance } from "src/utils/models";
-import { PopoverComponent } from "../../ui-kit/popover/popover.component";
 
 @Component({
   selector: "app-node",
@@ -48,9 +47,10 @@ export class NodeComponent implements OnDestroy {
 
   logger: ReturnType<typeof createLogger>;
 
-  references: { popover?: PopoverComponent } = { popover: null };
   /** The output whose "Pick artefact" dialog is open. */
   pickOpen: string | null = null;
+  /** The port menu open on this node: `input:<id>` or `output:<key>`. */
+  openMenu: string | null = null;
 
   @Input()
   set id(id: string) {
@@ -378,7 +378,7 @@ export class NodeComponent implements OnDestroy {
   }
 
   emitTakeOutInput(key: string, input: NodeInput) {
-    this.references.popover?.hide();
+    this.openMenu = null;
     this.takeOutInput.emit({
       input: { id: key, input },
       node: { id: this.id, node: this.node },
@@ -386,7 +386,7 @@ export class NodeComponent implements OnDestroy {
   }
 
   emitTakeOutOutput(key: string, output: NodeOutput) {
-    this.references.popover?.hide();
+    this.openMenu = null;
     this.takeOutOutput.emit({
       output: {
         id: key,

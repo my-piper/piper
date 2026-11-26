@@ -20,7 +20,6 @@ import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI, UI_DELAY } from "src/consts/ui";
-import { PopoverComponent } from "src/ui-kit/popover/popover.component";
 import { valuable } from "src/utils/assign";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 
@@ -65,7 +64,8 @@ export class AssetsComponent implements OnInit {
   folders: string[] = [];
   assets: Asset[] = [];
   chunk: Asset[] = [];
-  references: { popover: PopoverComponent } = { popover: null };
+  /** Whether the folder list dropdown is open. */
+  foldersOpen = false;
 
   @HostBinding("attr.data-mode")
   @Input()
@@ -108,7 +108,7 @@ export class AssetsComponent implements OnInit {
     this.form.patchValue({ folder }, { emitEvent: false });
     this.load();
 
-    this.references.popover?.hide();
+    this.foldersOpen = false;
   }
 
   clearFilter() {
