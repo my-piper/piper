@@ -1,5 +1,6 @@
 @use "src/ui-kit/styles/variables";
 @use "src/ui-kit/styles/mixins";
+@use "src/styles/tabs";
 
 :host {
     flex: 1;
@@ -16,6 +17,7 @@ form {
     height: 100%;
 
     .tabs {
+        @include tabs.content-tabs;
         flex: 1;
         height: 100%;
 

@@ -145,6 +145,10 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
   (Taiga sets `aria-disabled`; it has no `.busy` class).
 - Read a `<tui-tabs>` with `tabLabels` and `activeTab`; with `routerLink` +
   `routerLinkActive` tabs, the active one follows the route after navigation.
+- A `button[tuiTab]` activates through Taiga's `tui-tab-activate.stop`
+  event, which needs the event plugins from `provideTaiga()`. A spec that
+  builds its own module instead of the app's must provide it, or clicks on
+  tabs do nothing.
 - `tests/components/taiga-forms.spec.ts` shows these on a test-only form.
 
 ## Wire contracts

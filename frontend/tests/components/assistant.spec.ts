@@ -66,11 +66,13 @@ describe("AssistantComponent", () => {
     tick(ECHO_DELAY);
     page.fixture.detectChanges();
     const cleared = page.question().value;
+    const waiting = page.fixture.nativeElement.querySelector("tui-loader");
     request.flush({ from: "assistant", message: "Done" });
     page.fixture.detectChanges();
 
     expect(body).toEqual({ question: "Add a node" });
     expect(cleared).toBe("");
+    expect(waiting).not.toBeNull();
     expect(page.question().disabled).toBe(false);
     expect(page.senders()).toEqual(["user", "assistant"]);
     page.controller.verify();
