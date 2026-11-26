@@ -10,6 +10,7 @@ import {
   provideTaiga,
   TuiButton,
   TuiDataList,
+  TuiDialog,
   TuiDropdown,
   TuiIcon,
 } from "@taiga-ui/core";
@@ -33,7 +34,6 @@ import { Languages } from "src/enums/languages";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { I18nPipe } from "src/pipes/i18n.pipe";
 import { LengthPipe } from "src/pipes/length.pipe";
-import { ModalDirective } from "src/ui-kit/modal/modal.directive";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { projectA } from "../fixtures/models";
@@ -57,7 +57,6 @@ describe("ProjectComponent save errors", () => {
     TestBed.configureTestingModule({
       declarations: [
         ProjectComponent,
-        ModalDirective,
         PopoverDirective,
         CanPipe,
         IsPipe,
@@ -80,6 +79,7 @@ describe("ProjectComponent save errors", () => {
         TuiInputInline,
         ...TuiTabs,
         ErrorDialogComponent,
+        TuiDialog,
       ],
       providers: [
         provideTaiga(),

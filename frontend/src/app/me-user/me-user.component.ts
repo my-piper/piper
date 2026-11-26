@@ -13,8 +13,6 @@ import { AppError } from "src/models/errors";
 import { AppConfig } from "src/models/app-config";
 import { HttpService } from "src/services/http.service";
 import { MeManager } from "src/services/me.service";
-import { ModalService } from "../../ui-kit/modal/modal.service";
-import { ChangePasswordComponent } from "../change-password/change-password.component";
 
 @Component({
   selector: "app-me-user",
@@ -26,6 +24,7 @@ import { ChangePasswordComponent } from "../change-password/change-password.comp
 export class MeUserComponent implements OnInit {
   menuOpen = false;
   accountsOpen = false;
+  passwordOpen = false;
   ssoError: AppError | null = null;
   readonly connectedAccountsLabel = $localize`:@@label.connected_accounts:Connected accounts`;
 
@@ -38,7 +37,6 @@ export class MeUserComponent implements OnInit {
   constructor(
     public me: MeManager,
     public config: AppConfig,
-    private modal: ModalService,
     private router: Router,
     private http: HttpService,
   ) {}
@@ -82,16 +80,21 @@ export class MeUserComponent implements OnInit {
     });
   }
 
+  /** Title of the password dialog: users who signed up through SSO set one. */
+  get passwordLabel(): string {
+    return this.me.user?.hasPassword === false
+      ? $localize`:@@label.set_password:Set password`
+      : $localize`:@@label.change_password:Change password`;
+  }
+
   changePassword() {
     this.menuOpen = false;
-    const component = this.modal.openComponent(ChangePasswordComponent, {
-      title:
-        this.me.user?.hasPassword === false
-          ? $localize`:@@label.set_password:Set password`
-          : $localize`:@@label.change_password:Change password`,
-    });
-    component.instance.changed.subscribe(() => this.me.reload());
-    component.instance.changed.subscribe(() => this.modal.close());
+    this.passwordOpen = true;
+  }
+
+  passwordChanged() {
+    this.me.reload();
+    this.passwordOpen = false;
   }
 
   logout() {

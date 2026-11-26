@@ -29,7 +29,6 @@ import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
-import { ModalService } from "src/ui-kit/modal/modal.service";
 import { createLogger } from "src/utils/logger";
 import { toInstance } from "src/utils/models";
 import { PopoverComponent } from "../../ui-kit/popover/popover.component";
@@ -50,6 +49,8 @@ export class NodeComponent implements OnDestroy {
   logger: ReturnType<typeof createLogger>;
 
   references: { popover?: PopoverComponent } = { popover: null };
+  /** The output whose "Pick artefact" dialog is open. */
+  pickOpen: string | null = null;
 
   @Input()
   set id(id: string) {
@@ -175,7 +176,6 @@ export class NodeComponent implements OnDestroy {
     private http: HttpService,
     private cd: ChangeDetectorRef,
     private live: LiveService,
-    private modal: ModalService,
   ) {}
 
   ngOnDestroy(): void {
@@ -398,6 +398,6 @@ export class NodeComponent implements OnDestroy {
 
   pickArtefact(output: string, artefact: string) {
     this.setOutput.emit({ output, value: artefact });
-    this.modal.close();
+    this.pickOpen = null;
   }
 }

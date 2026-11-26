@@ -19,7 +19,6 @@ import { Pipeline } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
-import { ModalService } from "src/ui-kit/modal/modal.service";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
@@ -35,6 +34,8 @@ export class ProjectComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   userRole = UserRole;
+  /** Whether the project settings dialog is open. */
+  settingsOpen = false;
   editPipelineVisualComponent = EditPipelineVisualComponent;
 
   progress = { launching: false };
@@ -81,7 +82,6 @@ export class ProjectComponent implements OnInit {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private cd: ChangeDetectorRef,
-    private modal: ModalService,
   ) {}
 
   ngOnInit() {
@@ -122,7 +122,7 @@ export class ProjectComponent implements OnInit {
 
   settingsUpdated(project: Project) {
     this.updated(project);
-    this.modal.close();
+    this.settingsOpen = false;
   }
 
   /**

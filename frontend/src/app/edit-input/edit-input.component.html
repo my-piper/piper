@@ -93,7 +93,11 @@
       />
     }
     @case ("image") {
-      <ng-template #selectImageAssetModal>
+      <ng-template
+        [tuiDialog]="pickerOpen"
+        [tuiDialogOptions]="{ label: i18n.selectImage, size: 'l' }"
+        (tuiDialogChange)="pickerOpen = $event"
+      >
         <ng-container
           *ngTemplateOutlet="selectAssetTemplate; context: { type: 'image' }"
         ></ng-container>
@@ -104,10 +108,7 @@
         (dragover)="tryDragOver($event)"
         (dragleave)="leaveDragZone($event)"
         (drop)="dropped($event)"
-        [appModal]="{
-          title: i18n.selectImage,
-          content: selectImageAssetModal,
-        }"
+        (click)="openPicker()"
       >
         <div class="drag-zone" i18n="@@label.drop_here">Drop here...</div>
         @if (valueControl.value; as url) {
@@ -124,7 +125,11 @@
       </div>
     }
     @case ("image[]") {
-      <ng-template #selectImageAssetModal>
+      <ng-template
+        [tuiDialog]="pickerOpen"
+        [tuiDialogOptions]="{ label: i18n.selectImage, size: 'l' }"
+        (tuiDialogChange)="pickerOpen = $event"
+      >
         <ng-container
           *ngTemplateOutlet="selectAssetTemplate; context: { type: 'image' }"
         ></ng-container>
@@ -172,15 +177,16 @@
           aria-label="Select image"
           i18n-aria-label="@@label.select_image"
           [loading]="progress.uploading"
-          [appModal]="{
-            title: i18n.selectImage,
-            content: selectImageAssetModal,
-          }"
+          (click)="openPicker()"
         ></button>
       </div>
     }
     @case ("archive") {
-      <ng-template #selectArchiveAssetModal>
+      <ng-template
+        [tuiDialog]="pickerOpen"
+        [tuiDialogOptions]="{ label: 'Select archive', size: 'l' }"
+        (tuiDialogChange)="pickerOpen = $event"
+      >
         <ng-container
           *ngTemplateOutlet="selectAssetTemplate; context: { type: 'archive' }"
         ></ng-container>
@@ -194,10 +200,7 @@
           iconStart="@tui.plus"
           aria-label="Select archive"
           i18n-aria-label="@@label.select_archive"
-          [appModal]="{
-            title: 'Select archive',
-            content: selectArchiveAssetModal,
-          }"
+          (click)="openPicker()"
         ></button>
         @if (valueControl.value; as href) {
           <a
@@ -214,7 +217,11 @@
       </div>
     }
     @case ("audio") {
-      <ng-template #selectAudioAssetModal>
+      <ng-template
+        [tuiDialog]="pickerOpen"
+        [tuiDialogOptions]="{ label: 'Select audio', size: 'l' }"
+        (tuiDialogChange)="pickerOpen = $event"
+      >
         <ng-container
           *ngTemplateOutlet="selectAssetTemplate; context: { type: 'audio' }"
         ></ng-container>
@@ -228,16 +235,17 @@
           iconStart="@tui.plus"
           aria-label="Select audio"
           i18n-aria-label="@@label.select_audio"
-          [appModal]="{
-            title: 'Select audio',
-            content: selectAudioAssetModal,
-          }"
+          (click)="openPicker()"
         ></button>
         <audio [src]="valueControl.value" controls></audio>
       </div>
     }
     @case ("video") {
-      <ng-template #selectVideoAssetModal>
+      <ng-template
+        [tuiDialog]="pickerOpen"
+        [tuiDialogOptions]="{ label: 'Select video', size: 'l' }"
+        (tuiDialogChange)="pickerOpen = $event"
+      >
         <ng-container
           *ngTemplateOutlet="selectAssetTemplate; context: { type: 'video' }"
         ></ng-container>
@@ -248,10 +256,7 @@
         (dragover)="tryDragOver($event)"
         (dragleave)="leaveDragZone($event)"
         (drop)="dropped($event)"
-        [appModal]="{
-          title: 'Select video',
-          content: selectVideoAssetModal,
-        }"
+        (click)="openPicker()"
       >
         <div class="drag-zone" i18n="@@label.drop_here">Drop here...</div>
         <video [src]="valueControl.value" muted autoplay [volume]="0"></video>

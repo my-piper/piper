@@ -30,7 +30,6 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { Choice, ChoiceGroup, choiceGroups } from "src/utils/input-choices";
 import { TuiNumberFormatSettings } from "@taiga-ui/core";
-import { ModalService } from "../../ui-kit/modal/modal.service";
 
 const COMPACT_LENGTH = 3;
 
@@ -71,6 +70,8 @@ export class EditInputComponent
   progress: { uploading: boolean } = { uploading: false };
   /** Tab of the asset picker: generated artefacts or uploaded assets. */
   assetTab = 0;
+  /** Whether the asset picker dialog is open. */
+  pickerOpen = false;
 
   state = { dragging: false };
 
@@ -219,7 +220,6 @@ export class EditInputComponent
     @Inject(CURRENT_LANGUAGE) private language: Languages,
     private fb: FormBuilder,
     private http: HttpService,
-    private modal: ModalService,
     public cd: ChangeDetectorRef,
   ) {}
 
@@ -322,9 +322,16 @@ export class EditInputComponent
     this.disabled = disabled;
   }
 
+  /** Opens the asset picker on its first tab, as each opening did before. */
+  openPicker() {
+    this.assetTab = 0;
+    this.pickerOpen = true;
+  }
+
   putUrl(url: string) {
     this.setValue(url);
-    this.modal.close();
+    this.pickerOpen = false;
+    this.cd.markForCheck();
   }
 
   setValue(value: Primitive) {
@@ -399,7 +406,8 @@ export class EditInputComponent
       .subscribe({
         next: ({ url }) => {
           this.setValue(url);
-          this.modal.close();
+          this.pickerOpen = false;
+          this.cd.markForCheck();
         },
         error: (err) => (this.error = err),
       });

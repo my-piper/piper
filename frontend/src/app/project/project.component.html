@@ -14,7 +14,11 @@
         [routerLink]="['..']"
         [queryParams]="{ folder: project.group || null }"
       ></a>
-      <ng-template #projectSettingsModal>
+      <ng-template
+        [tuiDialog]="settingsOpen"
+        [tuiDialogOptions]="{ label: 'Project settings', size: 's' }"
+        (tuiDialogChange)="settingsOpen = $event"
+      >
         <app-project-settings
           [project]="project"
           (updated)="settingsUpdated($event)"
@@ -29,11 +33,7 @@
           iconStart="@tui.settings"
           data-testid="project-settings"
           title="Settings"
-          [appModal]="{
-            title: 'Project settings',
-            maxWidth: '400px',
-            content: projectSettingsModal,
-          }"
+          (click)="settingsOpen = true"
         ></button>
       }
       <div class="title" [formGroup]="form">

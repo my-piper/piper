@@ -86,7 +86,11 @@
     @for (o of node.outputs | keyvalue; track o.key) {
       @if (o.value.featured) {
         <li [attr.data-type]="o.value.type">
-          <ng-template #pickArtefactModal>
+          <ng-template
+            [tuiDialog]="pickOpen === o.key"
+            [tuiDialogOptions]="{ label: 'Pick artefact', size: 'l' }"
+            (tuiDialogChange)="pickOpen = $event ? o.key : null"
+          >
             <app-artefacts
               mode="select"
               [filter]="{ project: project._id, node: id, type: o.value.type }"
@@ -98,10 +102,7 @@
             appearance="outline-grayscale"
             size="s"
             class="round pick-output"
-            [appModal]="{
-              title: 'Pick artefact',
-              content: pickArtefactModal,
-            }"
+            (click)="pickOpen = o.key"
             iconStart="grid"
             style="--app-icon-size: 18px"
           ></button>

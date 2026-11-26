@@ -2,13 +2,15 @@ import {
   Directive,
   ElementRef,
   HostListener,
+  Injector,
   Input,
   OnDestroy,
   OnInit,
   Renderer2,
 } from "@angular/core";
 import { InspectComponent } from "src/app/inspect/inspect.component";
-import { ModalService } from "src/ui-kit/modal/modal.service";
+import { TuiDialogService } from "@taiga-ui/core";
+import { PolymorpheusComponent } from "@taiga-ui/polymorpheus";
 
 type SourceType = "image" | "video";
 
@@ -54,7 +56,8 @@ export class InspectDirective implements OnInit, OnDestroy {
   }
 
   constructor(
-    private modal: ModalService,
+    private dialogs: TuiDialogService,
+    private injector: Injector,
     private hostRef: ElementRef<HTMLElement>,
     private renderer: Renderer2,
   ) {}
@@ -152,10 +155,13 @@ export class InspectDirective implements OnInit, OnDestroy {
   }
 
   private inspect() {
-    this.modal.openComponent(InspectComponent, {
-      title: $localize`:@@label.inspect:Inspect`,
-      inputs: { type: this.type, url: this.url, text: this.text },
-    });
+    this.dialogs
+      .open(new PolymorpheusComponent(InspectComponent, this.injector), {
+        label: $localize`:@@label.inspect:Inspect`,
+        size: "l",
+        data: { type: this.type, url: this.url, text: this.text },
+      })
+      .subscribe();
   }
 
   @HostListener("window:resize")

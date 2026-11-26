@@ -8,6 +8,14 @@
   <app-connected-accounts />
 </ng-template>
 
+<ng-template
+  [tuiDialog]="passwordOpen"
+  [tuiDialogOptions]="{ size: 's', label: passwordLabel }"
+  (tuiDialogChange)="passwordOpen = $event"
+>
+  <app-change-password (changed)="passwordChanged()" />
+</ng-template>
+
 <ng-template #userMenu>
   <div class="panel stack vertical">
     @if (me.user$ | async; as user) {
