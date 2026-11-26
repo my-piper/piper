@@ -47,13 +47,22 @@
       ></app-assets>
     </ng-template>
 
-    <app-tabs
-      [tabs]="[
-        { title: i18n.generated, content: generatedTab },
-        { title: i18n.assets, content: assetsTab },
-      ]"
-    >
-    </app-tabs>
+    <div class="tabs">
+      <tui-tabs size="m" [(activeItemIndex)]="assetTab">
+        <button tuiTab type="button">{{ i18n.generated }}</button>
+        <button tuiTab type="button">{{ i18n.assets }}</button>
+      </tui-tabs>
+      <div class="content">
+        @switch (assetTab) {
+          @case (0) {
+            <ng-container *ngTemplateOutlet="generatedTab"></ng-container>
+          }
+          @case (1) {
+            <ng-container *ngTemplateOutlet="assetsTab"></ng-container>
+          }
+        }
+      </div>
+    </div>
   </div>
 </ng-template>
 

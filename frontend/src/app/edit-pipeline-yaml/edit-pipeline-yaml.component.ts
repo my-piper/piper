@@ -23,6 +23,9 @@ export class EditPipelineYamlComponent implements OnInit {
   project!: Project;
   error: Error | null = null;
 
+  /** Editor shown: pipeline, launch request or environment. */
+  activeTab = 0;
+
   form = this.fb.group({
     pipeline: this.fb.control<string | null>(null, [Validators.required]),
     launchRequest: this.fb.control<string | null>(null, [Validators.required]),

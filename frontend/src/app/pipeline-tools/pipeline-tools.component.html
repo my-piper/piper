@@ -86,4 +86,11 @@
   </div>
 </ng-template>
 
-<app-tabs [tabs]="[{ title: 'Publish', content: publishTab }]"></app-tabs>
+<div class="tabs">
+  <tui-tabs size="m">
+    <button tuiTab type="button">Publish</button>
+  </tui-tabs>
+  <div class="content">
+    <ng-container *ngTemplateOutlet="publishTab"></ng-container>
+  </div>
+</div>
