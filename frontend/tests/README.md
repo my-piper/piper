@@ -137,6 +137,10 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
   it; focus the input and dispatch ArrowDown. Blur the input before
   `fixture.destroy()`: an open dropdown at teardown leaves an iframe in
   `<body>`. See `tests/components/edit-input.spec.ts`.
+- A `<tui-segmented [activeItemIndex]>` whose items come from an `@for`
+  marks the active item only after its ResizeObserver fires: await two
+  animation frames before reading `activeSegment` (see
+  `select-theme.spec.ts`). Radios bound to a form control are marked at once.
 - `tests/components/taiga-forms.spec.ts` shows these on a test-only form.
 
 ## Wire contracts

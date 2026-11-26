@@ -1,3 +1,7 @@
 :host {
   display: block;
+  // The menu opens in a dropdown themed like the dark navigation header; paint
+  // the app theme's own surface over it (see tuiTheme in the component).
+  background: var(--tui-background-base);
+  border-radius: var(--tui-radius-m);
 }

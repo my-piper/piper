@@ -1,7 +1,7 @@
 @if (themes.mode$ | async; as current) {
-  <div class="switcher">
+  <tui-segmented [activeItemIndex]="modes.indexOf(current)">
     @for (mode of modes; track mode) {
-      <label class="option" [class.selected]="current === mode">
+      <label>
         <input
           type="radio"
           name="theme"
@@ -22,5 +22,5 @@
         }
       </label>
     }
-  </div>
+  </tui-segmented>
 }

@@ -4,37 +4,40 @@
 
 <form [formGroup]="form" [attr.aria-busy]="progress.loading">
   <fieldset>
-    <div class="switcher">
-      <label
-        class="option"
-        formControlName="execution"
-        [appSelectable]="{ value: nodeExecution.rapid }"
-        i18n="@@label.rapid"
-      >
-        Rapid
+    <tui-segmented>
+      <label>
+        <input
+          formControlName="execution"
+          type="radio"
+          [value]="nodeExecution.rapid"
+        />
+        <span i18n="@@label.rapid">Rapid</span>
       </label>
-      <label
-        class="option"
-        formControlName="execution"
-        [appSelectable]="{ value: nodeExecution.regular }"
-      >
+      <label>
+        <input
+          formControlName="execution"
+          type="radio"
+          [value]="nodeExecution.regular"
+        />
         <span i18n="@@label.regular">Regular</span>
       </label>
-      <label
-        class="option"
-        formControlName="execution"
-        [appSelectable]="{ value: nodeExecution.deferred }"
-      >
+      <label>
+        <input
+          formControlName="execution"
+          type="radio"
+          [value]="nodeExecution.deferred"
+        />
         <span i18n="@@label.deferred">Deferred</span>
       </label>
-      <label
-        class="option"
-        formControlName="execution"
-        [appSelectable]="{ value: nodeExecution.protracted }"
-      >
+      <label>
+        <input
+          formControlName="execution"
+          type="radio"
+          [value]="nodeExecution.protracted"
+        />
         <span i18n="@@label.protracted">Protracted</span>
       </label>
-    </div>
+    </tui-segmented>
   </fieldset>
   <div class="editor">
     <ngx-monaco-editor
