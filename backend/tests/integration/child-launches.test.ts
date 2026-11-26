@@ -248,8 +248,13 @@ describe("child launches through real workers", () => {
     expect(
       JSON.parse(await redis.get(NODE_STATUS(parent._id, "echo_node")))
     ).toMatchObject({ error: message });
-    expect(await redis.lRange(PIPELINE_ERRORS(parent._id), 0, -1)).toContain(
-      message
+    // the error list is written after the node status (process-node-error)
+    await vi.waitFor(
+      async () =>
+        expect(
+          await redis.lRange(PIPELINE_ERRORS(parent._id), 0, -1)
+        ).toContain(message),
+      WAIT
     );
     // a retryable error would leave the job waiting for its next attempt; a
     // fatal one removes it
