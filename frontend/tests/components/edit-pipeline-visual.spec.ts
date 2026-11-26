@@ -601,15 +601,13 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("opens the pipeline input editor from Edit", fakeAsync(() => {
-      const { element, router, detectChanges } = setupEditor();
+    it("gives a pipeline input Delete but no Edit", fakeAsync(() => {
+      const { element } = setupEditor();
 
-      click(
-        inputBox(element, "topic").querySelector("button.edit"),
-        detectChanges,
-      );
+      const input = inputBox(element, "topic");
 
-      expect(router.url).toBe(`${EDITOR_URL}/inputs/topic`);
+      expect(input.querySelector("button.delete")).not.toBeNull();
+      expect(input.querySelector("button.edit")).toBeNull();
       finish();
     }));
 

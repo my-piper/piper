@@ -4,7 +4,6 @@ import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
-import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { EditPipelineYamlComponent } from "src/app/edit-pipeline-yaml/edit-pipeline-yaml.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
@@ -31,7 +30,6 @@ import {
   NodeFromProjectResolver,
 } from "src/resolvers/node";
 import { NodePackageResolver } from "src/resolvers/node-package";
-import { PipelineInputFromProjectResolver } from "src/resolvers/pipeline";
 import { ProjectResolver } from "src/resolvers/project";
 import { ProjectMessagesFilterResolver } from "src/resolvers/project-messages-filter";
 import { UserResolver } from "src/resolvers/user";
@@ -475,13 +473,6 @@ const routes: Routes = [
                     component: EditNodeDesignComponent,
                   },
                 ],
-              },
-              {
-                path: "inputs/:id",
-                component: EditPipelineInputComponent,
-                resolve: {
-                  input: PipelineInputFromProjectResolver,
-                },
               },
             ],
           },
