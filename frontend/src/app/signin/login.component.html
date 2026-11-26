@@ -97,9 +97,8 @@
               size="s"
               class="round"
               href="/oauth/google"
-            >
-              <app-icon class="icon" icon="google"></app-icon>
-            </a>
+              iconStart="@img.google"
+            ></a>
           }
           @if (config.ui.features | includes: "yandex_auth") {
             <a
@@ -108,9 +107,8 @@
               size="s"
               class="round"
               href="/oauth/yandex"
-            >
-              <app-icon class="icon" icon="yandex"></app-icon>
-            </a>
+              iconStart="@img.yandex"
+            ></a>
           }
         </div>
         <p i18n="@@message.no_account">

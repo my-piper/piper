@@ -36,7 +36,7 @@
       (hotKeyPressed)="back()"
       [routerLink]="['./']"
     >
-      <app-icon class="icon right" icon="close"></app-icon>
+      <tui-icon icon="close" class="icon right" />
       <span tuiBadge appearance="neutral" size="s">ESC</span>
     </a>
   </header>
@@ -51,7 +51,7 @@
 <div class="app-container">
   <header>
     <a tuiButton appearance="outline-grayscale" size="s" [routerLink]="['add']">
-      <app-icon class="icon left" icon="add"></app-icon>
+      <tui-icon icon="add" class="icon left" />
       <ng-container i18n="@@action.create">Create</ng-container>
     </a>
   </header>
@@ -113,13 +113,13 @@
             <td tuiTd>
               <div class="stack tiny align-center">
                 @if (u.roles | includes: userRole.admin) {
-                  <app-icon [icon]="'admin'" [size]="20"></app-icon>
+                  <tui-icon icon="admin" style="--app-icon-size: 20px" />
                 }
                 @if (u.provider === "yandex") {
-                  <app-icon [icon]="'yandex'" [size]="20"></app-icon>
+                  <tui-icon icon="@img.yandex" style="--app-icon-size: 20px" />
                 }
                 @if (u.provider === "google") {
-                  <app-icon [icon]="'google'" [size]="20"></app-icon>
+                  <tui-icon icon="@img.google" style="--app-icon-size: 20px" />
                 }
               </div>
             </td>
