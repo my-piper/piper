@@ -74,7 +74,6 @@ import { ProjectAssetsComponent } from "./project-assets/project-assets.componen
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectStatsComponent } from "./project-stats/project-stats.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
-import { ImportV1ProjectComponent } from "./projects/import-v1/import-v1-project.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
 import { UpdatePipelineNodesComponent } from "./update-pipeline-nodes/update-pipeline-nodes.component";
@@ -82,7 +81,7 @@ import { EditUserComponent } from "./users/edit/edit-user.component";
 import { UsersComponent } from "./users/users.component";
 
 /** Children of the Projects page, which a Project id can never be. */
-const PROJECTS_PAGES = new Set(["import", "import-v1"]);
+const PROJECTS_PAGES = new Set(["import"]);
 
 export function projectIdMatcher(
   segments: UrlSegment[],
@@ -496,10 +495,6 @@ const routes: Routes = [
           {
             path: "import",
             component: ImportProjectComponent,
-          },
-          {
-            path: "import-v1",
-            component: ImportV1ProjectComponent,
           },
         ],
       },

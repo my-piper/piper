@@ -47,7 +47,6 @@ import {
   removeFromFolders,
 } from "./folders";
 import { ImportProjectComponent } from "./import/import-project.component";
-import { ImportV1ProjectComponent } from "./import-v1/import-v1-project.component";
 const TEST_PIPELINE = `
 name: New project
 version: 1
@@ -110,10 +109,7 @@ export class ProjectsComponent implements OnInit {
   );
 
   activate(modal: unknown) {
-    if (
-      modal instanceof ImportProjectComponent ||
-      modal instanceof ImportV1ProjectComponent
-    ) {
+    if (modal instanceof ImportProjectComponent) {
       modal.imported.subscribe((project) => {
         this.projects.unshift(project);
         this.cd.detectChanges();
