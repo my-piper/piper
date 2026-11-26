@@ -29,13 +29,12 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { provideValidationErrors } from "src/providers/validation-errors";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
-import { ModalComponent } from "src/ui-kit/modal/modal.component";
 import { provideTestConfig } from "../helpers/config";
 import { provideSocketDouble } from "../helpers/socket";
 
 @Component({
   selector: "app-me-user-host",
-  template: `<app-modal></app-modal><app-me-user></app-me-user>`,
+  template: `<app-me-user></app-me-user>`,
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
@@ -49,7 +48,6 @@ async function render(
     declarations: [
       MeUserHost,
       MeUserComponent,
-      ModalComponent,
       ChangePasswordComponent,
       I18nPipe,
     ],
@@ -87,42 +85,43 @@ async function render(
   fixture.detectChanges();
   const meUser = fixture.debugElement.query(By.directive(MeUserComponent))
     .componentInstance as MeUserComponent;
-  const modal = fixture.debugElement.query(By.directive(ModalComponent))
-    .componentInstance as ModalComponent;
-  return { fixture, meUser, modal, root, navigate };
+  return { fixture, meUser, root, navigate };
 }
 
-function modalTitle(element: HTMLElement) {
-  return element.querySelector("app-modal header h1")?.textContent.trim();
+/** The open dialog's title (Taiga renders `label` as its heading). */
+function dialogTitle() {
+  return openDialog()?.querySelector("header")?.textContent.trim();
 }
 
 describe("MeUserComponent modals", () => {
   it("opens change password and closes once it is changed", async () => {
-    const { fixture, meUser, modal } = await render();
+    const { fixture, root, meUser } = await render();
 
     meUser.changePassword();
     fixture.detectChanges();
-    const opened = fixture.debugElement.query(
+    root.detectChanges();
+    const opened = root.debugElement.query(
       By.directive(ChangePasswordComponent),
     );
-    const title = modalTitle(fixture.nativeElement);
+    const title = dialogTitle();
     (opened.componentInstance as ChangePasswordComponent).changed.emit();
     fixture.detectChanges();
 
     expect(title).toBe("Change password");
-    expect(modal.opened).toBe(false);
+    expect(meUser.passwordOpen).toBe(false);
   });
 
   it("offers to set a password to a user without one", async () => {
-    const { fixture, meUser } = await render();
+    const { fixture, root, meUser } = await render();
     TestBed.inject(MeManager).user$.next(
       toInstance({ ...userPlain(), hasPassword: false }, User),
     );
 
     meUser.changePassword();
     fixture.detectChanges();
+    root.detectChanges();
 
-    expect(modalTitle(fixture.nativeElement)).toBe("Set password");
+    expect(dialogTitle()).toBe("Set password");
   });
 
   it("opens connected accounts after an account was connected", async () => {

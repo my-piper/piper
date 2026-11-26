@@ -147,14 +147,13 @@ describe("EditInputComponent suggestions", () => {
   }));
 });
 
-/** An image input; its asset picker opens in the app's modal. */
+/** An image input; its asset picker opens in a Taiga dialog. */
 @Component({
   selector: "app-edit-image-input-host",
   standalone: false,
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <tui-root>
-      <app-modal></app-modal>
       <app-edit-input
         type="image"
         label="Picture"
@@ -188,7 +187,7 @@ describe("EditInputComponent asset picker", () => {
       tab: (label: string) =>
         Array.from(
           element.querySelectorAll<HTMLElement>(
-            "app-modal a, app-modal button",
+            "tui-dialog a, tui-dialog button",
           ),
         ).find((t) => t.textContent.trim() === label),
     };
@@ -200,15 +199,15 @@ describe("EditInputComponent asset picker", () => {
 
     expect(page.tab("Generated")).toBeTruthy();
     expect(
-      page.element.querySelector("app-modal app-artefacts"),
+      page.element.querySelector("tui-dialog app-artefacts"),
     ).not.toBeNull();
-    expect(page.element.querySelector("app-modal app-assets")).toBeNull();
+    expect(page.element.querySelector("tui-dialog app-assets")).toBeNull();
 
     page.tab("Assets").click();
     page.fixture.detectChanges();
 
-    expect(page.element.querySelector("app-modal app-assets")).not.toBeNull();
-    expect(page.element.querySelector("app-modal app-artefacts")).toBeNull();
+    expect(page.element.querySelector("tui-dialog app-assets")).not.toBeNull();
+    expect(page.element.querySelector("tui-dialog app-artefacts")).toBeNull();
     TestBed.inject(HttpTestingController)
       .match(() => true)
       .forEach((r) => r.flush([]));
