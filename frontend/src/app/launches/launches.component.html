@@ -64,9 +64,9 @@
                 appearance="flat-grayscale"
                 size="s"
                 [appPopover]="{ content: errorsTemplate }"
-              >
-                <app-icon icon="error" [color]="'red'"></app-icon>
-              </button>
+                iconStart="error"
+                style="--app-icon-color: red"
+              ></button>
             </div>
           }
           <app-launch-outputs
@@ -114,9 +114,8 @@
               appearance="flat-grayscale"
               size="s"
               [appPopover]="{ content: inputsPopover }"
-            >
-              <app-icon icon="info"></app-icon>
-            </button>
+              iconStart="info"
+            ></button>
             @if (l._id | launchHeartbeat | ticker | async; as heartbeat) {
               @if ((heartbeat | timeDiff: "s") < 10) {
                 <tui-loader size="s" />

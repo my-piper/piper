@@ -12,7 +12,7 @@
       (hotKeyPressed)="back()"
       [routerLink]="['./']"
     >
-      <app-icon class="icon right" icon="close"></app-icon>
+      <tui-icon icon="close" class="icon right" />
       <span tuiBadge appearance="neutral" size="s">ESC</span>
     </a>
   </header>
@@ -72,9 +72,9 @@
               (click)="remove(d)"
               [loading]="progress.removing[d._id]"
               [disabled]="progress.removing[d._id]"
-            >
-              <app-icon class="icon" icon="delete" [size]="16"></app-icon>
-            </button>
+              iconStart="delete"
+              style="--app-icon-size: 16px"
+            ></button>
           </td>
           <td tuiTd title="Deployed at" i18n-title="@@label.deployed_at">
             {{ d.deployedAt | date: "short" }}
@@ -85,12 +85,11 @@
               [routerLink]="!!d.prefix ? [d.prefix, d.slug] : [d.slug]"
             >
               {{ d.prefix ? d.prefix + "/" : "" }}{{ d.slug }}
-              <app-icon
+              <tui-icon
+                icon="open-link-bold"
                 class="icon right"
-                icon="open-link"
-                [size]="16"
-                [stroke]="2"
-              ></app-icon>
+                style="--app-icon-size: 16px"
+              />
             </a>
           </td>
         </tr>

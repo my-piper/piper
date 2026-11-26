@@ -82,7 +82,7 @@
             [class.active]="active?.id == o.key"
             (click)="activate(o.key)"
           >
-            <app-icon icon="switcher"></app-icon>
+            <tui-icon icon="switcher" />
           </button>
         }
         @case ("integer") {
@@ -91,7 +91,7 @@
             [class.active]="active?.id == o.key"
             (click)="activate(o.key)"
           >
-            <app-icon icon="number"></app-icon>
+            <tui-icon icon="number" />
           </button>
         }
         @case ("float") {
@@ -100,7 +100,7 @@
             [class.active]="active?.id == o.key"
             (click)="activate(o.key)"
           >
-            <app-icon icon="number"></app-icon>
+            <tui-icon icon="number" />
           </button>
         }
         @case ("string") {
@@ -109,7 +109,7 @@
             [class.active]="active?.id == o.key"
             (click)="activate(o.key)"
           >
-            <app-icon icon="text"></app-icon>
+            <tui-icon icon="text" />
           </button>
         }
         @case ("json") {
@@ -118,7 +118,7 @@
             [class.active]="active?.id == o.key"
             (click)="activate(o.key)"
           >
-            <app-icon icon="json"></app-icon>
+            <tui-icon icon="json" />
           </button>
         }
         @case ("image") {
@@ -133,7 +133,7 @@
                 [src]="data.url | proxyImage: { width: 100 }"
               />
             } @else {
-              <app-icon icon="image"></app-icon>
+              <tui-icon icon="image" />
             }
           </button>
         }
@@ -143,7 +143,7 @@
             [class.active]="active?.id == o.key"
             (click)="activate(o.key)"
           >
-            <app-icon icon="audio"></app-icon>
+            <tui-icon icon="audio" />
           </button>
         }
         @case ("video") {
@@ -159,7 +159,7 @@
               />
             </button>
           } @else {
-            <app-icon icon="image"></app-icon>
+            <tui-icon icon="image" />
           }
         }
         @case ("image[]") {

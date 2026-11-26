@@ -61,7 +61,11 @@
           [disabled]="progress.clearing"
           (click)="clear()"
         >
-          <app-icon class="icon left" icon="delete" [size]="18"></app-icon>
+          <tui-icon
+            icon="delete"
+            class="icon left"
+            style="--app-icon-size: 18px"
+          />
           <ng-container i18n="@@action.clear_history"
             >Clear history</ng-container
           >
