@@ -27,6 +27,7 @@ import { MeManager } from "src/services/me.service";
 import { SignalsService } from "src/services/signals.service";
 import { UI_DELAY } from "src/consts/ui";
 import { mapTo, toPlain } from "src/utils/models";
+import { USER_ROOM } from "src/consts/rooms";
 
 @Component({
   selector: "app-launches",
@@ -92,7 +93,7 @@ export class LaunchesComponent implements OnDestroy {
   }
 
   private listen() {
-    this.subscriptions.user = this.live.subscribe(this.me.user._id);
+    this.subscriptions.user = this.live.subscribe(USER_ROOM(this.me.user._id));
     this.live.socket
       .fromEvent<object>("set_inputs")
       .pipe(

@@ -34,6 +34,7 @@ import {
 } from "../helpers/editor";
 import { hover, unhover } from "../helpers/taiga";
 import { SocketDouble } from "../helpers/socket";
+import { LAUNCH_ROOM, USER_ROOM } from "src/consts/rooms";
 
 /**
  * GET /api/launches?project=… lists launches (backend/api/launches/list.ts);
@@ -254,8 +255,8 @@ describe("LaunchesComponent", () => {
 
     expect(component.launches.map((l) => l._id)).toEqual([LAUNCH_ID]);
     expect(socket.listenerCount()).toBe(0);
-    expect(live.rooms.get(USER_IDS.owner).size).toBe(1);
-    expect(live.rooms.has(LAUNCH_ID)).toBe(false);
+    expect(live.rooms.get(USER_ROOM(USER_IDS.owner)).size).toBe(1);
+    expect(live.rooms.has(LAUNCH_ROOM(LAUNCH_ID))).toBe(false);
     finish();
   }));
 });

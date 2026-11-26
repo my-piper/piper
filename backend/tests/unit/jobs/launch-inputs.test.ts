@@ -46,7 +46,7 @@ describe("set launch inputs job", () => {
       },
     });
     expect(jobDoubles.notify).toHaveBeenCalledExactlyOnceWith(
-      "user-test",
+      "user:user-test",
       "set_inputs",
       expect.objectContaining({ launch: launch._id })
     );

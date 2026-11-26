@@ -7,6 +7,7 @@ import {
   setOutputEventPlain,
   USER_IDS,
 } from "../fixtures/plain";
+import { LAUNCH_ROOM, USER_ROOM } from "../../src/consts/rooms";
 import { FixtureServer } from "./support/server";
 import { expect, test } from "./support/test";
 
@@ -42,7 +43,7 @@ test("runs the playground, shows scoped live results and launch failures", async
 }) => {
   allowConsoleErrors(/status of 400/, /Process HTTP error 400/);
   await openPlayground(page, open);
-  await joined(server, USER_IDS.owner);
+  await joined(server, USER_ROOM(USER_IDS.owner));
   const topic = page.locator(".inputs").getByRole("textbox").first();
   await expect(topic).toHaveValue("Cats");
 
@@ -56,12 +57,20 @@ test("runs the playground, shows scoped live results and launch failures", async
   );
   const launchId = [...api.launches.keys()][0];
   // An event for another launch must not touch this card.
-  server.emit(USER_IDS.owner, "set_output", {
+  server.emit(USER_ROOM(USER_IDS.owner), "set_output", {
     ...setOutputEventPlain("launch_other"),
     output: { type: "json", data: { type: "json", value: { answer: 7 } } },
   });
-  server.emit(USER_IDS.owner, "set_output", setOutputEventPlain(launchId));
-  server.emit(USER_IDS.owner, "set_errors", setErrorsEventPlain(launchId));
+  server.emit(
+    USER_ROOM(USER_IDS.owner),
+    "set_output",
+    setOutputEventPlain(launchId),
+  );
+  server.emit(
+    USER_ROOM(USER_IDS.owner),
+    "set_errors",
+    setErrorsEventPlain(launchId),
+  );
 
   expect((launch.body as Plain)["inputs"]).toEqual(
     expect.objectContaining({ topic: "Dogs" }),
@@ -94,10 +103,18 @@ test("runs from the canvas in a new tab, follows node events and interrupts ther
     page.getByTestId("run-pipeline").click(),
   ]);
   await expect(tab).toHaveURL(/\/en\/launches\/launch_1$/);
-  await joined(server, "launch_1");
+  await joined(server, LAUNCH_ROOM("launch_1"));
   api.nodeStatus.set("launch_1/node_one", { state: "error", error: "Boom" });
-  server.emit("launch_1", "node_error", nodeEventPlain("node_one", "launch_1"));
-  server.emit("launch_1", "node_error", nodeEventPlain("node_two", "launch_x"));
+  server.emit(
+    LAUNCH_ROOM("launch_1"),
+    "node_error",
+    nodeEventPlain("node_one", "launch_1"),
+  );
+  server.emit(
+    LAUNCH_ROOM("launch_1"),
+    "node_error",
+    nodeEventPlain("node_two", "launch_x"),
+  );
 
   await expect(
     tab.getByTestId("node-node_one").locator("app-node > div.error"),

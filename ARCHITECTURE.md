@@ -56,7 +56,7 @@ One codebase, several entrypoints. Each runs with `node --import=tsx <entry>.ts`
 |---|---|
 | `server.ts` | Express REST API (`/api/**`). Also serves the built frontend: it serves the English build's `index.html` for `/en/*` (other locale prefixes redirect there) and injects runtime config into `window.PRERENDER` (captcha, auth features, assistant, URLs). |
 | `worker.ts` | BullMQ consumers. Worker groups (`process_rapid_nodes`, `run_launches`, `set_launches_io`, …) map to one or more queues; `-w` selects the groups. Has graceful shutdown (120s) and an optional `/health` endpoint. |
-| `sockets.ts` | socket.io server. Clients `join_room` / `leave_room`; rooms are user ids, launch ids, or topic names such as `updating_packages`. |
+| `sockets.ts` | socket.io server. The handshake must carry a user or API token in `auth` (`{ token }` or `{ apiToken }`, `packages/sockets/authenticate.ts`). Clients then `join_room` / `leave_room`; a join is allowed only for the caller's own `user:<id>` room, a `launch:<id>` room of a launch they may see, and the `packages` room for admins (`packages/sockets/authorize-room.ts`, names in `consts/rooms.ts`). |
 | `periodic.ts` | In-process scheduler (bottleneck): checks node package updates, deletes launches and artefacts older than `MAX_STORE_LAUNCH_DAYS`. |
 | `oauth.ts` | Sign-in through Google / Yandex (passport) and OIDC single sign-on (`openid-client`, see `docs/sso.md`), separate express app. |
 | `metrics.ts` | Prometheus `/metrics` endpoint exporting BullMQ queue metrics. |
@@ -64,7 +64,7 @@ One codebase, several entrypoints. Each runs with `node --import=tsx <entry>.ts`
 | `chrome.ts` | Puppeteer-controlled Chrome service (used by browser-automation nodes). |
 | `cli.ts` | commander CLI: users, environment, modules, workers, schemas, migrations, debug. |
 
-Any process can push events to browsers: `notify(room, event, payload)` from `core-kit/packages/io` emits through the socket.io Redis adapter, so workers do not need a socket connection of their own.
+Any process can push events to browsers: `notify(room, event, payload)` from `core-kit/packages/io` emits through the socket.io Redis adapter, so workers do not need a socket connection of their own. Build the room with the helpers in `consts/rooms.ts`.
 
 ## Backend code organization
 
@@ -219,7 +219,7 @@ Angular 22 module-based app (`frontend/src`):
   - playground, launches and node inspection (`node-logs`, `node-jobs`, `node-state`, `node-outputs`);
   - deploy and API playground (`deploy-pipeline`, `play-via-api`);
   - node packages, assets, artefacts, users, assistant.
-- `services/` — `http.service.ts` (REST), `live.service.ts` (socket.io rooms for launch and user events), `me.service.ts`, `project.manager.ts` (editing state for the open project).
+- `services/` — `http.service.ts` (REST), `live.service.ts` (socket.io rooms for launch and user events; it connects with the user token while signed in and joins its rooms again after every reconnect), `me.service.ts`, `project.manager.ts` (editing state for the open project).
 - `resolvers/` and `guards/` load route data and handle auth. `models/` mirrors backend models with class-transformer.
 - Runtime config comes from `window.PRERENDER`, injected by the backend.
 - The app is built in English only (`ng build --localize` with no translations), and every route sits under `/en/`.

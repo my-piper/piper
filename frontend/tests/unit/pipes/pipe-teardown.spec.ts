@@ -15,8 +15,10 @@ import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { TickerPipe } from "src/pipes/ticker.pipe";
 import { ProjectManager } from "src/services/project.manager";
 import { smallGraph } from "../../fixtures/models";
-import { provideTestConfig } from "../../helpers/config";
+import { provideTestConfig, seedAuthorization } from "../../helpers/config";
+import { userPlain } from "../../fixtures/plain";
 import { provideSocketDouble, SocketDouble } from "../../helpers/socket";
+import { LAUNCH_ROOM } from "src/consts/rooms";
 
 /**
  * Pipes that subscribe on first transform must release their subscriptions
@@ -83,6 +85,8 @@ describe("pipe teardown", () => {
   beforeEach(() => {
     manager = projectManagerDouble();
     socket = new SocketDouble();
+    // The socket connects only while signed in.
+    seedAuthorization(userPlain("owner"));
     TestBed.configureTestingModule({
       declarations: [
         TickerPipe,
@@ -164,6 +168,8 @@ describe("pipe teardown", () => {
 
     expect(listenersWhileRendered).toBe(1);
     expect(socket.listenerCount("launch_heartbeat")).toBe(0);
-    expect(socket.emittedEvents("leave_room")).toEqual(["launch_a"]);
+    expect(socket.emittedEvents("leave_room")).toEqual([
+      LAUNCH_ROOM("launch_a"),
+    ]);
   });
 });

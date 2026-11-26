@@ -8,12 +8,42 @@ import { Observable, Subject } from "rxjs";
  */
 export class SocketDouble {
   readonly emitted: { event: string; payload: unknown }[] = [];
+  /** Handshake payload of every `connect()`, in order. */
+  readonly connects: unknown[] = [];
+  auth: unknown = null;
+  connected = false;
 
   private readonly subjects = new Map<string, Subject<unknown>>();
   private readonly listeners = new Map<string, number>();
 
   emit(event: string, payload?: unknown) {
     this.emitted.push({ event, payload });
+  }
+
+  on(event: string, callback: (payload: unknown) => void) {
+    this.subject(event).subscribe(callback);
+  }
+
+  /** Connects at once, like a server that accepts the handshake. */
+  connect() {
+    this.connects.push(this.auth);
+    this.connected = true;
+    this.receive("connect", undefined);
+  }
+
+  disconnect() {
+    if (!this.connected) {
+      return;
+    }
+    this.connected = false;
+    this.receive("disconnect", "io client disconnect");
+  }
+
+  /** A dropped connection that socket.io reconnects on its own. */
+  reconnect() {
+    this.connected = false;
+    this.receive("disconnect", "transport close");
+    this.connect();
   }
 
   fromEvent<T>(event: string): Observable<T> {

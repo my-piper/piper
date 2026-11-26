@@ -115,8 +115,8 @@ The UI has a "nested" tab under a launch that uses this filter
 | --- | --- | --- |
 | Launch a deployed pipeline | `POST /api/:slug/launch`, `POST /api/:prefix/:slug/launch` | `api/deploys/launch-deploy.ts:53-54` |
 | Launch a project directly | `POST /api/projects/:_id/launch` | `api/projects/launch-project.ts:12-14` |
-| Poll outputs and errors | `GET /api/launches/:id/state` | `api/launches/launch-state.ts:6-10` |
-| Rich output data (images, video and so on) | `GET /api/launches/:id/data` | `api/launches/launch-data.ts:6-10`, `launching.ts:272-291` |
+| Poll outputs and errors | `GET /api/launches/:id/state` | `api/launches/launch-state.ts` |
+| Rich output data (images, video and so on) | `GET /api/launches/:id/data` | `api/launches/launch-data.ts`, `launching.ts:272-291` |
 | Get an API token | `POST /api/me/api-token/generate` | `api/users/generate-api-token.ts:12-29` |
 
 The UI's "play via API" page shows the same curl calls: the launch call with an
@@ -126,10 +126,10 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
 ### Auth
 
 - The `handle()` wrapper reads the `user-token` or `api-token` header
-  (`backend/utils/http.ts:29-30`). An `api-token` must pass JWT verification and
-  match the bcrypt hash stored in Redis (`utils/http.ts:121-139`). The user is
-  then loaded from Mongo (`utils/http.ts:141-156`). On failure the response is
-  `401 Wrong API token` (`utils/http.ts:157-160`).
+  (`backend/utils/http.ts`) and passes them to `resolveUser`
+  (`backend/packages/users/resolve-user.ts`). An `api-token` must pass JWT
+  verification and match the bcrypt hash stored in Redis, and the user is then
+  loaded from Mongo. On failure the response is `401 Wrong API token`.
 - Generating a token replaces the previous one. Only one hash is stored per user
   (`generate-api-token.ts:22-26`), and the UI warns about this
   (`play-via-api.component.ts:54-57`). Tokens live for 5 years
@@ -148,9 +148,11 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
 - The child launch runs as the token's owner. `launchedBy` is the current user
   (`launch-deploy.ts:32-35`, `launch-project.ts:52-55`). This is not
   necessarily the parent launch's user. **(inference)**
-- `GET /api/launches/:id/state` and `/data` have no auth check. The handlers
-  never call `checkLogged` (`launch-state.ts:8`, `launch-data.ts:8`), so the
-  launch id alone is enough.
+- `GET /api/launches/:id/state` and `/data` need a token whose user may see
+  the launch: the user who started it, the owner of its project, or an admin
+  (`checkLaunchVisible` in `packages/launches/access.ts`). Otherwise they
+  answer 404, or 400 without a token. Poll with the same token that launched
+  the child.
 
 ### Request and response shape
 

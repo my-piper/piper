@@ -104,7 +104,7 @@ describe("node results and scheduling", () => {
       context.launch._id
     );
     expect(doubles.notify).toHaveBeenCalledWith(
-      "user-test",
+      "user:user-test",
       "pipeline_done",
       expect.objectContaining({ launch: context.launch._id })
     );

@@ -9,23 +9,27 @@ import { AppConfig } from "src/models/app-config";
 import { LiveService } from "src/services/live.service";
 import { MeManager } from "src/services/me.service";
 import { USER_KEY } from "src/consts/core";
+import { USER_ROOM } from "src/consts/rooms";
 import { authorization } from "../../fixtures/models";
 import { SOCKET_EVENTS, USER_IDS, userPlain } from "../../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../../helpers/config";
 import { provideSocketDouble, SocketDouble } from "../../helpers/socket";
 
 /**
- * Room contract: backend/sockets.ts joins/leaves `socket.join(room)` with the
- * payload of `join_room` / `leave_room`, so both events must carry the room
- * name. User rooms are keyed by user id (backend/jobs/set-launch-output.ts
- * `notify(launchedBy._id, "set_output", event)`).
+ * Room contract: backend/sockets.ts accepts a socket only with a user token in
+ * the handshake `auth`, and joins/leaves `socket.join(room)` with the payload
+ * of `join_room` / `leave_room`, so both events carry the room name. Room
+ * names come from src/consts/rooms.ts (backend/consts/rooms.ts).
  */
 describe("LiveService rooms", () => {
   let live: LiveService;
   let socket: SocketDouble;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: provideSocketDouble() });
+    seedAuthorization(userPlain("owner"));
+    TestBed.configureTestingModule({
+      providers: [provideTestConfig(), provideSocketDouble()],
+    });
     live = TestBed.inject(LiveService);
     socket = TestBed.inject(SocketDouble);
   });
@@ -101,6 +105,97 @@ describe("LiveService rooms", () => {
       "launch_one",
     ]);
   });
+
+  it("joins every tracked room again after a reconnect", () => {
+    live.subscribe("launch_one");
+    live.subscribe("launch_two");
+
+    socket.reconnect();
+
+    expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
+      "launch_one",
+      "launch_two",
+      "launch_one",
+      "launch_two",
+    ]);
+  });
+});
+
+describe("LiveService connection", () => {
+  let socket: SocketDouble;
+
+  function start() {
+    TestBed.configureTestingModule({
+      providers: [provideTestConfig(), provideSocketDouble()],
+    });
+    socket = TestBed.inject(SocketDouble);
+    return TestBed.inject(LiveService);
+  }
+
+  it("stays offline and keeps rooms to itself while signed out", () => {
+    const live = start();
+
+    live.subscribe("launch_one");
+
+    expect(socket.connects).toEqual([]);
+    expect(socket.emitted).toEqual([]);
+    expect(live.rooms.has("launch_one")).toBe(true);
+  });
+
+  it("connects with the stored user token", () => {
+    seedAuthorization(userPlain("owner"), "stored-token");
+
+    start();
+
+    expect(socket.connects).toEqual([{ token: "stored-token" }]);
+  });
+
+  it("connects on sign-in and joins the rooms tracked before it", () => {
+    const live = start();
+    live.subscribe("launch_one");
+
+    TestBed.inject(AppConfig).authorization = authorization("engineer");
+
+    expect(socket.connects).toEqual([{ token: "fake-token-engineer" }]);
+    expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
+      "launch_one",
+    ]);
+  });
+
+  it("reconnects with the new token when another user signs in", () => {
+    seedAuthorization(userPlain("owner"), "stored-token");
+    start();
+
+    TestBed.inject(AppConfig).authorization = authorization("admin");
+
+    expect(socket.connects).toEqual([
+      { token: "stored-token" },
+      { token: "fake-token-admin" },
+    ]);
+    expect(socket.connected).toBe(true);
+  });
+
+  it("keeps the connection when the same token is stored again", () => {
+    seedAuthorization(userPlain("owner"), "fake-token-owner");
+    start();
+
+    TestBed.inject(AppConfig).authorization = authorization("owner");
+
+    expect(socket.connects).toEqual([{ token: "fake-token-owner" }]);
+  });
+
+  it("disconnects on sign-out without sending leaves", () => {
+    seedAuthorization(userPlain("owner"));
+    const live = start();
+    const release = live.subscribe("launch_one");
+
+    TestBed.inject(AppConfig).authorization = null;
+    release();
+
+    expect(socket.connected).toBe(false);
+    expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([]);
+    expect(live.rooms.size).toBe(0);
+  });
 });
 
 describe("MeManager", () => {
@@ -141,7 +236,7 @@ describe("MeManager", () => {
 
     expect(me.user._id).toBe(USER_IDS.owner);
     expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
-      USER_IDS.owner,
+      USER_ROOM(USER_IDS.owner),
     ]);
   });
 
@@ -160,7 +255,8 @@ describe("MeManager", () => {
   });
 
   it("reloads the same user on re-authorization without retaining extra rooms", () => {
-    seedAuthorization(userPlain("owner"));
+    // The same token keeps the connection, so only MeManager could rejoin.
+    seedAuthorization(userPlain("owner"), "fake-token-owner");
     configure();
     const me = TestBed.inject(MeManager);
     const live = TestBed.inject(LiveService);
@@ -172,13 +268,13 @@ describe("MeManager", () => {
     controller.expectOne("/api/me").flush(renamed);
 
     expect(me.user.email).toBe("renamed@piper.test");
-    expect(live.rooms.get(USER_IDS.owner).size).toBe(1);
+    expect(live.rooms.get(USER_ROOM(USER_IDS.owner)).size).toBe(1);
     expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
-      USER_IDS.owner,
+      USER_ROOM(USER_IDS.owner),
     ]);
   });
 
-  it("leaves the user room and clears the stored user on logout", () => {
+  it("drops the user room and clears the stored user on logout", () => {
     seedAuthorization(userPlain("owner"));
     configure();
     const me = TestBed.inject(MeManager);
@@ -191,9 +287,7 @@ describe("MeManager", () => {
     expect(me.user).toBeNull();
     expect(localStorage.getItem(USER_KEY)).toBeNull();
     expect(live.rooms.size).toBe(0);
-    expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
-      USER_IDS.owner,
-    ]);
+    expect(socket.connected).toBe(false);
   });
 
   it("switches rooms when another user signs in", () => {
@@ -207,9 +301,9 @@ describe("MeManager", () => {
     config.authorization = authorization("admin");
     controller.expectOne("/api/me").flush(userPlain("admin"));
 
-    expect([...live.rooms.keys()]).toEqual([USER_IDS.admin]);
+    expect([...live.rooms.keys()]).toEqual([USER_ROOM(USER_IDS.admin)]);
     expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
-      USER_IDS.owner,
+      USER_ROOM(USER_IDS.owner),
     ]);
   });
 });

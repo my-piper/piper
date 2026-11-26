@@ -8,6 +8,7 @@ import redis from "core-kit/packages/redis/redis";
 import { toPlain } from "core-kit/packages/transform";
 import { SetLaunchErrorsEvent } from "models/events";
 import { Launch } from "models/launch";
+import { USER_ROOM } from "consts/rooms";
 
 queues.launches.errors.set.process(async (setErrorsJob) => {
   const logger = createLogger("set-launch-errors", {
@@ -32,6 +33,6 @@ queues.launches.errors.set.process(async (setErrorsJob) => {
   );
   const { launchedBy } = launch;
   if (launchedBy) {
-    notify(launchedBy._id, "set_errors", event);
+    notify(USER_ROOM(launchedBy._id), "set_errors", event);
   }
 });

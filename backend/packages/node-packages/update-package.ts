@@ -12,6 +12,7 @@ import { checkNodeIdFree } from "packages/nodes/script-node";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { ulid } from "ulid";
 import * as YAML from "yaml";
+import { PACKAGES_ROOM } from "consts/rooms";
 
 export async function importPackage(source: string) {
   const logger = createLogger("import-package");
@@ -93,7 +94,7 @@ export async function uploadPackage(nodePackage: NodePackage) {
   );
 
   notify(
-    "updating_packages",
+    PACKAGES_ROOM,
     "package_updated",
     new PackageUpdatedEvent({
       nodePackage: _id,

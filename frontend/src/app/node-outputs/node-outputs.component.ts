@@ -17,6 +17,7 @@ import { Node, NodeStatus } from "src/models/node";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
+import { LAUNCH_ROOM } from "src/consts/rooms";
 
 @Component({
   selector: "app-node-outputs",
@@ -60,7 +61,9 @@ export class NodeOutputsComponent implements OnInit {
   private joinRoom() {
     // Join the new room before leaving the old one: no gap for one launch.
     const previous = this.subscriptions.launch;
-    this.subscriptions.launch = this.live.subscribe(this.launch._id);
+    this.subscriptions.launch = this.live.subscribe(
+      LAUNCH_ROOM(this.launch._id),
+    );
     previous?.();
   }
 

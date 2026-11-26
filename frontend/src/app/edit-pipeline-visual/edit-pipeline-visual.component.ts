@@ -75,6 +75,7 @@ import { AssistantComponent } from "../assistant/assistant.component";
 import { EditNodeInputsComponent } from "../edit-node-inputs/edit-node-inputs.component";
 import { LaunchLogsComponent } from "../launch-logs/launch-logs.component";
 import { SelectNodeComponent } from "../select-node/select-node.component";
+import { USER_ROOM } from "src/consts/rooms";
 
 function salt() {
   return customAlphabet("1234567890abcdef", 5)();
@@ -220,7 +221,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   private listen() {
-    const release = this.live.subscribe(this.me.user._id);
+    const release = this.live.subscribe(USER_ROOM(this.me.user._id));
     this.destroyRef.onDestroy(release);
     this.socket
       .fromEvent<object>("pipeline_done")

@@ -39,7 +39,7 @@ describe("set launch errors job", () => {
       { $set: { errors: ["first failure", "second"] } }
     );
     expect(jobDoubles.notify).toHaveBeenCalledExactlyOnceWith(
-      "user-test",
+      "user:user-test",
       "set_errors",
       { launch: launch._id, errors: ["first failure", "second"] }
     );

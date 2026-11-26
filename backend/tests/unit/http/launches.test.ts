@@ -133,12 +133,20 @@ describe("project launch HTTP contract", () => {
 });
 
 describe("launch interruption contract", () => {
-  it("sets an expiring interruption marker for an authenticated request", async () => {
+  beforeEach(() => {
+    httpDoubles.launches.findOne.mockImplementation(async ({ _id }) =>
+      _id === "launch-http"
+        ? { _id, launchedBy: { _id: "owner-user" }, project: {} }
+        : null
+    );
+  });
+
+  it("sets an expiring interruption marker for the launching user", async () => {
     httpDoubles.redis.EXISTS.mockResolvedValue(1);
 
     const response = await context.request
       .post("/api/launches/launch-http/interrupt")
-      .set("user-token", userToken("other-user"));
+      .set("user-token", userToken());
 
     expect(response.status).toBe(204);
     expect(httpDoubles.redis.EXISTS).toHaveBeenCalledExactlyOnceWith(
@@ -159,7 +167,7 @@ describe("launch interruption contract", () => {
 
     const response = await context.request
       .post("/api/launches/launch-http/interrupt")
-      .set("user-token", userToken("other-user"));
+      .set("user-token", userToken());
 
     expect(response.status).toBe(204);
     expect(httpDoubles.launches.distinct).toHaveBeenCalledWith("_id", {

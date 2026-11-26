@@ -27,7 +27,13 @@ const httpDoubles = vi.hoisted(() => ({
     countDocuments: vi.fn(),
   },
   projectCommentsCursor: { sort: vi.fn(), limit: vi.fn(), toArray: vi.fn() },
-  launches: { findOne: vi.fn(), insertOne: vi.fn(), distinct: vi.fn() },
+  launches: {
+    findOne: vi.fn(),
+    insertOne: vi.fn(),
+    distinct: vi.fn(),
+    deleteOne: vi.fn(),
+  },
+  launchArtefacts: { deleteMany: vi.fn() },
   nodes: {
     findOne: vi.fn(),
     find: vi.fn(),
@@ -53,6 +59,7 @@ const httpDoubles = vi.hoisted(() => ({
     scriptLoad: vi.fn(),
     evalSha: vi.fn(),
     lRange: vi.fn(),
+    sMembers: vi.fn(),
   },
   plans: {
     rapid: vi.fn(),
@@ -76,6 +83,7 @@ vi.mock("app/mongo", () => ({
     projects: httpDoubles.projects,
     projectComments: httpDoubles.projectComments,
     launches: httpDoubles.launches,
+    launchArtefacts: httpDoubles.launchArtefacts,
     nodes: httpDoubles.nodes,
     nodePackages: httpDoubles.nodePackages,
   },
@@ -131,6 +139,7 @@ export function resetHttpDoubles() {
     ...Object.values(httpDoubles.projectComments),
     ...Object.values(httpDoubles.projectCommentsCursor),
     ...Object.values(httpDoubles.launches),
+    ...Object.values(httpDoubles.launchArtefacts),
     ...Object.values(httpDoubles.nodes),
     ...Object.values(httpDoubles.nodesCursor),
     ...Object.values(httpDoubles.nodePackages),
@@ -178,6 +187,7 @@ export function resetHttpDoubles() {
   httpDoubles.redis.scriptLoad.mockResolvedValue("http-test-script");
   httpDoubles.redis.evalSha.mockResolvedValue("1");
   httpDoubles.redis.lRange.mockResolvedValue([]);
+  httpDoubles.redis.sMembers.mockResolvedValue([]);
   httpDoubles.axios.mockRejectedValue(
     new Error("Unexpected external HTTP request in an HTTP contract test")
   );

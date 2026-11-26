@@ -304,7 +304,8 @@ import { UsersComponent } from "./users/users.component";
     MonacoEditorModule.forRoot({ onMonacoLoad: () => applyMonacoTheme() }),
     SocketIoModule.forRoot({
       url: "/",
-      options: { transports: ["websocket"] },
+      // LiveService connects once signed in, with the user token.
+      options: { transports: ["websocket"], autoConnect: false },
     }),
     SharedModule,
     TaigaFormsModule,

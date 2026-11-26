@@ -8,6 +8,7 @@ import {
 import { AddressInfo } from "node:net";
 import path from "node:path";
 import { Server as IoServer, Socket } from "socket.io";
+import { authorizationPlain, USER_IDS, UserKind } from "../../fixtures/plain";
 import {
   PlainAppConfig,
   testRuntimeConfig,
@@ -20,8 +21,10 @@ import {
  *   replacing the `PRERENDER = {};` constant in index.html in memory exactly as
  *   backend/server.ts does (built files are never modified);
  * - hosts a real Socket.IO server on the same origin (the app connects to `/`
- *   with the websocket transport) handling `join_room` / `leave_room` like
- *   backend/sockets.ts.
+ *   with the websocket transport) that, like backend/sockets.ts, refuses a
+ *   handshake without a known user token in `auth` and handles `join_room` /
+ *   `leave_room`. Rooms are not access-checked here: the backend's unit tests
+ *   own that rule.
  *
  * In workflows `/api/**` is never answered here: each test routes it through
  * its own stateful HTTP fixture (see api.ts), so an unrouted API call surfaces
@@ -50,11 +53,20 @@ const PRERENDER_PLACEHOLDER = "PRERENDER = {};";
 
 export type RoomEvent = { type: "join" | "leave"; room: string; at: number };
 
+// The tokens of the fixture users the workflows sign in as.
+const KNOWN_TOKENS = new Set(
+  (Object.keys(USER_IDS) as UserKind[]).map(
+    (kind) => authorizationPlain(kind)["token"] as string,
+  ),
+);
+
 export type ApiHandler = (req: IncomingMessage, res: ServerResponse) => void;
 
 export class FixtureServer {
   config: PlainAppConfig = testRuntimeConfig();
   readonly roomEvents: RoomEvent[] = [];
+  /** Handshakes refused for a missing or unknown token. */
+  refusedHandshakes = 0;
 
   private http: HttpServer;
   private io: IoServer;
@@ -114,6 +126,15 @@ export class FixtureServer {
     });
 
     this.io = new IoServer(this.http, { transports: ["websocket"] });
+    this.io.use((socket, next) => {
+      const { token } = (socket.handshake.auth ?? {}) as { token?: unknown };
+      if (typeof token !== "string" || !KNOWN_TOKENS.has(token)) {
+        this.refusedHandshakes++;
+        next(new Error("unauthorized"));
+        return;
+      }
+      next();
+    });
     this.io.on("connection", (socket) => {
       this.sockets.add(socket);
       socket.on("join_room", (room: string) => {
@@ -136,6 +157,7 @@ export class FixtureServer {
   reset(config: PlainAppConfig = testRuntimeConfig()) {
     this.config = config;
     this.roomEvents.length = 0;
+    this.refusedHandshakes = 0;
     for (const socket of this.sockets) {
       socket.disconnect(true);
     }

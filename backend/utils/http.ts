@@ -1,15 +1,10 @@
-import mongo from "app/mongo";
-import bcrypt from "bcrypt";
-import { JWT_SECRET } from "consts/core";
 import { NO_CACHE_HEADERS } from "consts/http";
-import { USER_API_TOKEN_KEY } from "consts/redis";
 import {
   ALL_LANGUAGES,
   DEFAULT_LANGUAGE,
   Languages,
 } from "core-kit/packages/locale";
 import { createLogger } from "core-kit/packages/logger";
-import redis from "core-kit/packages/redis";
 import sentry from "core-kit/packages/sentry";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import {
@@ -20,9 +15,9 @@ import {
   UnauthorizedError,
 } from "core-kit/types/errors";
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import assign from "lodash/assign";
 import { User, UserRole } from "models/user";
+import { resolveUser, WrongTokenError } from "packages/users/resolve-user";
 import { Injector } from "types/injector";
 
 const USER_TOKEN_HEADER = "user-token";
@@ -86,77 +81,20 @@ export const handle =
       }
     }
 
-    {
-      const header = req.headers[USER_TOKEN_HEADER];
-      if (header) {
-        const token = header as string;
-        try {
-          const decoded = jwt.verify(token, JWT_SECRET);
-          const { _id } = toInstance(decoded as object, User);
-          const user = toModel(
-            await mongo.users.findOne(
-              { _id },
-              {
-                projection: {
-                  _id: 1,
-                  email: 1,
-                  roles: 1,
-                  createdAt: 1,
-                },
-              }
-            ),
-            User
-          );
-          assign(injector, { currentUser: user });
-        } catch (err) {
-          logger.error(err);
-          res.status(401).send("Wrong user token");
-          return;
-        }
+    try {
+      const currentUser = await resolveUser({
+        userToken: req.headers[USER_TOKEN_HEADER] as string | undefined,
+        apiToken: req.headers[API_TOKEN_HEADER] as string | undefined,
+      });
+      if (currentUser) {
+        assign(injector, { currentUser });
       }
-    }
-
-    {
-      const header = req.headers[API_TOKEN_HEADER];
-      if (header) {
-        const token = header as string;
-        try {
-          const decoded = jwt.verify(token, JWT_SECRET);
-          const { _id } = toInstance(decoded as object, User);
-
-          {
-            const hash = await redis.get(USER_API_TOKEN_KEY(_id));
-            if (!hash) {
-              throw new DataError("API hash is not found");
-            }
-
-            const matched = await bcrypt.compare(token, hash);
-            if (!matched) {
-              throw new DataError("API token is invalid");
-            }
-          }
-
-          const user = toModel(
-            await mongo.users.findOne(
-              { _id },
-              {
-                projection: {
-                  _id: 1,
-                  email: 1,
-                  roles: 1,
-                  createdAt: 1,
-                },
-              }
-            ),
-            User
-          );
-          assign(injector, { currentUser: user });
-        } catch (err) {
-          logger.error(err);
-          res.status(401).send("Wrong API token");
-          return;
-        }
-      }
+    } catch (err) {
+      logger.error(err);
+      res
+        .status(401)
+        .send(err instanceof WrongTokenError ? err.message : "Wrong token");
+      return;
     }
 
     try {

@@ -2,7 +2,7 @@ import api from "app/api";
 import { toPlain } from "core-kit/packages/transform";
 import { readLaunchLogs } from "packages/nodes/node-logs";
 import { handle } from "utils/http";
-import { checkLaunchVisible } from "./access";
+import { checkLaunchVisible } from "packages/launches/access";
 
 api.get(
   "/api/launches/:launch/logs",
