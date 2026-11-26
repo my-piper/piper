@@ -89,6 +89,7 @@ import { NotPipe } from "src/pipes/not";
 import { ObjectPathsPipe } from "src/pipes/object-paths";
 import { OrderByPipe } from "src/pipes/order-by";
 import { PiperIconPipe } from "src/pipes/piper-icon";
+import { ErrorDialogComponent } from "./error-dialog/error-dialog.component";
 import { PipelineOutputPipe } from "src/pipes/output";
 import { ParseJsonPipe } from "src/pipes/parse-json";
 import { GetPercentPipe } from "src/pipes/percents";
@@ -307,6 +308,7 @@ import { UsersComponent } from "./users/users.component";
     NgHcaptchaModule.forRoot(),
     TuiRoot,
     NodeScriptHelpComponent,
+    ErrorDialogComponent,
     TuiButton,
     TuiIcon,
     TuiDialog,

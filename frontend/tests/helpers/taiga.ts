@@ -1,3 +1,5 @@
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { TuiRoot } from "@taiga-ui/core";
 import { expectConsoleError } from "./console";
 
 /**
@@ -132,4 +134,24 @@ export function activeTab(tabs: Element | null): string {
  */
 export function iconName(host: Element | null): string | null {
   return host?.getAttribute("data-icon-start") ?? null;
+}
+
+/**
+ * Creates the `<tui-root>` whose portal host Taiga dialogs render into, for
+ * specs that build their own module instead of the app's. Those specs also
+ * need `provideTaiga()`. Create it after the component: every
+ * `TestBed.createComponent` removes the root elements created before it.
+ */
+export function popupRoot(): ComponentFixture<TuiRoot> {
+  const root = TestBed.createComponent(TuiRoot);
+  root.detectChanges();
+  return root;
+}
+
+/**
+ * The open Taiga dialog, or null. A closed dialog stays in the DOM during
+ * its leave animation, so assert closing on the component's state instead.
+ */
+export function openDialog(): HTMLElement | null {
+  return document.querySelector("tui-dialog");
 }

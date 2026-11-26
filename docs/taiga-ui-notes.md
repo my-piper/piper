@@ -90,3 +90,13 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   main column without a width to take the spare space and give the others
   fixed widths through component classes, not `width="…"` attributes. Taiga's
   `tuiTable` sets no width of its own.
+- **Blocking messages are `tuiDialog` templates** (#199, formerly
+  `app-informer`). An error is one line: `<app-error-dialog [error]="error"
+  (closed)="error = null" />` (message, optional `details` list, OK). A
+  dialog with other content is `<ng-template [tuiDialog]="open"
+  (tuiDialogChange)="open = $event">` (see signup's confirm-email step).
+  - **Bind `(tuiDialogChange)`, always.** The directive builds its open/close
+    stream from that output, so a template that only binds `[tuiDialog]`
+    never opens.
+  - A dialog renders in `tui-root`'s portal, outside the component's
+    element, so specs look for it in `document` (`tui-dialog`).

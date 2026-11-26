@@ -17,27 +17,39 @@ import { AppConfig } from "src/models/app-config";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
-import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { IncludesPipe } from "src/pipes/includes.pipe";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
+import { provideTaiga } from "@taiga-ui/core";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { authorizationPlain } from "../fixtures/plain";
 import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
 import { provideTestConfig } from "../helpers/config";
-import { isLoading, markedInvalid, togglePassword } from "../helpers/taiga";
+import {
+  isLoading,
+  markedInvalid,
+  openDialog,
+  popupRoot,
+  togglePassword,
+} from "../helpers/taiga";
 
 async function render(config: Partial<PlainAppConfig> = {}) {
   await TestBed.configureTestingModule({
     declarations: [
       LoginComponent,
-      InformerComponent,
       PopoverDirective,
       SelectThemeComponent,
       IncludesPipe,
     ],
-    imports: [ReactiveFormsModule, RouterLink, TaigaFormsModule],
+    imports: [
+      ReactiveFormsModule,
+      RouterLink,
+      TaigaFormsModule,
+      ErrorDialogComponent,
+    ],
     providers: [
+      provideTaiga(),
       provideTestConfig(config),
       provideRouter([]),
       provideHttpClient(withXhr()),
@@ -47,8 +59,10 @@ async function render(config: Partial<PlainAppConfig> = {}) {
   }).compileComponents();
   const fixture = TestBed.createComponent(LoginComponent);
   fixture.detectChanges();
+  const root = popupRoot();
   return {
     fixture,
+    root,
     element: fixture.nativeElement as HTMLElement,
     controller: TestBed.inject(HttpTestingController),
     router: TestBed.inject(Router),
@@ -135,7 +149,7 @@ describe("LoginComponent", () => {
 
   it("shows the error, resets progress and stores nothing on failure", fakeAsync(async () => {
     vi.spyOn(console, "error").mockReturnValue(undefined);
-    const { fixture, element, controller, router, config } = await render();
+    const { fixture, root, element, controller, router, config } = await render();
     const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
     type(fixture, "identity", "owner");
     type(fixture, "password", "wrong");
@@ -146,14 +160,35 @@ describe("LoginComponent", () => {
       .flush("Wrong credentials", { status: 400, statusText: "Bad Request" });
     tick(UI_DELAY);
     fixture.detectChanges();
+    root.detectChanges();
 
-    expect(element.querySelector("app-informer").textContent).toContain(
-      "Wrong credentials",
-    );
+    expect(openDialog().textContent).toContain("Wrong credentials");
     expect(submitButton(element).disabled).toBe(false);
     expect(config.authorization).toBeNull();
     expect(localStorage.getItem(AUTHORIZATION_KEY)).toBeNull();
     expect(navigate).not.toHaveBeenCalled();
+    controller.verify();
+  }));
+
+  it("clears the error when its dialog is closed with OK", fakeAsync(async () => {
+    vi.spyOn(console, "error").mockReturnValue(undefined);
+    const { fixture, root, controller } = await render();
+    type(fixture, "identity", "owner");
+    type(fixture, "password", "wrong");
+    submit(fixture);
+    controller
+      .expectOne("/api/login")
+      .flush("Wrong credentials", { status: 400, statusText: "Bad Request" });
+    tick(UI_DELAY);
+    fixture.detectChanges();
+    root.detectChanges();
+
+    Array.from(openDialog().querySelectorAll("button"))
+      .find((b) => b.textContent.trim() === "OK")
+      .click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.error).toBeNull();
     controller.verify();
   }));
 
