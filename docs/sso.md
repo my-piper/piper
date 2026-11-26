@@ -26,14 +26,38 @@ Authentik. Password login keeps working next to it. The design is in #204.
   bindings). Roles are assigned in Piper by an admin. Disabling a user in the
   provider does not end a Piper session that is already open.
 
+## Connecting an existing account
+
+A user who signs in with a password connects SSO from the app:
+
+1. The app calls `POST /api/me/identities/oidc/link`, which stores a
+   single-use ticket for the user in Redis (5 minutes) and sets it as the
+   HttpOnly cookie `oidc_link`.
+2. The browser opens `/oauth/oidc?link`. The oauth process takes the ticket
+   from the cookie only, never from the URL, so a link someone else sends
+   can't bind the visitor's provider account to the sender's Piper account.
+   It uses up the ticket and keeps the user in the flow's state.
+3. After the provider, the callback binds `(oidc, sub)` to that user and
+   redirects to `/en/projects?sso=linked`, or `/en/projects?sso=<error>`:
+   - `sso_linked_elsewhere`: the provider account is connected to another
+     Piper user;
+   - `sso_already_connected`: the user has another account of this provider
+     connected; disconnect it first;
+   - `sso_failed`: anything else, such as an expired ticket.
+
+The user proved owning both accounts, so the emails may differ and need not
+be verified. `DELETE /api/me/identities/oidc` disconnects, unless it is the
+user's only way to sign in; a user without a password sets one first
+(`POST /api/me/change-password` asks for no current password).
+
 ## Configuration
 
-| Variable | Meaning |
-| --- | --- |
-| `OIDC_AUTH` | `yes` mounts the routes and shows the sign-in button |
-| `OIDC_ISSUER` | Issuer URL; discovery reads `<issuer>/.well-known/openid-configuration`. Plain HTTP is accepted on `localhost` only |
-| `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | Confidential client credentials |
-| `OIDC_LABEL` | Button text: "Sign in with {label}" (default `SSO`) |
+| Variable                               | Meaning                                                                                                             |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `OIDC_AUTH`                            | `yes` mounts the routes and shows the sign-in button                                                                |
+| `OIDC_ISSUER`                          | Issuer URL; discovery reads `<issuer>/.well-known/openid-configuration`. Plain HTTP is accepted on `localhost` only |
+| `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | Confidential client credentials                                                                                     |
+| `OIDC_LABEL`                           | Button text: "Sign in with {label}" (default `SSO`)                                                                 |
 
 `BASE_URL` gives the redirect URI: `${BASE_URL}/oauth/oidc/callback`.
 

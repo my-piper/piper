@@ -82,6 +82,19 @@
         >
           Login
         </button>
+        @if (config.ui.features | includes: "oidc_auth") {
+          <a
+            tuiButton
+            appearance="outline-grayscale"
+            size="s"
+            class="fluid"
+            href="/oauth/oidc"
+            data-cy="sso-login"
+            i18n="@@action.sign_in_with"
+          >
+            Sign in with {{ ssoLabel }}
+          </a>
+        }
       </footer>
     </form>
 

@@ -1,0 +1,51 @@
+<app-error-dialog [error]="error()" (closed)="error.set(null)" />
+
+@if (me.user$ | async; as user) {
+  <div class="stack vertical align-stretch">
+    @if (identity(user); as identity) {
+      <p data-cy="sso-identity">
+        {{ label }}: <strong>{{ identity.email }}</strong>
+        <br />
+        <small i18n="@@message.sso_connected_at">
+          Connected {{ identity.linkedAt | date: "mediumDate" }}
+        </small>
+      </p>
+      @if (!canDisconnect(user)) {
+        <p class="hint" i18n="@@message.sso_set_password_first">
+          This is your only way to sign in. Set a password before disconnecting
+          it.
+        </p>
+      }
+      <button
+        tuiButton
+        appearance="outline-grayscale"
+        size="s"
+        type="button"
+        data-cy="sso-disconnect"
+        [disabled]="!canDisconnect(user) || progress()"
+        [loading]="progress()"
+        (click)="disconnect()"
+        i18n="@@action.disconnect"
+      >
+        Disconnect
+      </button>
+    } @else {
+      <p i18n="@@message.sso_connect_hint">
+        Connect your {{ label }} account to sign in with it.
+      </p>
+      <button
+        tuiButton
+        appearance="outline-grayscale"
+        size="s"
+        type="button"
+        data-cy="sso-connect"
+        [disabled]="progress()"
+        [loading]="progress()"
+        (click)="connect()"
+        i18n="@@action.sso_connect"
+      >
+        Connect {{ label }}
+      </button>
+    }
+  </div>
+}

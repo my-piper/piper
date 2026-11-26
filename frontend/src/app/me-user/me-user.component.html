@@ -1,3 +1,13 @@
+<app-error-dialog [error]="ssoError" (closed)="ssoError = null" />
+
+<ng-template
+  [tuiDialog]="accountsOpen"
+  [tuiDialogOptions]="{ size: 's', label: connectedAccountsLabel }"
+  (tuiDialogChange)="accountsOpen = $event"
+>
+  <app-connected-accounts />
+</ng-template>
+
 <ng-template #userMenu>
   <div class="panel stack vertical">
     @if (me.user$ | async; as user) {
@@ -10,10 +20,22 @@
     <tui-data-list>
       <button tuiOption type="button" (click)="changePassword()">
         <tui-icon icon="@tui.key-round" />
-        <ng-container i18n="@@action.change_password">
-          Change password
-        </ng-container>
+        @if ((me.user$ | async)?.hasPassword === false) {
+          <ng-container i18n="@@action.set_password">Set password</ng-container>
+        } @else {
+          <ng-container i18n="@@action.change_password">
+            Change password
+          </ng-container>
+        }
       </button>
+      @if (ssoEnabled) {
+        <button tuiOption type="button" (click)="connectedAccounts()">
+          <tui-icon icon="@tui.link" />
+          <ng-container i18n="@@label.connected_accounts">
+            Connected accounts
+          </ng-container>
+        </button>
+      }
       <button tuiOption type="button" (click)="logout()">
         <tui-icon icon="@tui.log-out" />
         <ng-container i18n="@@action.logout">Logout</ng-container>

@@ -4,3 +4,9 @@
     margin: 0;
     font-size: .85em;
 }
+// Login and single sign-on buttons, one under the other.
+footer {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}

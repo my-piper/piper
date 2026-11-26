@@ -6,7 +6,8 @@ export type PlainAppConfig = {
   assistant?: { active?: boolean };
   captcha?: { required?: boolean; key?: string | null };
   ui?: {
-    features?: ("signup" | "google_auth" | "yandex_auth")[];
+    features?: ("signup" | "google_auth" | "yandex_auth" | "oidc_auth")[];
+    oidcLabel?: string;
     appFooter?: string;
   };
   baseUrl?: string;

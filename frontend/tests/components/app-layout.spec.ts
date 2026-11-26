@@ -19,6 +19,7 @@ import {
   TUI_BREAKPOINT,
   TuiButton,
   TuiDataList,
+  TuiDialog,
   TuiDropdown,
   TuiIcon,
 } from "@taiga-ui/core";
@@ -26,6 +27,8 @@ import { TuiBadge } from "@taiga-ui/kit";
 import { TuiNavigation } from "@taiga-ui/layout";
 import { AppLayoutComponent } from "src/app/layout/layout.component";
 import { MeUserComponent } from "src/app/me-user/me-user.component";
+import { ConnectedAccountsComponent } from "src/app/connected-accounts/connected-accounts.component";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { ASIDE_EXPANDED_KEY } from "src/consts/core";
 import { Languages } from "src/enums/languages";
@@ -68,6 +71,9 @@ describe("AppLayoutComponent", () => {
         ...TuiDataList,
         ...TuiDropdown,
         ...TuiNavigation,
+        TuiDialog,
+        ErrorDialogComponent,
+        ConnectedAccountsComponent,
       ],
       providers: [
         provideTestConfig(),
