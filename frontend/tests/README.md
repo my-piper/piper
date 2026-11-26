@@ -120,6 +120,8 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
 - `input[tuiInputChip]` reads typing only while focused: add chips with
   `typeChip`, read them with `chipLabels`. The focused input leaves Taiga
   timers running, so call `fixture.destroy()` before `finish()`.
+- `markedInvalid(input)` tells whether a `tui-textfield` shows its input as
+  invalid (its `[invalid]` binding is true).
 - Read a `<tui-error>`'s message with `fieldError` (empty until the control
   is touched and invalid). Specs that render a form outside `AppModule` need
   `provideValidationErrors()` for the app's messages.

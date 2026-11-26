@@ -22,13 +22,21 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   `tui-textfield`. Its message comes from the app-wide set in
   `src/providers/validation-errors.ts` (`required`, `minlength`, `email`,
   `pattern`, `passwordMismatch`), keyed by the validator's error name, and
-  shows once the control is touched. Add a key there when a validator is
+  shows once the control is touched (see change-password). Add a key there when a validator is
   shared; override a message for one form with `tuiValidationErrorsProvider`
   in that component's `providers`. A form-level error (e.g. the change-password
   mismatch) needs `<tui-error [error]="…">` bound to the group's error.
+- **`tui-textfield` doesn't turn red on its own for a reactive control**:
+  `input[tuiInput]` takes its invalid state only from the textfield's
+  `[invalid]`, and Taiga draws it whether or not the control was touched.
+  To mark a field only after the user leaves it or submits (what the old
+  `invalidField` pipe did), bind
+  `[invalid]="form.controls.x.touched && form.controls.x.invalid"`.
+- **A filled `tui-textfield` shows a clear (×) button by default.** Set
+  `[tuiTextfieldCleaner]="false"` where the old input had none (no redesign).
 - **Show error text only where the screen showed it before** (#134): most
   forms only marked an invalid field with a red border, which `tui-textfield`
-  already does on its own. Adding `<tui-error>` to such a field is new text,
+  draws from `[invalid]`. Adding `<tui-error>` to such a field is new text,
   i.e. a redesign.
 - **`tuiPassword` is an attribute of `<tui-icon>`**:
   `<tui-icon tuiPassword />` inside the `tui-textfield` adds the show/hide

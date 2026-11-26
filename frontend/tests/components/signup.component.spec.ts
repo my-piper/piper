@@ -15,7 +15,7 @@ import { Languages } from "src/enums/languages";
 import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { InformerComponent } from "src/ui-kit/informer/informer.component";
 import { IncludesPipe } from "src/pipes/includes.pipe";
-import { InvalidFieldPipe } from "src/pipes/invalid-field.pipe";
+import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { PopoverDirective } from "src/ui-kit/popover/popover.directive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
@@ -24,6 +24,7 @@ import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
 import { HcaptchaStubComponent } from "../helpers/captcha-stub";
 import { provideTestConfig } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
+import { markedInvalid } from "../helpers/taiga";
 
 /**
  * Wire contracts (backend/api/users/signup.ts):
@@ -42,10 +43,9 @@ async function render(config: Partial<PlainAppConfig> = {}) {
       InformerComponent,
       PopoverDirective,
       SelectThemeComponent,
-      InvalidFieldPipe,
       IncludesPipe,
     ],
-    imports: [ReactiveFormsModule, RouterLink, HcaptchaStubComponent],
+    imports: [ReactiveFormsModule, RouterLink, TaigaFormsModule, HcaptchaStubComponent],
     providers: [
       provideTestConfig(config),
       provideRouter([]),
@@ -130,7 +130,7 @@ describe("SigupComponent", () => {
 
       submit(signupForm());
 
-      expect(input("email").classList).toContain("error");
+      expect(markedInvalid(input("email"))).toBe(true);
       controller.verify();
     }));
 
