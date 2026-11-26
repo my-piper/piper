@@ -10,14 +10,14 @@ import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { provideValidationErrors } from "src/providers/validation-errors";
-import { InformerComponent } from "src/ui-kit/informer/informer.component";
+import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { provideTestConfig } from "../helpers/config";
 import { fieldError, markedInvalid } from "../helpers/taiga";
 
 async function render() {
   await TestBed.configureTestingModule({
-    declarations: [ChangePasswordComponent, InformerComponent],
-    imports: [ReactiveFormsModule, TaigaFormsModule],
+    declarations: [ChangePasswordComponent],
+    imports: [ReactiveFormsModule, TaigaFormsModule, ErrorDialogComponent],
     providers: [
       provideTestConfig(),
       provideValidationErrors(),

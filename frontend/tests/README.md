@@ -149,6 +149,12 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
   event, which needs the event plugins from `provideTaiga()`. A spec that
   builds its own module instead of the app's must provide it, or clicks on
   tabs do nothing.
+- Taiga dialogs render in the portal of a `tui-root`. A spec with its own
+  module creates one with `popupRoot()` after the component (each
+  `TestBed.createComponent` removes earlier root elements), provides
+  `provideTaiga()`, runs `root.detectChanges()` with the fixture's, and reads
+  the dialog with `openDialog()`. A closed dialog stays in the DOM during its
+  leave animation: assert closing on the component's state.
 - `tests/components/taiga-forms.spec.ts` shows these on a test-only form.
 
 ## Wire contracts
