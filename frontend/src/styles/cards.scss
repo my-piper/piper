@@ -61,3 +61,20 @@
     font-size: 13px;
   }
 }
+
+// Placeholder grid while a card list loads, formerly ui-kit's
+// <app-skeleton type="cards"> (#188). Set --cols on the grid; each child is a
+// div[tuiSkeleton] block.
+@mixin card-skeleton {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(var(--cols), 1fr);
+
+  > div {
+    height: 100px;
+  }
+
+  @media only screen and (max-width: 425px) {
+    grid-template-columns: 1fr;
+  }
+}
