@@ -1,7 +1,7 @@
 import { Page } from "@playwright/test";
 import { PROJECT_A_ID } from "../fixtures/plain";
 import { ApiFixture } from "./support/api";
-import { expect, test } from "./support/test";
+import { dismissDialog, expect, test } from "./support/test";
 
 const deployRow = (page: Page, path: string) =>
   page.locator("table tbody tr", { hasText: path });
@@ -32,11 +32,8 @@ test("creates a deployment after a failed attempt and lists it", async ({
   );
 
   await page.getByRole("button", { name: "Deploy", exact: true }).click();
-  await expect(page.locator("app-informer")).toContainText("SERVICE_OFFLINE");
-  await page
-    .locator("app-informer")
-    .getByRole("button", { name: "OK" })
-    .click();
+  await expect(page.locator("tui-dialog")).toContainText("SERVICE_OFFLINE");
+  await dismissDialog(page);
   const posts = await deploy(page, api, "user_owner/project-a-v1");
 
   expect(posts.map((c) => [c.status, c.body])).toEqual([

@@ -1,6 +1,4 @@
-@if (!!error) {
-  <app-informer [message]="error.message" (ok)="error = null"></app-informer>
-}
+<app-error-dialog [error]="error" (closed)="error = null" />
 
 <div class="modal" [class.hidden]="!modal">
   <header>

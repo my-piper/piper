@@ -1,10 +1,9 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes, UrlSegment } from "@angular/router";
+import { inject, NgModule } from "@angular/core";
+import { Router, RouterModule, Routes, UrlSegment } from "@angular/router";
 import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
-import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { EditPipelineYamlComponent } from "src/app/edit-pipeline-yaml/edit-pipeline-yaml.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
@@ -31,7 +30,6 @@ import {
   NodeFromProjectResolver,
 } from "src/resolvers/node";
 import { NodePackageResolver } from "src/resolvers/node-package";
-import { PipelineInputFromProjectResolver } from "src/resolvers/pipeline";
 import { ProjectResolver } from "src/resolvers/project";
 import { ProjectMessagesFilterResolver } from "src/resolvers/project-messages-filter";
 import { UserResolver } from "src/resolvers/user";
@@ -103,6 +101,21 @@ export function projectIdMatcher(
 }
 
 const routes: Routes = [
+  // The backend sends single sign-on results to /en/... (the production base
+  // href). The dev server builds without localize and serves the app at "/",
+  // so drop the prefix here, keeping the query.
+  {
+    path: "en",
+    children: [
+      {
+        path: "**",
+        redirectTo: ({ url, queryParams }) =>
+          inject(Router).createUrlTree(["/", ...url.map(({ path }) => path)], {
+            queryParams,
+          }),
+      },
+    ],
+  },
   {
     path: "login",
     canActivate: [AnonymousGuard],
@@ -475,13 +488,6 @@ const routes: Routes = [
                     component: EditNodeDesignComponent,
                   },
                 ],
-              },
-              {
-                path: "inputs/:id",
-                component: EditPipelineInputComponent,
-                resolve: {
-                  input: PipelineInputFromProjectResolver,
-                },
               },
             ],
           },

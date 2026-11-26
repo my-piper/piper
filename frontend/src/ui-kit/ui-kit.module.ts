@@ -5,7 +5,6 @@ import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IncludesPipe } from "src/pipes/includes.pipe";
 import { HotKeyDirective } from "src/directives/hot-key.directive";
-import { InformerComponent } from "./informer/informer.component";
 import { ModalComponent } from "./modal/modal.component";
 import { ModalDirective } from "./modal/modal.directive";
 import { FileTypePipe } from "src/pipes/file-type.pipe";
@@ -20,7 +19,6 @@ import { PopoverDirective } from "./popover/popover.directive";
 
 @NgModule({
   declarations: [
-    InformerComponent,
     ModalComponent,
     ModalDirective,
     PopoverComponent,
@@ -37,7 +35,6 @@ import { PopoverDirective } from "./popover/popover.directive";
     TickerPipe,
   ],
   exports: [
-    InformerComponent,
     ModalComponent,
     ModalDirective,
     PopoverComponent,
@@ -53,8 +50,8 @@ import { PopoverDirective } from "./popover/popover.directive";
     TimeDiffPipe,
     TickerPipe,
   ],
-  // TuiButton: the informer's OK and the modal's close button (#153);
-  // TuiBadge: the modal's ESC hint (#155).
+  // TuiButton: the modal's close button (#153); TuiBadge: its ESC hint
+  // (#155); TuiIcon: its close icon (#182).
   imports: [CommonModule, ReactiveFormsModule, TuiButton, TuiBadge, TuiIcon],
 })
 export class UiKitModule {}

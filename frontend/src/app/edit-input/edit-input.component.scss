@@ -166,10 +166,6 @@ audio {
 .fit-choices {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-
-  :host(.fit) & {
-    max-width: 300px;
-  }
 }
 
 .choices-sizer {
@@ -179,8 +175,22 @@ audio {
   overflow: hidden;
   visibility: hidden;
   white-space: nowrap;
-  // The field's own inline padding and chevron.
-  padding-inline: var(--tui-padding-l) calc(var(--tui-padding-l) + 2rem);
+  // As the size "l" textfield's select: its font, its start padding and its
+  // end padding, which holds the chevron (Taiga's --t-space-end, 3.5rem).
+  font: var(--tui-typography-ui-m);
+  padding-inline: var(--tui-padding-l) calc(var(--tui-padding-l) + 2.5rem);
+}
+
+:host(.fit) {
+  select {
+    text-overflow: ellipsis;
+  }
+
+  // The clear button takes half of a narrow field: show it only while the
+  // field is hovered or focused.
+  tui-textfield:not(:hover):not(:focus-within) ::ng-deep [tuiButtonX] {
+    display: none;
+  }
 }
 
 .tabs {

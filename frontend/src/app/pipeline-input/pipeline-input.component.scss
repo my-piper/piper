@@ -20,8 +20,15 @@
     min-width: 250px;
   }
 
-  &:not(.multiline):not(.choices)[data-type="string"] {
-    max-width: 150px;
+  // Single-line fields: wide enough to read a value next to the clear button
+  // or chevron; a field with options grows to its longest one up to the max.
+  &:not(.multiline)[data-type="string"],
+  &[data-type="integer"],
+  &[data-type="float"] {
+    app-edit-pipeline-input {
+      min-width: 200px;
+      max-width: 300px;
+    }
   }
 
   &[data-type="image"],

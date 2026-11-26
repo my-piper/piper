@@ -13,7 +13,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { TuiDialogService } from "@taiga-ui/core";
-import { assign, isEmpty, mapValues, random } from "lodash";
+import { TUI_CONFIRM, type TuiConfirmData } from "@taiga-ui/kit";
+import { assign, escape, isEmpty, mapValues, random } from "lodash";
 import { customAlphabet } from "nanoid";
 import { Socket } from "ngx-socket-io";
 import { stringify } from "qs";
@@ -27,7 +28,6 @@ import {
   take,
 } from "rxjs";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
-import { EditPipelineInputComponent } from "src/app/edit-pipeline-input/edit-pipeline-input.component";
 import { UI, UI_DELAY } from "src/consts/ui";
 import { SelectArea } from "src/directives/canvas-select.directive";
 import {
@@ -41,7 +41,12 @@ import { PipelineEvent } from "src/models/events";
 import { InputFlow } from "src/models/input-flow";
 import { Launch } from "src/models/launch";
 import { LaunchRequest, NodeToLaunch } from "src/models/launch-request";
-import { Node, NodeInput, NodeOutput } from "src/models/node";
+import {
+  Node,
+  NodeInput,
+  NodeOutput,
+  SCRIPT_NODE_SOURCE,
+} from "src/models/node";
 import { FlowTransformer, NodeFlow } from "src/models/node-flow";
 import { OutputFlow } from "src/models/output-flow";
 import {
@@ -61,6 +66,8 @@ import { ProjectManager } from "src/services/project.manager";
 import { NodeOutputs } from "src/types/node";
 import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { getLabel } from "src/utils/i18n";
 import { sid } from "src/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
@@ -82,15 +89,16 @@ function salt() {
 })
 export class EditPipelineVisualComponent implements OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly language = inject(CURRENT_LANGUAGE);
 
   private readonly dialogs = inject(TuiDialogService);
 
   userRole = UserRole;
+  scriptNodeSource = SCRIPT_NODE_SOURCE;
   ui = UI;
   zoom = { min: MIN_SCALE, max: MAX_SCALE, step: ZOOM_STEP };
   selectNodeComponent = SelectNodeComponent;
   editNodeComponent = EditNodeComponent;
-  editPipelineInputComponent = EditPipelineInputComponent;
   editNodeInputsComponent = EditNodeInputsComponent;
   launchLogsComponent = LaunchLogsComponent;
 
@@ -112,11 +120,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
     [key: string]: Launch;
   } = {};
 
-  modal!:
-    | EditNodeComponent
-    | EditPipelineInputComponent
-    | SelectNodeComponent
-    | null;
+  modal!: EditNodeComponent | SelectNodeComponent | null;
 
   drawlers: {
     left: SelectNodeComponent | null;
@@ -525,10 +529,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.saveUrlState();
   }
 
-  editPipelineInput(input: string) {
-    this.router.navigate(["inputs", input], { relativeTo: this.route });
-  }
-
   addNode(left: number, top: number, payload: { node: string }) {
     if ("node" in payload) {
       this.closeDrawler();
@@ -723,6 +723,47 @@ export class EditPipelineVisualComponent implements OnDestroy {
     }
 
     [this.state, this.mouse] = ["default", null];
+  }
+
+  editNode(node: string) {
+    this.router.navigate(
+      [{ outlets: { primary: ["nodes", node, "edit", "script"] } }],
+      { relativeTo: this.route },
+    );
+  }
+
+  confirmRemoveNode(id: string, node: Node) {
+    this.confirmRemove(
+      $localize`:@@message.confirm_delete_node:Delete node «${escape(getLabel(node.title, this.language))}:title:»? Its connections are deleted too.`,
+    ).subscribe(() => this.removeNode(id));
+  }
+
+  confirmRemoveInput(input: string) {
+    this.confirmRemove(
+      $localize`:@@message.confirm_delete_pipeline_input:Delete pipeline input «${escape(input)}:input:»? Its connections are deleted too.`,
+    ).subscribe(() => this.removeInput(input));
+  }
+
+  confirmRemoveOutput(output: string) {
+    this.confirmRemove(
+      $localize`:@@message.confirm_delete_pipeline_output:Delete pipeline output «${escape(output)}:output:»? Its connections are deleted too.`,
+    ).subscribe(() => this.removeOutput(output));
+  }
+
+  /** `content` is HTML (TUI_CONFIRM binds it to innerHTML): escape values. */
+  private confirmRemove(content: string) {
+    return this.dialogs
+      .open<boolean>(TUI_CONFIRM, {
+        label: $localize`:@@message.confirm_delete:Delete?`,
+        size: "s",
+        data: {
+          content,
+          yes: $localize`:@@action.delete:Delete`,
+          no: $localize`:@@action.cancel:Cancel`,
+          appearance: ["primary-destructive", "secondary"],
+        } satisfies TuiConfirmData,
+      })
+      .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef));
   }
 
   removeFlow(id: string) {

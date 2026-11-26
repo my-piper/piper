@@ -45,6 +45,7 @@ const httpDoubles = vi.hoisted(() => ({
   notify: vi.fn(),
   redis: {
     get: vi.fn(),
+    getDel: vi.fn(),
     GET: vi.fn(),
     setEx: vi.fn(),
     set: vi.fn(),

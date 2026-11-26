@@ -115,3 +115,14 @@ export async function expectSaved(page: Page) {
     "saved",
   );
 }
+
+/**
+ * Closes the open Taiga dialog with OK and waits until it has left the DOM.
+ * The dialog stays during its leave animation and covers the page, so a
+ * click right after OK can land on it instead of the page.
+ */
+export async function dismissDialog(page: Page) {
+  const dialog = page.locator("tui-dialog");
+  await dialog.getByRole("button", { name: "OK" }).click();
+  await expect(dialog).toHaveCount(0);
+}

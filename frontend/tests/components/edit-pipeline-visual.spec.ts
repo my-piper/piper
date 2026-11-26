@@ -1,3 +1,4 @@
+import { openDialog } from "../helpers/taiga";
 import { fakeAsync, tick } from "@angular/core/testing";
 import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
@@ -103,10 +104,10 @@ describe("EditPipelineVisualComponent", () => {
       const { element } = setupEditor({ user: "stranger" });
 
       const add = element.querySelector(".actions a[tuiIconButton]");
-      const menus = element.querySelectorAll(".node button.more");
+      const buttons = element.querySelectorAll("button.edit, button.delete");
 
       expect(add).toBeNull();
-      expect(menus.length).toBe(0);
+      expect(buttons.length).toBe(0);
       expect(element.querySelectorAll(".node.disabled").length).toBe(2);
       finish();
     }));
@@ -306,7 +307,7 @@ describe("EditPipelineVisualComponent", () => {
     it("shows a visible error when the node cannot be loaded", fakeAsync(() => {
       expectConsoleError("Process HTTP error 404");
       const project = projectA();
-      const { editor, controller, detectChanges, element } = setupEditor({
+      const { editor, controller, detectChanges } = setupEditor({
         project,
       });
 
@@ -317,7 +318,7 @@ describe("EditPipelineVisualComponent", () => {
       detectChanges();
 
       expect(project.pipeline.nodes.size).toBe(2);
-      expect(element.querySelector("app-informer")).not.toBeNull();
+      expect(openDialog()).not.toBeNull();
       finish();
     }));
 
@@ -481,6 +482,176 @@ describe("EditPipelineVisualComponent", () => {
       expect(toPlain(project.launchRequest.nodes.get("node_two"))).toEqual(
         twoBefore,
       );
+      finish();
+    }));
+  });
+
+  describe("inline edit and delete buttons", () => {
+    function nodeBox(element: HTMLElement, id: string) {
+      return element.querySelector(`.node[data-node="${id}"]`) as HTMLElement;
+    }
+
+    function inputBox(element: HTMLElement, id: string) {
+      return element.querySelector(
+        `.input[data-pick="input:${id}"]`,
+      ) as HTMLElement;
+    }
+
+    function outputBox(element: HTMLElement, id: string) {
+      return element.querySelector(
+        `.output[data-pick="output:${id}"]`,
+      ) as HTMLElement;
+    }
+
+    function click(target: Element, detectChanges: () => void) {
+      (target as HTMLElement).click();
+      detectChanges();
+      tick(UI_DELAY);
+      detectChanges();
+    }
+
+    function dialogButton(label: string) {
+      return Array.from(openDialog().querySelectorAll("button")).find(
+        (b) => b.textContent.trim() === label,
+      );
+    }
+
+    function scriptNodeProject() {
+      const pipeline = smallGraphPipeline() as {
+        nodes: Record<string, Record<string, unknown>>;
+      };
+      pipeline.nodes["node_one"]["source"] = "script";
+      return projectWith(pipeline);
+    }
+
+    it("offers Edit on script nodes only to a non-engineer owner", fakeAsync(() => {
+      const { element } = setupEditor({ project: scriptNodeProject() });
+
+      const one = nodeBox(element, "node_one");
+      const two = nodeBox(element, "node_two");
+
+      expect(one.querySelector("button.edit")).not.toBeNull();
+      expect(two.querySelector("button.edit")).toBeNull();
+      expect(one.querySelector("button.delete")).not.toBeNull();
+      expect(two.querySelector("button.delete")).not.toBeNull();
+      finish();
+    }));
+
+    it("opens the node's script editor from Edit", fakeAsync(() => {
+      const { element, router, detectChanges } = setupEditor({
+        project: scriptNodeProject(),
+      });
+
+      click(
+        nodeBox(element, "node_one").querySelector("button.edit"),
+        detectChanges,
+      );
+
+      expect(router.url).toBe(`${EDITOR_URL}/nodes/node_one/edit/script`);
+      finish();
+    }));
+
+    it("deletes a node only after the confirmation", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges } = setupEditor({ project });
+
+      click(
+        nodeBox(element, "node_one").querySelector("button.delete"),
+        detectChanges,
+      );
+      const asked = project.pipeline.nodes.has("node_one");
+      click(dialogButton("Delete"), detectChanges);
+
+      expect(asked).toBe(true);
+      expect(project.pipeline.nodes.has("node_one")).toBe(false);
+      finish();
+    }));
+
+    it("shows a node title with markup as text in the confirmation", fakeAsync(() => {
+      const pipeline = smallGraphPipeline() as {
+        nodes: Record<string, Record<string, unknown>>;
+      };
+      pipeline.nodes["node_one"]["title"] = "<b>bold</b> & co";
+      const { element, detectChanges } = setupEditor({
+        project: projectWith(pipeline),
+      });
+
+      click(
+        nodeBox(element, "node_one").querySelector("button.delete"),
+        detectChanges,
+      );
+
+      expect(openDialog().querySelector("b")).toBeNull();
+      expect(openDialog().textContent).toContain("«<b>bold</b> & co»");
+      finish();
+    }));
+
+    it("keeps the node when the confirmation is cancelled", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges, manager } = setupEditor({ project });
+
+      click(
+        nodeBox(element, "node_one").querySelector("button.delete"),
+        detectChanges,
+      );
+      click(dialogButton("Cancel"), detectChanges);
+
+      expect(project.pipeline.nodes.has("node_one")).toBe(true);
+      expect(manager.status.value).not.toBe("dirty");
+      finish();
+    }));
+
+    it("gives a pipeline input Delete but no Edit", fakeAsync(() => {
+      const { element } = setupEditor();
+
+      const input = inputBox(element, "topic");
+
+      expect(input.querySelector("button.delete")).not.toBeNull();
+      expect(input.querySelector("button.edit")).toBeNull();
+      finish();
+    }));
+
+    it("deletes a pipeline input after the confirmation", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges } = setupEditor({ project });
+
+      click(
+        inputBox(element, "topic").querySelector("button.delete"),
+        detectChanges,
+      );
+      click(dialogButton("Delete"), detectChanges);
+
+      expect(project.pipeline.inputs.has("topic")).toBe(false);
+      finish();
+    }));
+
+    it("deletes a pipeline output after the confirmation", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges } = setupEditor({ project });
+
+      click(
+        outputBox(element, "result").querySelector("button.delete"),
+        detectChanges,
+      );
+      click(dialogButton("Delete"), detectChanges);
+
+      expect(project.pipeline.outputs.has("result")).toBe(false);
+      finish();
+    }));
+
+    it("deletes flows on one click, without a confirmation", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges } = setupEditor({ project });
+
+      for (const button of Array.from(
+        element.querySelectorAll(".flow > button.delete"),
+      )) {
+        click(button, detectChanges);
+      }
+
+      expect(openDialog()).toBeNull();
+      expect(project.pipeline.flows.size).toBe(0);
+      expect(project.pipeline.inputs.get("topic").flows.size).toBe(0);
       finish();
     }));
   });
