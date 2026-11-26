@@ -180,7 +180,7 @@ describe("DeployPipelineComponent", () => {
     editJson(element, { prefix: USER_IDS.owner, slug: "fresh" });
     tick(1000);
 
-    (element.querySelector("footer button.primary") as HTMLElement).click();
+    (element.querySelector("footer button[tuiButton]") as HTMLElement).click();
     fixture.detectChanges();
     const request = controller.expectOne(
       `/api/projects/${PROJECT_A_ID}/deploy`,
@@ -206,7 +206,7 @@ describe("DeployPipelineComponent", () => {
     setup();
     list([]);
 
-    (element.querySelector("footer button.primary") as HTMLElement).click();
+    (element.querySelector("footer button[tuiButton]") as HTMLElement).click();
     controller
       .expectOne(`/api/projects/${PROJECT_A_ID}/deploy`)
       .flush("You can't deploy this project in this prefix", {

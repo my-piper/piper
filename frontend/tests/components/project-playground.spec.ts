@@ -34,6 +34,7 @@ import {
 import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
+import { isLoading } from "../helpers/taiga";
 
 /**
  * POST /api/projects/:_id/launch merges this body into the stored launch
@@ -116,7 +117,7 @@ describe("ProjectPlaygroundComponent", () => {
   }
 
   function runButton(): HTMLButtonElement {
-    return element.querySelector("footer button.primary.fluid");
+    return element.querySelector("footer button[tuiButton].fluid");
   }
 
   afterEach(() => controller.verify());
@@ -178,7 +179,7 @@ describe("ProjectPlaygroundComponent", () => {
     const request = controller.expectOne(
       `/api/projects/${PROJECT_A_ID}/launch`,
     );
-    const busy = runButton().classList.contains("busy");
+    const busy = isLoading(runButton());
     request.flush(launchResponsePlain());
     tick(UI_DELAY);
     fixture.detectChanges();
@@ -192,7 +193,7 @@ describe("ProjectPlaygroundComponent", () => {
       note: null,
     });
     expect(busy).toBe(true);
-    expect(runButton().classList.contains("busy")).toBe(false);
+    expect(isLoading(runButton())).toBe(false);
     const launched = signals.find(
       (s) => s instanceof PipelineLaunchedSignal,
     ) as PipelineLaunchedSignal;

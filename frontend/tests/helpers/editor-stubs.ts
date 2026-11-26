@@ -8,7 +8,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 /**
  * Stand-in for ngx-monaco-editor's `<ngx-monaco-editor>`: the same selector,
- * `options` input and ControlValueAccessor contract, rendered as a textarea so
+ * `options` and `model` inputs and ControlValueAccessor contract, rendered as a textarea so
  * specs can read and type text. Real Monaco is exercised by the browser suite.
  */
 @Component({
@@ -34,6 +34,12 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 export class MonacoEditorStubComponent implements ControlValueAccessor {
   @Input()
   options: { language?: string; [key: string]: unknown } = {};
+
+  /** Read-only content (`{ language, value }`), as io-value binds it. */
+  @Input()
+  set model(model: { value?: string } | null) {
+    this.value = model?.value ?? "";
+  }
 
   value = "";
   disabled = false;

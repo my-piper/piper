@@ -30,8 +30,11 @@
     </fieldset>
     <footer>
       <button
-        class="primary fluid"
-        [class.busy]="progress.signup"
+        tuiButton
+        appearance="outline-grayscale"
+        size="s"
+        class="fluid"
+        [loading]="progress.signup"
         [disabled]="progress.signup"
         data-cy="login-button"
         i18n="@@action.register"
@@ -130,8 +133,11 @@
       </fieldset>
       <footer>
         <button
-          class="primary fluid"
-          [class.busy]="progress.confirmation"
+          tuiButton
+          appearance="outline-grayscale"
+          size="s"
+          class="fluid"
+          [loading]="progress.confirmation"
           [disabled]="progress.confirmation"
           data-cy="login-button"
           i18n="@@action.continue"

@@ -67,9 +67,11 @@
       </fieldset>
       <footer>
         <button
-          class="primary"
+          tuiButton
+          appearance="outline-grayscale"
+          size="s"
           type="button"
-          [class.busy]="progress.publishing"
+          [loading]="progress.publishing"
           [disabled]="form.invalid || progress.publishing"
           (click)="publish()"
         >

@@ -105,7 +105,7 @@ describe("test harness", () => {
       fixture.componentInstance.ok.subscribe(ok);
 
       fixture.debugElement
-        .query(By.css("button.primary-button"))
+        .query(By.css("button[tuiButton]"))
         .triggerEventHandler("click");
 
       expect(fixture.nativeElement.querySelector("p").textContent).toBe(
