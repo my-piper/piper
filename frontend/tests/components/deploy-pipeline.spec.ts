@@ -10,6 +10,7 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { TuiLoader } from "@taiga-ui/core";
 import { ActivatedRoute, provideRouter, RouterModule } from "@angular/router";
 import { of } from "rxjs";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
@@ -61,6 +62,7 @@ describe("DeployPipelineComponent", () => {
         RouterModule,
         UiKitModule,
         TaigaFormsModule,
+        TuiLoader,
         JsonEditorStubComponent,
       ],
       providers: [
