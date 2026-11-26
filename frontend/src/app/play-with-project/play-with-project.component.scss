@@ -60,7 +60,7 @@ header {
   display: flex;
   flex-direction: column;
 
-  .menu {
+  tui-tabs {
     margin-bottom: variables.$gutter-big;
   }
 

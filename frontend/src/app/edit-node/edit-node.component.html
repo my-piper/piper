@@ -4,46 +4,29 @@
 }
 
 <header>
-  <ul class="menu">
-    <li>
-      <a
-        [routerLink]="['./']"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLinkActive="active"
-        i18n="@@link.design"
-        >Design</a
-      >
-    </li>
-    <li>
-      <a
-        [routerLink]="['script']"
-        routerLinkActive="active"
-        i18n="@@link.script"
-        >Script</a
-      >
-    </li>
-    <li>
-      <a [routerLink]="['app']" routerLinkActive="app" i18n="@@link.app">App</a>
-    </li>
-    <li>
-      <a [routerLink]="['environment']" routerLinkActive="active"
-        ><ng-container i18n="@@link.environment">Environment</ng-container></a
-      >
-    </li>
-    <li>
-      <a
-        [routerLink]="['catalog']"
-        routerLinkActive="active"
-        i18n="@@link.catalog"
-        >Catalog</a
-      >
-    </li>
-    <li>
-      <a [routerLink]="['yaml']" routerLinkActive="active" i18n="@@link.yaml"
-        >YAML</a
-      >
-    </li>
-  </ul>
+  <tui-tabs size="m">
+    <a
+      tuiTab
+      [routerLink]="['./']"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLinkActive
+      i18n="@@link.design"
+      >Design</a
+    >
+    <a tuiTab [routerLink]="['script']" routerLinkActive i18n="@@link.script"
+      >Script</a
+    >
+    <a tuiTab [routerLink]="['app']" routerLinkActive i18n="@@link.app">App</a>
+    <a tuiTab [routerLink]="['environment']" routerLinkActive
+      ><ng-container i18n="@@link.environment">Environment</ng-container></a
+    >
+    <a tuiTab [routerLink]="['catalog']" routerLinkActive i18n="@@link.catalog"
+      >Catalog</a
+    >
+    <a tuiTab [routerLink]="['yaml']" routerLinkActive i18n="@@link.yaml"
+      >YAML</a
+    >
+  </tui-tabs>
 </header>
 
 <div class="child">

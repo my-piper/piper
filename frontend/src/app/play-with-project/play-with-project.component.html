@@ -19,71 +19,46 @@
 </div>
 
 <div class="project-playground launches">
-  <ul class="menu">
-    <li>
-      <a
-        [routerLink]="['readme']"
-        routerLinkActive="active"
-        i18n="@@link.readme"
-        >README</a
-      >
-    </li>
-    <li>|</li>
-    <li>
-      <a
-        [routerLink]="['scheme']"
-        routerLinkActive="active"
-        i18n="@@link.scheme"
-      >
-        Scheme
-      </a>
-    </li>
-    <li>|</li>
-    <li>
-      <a
-        [routerLink]="['./']"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLinkActive="active"
-        i18n="@@link.launches"
-        >Launches</a
-      >
-    </li>
-    <li>|</li>
-    <li>
-      <a [routerLink]="['comments']" routerLinkActive="active">
-        <ng-container i18n="@@link.comments">Comments</ng-container>
-        @if (summary?.comments; as comments) {
-          <div class="badge">
-            {{ comments }}
-          </div>
-        }
-      </a>
-    </li>
-    <li>|</li>
+  <tui-tabs size="m">
+    <a tuiTab [routerLink]="['readme']" routerLinkActive i18n="@@link.readme"
+      >README</a
+    >
+    <a tuiTab [routerLink]="['scheme']" routerLinkActive i18n="@@link.scheme">
+      Scheme
+    </a>
+    <a
+      tuiTab
+      [routerLink]="['./']"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLinkActive
+      i18n="@@link.launches"
+      >Launches</a
+    >
+    <a tuiTab [routerLink]="['comments']" routerLinkActive>
+      <ng-container i18n="@@link.comments">Comments</ng-container>
+      @if (summary?.comments; as comments) {
+        <div class="badge">
+          {{ comments }}
+        </div>
+      }
+    </a>
     @if (project.deploy; as deploy) {
-      <li>
-        <a
-          [routerLink]="
-            deploy.prefix
-              ? ['api', deploy.prefix, deploy.slug]
-              : ['api', deploy.slug]
-          "
-          routerLinkActive="active"
-          i18n="@@link.api"
-          >API</a
-        >
-      </li>
-      <li>|</li>
-    }
-    <li>
       <a
-        [routerLink]="['batches']"
-        routerLinkActive="active"
-        i18n="@@link.batches"
-        >Batches</a
+        tuiTab
+        [routerLink]="
+          deploy.prefix
+            ? ['api', deploy.prefix, deploy.slug]
+            : ['api', deploy.slug]
+        "
+        routerLinkActive
+        i18n="@@link.api"
+        >API</a
       >
-    </li>
-  </ul>
+    }
+    <a tuiTab [routerLink]="['batches']" routerLinkActive i18n="@@link.batches"
+      >Batches</a
+    >
+  </tui-tabs>
   <div class="child">
     <router-outlet></router-outlet>
   </div>

@@ -141,6 +141,8 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
   marks the active item only after its ResizeObserver fires: await two
   animation frames before reading `activeSegment` (see
   `select-theme.spec.ts`). Radios bound to a form control are marked at once.
+- Read a `<tui-tabs>` with `tabLabels` and `activeTab`; with `routerLink` +
+  `routerLinkActive` tabs, the active one follows the route after navigation.
 - `tests/components/taiga-forms.spec.ts` shows these on a test-only form.
 
 ## Wire contracts
