@@ -21,7 +21,7 @@ Setup and environment:
 - npm 11 runs dependency install scripts only when listed in `allowScripts` in that package's `package.json`, pinned to the locked version. After adding or upgrading a package with install scripts (native modules, esbuild), run `npm install-scripts ls` and `npm install-scripts approve <pkg>`. Pins are exact on purpose (supply-chain review on every bump); `make check-install-scripts` and CI fail while any pin is stale, because npm itself only warns and skips the script.
 - Backend runs TypeScript directly via `tsx` (no build step), configured by `backend/.env` (template `.env.template`). Local infra (mongo, redis, kafka, clickhouse, deno, nginx, imgproxy) comes from `make up` (`tools/compose/compose.yaml`); the frontend dev server is reached through nginx at `http://localhost/`.
 - After editing any `backend/schemas/*.json`, run `make schemas`.
-- Lint covers backend and frontend application and test code; generated output, submodules and the legacy `frontend/src/ui-kit` are excluded.
+- Lint covers backend and frontend application and test code; generated output and submodules are excluded.
 
 Tests:
 
@@ -65,7 +65,7 @@ JSON Schemas in `backend/schemas/` (pipeline, node, node-package, project, flow,
 
 Angular 22 app in `frontend/src`: feature components in `app/`, HTTP layer in `services/`, route data via `resolvers/`, models mirroring backend classes in `models/` (also `class-transformer`). Runtime config (captcha, auth features, URLs) is injected by the backend into `window.PRERENDER`. The app is built in English only, under `/en/`. Templates keep their `i18n` markers, but nothing is extracted or translated, and Localized Texts in data (`en=…;de=…`) always resolve to English.
 
-`src/ui-kit` holds the legacy UI components and styles that Taiga UI is replacing (#92). Don't add new components there; shared pipes, directives and providers live in the app's own `pipes/`, `directives/` and `providers/`. Before building Taiga UI screens, read `docs/taiga-ui-notes.md`.
+The UI is Taiga UI (#92). Shared pipes and directives live in `pipes/` and `directives/` and are declared in `app/shared.module.ts` for non-standalone components; providers live in `providers/`. Global styles are in `src/styles/` (tokens in `variables.scss` and `themes.scss`, breakpoints in `mixins.scss`, Piper-owned layout helpers in `layout.scss`). Before building UI, read `docs/taiga-ui-notes.md`.
 
 To look at a page in a browser without the backend or an account, run `npm run browser:serve` in `frontend/`: it serves the app with the browser workflows' fixture API on `http://127.0.0.1:4300` and prints the sign-in.
 

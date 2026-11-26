@@ -15,7 +15,7 @@ export default tseslint.config(
       "tmp/**",
       "test-results/**",
       "playwright-report/**",
-      "src/ui-kit/**",
+      "tests/browser/support/serve.bundle.mjs",
       "*.config.mjs",
       ".vitest/**",
     ],

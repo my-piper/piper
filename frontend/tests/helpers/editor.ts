@@ -40,7 +40,7 @@ export class OutletStubComponent {}
 export const EDITOR_URL = "/project";
 
 /**
- * TestBed with the real AppModule declarations (all app/ui-kit components,
+ * TestBed with the real AppModule declarations (all app components,
  * pipes and directives) and test boundaries: HttpTestingController,
  * SocketDouble, test runtime config and the given routes. `<ngx-monaco-editor>`
  * renders MonacoEditorStubComponent: real Monaco starts web workers that fail

@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 # Strict template type check (unknown elements and properties, binding and pipe
 # argument types) that `ng build` skips because tsconfig.json sets
-# fullTemplateTypeCheck: false. src/ui-kit holds the legacy UI components that
-# Taiga UI replaces (issue 92), so its errors are skipped, as with lint.
+# fullTemplateTypeCheck: false.
 set -uo pipefail
 
 raw=$(npx --no-install ngc -p tsconfig.templates.json --noEmit 2>&1)
 status=$?
 errors=$(printf '%s\n' "$raw" | sed $'s/\x1b\\[[0-9;]*m//g' | grep -E '^src/.+ - error ' || true)
-out=$(printf '%s\n' "$errors" | grep -v '^src/ui-kit/' || true)
 
 # ngc failed without any template error to show: it crashed or is misconfigured
 if [ "$status" -ne 0 ] && [ -z "$errors" ]; then
@@ -16,8 +14,8 @@ if [ "$status" -ne 0 ] && [ -z "$errors" ]; then
   exit "$status"
 fi
 
-if [ -n "$out" ]; then
-  printf '%s\n' "$out"
+if [ -n "$errors" ]; then
+  printf '%s\n' "$errors"
   exit 1
 fi
 echo "Templates OK"
