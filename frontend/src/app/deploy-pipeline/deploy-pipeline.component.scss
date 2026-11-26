@@ -10,3 +10,7 @@
 form {
   @include mixins.vertical-stack();
 }
+// The loading row centers its tui-loader.
+.loading td {
+  text-align: center;
+}

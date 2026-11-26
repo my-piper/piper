@@ -10,6 +10,7 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { TuiLoader } from "@taiga-ui/core";
 import { ActivatedRoute, provideRouter, RouterModule } from "@angular/router";
 import { of } from "rxjs";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
@@ -18,6 +19,7 @@ import { CanPipe } from "src/pipes/can";
 import { ProjectManager } from "src/services/project.manager";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { deploysPlain } from "../fixtures/launch-results";
 import { projectA } from "../fixtures/models";
@@ -58,6 +60,8 @@ describe("DeployPipelineComponent", () => {
         ReactiveFormsModule,
         RouterModule,
         UiKitModule,
+        TaigaFormsModule,
+        TuiLoader,
         JsonEditorStubComponent,
       ],
       providers: [

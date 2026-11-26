@@ -47,18 +47,20 @@
     </a>
   </header>
 
-  <table class="default">
+  <table tuiTable size="m">
     <thead>
-      <th width="24px"></th>
-      <th i18n="@@label.login">Login</th>
-      <th i18n="@@label.email">Email</th>
-      <th i18n="@@label.created_at" width="180px">Created at</th>
-      <th width="48px"></th>
+      <tr>
+        <th tuiTh width="24px"></th>
+        <th tuiTh i18n="@@label.login">Login</th>
+        <th tuiTh i18n="@@label.email">Email</th>
+        <th tuiTh i18n="@@label.created_at" width="180px">Created at</th>
+        <th tuiTh width="48px"></th>
+      </tr>
     </thead>
     <tbody>
       @for (u of users; track u._id; let i = $index) {
         <tr>
-          <td>
+          <td tuiTd>
             <ng-template #actionsTemplate>
               <tui-data-list>
                 <button
@@ -85,18 +87,18 @@
               (tuiDropdownOpenChange)="actionsOpen = $event ? u._id : null"
             ></button>
           </td>
-          <td title="Login" i18n-title="@@label.login">
+          <td tuiTd title="Login" i18n-title="@@label.login">
             <a class="default" [routerLink]="[u._id]">
               {{ u._id }}
             </a>
           </td>
-          <td title="Email" i18n-title="@@label.email">
+          <td tuiTd title="Email" i18n-title="@@label.email">
             {{ u.email }}
           </td>
-          <td title="Created at" i18n-title="@@label.created_at">
+          <td tuiTd title="Created at" i18n-title="@@label.created_at">
             {{ u.createdAt | date }}
           </td>
-          <td>
+          <td tuiTd>
             <div class="stack tiny align-center">
               @if (u.roles | includes: userRole.admin) {
                 <app-icon [icon]="'admin'" [size]="20"></app-icon>
@@ -113,7 +115,7 @@
       }
       @if (progress.loading) {
         <tr class="loading">
-          <td colspan="6"></td>
+          <td tuiTd colspan="6"><tui-loader [loading]="true" /></td>
         </tr>
       }
     </tbody>
