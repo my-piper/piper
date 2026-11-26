@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Blocks commits whose package.json / package-lock.json `npm ci` would reject,
-# that leave install scripts unapproved, or whose templates drop a data-testid
-# the Playwright workflows select. Enabled by `make install`
+# that leave install scripts unapproved, whose templates drop a data-testid
+# the Playwright workflows select, or whose TypeScript fails lint or the
+# test type check (what CI's backend-tests / frontend-tests run first). Enabled by `make install`
 # (git config core.hooksPath .githooks). Checks the working tree of each
 # package whose manifests are staged; skip once with `git commit --no-verify`.
 set -uo pipefail
@@ -22,5 +23,25 @@ done
 if ! git diff --cached --quiet -- 'frontend/src/*.html'; then
   "$root/frontend/scripts/check-browser-selectors.mjs" || status=1
 fi
+
+# Staged TypeScript: lint those files, then type-check the package's tests,
+# which import the application code (a few seconds each).
+for pkg in backend frontend; do
+  files=()
+  while IFS= read -r f; do
+    files+=("${f#"$pkg"/}")
+  done < <(git diff --cached --name-only --diff-filter=ACMR -- "$pkg/*.ts" "$pkg/*.mjs")
+  [ "${#files[@]}" -eq 0 ] && continue
+  if [ ! -d "$root/$pkg/node_modules" ]; then
+    echo "pre-commit: $pkg/node_modules is missing; run npm ci in $pkg" >&2
+    status=1
+    continue
+  fi
+  (cd "$root/$pkg" && npx --no-install eslint --no-warn-ignored --quiet "${files[@]}") || status=1
+  (cd "$root/$pkg" && npm run -s test:typecheck) || {
+    echo "pre-commit: $pkg test:typecheck failed; a stale node_modules also fails it (npm ci in $pkg)" >&2
+    status=1
+  }
+done
 
 exit $status
