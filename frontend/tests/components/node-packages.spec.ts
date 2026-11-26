@@ -16,6 +16,7 @@ import {
   OutletStubComponent,
 } from "../helpers/editor";
 import { SocketDouble } from "../helpers/socket";
+import { PACKAGES_ROOM } from "src/consts/rooms";
 
 /**
  * Wire contracts (backend/api/node-packages, admin only):
@@ -25,7 +26,7 @@ import { SocketDouble } from "../helpers/socket";
  *   updates: [{ current, updated?, errors? }] }`
  *   (packages/node-packages/packages-update-state.ts);
  * - DELETE /api/node-packages/:_id → null.
- * Package updates are announced in the `updating_packages` room as
+ * Package updates are announced in the `packages` room as
  * `package_updated` (packages/node-packages/update-package.ts).
  */
 const PACKAGES_URL = "/api/node-packages";
@@ -170,9 +171,7 @@ describe("NodePackagesComponent", () => {
           "a[href='/api/node-packages/text_tools/export']",
         ).length,
       ).toBe(1);
-      expect(page.socket.emittedEvents("join_room")).toEqual([
-        "updating_packages",
-      ]);
+      expect(page.socket.emittedEvents("join_room")).toEqual([PACKAGES_ROOM]);
       page.controller.verify();
       finish();
     }));
@@ -217,9 +216,7 @@ describe("NodePackagesComponent", () => {
       tick();
       page.fixture.detectChanges();
 
-      expect(page.socket.emittedEvents("leave_room")).toEqual([
-        "updating_packages",
-      ]);
+      expect(page.socket.emittedEvents("leave_room")).toEqual([PACKAGES_ROOM]);
       expect(page.socket.listenerCount("package_updated")).toBe(0);
       finish();
     }));

@@ -27,6 +27,7 @@ import { Launch } from "models/launch";
 import { NodeStatus } from "models/node";
 import { PipelineEventType } from "types/pipeline";
 import { recordLaunchRun } from "./run-metrics";
+import { LAUNCH_ROOM } from "consts/rooms";
 
 export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
   const logger = createLogger("process-node", {
@@ -42,7 +43,7 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
 
   const notifyNode = (node: string, event: PipelineEventType) => {
     notify(
-      launch._id,
+      LAUNCH_ROOM(launch._id),
       event,
       mapTo({ launch: launch._id, node }, PipelineEvent)
     );

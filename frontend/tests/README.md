@@ -165,7 +165,10 @@ and response, DataError bodies, node/launch events, rooms). Notable facts:
 - Revision conflicts are HTTP **400** with a text body (backend `DataError`),
   not 409. Errors with details are `{ message, details }`.
 - Node events are `{ launch, node }`; there is no `event` field on the wire.
-- Socket rooms are joined/left with the room **name** (`backend/sockets.ts`).
+- Socket rooms are joined/left with the room **name** (`backend/sockets.ts`),
+  built with `src/consts/rooms.ts` (`user:<id>`, `launch:<id>`, `packages`). The
+  socket connects only while signed in, with `auth: { token }`; the browser
+  fixture server refuses a handshake without a known token.
 - Artefact `data.type` is the class-transformer discriminator.
 
 ## Browser workflows (`tests/browser/`)

@@ -13,6 +13,7 @@ import {
 import { finish, setupEditor } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
 import { isLoading, iconName, openDialog } from "../helpers/taiga";
+import { LAUNCH_ROOM, USER_ROOM } from "src/consts/rooms";
 
 /**
  * Wire contracts: POST /api/projects/:_id/launch merges the body into the
@@ -209,7 +210,7 @@ describe("EditPipelineVisualComponent runs", () => {
     );
     expect(reads.every((url) => url.includes("launch_node_two"))).toBe(true);
     expect(editor.socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toContain(
-      "launch_node_two",
+      LAUNCH_ROOM("launch_node_two"),
     );
     controller.verify();
     finish();
@@ -235,7 +236,7 @@ describe("EditPipelineVisualComponent runs", () => {
     expect(editor.editor.launches["node_two"]).toBeUndefined();
     expect(editor.router.url).not.toContain("launches=");
     expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toContain(
-      "launch_node_two",
+      LAUNCH_ROOM("launch_node_two"),
     );
     controller.verify();
     finish();
@@ -252,7 +253,7 @@ describe("EditPipelineVisualComponent runs", () => {
     tick(UI_DELAY);
     detectChanges();
     answerNodeReads(editor);
-    const userRefs = live.rooms.get(USER_IDS.owner).size;
+    const userRefs = live.rooms.get(USER_ROOM(USER_IDS.owner)).size;
 
     fixture.destroy();
     socket.receive("node_done", { launch: LAUNCH_ID, node: "node_one" });
@@ -260,9 +261,11 @@ describe("EditPipelineVisualComponent runs", () => {
     // Only MeManager's user room remains.
     expect(userRefs).toBe(2);
     expect(socket.listenerCount()).toBe(0);
-    expect(live.rooms.get(USER_IDS.owner).size).toBe(1);
-    expect(live.rooms.has(LAUNCH_ID)).toBe(false);
-    expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([LAUNCH_ID]);
+    expect(live.rooms.get(USER_ROOM(USER_IDS.owner)).size).toBe(1);
+    expect(live.rooms.has(LAUNCH_ROOM(LAUNCH_ID))).toBe(false);
+    expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
+      LAUNCH_ROOM(LAUNCH_ID),
+    ]);
     controller.verify();
     finish();
   }));

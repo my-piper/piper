@@ -12,7 +12,8 @@
  * - artefact data: backend/models/launch.ts (`data.type` is the class-transformer discriminator)
  * - node events: backend/jobs/process-node/process-node-handler.ts `notifyNode`
  * - launch events: backend/jobs/set-launch-output.ts, set-launch-inputs.ts, set-launch-errors.ts
- * - rooms: backend/sockets.ts (`join_room` / `leave_room` carry the room name)
+ * - rooms: backend/sockets.ts (`join_room` / `leave_room` carry the room name,
+ *   built by src/consts/rooms.ts; the handshake `auth` carries the user token)
  */
 
 export type Plain = Record<string, unknown>;

@@ -44,7 +44,7 @@ describe("worker execution error reporting", () => {
       })
     );
     expect(doubles.notify).toHaveBeenCalledWith(
-      context.launch._id,
+      `launch:${context.launch._id}`,
       "node_error",
       expect.objectContaining({ node: "echo_node" })
     );

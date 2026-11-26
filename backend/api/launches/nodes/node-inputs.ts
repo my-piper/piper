@@ -5,11 +5,14 @@ import { toInstance } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import { Launch } from "models/launch";
 import { handle } from "utils/http";
+import { checkLaunchVisible } from "packages/launches/access";
 import { getNodeInputs } from "utils/node";
 
 api.get(
   "/api/launches/:launch/:node/inputs",
-  handle(() => async ({ params }) => {
+  handle(({ currentUser }) => async ({ params }) => {
+    await checkLaunchVisible(currentUser, params.launch);
+
     const launch = await (async () => {
       const json = await redis.get(LAUNCH(params.launch));
       if (!json) {

@@ -7,6 +7,7 @@ import { User } from "src/models/user";
 import { toPlain } from "src/utils/models";
 import { HttpService } from "./http.service";
 import { LiveService } from "./live.service";
+import { USER_ROOM } from "src/consts/rooms";
 
 @Injectable({ providedIn: "root" })
 export class MeManager {
@@ -19,7 +20,7 @@ export class MeManager {
     (() => {
       const json = localStorage.getItem(USER_KEY);
       return json ? plainToInstance(User, JSON.parse(json)) : null;
-    })()
+    })(),
   );
 
   private set user(user: User | null) {
@@ -41,7 +42,7 @@ export class MeManager {
   constructor(
     private config: AppConfig,
     private live: LiveService,
-    private http: HttpService
+    private http: HttpService,
   ) {
     this.config.authorization$.subscribe((authorization) => {
       if (authorization) {
@@ -59,7 +60,7 @@ export class MeManager {
       return;
     }
     this.unsubscribe();
-    this.subscriptions.user = this.live.subscribe(_id);
+    this.subscriptions.user = this.live.subscribe(USER_ROOM(_id));
     this.subscriptions.room = _id;
   }
   private unsubscribe() {

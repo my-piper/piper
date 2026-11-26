@@ -8,6 +8,7 @@ import { toPlain } from "core-kit/packages/transform";
 import { SetLaunchInputsEvent } from "models/events";
 import { Launch, LaunchInput } from "models/launch";
 import { getIOData } from "packages/launches";
+import { USER_ROOM } from "consts/rooms";
 
 queues.launches.inputs.set.process(async (job) => {
   const logger = createLogger("set-launch-inputs", {
@@ -63,6 +64,6 @@ queues.launches.inputs.set.process(async (job) => {
       launch: launch._id,
       inputs,
     });
-    notify(launchedBy._id, "set_inputs", event);
+    notify(USER_ROOM(launchedBy._id), "set_inputs", event);
   }
 });

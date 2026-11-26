@@ -73,7 +73,7 @@ describe("set launch output job", () => {
       ]
     );
     expect(jobDoubles.notify).toHaveBeenCalledExactlyOnceWith(
-      "user-test",
+      "user:user-test",
       "set_output",
       expect.objectContaining({ launch: launch._id, id: "result" })
     );

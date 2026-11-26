@@ -25,6 +25,7 @@ import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { getLabel } from "src/utils/i18n";
 import { toInstance } from "src/utils/models";
+import { LAUNCH_ROOM } from "src/consts/rooms";
 
 const LEVELS: LogLevel[] = ["debug", "info", "warn", "error"];
 
@@ -151,7 +152,7 @@ export class LaunchLogsComponent implements OnInit {
 
   private listen(launch: Launch) {
     this.release?.();
-    this.release = this.live.subscribe(launch._id);
+    this.release = this.live.subscribe(LAUNCH_ROOM(launch._id));
     this.events?.unsubscribe();
     this.events = merge(
       this.socket.fromEvent<object>("node_gonna_repeat"),

@@ -8,12 +8,15 @@ import { NodeExecution } from "enums/node-execution";
 import orderBy from "lodash/orderBy";
 import { Launch } from "models/launch";
 import { handle } from "utils/http";
+import { checkLaunchVisible } from "packages/launches/access";
 import { BullJob } from "./models/bull-job";
 import { NodeJob } from "./models/node-job";
 
 api.get(
   "/api/launches/:launch/nodes/:node/jobs",
-  handle(() => async ({ params }) => {
+  handle(({ currentUser }) => async ({ params }) => {
+    await checkLaunchVisible(currentUser, params.launch);
+
     const launch = await (async () => {
       const json = await redis.get(LAUNCH(params.launch));
       if (!json) {

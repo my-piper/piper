@@ -17,6 +17,7 @@ import { getIOData } from "packages/launches/launching";
 import { ulid } from "ulid";
 import { fromRedisValue } from "utils/redis";
 import { sid } from "utils/string";
+import { USER_ROOM } from "consts/rooms";
 
 queues.launches.outputs.set.process(async (job) => {
   const logger = createLogger("set-launch-output", {
@@ -108,6 +109,6 @@ queues.launches.outputs.set.process(async (job) => {
       },
       SetLaunchOutputEvent
     );
-    notify(launchedBy._id, "set_output", event);
+    notify(USER_ROOM(launchedBy._id), "set_output", event);
   }
 });

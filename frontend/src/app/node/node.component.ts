@@ -31,6 +31,7 @@ import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
 import { createLogger } from "src/utils/logger";
 import { toInstance } from "src/utils/models";
+import { LAUNCH_ROOM } from "src/consts/rooms";
 
 @Component({
   selector: "app-node",
@@ -188,7 +189,9 @@ export class NodeComponent implements OnDestroy {
 
     this.logger.debug("Listen node events");
 
-    this.subscriptions.launch = this.live.subscribe(this.launch._id);
+    this.subscriptions.launch = this.live.subscribe(
+      LAUNCH_ROOM(this.launch._id),
+    );
     this.listenEvents();
     this.checkStatus();
   }

@@ -48,6 +48,7 @@ import { checkInputs, convertInputs, getNodeInputs } from "utils/node";
 import { getEnvironment } from "./environment";
 import { completeNode } from "./complete-node";
 import { getErrorResult, recordLaunchRun, recordNodeRun } from "./run-metrics";
+import { LAUNCH_ROOM, USER_ROOM } from "consts/rooms";
 
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
 const RUN_FUNCTION_NAME = "run";
@@ -84,7 +85,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   ) => {
     logger.info(`Notify ${type}`);
     if (launch.options?.notify) {
-      notify(launch.launchedBy._id, type, event);
+      notify(USER_ROOM(launch.launchedBy._id), type, event);
     }
   };
 
@@ -92,7 +93,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     if (launch.options?.notify) {
       logger.info(`Notify ${event}`);
       notify(
-        launch._id,
+        LAUNCH_ROOM(launch._id),
         event,
         mapTo({ launch: launch._id, node }, PipelineEvent)
       );
@@ -105,7 +106,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   ) => {
     logger.info(`Notify ${type}`);
     if (launch.options?.notify) {
-      notify(launch._id, type, event);
+      notify(LAUNCH_ROOM(launch._id), type, event);
     }
   };
 

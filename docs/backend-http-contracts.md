@@ -19,24 +19,51 @@ queues, Deno, and reporting use explicit test doubles.
   `{ "message": "You aren't logged", "details": {} }`. Invalid user/API tokens
   return 401 with `Wrong user token` / `Wrong API token` respectively.
 
+## Socket.io
+
+These are exercised by `backend/tests/unit/sockets`.
+
+- The handshake must carry `auth: { token }` (a user token) or
+  `auth: { apiToken }`, checked like the `user-token` / `api-token` headers.
+  Without a valid one the connection is refused with `unauthorized`.
+- `join_room` joins only the caller's own `user:<id>` room, a `launch:<id>`
+  room of a launch visible to them (as below), or `packages` for admins.
+  Any other join is ignored without an answer. Room names are built in
+  `backend/consts/rooms.ts`.
+- Access is checked at the handshake and at each join, not again while a
+  socket stays in a room.
+
 ## Project and launch permissions
 
-| Endpoint                                 | Current requirement                        | Successful status |
-| ---------------------------------------- | ------------------------------------------ | ----------------- |
-| `GET /api/projects/:_id`                 | Project owner or admin                     | 200               |
-| `POST /api/projects`                     | Logged-in user                             | 200               |
-| `DELETE /api/projects/:_id`              | Project owner or admin                     | 204               |
-| `POST /api/projects/:_id/launch`         | Project owner or admin                     | 200               |
-| `POST /api/launches/:id/interrupt`       | Logged-in user and an existing live launch | 204               |
-| `GET /api/launches/:_id`                 | Launch visible to the user (see below)     | 200               |
-| `GET /api/launches/:launch/logs`         | Launch visible to the user                 | 200               |
-| `GET /api/launches/:launch/:node/status` | Launch visible to the user                 | 200               |
+| Endpoint                                      | Current requirement                    | Successful status |
+| --------------------------------------------- | -------------------------------------- | ----------------- |
+| `GET /api/projects/:_id`                      | Project owner or admin                 | 200               |
+| `POST /api/projects`                          | Logged-in user                         | 200               |
+| `DELETE /api/projects/:_id`                   | Project owner or admin                 | 204               |
+| `POST /api/projects/:_id/launch`              | Project owner or admin                 | 200               |
+| `GET /api/launches/:_id`                      | Launch visible to the user (see below) | 200               |
+| `DELETE /api/launches/:_id`                   | Launch visible to the user             | 204               |
+| `POST /api/launches/:id/interrupt`            | Launch visible to the user and live    | 204               |
+| `GET /api/launches/:id/state`                 | Launch visible to the user             | 200               |
+| `GET /api/launches/:id/data`                  | Launch visible to the user             | 200               |
+| `GET /api/launches/:_id/heartbeat`            | Launch visible to the user             | 200/204           |
+| `GET /api/launches/:launch/logs`              | Launch visible to the user             | 200               |
+| `GET /api/launches/:launch/metrics/finished`  | Launch visible to the user             | 200/204           |
+| `GET /api/launches/:launch/metrics/outputs`   | Launch visible to the user             | 200               |
+| `GET /api/launches/:launch/:node/inputs`      | Launch visible to the user             | 200               |
+| `GET /api/launches/:launch/:node/outputs`     | Launch visible to the user             | 200               |
+| `GET /api/launches/:launch/:node/progress`    | Launch visible to the user             | 200/204           |
+| `GET /api/launches/:launch/:node/status`      | Launch visible to the user             | 200/204           |
+| `GET /api/launches/:launch/nodes/:node/state` | Launch visible to the user             | 200/204           |
+| `GET /api/launches/:launch/nodes/:node/jobs`  | Launch visible to the user             | 200               |
 
 Project read and launch handlers, its stats, summary and comments (reading and
 posting) return 404 unless the current user is the project's owner or an admin; there are no shared or public projects, and other
 users reach a pipeline only through a Deploy. Project lists, folders, tags and
-stats cover only the current user's own projects, for admins too. Launch interruption checks live-launch existence without an
-owner lookup, then also interrupts every Child Launch (a launch whose `parent` is
+stats cover only the current user's own projects, for admins too. Every route under `/api/launches/:id` (all but the list) answers an anonymous
+request with 400 and a user who may not see the launch, or a missing launch,
+with 404 (`checkLaunchVisible`, `backend/tests/unit/http/launch-access.test.ts`).
+Launch interruption checks that, then live-launch existence, then also interrupts every Child Launch (a launch whose `parent` is
 this launch), recursively. Project delete and settings handlers reject other users, including
 engineers without an admin role, with 400 and `You aren't admin`. Missing projects
 and interruption of absent launches return 404. These tests record the existing

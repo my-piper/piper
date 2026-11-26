@@ -20,6 +20,7 @@ import { LiveService } from "src/services/live.service";
 import { UI_DELAY } from "src/consts/ui";
 import { EditPackageComponent } from "./edit/edit-package.component";
 import { ImportPackageComponent } from "./import/import-package.component";
+import { PACKAGES_ROOM } from "src/consts/rooms";
 
 @Component({
   selector: "app-node-packages",
@@ -114,8 +115,7 @@ export class NodePackagesComponent {
   }
 
   private listen() {
-    this.subscriptions.updatingPackages =
-      this.live.subscribe("updating_packages");
+    this.subscriptions.updatingPackages = this.live.subscribe(PACKAGES_ROOM);
     this.live.socket
       .fromEvent("package_updated")
       .pipe(

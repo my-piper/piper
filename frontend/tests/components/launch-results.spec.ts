@@ -21,9 +21,11 @@ import {
   PIXEL,
 } from "../fixtures/launch-results";
 import { launch } from "../fixtures/models";
-import { LAUNCH_ID, SOCKET_EVENTS } from "../fixtures/plain";
+import { LAUNCH_ID, SOCKET_EVENTS, userPlain } from "../fixtures/plain";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { SocketDouble } from "../helpers/socket";
+import { LAUNCH_ROOM } from "src/consts/rooms";
+import { seedAuthorization } from "../helpers/config";
 
 /**
  * Node result reads: GET /api/launches/:launch/:node/{inputs,outputs,status}
@@ -129,6 +131,8 @@ type RouteData = {
 
 /** Components under the node drawer read `{ launch, node: { id, node } }`. */
 function setupNodeView<T>(component: Type<T>, id = "node_one") {
+  // The socket connects only while signed in.
+  seedAuthorization(userPlain("owner"));
   configureAppTestingModule();
   const current = launch();
   const data = new BehaviorSubject<RouteData>({
@@ -173,7 +177,7 @@ describe("NodeOutputsComponent", () => {
     view.fixture.detectChanges();
 
     expect(view.socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
-      LAUNCH_ID,
+      LAUNCH_ROOM(LAUNCH_ID),
     ]);
     expect(view.element.querySelector("li b").textContent).toBe("Text");
     view.controller.verify();
@@ -242,7 +246,7 @@ describe("NodeOutputsComponent", () => {
     expect(reloads.map((r) => r.request.url)).toEqual([
       `/api/launches/${LAUNCH_ID}/node_two/inputs`,
     ]);
-    expect(live.rooms.get(LAUNCH_ID).size).toBe(1);
+    expect(live.rooms.get(LAUNCH_ROOM(LAUNCH_ID)).size).toBe(1);
     view.controller.verify();
     finish();
   }));
@@ -257,7 +261,7 @@ describe("NodeOutputsComponent", () => {
     expect(view.controller.match(() => true).length).toBe(0);
     expect(view.socket.listenerCount()).toBe(0);
     expect(view.socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
-      LAUNCH_ID,
+      LAUNCH_ROOM(LAUNCH_ID),
     ]);
     finish();
   }));

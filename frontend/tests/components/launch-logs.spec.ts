@@ -8,9 +8,11 @@ import { BehaviorSubject } from "rxjs";
 import { LaunchLogsComponent } from "src/app/launch-logs/launch-logs.component";
 import { launchLogsPlain } from "../fixtures/launch-results";
 import { launch } from "../fixtures/models";
-import { LAUNCH_ID, SOCKET_EVENTS } from "../fixtures/plain";
+import { LAUNCH_ID, SOCKET_EVENTS, userPlain } from "../fixtures/plain";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { SocketDouble } from "../helpers/socket";
+import { LAUNCH_ROOM } from "src/consts/rooms";
+import { seedAuthorization } from "../helpers/config";
 
 /**
  * GET /api/launches/:launch/logs?node= (backend/api/launches/launch-logs.ts).
@@ -24,6 +26,8 @@ let controller: HttpTestingController;
 let socket: SocketDouble;
 
 function render(node?: string) {
+  // The socket connects only while signed in.
+  seedAuthorization(userPlain("owner"));
   configureAppTestingModule();
   const current = launch();
   const data = new BehaviorSubject<object>({
@@ -81,7 +85,9 @@ describe("LaunchLogsComponent", () => {
       element.querySelector("[data-testid=logs-dropped]").textContent.trim(),
     ).toBe("5 earlier lines of Make JSON dropped");
     expect(element.querySelector("[data-testid=node-filter]")).not.toBeNull();
-    expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([LAUNCH_ID]);
+    expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
+      LAUNCH_ROOM(LAUNCH_ID),
+    ]);
     controller.verify();
     finish();
   }));
@@ -177,7 +183,9 @@ describe("LaunchLogsComponent", () => {
 
     expect(requests().length).toBe(0);
     expect(socket.listenerCount()).toBe(0);
-    expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([LAUNCH_ID]);
+    expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
+      LAUNCH_ROOM(LAUNCH_ID),
+    ]);
     finish();
   }));
 });

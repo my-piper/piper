@@ -7,6 +7,7 @@ import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { createLogger, LogLevel } from "src/utils/logger";
 import { toInstance } from "src/utils/models";
+import { LAUNCH_ROOM } from "src/consts/rooms";
 
 const logger = createLogger("launch_heartbeat", LogLevel.info);
 
@@ -48,7 +49,7 @@ export class LaunchHeartbeatPipe implements PipeTransform {
 
       load();
 
-      this.subscriptions.launch = this.live.subscribe(launch);
+      this.subscriptions.launch = this.live.subscribe(LAUNCH_ROOM(launch));
       this.live.socket
         .fromEvent<object>("launch_heartbeat")
         .pipe(

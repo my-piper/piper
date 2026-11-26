@@ -4,22 +4,41 @@ import "reflect-metadata";
 import { createLogger } from "core-kit/packages/logger";
 import express from "express";
 import http from "http";
+import { authenticate, authorizeRoom, SocketData } from "packages/sockets";
 import io from "./core-kit/packages/io";
 
 const logger = createLogger("sockets");
 
+io.use(authenticate);
+
 io.on("connection", (socket) => {
-  logger.debug("User connected");
-  socket.on("join_room", (room) => {
-    logger.debug(`Joined to room ${room}`);
+  const { user } = socket.data as SocketData;
+  logger.debug(`User ${user._id} connected`);
+  socket.on("join_room", async (room: unknown) => {
+    if (typeof room !== "string") {
+      return;
+    }
+    try {
+      if (!(await authorizeRoom(user, room))) {
+        logger.warn(`User ${user._id} may not join room ${room}`);
+        return;
+      }
+    } catch (err) {
+      logger.error(err);
+      return;
+    }
+    logger.debug(`User ${user._id} joined room ${room}`);
     socket.join(room);
   });
-  socket.on("leave_room", (room) => {
-    logger.debug(`Leave room ${room}`);
+  socket.on("leave_room", (room: unknown) => {
+    if (typeof room !== "string") {
+      return;
+    }
+    logger.debug(`User ${user._id} left room ${room}`);
     socket.leave(room);
   });
   socket.on("disconnect", () => {
-    logger.debug("User disconnected");
+    logger.debug(`User ${user._id} disconnected`);
   });
 });
 
