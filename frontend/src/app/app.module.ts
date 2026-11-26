@@ -10,6 +10,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import {
   provideTaiga,
+  tuiIconsProvider,
   TuiAppearance,
   TuiButton,
   TuiDialog,
@@ -22,6 +23,7 @@ import {
 } from "@taiga-ui/core";
 import { WaIntersectionObserver } from "@ng-web-apis/intersection-observer";
 import { TuiTable } from "@taiga-ui/addon-table";
+import { PIPER_ICONS } from "src/icons";
 import {
   TuiAccordion,
   TuiBadge,
@@ -323,6 +325,7 @@ import { UsersComponent } from "./users/users.component";
   ],
   providers: [
     provideTaiga(),
+    tuiIconsProvider(PIPER_ICONS),
     provideValidationErrors(),
     {
       provide: APP_BASE_HREF,
