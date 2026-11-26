@@ -9,7 +9,15 @@
 
 @if (authorization?.token; as token) {
   <h2 i18n="@@label.your_api_token">Your API token</h2>
-  <textarea class="input-primary" rows="3" readonly>{{ token }}</textarea>
+  <tui-textfield tuiTextfieldSize="s" [tuiTextfieldCleaner]="false">
+    <textarea
+      tuiTextarea
+      readonly
+      [minRows]="3"
+      [maxRows]="3"
+      [value]="token"
+    ></textarea>
+  </tui-textfield>
 }
 
 <ng-container>

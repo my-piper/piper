@@ -41,3 +41,12 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
 - **`tuiPassword` is an attribute of `<tui-icon>`**:
   `<tui-icon tuiPassword />` inside the `tui-textfield` adds the show/hide
   toggle; it needs `TuiIcon` (both come with `TaigaFormsModule`).
+- **`textarea[tuiTextarea]` ignores `rows`**: it grows between `[minRows]`
+  and `[maxRows]` (default 1 to 3). Set both to the old `rows` to keep the
+  height. It marks invalid through `[invalid]` like `tuiInput`.
+- **A `tui-textfield` in a flex row shrinks to almost nothing**, where a
+  native input kept its default width. Give it the old width (see the assets
+  folder field).
+- **A borderless inline editor (the project title) is `<tui-input-inline>`**
+  around a plain `<input formControlName>`, styled by the component; a
+  `tui-textfield` would add a box.

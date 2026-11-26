@@ -29,12 +29,18 @@
     </p>
   </header>
   <fieldset [disabled]="progress.adding">
-    <textarea
-      formControlName="message"
-      class="input-primary fluid"
-      [class.error]="form | invalidField: 'message'"
-      rows="5"
-    ></textarea>
+    <tui-textfield
+      tuiTextfieldSize="s"
+      [tuiTextfieldCleaner]="false"
+      [invalid]="messageControl.touched && messageControl.invalid"
+    >
+      <textarea
+        tuiTextarea
+        formControlName="message"
+        [minRows]="5"
+        [maxRows]="5"
+      ></textarea>
+    </tui-textfield>
   </fieldset>
   <footer>
     <button

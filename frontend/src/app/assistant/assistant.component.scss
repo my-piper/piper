@@ -63,7 +63,7 @@ form {
     display: flex;
     gap: variables.$gutter-normal;
 
-    textarea {
+    tui-textfield {
       width: 100%;
     }
 

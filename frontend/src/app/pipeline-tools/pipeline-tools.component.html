@@ -55,12 +55,13 @@
 
     <form class="stack horizontal" [formGroup]="form">
       <fieldset>
-        <input
-          class="input-primary"
-          formControlName="version"
+        <tui-textfield
+          tuiTextfieldSize="s"
+          [tuiTextfieldCleaner]="false"
           style="width: 80px"
-          type="number"
-        />
+        >
+          <input tuiInput formControlName="version" type="number" />
+        </tui-textfield>
       </fieldset>
       <footer>
         <button
