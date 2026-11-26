@@ -1,5 +1,10 @@
 @if (!authorization) {
-  <button class="primary with-icon" (click)="generateToken()">
+  <button
+    tuiButton
+    appearance="outline-grayscale"
+    size="s"
+    (click)="generateToken()"
+  >
     <app-icon class="icon left" icon="lock" [size]="18"></app-icon>
     <ng-container i18n="@@action.generate_api_key"
       >Generate API key</ng-container
@@ -47,7 +52,10 @@
     track i.key
   ) {
     <h3>
-      {{ i.key }}@if (i.value.required) {<sup>*</sup>}
+      {{ i.key }}
+      @if (i.value.required) {
+        <sup>*</sup>
+      }
     </h3>
     <table>
       <tbody>

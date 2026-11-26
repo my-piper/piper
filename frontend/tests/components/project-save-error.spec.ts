@@ -127,7 +127,7 @@ describe("ProjectComponent save errors", () => {
     harness.detectChanges();
     const informer = harness.routeNativeElement.querySelector("app-informer");
     const message = informer?.textContent;
-    (informer.querySelector("button.primary") as HTMLButtonElement).click();
+    (informer.querySelector("button[tuiButton]") as HTMLButtonElement).click();
     harness.detectChanges();
     const dismissed = harness.routeNativeElement.querySelector("app-informer");
     manager.kick();

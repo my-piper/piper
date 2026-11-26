@@ -25,7 +25,12 @@
     @switch (io.format) {
       @case ("code") {
         <div class="stack vertical small">
-          <button [copyToClipboard]="value" class="primary small">
+          <button
+            tuiButton
+            appearance="outline-grayscale"
+            size="xs"
+            [copyToClipboard]="value"
+          >
             <ng-container i18n="@@action.copy">Copy</ng-container>
           </button>
           <ngx-monaco-editor

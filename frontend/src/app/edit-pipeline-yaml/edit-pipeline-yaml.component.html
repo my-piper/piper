@@ -47,8 +47,10 @@
   ></app-tabs>
   <footer>
     <button
+      tuiButton
+      appearance="outline-grayscale"
+      size="s"
       submitButton
-      class="primary"
       [disabled]="form.invalid"
       (click)="save()"
       i18n="@@action.save"
