@@ -12,16 +12,16 @@ type Grant = { nonce: string; challenge: string; claims: Claims };
  * An in-memory OpenID provider served through a `fetch` double: discovery,
  * JWKS and a token endpoint that checks PKCE and signs real ID tokens.
  */
-export async function fakeOidcIssuer() {
+export async function fakeOidcIssuer(issuer = OIDC_TEST_ISSUER) {
   const { privateKey, publicKey } = await generateKeyPair("RS256");
   const jwk = { ...(await exportJWK(publicKey)), kid: "test", alg: "RS256" };
   const grants = new Map<string, Grant>();
 
   const metadata = {
-    issuer: OIDC_TEST_ISSUER,
-    authorization_endpoint: `${OIDC_TEST_ISSUER}authorize`,
-    token_endpoint: `${OIDC_TEST_ISSUER}token`,
-    jwks_uri: `${OIDC_TEST_ISSUER}jwks`,
+    issuer,
+    authorization_endpoint: `${issuer}authorize`,
+    token_endpoint: `${issuer}token`,
+    jwks_uri: `${issuer}jwks`,
     response_types_supported: ["code"],
     subject_types_supported: ["public"],
     id_token_signing_alg_values_supported: ["RS256"],
@@ -40,7 +40,7 @@ export async function fakeOidcIssuer() {
 
     const idToken = await new SignJWT({ ...grant.claims, nonce: grant.nonce })
       .setProtectedHeader({ alg: "RS256", kid: "test" })
-      .setIssuer(OIDC_TEST_ISSUER)
+      .setIssuer(issuer)
       .setAudience(OIDC_TEST_CLIENT_ID)
       .setIssuedAt()
       .setExpirationTime("5m")
@@ -59,7 +59,7 @@ export async function fakeOidcIssuer() {
   ): Promise<Response> {
     const url = new URL(input instanceof Request ? input.url : input);
     switch (url.href.split("?")[0]) {
-      case `${OIDC_TEST_ISSUER}.well-known/openid-configuration`:
+      case `${issuer}.well-known/openid-configuration`:
         return Response.json(metadata);
       case metadata.jwks_uri:
         return Response.json({ keys: [jwk] });

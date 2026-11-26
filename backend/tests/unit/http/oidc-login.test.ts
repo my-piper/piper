@@ -14,6 +14,7 @@ const SUBJECT = "sso-subject-1";
 const CLAIMS = {
   sub: SUBJECT,
   email: "jane@example.com",
+  email_verified: true,
   preferred_username: "Jane.Doe",
 };
 
@@ -93,6 +94,25 @@ describe("OIDC sign-in start", () => {
       expect.any(String)
     );
   });
+
+  it.each([
+    { issuer: "http://localhost:9080/application/o/piper/", local: true },
+    { issuer: "http://sso.example.test/application/o/piper/", local: false },
+  ])(
+    "accepts a plain-HTTP issuer only on localhost: $issuer",
+    async ({ issuer: url, local }) => {
+      const served = await fakeOidcIssuer(url);
+      vi.mocked(fetch).mockImplementation(served.fetch);
+      vi.stubEnv("OIDC_ISSUER", url);
+      context = await createHttpApp([() => import("packages/oauth/oidc")]);
+
+      const location = await startSignIn();
+
+      expect(location.startsWith(served.metadata.authorization_endpoint)).toBe(
+        local
+      );
+    }
+  );
 
   it("is not mounted when OIDC is disabled", async () => {
     vi.stubEnv("OIDC_AUTH", "no");
@@ -209,6 +229,42 @@ describe("OIDC callback", () => {
 
     expect(response.headers.location).toBe("/en/login?error=sso_failed");
     expect(httpDoubles.users.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("sets an HttpOnly state cookie when the flow starts", async () => {
+    const response = await context.request.get("/oidc");
+
+    const state = new URL(response.headers.location).searchParams.get("state");
+    expect(response.headers["set-cookie"][0]).toMatch(
+      new RegExp(
+        `^oidc_state=${state}; Max-Age=600; Path=/; .*HttpOnly; SameSite=Lax`
+      )
+    );
+  });
+
+  it("rejects a callback from a browser that did not start the flow", async () => {
+    const query = issuer.authorize(await startSignIn(), CLAIMS);
+    const victim = await createHttpApp([() => import("packages/oauth/oidc")]);
+
+    const response = await victim.request.get(`/oidc/callback?${query}`);
+
+    expect(response.headers.location).toBe("/en/login?error=sso_failed");
+    expect(httpDoubles.users.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("does not create an account from an unverified email", async () => {
+    const response = await signIn({ ...CLAIMS, email_verified: false });
+
+    expect(response.headers.location).toBe("/en/login?error=sso_failed");
+    expect(httpDoubles.users.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("signs in a linked user even when the email is not verified", async () => {
+    linkUser(scenario.users.get("owner-user"), SUBJECT);
+
+    const response = await signIn({ ...CLAIMS, email_verified: false });
+
+    expect(response.status).toBe(200);
   });
 
   it("fails when the ID token has no email", async () => {
