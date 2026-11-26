@@ -1,152 +1,239 @@
-@use 'src/ui-kit/styles/variables';
-@use 'src/ui-kit/styles/mixins';
-@use 'src/ui-kit/styles/defs/forms';
-@use 'src/ui-kit/styles/defs/buttons';
-@use 'src/ui-kit/styles/reset';
+// Styles the controls @json-editor/json-editor generates, with Taiga UI
+// variables so they follow the light and dark themes like the app's Taiga
+// textfields. The editor renders its own DOM, hence ::ng-deep.
 
 :host {
-    &[data-theme=html]::ng-deep {
-        input {
-            @extend %input-primary;
-            width: 100%;
-        }
+  &[data-theme="html"]::ng-deep {
+    input,
+    textarea,
+    select:not(.je-switcher) {
+      background-color: var(--tui-background-base);
+      color: var(--tui-text-primary);
+      padding: 0.25rem 0.5rem;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      border: 1px solid var(--tui-border-normal);
+      border-radius: var(--tui-radius-xs);
+      box-sizing: border-box;
 
-        textarea {
-            @extend %input-primary;
-            width: 100%;
-            height: 80px;
-            display: block;
-        }
+      &:disabled {
+        opacity: 0.65;
+      }
 
-        select:not(.je-switcher) {
-            @extend %select-primary;
-        }
-
-        select.je-switcher {
-            font-style: normal;
-            border-radius: variables.$corner-small;
-            padding: variables.$gutter-tiny variables.$gutter-small;
-        }
-
-        [role=alert] {
-            margin-top: variables.$gutter-tiny;
-            font-size: variables.$font-size-small;
-        }
-
-        .je-switcher {
-            margin-bottom: variables.$gutter-small;
-        }
-
-        .je-form-input-label:not(label) {
-            margin-top: variables.$gutter-tiny;
-            font-weight: normal;
-            font-size: variables.$font-size-small;
-        }
-
-        .je-object__container {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            grid-template-rows: auto 1fr;
-            row-gap: variables.$gutter-small;
-            align-items: center;
-            grid-template-areas:
-                "controls title"
-                "indented indented";
-        }
-
-        .je-header {
-            grid-area: title;
-        }
-
-        .je-object__controls {
-            @include reset.reset-div();
-            margin-right: variables.$gutter-small;
-            grid-area: controls;
-        }
-
-        .je-indented-panel {
-            @include reset.reset-div();
-            grid-area: indented;
-            border-left: 1px dashed variables.$control-border-color;
-            padding-left: variables.$gutter-normal;
-            margin-left: 16px;
-
-            &>div>div {
-                @include mixins.vertical-stack(variables.$gutter-small);
-            }
-        }
-
-        button.json-editor-btn-edit_properties,
-        button.json-editor-btn-collapse,
-        button.json-editor-btn-delete,
-        button.json-editor-btn-moveup,
-        button.json-editor-btn-movedown {
-            @extend %button-circle;
-            display: inline-flex;
-            color: variables.$button-text-color;
-
-            span {
-                display: none;
-            }
-
-            // icons are masks so they follow the theme text color
-            &::after {
-                content: "";
-                width: 16px;
-                height: 16px;
-                background-color: currentColor;
-                mask-size: contain;
-                mask-repeat: no-repeat;
-                mask-position: center;
-            }
-        }
-
-        button.json-editor-btn-delete,
-        button.json-editor-btn-moveup,
-        button.json-editor-btn-movedown {
-            margin: 0 variables.$gutter-small variables.$gutter-normal 0;
-        }
-
-        button.json-editor-btn-edit_properties::after {
-            mask-image: url(../../assets/icons/context-menu.svg);
-        }
-
-        button.json-editor-btn-collapse::after {
-            mask-image: url(../../assets/icons/folder.svg);
-        }
-
-        button.json-editor-btn-delete::after {
-            mask-image: url(../../assets/icons/delete.svg);
-        }
-
-        button.json-editor-btn-moveup::after {
-            mask-image: url(../../assets/icons/chevron-up.svg);
-        }
-
-        button.json-editor-btn-movedown::after {
-            mask-image: url(../../assets/icons/chevron-down.svg);
-        }
-
-        button.json-editor-btn-add {
-            @extend %button-primary;
-            @extend %button-small;
-            margin-top: variables.$gutter-tiny;
-        }
-
-
-        .je-modal {
-            margin-top: variables.$gutter-tiny;
-            padding: variables.$gutter-small;
-            background-color: variables.$overlay-background;
-            @include mixins.vertical-stack(variables.$gutter-small);
-
-            input[type=checkbox] {
-                @extend %checkbox;
-            }
-
-            button.json-editor-btn-add {
-                @extend %button-primary;
-            }
-        }
+      &:focus,
+      &:hover {
+        outline: none;
+        background-color: var(--tui-background-base-alt);
+      }
     }
+
+    input {
+      width: 100%;
+    }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+      display: block;
+    }
+
+    select:not(.je-switcher) {
+      appearance: none;
+      // The chevron is the app's theme token (light and dark strokes).
+      background-image: var(--select-chevron);
+      background-position: center right 0.125rem;
+      background-repeat: no-repeat;
+      background-size: 24px 24px;
+      padding-right: 2rem;
+    }
+
+    select.je-switcher {
+      font-style: normal;
+      border-radius: 2px;
+      padding: 0.125rem 0.25rem;
+    }
+
+    [role="alert"] {
+      margin-top: 0.125rem;
+      font-size: 0.8125rem;
+    }
+
+    .je-switcher {
+      margin-bottom: 0.25rem;
+    }
+
+    .je-form-input-label:not(label) {
+      margin-top: 0.125rem;
+      font-weight: normal;
+      font-size: 0.8125rem;
+    }
+
+    .je-object__container {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto 1fr;
+      row-gap: 0.25rem;
+      align-items: center;
+      grid-template-areas:
+        "controls title"
+        "indented indented";
+    }
+
+    .je-header {
+      grid-area: title;
+    }
+
+    .je-object__controls {
+      border: none;
+      border-radius: 0;
+      margin: 0 0.25rem 0 0;
+      padding: 0;
+      background-color: transparent;
+      grid-area: controls;
+    }
+
+    .je-indented-panel {
+      border: none;
+      border-radius: 0;
+      margin: 0 0 0 16px;
+      padding: 0 0 0 0.5rem;
+      background-color: transparent;
+      grid-area: indented;
+      border-left: 1px dashed var(--tui-border-normal);
+
+      & > div > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+    }
+
+    button.json-editor-btn-edit_properties,
+    button.json-editor-btn-collapse,
+    button.json-editor-btn-delete,
+    button.json-editor-btn-moveup,
+    button.json-editor-btn-movedown {
+      display: inline-flex;
+      position: relative;
+      border-radius: 50%;
+      border: 1px solid var(--tui-border-normal);
+      background: var(--tui-background-neutral-1);
+      color: var(--tui-text-primary);
+      box-sizing: border-box;
+      aspect-ratio: 1;
+      padding: 0.25rem;
+      font-family: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: none;
+      transition: all 0.15s;
+
+      &:disabled {
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.75;
+      }
+
+      &:not(:disabled):hover {
+        background: var(--tui-background-neutral-1-hover);
+      }
+
+      span {
+        display: none;
+      }
+
+      // icons are masks so they follow the theme text color
+      &::after {
+        content: "";
+        width: 16px;
+        height: 16px;
+        background-color: currentColor;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        mask-position: center;
+      }
+    }
+
+    button.json-editor-btn-delete,
+    button.json-editor-btn-moveup,
+    button.json-editor-btn-movedown {
+      margin: 0 0.25rem 0.5rem 0;
+    }
+
+    button.json-editor-btn-edit_properties::after {
+      mask-image: url(../../assets/icons/context-menu.svg);
+    }
+
+    button.json-editor-btn-collapse::after {
+      mask-image: url(../../assets/icons/folder.svg);
+    }
+
+    button.json-editor-btn-delete::after {
+      mask-image: url(../../assets/icons/delete.svg);
+    }
+
+    button.json-editor-btn-moveup::after {
+      mask-image: url(../../assets/icons/chevron-up.svg);
+    }
+
+    button.json-editor-btn-movedown::after {
+      mask-image: url(../../assets/icons/chevron-down.svg);
+    }
+
+    button.json-editor-btn-add {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--tui-text-primary);
+      font-family: inherit;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      background-color: var(--tui-background-neutral-1);
+      border: 1px solid var(--tui-border-normal);
+      border-radius: var(--tui-radius-xs);
+      padding: 0.25rem 0.5rem;
+      margin-top: 0.125rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.15s;
+
+      &:hover {
+        background-color: var(--tui-background-neutral-1-hover);
+      }
+    }
+
+    .je-modal {
+      margin-top: 0.125rem;
+      padding: 0.25rem;
+      background-color: var(--tui-background-base-alt);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      input[type="checkbox"] {
+        position: relative;
+        width: 1.5em;
+        height: 1.5em;
+        min-width: 1.5em;
+        margin: 0 0.25rem 0 0;
+        padding: 0;
+        background: var(--tui-background-base);
+        border: 1px solid var(--tui-border-normal);
+        border-radius: 2px;
+        appearance: none;
+        outline: 0;
+        cursor: pointer;
+
+        &:checked {
+          background: var(--tui-background-accent-1)
+            url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMiAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuODMzOTggNC41ODM5OEw0Ljc1MDY1IDcuNTAwNjVMMTAuMTY3MyAyLjA4Mzk4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K")
+            no-repeat center center;
+        }
+      }
+
+      button.json-editor-btn-add {
+        padding: 0.25rem 1rem;
+      }
+    }
+  }
 }
