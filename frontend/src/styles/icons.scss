@@ -3,15 +3,21 @@
 // --app-icon-size / --app-icon-color for another size or color.
 //
 // Taiga puts an icon's mode in data-icon-start / data-icon-end: "tui" for its
-// Lucide set, "img" and "font" for those kinds, and the icon's own name for a
-// registry icon, so the rules below leave Taiga's icons alone. They are
-// !important because Taiga sizes and colors button icons per size and
-// appearance with more specific selectors; the variables stay overridable.
+// Lucide set, "font" for font icons, "img" for images and the icon's own name
+// for a registry icon, so the rules below leave Taiga's icons alone. The only
+// "img" icons are Piper's multicolor logos (@img.google, @img.yandex): they
+// take the size but keep their colors. The rules are !important because
+// Taiga sizes and colors button icons per size and appearance with more
+// specific selectors; the variables stay overridable.
 
-$taiga-modes: '[data-icon-start="tui"], [data-icon-start="img"], [data-icon-start="font"]';
+$taiga-modes: '[data-icon-start="tui"], [data-icon-start="font"]';
+$image: '[data-icon-start="img"]';
 
 [tuiIcons][data-icon-start]:not(#{$taiga-modes})::before {
   font-size: var(--app-icon-size, 22px) !important;
+}
+
+[tuiIcons][data-icon-start]:not(#{$taiga-modes}, #{$image})::before {
   background: var(--app-icon-color, var(--icon-color)) !important;
 }
 

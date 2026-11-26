@@ -1,4 +1,5 @@
 import { CommonModule } from "@angular/common";
+import { TuiIcon } from "@taiga-ui/core";
 import {
   Component,
   EventEmitter,
@@ -13,7 +14,6 @@ import { TestBed } from "@angular/core/testing";
 import { Languages } from "src/enums/languages";
 import { I18nPipe } from "src/pipes/i18n.pipe";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
-import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { ModalComponent } from "src/ui-kit/modal/modal.component";
 import { ModalService } from "src/ui-kit/modal/modal.service";
 
@@ -38,8 +38,8 @@ class ModalContentDouble {
 
 async function render() {
   await TestBed.configureTestingModule({
-    declarations: [ModalComponent, IconComponent, I18nPipe],
-    imports: [CommonModule],
+    declarations: [ModalComponent, I18nPipe],
+    imports: [CommonModule, TuiIcon],
     providers: [{ provide: CURRENT_LANGUAGE, useValue: Languages.en }],
   }).compileComponents();
   const fixture = TestBed.createComponent(ModalComponent);

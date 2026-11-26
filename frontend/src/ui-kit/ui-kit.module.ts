@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { TuiButton } from "@taiga-ui/core";
+import { TuiButton, TuiIcon } from "@taiga-ui/core";
 import { TuiBadge } from "@taiga-ui/kit";
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -58,6 +58,6 @@ import { PopoverDirective } from "./popover/popover.directive";
   ],
   // TuiButton: the informer's OK and the modal's close button (#153);
   // TuiBadge: the modal's ESC hint (#155).
-  imports: [CommonModule, ReactiveFormsModule, TuiButton, TuiBadge],
+  imports: [CommonModule, ReactiveFormsModule, TuiButton, TuiBadge, TuiIcon],
 })
 export class UiKitModule {}

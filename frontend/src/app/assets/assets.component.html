@@ -48,9 +48,9 @@
         [disabled]="folders.length <= 0"
         [appPopover]="{ content: foldersPopover, trigger: 'click' }"
         (attached)="references.popover = $event"
-      >
-        <app-icon class="icon" icon="menu" [size]="20"></app-icon>
-      </button>
+        iconStart="menu"
+        style="--app-icon-size: 20px"
+      ></button>
       <tui-textfield tuiTextfieldSize="s" [tuiTextfieldCleaner]="false">
         <input tuiInput formControlName="folder" placeholder="Folder name" />
       </tui-textfield>
@@ -63,7 +63,7 @@
     @if (!progress.uploading) {
       <input type="file" (change)="upload($event)" />
       <button>
-        <app-icon icon="upload" [size]="32"></app-icon>
+        <tui-icon icon="upload" style="--app-icon-size: 32px" />
       </button>
     }
   </li>
@@ -82,9 +82,9 @@
             [loading]="progress.removing[asset._id]"
             [disabled]="progress.removing[asset._id]"
             (click)="remove(asset)"
-          >
-            <app-icon class="icon" icon="delete" [size]="18"></app-icon>
-          </button>
+            iconStart="delete"
+            style="--app-icon-size: 18px"
+          ></button>
         </div>
         @switch (asset.type) {
           @case ("image") {
@@ -101,12 +101,11 @@
           }
           @case ("archive") {
             <button class="archive" (click)="select(asset)">
-              <app-icon
+              <tui-icon
                 icon="archive"
-                [size]="64"
-                [stroke]="1"
-                [color]="ui.color.graphite100"
-              ></app-icon>
+                style="--app-icon-size: 64px"
+                [style.--app-icon-color]="ui.color.graphite100"
+              />
             </button>
           }
           @case ("audio") {
@@ -118,9 +117,8 @@
                 class="round"
                 type="button"
                 (click)="select(asset)"
-              >
-                <app-icon class="icon" icon="add-circle"></app-icon>
-              </button>
+                iconStart="add-circle"
+              ></button>
               <audio controls [src]="asset.url"></audio>
             </div>
           }
