@@ -77,7 +77,6 @@ export default defineConfig({
       // Filters the report only (the builder sets excludeAfterRemap); what gets
       // instrumented is set by `coverageInclude` in angular.json.
       exclude: [
-        "src/ui-kit/**",
         "src/schemas/**",
         "tests/**",
         "node_modules/**",
