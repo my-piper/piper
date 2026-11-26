@@ -3,11 +3,14 @@ import {
   Inject,
   OnInit,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { merge } from "lodash";
-import { filter, Subscription, takeUntil } from "rxjs";
+import { filter, Subscription } from "rxjs";
 import { Asset } from "src/models/assets";
 import { NodeToLaunch } from "src/models/launch-request";
 import { Node, NodeInput, SCRIPT_NODE_SOURCE } from "src/models/node";
@@ -17,7 +20,6 @@ import { ProjectManager } from "src/services/project.manager";
 import { Primitive } from "src/types/primitive";
 import { UI } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
-import { UntilDestroyed } from "src/utils/until-destroyed";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { createLogger, LogLevel } from "src/utils/logger";
@@ -34,7 +36,9 @@ const logger = createLogger("edit_node_inputs", LogLevel.debug);
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
+export class EditNodeInputsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   userRole = UserRole;
   scriptNodeSource = SCRIPT_NODE_SOURCE;
   ui = UI;
@@ -64,9 +68,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit() {
     logger.debug("Init edit node inputs");
@@ -78,7 +80,7 @@ export class EditNodeInputsComponent extends UntilDestroyed implements OnInit {
 
     this.projectManager.updates
       .pipe(
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
         filter((initiator) => initiator !== this),
       )
       .subscribe(() => {
