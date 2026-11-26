@@ -155,3 +155,20 @@ export function popupRoot(): ComponentFixture<TuiRoot> {
 export function openDialog(): HTMLElement | null {
   return document.querySelector("tui-dialog");
 }
+
+/**
+ * Hovers an element the way Taiga's `tuiHint` listens for it. The hint shows
+ * after its delay: `tick()` past it, then detect changes.
+ */
+export function hover(element: Element) {
+  element.dispatchEvent(new MouseEvent("mouseenter"));
+  element.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+}
+
+/** Moves the pointer off an element, which hides its `tuiHint` after a delay. */
+export function unhover(element: Element) {
+  element.dispatchEvent(new MouseEvent("mouseleave"));
+  element.dispatchEvent(
+    new MouseEvent("mouseout", { bubbles: true, relatedTarget: document.body }),
+  );
+}

@@ -63,7 +63,7 @@
                 tuiIconButton
                 appearance="flat-grayscale"
                 size="s"
-                [appPopover]="{ content: errorsTemplate }"
+                [tuiHint]="errorsTemplate"
                 iconStart="error"
                 style="--app-icon-color: red"
               ></button>
@@ -113,7 +113,7 @@
               tuiIconButton
               appearance="flat-grayscale"
               size="s"
-              [appPopover]="{ content: inputsPopover }"
+              [tuiHint]="inputsPopover"
               iconStart="info"
             ></button>
             @if (l._id | launchHeartbeat | ticker | async; as heartbeat) {

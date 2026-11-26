@@ -10,11 +10,13 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import {
   provideTaiga,
+  tuiHintOptionsProvider,
   tuiIconsProvider,
   TuiAppearance,
   TuiButton,
   TuiDialog,
   TuiDropdown,
+  TuiHint,
   TuiIcon,
   TuiLink,
   TuiLoader,
@@ -315,6 +317,7 @@ import { UsersComponent } from "./users/users.component";
     TuiIcon,
     TuiDialog,
     ...TuiDropdown,
+    ...TuiHint,
     TuiLink,
     TuiLoader,
     ...TuiNotification,
@@ -332,6 +335,8 @@ import { UsersComponent } from "./users/users.component";
   providers: [
     provideTaiga(),
     tuiIconsProvider(PIPER_ICONS),
+    // hints open centered below their anchor, as ui-kit popovers did (#230)
+    tuiHintOptionsProvider({ direction: ["bottom", "top"] }),
     provideValidationErrors(),
     {
       provide: APP_BASE_HREF,
