@@ -34,7 +34,7 @@ import { ASIDE_EXPANDED_KEY } from "src/consts/core";
 import { Languages } from "src/enums/languages";
 import { CanPipe } from "src/pipes/can";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
-import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { SharedModule } from "src/app/shared.module";
 import { userPlain } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../helpers/config";
 import { provideSocketDouble } from "../helpers/socket";
@@ -60,7 +60,7 @@ describe("AppLayoutComponent", () => {
       ],
       imports: [
         CommonModule,
-        UiKitModule,
+        SharedModule,
         RouterOutlet,
         ReactiveFormsModule,
         RouterLink,

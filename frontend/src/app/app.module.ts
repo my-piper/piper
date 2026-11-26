@@ -111,7 +111,7 @@ import { ScrollTopListener } from "src/providers/scroll-top.listener";
 import { provideValidationErrors } from "src/providers/validation-errors";
 import { applyMonacoTheme, ThemeManager } from "src/services/theme.service";
 import { baseHrefFactory } from "src/providers/base-href";
-import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { SharedModule } from "./shared.module";
 import { TaigaFormsModule } from "./taiga-forms.module";
 import { AppComponent } from "./app.component";
 import { ArtefactsComponent } from "./artefacts/artefacts.component";
@@ -306,7 +306,7 @@ import { UsersComponent } from "./users/users.component";
       url: "/",
       options: { transports: ["websocket"] },
     }),
-    UiKitModule,
+    SharedModule,
     TaigaFormsModule,
     NgHcaptchaModule.forRoot(),
     TuiRoot,

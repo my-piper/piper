@@ -15,7 +15,7 @@ import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { provideTaiga } from "@taiga-ui/core";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
-import { UiKitModule } from "src/ui-kit/ui-kit.module";
+import { SharedModule } from "src/app/shared.module";
 import { toInstance, toPlain } from "src/utils/models";
 import { getDeclaredVariables } from "src/utils/pipeline";
 import { projectA, projectWith } from "../fixtures/models";
@@ -87,7 +87,12 @@ describe("EditPipelineEnvironmentComponent", () => {
     TestBed.configureTestingModule({
       errorOnUnknownProperties: false,
       declarations: [EditPipelineEnvironmentComponent],
-      imports: [ReactiveFormsModule, RouterLink, UiKitModule, TaigaFormsModule],
+      imports: [
+        ReactiveFormsModule,
+        RouterLink,
+        SharedModule,
+        TaigaFormsModule,
+      ],
       providers: [
         provideTaiga(),
         provideTestConfig(),
