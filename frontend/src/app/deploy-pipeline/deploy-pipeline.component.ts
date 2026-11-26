@@ -49,7 +49,6 @@ export class DeployPipelineComponent implements OnInit {
 
   modal!: PlayViaApiComponent;
 
-  slugControl = this.fb.control<string>(null);
   form = this.fb.group({
     deploy: this.fb.control<object>(null),
   });
