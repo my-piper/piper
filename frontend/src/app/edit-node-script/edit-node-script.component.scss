@@ -28,3 +28,8 @@ form {
     }
   }
 }
+
+// Sized by its options, like the old toggle.
+tui-segmented {
+  inline-size: fit-content;
+}

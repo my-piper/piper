@@ -12,6 +12,7 @@ import { seedAuthorization } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 import { typeInto } from "../helpers/editor-stubs";
+import { activeSegment, pickSegment, segmentLabels } from "../helpers/taiga";
 
 const REFERENCE = "registry:artworks@3/echo_node/script.js";
 const SOURCE =
@@ -46,7 +47,18 @@ function setup(
     controller.expectOne("/api/nodes/script-source").flush({ source: SOURCE });
     settle();
   };
-  return { fixture, controller, node, editor, save, settle, load, data };
+  const execution = () => element.querySelector("tui-segmented");
+  return {
+    fixture,
+    controller,
+    node,
+    editor,
+    save,
+    settle,
+    load,
+    data,
+    execution,
+  };
 }
 
 describe("pipeline node script editor", () => {
@@ -63,12 +75,27 @@ describe("pipeline node script editor", () => {
     finish();
   }));
 
+  it("shows the node's execution mode in the toggle", fakeAsync(() => {
+    const page = setup();
+
+    page.load();
+
+    expect(segmentLabels(page.execution())).toEqual([
+      "Rapid",
+      "Regular",
+      "Deferred",
+      "Protracted",
+    ]);
+    expect(activeSegment(page.execution())).toBe("Regular");
+    page.controller.verify();
+    finish();
+  }));
+
   it("keeps the original reference when saving only an execution change", fakeAsync(() => {
     const page = setup();
     page.load();
-    page.fixture.componentInstance.form.controls.execution.setValue(
-      NodeExecution.rapid,
-    );
+    pickSegment(page.execution(), "Rapid");
+    page.fixture.detectChanges();
 
     page.save().click();
     const request = page.controller.expectOne("/api/nodes/prepare-script");
