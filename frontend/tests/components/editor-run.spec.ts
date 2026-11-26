@@ -1,6 +1,5 @@
 import { HttpRequest } from "@angular/common/http";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
-import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { LiveService } from "src/services/live.service";
 import { launchResponsePlain } from "../fixtures/launch-results";
 import { launch } from "../fixtures/models";
@@ -11,10 +10,9 @@ import {
   SOCKET_EVENTS,
   USER_IDS,
 } from "../fixtures/plain";
-import { componentOf } from "../helpers/component";
 import { finish, setupEditor } from "../helpers/editor";
 import { expectConsoleError } from "../helpers/console";
-import { isLoading } from "../helpers/taiga";
+import { isLoading, iconName } from "../helpers/taiga";
 
 /**
  * Wire contracts: POST /api/projects/:_id/launch merges the body into the
@@ -104,10 +102,7 @@ describe("EditPipelineVisualComponent runs", () => {
     expect(editor.editor.launch).toBeFalsy();
     expect(editor.editor.progress.launching).toBe(false);
     expect(editor.router.url).not.toContain("launch=");
-    expect(
-      componentOf<IconComponent>(runButton(element).querySelector("app-icon"))
-        ?.icon,
-    ).toBe("play");
+    expect(iconName(runButton(element))).toBe("play");
     controller.verify();
     finish();
   }));

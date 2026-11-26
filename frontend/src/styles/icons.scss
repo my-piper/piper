@@ -14,3 +14,9 @@ $taiga-modes: '[data-icon-start="tui"], [data-icon-start="img"], [data-icon-star
   font-size: var(--app-icon-size, 22px) !important;
   background: var(--app-icon-color, var(--icon-color)) !important;
 }
+
+// A <tui-icon> host is a 1em square: make it the size of the icon it draws,
+// like app-icon's host was.
+tui-icon[data-icon-start]:not(#{$taiga-modes}) {
+  font-size: var(--app-icon-size, 22px);
+}
