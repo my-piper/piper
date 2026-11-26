@@ -58,7 +58,7 @@ One codebase, several entrypoints. Each runs with `node --import=tsx <entry>.ts`
 | `worker.ts` | BullMQ consumers. Worker groups (`process_rapid_nodes`, `run_launches`, `set_launches_io`, …) map to one or more queues; `-w` selects the groups. Has graceful shutdown (120s) and an optional `/health` endpoint. |
 | `sockets.ts` | socket.io server. Clients `join_room` / `leave_room`; rooms are user ids, launch ids, or topic names such as `updating_packages`. |
 | `periodic.ts` | In-process scheduler (bottleneck): checks node package updates, deletes launches and artefacts older than `MAX_STORE_LAUNCH_DAYS`. |
-| `oauth.ts` | Google / Yandex OAuth (passport), separate express app. |
+| `oauth.ts` | Sign-in through Google / Yandex (passport) and OIDC single sign-on (`openid-client`, see `docs/sso.md`), separate express app. |
 | `metrics.ts` | Prometheus `/metrics` endpoint exporting BullMQ queue metrics. |
 | `registry.ts` | Package Registry: serves uploaded node package code read-only from a private S3 bucket to Deno, with optional bearer authentication (`REGISTRY_TOKEN`; empty or unset disables authentication). Internal network only. |
 | `chrome.ts` | Puppeteer-controlled Chrome service (used by browser-automation nodes). |
@@ -231,4 +231,5 @@ Angular 22 module-based app (`frontend/src`):
   - sockets: 8082
   - oauth: 8083
   - nocodb: 8085
+- `make up-sso` adds a local Authentik (profile `sso`, `http://localhost:9080`) for OIDC sign-in; see `docs/sso.md`.
 - Production: `devops/docker/Dockerfile` builds a single image. GitHub Actions pushes it to GHCR on `main`, and it is deployed to Docker Swarm (separate `piper-swarm` repo), where each process runs as its own service and worker groups are scaled independently.
