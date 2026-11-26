@@ -21,13 +21,16 @@ queues, Deno, and reporting use explicit test doubles.
 
 ## Project and launch permissions
 
-| Endpoint                           | Current requirement                        | Successful status |
-| ---------------------------------- | ------------------------------------------ | ----------------- |
-| `GET /api/projects/:_id`           | Project owner or admin                     | 200               |
-| `POST /api/projects`               | Logged-in user                             | 200               |
-| `DELETE /api/projects/:_id`        | Project owner or admin                     | 204               |
-| `POST /api/projects/:_id/launch`   | Project owner or admin                     | 200               |
-| `POST /api/launches/:id/interrupt` | Logged-in user and an existing live launch | 204               |
+| Endpoint                                 | Current requirement                        | Successful status |
+| ---------------------------------------- | ------------------------------------------ | ----------------- |
+| `GET /api/projects/:_id`                 | Project owner or admin                     | 200               |
+| `POST /api/projects`                     | Logged-in user                             | 200               |
+| `DELETE /api/projects/:_id`              | Project owner or admin                     | 204               |
+| `POST /api/projects/:_id/launch`         | Project owner or admin                     | 200               |
+| `POST /api/launches/:id/interrupt`       | Logged-in user and an existing live launch | 204               |
+| `GET /api/launches/:_id`                 | Launch visible to the user (see below)     | 200               |
+| `GET /api/launches/:launch/logs`         | Launch visible to the user                 | 200               |
+| `GET /api/launches/:launch/:node/status` | Launch visible to the user                 | 200               |
 
 Project read and launch handlers, its stats, summary and comments (reading and
 posting) return 404 unless the current user is the project's owner or an admin; there are no shared or public projects, and other
@@ -38,6 +41,17 @@ this launch), recursively. Project delete and settings handlers reject other use
 engineers without an admin role, with 400 and `You aren't admin`. Missing projects
 and interruption of absent launches return 404. These tests record the existing
 permission rules; permission/status changes need an explicit contract decision.
+
+A launch is visible to the user who started it, the owner of the Project it
+came from (`project.createdBy`, which Deploy and Child Launches copy from their
+Project) and admins; to anyone else, and for a missing launch, these reads
+return 404. `GET /api/launches/:launch/logs` returns
+`{ available, logs, dropped }`: the Node Logs of every node (or only `?node=`),
+oldest first by `ts`, each tagged with `node`, `level`, `message`, `attempt` and
+`ts` (milliseconds; lines stored before `ts` was kept have none and come first,
+in their node's order). Each node keeps its newest 1000 lines; `dropped` counts
+the older lines removed per node. `available` is false, with no lines, once the
+launch's live state has expired.
 
 ## Node and node package permissions
 
@@ -103,6 +117,7 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
   stores its Nodes as they are, dropping the `sign` an older export carried.
 - `POST /api/pipelines/import/v1` takes a Pipeline copied from Piper v1 and
   brings each Node to what this Piper runs:
+
   - A Node from a Node Package (`package` set) is replaced by the installed
     Node Definition with the same `package` and `_id`, else its Node key, else
     the v1 id it was renamed from (`ask_llm_artworks` → `ask_llm_agent`). The

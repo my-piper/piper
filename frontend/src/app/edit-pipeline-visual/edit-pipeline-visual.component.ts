@@ -66,6 +66,7 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import { AssistantComponent } from "../assistant/assistant.component";
 import { EditNodeInputsComponent } from "../edit-node-inputs/edit-node-inputs.component";
+import { LaunchLogsComponent } from "../launch-logs/launch-logs.component";
 import { SelectNodeComponent } from "../select-node/select-node.component";
 
 function salt() {
@@ -92,6 +93,7 @@ export class EditPipelineVisualComponent
   editNodeComponent = EditNodeComponent;
   editPipelineInputComponent = EditPipelineInputComponent;
   editNodeInputsComponent = EditNodeInputsComponent;
+  launchLogsComponent = LaunchLogsComponent;
 
   progress: {
     launching: boolean;

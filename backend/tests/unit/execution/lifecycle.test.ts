@@ -9,6 +9,7 @@ import {
   LAUNCH_EXPIRED,
   LAUNCH_HEARTBEAT,
   NODE_LOGS,
+  NODE_LOGS_DROPPED,
   NODE_PROCESSING_LOCK,
   NODE_STATE,
   NODE_STATUS,
@@ -82,9 +83,7 @@ describe("node execution lifecycle", () => {
     const node = context.launch.pipeline.nodes.get("echo_node");
     Object.assign(node, {
       source: "script",
-      environment: new Map([
-        ["OPENAI_KEY", toInstance({}, NodeEnvironment)],
-      ]),
+      environment: new Map([["OPENAI_KEY", toInstance({}, NodeEnvironment)]]),
     });
     const global = toInstance(
       { variables: { OPENAI_KEY: "platform secret" } },
@@ -139,20 +138,64 @@ describe("node execution lifecycle", () => {
     context.job.attemptsMade = 2;
     doubles.execute.mockResolvedValue({
       result: { __type: "next" },
-      logs: [{ message: "hello", level: "info" }],
+      logs: [{ ts: 1767323045000, message: "hello", level: "info" }],
     });
 
     await context.run();
 
     expect(doubles.redis.rPush).toHaveBeenCalledWith(
       NODE_LOGS(context.launch._id, "echo_node"),
-      [JSON.stringify({ level: "info", message: "hello", attempt: 2 })]
+      [
+        JSON.stringify({
+          level: "info",
+          message: "hello",
+          attempt: 2,
+          ts: 1767323045000,
+        }),
+      ]
     );
     expect(doubles.redis.expire).toHaveBeenCalledWith(
       NODE_LOGS(context.launch._id, "echo_node"),
       LAUNCH_EXPIRED
     );
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("keeps the newest 1000 log lines of a node and counts the dropped ones", async () => {
+    doubles.execute.mockResolvedValue({
+      result: { __type: "next" },
+      logs: [{ ts: 1767323045000, message: "hello", level: "info" }],
+    });
+    doubles.redis.rPush.mockResolvedValue(1003);
+
+    await context.run();
+
+    expect(doubles.redis.lTrim).toHaveBeenCalledWith(
+      NODE_LOGS(context.launch._id, "echo_node"),
+      -1000,
+      -1
+    );
+    expect(doubles.redis.incrBy).toHaveBeenCalledWith(
+      NODE_LOGS_DROPPED(context.launch._id, "echo_node"),
+      3
+    );
+    expect(doubles.redis.expire).toHaveBeenCalledWith(
+      NODE_LOGS_DROPPED(context.launch._id, "echo_node"),
+      LAUNCH_EXPIRED
+    );
+  });
+
+  it("does not trim the logs of a node under the line limit", async () => {
+    doubles.execute.mockResolvedValue({
+      result: { __type: "next" },
+      logs: [{ ts: 1767323045000, message: "hello", level: "info" }],
+    });
+    doubles.redis.rPush.mockResolvedValue(1000);
+
+    await context.run();
+
+    expect(doubles.redis.lTrim).not.toHaveBeenCalled();
+    expect(doubles.redis.incrBy).not.toHaveBeenCalled();
   });
 
   it("does not restart the heartbeat if a refresh finishes after execution", async () => {
@@ -192,7 +235,7 @@ describe("node execution lifecycle", () => {
           message: "invalid input",
           code: "DATA_ERROR",
           details: { input: "text" },
-          logs: [{ level: "error", message: "bad input" }],
+          logs: [{ ts: 1767323045000, level: "error", message: "bad input" }],
         },
         ExecutionError
       )
@@ -202,7 +245,14 @@ describe("node execution lifecycle", () => {
 
     expect(doubles.redis.rPush).toHaveBeenCalledWith(
       NODE_LOGS(context.launch._id, "echo_node"),
-      [JSON.stringify({ level: "error", message: "bad input", attempt: 0 })]
+      [
+        JSON.stringify({
+          level: "error",
+          message: "bad input",
+          attempt: 0,
+          ts: 1767323045000,
+        }),
+      ]
     );
     expect(doubles.redis.del).toHaveBeenCalledWith(
       NODE_PROCESSING_LOCK(context.launch._id, "echo_node")

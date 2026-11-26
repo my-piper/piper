@@ -1,0 +1,72 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  h2 {
+    margin: 0;
+    font: var(--tui-font-heading-6);
+  }
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.notice {
+  margin: 0;
+  color: var(--tui-text-secondary);
+  font: var(--tui-font-text-s);
+
+  &.error {
+    color: var(--tui-text-negative);
+  }
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.line {
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--tui-border-normal);
+
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font: var(--tui-font-text-s);
+    font-family: var(--tui-font-mono, monospace);
+  }
+
+  &[data-level="debug"] pre {
+    color: var(--tui-text-tertiary);
+  }
+
+  &[data-level="warn"] pre {
+    color: var(--tui-status-warning);
+  }
+
+  &[data-level="error"] pre {
+    color: var(--tui-text-negative);
+  }
+}
+
+.meta {
+  display: flex;
+  gap: 0.5rem;
+  color: var(--tui-text-secondary);
+  font: var(--tui-font-text-xs);
+}

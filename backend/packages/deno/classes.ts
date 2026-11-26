@@ -3,7 +3,6 @@ import {
   IsOptional,
   Transform,
   Type,
-  dateTransformer,
   objectTransformer,
 } from "core-kit/packages/transform";
 import {
@@ -55,8 +54,10 @@ export class ExecutionError extends Error {
 }
 
 export class LogEntry {
-  @Transform(dateTransformer("unixtime"))
-  ts: Date;
+  // milliseconds since the epoch
+  @Expose()
+  @Type(() => Number)
+  ts: number;
 
   @Expose()
   @Type(() => String)

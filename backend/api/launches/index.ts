@@ -3,6 +3,7 @@ import "./get-launch";
 import "./heartbeat";
 import "./interrupt-launch";
 import "./launch-data";
+import "./launch-logs";
 import "./launch-state";
 import "./list";
 
@@ -11,7 +12,6 @@ import "./metrics/outputs";
 
 import "./nodes/node-inputs";
 import "./nodes/node-jobs";
-import "./nodes/node-logs";
 import "./nodes/node-outputs";
 import "./nodes/node-progress";
 import "./nodes/node-state";

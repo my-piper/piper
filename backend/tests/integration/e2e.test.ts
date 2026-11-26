@@ -61,6 +61,7 @@ describe("pipeline executed by the real Deno service", () => {
       expect.objectContaining({
         level: "info",
         message: expect.stringContaining('"count":0'),
+        ts: expect.any(Number),
       })
     );
   });

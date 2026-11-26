@@ -80,6 +80,8 @@ export class ApiFixture {
   /** Redis-backed node state, keyed `launch/node`. */
   nodeStatus = new Map<string, Plain>();
   nodeOutputs = new Map<string, Plain>();
+  /** Node Logs per launch, as GET /api/launches/:launch/logs returns them. */
+  launchLogs = new Map<string, Plain>();
   readonly interrupted: string[] = [];
 
   private revision = 1;
@@ -474,10 +476,33 @@ export class ApiFixture {
         : dataError("Launch is not found"),
     );
 
-    // backend/api/launches/get-launch.ts: findOne → null → 204
+    // backend/api/launches/launch-logs.ts: oldest first, `?node=` narrows
+    this.on("GET", "/api/launches/:launch/logs", ({ params, query, user }) => {
+      const denied = this.requireUser(user);
+      if (denied) {
+        return denied;
+      }
+      if (!this.launches.has(params["launch"])) {
+        return { status: 404, text: "Not found" };
+      }
+      const logs = this.launchLogs.get(params["launch"]) ?? {
+        available: true,
+        logs: [],
+        dropped: {},
+      };
+      const node = query.get("node");
+      return ok({
+        ...clone(logs),
+        logs: (logs["logs"] as Plain[]).filter(
+          (log) => !node || log["node"] === node,
+        ),
+      });
+    });
+
+    // backend/api/launches/get-launch.ts: a missing launch is 404
     this.on("GET", "/api/launches/:id", ({ params }) => {
       const launch = this.launches.get(params["id"]);
-      return ok(launch ? clone(launch) : null);
+      return launch ? ok(clone(launch)) : { status: 404, text: "Not found" };
     });
 
     // backend/api/nodes/list.ts

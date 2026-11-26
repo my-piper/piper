@@ -10,7 +10,6 @@ import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { LaunchOutputsComponent } from "src/app/launch-outputs/launch-outputs.component";
 import { NodeJobsComponent } from "src/app/node-jobs/node-jobs.component";
-import { NodeLogsComponent } from "src/app/node-logs/node-logs.component";
 import { NodeOutputsComponent } from "src/app/node-outputs/node-outputs.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
 import { Launch } from "src/models/launch";
@@ -28,7 +27,7 @@ import { SocketDouble } from "../helpers/socket";
 
 /**
  * Node result reads: GET /api/launches/:launch/:node/{inputs,outputs,status}
- * and /api/launches/:launch/nodes/:node/{state,logs,jobs}
+ * and /api/launches/:launch/nodes/:node/{state,jobs}
  * (backend/api/launches/nodes/*). Node events arrive in the launch room as
  * `{ launch, node }` (backend/jobs/process-node/process-node-handler.ts).
  */
@@ -281,20 +280,6 @@ const NODE_VIEWS: {
     rendered: (e) => e.querySelector("pre")?.textContent,
   },
   {
-    name: "NodeLogsComponent",
-    component: NodeLogsComponent,
-    path: "logs",
-    events: ["node_gonna_repeat", "node_error", "node_done"],
-    respond: [
-      { level: "info", message: "started", job: 7, attempt: 0 },
-      { level: "error", message: "failed", job: 7, attempt: 0 },
-    ],
-    rendered: (e) =>
-      Array.from(e.querySelectorAll("p, pre"))
-        .map((x) => x.textContent.trim())
-        .join("|"),
-  },
-  {
     name: "NodeJobsComponent",
     component: NodeJobsComponent,
     path: "jobs",
@@ -329,7 +314,6 @@ for (const view of NODE_VIEWS) {
 
       const expected: Record<string, string> = {
         state: '{\n  "attempt": 2\n}',
-        logs: "Job 7 attempt 1|started|failed",
         jobs: "ok",
       };
       expect(view.rendered(setup.element)).toBe(expected[view.path]);

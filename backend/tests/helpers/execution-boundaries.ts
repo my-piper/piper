@@ -15,6 +15,8 @@ const doubles = vi.hoisted(() => ({
     lPush: vi.fn(),
     lRem: vi.fn(),
     lRange: vi.fn(),
+    lTrim: vi.fn(),
+    incrBy: vi.fn(),
   },
   plans: {
     rapid: vi.fn(),
@@ -124,6 +126,7 @@ export function resetExecutionDoubles() {
   doubles.redis.set.mockResolvedValue("OK");
   doubles.redis.sIsMember.mockResolvedValue(true);
   doubles.redis.lRange.mockResolvedValue([]);
+  doubles.redis.rPush.mockResolvedValue(1);
   doubles.distinct.mockResolvedValue([]);
   doubles.bucket.mockReturnValue(null);
   doubles.execute.mockResolvedValue({

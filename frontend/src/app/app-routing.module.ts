@@ -57,7 +57,7 @@ import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
 import { NodeInputsComponent } from "./node-inputs/node-inputs.component";
 import { NodeJobsComponent } from "./node-jobs/node-jobs.component";
-import { NodeLogsComponent } from "./node-logs/node-logs.component";
+import { LaunchLogsComponent } from "./launch-logs/launch-logs.component";
 import { NodeOutputsComponent } from "./node-outputs/node-outputs.component";
 import { EditPackageComponent } from "./node-packages/edit/edit-package.component";
 import { ExportPackageComponent } from "./node-packages/export/export-package.component";
@@ -228,13 +228,18 @@ const routes: Routes = [
               },
               {
                 path: "logs",
-                component: NodeJobsComponent,
+                component: LaunchLogsComponent,
               },
               {
                 path: "jobs",
                 component: NodeJobsComponent,
               },
             ],
+          },
+          {
+            path: "logs",
+            outlet: "right",
+            component: LaunchLogsComponent,
           },
           {
             path: "outputs",
@@ -404,7 +409,7 @@ const routes: Routes = [
                       },
                       {
                         path: "logs",
-                        component: NodeLogsComponent,
+                        component: LaunchLogsComponent,
                       },
                       {
                         path: "jobs",

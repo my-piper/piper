@@ -198,17 +198,35 @@
       }
     </div>
   }
-  @if (running) {
+  @if (mode === "launch") {
     <div class="actions stack">
-      <button
+      @if (running) {
+        <button
+          class="circle"
+          data-testid="interrupt-launch"
+          [class.busy]="progress.interrupting"
+          [disabled]="progress.interrupting"
+          (click)="interrupt()"
+        >
+          <app-icon class="icon" icon="stop"></app-icon>
+        </button>
+      }
+      <a
         class="circle"
-        data-testid="interrupt-launch"
-        [class.busy]="progress.interrupting"
-        [disabled]="progress.interrupting"
-        (click)="interrupt()"
+        data-testid="launch-logs"
+        title="Launch logs"
+        [class.toggled]="drawlers.right | is: launchLogsComponent"
+        [routerLink]="[
+          {
+            outlets: {
+              right:
+                (drawlers.right | is: launchLogsComponent) ? null : ['logs'],
+            },
+          },
+        ]"
       >
-        <app-icon class="icon" icon="stop"></app-icon>
-      </button>
+        <tui-icon class="icon" icon="@tui.scroll-text" />
+      </a>
     </div>
   }
 

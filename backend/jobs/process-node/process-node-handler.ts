@@ -7,7 +7,6 @@ import {
   NODE_FLOWS,
   NODE_JOB_DUE,
   NODE_JOBS,
-  NODE_LOGS,
   NODE_PROCESSED_LOCK,
   NODE_PROCESSING_LOCK,
   NODE_PROCESSING_TIMEOUT,
@@ -34,7 +33,7 @@ import { NodeExecution } from "enums/node-execution";
 import { HeartbeatEvent, PipelineEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
-import { NodeLog, NodeStatus } from "models/node";
+import { NodeStatus } from "models/node";
 import {
   execute,
   ExecutionError,
@@ -42,6 +41,7 @@ import {
   LogEntry,
 } from "packages/deno";
 import { readChildren, startChildren } from "packages/launches/child-launches";
+import { appendNodeLogs } from "packages/nodes/node-logs";
 import { LaunchChildrenNode, NodeJobResult, RepeatNode } from "types/node";
 import { PipelineEventType } from "types/pipeline";
 import { checkInputs, convertInputs, getNodeInputs } from "utils/node";
@@ -302,17 +302,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     }
 
     if (logs?.length > 0) {
-      const key = NODE_LOGS(launch._id, nodeJob.node);
-      await redis.rPush(
-        key,
-        logs.map(({ message, level }) => {
-          const plain = toPlain(
-            mapTo({ message, level, attempt: attemptsMade }, NodeLog)
-          );
-          return JSON.stringify(plain);
-        })
-      );
-      await redis.expire(key, LAUNCH_EXPIRED);
+      await appendNodeLogs(launch._id, nodeJob.node, attemptsMade, logs);
     }
   }
 

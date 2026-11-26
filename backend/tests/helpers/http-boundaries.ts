@@ -51,6 +51,7 @@ const httpDoubles = vi.hoisted(() => ({
     EXISTS: vi.fn(),
     scriptLoad: vi.fn(),
     evalSha: vi.fn(),
+    lRange: vi.fn(),
   },
   plans: {
     rapid: vi.fn(),
@@ -175,6 +176,7 @@ export function resetHttpDoubles() {
   httpDoubles.redis.EXISTS.mockResolvedValue(0);
   httpDoubles.redis.scriptLoad.mockResolvedValue("http-test-script");
   httpDoubles.redis.evalSha.mockResolvedValue("1");
+  httpDoubles.redis.lRange.mockResolvedValue([]);
   httpDoubles.axios.mockRejectedValue(
     new Error("Unexpected external HTTP request in an HTTP contract test")
   );

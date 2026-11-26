@@ -72,6 +72,12 @@ export const NODE_STATUS = (launch: string, node: string) =>
 export const NODE_LOGS = (launch: string, node: string) =>
   `launch:${launch}:nodes:${node}:logs`;
 
+// how many of a node's oldest log lines were dropped to stay under NODE_LOGS_LIMIT
+export const NODE_LOGS_DROPPED = (launch: string, node: string) =>
+  `launch:${launch}:nodes:${node}:logs:dropped`;
+
+export const NODE_LOGS_LIMIT = 1000;
+
 export const NODE_JOBS = (launch: string, node: string) =>
   `launch:${launch}:nodes:${node}:jobs`;
 

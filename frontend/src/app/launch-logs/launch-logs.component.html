@@ -1,0 +1,93 @@
+<header>
+  <h2>
+    @if (node(); as key) {
+      Logs of {{ title(key) }}
+    } @else {
+      Launch logs
+    }
+  </h2>
+  <button
+    tuiButton
+    type="button"
+    size="s"
+    appearance="secondary"
+    iconStart="@tui.refresh-cw"
+    data-testid="refresh-logs"
+    [loading]="loading()"
+    (click)="load()"
+  >
+    Refresh
+  </button>
+</header>
+
+@if (error(); as message) {
+  <p class="notice error" data-testid="logs-error">{{ message }}</p>
+}
+
+@if (result(); as logs) {
+  @if (!logs.available) {
+    <p class="notice" data-testid="logs-expired">
+      Logs expired: they are kept only while the launch's live state is.
+    </p>
+  } @else {
+    <div class="filters">
+      @for (level of levels; track level) {
+        <button
+          tuiChip
+          type="button"
+          size="xs"
+          [attr.data-level]="level"
+          [attr.aria-pressed]="shownLevels().has(level)"
+          [appearance]="shownLevels().has(level) ? 'accent' : 'neutral'"
+          (click)="toggleLevel(level)"
+        >
+          {{ level }}
+        </button>
+      }
+    </div>
+
+    @if (!node() && nodes().length > 1) {
+      <div class="filters" data-testid="node-filter">
+        @for (key of nodes(); track key) {
+          <button
+            tuiChip
+            type="button"
+            size="xs"
+            [attr.aria-pressed]="shownNode() === key"
+            [appearance]="shownNode() === key ? 'primary' : 'neutral'"
+            (click)="showNode(key)"
+          >
+            {{ title(key) }}
+          </button>
+        }
+      </div>
+    }
+
+    @for (drop of dropped(); track drop.node) {
+      <p class="notice" data-testid="logs-dropped">
+        {{ drop.count }} earlier lines of {{ title(drop.node) }} dropped
+      </p>
+    }
+
+    <div class="lines" data-testid="logs">
+      @for (log of lines(); track $index) {
+        <div class="line" [attr.data-level]="log.level">
+          <span class="meta">
+            @if (log.ts) {
+              <time>{{ log.ts | date: "HH:mm:ss.SSS" }}</time>
+            }
+            @if (!node()) {
+              <span class="node">{{ title(log.node) }}</span>
+            }
+            <span class="attempt">#{{ log.attempt + 1 }}</span>
+          </span>
+          <pre>{{ log.message }}</pre>
+        </div>
+      } @empty {
+        <p class="notice" data-testid="logs-empty">No log lines yet.</p>
+      }
+    </div>
+  }
+} @else if (loading()) {
+  <tui-loader />
+}

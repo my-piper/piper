@@ -139,7 +139,6 @@ import { NodeAppComponent } from "./node-app/node-app.component";
 import { NodeInLaunchComponent } from "./node-in-launch/node-in-launch.component";
 import { NodeInputsComponent } from "./node-inputs/node-inputs.component";
 import { NodeJobsComponent } from "./node-jobs/node-jobs.component";
-import { NodeLogsComponent } from "./node-logs/node-logs.component";
 import { NodeOutputsComponent } from "./node-outputs/node-outputs.component";
 import { EditPackageComponent } from "./node-packages/edit/edit-package.component";
 import { ExportPackageComponent } from "./node-packages/export/export-package.component";
@@ -247,7 +246,6 @@ import { UsersComponent } from "./users/users.component";
     EditNodeCatalogComponent,
     EditNodeEnvironmentComponent,
     EditPipelineEnvironmentComponent,
-    NodeLogsComponent,
     SubmitButtonDirective,
     EditPackageComponent,
     ExportPackageComponent,

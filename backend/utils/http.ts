@@ -250,6 +250,25 @@ export function checkProjectAccess(
   }
 }
 
+// A launch looks missing to everyone except the user who started it, the
+// owner of the project it came from (directly or through a deploy) and admins.
+export function checkLaunchAccess(
+  user: User,
+  launch: {
+    launchedBy?: { _id?: string };
+    project?: { createdBy?: { _id?: string } };
+  } | null
+) {
+  if (
+    !launch ||
+    (launch.launchedBy?._id !== user._id &&
+      launch.project?.createdBy?._id !== user._id &&
+      !isAdmin(user))
+  ) {
+    throw new NotFoundError();
+  }
+}
+
 export function toModels<T>(arr: object[], model: new () => T): T[] {
   return arr.map((o) => toInstance(o, model));
 }

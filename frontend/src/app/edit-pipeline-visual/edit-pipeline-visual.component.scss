@@ -208,7 +208,10 @@
       position: absolute;
       z-index: 1;
       transform: translate(-50%, -50%);
-      background: variables.with-alpha(app-variables.$node-background-color, 0.5);
+      background: variables.with-alpha(
+        app-variables.$node-background-color,
+        0.5
+      );
       backdrop-filter: blur(2px);
       border-radius: variables.$corner-large;
       padding: variables.$gutter-small;

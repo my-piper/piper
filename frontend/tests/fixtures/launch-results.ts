@@ -8,8 +8,10 @@
  * - POST /api/launches/:id/interrupt returns null; 404 when the launch expired
  *   (backend/api/launches/interrupt-launch.ts).
  * - GET /api/launches/:launch/:node/{inputs,outputs,status,progress} and
- *   /api/launches/:launch/nodes/:node/{state,logs,jobs}
+ *   /api/launches/:launch/nodes/:node/{state,jobs}
  *   (backend/api/launches/nodes/*).
+ * - GET /api/launches/:launch/logs?node= returns `{ available, logs, dropped }`
+ *   (backend/api/launches/launch-logs.ts).
  * - GET /api/projects/:project/deploys, POST /api/projects/:_id/deploy (null),
  *   DELETE /api/deploys/:prefix/:slug or /api/deploys/:slug (null)
  *   (backend/api/projects/deploys/list.ts, backend/api/projects/deploy-project.ts,
@@ -113,4 +115,35 @@ export function deploysPlain(): Plain[] {
       deployedAt: "2026-03-01T10:00:00.000Z",
     },
   ];
+}
+
+/** Response of GET /api/launches/:launch/logs for the whole launch. */
+export function launchLogsPlain(): Plain {
+  return {
+    available: true,
+    logs: [
+      {
+        node: "node_one",
+        level: "info",
+        message: "started",
+        attempt: 0,
+        ts: 1772366400000,
+      },
+      {
+        node: "node_two",
+        level: "debug",
+        message: "parsed",
+        attempt: 0,
+        ts: 1772366401000,
+      },
+      {
+        node: "node_one",
+        level: "error",
+        message: "failed",
+        attempt: 1,
+        ts: 1772366402000,
+      },
+    ],
+    dropped: { node_two: 5 },
+  };
 }

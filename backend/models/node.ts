@@ -361,6 +361,38 @@ export class NodeLog {
   @Expose()
   @Type(() => Number)
   attempt: number;
+
+  // milliseconds since the epoch; missing on lines stored before it was kept
+  @Expose()
+  @Type(() => Number)
+  ts?: number;
+}
+
+// a Node Log line in the logs of a whole launch, tagged with its node
+export class LaunchLog extends NodeLog {
+  @Expose()
+  @Type(() => String)
+  node: string;
+}
+
+export class LaunchLogs {
+  // false once the launch's live state, and its logs with it, has expired
+  @Expose()
+  @Type(() => Boolean)
+  available: boolean;
+
+  @Expose()
+  @Type(() => LaunchLog)
+  logs: LaunchLog[];
+
+  // lines dropped per node to keep each node under the line limit
+  @Expose()
+  @Transform(objectTransformer)
+  dropped: Record<string, number>;
+
+  constructor(defs: Partial<LaunchLogs> = {}) {
+    assign(this, defs);
+  }
 }
 
 export class NodeToUpdate {

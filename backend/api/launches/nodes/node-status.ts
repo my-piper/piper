@@ -2,10 +2,13 @@ import api from "app/api";
 import { NODE_STATUS } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { handle } from "utils/http";
+import { checkLaunchVisible } from "../access";
 
 api.get(
   "/api/launches/:launch/:node/status",
-  handle(() => async ({ params: { launch, node } }) => {
+  handle(({ currentUser }) => async ({ params: { launch, node } }) => {
+    await checkLaunchVisible(currentUser, launch);
+
     return await redis.get(NODE_STATUS(launch, node));
   })
 );
