@@ -274,16 +274,19 @@
               formControlName="value"
               [attr.placeholder]="placeholder | i18n"
               [attr.aria-label]="label"
-              [attr.list]="id"
             />
-          </tui-textfield>
-          <datalist [id]="id">
-            @for (g of choices; track g.name) {
-              @for (c of g.choices; track c.value) {
-                <option [value]="c.value">{{ c.label }}</option>
+            @if (suggestionsFor(valueControl.value); as found) {
+              @if (found.length > 0) {
+                <tui-data-list *tuiDropdown>
+                  @for (c of found; track c.value) {
+                    <button tuiOption type="button" [value]="c.value">
+                      {{ c.label }}
+                    </button>
+                  }
+                </tui-data-list>
               }
             }
-          </datalist>
+          </tui-textfield>
         } @else {
           <tui-textfield
             tuiChevron

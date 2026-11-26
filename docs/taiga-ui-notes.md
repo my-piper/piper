@@ -50,3 +50,10 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
 - **A borderless inline editor (the project title) is `<tui-input-inline>`**
   around a plain `<input formControlName>`, styled by the component; a
   `tui-textfield` would add a box.
+- **Suggestions for a free-text field (the old `<datalist>`)** are a
+  `<tui-data-list *tuiDropdown>` inside the `tui-textfield`, with
+  `button[tuiOption][value]` per option; picking one writes its value into
+  the input. Don't set `[stringify]` on that textfield to show labels: the
+  input then shows the label too. Render the label as the option's text and
+  filter in the component (see `edit-input`). The input gets
+  `role="combobox"`, so locate it by CSS or label rather than as a textbox.
