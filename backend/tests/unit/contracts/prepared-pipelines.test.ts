@@ -213,11 +213,13 @@ ${SCRIPT}`,
 
   it("rejects a required input of a running node that nothing can fill", () => {
     const pipeline = preparedFixture();
-    pipeline.nodes.echo_node.inputs.question = {
-      title: "Question",
-      type: "string",
-      required: true,
-    } as never;
+    Object.assign(pipeline.nodes.echo_node.inputs, {
+      question: {
+        title: "Question",
+        type: "string",
+        required: true,
+      },
+    });
 
     const result = check(pipeline);
 
@@ -228,13 +230,15 @@ ${SCRIPT}`,
 
   it("accepts an unfilled required input on a node nothing reaches", () => {
     const pipeline = preparedFixture();
-    pipeline.nodes.echo_node.inputs.question = {
-      title: "Question",
-      type: "string",
-      required: true,
-    } as never;
+    Object.assign(pipeline.nodes.echo_node.inputs, {
+      question: {
+        title: "Question",
+        type: "string",
+        required: true,
+      },
+    });
     pipeline.start.nodes = [];
-    pipeline.inputs = {};
+    Object.assign(pipeline, { inputs: {} });
 
     const result = check(pipeline);
 
@@ -245,12 +249,14 @@ ${SCRIPT}`,
 
   it("accepts an unfed required input that has a default", () => {
     const pipeline = preparedFixture();
-    pipeline.nodes.echo_node.inputs.question = {
-      title: "Question",
-      type: "string",
-      required: true,
-      default: "",
-    } as never;
+    Object.assign(pipeline.nodes.echo_node.inputs, {
+      question: {
+        title: "Question",
+        type: "string",
+        required: true,
+        default: "",
+      },
+    });
 
     const result = check(pipeline);
 
