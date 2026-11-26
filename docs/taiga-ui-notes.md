@@ -57,3 +57,7 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   input then shows the label too. Render the label as the option's text and
   filter in the component (see `edit-input`). The input gets
   `role="combobox"`, so locate it by CSS or label rather than as a textbox.
+- **`app-json-editor` keeps the `@json-editor/json-editor` DOM** and styles it
+  through `::ng-deep` with Taiga variables (`--tui-background-base` for
+  fields, `--tui-border-normal`, `--tui-background-neutral-1` for its buttons),
+  so it follows the theme like a `tui-textfield` without wrapping each control.
