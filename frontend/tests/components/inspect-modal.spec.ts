@@ -1,4 +1,5 @@
 import { CommonModule } from "@angular/common";
+import { TuiIcon } from "@taiga-ui/core";
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -8,7 +9,6 @@ import { InspectDirective } from "src/directives/inspect";
 import { Languages } from "src/enums/languages";
 import { I18nPipe } from "src/pipes/i18n.pipe";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
-import { IconComponent } from "src/ui-kit/icon/icon.component";
 import { ModalComponent } from "src/ui-kit/modal/modal.component";
 
 const IMAGE =
@@ -33,10 +33,9 @@ async function render() {
       InspectComponent,
       ImageFallbackDirective,
       ModalComponent,
-      IconComponent,
       I18nPipe,
     ],
-    imports: [CommonModule],
+    imports: [CommonModule, TuiIcon],
     providers: [{ provide: CURRENT_LANGUAGE, useValue: Languages.en }],
   }).compileComponents();
   const fixture = TestBed.createComponent(InspectHost);
