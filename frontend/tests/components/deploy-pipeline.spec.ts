@@ -18,6 +18,7 @@ import { CanPipe } from "src/pipes/can";
 import { ProjectManager } from "src/services/project.manager";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { TaigaFormsModule } from "src/app/taiga-forms.module";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
 import { deploysPlain } from "../fixtures/launch-results";
 import { projectA } from "../fixtures/models";
@@ -58,6 +59,7 @@ describe("DeployPipelineComponent", () => {
         ReactiveFormsModule,
         RouterModule,
         UiKitModule,
+        TaigaFormsModule,
         JsonEditorStubComponent,
       ],
       providers: [
@@ -176,7 +178,7 @@ describe("DeployPipelineComponent", () => {
     editJson(element, { prefix: USER_IDS.owner, slug: "fresh" });
     tick(1000);
 
-    (element.querySelector("footer button.primary") as HTMLElement).click();
+    (element.querySelector("footer button[tuiButton]") as HTMLElement).click();
     fixture.detectChanges();
     const request = controller.expectOne(
       `/api/projects/${PROJECT_A_ID}/deploy`,
@@ -202,7 +204,7 @@ describe("DeployPipelineComponent", () => {
     setup();
     list([]);
 
-    (element.querySelector("footer button.primary") as HTMLElement).click();
+    (element.querySelector("footer button[tuiButton]") as HTMLElement).click();
     controller
       .expectOne(`/api/projects/${PROJECT_A_ID}/deploy`)
       .flush("You can't deploy this project in this prefix", {

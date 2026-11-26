@@ -17,7 +17,9 @@
     </ul>
     <div>
       <button
-        class="primary"
+        tuiButton
+        appearance="outline-grayscale"
+        size="s"
         [disabled]="state.updated.all"
         i18n="@@action.update_all"
         (click)="updateAll()"
@@ -46,7 +48,9 @@
         </ngx-monaco-diff-editor>
         <footer>
           <button
-            class="primary"
+            tuiButton
+            appearance="outline-grayscale"
+            size="s"
             [disabled]="state.updated[state.active]"
             i18n="@@action.update"
             (click)="update()"
@@ -60,9 +64,7 @@
     @if (progress.loading) {
       <app-skeleton type="cards" [cols]="2"></app-skeleton>
     } @else {
-      <p i18n="@@message.no_node_updates">
-        No updates in nodes from catalog.
-      </p>
+      <p i18n="@@message.no_node_updates">No updates in nodes from catalog.</p>
     }
   }
 }

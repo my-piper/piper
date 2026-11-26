@@ -9,7 +9,13 @@
     <header>
       <h1>{{ options.title | i18n }}</h1>
       @if (!options.hold) {
-        <button class="close primary" (click)="close('user')">
+        <button
+          tuiButton
+          appearance="outline-grayscale"
+          size="s"
+          class="close"
+          (click)="close('user')"
+        >
           <app-icon class="icon right" icon="close"></app-icon>
           <span tuiBadge appearance="neutral" size="s">ESC</span>
         </button>
