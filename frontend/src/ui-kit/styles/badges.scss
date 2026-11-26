@@ -9,17 +9,4 @@
     line-height: .85em;
     min-width: 1.5em;
     border-radius: variables.$corner-base;
-
-    &.error {
-        background: variables.$error-color;
-    }
-
-    &.success {
-        background: variables.$success-color;
-    }
-
-    &.ghost {
-        border: 1px solid variables.$control-border-color;
-        color: variables.$graphite-color-100;
-    }
 }
