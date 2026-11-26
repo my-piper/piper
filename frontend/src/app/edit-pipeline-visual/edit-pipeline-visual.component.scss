@@ -123,11 +123,13 @@
   }
 
   .input {
-    .more {
+    // Above the card: an input is too narrow for its title and two buttons.
+    .item-actions {
       z-index: 1;
       position: absolute;
-      top: variables.$gutter-normal;
-      right: variables.$gutter-small;
+      bottom: 100%;
+      right: 0;
+      display: flex;
     }
 
     transform: translate(-100%, -50%);
@@ -162,11 +164,12 @@
       top: -32px;
     }
 
-    .more {
+    .item-actions {
       z-index: 1;
       position: absolute;
       top: variables.$gutter-normal;
       right: variables.$gutter-small;
+      display: flex;
     }
   }
 
@@ -203,8 +206,20 @@
       opacity: 0.5;
       transition: opacity 150ms ease-in-out;
 
-      &:hover {
+      // The delete button shows only while the flow is hovered: flow
+      // midpoints crowd the canvas.
+      > .delete {
+        opacity: 0;
+        transition: opacity 150ms ease-in-out;
+      }
+
+      &:hover,
+      &:focus-within {
         opacity: 1;
+
+        > .delete {
+          opacity: 1;
+        }
       }
     }
 
