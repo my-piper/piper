@@ -38,6 +38,7 @@ export class ArtefactsComponent {
   references: { popover: PopoverComponent } = { popover: null };
   artefacts: LaunchArtefact[] = [];
 
+  /** Every use binds a filter; setting it loads the matching artefacts. */
   @Input()
   set filter(filter: Partial<ArtefactsFilter>) {
     this._filter = toInstance(filter, ArtefactsFilter);
@@ -55,10 +56,6 @@ export class ArtefactsComponent {
     private http: HttpService,
     private cd: ChangeDetectorRef,
   ) {}
-
-  ngOnInit() {
-    this.load();
-  }
 
   private load() {
     this.progress.loading = true;

@@ -18,7 +18,6 @@ import { TimeDiffPipe } from "src/pipes/time-diff.pipe";
 import { TimePassedPipe } from "src/pipes/time-passed.pipe";
 import { PopoverComponent } from "./popover/popover.component";
 import { PopoverDirective } from "./popover/popover.directive";
-import { SkeletonComponent } from "./skeleton/skeleton.component";
 import { SpinnerComponent } from "./spinner/spinner.component";
 import { TabsComponent } from "./tabs/tabs.component";
 
@@ -38,7 +37,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     HotKeyDirective,
     FileTypePipe,
     LengthPipe,
-    SkeletonComponent,
     MockArrayPipe,
     LabelsPipe,
     TimeDiffPipe,
@@ -59,7 +57,6 @@ import { TabsComponent } from "./tabs/tabs.component";
     HotKeyDirective,
     FileTypePipe,
     LengthPipe,
-    SkeletonComponent,
     MockArrayPipe,
     LabelsPipe,
     TimeDiffPipe,

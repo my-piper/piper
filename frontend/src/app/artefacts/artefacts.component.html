@@ -59,7 +59,11 @@
   </div>
 } @else {
   @if (progress.loading) {
-    <app-skeleton type="cards" [cols]="5" [rows]="2"></app-skeleton>
+    <div class="card-skeleton" data-testid="loading" style="--cols: 5">
+      @for (cell of 10 | mockArray; track $index) {
+        <div [tuiSkeleton]="true"></div>
+      }
+    </div>
   } @else {
     <p i18n="@@message.nothing_found">Nothing found.</p>
   }
