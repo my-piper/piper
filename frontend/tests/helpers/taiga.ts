@@ -55,3 +55,42 @@ export function typeChip(input: Element | null, text: string) {
   element.dispatchEvent(new Event("input"));
   element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
 }
+
+/** The message a `<tui-error>` shows; empty while the field has none. */
+export function fieldError(error: Element | null): string {
+  return (error as Element).textContent.trim();
+}
+
+/** Shows or hides a password field's value by clicking its eye icon. */
+export function togglePassword(textfield: Element | null) {
+  (textfield as Element)
+    .querySelector<HTMLElement>("tui-icon[tuiPassword]")
+    .click();
+}
+
+/** The labels of a `<tui-segmented>`'s items. */
+export function segmentLabels(segmented: Element | null): string[] {
+  return Array.from((segmented as Element).children).map((item) =>
+    item.textContent.trim(),
+  );
+}
+
+/** The label of the item a `<tui-segmented>` marks active. */
+export function activeSegment(segmented: Element | null): string {
+  return (
+    (segmented as Element)
+      .querySelector(":scope > .tui-segmented_active")
+      ?.textContent.trim() ?? ""
+  );
+}
+
+/**
+ * Picks a `<tui-segmented>` item by its label, as a user would: clicks the
+ * radio inside a label item, or the item itself when it is a button or link.
+ */
+export function pickSegment(segmented: Element | null, label: string) {
+  const item = Array.from((segmented as Element).children).find(
+    (child) => child.textContent.trim() === label,
+  ) as HTMLElement;
+  (item.querySelector<HTMLElement>("input") ?? item).click();
+}

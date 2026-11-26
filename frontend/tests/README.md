@@ -120,6 +120,15 @@ Helpers in `helpers/taiga.ts`; app-side gotchas in `docs/taiga-ui-notes.md`.
 - `input[tuiInputChip]` reads typing only while focused: add chips with
   `typeChip`, read them with `chipLabels`. The focused input leaves Taiga
   timers running, so call `fixture.destroy()` before `finish()`.
+- Read a `<tui-error>`'s message with `fieldError` (empty until the control
+  is touched and invalid). Specs that render a form outside `AppModule` need
+  `provideValidationErrors()` for the app's messages.
+- `togglePassword` clicks a password field's eye icon; check the input's
+  `type` to see whether the value is shown.
+- Drive a `<tui-segmented>` with `pickSegment(segmented, label)`; read it with
+  `segmentLabels` and `activeSegment` (Taiga marks the active item with
+  `.tui-segmented_active`).
+- `tests/components/taiga-forms.spec.ts` shows these on a test-only form.
 
 ## Wire contracts
 

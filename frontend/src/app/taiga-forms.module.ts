@@ -1,7 +1,10 @@
 import { NgModule } from "@angular/core";
 import {
   TuiButton,
+  TuiDataList,
+  TuiError,
   TuiHint,
+  TuiIcon,
   TuiInput,
   TuiLabel,
   TuiLink,
@@ -18,6 +21,8 @@ import {
   TuiInputChip,
   TuiInputNumber,
   TuiInputSlider,
+  TuiPassword,
+  TuiSegmented,
   TuiSelect,
   TuiSwitch,
   TuiTextarea,
@@ -26,8 +31,9 @@ import {
 
 /**
  * The Taiga UI form controls used by the app's non-standalone components:
- * text fields, textareas, chip inputs, number and slider inputs, native selects, switches,
- * filter chips, labels, hints and tooltips, buttons, links and tables.
+ * text fields, password toggles, textareas, chip inputs, number and slider inputs,
+ * native selects, data lists, segmented controls, switches, filter chips, field errors,
+ * labels, hints and tooltips, buttons, links and tables.
  */
 const TAIGA_FORMS = [
   TuiButton,
@@ -38,6 +44,9 @@ const TAIGA_FORMS = [
   TuiTooltip,
   ...TuiTextfield,
   ...TuiInput,
+  // tuiPassword is an attribute of <tui-icon>.
+  TuiIcon,
+  TuiPassword,
   ...TuiTextarea,
   ...TuiInputChip,
   ...TuiInputNumber,
@@ -45,10 +54,13 @@ const TAIGA_FORMS = [
   ...TuiSlider,
   TuiNumberFormat,
   ...TuiSelect,
+  ...TuiDataList,
   TuiChevron,
   TuiChip,
   TuiFilter,
+  TuiSegmented,
   TuiSwitch,
+  ...TuiError,
   ...TuiTable,
 ];
 

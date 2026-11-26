@@ -12,7 +12,6 @@ import {
   provideTaiga,
   TuiAppearance,
   TuiButton,
-  TuiDataList,
   TuiDialog,
   TuiDropdown,
   TuiIcon,
@@ -102,6 +101,7 @@ import { YamlPipe } from "src/pipes/yaml";
 import { Ajv, ajvFactory } from "src/providers/ajv";
 import { appConfigFactory } from "src/providers/app-config";
 import { ScrollTopListener } from "src/providers/scroll-top.listener";
+import { provideValidationErrors } from "src/providers/validation-errors";
 import { applyMonacoTheme, ThemeManager } from "src/services/theme.service";
 import { baseHrefFactory } from "src/providers/base-href";
 import { UiKitModule } from "src/ui-kit/ui-kit.module";
@@ -308,7 +308,6 @@ import { UsersComponent } from "./users/users.component";
     NodeScriptHelpComponent,
     TuiButton,
     TuiIcon,
-    ...TuiDataList,
     TuiDialog,
     ...TuiDropdown,
     TuiLink,
@@ -326,6 +325,7 @@ import { UsersComponent } from "./users/users.component";
   ],
   providers: [
     provideTaiga(),
+    provideValidationErrors(),
     {
       provide: APP_BASE_HREF,
       useFactory: baseHrefFactory,

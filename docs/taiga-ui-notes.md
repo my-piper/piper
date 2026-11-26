@@ -18,3 +18,18 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   versions.
 - **Tags are `input[tuiInputChip]` in `<tui-textfield multi>`** with
   `<tui-input-chip *tuiItem />`; its value is a `string[]`.
+- **Field errors are `<tui-error formControlName="…" />`** under the
+  `tui-textfield`. Its message comes from the app-wide set in
+  `src/providers/validation-errors.ts` (`required`, `minlength`, `email`,
+  `pattern`, `passwordMismatch`), keyed by the validator's error name, and
+  shows once the control is touched. Add a key there when a validator is
+  shared; override a message for one form with `tuiValidationErrorsProvider`
+  in that component's `providers`. A form-level error (e.g. the change-password
+  mismatch) needs `<tui-error [error]="…">` bound to the group's error.
+- **Show error text only where the screen showed it before** (#134): most
+  forms only marked an invalid field with a red border, which `tui-textfield`
+  already does on its own. Adding `<tui-error>` to such a field is new text,
+  i.e. a redesign.
+- **`tuiPassword` is an attribute of `<tui-icon>`**:
+  `<tui-icon tuiPassword />` inside the `tui-textfield` adds the show/hide
+  toggle; it needs `TuiIcon` (both come with `TaigaFormsModule`).
