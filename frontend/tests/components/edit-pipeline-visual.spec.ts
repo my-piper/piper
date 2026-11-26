@@ -1,3 +1,4 @@
+import { getDebugNode } from "@angular/core";
 import { hover, openDialog, unhover } from "../helpers/taiga";
 import { fakeAsync, tick } from "@angular/core/testing";
 import { diff, patch } from "jsondiffpatch/with-text-diffs";
@@ -933,17 +934,45 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("does not select a node when one of its buttons is clicked", fakeAsync(() => {
-      const { element, router } = setupEditor();
+    it("takes an input out of a node through its port menu", fakeAsync(() => {
+      const { element, editor, detectChanges } = setupEditor();
+      const before = editor.pipeline.inputs.size;
+      const port = nodeElement(element, "node_two").querySelector(
+        "ul.inputs button.port",
+      ) as HTMLElement;
 
-      (
-        nodeElement(element, "node_two").querySelector(
-          "ul.inputs button.port",
-        ) as HTMLElement
-      ).click();
+      port.click();
+      detectChanges();
+      tick();
+      Array.from(document.querySelectorAll("tui-data-list button"))
+        .find((b) => b.textContent.trim() === "Take out")
+        .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      detectChanges();
       tick();
 
-      expect(router.url).toBe(EDITOR_URL);
+      expect(editor.pipeline.inputs.size).toBe(before + 1);
+      expect(
+        getDebugNode(nodeElement(element, "node_two").closest("app-node"))
+          ?.componentInstance.openMenu,
+      ).toBeNull();
+      finish();
+    }));
+
+    it("does not select a node when one of its buttons is clicked", fakeAsync(() => {
+      const { element, router, detectChanges } = setupEditor();
+      const port = nodeElement(element, "node_two").querySelector(
+        "ul.inputs button.port",
+      ) as HTMLElement;
+
+      port.click();
+      tick();
+      const url = router.url;
+      // the click opens the port's menu; close it, or its iframe outlives the spec
+      port.click();
+      detectChanges();
+      tick();
+
+      expect(url).toBe(EDITOR_URL);
       finish();
     }));
   });

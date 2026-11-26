@@ -21,29 +21,30 @@
     @for (g of node.render.inputs; track g.id) {
       @for (i of g.group.inputs; track i.id) {
         <ng-template #inputMenuPopover>
-          <div class="context-menu">
-            <li>
-              <button
-                (click)="emitTakeOutInput(i.id, i.input)"
-                i18n="@@action.take_out"
-              >
-                Take out
-              </button>
-            </li>
-          </div>
+          <tui-data-list size="s">
+            <button
+              tuiOption
+              type="button"
+              (click)="emitTakeOutInput(i.id, i.input)"
+              i18n="@@action.take_out"
+            >
+              Take out
+            </button>
+          </tui-data-list>
         </ng-template>
         @if (i.input.featured) {
           <li>
             <div class="title">{{ i.input.title | i18n }}</div>
             <button
               class="port"
-              [appPopover]="{
-                content: inputMenuPopover,
-                trigger: 'click',
-                position: 'left',
-              }"
+              [tuiDropdown]="inputMenuPopover"
+              [tuiDropdownOpen]="openMenu === 'input:' + i.id"
+              (tuiDropdownOpenChange)="
+                openMenu = $event ? 'input:' + i.id : null
+              "
+              tuiDropdownSided
+              tuiDropdownAlign="start"
               [attr.data-testid]="'input-port-' + i.id"
-              (attached)="references.popover = $event"
               (mouseup)="pinTo(i.id)"
             ></button>
           </li>
@@ -55,27 +56,26 @@
     @for (o of node.outputs | keyvalue; track o.key) {
       <li>
         <ng-template #outputMenuPopover>
-          <div class="context-menu">
-            <li>
-              <button
-                (click)="emitTakeOutOutput(o.key, o.value)"
-                i18n="@@action.take_out"
-              >
-                Take out
-              </button>
-            </li>
-          </div>
+          <tui-data-list size="s">
+            <button
+              tuiOption
+              type="button"
+              (click)="emitTakeOutOutput(o.key, o.value)"
+              i18n="@@action.take_out"
+            >
+              Take out
+            </button>
+          </tui-data-list>
         </ng-template>
         <div class="title">{{ o.value.title | i18n }}</div>
         <button
           class="port"
-          [appPopover]="{
-            content: outputMenuPopover,
-            trigger: 'click',
-            position: 'right',
-          }"
+          [tuiDropdown]="outputMenuPopover"
+          [tuiDropdownOpen]="openMenu === 'output:' + o.key"
+          (tuiDropdownOpenChange)="openMenu = $event ? 'output:' + o.key : null"
+          tuiDropdownSided
+          tuiDropdownAlign="end"
           [attr.data-testid]="'output-port-' + o.key"
-          (attached)="references.popover = $event"
           (mousedown)="pinFrom(o.key)"
         ></button>
       </li>

@@ -19,7 +19,7 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { NgTemplateOutlet } from "@angular/common";
-import { provideTaiga, TuiDialog } from "@taiga-ui/core";
+import { provideTaiga, TuiDialog, TuiDropdown } from "@taiga-ui/core";
 import { authorizationPlain } from "../fixtures/plain";
 import { PlainAppConfig, RUNTIME_VARIANTS } from "../fixtures/runtime-config";
 import { HcaptchaStubComponent } from "../helpers/captcha-stub";
@@ -50,6 +50,7 @@ async function render(config: Partial<PlainAppConfig> = {}) {
       TaigaFormsModule,
       HcaptchaStubComponent,
       ErrorDialogComponent,
+      ...TuiDropdown,
       TuiDialog,
       NgTemplateOutlet,
     ],

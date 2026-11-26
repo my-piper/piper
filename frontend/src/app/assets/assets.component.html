@@ -20,8 +20,8 @@
         class="round"
         type="button"
         [disabled]="folders.length <= 0"
-        [appPopover]="{ content: foldersPopover, trigger: 'click' }"
-        (attached)="references.popover = $event"
+        [tuiDropdown]="foldersPopover"
+        [(tuiDropdownOpen)]="foldersOpen"
         iconStart="menu"
         style="--app-icon-size: 20px"
       ></button>
