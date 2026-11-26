@@ -28,7 +28,7 @@ import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
-import { ChoiceGroup, choiceGroups } from "src/utils/input-choices";
+import { Choice, ChoiceGroup, choiceGroups } from "src/utils/input-choices";
 import { TuiNumberFormatSettings } from "@taiga-ui/core";
 import { ModalService } from "../../ui-kit/modal/modal.service";
 
@@ -122,10 +122,25 @@ export class EditInputComponent
   /** Option values for a native select: flat, or one list per group. */
   selectItems: string[] | string[][] = [];
   selectLabels: string[] = [];
+  /** The options a freeform input suggests, ungrouped. */
+  suggestions: Choice[] = [];
   private choiceLabels = new Map<string, string>();
 
   /** Shows an option value by its label. */
   readonly labelOf = (value: string) => this.choiceLabels.get(value) ?? value;
+  /**
+   * The suggestions whose value or label contains the typed text, ignoring
+   * case, as the native datalist matched them; all of them while it's empty.
+   */
+  suggestionsFor(text: unknown): Choice[] {
+    const query = String(text ?? "").toLowerCase();
+    return this.suggestions.filter(
+      ({ value, label }) =>
+        value.toLowerCase().includes(query) ||
+        label.toLowerCase().includes(query),
+    );
+  }
+
   readonly choiceContent = ({ $implicit }: { $implicit: string }) =>
     this.labelOf($implicit);
 
@@ -223,6 +238,7 @@ export class EditInputComponent
       this.syncGroups();
       const grouped = this.choices.some(({ name }) => !!name);
       this.selectItems = grouped ? values : values.flat();
+      this.suggestions = this.choices.flatMap(({ choices }) => choices);
       this.selectLabels = grouped
         ? this.choices.map(({ name }) => name ?? "")
         : [];
