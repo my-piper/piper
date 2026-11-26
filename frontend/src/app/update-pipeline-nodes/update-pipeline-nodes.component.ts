@@ -4,7 +4,6 @@ import {
   OnInit,
   ChangeDetectionStrategy,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
 import { PipelineNodeUpdates } from "src/models/node";
@@ -41,7 +40,6 @@ export class UpdatePipelineNodesComponent implements OnInit {
 
   constructor(
     private projectManager: ProjectManager,
-    private fb: FormBuilder,
     private http: HttpService,
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
