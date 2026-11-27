@@ -1,14 +1,13 @@
 import api from "app/api";
-import { queues } from "app/queues";
 import { LAUNCH, NODE_JOBS } from "consts/redis";
 import redis from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
-import { NodeExecution } from "enums/node-execution";
 import orderBy from "lodash/orderBy";
 import { Launch } from "models/launch";
 import { handle } from "utils/http";
 import { checkLaunchVisible } from "packages/launches/access";
+import { processQueue } from "packages/nodes/plan-node";
 import { BullJob } from "./models/bull-job";
 import { NodeJob } from "./models/node-job";
 
@@ -32,19 +31,7 @@ api.get(
       throw new DataError("Node is not found in pipeline");
     }
 
-    const queue = (() => {
-      switch (node.execution) {
-        case NodeExecution.rapid:
-          return queues.nodes.process.rapid;
-        case NodeExecution.deferred:
-          return queues.nodes.process.deferred;
-        case NodeExecution.protracted:
-          return queues.nodes.process.protracted;
-        case NodeExecution.regular:
-        default:
-          return queues.nodes.process.regular;
-      }
-    })();
+    const queue = processQueue(node);
 
     const jobs = [];
     for (const id of await redis.sMembers(NODE_JOBS(launch._id, params.node))) {
