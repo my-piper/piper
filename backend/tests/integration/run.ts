@@ -82,6 +82,7 @@ try {
   const mongoPort = await port("mongo", "27017");
   const redisPort = await port("redis", "6379");
   const denoPort = await port("deno", "80");
+  const clickhousePort = await port("clickhouse", "8123");
   if (interrupted) throw new Error("Integration run interrupted");
 
   Object.assign(process.env, {
@@ -89,6 +90,7 @@ try {
     PIPER_TEST_MONGO_DATABASE: project.replaceAll("-", "_"),
     PIPER_TEST_REDIS_PORT: redisPort,
     PIPER_TEST_DENO_URL: `http://127.0.0.1:${denoPort}/`,
+    PIPER_TEST_CLICKHOUSE_URL: `http://127.0.0.1:${clickhousePort}`,
   });
   await run(process.execPath, [
     "node_modules/vitest/vitest.mjs",

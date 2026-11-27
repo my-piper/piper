@@ -8,12 +8,14 @@ vi.hoisted(() => {
     database: process.env.PIPER_TEST_MONGO_DATABASE,
     redisPort: process.env.PIPER_TEST_REDIS_PORT,
     denoUrl: process.env.PIPER_TEST_DENO_URL,
+    clickhouseUrl: process.env.PIPER_TEST_CLICKHOUSE_URL,
   };
   if (
     !/^mongodb:\/\/127\.0\.0\.1:\d+$/.test(settings.mongoUrl || "") ||
     !/^piper_tests_[a-z0-9_]+$/.test(settings.database || "") ||
     !/^\d+$/.test(settings.redisPort || "") ||
-    !/^http:\/\/127\.0\.0\.1:\d+\/$/.test(settings.denoUrl || "")
+    !/^http:\/\/127\.0\.0\.1:\d+\/$/.test(settings.denoUrl || "") ||
+    !/^http:\/\/127\.0\.0\.1:\d+$/.test(settings.clickhouseUrl || "")
   ) {
     throw new Error(
       "Use npm run test:integration to start disposable services"
@@ -39,6 +41,10 @@ vi.hoisted(() => {
     BULL_REDIS_PORT: settings.redisPort,
     BULL_REDIS_DB: "5",
     DENO_URL: settings.denoUrl,
+    CLICKHOUSE_URL: settings.clickhouseUrl,
+    CLICKHOUSE_USER: "default",
+    CLICKHOUSE_PASSWORD: "",
+    CLICKHOUSE_DB: "default",
   });
 });
 

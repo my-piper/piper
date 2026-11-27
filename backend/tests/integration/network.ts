@@ -10,6 +10,7 @@ export function restrictNetwork() {
     new URL(process.env.MONGO_URL).port,
     process.env.BULL_REDIS_PORT,
     new URL(process.env.DENO_URL).port,
+    new URL(process.env.CLICKHOUSE_URL).port,
   ].map(Number);
   const reject = () => {
     throw new Error(
