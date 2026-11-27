@@ -13,6 +13,7 @@ The source of truth for the look is the **Piper design system** in Claude Design
 | Control heights and the text scale, read by Taiga | `frontend/src/styles/sizes.scss` |
 | Default size `m` for buttons and textfields | `frontend/src/app/app.module.ts` (`tuiButtonOptionsProvider`, `tuiTextfieldOptionsProvider`) |
 | Theme mode (dark, light, system) | `frontend/src/services/theme.service.ts`, and the inline script in `frontend/src/index.html` that sets `data-theme` before bootstrap |
+| Dialog chrome (44px header, `space-4` body, footer actions) and `.field-grid`, the two-column field layout | `frontend/src/styles/dialogs.scss`, `frontend/src/styles/layout.scss` |
 
 Style new UI through the tokens (`var(--surface-1)`, `var(--text-muted)`, `var(--space-2)`) and Taiga components. The graphite scale (`--graphite-*`), `--page-background`, `--node-background` and the Sass color variables in `variables.scss` are legacy names that point at the tokens. Don't use them in new code.
 
@@ -28,6 +29,7 @@ Style new UI through the tokens (`var(--surface-1)`, `var(--text-muted)`, `var(-
   - Spacing: steps of 4px.
   - Lists are tables (32px rows) rather than card grids. Details open in a drawer rather than a new page.
   - Exception: launch lists are card grids, because what a launch produced (images, video, text) is the point (#328). Each card previews an output in a 4:3 frame. The mockups are at https://claude.ai/artifact/WL8SdCEvjQdtwKXFTF38jD.
+- **Dialogs.** A 44px header, a `space-4` body and a footer with a ghost Cancel and the named primary action. A dialog with more than about four fields lays them out in `.field-grid`: two columns once the grid is 560px wide, one below. A field with `.full` (a description, an editor) spans both columns.
 - **Type.** Inter for the interface, JetBrains Mono for IDs, versions, values, durations, logs and port types.
 
 ## Sizes

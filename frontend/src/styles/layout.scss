@@ -67,6 +67,22 @@
     }
 }
 
+// Form fields in two columns once the grid is 560px wide (2 × 272px plus the
+// gap), one column below; measured on the grid itself, so a wide dialog gets
+// two and a small one or a narrow screen gets one (#299). `.full` spans both.
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(max(272px, calc((100% - var(--space-4)) / 2)), 1fr)
+    );
+    gap: var(--space-4);
+
+    > .full {
+        grid-column: 1 / -1;
+    }
+}
+
 .stack,
 .grid {
     &.align-center {
