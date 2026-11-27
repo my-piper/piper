@@ -231,6 +231,9 @@ describe("title of an imported project", () => {
     expect(response.status).toBe(200);
     expect(response.body.title).toBe("Text to Video V5 (3)");
     expect(inserted[0].title).toBe("Text to Video V5 (3)");
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toMatchObject({
+      "createdBy._id": "admin-user",
+    });
   });
 
   it("refuses a name that is shorter than 5 characters once trimmed", async () => {

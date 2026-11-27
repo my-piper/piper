@@ -24,18 +24,30 @@ export function cleanTitle(name: string) {
 }
 
 /**
- * Compares titles ignoring case; the unique index `title_unique`
+ * Compares titles ignoring case; the unique index `owner_title_unique`
  * (migrations/mongo) is built with the same collation.
  */
 export const TITLE_COLLATION = { locale: "en", strength: 2 };
 
 export const TITLE_TAKEN = "A project with this title already exists";
 
-/** Whether another Project than `except` already has the title. */
-export async function isTitleTaken(title: string, except?: string) {
+/**
+ * Whether another Project of the owner than `except` already has the title.
+ * Titles are unique per owner: a user sees only their own projects, so other
+ * users' titles must neither block nor be revealed.
+ */
+export async function isTitleTaken(
+  title: string,
+  owner: string,
+  except?: string
+) {
   const found = await mongo.projects
     .find(
-      { title, ...(except !== undefined ? { _id: { $ne: except } } : {}) },
+      {
+        "createdBy._id": owner,
+        title,
+        ...(except !== undefined ? { _id: { $ne: except } } : {}),
+      },
       { collation: TITLE_COLLATION, projection: { _id: 1 } }
     )
     .limit(1)
@@ -43,8 +55,12 @@ export async function isTitleTaken(title: string, except?: string) {
   return found.length > 0;
 }
 
-export async function checkTitleFree(title: string, except?: string) {
-  if (await isTitleTaken(title, except)) {
+export async function checkTitleFree(
+  title: string,
+  owner: string,
+  except?: string
+) {
+  if (await isTitleTaken(title, owner, except)) {
     throw new ConflictError(TITLE_TAKEN);
   }
 }
@@ -61,17 +77,21 @@ export function numberedTitle(title: string, n: number) {
 }
 
 /**
- * The title itself when no Project has it, otherwise the first free
- * `title (n)` from 2 on; used where the user can't choose the title (imports).
+ * The title itself when no Project of the owner has it, otherwise the first
+ * free `title (n)` from 2 on; used where the user can't choose the title
+ * (imports).
  */
-export async function freeTitle(title: string) {
+export async function freeTitle(title: string, owner: string) {
   // short enough to match the cut bases of numbered titles too
   const prefix = escapeRegExp([...title].slice(0, 100).join(""));
   const similar = await mongo.projects
     .find<{
       title: string;
     }>(
-      { title: { $regex: new RegExp(`^${prefix}`, "i") } },
+      {
+        "createdBy._id": owner,
+        title: { $regex: new RegExp(`^${prefix}`, "i") },
+      },
       { projection: { title: 1 } }
     )
     .toArray();

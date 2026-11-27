@@ -23,7 +23,7 @@ export async function createImportedProject(
     revision: sid(),
     createdAt: new Date(),
     createdBy: new User({ _id: user._id }),
-    title: await freeTitle(cleanTitle(pipeline.name)),
+    title: await freeTitle(cleanTitle(pipeline.name), user._id),
     pipeline,
     launchRequest:
       launchRequest ??

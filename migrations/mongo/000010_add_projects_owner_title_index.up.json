@@ -40,7 +40,10 @@
       },
       {
         "$setWindowFields": {
-          "partitionBy": "$title",
+          "partitionBy": {
+            "owner": "$createdBy._id",
+            "title": "$title"
+          },
           "sortBy": {
             "createdAt": 1
           },
@@ -92,14 +95,36 @@
               },
               "$suffix"
             ]
-          }
+          },
+          "owner": "$createdBy._id"
         }
       },
       {
         "$lookup": {
           "from": "projects",
-          "localField": "title",
-          "foreignField": "title",
+          "let": {
+            "owner": "$owner",
+            "title": "$title"
+          },
+          "pipeline": [
+            {
+              "$match": {
+                "$expr": {
+                  "$and": [
+                    {
+                      "$eq": ["$createdBy._id", "$$owner"]
+                    },
+                    {
+                      "$eq": ["$title", "$$title"]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "$limit": 1
+            }
+          ],
           "as": "clash"
         }
       },
@@ -186,8 +211,9 @@
     "createIndexes": "projects",
     "indexes": [
       {
-        "name": "title_unique",
+        "name": "owner_title_unique",
         "key": {
+          "createdBy._id": 1,
           "title": 1
         },
         "unique": true,

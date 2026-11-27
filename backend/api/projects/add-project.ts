@@ -45,7 +45,7 @@ api.post(
         )
       );
     }
-    await checkTitleFree(project.title);
+    await checkTitleFree(project.title, currentUser._id);
     try {
       await mongo.projects.insertOne(plain as { _id: string });
     } catch (e) {

@@ -176,9 +176,9 @@ api.patch(
       assign(update, { environment: project.environment });
     }
 
-    // a rename may not take another Project's title
+    // a rename may not take the title of another project of the same owner
     if (update.title !== undefined && update.title !== project.title) {
-      await checkTitleFree(update.title, _id);
+      await checkTitleFree(update.title, project.createdBy._id, _id);
     }
     const { matchedCount } = await mongo.projects
       .updateOne({ _id }, { $set: toPlain(update) })

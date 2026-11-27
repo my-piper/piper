@@ -1008,7 +1008,7 @@ describe("unique project titles", () => {
     expect(response.status).toBe(200);
     expect(response.body.title).toBe("Spaced title");
     expect(httpDoubles.projects.find).toHaveBeenCalledExactlyOnceWith(
-      { title: "Spaced title" },
+      { "createdBy._id": "owner-user", title: "Spaced title" },
       { collation: { locale: "en", strength: 2 }, projection: { _id: 1 } }
     );
   });
@@ -1060,7 +1060,11 @@ describe("unique project titles", () => {
 
     expect(response.status).toBe(409);
     expect(httpDoubles.projects.find).toHaveBeenCalledExactlyOnceWith(
-      { title: "Taken title", _id: { $ne: "project-http" } },
+      {
+        "createdBy._id": "owner-user",
+        title: "Taken title",
+        _id: { $ne: "project-http" },
+      },
       { collation: { locale: "en", strength: 2 }, projection: { _id: 1 } }
     );
     expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
@@ -1077,6 +1081,20 @@ describe("unique project titles", () => {
       "Project title must have 5 to 160 characters"
     );
     expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
+  });
+
+  it("checks an admin's rename against the owner's titles", async () => {
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken("admin-user"))
+      .send({ pipeline: renamePatch("Fresh title") });
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toMatchObject({
+      "createdBy._id": "owner-user",
+    });
   });
 
   it("renames the project with the pipeline when the title is free", async () => {

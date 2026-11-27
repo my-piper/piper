@@ -199,11 +199,15 @@ export class ApiFixture {
     return reply;
   }
 
-  /** Whether another project has the title, ignoring case like the index. */
-  private titleTaken(title: string, except?: string): boolean {
+  /**
+   * Whether another project of the owner has the title, ignoring case like
+   * the backend's per-owner unique index.
+   */
+  private titleTaken(title: string, owner: string, except?: string): boolean {
     return [...this.projects.values()].some(
       (p) =>
         p["_id"] !== except &&
+        (p["createdBy"] as Plain)?.["_id"] === owner &&
         String(p["title"]).toLowerCase() === title.toLowerCase(),
     );
   }
@@ -263,7 +267,7 @@ export class ApiFixture {
           },
         };
       }
-      if (this.titleTaken(title)) {
+      if (this.titleTaken(title, user["_id"] as string)) {
         return conflict(TITLE_TAKEN);
       }
       const _id = `project_new_${++this.revision}`;
@@ -426,7 +430,11 @@ export class ApiFixture {
           next["title"] = String((next["pipeline"] as Plain)["name"]).trim();
           if (
             next["title"] !== project["title"] &&
-            this.titleTaken(next["title"] as string, params["id"])
+            this.titleTaken(
+              next["title"] as string,
+              (project["createdBy"] as Plain)["_id"] as string,
+              params["id"],
+            )
           ) {
             return conflict(TITLE_TAKEN);
           }

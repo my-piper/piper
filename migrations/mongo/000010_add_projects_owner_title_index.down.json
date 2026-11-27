@@ -1,6 +1,6 @@
 [
   {
     "dropIndexes": "projects",
-    "index": "title_unique"
+    "index": "owner_title_unique"
   }
 ]
