@@ -18,7 +18,7 @@ function pipeline() {
         b: {
           _id: "b",
           title: "B",
-          arrange: { x: 900, y: 500, w: 300 },
+          arrange: { x: 900, y: 500, w: 300, color: "violet" },
           inputs: {},
           outputs: {},
         },
@@ -54,6 +54,10 @@ describe("CanvasMinimapComponent", () => {
     const view = element.querySelector<HTMLElement>(".mm-view");
 
     expect(nodes.length).toBe(2);
+    expect(Array.from(nodes).map((n) => n.getAttribute("data-color"))).toEqual([
+      null,
+      "violet",
+    ]);
     expect(group.dataset["color"]).toBe("blue");
     expect(parseFloat(view.style.width)).toBeGreaterThan(0);
     expect(element.querySelector<HTMLElement>(".map").style.width).toBe(

@@ -1694,6 +1694,19 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   /** The open group dropdown: `color:<id>` or `menu:<id>`. */
   openGroupMenu: string | null = null;
 
+  /** Tints a node's title bar (#337); gray takes the tint off. */
+  setNodeColor(id: string, color: GroupColor) {
+    const node = this.pipeline.nodes.get(id);
+    if (!node || this.mode !== "project") {
+      return;
+    }
+    node.arrange ??= new Arrange({ x: 0, y: 0 });
+    node.arrange.color = color === "gray" ? undefined : color;
+    this.openGroupMenu = null;
+    this.save();
+    this.cd.detectChanges();
+  }
+
   setGroupColor(id: string, color: GroupColor) {
     const group = this.pipeline.layout?.groups?.get(id);
     if (!group || this.mode !== "project") {

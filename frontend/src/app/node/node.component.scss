@@ -34,6 +34,31 @@ $port-row: 22px;
     --exec: var(--exec-protracted);
   }
 
+  // A tinted node (#337): the title bar and border take the colour; the
+  // left edge keeps showing the execution type.
+  &[data-color] {
+    border-color: color-mix(in srgb, var(--g) 45%, var(--border));
+
+    .node .head {
+      background: color-mix(in srgb, var(--g) 24%, var(--surface-2));
+    }
+  }
+  &[data-color="blue"] {
+    --g: #4f8fe8;
+  }
+  &[data-color="green"] {
+    --g: #3fb27f;
+  }
+  &[data-color="amber"] {
+    --g: #e0a83a;
+  }
+  &[data-color="red"] {
+    --g: #e5655b;
+  }
+  &[data-color="violet"] {
+    --g: #9b7be8;
+  }
+
   &.running {
     border-color: var(--accent);
     box-shadow:
@@ -102,7 +127,7 @@ $port-row: 22px;
     height: var(--node-title);
     box-sizing: border-box;
     // Room on the right for the canvas's Run / Edit / Delete buttons.
-    padding: 0 76px 0 calc(var(--space-2) + 2px);
+    padding: 0 92px 0 calc(var(--space-2) + 2px);
     background: var(--surface-2);
     border-bottom: 1px solid var(--border);
     border-radius: calc(var(--radius-md) - 1px) calc(var(--radius-md) - 1px) 0 0;

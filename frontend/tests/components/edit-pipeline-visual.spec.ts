@@ -2350,4 +2350,57 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
   });
+  describe("node colour", () => {
+    // A closed palette stays in the DOM while it leaves: take the newest.
+    const swatch = (color: string) =>
+      Array.from(
+        document.querySelectorAll<HTMLElement>(
+          `[data-testid="node-color-${color}"]`,
+        ),
+      ).at(-1);
+
+    it("tints a node from its colour dot and takes the tint off with gray", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges, manager } = setupEditor({ project });
+      const node = project.pipeline.nodes.get("node_one");
+      const dot = () =>
+        element.querySelector<HTMLElement>('[data-testid="node-dot-node_one"]');
+
+      dot().click();
+      detectChanges();
+      swatch("green").click();
+      detectChanges();
+      const tinted = {
+        stored: node.arrange.color,
+        shown: nodeElement(element, "node_one").getAttribute("data-color"),
+        dot: dot().dataset["color"],
+      };
+      dot().click();
+      detectChanges();
+      swatch("gray").click();
+      detectChanges();
+
+      expect(tinted).toEqual({ stored: "green", shown: "green", dot: "green" });
+      expect(node.arrange.color).toBeUndefined();
+      expect(nodeElement(element, "node_one").hasAttribute("data-color")).toBe(
+        false,
+      );
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("shows a viewer the tint without the dot", fakeAsync(() => {
+      const project = projectA();
+      project.pipeline.nodes.get("node_one").arrange.color = "amber";
+      const { element } = setupEditor({ project, user: "stranger" });
+
+      expect(nodeElement(element, "node_one").getAttribute("data-color")).toBe(
+        "amber",
+      );
+      expect(
+        element.querySelector('[data-testid="node-dot-node_one"]'),
+      ).toBeNull();
+      finish();
+    }));
+  });
 });

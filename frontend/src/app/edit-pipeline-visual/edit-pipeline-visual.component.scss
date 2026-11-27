@@ -234,6 +234,49 @@
       }
     }
 
+    // A node's colour dot (#337), first among its actions.
+    .node-dot {
+      --g: #8a8e98;
+      align-self: center;
+      width: 10px;
+      height: 10px;
+      margin: 0 3px;
+      padding: 0;
+      border: 0;
+      border-radius: var(--radius-full);
+      background: var(--g);
+      opacity: 0.6;
+      cursor: pointer;
+
+      &[data-color]:not([data-color="gray"]) {
+        opacity: 1;
+      }
+      &[data-color="blue"] {
+        --g: #4f8fe8;
+      }
+      &[data-color="green"] {
+        --g: #3fb27f;
+      }
+      &[data-color="amber"] {
+        --g: #e0a83a;
+      }
+      &[data-color="red"] {
+        --g: #e5655b;
+      }
+      &[data-color="violet"] {
+        --g: #9b7be8;
+      }
+
+      &:hover,
+      &:focus-visible {
+        opacity: 1;
+        outline: none;
+        box-shadow:
+          0 0 0 2px var(--surface-1),
+          0 0 0 3px var(--g);
+      }
+    }
+
     // In the node's title bar (node.component.scss keeps room for them).
     .item-actions {
       z-index: 1;

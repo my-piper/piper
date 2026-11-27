@@ -56,7 +56,7 @@ export class CanvasMinimapComponent {
       y: node.arrange?.y ?? 0,
       w: node.arrange?.w || UI.node.width,
       h: nodeLayout(node).height,
-      color: node.arrange?.["color"] as string | undefined,
+      color: node.arrange?.color,
     }));
     const groups = [...(this.pipeline.layout?.groups ?? new Map())].map(
       ([id, g]) => ({ id, x: g.x, y: g.y, w: g.w, h: g.h, color: g.color }),

@@ -617,6 +617,43 @@
               }
             }
             @if (editable) {
+              <ng-template #nodePalette>
+                <div
+                  class="group-palette"
+                  role="group"
+                  aria-label="Node colour"
+                  i18n-aria-label="@@label.node_colour"
+                >
+                  @for (color of groupColors; track color) {
+                    <button
+                      type="button"
+                      class="group-swatch"
+                      [attr.data-color]="color"
+                      [attr.aria-label]="color"
+                      [attr.aria-pressed]="
+                        (node.value.arrange?.color ?? 'gray') === color
+                      "
+                      [attr.data-testid]="'node-color-' + color"
+                      (click)="setNodeColor(node.key, color)"
+                    ></button>
+                  }
+                </div>
+              </ng-template>
+              <button
+                type="button"
+                class="node-dot"
+                aria-label="Node colour"
+                i18n-aria-label="@@label.node_colour"
+                [attr.data-color]="node.value.arrange?.color ?? 'gray'"
+                [attr.data-testid]="'node-dot-' + node.key"
+                [tuiDropdown]="nodePalette"
+                [tuiDropdownOpen]="openGroupMenu === 'node-color:' + node.key"
+                (tuiDropdownOpenChange)="
+                  openGroupMenu = $event ? 'node-color:' + node.key : null
+                "
+              ></button>
+            }
+            @if (editable) {
               @if (isDeployNode(node.value)) {
                 @if (deployProblems[node.key]?.length) {
                   <tui-icon

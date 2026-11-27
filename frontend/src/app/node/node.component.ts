@@ -169,6 +169,12 @@ export class NodeComponent implements OnDestroy {
     };
   }>();
 
+  /** The node's tint (#337): its title bar and border take it. */
+  @HostBinding("attr.data-color")
+  get color() {
+    return this.node?.arrange?.color ?? null;
+  }
+
   @HostBinding("attr.data-exec")
   get execution() {
     return this.node?.execution;
