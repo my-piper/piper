@@ -27,6 +27,7 @@
   @if (!mobile()) {
   <nav
     class="app-sidebar"
+    [class.expanded]="expanded()"
     aria-label="Main"
     i18n-aria-label="@@label.main_navigation"
     data-testid="app-sidebar"
@@ -47,13 +48,34 @@
       [state]="{ scroll: 'top' }"
       [attr.aria-label]="section.label"
       [attr.data-testid]="'nav-' + section.path"
-      [tuiHint]="section.label"
+      [tuiHint]="expanded() ? null : section.label"
       tuiHintDirection="end"
     >
       <tui-icon [icon]="section.icon" />
+      @if (expanded()) {
+      <span class="label">{{ section.label }}</span>
+      }
     </a>
     }
     <span class="spacer"></span>
+    @let toggleLabel = expanded() ? collapseLabel : expandLabel;
+    <button
+      class="item"
+      type="button"
+      data-testid="sidebar-toggle"
+      [attr.aria-label]="toggleLabel"
+      [attr.aria-expanded]="expanded()"
+      [tuiHint]="expanded() ? null : toggleLabel"
+      tuiHintDirection="end"
+      (click)="toggleSidebar()"
+    >
+      <tui-icon
+        [icon]="expanded() ? '@tui.panel-left-close' : '@tui.panel-left-open'"
+      />
+      @if (expanded()) {
+      <span class="label">{{ toggleLabel }}</span>
+      }
+    </button>
     <button
       class="item"
       type="button"
@@ -66,6 +88,9 @@
       tuiDropdownAlign="start"
     >
       <tui-icon icon="@tui.sun-moon" />
+      @if (expanded()) {
+      <span class="label" i18n="@@label.theme">Theme</span>
+      }
     </button>
   </nav>
   }

@@ -1,6 +1,7 @@
 // Unencapsulated: the full-bleed rules reach the routed page, which is a
 // sibling of <router-outlet> and not part of this component's view.
-// Frame per docs/design.md: a 48px icon sidebar and a 40px top bar.
+// Frame per docs/design.md: a 48px icon sidebar (200px with labels when
+// expanded) and a 40px top bar.
 
 app-layout {
   display: block;
@@ -21,16 +22,29 @@ app-layout .app-sidebar {
   flex: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-1);
   box-sizing: border-box;
   inline-size: var(--sidebar);
   block-size: 100dvh;
-  padding: var(--space-2) 0;
+  // Items are 36px wide in the 48px rail and fill the row when expanded.
+  padding: var(--space-2) 6px;
+  overflow: hidden;
   background: var(--surface-1);
   border-inline-end: 1px solid var(--border);
+  transition: inline-size 150ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  // Expanded: icon and label rows; the page gets narrower, nothing overlaps it.
+  &.expanded {
+    inline-size: 200px;
+  }
 
   .app-logo {
+    align-self: flex-start;
     margin-block-end: var(--space-2);
   }
 
@@ -39,13 +53,25 @@ app-layout .app-sidebar {
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    justify-content: center;
-    inline-size: 36px;
+    gap: var(--space-2);
     block-size: 36px;
+    // Centres the 18px icon in the collapsed 36px item, and keeps it put.
+    padding-inline: 9px;
     border-radius: var(--radius-md);
     color: var(--text-muted);
     cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
     --app-icon-size: 18px;
+
+    tui-icon {
+      flex: none;
+    }
+
+    .label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     &:hover {
       background: var(--surface-2);

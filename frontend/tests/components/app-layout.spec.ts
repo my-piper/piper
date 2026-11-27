@@ -43,6 +43,7 @@ import { Languages } from "src/enums/languages";
 import { CanPipe } from "src/pipes/can";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { SharedModule } from "src/app/shared.module";
+import { SIDEBAR_KEY } from "src/consts/core";
 import { TopbarService } from "src/services/topbar.service";
 import { userPlain } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../helpers/config";
@@ -157,8 +158,21 @@ describe("AppLayoutComponent", () => {
     );
   }
 
+  function sidebarRowLabels(element: HTMLElement) {
+    return Array.from(sidebar(element).querySelectorAll(".item .label")).map(
+      (label) => label.textContent.trim(),
+    );
+  }
+
+  function toggle(element: HTMLElement) {
+    return element.querySelector<HTMLButtonElement>(
+      "[data-testid=sidebar-toggle]",
+    );
+  }
+
   afterEach(() => {
     TestBed.inject(HttpTestingController).match(() => true);
+    localStorage.removeItem(SIDEBAR_KEY);
   });
 
   it("lists the global sections in the sidebar for a regular user", async () => {
@@ -241,6 +255,53 @@ describe("AppLayoutComponent", () => {
     expect(items[0].getAttribute("data-testid")).toBe("app-logo");
     expect(items[0].getAttribute("href")).toBeTruthy();
     expect(items.at(-1).getAttribute("data-testid")).toBe("theme-menu");
+  });
+
+  it("keeps the sidebar collapsed to icons by default", async () => {
+    const { harness } = await render("owner");
+
+    const element = await open(harness, "/projects");
+
+    expect(sidebar(element).classList.contains("expanded")).toBe(false);
+    expect(sidebarRowLabels(element)).toEqual([]);
+    expect(toggle(element).getAttribute("aria-expanded")).toBe("false");
+    expect(toggle(element).getAttribute("aria-label")).toBe("Expand sidebar");
+  });
+
+  it("expands the sidebar to labelled rows and collapses it again", async () => {
+    const { harness } = await render("owner");
+    const element = await open(harness, "/projects");
+
+    toggle(element).click();
+    harness.detectChanges();
+    const expandedLabels = sidebarRowLabels(element);
+    const expandedState = toggle(element).getAttribute("aria-expanded");
+    const stored = localStorage.getItem(SIDEBAR_KEY);
+    toggle(element).click();
+    harness.detectChanges();
+
+    expect(expandedLabels).toEqual([
+      "Pipelines",
+      "Launches",
+      "Assets",
+      "Environment",
+      "Collapse sidebar",
+      "Theme",
+    ]);
+    expect(expandedState).toBe("true");
+    expect(stored).toBe("expanded");
+    expect(sidebarRowLabels(element)).toEqual([]);
+    expect(localStorage.getItem(SIDEBAR_KEY)).toBe("collapsed");
+  });
+
+  it("restores the expanded sidebar from the browser's storage", async () => {
+    localStorage.setItem(SIDEBAR_KEY, "expanded");
+    const { harness } = await render("owner");
+
+    const element = await open(harness, "/projects");
+
+    expect(sidebar(element).classList.contains("expanded")).toBe(true);
+    expect(sidebarRowLabels(element)).toContain("Pipelines");
   });
 
   it("replaces the sidebar with a top bar drawer on mobile", async () => {
