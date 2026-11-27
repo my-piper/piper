@@ -742,6 +742,31 @@
       }
     }
 
+    <!-- Groups (#329): tinted frames behind the wires and nodes. -->
+    @for (g of pipeline.layout?.groups | keyvalue; track g.key) {
+      <section
+        class="group"
+        [attr.data-group]="g.key"
+        [attr.data-color]="g.value.color ?? 'gray'"
+        [attr.data-testid]="'group-' + g.key"
+        [attr.aria-label]="g.value.title"
+        [style.left.px]="g.value.x"
+        [style.top.px]="g.value.y"
+        [style.width.px]="g.value.w"
+        [style.height.px]="g.value.h"
+      >
+        <header class="group-bar">
+          <span class="group-dot"></span>
+          <span class="group-title">{{ g.value.title }}</span>
+          <span class="group-count">{{
+            groupNodeCount(g.value) === 1
+              ? "1 node"
+              : groupNodeCount(g.value) + " nodes"
+          }}</span>
+        </header>
+      </section>
+    }
+
     <svg>
       <defs>
         <pattern

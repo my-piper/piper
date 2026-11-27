@@ -143,6 +143,43 @@ describe("production pipeline schema for node layout", () => {
   });
 });
 
+describe("production pipeline schema for groups", () => {
+  function withGroups(groups: object) {
+    const pipeline = pipelineFixture();
+    return {
+      ...pipeline,
+      layout: { left: 0, top: 0, zoom: 1, groups },
+    };
+  }
+
+  const group = { title: "Prepare", color: "blue", x: 0, y: 0, w: 560, h: 300 };
+
+  it("keeps groups through model transformation", () => {
+    const pipeline = withGroups({ prepare: group });
+
+    const valid = validatePipeline(pipeline);
+    const restored = toPlain(toInstance(pipeline, Pipeline)) as {
+      layout: { groups: Record<string, object> };
+    };
+
+    expect(valid).toBe(true);
+    expect(validatePipeline(restored)).toBe(true);
+    expect(restored.layout.groups.prepare).toEqual(group);
+  });
+
+  it.each([
+    { name: "an unknown colour", patch: { color: "pink" }, keyword: "enum" },
+    { name: "a tiny frame", patch: { w: 40 }, keyword: "minimum" },
+  ])("rejects a group with $name", ({ patch, keyword }) => {
+    const valid = validatePipeline(withGroups({ g: { ...group, ...patch } }));
+
+    expect(valid).toBe(false);
+    expect(validatePipeline.errors).toContainEqual(
+      expect.objectContaining({ keyword })
+    );
+  });
+});
+
 describe("production pipeline schema for deploy nodes", () => {
   it("accepts a node running a Deploy before and after model transformation", () => {
     const pipeline = withEchoNode({

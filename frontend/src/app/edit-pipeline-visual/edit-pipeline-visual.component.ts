@@ -57,6 +57,7 @@ import {
   Pipeline,
   PipelineInput,
   PipelineOutput,
+  LayoutGroup,
 } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
@@ -80,6 +81,7 @@ import {
   refreshFromDeploy,
 } from "src/utils/deploy-node";
 import { acceptedInputTypes } from "src/utils/flow-types";
+import { groupMembers } from "src/utils/groups";
 import { inputOffset } from "src/utils/node-layout";
 import {
   CanvasClip,
@@ -1522,6 +1524,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
       this.save();
     }
     this.cd.detectChanges();
+  }
+
+  /** How many nodes a group's frame holds (#329). */
+  groupNodeCount(group: LayoutGroup): number {
+    return groupMembers(this.pipeline, group).length;
   }
 
   /** Collapses a node to its title bar, or expands it (#320). */

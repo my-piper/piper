@@ -5,7 +5,7 @@ import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
 import { NodeFlow } from "src/models/node-flow";
 import { NodeInput } from "src/models/node";
-import { PipelineInput } from "src/models/pipeline";
+import { Layout, LayoutGroup, PipelineInput } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { toInstance, toPlain } from "src/utils/models";
 import { inputOffset } from "src/utils/node-layout";
@@ -1949,6 +1949,66 @@ describe("EditPipelineVisualComponent", () => {
 
       expect(edge(element, "node_one")).toBeNull();
       expect(nodeElement(element, "node_one").style.width).toBe("300px");
+      finish();
+    }));
+  });
+  describe("groups", () => {
+    function groupedProject() {
+      const project = projectA();
+      const one = project.pipeline.nodes.get("node_one").arrange;
+      project.pipeline.layout ??= toInstance(
+        { left: 0, top: 0, zoom: 1 },
+        Layout,
+      );
+      project.pipeline.layout.groups = new Map([
+        [
+          "prepare",
+          toInstance(
+            {
+              title: "Prepare",
+              color: "blue",
+              x: one.x - 20,
+              y: one.y - 40,
+              w: 300,
+              h: 200,
+            },
+            LayoutGroup,
+          ),
+        ],
+        [
+          "empty",
+          toInstance(
+            { title: "Later", x: -2000, y: -2000, w: 200, h: 120 },
+            LayoutGroup,
+          ),
+        ],
+      ]);
+      return project;
+    }
+
+    it("draws each group as a frame with its title, colour and node count", fakeAsync(() => {
+      const { element } = setupEditor({ project: groupedProject() });
+
+      const prepare = element.querySelector<HTMLElement>(
+        '[data-testid="group-prepare"]',
+      );
+      const later = element.querySelector<HTMLElement>(
+        '[data-testid="group-empty"]',
+      );
+
+      expect(prepare.querySelector(".group-title").textContent).toBe("Prepare");
+      expect(prepare.dataset["color"]).toBe("blue");
+      expect(prepare.querySelector(".group-count").textContent).toBe("1 node");
+      expect(prepare.style.width).toBe("300px");
+      expect(later.dataset["color"]).toBe("gray");
+      expect(later.querySelector(".group-count").textContent).toBe("0 nodes");
+      finish();
+    }));
+
+    it("draws no frames for a pipeline without groups", fakeAsync(() => {
+      const { element } = setupEditor();
+
+      expect(element.querySelectorAll(".pane > .group").length).toBe(0);
       finish();
     }));
   });
