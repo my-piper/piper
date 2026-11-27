@@ -16,7 +16,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { TuiDialogService } from "@taiga-ui/core";
-import { TUI_CONFIRM, type TuiConfirmData } from "@taiga-ui/kit";
+import { confirmDelete } from "src/utils/confirm-delete";
 import { assign, escape, isEmpty, mapValues, random } from "lodash";
 import { customAlphabet } from "nanoid";
 import { stringify } from "qs";
@@ -1294,21 +1294,13 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     ).subscribe(() => this.removeOutput(output));
   }
 
-  /** `content` is HTML (TUI_CONFIRM binds it to innerHTML): escape values. */
+  /** `content` is HTML (see `confirmDelete`): escape values. */
   private confirmRemove(content: string) {
-    return this.dialogs
-      .open<boolean>(TUI_CONFIRM, {
-        label: $localize`:@@message.confirm_delete:Delete?`,
-        size: "s",
-        data: {
-          content,
-          yes: $localize`:@@action.delete:Delete`,
-          no: $localize`:@@action.cancel:Cancel`,
-          // A named primary action, then a ghost Cancel (docs/design.md, #298).
-          appearance: ["primary-destructive", "flat-grayscale"],
-        } satisfies TuiConfirmData,
-      })
-      .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef));
+    return confirmDelete(
+      this.dialogs,
+      $localize`:@@message.confirm_delete:Delete?`,
+      content,
+    ).pipe(takeUntilDestroyed(this.destroyRef));
   }
 
   removeFlow(id: string) {

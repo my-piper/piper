@@ -12,12 +12,16 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
+import escape from "lodash/escape";
 import { EMPTY, delay, finalize, map, merge } from "rxjs";
 import { PackageUpdatedEvent } from "src/models/events";
 import { NodePackage, NodePackageUpdatesState } from "src/models/node-package";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { UI_DELAY } from "src/consts/ui";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { confirmDelete } from "src/utils/confirm-delete";
+import { getLabel } from "src/utils/i18n";
 import { EditPackageComponent } from "./edit/edit-package.component";
 import { ImportPackageComponent } from "./import/import-package.component";
 import { PACKAGES_ROOM } from "src/consts/rooms";
@@ -36,6 +40,8 @@ import { PACKAGES_ROOM } from "src/consts/rooms";
 })
 export class NodePackagesComponent {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogs = inject(TuiDialogService);
+  private readonly language = inject(CURRENT_LANGUAGE);
 
   error!: Error;
   progress = {
@@ -54,7 +60,6 @@ export class NodePackagesComponent {
   private readonly dialogReady = signal(false);
 
   updatesOpen = false;
-  actionsOpen: string | null = null;
 
   get dialogOpen() {
     return this.dialogReady() && !!this.route.firstChild;
@@ -233,8 +238,24 @@ export class NodePackagesComponent {
       });
   }
 
+  confirmRemove(nodePackage: NodePackage) {
+    const title = escape(getLabel(nodePackage.title, this.language));
+    confirmDelete(
+      this.dialogs,
+      $localize`:@@message.confirm_delete_package_label:Delete node package?`,
+      $localize`:@@message.confirm_delete_package:Node package «${title}:title:» will be deleted. This can't be undone.`,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        // the list may have changed while the dialog was open
+        const index = this.packages.indexOf(nodePackage);
+        if (index !== -1) {
+          this.remove(index, nodePackage);
+        }
+      });
+  }
+
   remove(index: number, { _id }: NodePackage) {
-    this.actionsOpen = null;
     this.progress.deleting = true;
     this.cd.detectChanges();
 

@@ -16,6 +16,7 @@ import {
   OutletStubComponent,
 } from "../helpers/editor";
 import { SocketDouble } from "../helpers/socket";
+import { dialogButton, openDialog } from "../helpers/taiga";
 import { PACKAGES_ROOM } from "src/consts/rooms";
 
 /**
@@ -113,7 +114,7 @@ function setup(initialUrl = "/packages") {
         ?.componentInstance as NodePackagesComponent,
     rows: () =>
       Array.from(element.querySelectorAll("tbody tr:not(.loading)")).map((tr) =>
-        tr.querySelector("td:nth-child(2)").textContent.trim(),
+        tr.querySelector("td:nth-child(1)").textContent.trim(),
       ),
     checkButton: () =>
       element.querySelector(".app-container > header button") as HTMLElement,
@@ -145,7 +146,7 @@ describe("NodePackagesComponent", () => {
 
       expect(
         Array.from(
-          page.element.querySelectorAll("tbody tr td:nth-child(5)"),
+          page.element.querySelectorAll("tbody tr td:nth-child(4)"),
         ).map((cell) => cell.textContent.trim()),
       ).toEqual(["0", "3", "0"]);
       page.controller.verify();
@@ -163,7 +164,7 @@ describe("NodePackagesComponent", () => {
       expect(page.rows()).toEqual(["Text tools", "Image tools"]);
       expect(
         Array.from(
-          page.element.querySelectorAll("tbody tr td:nth-child(5)"),
+          page.element.querySelectorAll("tbody tr td:nth-child(4)"),
         ).map((cell) => cell.textContent.trim()),
       ).toEqual(["3", "0"]);
       expect(
@@ -302,26 +303,55 @@ describe("NodePackagesComponent", () => {
   });
 
   describe("removing", () => {
-    it("deletes a package through its menu and drops the row", fakeAsync(() => {
+    it("links a package's Edit button to its edit form", fakeAsync(() => {
       const page = setup();
       page.load();
 
-      (
-        page.element.querySelector(
-          "tbody tr button[tuiIconButton]",
-        ) as HTMLElement
-      ).click();
-      page.fixture.detectChanges();
-      const remove = Array.from(
-        document.querySelectorAll("tui-data-list button"),
-      ).find((b) => b.textContent.includes("Delete")) as HTMLElement;
-      remove.click();
+      const edit = page.element.querySelector<HTMLAnchorElement>(
+        "tbody tr td.actions a.edit",
+      );
+
+      expect(edit.getAttribute("href")).toBe("/packages/text_tools");
+      page.controller.verify();
+      finish();
+    }));
+
+    it("deletes a package after the confirmation and drops the row", fakeAsync(() => {
+      const page = setup();
+      page.load();
+
+      page.element
+        .querySelector<HTMLButtonElement>("tbody tr button.delete")
+        .click();
+      page.settle();
+      page.controller.expectNone(`${PACKAGES_URL}/text_tools`);
+      const question = openDialog().textContent;
+      dialogButton("Delete").click();
       const request = page.controller.expectOne(`${PACKAGES_URL}/text_tools`);
       request.flush(null);
       page.settle();
 
+      expect(question).toContain("Delete node package?");
+      expect(question).toContain("«Text tools» will be deleted");
       expect(request.request.method).toBe("DELETE");
       expect(page.rows()).toEqual(["Image tools"]);
+      page.controller.verify();
+      finish();
+    }));
+
+    it("keeps the package when the deletion is cancelled", fakeAsync(() => {
+      const page = setup();
+      page.load();
+
+      page.element
+        .querySelector<HTMLButtonElement>("tbody tr button.delete")
+        .click();
+      page.settle();
+      dialogButton("Cancel").click();
+      page.settle();
+
+      page.controller.expectNone(`${PACKAGES_URL}/text_tools`);
+      expect(page.rows()).toEqual(["Text tools", "Image tools"]);
       page.controller.verify();
       finish();
     }));
