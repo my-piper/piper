@@ -21,6 +21,7 @@ import {
   TuiDataList,
   TuiDialog,
   TuiDropdown,
+  TuiHint,
   TuiIcon,
 } from "@taiga-ui/core";
 import { TuiBadge } from "@taiga-ui/kit";
@@ -30,7 +31,6 @@ import { MeUserComponent } from "src/app/me-user/me-user.component";
 import { ConnectedAccountsComponent } from "src/app/connected-accounts/connected-accounts.component";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
-import { ASIDE_EXPANDED_KEY } from "src/consts/core";
 import { Languages } from "src/enums/languages";
 import { CanPipe } from "src/pipes/can";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
@@ -70,6 +70,7 @@ describe("AppLayoutComponent", () => {
         TuiBadge,
         ...TuiDataList,
         ...TuiDropdown,
+        ...TuiHint,
         ...TuiNavigation,
         TuiDialog,
         ErrorDialogComponent,
@@ -109,22 +110,26 @@ describe("AppLayoutComponent", () => {
     return harness.fixture.nativeElement as HTMLElement;
   }
 
-  function asideLabels(element: HTMLElement) {
-    return Array.from(element.querySelectorAll("aside [tuiAsideItem]"))
-      .filter((item) => item.hasAttribute("href"))
-      .map((item) => item.textContent.trim());
+  function sidebar(element: HTMLElement) {
+    return element.querySelector("[data-testid=app-sidebar]");
+  }
+
+  function sidebarLabels(element: HTMLElement) {
+    return Array.from(sidebar(element).querySelectorAll("a.item")).map((item) =>
+      item.getAttribute("aria-label"),
+    );
   }
 
   afterEach(() => {
     TestBed.inject(HttpTestingController).match(() => true);
   });
 
-  it("lists the global sections in the aside for a regular user", async () => {
+  it("lists the global sections in the sidebar for a regular user", async () => {
     const { harness } = await render("owner");
 
     const element = await open(harness, "/projects");
 
-    expect(asideLabels(element)).toEqual([
+    expect(sidebarLabels(element)).toEqual([
       "Pipelines",
       "Launches",
       "Assets",
@@ -137,7 +142,7 @@ describe("AppLayoutComponent", () => {
 
     const element = await open(harness, "/projects");
 
-    expect(asideLabels(element)).toEqual([
+    expect(sidebarLabels(element)).toEqual([
       "Node packages",
       "Pipelines",
       "Launches",
@@ -147,48 +152,43 @@ describe("AppLayoutComponent", () => {
     ]);
   });
 
-  it("marks the section of the current route active", async () => {
+  it("marks the section of the current route active and names it in the top bar", async () => {
     const { harness } = await render("owner");
 
     const element = await open(harness, "/projects");
 
-    const active = element.querySelector("aside [tuiAsideItem]._active");
-    expect(active?.textContent.trim()).toBe("Pipelines");
+    const active = sidebar(element).querySelector("a.item.active");
+    expect(active?.getAttribute("aria-label")).toBe("Pipelines");
+    expect(
+      element.querySelector("[data-testid=app-crumbs] b")?.textContent,
+    ).toBe("Pipelines");
   });
 
-  it("collapses the aside and remembers it", async () => {
+  it("names no section in the top bar outside the global sections", async () => {
     const { harness } = await render("owner");
-    const element = await open(harness, "/projects");
-    const aside = element.querySelector("aside");
-    const expandedBefore = aside.classList.contains("_expanded");
 
-    element
-      .querySelector<HTMLButtonElement>("[data-testid=aside-toggle]")
-      .click();
-    harness.detectChanges();
+    const element = await open(harness, "/canvas");
 
-    expect(expandedBefore).toBe(true);
-    expect(aside.classList.contains("_expanded")).toBe(false);
-    expect(localStorage.getItem(ASIDE_EXPANDED_KEY)).toBe("false");
+    expect(element.querySelector("[data-testid=app-crumbs] b")).toBeNull();
   });
 
-  it("starts collapsed when the aside was collapsed before", async () => {
-    localStorage.setItem(ASIDE_EXPANDED_KEY, "false");
+  it("puts the mark first, linked to the site, and the theme menu last", async () => {
     const { harness } = await render("owner");
 
     const element = await open(harness, "/projects");
 
-    expect(element.querySelector("aside").classList.contains("_expanded")).toBe(
-      false,
-    );
+    const items = Array.from(sidebar(element).children);
+    expect(items[0].getAttribute("data-testid")).toBe("app-logo");
+    expect(items[0].getAttribute("href")).toBeTruthy();
+    expect(items.at(-1).getAttribute("data-testid")).toBe("theme-menu");
   });
 
-  it("replaces the aside with a header drawer on mobile", async () => {
+  it("replaces the sidebar with a top bar drawer on mobile", async () => {
     const { harness } = await render("owner", "mobile");
 
     const element = await open(harness, "/projects");
 
-    expect(element.querySelector("aside")).toBeNull();
+    expect(sidebar(element)).toBeNull();
     expect(
       element.querySelector("[data-testid=navigation-drawer]"),
     ).not.toBeNull();
@@ -224,12 +224,12 @@ describe("AppLayoutComponent", () => {
     expect(component.drawerOpen()).toBe(false);
   });
 
-  it("keeps the aside and no drawer on desktop", async () => {
+  it("keeps the sidebar and no drawer on desktop", async () => {
     const { harness } = await render("owner", "desktopSmall");
 
     const element = await open(harness, "/projects");
 
-    expect(element.querySelector("aside")).not.toBeNull();
+    expect(sidebar(element)).not.toBeNull();
     expect(element.querySelector("[data-testid=navigation-drawer]")).toBeNull();
   });
 

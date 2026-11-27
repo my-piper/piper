@@ -1,8 +1,8 @@
 import { LAUNCH_ID, launchPlain } from "../fixtures/plain";
 import { expect, test } from "./support/test";
 
-/** Height of Taiga's navigation header (3rem) above every framed page. */
-const HEADER = 48;
+/** Height of the top bar (docs/design.md) above every framed page. */
+const HEADER = 40;
 
 test("keeps the launch canvas visible and fills the viewport below the header after resizing", async ({
   page,
