@@ -87,6 +87,8 @@ export class ApiFixture {
   nodeOutputs = new Map<string, Plain>();
   /** Node Logs per launch, as GET /api/launches/:launch/logs returns them. */
   launchLogs = new Map<string, Plain>();
+  /** Recorded runs of finished launches, as GET /api/launches/:id/run returns them. */
+  launchRuns = new Map<string, Plain>();
   readonly interrupted: string[] = [];
 
   private revision = 1;
@@ -452,6 +454,10 @@ export class ApiFixture {
     // backend/api/launches/heartbeat.ts and metrics/finished.ts: null → 204
     this.on("GET", "/api/launches/:id/heartbeat", () => ok(null));
     this.on("GET", "/api/launches/:id/metrics/finished", () => ok(null));
+    // backend/api/launches/launch-run.ts: a launch_runs row, or null → 204
+    this.on("GET", "/api/launches/:id/run", ({ params }) =>
+      ok(clone(this.launchRuns.get(params["id"]) ?? null)),
+    );
 
     // backend/api/launches/interrupt-launch.ts
     this.on("POST", "/api/launches/:id/interrupt", ({ params, user }) => {

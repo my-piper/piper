@@ -4,6 +4,7 @@ import "./heartbeat";
 import "./interrupt-launch";
 import "./launch-data";
 import "./launch-logs";
+import "./launch-run";
 import "./launch-state";
 import "./list";
 

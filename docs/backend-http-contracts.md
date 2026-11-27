@@ -48,6 +48,7 @@ These are exercised by `backend/tests/unit/sockets`.
 | `GET /api/launches/:id/data`                  | Launch visible to the user             | 200               |
 | `GET /api/launches/:_id/heartbeat`            | Launch visible to the user             | 200/204           |
 | `GET /api/launches/:launch/logs`              | Launch visible to the user             | 200               |
+| `GET /api/launches/:launch/run`               | Launch visible to the user             | 200/204           |
 | `GET /api/launches/:launch/metrics/finished`  | Launch visible to the user             | 200/204           |
 | `GET /api/launches/:launch/metrics/outputs`   | Launch visible to the user             | 200               |
 | `GET /api/launches/:launch/:node/inputs`      | Launch visible to the user             | 200               |

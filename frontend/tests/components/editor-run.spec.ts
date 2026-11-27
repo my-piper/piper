@@ -61,12 +61,46 @@ function tabDouble() {
 function answerNodeReads({ controller }: Editor) {
   const reads = controller.match(
     (r: HttpRequest<unknown>) =>
-      r.method === "GET" && r.url.startsWith(`/api/launches/`),
+      r.method === "GET" && isNodeRead(r.url),
   );
   for (const read of reads) {
     read.flush(read.request.url.endsWith("/status") ? null : {});
   }
   return reads.map((r) => r.request.url);
+}
+
+/** A node's read; the launch's recorded run (`/run`) is answered by the test. */
+function isNodeRead(url: string) {
+  return url.startsWith(`/api/launches/`) && !url.endsWith("/run");
+}
+
+/**
+ * Answers the launch's recorded run read (`GET /api/launches/:id/run`, a
+ * launch_runs row or null; backend/api/launches/launch-run.ts) and returns
+ * how many there were.
+ */
+function answerRun({ controller }: Editor, run: object | null = null) {
+  const reads = controller.match(
+    (r: HttpRequest<unknown>) =>
+      r.method === "GET" && r.url === `/api/launches/${LAUNCH_ID}/run`,
+  );
+  for (const read of reads) {
+    read.flush(run);
+  }
+  tick();
+  return reads.length;
+}
+
+/** A launch_runs row as the backend sends it. */
+function launchRunPlain(status: string, durationMs: number) {
+  return {
+    launch: LAUNCH_ID,
+    status,
+    launchedAt: "2026-11-27 10:00:00.000",
+    startedAt: "2026-11-27 10:00:02.000",
+    finishedAt: "2026-11-27 10:01:46.500",
+    durationMs,
+  };
 }
 
 type Status = { state: string; error?: string } | null;
@@ -78,7 +112,7 @@ function answerStatuses(
 ) {
   const reads = controller.match(
     (r: HttpRequest<unknown>) =>
-      r.method === "GET" && r.url.startsWith(`/api/launches/`),
+      r.method === "GET" && isNodeRead(r.url),
   );
   for (const read of reads) {
     const [, , , , node, kind] = read.request.url.split("/");
@@ -411,6 +445,7 @@ describe("EditPipelineVisualComponent launch page", () => {
 
       expect(interruptButton(topbar) !== null).toBe(offered);
       answerStatuses(editor);
+      answerRun(editor);
       controller.verify();
       finish();
     }));
@@ -468,6 +503,7 @@ describe("EditPipelineVisualComponent run feedback", () => {
     expect(pill(topbar).textContent).toContain("Failed");
     expect(router.url).toContain("(right:nodes/node_one/logs)");
     answerStatuses(editor);
+    answerRun(editor);
     controller.verify();
     finish();
   }));
@@ -511,6 +547,85 @@ describe("EditPipelineVisualComponent run feedback", () => {
     finish();
   }));
 
+  it("shows the recorded total of a finished launch it opens", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { detectChanges, controller, topbar } = editor;
+
+    answerStatuses(editor, {
+      node_one: { state: "done" },
+      node_two: { state: "done" },
+    });
+    const reads = answerRun(editor, launchRunPlain("done", 104_500));
+    detectChanges();
+    answerStatuses(editor);
+    tick(5000);
+    detectChanges();
+
+    expect(reads).toBe(1);
+    expect(pill(topbar).dataset["state"]).toBe("done");
+    expect(
+      topbar.querySelector('[data-testid="launch-elapsed"]').textContent,
+    ).toBe("1:44");
+    expect(answerRun(editor)).toBe(0);
+    controller.verify();
+    finish();
+  }));
+
+  it("shows the recorded total of a failed launch it opens", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { detectChanges, controller, topbar } = editor;
+
+    answerStatuses(editor, {
+      node_one: { state: "error", error: "Boom" },
+      node_two: { state: "done" },
+    });
+    answerRun(editor, launchRunPlain("error", 3_725_000));
+    detectChanges();
+
+    expect(pill(topbar).dataset["state"]).toBe("failed");
+    expect(
+      topbar.querySelector('[data-testid="launch-elapsed"]').textContent,
+    ).toBe("1:02:05");
+    answerStatuses(editor);
+    controller.verify();
+    finish();
+  }));
+
+  it("shows no total while the launch's run is not recorded", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { detectChanges, controller, topbar } = editor;
+
+    answerStatuses(editor, {
+      node_one: { state: "done" },
+      node_two: { state: "done" },
+    });
+    const reads = answerRun(editor, null);
+    detectChanges();
+
+    expect(reads).toBe(1);
+    expect(pill(topbar).dataset["state"]).toBe("done");
+    expect(topbar.querySelector('[data-testid="launch-elapsed"]')).toBeNull();
+    answerStatuses(editor);
+    controller.verify();
+    finish();
+  }));
+
+  it("asks for no total when it opens an idle launch", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { detectChanges, controller, topbar } = editor;
+
+    answerStatuses(editor, { node_one: { state: "stopped" } });
+    const reads = answerRun(editor);
+    detectChanges();
+
+    expect(reads).toBe(0);
+    expect(pill(topbar).dataset["state"]).toBe("idle");
+    expect(topbar.querySelector('[data-testid="launch-elapsed"]')).toBeNull();
+    answerStatuses(editor);
+    controller.verify();
+    finish();
+  }));
+
   it("follows a node through the queue and waiting for its inputs", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });
     const { detectChanges, controller, socket, topbar } = editor;
@@ -518,6 +633,7 @@ describe("EditPipelineVisualComponent run feedback", () => {
     editor.editor.launch.launchRequest.inclusive = undefined;
 
     answerStatuses(editor, { node_one: { state: "done" } });
+    answerRun(editor);
     detectChanges();
     const skipped = pill(topbar).dataset["state"];
     socket.receive("node_flow", event);

@@ -1,5 +1,7 @@
 import { Page } from "@playwright/test";
 import {
+  LAUNCH_ID,
+  launchPlain,
   nodeEventPlain,
   Plain,
   PROJECT_A_ID,
@@ -145,4 +147,30 @@ test("runs from the canvas in a new tab, follows node events and interrupts ther
   await expect(tab.getByTestId("interrupt-launch")).toHaveCount(0);
   expect(api.interrupted).toEqual(["launch_1"]);
   await expect(page).toHaveURL(new RegExp(`/en/projects/${PROJECT_A_ID}$`));
+});
+
+test("shows the recorded total when it opens a finished launch", async ({
+  page,
+  open,
+  api,
+}) => {
+  api.launches.set(LAUNCH_ID, launchPlain());
+  api.nodeStatus.set(`${LAUNCH_ID}/node_one`, { state: "done" });
+  api.nodeStatus.set(`${LAUNCH_ID}/node_two`, { state: "done" });
+  api.launchRuns.set(LAUNCH_ID, {
+    launch: LAUNCH_ID,
+    status: "done",
+    launchedAt: "2026-11-27 10:00:00.000",
+    startedAt: "2026-11-27 10:00:02.000",
+    finishedAt: "2026-11-27 10:01:46.500",
+    durationMs: 104_500,
+  });
+
+  await open(`/en/launches/${LAUNCH_ID}/(right:logs)`);
+
+  await expect(page.getByTestId("launch-state")).toHaveAttribute(
+    "data-state",
+    "done",
+  );
+  await expect(page.getByTestId("launch-elapsed")).toHaveText("1:44");
 });

@@ -19,6 +19,7 @@ const ROUTES = [
   { method: "get", path: `/api/launches/${LAUNCH_ID}/logs` },
   { method: "get", path: `/api/launches/${LAUNCH_ID}/heartbeat` },
   { method: "post", path: `/api/launches/${LAUNCH_ID}/interrupt` },
+  { method: "get", path: `/api/launches/${LAUNCH_ID}/run` },
   { method: "get", path: `/api/launches/${LAUNCH_ID}/metrics/finished` },
   { method: "get", path: `/api/launches/${LAUNCH_ID}/metrics/outputs` },
   { method: "get", path: `/api/launches/${LAUNCH_ID}/echo_node/inputs` },
