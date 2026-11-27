@@ -506,7 +506,18 @@ export class ApiFixture {
     });
 
     // backend/api/nodes/list.ts
-    this.on("GET", "/api/nodes", () => ok(clone(this.catalog)));
+    this.on("GET", "/api/nodes", ({ query }) => {
+      // `accepts`: nodes with an input of one of the comma-separated types.
+      const accepts = (query.get("accepts") ?? "").split(",").filter(Boolean);
+      const listed = this.catalog.filter(
+        (node) =>
+          accepts.length <= 0 ||
+          Object.values((node["inputs"] ?? {}) as Record<string, Plain>).some(
+            (input) => accepts.includes(input["type"] as string),
+          ),
+      );
+      return ok(clone(listed));
+    });
 
     // backend/api/nodes/get-node.ts
     this.on("GET", "/api/nodes/:id", ({ params }) => {

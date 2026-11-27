@@ -1,13 +1,17 @@
+// The add-node drawer: browse the catalog by category and drag a node onto
+// the canvas. Rows stay dense; node search is the keyboard path.
 :host {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  color: var(--tui-text-primary);
+  gap: var(--space-2);
+  color: var(--text);
 }
 
 .heading {
   margin: 0;
-  font: var(--tui-typography-heading-6);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
 }
 
 .error ul {
@@ -16,7 +20,9 @@
 }
 
 [tuiAccordion] {
-  gap: 0.5rem;
+  gap: var(--space-2);
+  font-size: 12px;
+  font-weight: 600;
 
   .title {
     flex: 1;
@@ -30,53 +36,57 @@
 .nodes {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 2px;
 }
 
 .node {
-  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--control-m);
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
   user-select: none;
   cursor: grab;
 
-  header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  &:hover {
+    background: var(--surface-2);
+    border-color: var(--border);
   }
 
-  h3 {
+  .name {
     flex: 1;
     min-width: 0;
-    margin: 0;
-    font: var(--tui-typography-body-s);
-    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .thumbnail {
     display: block;
-    width: 1.375rem;
-    aspect-ratio: 1 / 1;
-  }
-
-  footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem;
+    flex: none;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--radius-xs);
   }
 
   .version {
-    margin-inline-start: auto;
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
   }
 }
 
 .skeleton {
-  height: 4rem;
-  border-radius: var(--tui-radius-l);
+  height: var(--control-m);
+  border-radius: var(--radius-sm);
 }
 
 .empty {
   margin: 0;
-  font: var(--tui-typography-body-s);
-  color: var(--tui-text-secondary);
+  font-size: 12px;
+  color: var(--text-muted);
 }

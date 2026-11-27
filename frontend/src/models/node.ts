@@ -468,4 +468,9 @@ export class NodesFilter {
   @Expose()
   @Type(() => String)
   search?: string;
+
+  /** Comma-separated input types: only nodes with an input of one of them. */
+  @Expose()
+  @Type(() => String)
+  accepts?: string;
 }

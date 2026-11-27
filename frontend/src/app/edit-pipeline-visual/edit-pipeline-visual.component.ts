@@ -72,6 +72,7 @@ import { Primitive } from "src/types/primitive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { formatElapsed } from "src/utils/elapsed";
+import { acceptedInputTypes } from "src/utils/flow-types";
 import { sid } from "src/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
@@ -167,6 +168,20 @@ export class EditPipelineVisualComponent implements OnDestroy {
   flow: { type: "node" | "input"; from?: string; output?: string } | null =
     null;
   mouse: { x: number; y: number } | null = null;
+
+  /**
+   * The open node search: where its node goes on the canvas (`x`, `y`), where
+   * the popover sits in the viewport, and the wire to connect, if any.
+   */
+  search: {
+    x: number;
+    y: number;
+    left: number;
+    top: number;
+    flow: EditPipelineVisualComponent["flow"];
+    accepts: string[] | null;
+    added: number;
+  } | null = null;
 
   @ViewChild("drawlerRight", { static: true })
   drawlerRight!: RouterOutlet;
@@ -705,7 +720,12 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.saveUrlState();
   }
 
-  addNode(left: number, top: number, payload: { node: string }) {
+  addNode(
+    left: number,
+    top: number,
+    payload: { node: string },
+    added?: (id: string, node: Node) => void,
+  ) {
     if ("node" in payload) {
       this.closeDrawler();
 
@@ -726,6 +746,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
               this.pipeline.start.nodes.push(id);
             }
             assign(node.arrange, { x: left, y: top });
+            added?.(id, node);
             this.save();
           },
           error: (err) => (this.error = err),
@@ -786,11 +807,117 @@ export class EditPipelineVisualComponent implements OnDestroy {
     }
   }
 
-  @HostListener("document:mouseup")
-  stopMove() {
+  @HostListener("document:mouseup", ["$event"])
+  stopMove(event?: MouseEvent) {
     if (this.state === "flow") {
+      // A wire dropped on empty canvas asks which node to add there.
+      if (event && this.onEmptyCanvas(event)) {
+        this.openNodeSearch(event, this.flow);
+      }
       this.state = "default";
       [this.flow, this.mouse] = [null, null];
+    }
+  }
+
+  /**
+   * Whether the pointer is over empty canvas. The pan directive's pointer
+   * capture retargets events to the scroller; then the document says what is
+   * under the pointer.
+   */
+  private onEmptyCanvas({ target, clientX, clientY }: MouseEvent) {
+    const element = (
+      target === this.nodesRef.nativeElement
+        ? this.document.elementFromPoint(clientX, clientY)
+        : target
+    ) as HTMLElement | null;
+    return (
+      !!element &&
+      this.paneRef.nativeElement.contains(element) &&
+      !element.closest(".node, .input, .output, .flow, .actions")
+    );
+  }
+
+  openNodeSearch(
+    event: MouseEvent,
+    flow: EditPipelineVisualComponent["flow"] = null,
+  ) {
+    if (!flow && !this.onEmptyCanvas(event)) {
+      return;
+    }
+    const zoom = this.pipeline.layout?.zoom || 1;
+    const rect = this.paneRef.nativeElement.getBoundingClientRect();
+    this.search = {
+      x: Math.round((event.clientX - rect.left) / zoom),
+      y: Math.round((event.clientY - rect.top) / zoom),
+      left: Math.max(16, Math.min(event.clientX, innerWidth - 416)),
+      top: Math.max(16, Math.min(event.clientY, innerHeight - 456)),
+      flow: flow ? { ...flow } : null,
+      accepts: flow ? this.flowAccepts(flow) : null,
+      added: 0,
+    };
+    this.cd.detectChanges();
+  }
+
+  closeNodeSearch() {
+    this.search = null;
+    this.cd.detectChanges();
+  }
+
+  /** Input types the wire being drawn can connect to. */
+  private flowAccepts({
+    type,
+    from,
+    output,
+  }: EditPipelineVisualComponent["flow"]) {
+    const source =
+      type === "node"
+        ? this.pipeline.nodes.get(from)?.outputs.get(output)?.type
+        : this.pipeline.inputs?.get(from)?.type;
+    if (!source) {
+      return null;
+    }
+    return type === "node" ? acceptedInputTypes(source) : [source];
+  }
+
+  /**
+   * Adds the node picked in the search at the search point, connected to the
+   * dropped wire. A node added with the search kept open steps aside.
+   */
+  addFromSearch(node: string, keepOpen: boolean) {
+    const { x, y, flow, accepts, added } = this.search;
+    const step = added * 24;
+    // A wired node puts its first input row on the drop point.
+    const top = flow ? y - (UI.node.input.height + UI.node.shift) : y;
+    this.addNode(x + step, top + step, { node }, (id, created) => {
+      if (flow && accepts) {
+        this.connectAdded(flow, id, created, accepts);
+      }
+    });
+    if (keepOpen) {
+      this.search.added++;
+    } else {
+      this.search = null;
+    }
+    this.cd.detectChanges();
+  }
+
+  private connectAdded(
+    { type, from, output }: EditPipelineVisualComponent["flow"],
+    id: string,
+    node: Node,
+    accepts: string[],
+  ) {
+    const inputs = [...node.inputs.entries()].filter(([, i]) =>
+      accepts.includes(i.type),
+    );
+    const [key] = inputs.find(([, i]) => i.featured) ?? inputs[0] ?? [];
+    if (!key) {
+      return;
+    }
+    if (type === "node") {
+      this.addNodeFlow(from, output, id, key);
+    } else {
+      this.addInputFlow(from, id, key);
     }
   }
 

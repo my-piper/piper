@@ -11,6 +11,12 @@
   bottom: 0;
 }
 
+// The node search popover, at the pointer (EditPipelineVisualComponent.search).
+.node-search {
+  position: fixed;
+  z-index: 6;
+}
+
 .modal {
   header {
     display: flex;

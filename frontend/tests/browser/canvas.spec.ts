@@ -47,12 +47,12 @@ test("adds, connects and moves nodes, edits an input and keeps it after reload",
   // only group opens by itself.
   await page.getByTestId("add-node").click();
   const card = page
-    .locator(".node")
-    .filter({ has: page.getByRole("heading", { name: "Uppercase" }) });
+    .locator("app-select-node .node")
+    .filter({ hasText: "Uppercase" });
   await expect(card).toBeVisible();
   const pane = await page.locator(".pane").boundingBox();
   const cardBox = await card.boundingBox();
-  const grab = await card.locator("header").boundingBox();
+  const grab = cardBox;
   await page.mouse.move(grab.x + 5, grab.y + 5);
   await page.mouse.down();
   await page.mouse.move(pane.x + 700, pane.y + 400, { steps: 10 });
@@ -353,4 +353,39 @@ test("lists the shortcuts with ? and ignores keys typed into a field", async ({
 
   await expect(page.locator("tui-dialog")).toHaveCount(0);
   await expect(nodeOne).toBeVisible();
+});
+
+test("adds a node from search on double-click and connects one to a dropped wire", async ({
+  page,
+  open,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeOne = page.getByTestId("node-node_one");
+  await expect(nodeOne).toBeVisible();
+  const view = await page.locator(".nodes").boundingBox();
+  const added = page.locator('[data-testid^="node-uppercase_"]');
+  const wires = page.locator(".pane > svg path:not(.param):not(.pending)");
+  const wiresBefore = await wires.count();
+
+  await page.mouse.dblclick(view.x + 600, view.y + 400);
+  const field = page.getByTestId("node-search-field");
+  await expect(field).toBeFocused();
+  await field.fill("upp");
+  await page.keyboard.press("Enter");
+  await expect(added).toHaveCount(1);
+  await expect(field).toHaveCount(0);
+
+  await page.mouse.move(
+    ...(await center(nodeOne.getByTestId("output-port-text"))),
+  );
+  await page.mouse.down();
+  await page.mouse.move(view.x + 300, view.y + 550, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.getByTestId("node-search-accepts")).toContainText("string");
+  // Listed under Recent and under its category.
+  await expect(page.getByTestId("node-search-uppercase").first()).toBeVisible();
+  await page.keyboard.press("Enter");
+
+  await expect(added).toHaveCount(2);
+  await expect(wires).toHaveCount(wiresBefore + 1);
 });
