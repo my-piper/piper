@@ -626,7 +626,8 @@
         }
         <app-node
           [class.active]="currentNode === node.value"
-          [disabled]="mode !== 'project'"
+          [disabled]="!canEdit"
+          [pipeline]="pipeline"
           [id]="node.key"
           [project]="project"
           [node]="node.value"

@@ -23,6 +23,7 @@ import {
   NodeProgress,
   NodeStatus,
 } from "src/models/node";
+import { Pipeline } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
@@ -31,6 +32,8 @@ import { Primitive } from "src/types/primitive";
 import { createLogger } from "src/utils/logger";
 import { NodeRunState } from "src/utils/launch-state";
 import { UI } from "src/consts/ui";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
+import { getLabel } from "src/utils/i18n";
 import { toInstance } from "src/utils/models";
 import { nodeLayout, NodeLayout, WidgetRow } from "src/utils/node-layout";
 import { parseNumber, stepNumber } from "src/utils/number-widget";
@@ -86,6 +89,12 @@ export class NodeComponent implements OnDestroy {
 
   @Input()
   node!: Node;
+
+  private readonly language = inject(CURRENT_LANGUAGE);
+
+  /** The pipeline the node is in: where its wired inputs come from. */
+  @Input()
+  pipeline: Pipeline | null = null;
 
   readonly rowHeight = UI.node.input.height;
 
@@ -376,6 +385,28 @@ export class NodeComponent implements OnDestroy {
     this.inputChange.emit({ input: row.id, value });
   }
 
+  /**
+   * Where a wired widget input gets its value: the upstream node's title, or
+   * the pipeline input's; null when nothing is wired into it.
+   */
+  wiredFrom(row: WidgetRow): string | null {
+    const flows = this.pipeline?.flows ?? new Map();
+    for (const [, flow] of flows) {
+      if (flow.to === this.id && flow.input === row.id) {
+        const from = this.pipeline.nodes.get(flow.from);
+        return getLabel(from?.title, this.language) ?? flow.from;
+      }
+    }
+    for (const [key, input] of this.pipeline?.inputs ?? new Map()) {
+      for (const [, flow] of input.flows ?? new Map()) {
+        if (flow.to === this.id && flow.input === row.id) {
+          return getLabel(input.title, this.language) ?? key;
+        }
+      }
+    }
+    return null;
+  }
+
   textValue(row: WidgetRow): string {
     const value = this.widgetValue(row);
     return value === null ? "" : String(value);
@@ -383,7 +414,11 @@ export class NodeComponent implements OnDestroy {
 
   /** A required input with nothing to run with. */
   isMissing(row: WidgetRow): boolean {
-    return !!row.input.required && this.textValue(row) === "";
+    return (
+      !!row.input.required &&
+      this.textValue(row) === "" &&
+      this.wiredFrom(row) === null
+    );
   }
 
   /** Text as typed; an emptied field falls back to the default. */
