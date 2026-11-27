@@ -7,8 +7,17 @@ set -uo pipefail
 file=$(jq -r '.tool_input.file_path // empty')
 [ -z "$file" ] || [ ! -f "$file" ] && exit 0
 
-# The edited file's own checkout: a session in the main checkout may edit a worktree.
-root="$(git -C "$(dirname "$file")" rev-parse --show-toplevel 2>/dev/null || echo "${CLAUDE_PROJECT_DIR:-}")"
+# The edited file's own checkout when it is a worktree of this repository (a
+# session in the main checkout may edit a worktree). Another repository's
+# checkout is never trusted: its scripts would run below.
+common_dir() { (cd "$1" 2>/dev/null && cd "$(git rev-parse --git-common-dir 2>/dev/null)" 2>/dev/null && pwd -P); }
+root="${CLAUDE_PROJECT_DIR:-}"
+file_dir=$(dirname "$file")
+file_root=$(git -C "$file_dir" rev-parse --show-toplevel 2>/dev/null || true)
+if [ -n "$file_root" ] && [ -n "$root" ] && [ "$(common_dir "$file_dir")" = "$(common_dir "$root")" ]; then
+  root="$file_root"
+fi
+[ -z "$root" ] && exit 0
 
 case "$file" in
   "$root"/backend/core-kit/* | */node_modules/*) exit 0 ;;
