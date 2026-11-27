@@ -22,6 +22,7 @@ import {
   NodeInput,
   NodeOutput,
   NodeProgress,
+  NodeState,
   NodeStatus,
 } from "src/models/node";
 import { Project } from "src/models/project";
@@ -167,6 +168,20 @@ export class NodeComponent implements OnDestroy {
     return this.status?.state === "running";
   }
 
+  /** Retry is offered on a failed node only where it can be run again. */
+  @Input()
+  retryable = false;
+
+  /** The node's run state, emitted when it changes (`null`: no launch). */
+  @Output()
+  stateChange = new EventEmitter<NodeState | null>();
+
+  @Output()
+  retry = new EventEmitter<void>();
+
+  @Output()
+  showLog = new EventEmitter<void>();
+
   @Output()
   input = new EventEmitter<string>();
 
@@ -301,8 +316,18 @@ export class NodeComponent implements OnDestroy {
   }
 
   reset() {
-    [this.status, this.progress] = [null, null];
+    this.setStatus(null);
+    this.progress = null;
     this.cd.detectChanges();
+  }
+
+  /** The parent hears about changes after this change detection pass. */
+  private setStatus(status: NodeStatus | null) {
+    const [prev, next] = [this.status?.state ?? null, status?.state ?? null];
+    this.status = status;
+    if (prev !== next) {
+      queueMicrotask(() => this.stateChange.emit(next));
+    }
   }
 
   pinFrom(output: string) {
@@ -344,7 +369,7 @@ export class NodeComponent implements OnDestroy {
     const check = () => {
       this.logger.debug("Check status");
       this.loadStatus().subscribe((status) => {
-        this.status = status;
+        this.setStatus(status);
         this.cd.detectChanges();
 
         switch (status.state) {

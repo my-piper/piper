@@ -374,3 +374,137 @@ describe("EditPipelineVisualComponent launch page", () => {
     finish();
   }));
 });
+
+describe("EditPipelineVisualComponent run feedback", () => {
+  type Status = { state: string; error?: string } | null;
+
+  /** Answers every pending node read, with `statuses` per node id. */
+  function answerStatuses(
+    { controller }: Editor,
+    statuses: Record<string, Status> = {},
+  ) {
+    const reads = controller.match(
+      (r: HttpRequest<unknown>) =>
+        r.method === "GET" && r.url.startsWith(`/api/launches/`),
+    );
+    for (const read of reads) {
+      const [, , , , node, kind] = read.request.url.split("/");
+      if (kind === "status") {
+        read.flush(statuses[node] ?? null);
+      } else if (kind === "progress") {
+        read.flush(null);
+      } else {
+        read.flush({});
+      }
+    }
+    tick();
+  }
+
+  function pill(element: HTMLElement) {
+    return element.querySelector<HTMLElement>('[data-testid="launch-state"]');
+  }
+
+  /** The fixture's only node-to-node wire, node_one → node_two. */
+  function nodeWire(element: HTMLElement) {
+    return element.querySelector(".pane > svg path:not(.param):not(.pending)");
+  }
+
+  it("shows a failed node inline, marks the launch failed and opens its log", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { element, detectChanges, router, controller } = editor;
+
+    answerStatuses(editor, {
+      node_one: { state: "error", error: "Boom" },
+      node_two: { state: "done" },
+    });
+    detectChanges();
+    const node = element.querySelector('[data-testid="node-node_one"]');
+    const message = node.querySelector('[role="alert"] p')?.textContent;
+    const retry = node.querySelector('[data-testid="node-retry"]');
+    node.querySelector<HTMLElement>('[data-testid="node-show-log"]').click();
+    tick();
+    detectChanges();
+
+    expect(node.querySelector('[data-testid="node-failed"]')).not.toBeNull();
+    expect(message?.trim()).toBe("Boom");
+    expect(retry).toBeNull();
+    expect(pill(element).dataset["state"]).toBe("failed");
+    expect(pill(element).textContent).toContain("Failed");
+    expect(router.url).toContain("(right:nodes/node_one/logs)");
+    answerStatuses(editor);
+    controller.verify();
+    finish();
+  }));
+
+  it("counts the elapsed time while a node runs and animates its wires", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { element, detectChanges, controller } = editor;
+    editor.editor.launch.startedAt = new Date(Date.now() - 42_000);
+
+    answerStatuses(editor, {
+      node_one: { state: "done" },
+      node_two: { state: "running" },
+    });
+    detectChanges();
+    const running = {
+      state: pill(element).dataset["state"],
+      elapsed: element.querySelector('[data-testid="launch-elapsed"]')
+        .textContent,
+      wire: nodeWire(element).classList.contains("running"),
+    };
+    tick(1000);
+    detectChanges();
+    const ticked = element.querySelector(
+      '[data-testid="launch-elapsed"]',
+    ).textContent;
+    tick(1000);
+    answerStatuses(editor, { node_two: { state: "done" } });
+    answerStatuses(editor);
+    detectChanges();
+    tick(5000);
+    detectChanges();
+
+    expect(running).toEqual({ state: "running", elapsed: "0:42", wire: true });
+    expect(ticked).toBe("0:43");
+    expect(pill(element).dataset["state"]).toBe("done");
+    expect(
+      element.querySelector('[data-testid="launch-elapsed"]').textContent,
+    ).toBe("0:44");
+    expect(nodeWire(element).classList.contains("running")).toBe(false);
+    controller.verify();
+    finish();
+  }));
+
+  it("offers Retry on a node that failed in the editor and runs it again", fakeAsync(() => {
+    const editor = setupEditor();
+    const { element, detectChanges, controller } = editor;
+    editor.editor.launches = { node_one: launch() };
+    detectChanges();
+
+    answerStatuses(editor, { node_one: { state: "error", error: "Boom" } });
+    detectChanges();
+    element
+      .querySelector<HTMLElement>(
+        '[data-testid="node-node_one"] [data-testid="node-retry"]',
+      )
+      .click();
+    detectChanges();
+    answerSaves(editor);
+    const request = controller.expectOne(LAUNCH_URL);
+    request.flush(launchResponsePlain("launch_retry"));
+    tick(UI_DELAY);
+    detectChanges();
+    answerStatuses(editor);
+    detectChanges();
+
+    expect(request.request.body).toEqual({
+      options: { bucket: "outputs" },
+      inclusive: { nodes: ["node_one"] },
+    });
+    expect(editor.editor.launches["node_one"]._id).toBe("launch_retry");
+    expect(element.querySelector('[data-testid="node-failed"]')).toBeNull();
+    expect(element.querySelector('[data-testid="launch-state"]')).toBeNull();
+    controller.verify();
+    finish();
+  }));
+});

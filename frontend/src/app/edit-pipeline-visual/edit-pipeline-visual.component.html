@@ -243,6 +243,34 @@
   }
   @if (mode === "launch") {
     <div class="actions stack">
+      @if (launchState; as state) {
+        <span
+          class="launch-state"
+          role="status"
+          data-testid="launch-state"
+          [attr.data-state]="state"
+        >
+          @switch (state) {
+            @case ("running") {
+              <ng-container i18n="@@label.launch_running">Running</ng-container>
+            }
+            @case ("failed") {
+              <ng-container i18n="@@label.launch_failed">Failed</ng-container>
+            }
+            @case ("done") {
+              <ng-container i18n="@@label.launch_done">Done</ng-container>
+            }
+            @default {
+              <ng-container i18n="@@label.launch_idle">Idle</ng-container>
+            }
+          }
+          @if (elapsed !== null) {
+            <span class="elapsed" data-testid="launch-elapsed">{{
+              elapsed
+            }}</span>
+          }
+        </span>
+      }
       @if (running) {
         <button
           tuiIconButton
@@ -564,6 +592,10 @@
               : null
           "
           [launch]="launch || launches[node.key]"
+          [retryable]="runnable"
+          (stateChange)="setNodeState(node.key, $event)"
+          (retry)="runNode(node.key)"
+          (showLog)="showNodeLog(node.key)"
           (input)="!!flow ? addFlow(node.key, $event) : null"
           (output)="startNodeFlow(node.key, $event)"
           (done)="mode === 'project' ? fillNodeOutputs(node.key, $event) : null"
@@ -702,6 +734,7 @@
 
       @for (f of pipeline.flows | keyvalue; track f.key) {
         <path
+          [class.running]="nodeStates[f.value.to] === 'running'"
           [attr.data-type]="
             (pipeline | node: f.value.from | async)?.outputs?.get(
               f.value.output
@@ -743,6 +776,7 @@
         @for (f of i.value.flows | keyvalue; track f.key) {
           <path
             class="flow param"
+            [class.running]="nodeStates[f.value.to] === 'running'"
             [attr.data-type]="i.value.type"
             [class.disabled]="
               mode !== 'project' ||

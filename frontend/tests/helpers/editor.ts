@@ -110,6 +110,11 @@ export function setupEditor({
           outlet: "right",
           component: OutletStubComponent,
         },
+        {
+          path: "nodes/:id/logs",
+          outlet: "right",
+          component: OutletStubComponent,
+        },
         { path: "inputs/:id", component: OutletStubComponent },
         { path: "nodes/:id/edit/script", component: OutletStubComponent },
       ],

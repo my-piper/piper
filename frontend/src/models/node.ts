@@ -432,10 +432,12 @@ export class Node {
   }
 }
 
+export type NodeState = "stopped" | "running" | "done" | "error";
+
 export class NodeStatus {
   @Expose()
   @Type(() => String)
-  state!: "stopped" | "running" | "done" | "error";
+  state!: NodeState;
 
   @Expose()
   @Type(() => String)

@@ -40,8 +40,10 @@ $port-row: 22px;
       var(--shadow-node);
   }
 
+  // A short ring when the node finishes, then the success border stays.
   &.done {
     border-color: var(--success);
+    animation: done-flash 1.2s ease-out;
   }
 
   &.error {
@@ -61,18 +63,23 @@ $port-row: 22px;
   }
 }
 
-.error {
-  position: absolute;
-  background: var(--backdrop);
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@keyframes done-flash {
+  from {
+    box-shadow:
+      0 0 0 4px var(--success),
+      var(--shadow-node);
+  }
+  to {
+    box-shadow:
+      0 0 0 0 transparent,
+      var(--shadow-node);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host.done {
+    animation: none;
+  }
 }
 
 .node {
@@ -102,6 +109,43 @@ $port-row: 22px;
       width: 3px;
       background: var(--exec);
       border-top-left-radius: calc(var(--radius-md) - 1px);
+    }
+  }
+
+  .failed {
+    flex: none;
+    margin-right: var(--space-1);
+    color: var(--danger);
+    --app-icon-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  // The error stays readable on the node, with what to do about it.
+  .failure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    border-top: 1px solid var(--border);
+
+    p {
+      margin: 0;
+      font-size: 11px;
+      line-height: 14px;
+      color: var(--danger);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      user-select: text;
+    }
+
+    .failure-actions {
+      display: flex;
+      gap: var(--space-1);
     }
   }
 

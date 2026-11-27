@@ -1,22 +1,8 @@
-<ng-template #errorPopover>
-  <div>{{ status?.error }}</div>
-</ng-template>
-
-@if (status?.state === "error") {
-  <div class="error">
-    <button
-      tuiIconButton
-      appearance="flat-grayscale"
-      size="m"
-      [tuiHint]="errorPopover"
-      iconStart="error"
-      style="--app-icon-size: 32px"
-    ></button>
-  </div>
-}
-
 <div class="node" [class.done]="status?.state === 'done'">
   <header class="head">
+    @if (status?.state === "error") {
+      <tui-icon class="failed" icon="error" data-testid="node-failed" />
+    }
     <h2 [title]="node.title | i18n">{{ node.title | i18n }}</h2>
   </header>
   <div class="ports">
@@ -96,6 +82,37 @@
     </ul>
   </div>
 
+  @if (status?.state === "error") {
+    <div class="failure" role="alert">
+      <p [title]="status.error">{{ status.error }}</p>
+      <div class="failure-actions">
+        @if (retryable) {
+          <button
+            tuiButton
+            type="button"
+            appearance="flat"
+            size="xs"
+            data-testid="node-retry"
+            i18n="@@action.retry"
+            (click)="retry.emit()"
+          >
+            Retry
+          </button>
+        }
+        <button
+          tuiButton
+          type="button"
+          appearance="flat-grayscale"
+          size="xs"
+          data-testid="node-show-log"
+          i18n="@@action.show_log"
+          (click)="showLog.emit()"
+        >
+          Show log
+        </button>
+      </div>
+    </div>
+  }
   <ul class="featured" [class.filled]="(outputs | keyvalue)?.length > 0">
     @for (o of node.outputs | keyvalue; track o.key) {
       @if (o.value.featured) {
