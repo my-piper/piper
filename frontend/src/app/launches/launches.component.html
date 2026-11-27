@@ -1,4 +1,118 @@
-@if (launches.length > 0) {
+@if (launches.length > 0 && view === "table") {
+  <table tuiTable size="s" class="launches-table" data-testid="launches-table">
+    <thead>
+      <tr>
+        <th tuiTh class="status-column" i18n="@@label.status">Status</th>
+        <th tuiTh i18n="@@label.launched">Launched</th>
+        <th tuiTh i18n="@@label.by">By</th>
+        <th tuiTh class="num" i18n="@@label.duration">Duration</th>
+        <th tuiTh class="num" i18n="@@label.outputs">Outputs</th>
+        <th tuiTh class="icon-column">
+          <span class="visually-hidden" i18n="@@label.actions">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (l of launches; track l._id; let i = $index) {
+        @let heartbeat = l._id | launchHeartbeat | ticker | async;
+        @let alive = !!heartbeat && (heartbeat | timeDiff: "s") < 10;
+        @let state =
+          alive ? "running" : l.errors?.length > 0 ? "failed" : "done";
+        <tr [attr.data-launch]="l._id">
+          <td tuiTd>
+            <ng-template #errorsHint>
+              <ul class="errors-hint">
+                @for (error of l.errors; track $index) {
+                  <li>{{ error }}</li>
+                }
+              </ul>
+            </ng-template>
+            <span
+              class="status-pill"
+              data-testid="launch-status"
+              [attr.data-state]="state"
+              [tuiHint]="l.errors?.length > 0 ? errorsHint : null"
+            >
+              @switch (state) {
+                @case ("running") {
+                  <ng-container i18n="@@label.launch_running"
+                    >Running</ng-container
+                  >
+                }
+                @case ("failed") {
+                  <ng-container i18n="@@label.launch_failed"
+                    >Failed</ng-container
+                  >
+                }
+                @default {
+                  <ng-container i18n="@@label.launch_done">Done</ng-container>
+                }
+              }
+            </span>
+          </td>
+          <td tuiTd>
+            <a
+              tuiLink
+              target="_blank"
+              [routerLink]="['/launches', l._id]"
+              [title]="l.launchedAt | date: 'medium'"
+              >{{ l.launchedAt | timePassed }}</a
+            >
+          </td>
+          <td tuiTd>{{ l.launchedBy?.name || l.launchedBy?._id || "—" }}</td>
+          <td tuiTd class="num">
+            @if (l._id | pipelineFinishedMetric | async; as metric) {
+              {{ metric.fromStart }} s
+            } @else {
+              —
+            }
+          </td>
+          <td tuiTd class="num">{{ l.outputs | keyvalue | length }}</td>
+          <td tuiTd class="actions">
+            <ng-template #rowActions>
+              <tui-data-list>
+                <a
+                  tuiOption
+                  target="_blank"
+                  [routerLink]="['/launches', l._id]"
+                  (click)="actionsOpen = null"
+                >
+                  <tui-icon icon="@tui.external-link" />
+                  <ng-container i18n="@@link.open_pipeline">
+                    Open pipeline
+                  </ng-container>
+                </a>
+                @if (userRole.admin | can: l.launchedBy | async) {
+                  <button
+                    tuiOption
+                    type="button"
+                    [disabled]="progress.removing[i]"
+                    (click)="remove(i, l)"
+                  >
+                    <tui-icon icon="@tui.trash-2" />
+                    <ng-container i18n="@@action.delete">Delete</ng-container>
+                  </button>
+                }
+              </tui-data-list>
+            </ng-template>
+            <button
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="xs"
+              type="button"
+              iconStart="@tui.ellipsis-vertical"
+              aria-label="Actions"
+              i18n-aria-label="@@label.actions"
+              [tuiDropdown]="rowActions"
+              [tuiDropdownOpen]="actionsOpen === l._id"
+              (tuiDropdownOpenChange)="actionsOpen = $event ? l._id : null"
+            ></button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+} @else if (launches.length > 0) {
   <div
     class="cards launches"
     [class.busy-block]="launches.length <= 0 && progress.loading"

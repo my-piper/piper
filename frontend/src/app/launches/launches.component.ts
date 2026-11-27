@@ -51,6 +51,10 @@ export class LaunchesComponent implements OnDestroy {
 
   actionsOpen: string | null = null;
 
+  /** Cards show each launch's outputs (playground); a table lists them. */
+  @Input()
+  view: "cards" | "table" = "cards";
+
   @Input()
   set filter(filter: LaunchesFilter) {
     this._filter = filter;
