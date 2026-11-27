@@ -571,7 +571,7 @@ describe("ProjectsComponent tags and groups", () => {
     typeInto(modal().querySelector("textarea"), "name: Imported");
     fixture.detectChanges();
     modal()
-      .querySelector<HTMLButtonElement>("footer button[tuiButton]")
+      .querySelector<HTMLButtonElement>("footer button[tuiButton]:last-child")
       .click();
     const request = controller.expectOne("/api/pipelines/import");
     request.flush(projectBPlain());

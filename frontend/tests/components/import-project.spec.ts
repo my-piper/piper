@@ -26,6 +26,7 @@ function setup() {
   configureAppTestingModule([
     { path: "", component: OutletStubComponent },
     { path: "projects/import", component: ImportProjectComponent },
+    { path: "projects", component: OutletStubComponent },
   ]);
   const controller = TestBed.inject(HttpTestingController);
   const router = TestBed.inject(Router);
@@ -45,7 +46,7 @@ function setup() {
     element,
     importYaml: (yaml: string) => {
       component.form.patchValue({ yaml });
-      (element.querySelector("footer button") as HTMLButtonElement).click();
+      (element.querySelector("footer button:last-child") as HTMLButtonElement).click();
       fixture.detectChanges();
     },
     settle: () => {
@@ -56,12 +57,13 @@ function setup() {
 }
 
 describe("ImportProjectComponent", () => {
-  it("says it imports Pipelines in the current format", fakeAsync(() => {
+  it("returns to projects on Cancel", fakeAsync(() => {
     const page = setup();
 
-    expect(page.element.querySelector("h1").textContent).toContain(
-      "Import a Pipeline (YAML or URL)",
-    );
+    (page.element.querySelector("footer button") as HTMLButtonElement).click();
+    tick();
+
+    expect(TestBed.inject(Router).url).toBe("/projects");
     finish();
   }));
 

@@ -20,7 +20,6 @@
   </div>
 }
 
-<h1 i18n="@@label.import_pipeline">Import a Pipeline (YAML or URL)</h1>
 <form [formGroup]="form">
   <fieldset>
     <ngx-monaco-editor
@@ -33,6 +32,15 @@
     </ngx-monaco-editor>
   </fieldset>
   <footer>
+    <button
+      tuiButton
+      appearance="flat-grayscale"
+      type="button"
+      (click)="cancel()"
+      i18n="@@action.cancel"
+    >
+      Cancel
+    </button>
     <button
       tuiButton
       type="button"

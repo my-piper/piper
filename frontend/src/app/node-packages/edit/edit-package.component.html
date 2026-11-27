@@ -13,9 +13,6 @@
   </div>
 }
 
-@if (!!nodePackage) {
-  <h1>{{ nodePackage.title | i18n }}</h1>
-}
 <form [formGroup]="form">
   <fieldset>
     <app-json-editor
@@ -26,6 +23,15 @@
     ></app-json-editor>
   </fieldset>
   <footer>
+    <button
+      tuiButton
+      appearance="flat-grayscale"
+      type="button"
+      (click)="cancel()"
+      i18n="@@action.cancel"
+    >
+      Cancel
+    </button>
     <button
       tuiButton
       type="button"

@@ -2,25 +2,13 @@
 form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-:host {
-  width: 100%;
-}
-
-h1,
-p {
-  margin: 0;
-}
-
-fieldset {
-  margin: 0;
-  padding: 0;
-  border: 0;
+  gap: var(--space-4);
 }
 
 .editor {
   display: block;
-  height: 24rem;
+  block-size: 20rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
