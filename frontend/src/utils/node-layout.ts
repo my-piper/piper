@@ -111,3 +111,12 @@ export function outputOffset(node: Node, output: string): number {
   const row = UI.node.input.height;
   return 1 + UI.node.title + UI.node.padding + index * row + row / 2;
 }
+
+/** Node widths (#321): 160 to 640 px, in steps of 20. */
+export const NODE_WIDTH = { min: 160, max: 640, step: 20 };
+
+/** A dragged width snapped to the step and held to the range. */
+export function snapWidth(width: number): number {
+  const { min, max, step } = NODE_WIDTH;
+  return Math.min(max, Math.max(min, Math.round(width / step) * step));
+}

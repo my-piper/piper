@@ -473,3 +473,31 @@ test("copies nodes with their flow, pastes them at the pointer and duplicates th
   await expect(nodes).toHaveCount(nodesBefore + 4);
   await expect(wires).toHaveCount(wiresBefore + 2);
 });
+
+test("resizes a node by dragging its right edge without moving it", async ({
+  page,
+  open,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const node = page.getByTestId("node-node_one");
+  const card = node.locator("app-node");
+  await expect(card).toBeVisible();
+  const before = await card.boundingBox();
+  const edge = await node.getByTestId("node-resize").boundingBox();
+
+  // Low on the edge, clear of the output sockets that sit above it.
+  const grab = { x: edge.x + edge.width / 2, y: edge.y + edge.height - 4 };
+  await page.mouse.move(grab.x, grab.y);
+  await page.mouse.down();
+  await page.mouse.move(grab.x + 100, grab.y, { steps: 6 });
+  await expect(node.getByTestId("node-resize-tip")).toHaveText("320");
+  // The node follows the edge while it is dragged, not only on release.
+  expect((await card.boundingBox()).width).toBeCloseTo(320, 0);
+  await page.mouse.up();
+
+  await expect(node.getByTestId("node-resize-tip")).toHaveCount(0);
+  const after = await card.boundingBox();
+  expect(after.width).toBeCloseTo(320, 0);
+  expect(after.x).toBeCloseTo(before.x, 0);
+  expect(after.y).toBeCloseTo(before.y, 0);
+});

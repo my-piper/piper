@@ -35,7 +35,12 @@ import { UI } from "src/consts/ui";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { toInstance } from "src/utils/models";
-import { nodeLayout, NodeLayout, WidgetRow } from "src/utils/node-layout";
+import {
+  nodeLayout,
+  NodeLayout,
+  snapWidth,
+  WidgetRow,
+} from "src/utils/node-layout";
 import { parseNumber, stepNumber } from "src/utils/number-widget";
 import { LAUNCH_ROOM } from "src/consts/rooms";
 
@@ -188,6 +193,74 @@ export class NodeComponent implements OnDestroy {
 
   @Output()
   retry = new EventEmitter<void>();
+
+  /**
+   * Widths while the right edge is dragged (#321): `done` on release, when
+   * the canvas saves. A double-click on the edge sends the default width.
+   * Not named `resize`: a `(resize)` binding also catches the DOM's resize
+   * events bubbling up from inside the node.
+   */
+  @Output()
+  widthChange = new EventEmitter<{ width: number; done: boolean }>();
+
+  /** The width shown beside the edge while it is dragged. */
+  resizing: number | null = null;
+
+  @HostBinding("class.resizing")
+  get isResizing() {
+    return this.resizing !== null;
+  }
+
+  @HostBinding("style.width.px")
+  get width() {
+    return this.node?.arrange?.w || UI.node.width;
+  }
+
+  /** Drags the right edge: px are divided by the canvas zoom, then snapped. */
+  startResize(event: PointerEvent) {
+    if (this.disabled || event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    const handle = event.currentTarget as HTMLElement;
+    const host = handle.closest("app-node") as HTMLElement;
+    const zoom = host.getBoundingClientRect().width / host.offsetWidth || 1;
+    const [startX, startWidth] = [event.clientX, this.width];
+    try {
+      handle.setPointerCapture(event.pointerId);
+    } catch {
+      // A pointer the browser doesn't track (synthetic): moves still arrive.
+    }
+
+    const move = (e: PointerEvent) => {
+      const width = snapWidth(startWidth + (e.clientX - startX) / zoom);
+      if (width !== this.resizing) {
+        this.resizing = width;
+        this.widthChange.emit({ width, done: false });
+      }
+    };
+    const up = () => {
+      handle.removeEventListener("pointermove", move);
+      handle.removeEventListener("pointerup", up);
+      handle.removeEventListener("pointercancel", up);
+      if (this.resizing !== null) {
+        this.widthChange.emit({ width: this.resizing, done: true });
+      }
+      this.resizing = null;
+      this.cd.detectChanges();
+    };
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", up);
+    handle.addEventListener("pointercancel", up);
+  }
+
+  resetWidth(event: MouseEvent) {
+    event.stopPropagation();
+    if (!this.disabled) {
+      this.widthChange.emit({ width: UI.node.width, done: true });
+    }
+  }
 
   /** Asks to collapse (true) or expand (false) the node (#320). */
   @Output()
