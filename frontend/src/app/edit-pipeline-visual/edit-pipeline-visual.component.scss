@@ -197,22 +197,12 @@
     outline-offset: 2px;
   }
 
+  // Their Delete button sits inside the box (#342), projected into it.
   .input {
-    // Above the card: an input is too narrow for its title and two buttons.
-    .item-actions {
-      z-index: 1;
-      position: absolute;
-      bottom: 100%;
-      right: 0;
-      display: flex;
-    }
-
     transform: translate(-100%, -50%);
   }
 
   .output {
-    display: flex;
-    align-items: center;
     transform: translateY(-50%);
   }
 

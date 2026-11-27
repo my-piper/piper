@@ -2,7 +2,10 @@
 @use "src/variables" as app-variables;
 
 :host {
-  display: block;
+  // The canvas's Delete button (#342) follows the label inside the box.
+  display: flex;
+  align-items: center;
+  gap: variables.$gutter-small;
   background: color-mix(
     in srgb,
     #{app-variables.$output-color} 10%,
@@ -12,7 +15,7 @@
   border-radius: variables.$corner-huge;
   padding: variables.$gutter-big;
 
-  &[disabled=true] {
+  &[disabled="true"] {
     pointer-events: none;
   }
 }
@@ -36,5 +39,3 @@
     border-color: app-variables.$output-color;
   }
 }
-
-label {}
