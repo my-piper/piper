@@ -3,7 +3,7 @@
 <ng-template #publishTab>
   <div class="publish">
     <div class="table-container">
-      <table tuiTable size="m">
+      <table tuiTable size="s">
         <thead>
           <tr>
             <th tuiTh i18n="@@label.node">Node</th>
@@ -12,7 +12,9 @@
               Category
             </th>
             <th tuiTh class="package-column" i18n="@@label.package">Package</th>
-            <th tuiTh class="version-column" i18n="@@label.version">Version</th>
+            <th tuiTh class="version-column num" i18n="@@label.version">
+              Version
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -48,7 +50,12 @@
               <td tuiTd title="Package" i18n-title="@@label.package">
                 {{ n.value.catalog?.package }}
               </td>
-              <td tuiTd title="Version" i18n-title="@@label.version">
+              <td
+                tuiTd
+                class="num"
+                title="Version"
+                i18n-title="@@label.version"
+              >
                 {{ n.value.catalog?.version || "-" }}
               </td>
             </tr>

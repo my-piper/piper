@@ -1,0 +1,93 @@
+// Dense tables (docs/design.md, #262): a 28px header, 32px rows, mono
+// right-aligned numbers and status pills. Applies to every Taiga table; the
+// doubled attribute outranks Taiga's own th/td host styles.
+
+table[tuiTable][tuiTable] {
+  font-size: 13px;
+  line-height: 18px;
+
+  th[tuiTh] {
+    block-size: 28px;
+    padding: 0 var(--space-2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border-color: var(--border);
+  }
+
+  td[tuiTd] {
+    block-size: var(--table-row);
+    padding: var(--space-1) var(--space-2);
+    vertical-align: middle;
+    background: var(--surface-1);
+    border-color: var(--border);
+
+    small {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  }
+
+  tbody tr:hover > td[tuiTd] {
+    background: var(--surface-2);
+  }
+
+  // Numbers line up: mono and tabular, at the end of the cell; their
+  // headers only align.
+  th[tuiTh].num {
+    text-align: end;
+  }
+
+  td[tuiTd].num {
+    text-align: end;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// A run or item state in a table cell: a dot and a short label.
+.status-pill {
+  --state: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  block-size: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--state) 14%, transparent);
+  color: var(--state);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &::before {
+    content: "";
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: var(--radius-full);
+    background: var(--state);
+  }
+
+  &[data-state="running"] {
+    --state: var(--accent);
+  }
+
+  &[data-state="done"],
+  &[data-state="success"] {
+    --state: var(--success);
+  }
+
+  &[data-state="failed"],
+  &[data-state="error"] {
+    --state: var(--danger);
+  }
+
+  &[data-state="warning"] {
+    --state: var(--warning);
+  }
+}

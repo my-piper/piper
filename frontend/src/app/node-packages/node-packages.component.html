@@ -142,7 +142,7 @@
   </header>
 
   <div class="table-container">
-    <table tuiTable size="m">
+    <table tuiTable size="s">
       <thead>
         <tr>
           <th tuiTh class="icon-column">
@@ -155,7 +155,7 @@
             >
           </th>
           <th tuiTh class="version-column" i18n="@@label.version">Version</th>
-          <th tuiTh class="nodes-column" i18n="@@label.nodes">Nodes</th>
+          <th tuiTh class="nodes-column num" i18n="@@label.nodes">Nodes</th>
           <th tuiTh i18n="@@label.description">Description</th>
         </tr>
       </thead>
@@ -241,7 +241,7 @@
                 ></button>
               </div>
             </td>
-            <td tuiTd>{{ p.nodeCount }}</td>
+            <td tuiTd class="num">{{ p.nodeCount }}</td>
             <td tuiTd>{{ p.description }}</td>
           </tr>
         }
