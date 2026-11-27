@@ -2,15 +2,8 @@
 @use "sass:meta";
 @use "sass:string";
 
-$yellow-color-50: #fff8eb;
-$yellow-color-75: #ffe3ad;
-$yellow-color-100: #fed88c;
-$yellow-color-200: #fdba38;
-$yellow-color-300: #febb38;
-$yellow-color-400: #b28327;
-$yellow-color-500: #f57f24;
 
-$red-color: #f95741;
+$red-color: var(--danger);
 
 // Theme-dependent colors resolve at runtime; values live in themes.scss.
 $graphite-color-50: var(--graphite-50);
@@ -36,14 +29,14 @@ $inverse-background: var(--inverse-background);
   @return string.unquote("color-mix(in srgb, #{$color} #{math.percentage($alpha)}, transparent)");
 }
 
-$primary-color: rgb(0, 102, 255);
+$primary-color: var(--accent);
 $primary-dark-color: var(--primary-dark);
-$primary-light-color: #324a5f;
+$primary-light-color: var(--surface-3);
 
-$green-color: #18e09a;
+$green-color: var(--success);
 $success-color: $green-color;
-$accent-color: orange;
-$error-color: rgba($red-color, 0.75);
+$accent-color: var(--accent);
+$error-color: var(--danger);
 
 $primary-text-color: $graphite-color-50;
 $active-text-color: $graphite-color-300;
@@ -54,7 +47,7 @@ $corner-base: 4px;
 $corner-large: 8px;
 $corner-huge: 16px;
 
-$primary-background-color: silver;
+$primary-background-color: var(--surface-3);
 
 $font-size-tiny: 12px;
 $font-size-small: 13px;
@@ -74,8 +67,8 @@ $gutter-big: $gutter-base * 5;
 $gutter-large: $gutter-base * 6;
 $gutter-huge: $gutter-base * 8;
 
-$primary-font-family: "Inter", sans-serif;
-$monospace-font-family: monospace;
+$primary-font-family: var(--font-sans);
+$monospace-font-family: var(--font-mono);
 $primary-text-color: $graphite-color-60;
 
 $link-text-color: $primary-text-color;

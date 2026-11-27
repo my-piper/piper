@@ -19,7 +19,7 @@ import { AssetImportedSignal } from "src/models/signals/asset";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { SignalsService } from "src/services/signals.service";
-import { UI, UI_DELAY } from "src/consts/ui";
+import { UI_DELAY } from "src/consts/ui";
 import { valuable } from "src/utils/assign";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 
@@ -33,7 +33,6 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
 export class AssetsComponent implements OnInit {
   userRole = UserRole;
   hostname = document.location.hostname;
-  ui = UI;
 
   private _filter!: AssetsFilter;
 

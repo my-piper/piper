@@ -1,53 +1,271 @@
-// Runtime color tokens. The active theme is set on <html data-theme="...">
-// by ThemeService; dark is the default when the attribute is missing.
+// Runtime design tokens (docs: the Piper design system, see docs/design.md).
+// The active theme is set on <html data-theme="..."> by ThemeService and the
+// inline script in index.html; dark is the default when it is missing.
+//
+// 1. Piper tokens: one value per theme.
+// 2. Legacy names (graphite scale, page/node/canvas backgrounds) pointing at
+//    the tokens, so existing component styles follow the palette.
+// 3. Taiga's theme variables mapped onto the tokens. They are declared on
+//    [tuiTheme] descendants too: Taiga's navigation header forces its own
+//    theme attribute, which would otherwise bring back Taiga's palette.
 
-:root,
-[data-theme="dark"] {
+@mixin dark-tokens {
   color-scheme: dark;
 
-  --graphite-50: #eaeaea;
-  --graphite-60: #d5d4d4;
-  --graphite-75: #aaaaaa;
-  --graphite-100: #878787;
-  --graphite-200: #535353;
-  --graphite-300: #303030;
-  --graphite-400: #222222;
-  --graphite-500: #1d1d1d;
+  --bg-canvas: #0e0f12;
+  --bg-app: #131418;
+  --surface-1: #1a1b20;
+  --surface-2: #22242a;
+  --surface-3: #2c2f36;
+  --field-bg: #101115;
+  --border: #2e3138;
+  --border-strong: #474b55;
+  --grid-dot: #2a2d34;
+  --text: #e7e8eb;
+  --text-muted: #9b9ea7;
+  --text-faint: #6b6e78;
 
-  --primary-dark: #00d1d1;
-  --page-background: #0e0e13;
-  --header-background: #000000;
-  --inverse-background: #ffffff;
-  --strong-text: #ffffff;
-  --icon-color: #ffffff;
-  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 10l4 4 4-4' stroke='%23aaaaaa' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --accent: #febb38;
+  --accent-hover: #ffcb63;
+  --on-accent: #1b1300;
+  --accent-subtle: #febb3824;
+  --accent-strong: #f57f24;
+  --brand-violet: #8439ff;
+  --selection: #e7e8eb;
 
-  --node-background: #111111;
-  --canvas-background: #000000;
-  --canvas-frame: #808080;
+  --success: #3fcf8e;
+  --success-subtle: #3fcf8e1f;
+  --danger: #ff6b57;
+  --danger-subtle: #ff6b5724;
+  --on-danger: #1d0703;
+  --warning: #f5a524;
+  --info: #64a8ff;
+
+  --exec-rapid: #4fd1c5;
+  --exec-regular: #8b8f99;
+  --exec-deferred: #a78bfa;
+  --exec-protracted: #f57f24;
+
+  --type-string: #7fd67f;
+  --type-integer: #e8c35a;
+  --type-float: #d99a3e;
+  --type-boolean: #4ecdc4;
+  --type-json: #b48cff;
+  --type-image: #64a8ff;
+  --type-video: #ef7ac8;
+  --type-audio: #5ad3ef;
+  --type-archive: #b49c80;
+  --type-any: #9b9ea7;
+
+  --shadow-node: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --backdrop: rgba(8, 9, 12, 0.6);
+
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 10l4 4 4-4' stroke='%239b9ea7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
-[data-theme="light"] {
+@mixin light-tokens {
   color-scheme: light;
 
-  --graphite-50: #1a1a1f;
-  --graphite-60: #26262c;
-  --graphite-75: #4f4f57;
-  --graphite-100: #77777f;
-  --graphite-200: #c6c6cc;
-  --graphite-300: #dedee3;
-  --graphite-400: #ececf0;
-  --graphite-500: #f5f5f7;
+  --bg-canvas: #e9ebef;
+  --bg-app: #f5f6f8;
+  --surface-1: #ffffff;
+  --surface-2: #f1f2f5;
+  --surface-3: #e4e6eb;
+  --field-bg: #ffffff;
+  --border: #dadde3;
+  --border-strong: #b6bac4;
+  --grid-dot: #c9cdd5;
+  --text: #17181c;
+  --text-muted: #5a5e68;
+  --text-faint: #8a8e98;
 
-  --primary-dark: #008c8c;
-  --page-background: #f7f7f9;
-  --header-background: #ffffff;
-  --inverse-background: #26262c;
-  --strong-text: #000000;
-  --icon-color: #26262c;
-  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 10l4 4 4-4' stroke='%234f4f57' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --accent: #9e5b00;
+  --accent-hover: #844b00;
+  --on-accent: #ffffff;
+  --accent-subtle: #9e5b0014;
+  --accent-strong: #c25a0a;
+  --brand-violet: #8439ff;
+  --selection: #17181c;
 
-  --node-background: #ffffff;
-  --canvas-background: #eeeef2;
-  --canvas-frame: #d5d5db;
+  --success: #0d7f4f;
+  --success-subtle: #0d7f4f14;
+  --danger: #c93520;
+  --danger-subtle: #c9352014;
+  --on-danger: #ffffff;
+  --warning: #a85c00;
+  --info: #1f63c6;
+
+  --exec-rapid: #0e8178;
+  --exec-regular: #6b6f79;
+  --exec-deferred: #6d44d4;
+  --exec-protracted: #c25a0a;
+
+  --type-string: #2c8a37;
+  --type-integer: #8f6f00;
+  --type-float: #8f5a00;
+  --type-boolean: #0b817a;
+  --type-json: #6e45d2;
+  --type-image: #1f63c6;
+  --type-video: #b02f86;
+  --type-audio: #0f7894;
+  --type-archive: #7a6045;
+  --type-any: #5a5e68;
+
+  --shadow-node: 0 1px 2px rgba(16, 18, 24, 0.08),
+    0 2px 8px rgba(16, 18, 24, 0.06);
+  --shadow-popover: 0 8px 24px rgba(16, 18, 24, 0.14);
+  --backdrop: rgba(16, 18, 24, 0.4);
+
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 10l4 4 4-4' stroke='%235a5e68' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+// Names older styles still use. New styles use the tokens above.
+@mixin legacy-names {
+  --graphite-50: var(--text);
+  --graphite-60: var(--text);
+  --graphite-75: var(--text-muted);
+  --graphite-100: var(--text-muted);
+  --graphite-200: var(--border-strong);
+  --graphite-300: var(--surface-3);
+  --graphite-400: var(--surface-2);
+  --graphite-500: var(--surface-1);
+
+  --primary-dark: var(--accent);
+  --page-background: var(--bg-app);
+  --header-background: var(--surface-1);
+  --inverse-background: var(--text);
+  --strong-text: var(--text);
+  --icon-color: var(--text-muted);
+
+  --node-background: var(--surface-1);
+  --canvas-background: var(--bg-canvas);
+  --canvas-frame: var(--border-strong);
+}
+
+@mixin taiga-palette {
+  --tui-background-base: var(--surface-1);
+  --tui-background-base-alt: var(--surface-2);
+  --tui-background-neutral-1: var(--surface-2);
+  --tui-background-neutral-1-hover: var(--surface-3);
+  --tui-background-neutral-1-pressed: var(--border);
+  --tui-background-neutral-2: var(--surface-3);
+  --tui-background-neutral-2-hover: var(--border);
+  --tui-background-neutral-2-pressed: var(--border-strong);
+  --tui-background-elevation-1: var(--surface-1);
+  --tui-background-elevation-2: var(--surface-2);
+  --tui-background-elevation-3: var(--surface-3);
+  --tui-background-accent-1: var(--accent);
+  --tui-background-accent-1-hover: var(--accent-hover);
+  --tui-background-accent-1-pressed: var(--accent-hover);
+  --tui-background-accent-2: var(--accent-strong);
+  --tui-background-accent-2-hover: var(--accent-hover);
+  --tui-background-accent-2-pressed: var(--accent-hover);
+  --tui-background-accent-opposite: var(--text);
+  --tui-background-accent-opposite-hover: var(--text-muted);
+  --tui-background-accent-opposite-pressed: var(--text-muted);
+  --tui-text-primary-on-accent-1: var(--on-accent);
+  --tui-text-primary-on-accent-2: var(--on-accent);
+
+  --tui-border-normal: var(--border);
+  --tui-border-hover: var(--border-strong);
+  --tui-border-focus: var(--accent);
+
+  --tui-text-primary: var(--text);
+  --tui-text-secondary: var(--text-muted);
+  --tui-text-tertiary: var(--text-faint);
+  --tui-text-action: var(--info);
+  --tui-text-action-hover: var(--text);
+  --tui-text-positive: var(--success);
+  --tui-text-positive-hover: var(--success);
+  --tui-text-negative: var(--danger);
+  --tui-text-negative-hover: var(--danger);
+
+  --tui-status-positive: var(--success);
+  --tui-status-positive-pale: var(--success-subtle);
+  --tui-status-positive-pale-hover: var(--success-subtle);
+  --tui-status-negative: var(--danger);
+  --tui-status-negative-pale: var(--danger-subtle);
+  --tui-status-negative-pale-hover: var(--danger-subtle);
+  --tui-status-warning: var(--warning);
+  --tui-status-warning-pale: color-mix(
+    in srgb,
+    var(--warning) 16%,
+    transparent
+  );
+  --tui-status-warning-pale-hover: color-mix(
+    in srgb,
+    var(--warning) 24%,
+    transparent
+  );
+  --tui-status-info: var(--info);
+  --tui-status-info-pale: color-mix(in srgb, var(--info) 16%, transparent);
+  --tui-status-info-pale-hover: color-mix(
+    in srgb,
+    var(--info) 24%,
+    transparent
+  );
+  --tui-status-neutral: var(--text-muted);
+
+  // Taiga's navigation header and aside paint this (default black).
+  --tui-theme-color: var(--surface-1);
+  --tui-service-backdrop: var(--backdrop);
+  --tui-service-selection-background: var(--accent-subtle);
+  --tui-shadow-small: var(--shadow-node);
+  --tui-shadow-small-hover: var(--shadow-popover);
+  --tui-shadow-medium: var(--shadow-node);
+  --tui-shadow-medium-hover: var(--shadow-popover);
+  --tui-shadow-popup: var(--shadow-popover);
+}
+
+:root,
+[data-theme="dark"],
+[data-theme="dark"] [tuiTheme] {
+  @include dark-tokens;
+  @include legacy-names;
+  @include taiga-palette;
+}
+
+[data-theme="light"],
+[data-theme="light"] [tuiTheme] {
+  @include light-tokens;
+  @include legacy-names;
+  @include taiga-palette;
+}
+
+// Theme-independent tokens.
+:root {
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 999px;
+
+  --topbar: 40px;
+  --sidebar: 48px;
+  --node-width: 220px;
+  --node-title: 26px;
+  --port-row: 22px;
+  --socket: 10px;
+  --wire: 2px;
+  --table-row: 32px;
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --tui-typography-family-text: var(--font-sans);
+  --tui-typography-family-display: var(--font-sans);
+  --tui-radius-xs: var(--radius-xs);
+  --tui-radius-s: var(--radius-sm);
+  --tui-radius-m: var(--radius-sm);
+  --tui-radius-l: var(--radius-md);
+  --tui-radius-xl: var(--radius-lg);
 }
