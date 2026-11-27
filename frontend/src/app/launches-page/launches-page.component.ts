@@ -14,8 +14,6 @@ export class LaunchesPageComponent {
   modal!: LaunchOutputsComponent;
 
   filter!: LaunchesFilter;
-  /** Lists set `data.launchesView: "table"`; the playground keeps cards. */
-  view: "cards" | "table" = "cards";
 
   constructor(
     private route: ActivatedRoute,
@@ -23,10 +21,7 @@ export class LaunchesPageComponent {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ filter, launchesView }) => {
-      this.filter = filter;
-      this.view = launchesView ?? "cards";
-    });
+    this.route.data.subscribe(({ filter }) => (this.filter = filter));
   }
 
   back() {

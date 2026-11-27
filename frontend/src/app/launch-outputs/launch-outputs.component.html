@@ -10,7 +10,7 @@
             x="50%"
             y="50%"
             font-size="10px"
-            fill="black"
+            fill="currentColor"
             text-anchor="middle"
             dominant-baseline="middle"
           >
@@ -42,18 +42,29 @@
         <video controls [src]="data.url"></video>
       }
       @case ("video") {
-        <video
-          controls
-          preload="none"
-          [poster]="data.poster"
-          [src]="data.url"
-          [class.vertical]="data.height > data.width"
-          [style.aspect-ratio]="data.width + '/' + data.height"
-        ></video>
+        @if (mode == "card") {
+          @if (data.poster) {
+            <img
+              imageFallback
+              [src]="data.poster | proxyImage: { width: 500 }"
+            />
+          } @else {
+            <video muted preload="metadata" [src]="data.url"></video>
+          }
+        } @else {
+          <video
+            controls
+            preload="none"
+            [poster]="data.poster"
+            [src]="data.url"
+            [class.vertical]="data.height > data.width"
+            [style.aspect-ratio]="data.width + '/' + data.height"
+          ></video>
+        }
       }
       @case ("image[]") {
         @for (image of data.images; track $index; let i = $index) {
-          @if (active?.index == i) {
+          @if (selected?.index == i) {
             <img
               [imageSize]="{ width: image.width, height: image.height }"
               imageFallback
@@ -72,14 +83,16 @@
   }
 </ng-template>
 
-@if (launch.outputs | keyvalue; as outputs) {
+<ng-template #stripTemplate let-outputs="outputs">
   <footer>
     @for (o of outputs; track o.key) {
       @switch (o.value.type) {
         @case ("boolean") {
           <button
             #buttonRef
-            [class.active]="active?.id == o.key"
+            type="button"
+            [attr.aria-label]="o.value.title | i18n"
+            [class.active]="selected?.id == o.key"
             (click)="activate(o.key)"
           >
             <tui-icon icon="switcher" />
@@ -88,7 +101,9 @@
         @case ("integer") {
           <button
             #buttonRef
-            [class.active]="active?.id == o.key"
+            type="button"
+            [attr.aria-label]="o.value.title | i18n"
+            [class.active]="selected?.id == o.key"
             (click)="activate(o.key)"
           >
             <tui-icon icon="number" />
@@ -97,7 +112,9 @@
         @case ("float") {
           <button
             #buttonRef
-            [class.active]="active?.id == o.key"
+            type="button"
+            [attr.aria-label]="o.value.title | i18n"
+            [class.active]="selected?.id == o.key"
             (click)="activate(o.key)"
           >
             <tui-icon icon="number" />
@@ -106,7 +123,9 @@
         @case ("string") {
           <button
             #buttonRef
-            [class.active]="active?.id == o.key"
+            type="button"
+            [attr.aria-label]="o.value.title | i18n"
+            [class.active]="selected?.id == o.key"
             (click)="activate(o.key)"
           >
             <tui-icon icon="text" />
@@ -115,7 +134,9 @@
         @case ("json") {
           <button
             #buttonRef
-            [class.active]="active?.id == o.key"
+            type="button"
+            [attr.aria-label]="o.value.title | i18n"
+            [class.active]="selected?.id == o.key"
             (click)="activate(o.key)"
           >
             <tui-icon icon="json" />
@@ -124,7 +145,9 @@
         @case ("image") {
           <button
             #buttonRef
-            [class.active]="active?.id == o.key"
+            type="button"
+            [attr.aria-label]="o.value.title | i18n"
+            [class.active]="selected?.id == o.key"
             (click)="activate(o.key)"
           >
             @if (o.value.data; as data) {
@@ -140,27 +163,28 @@
         @case ("audio") {
           <button
             #buttonRef
-            [class.active]="active?.id == o.key"
+            type="button"
+            [attr.aria-label]="o.value.title | i18n"
+            [class.active]="selected?.id == o.key"
             (click)="activate(o.key)"
           >
             <tui-icon icon="audio" />
           </button>
         }
         @case ("video") {
-          @if (o.value.data; as data) {
-            <button
-              #buttonRef
-              [class.active]="active?.id == o.key"
-              (click)="activate(o.key)"
-            >
-              <img
-                imageFallback
-                [src]="data.poster | proxyImage: { width: 100 }"
-              />
-            </button>
-          } @else {
-            <tui-icon icon="image" />
-          }
+          <button
+            #buttonRef
+            type="button"
+            [attr.aria-label]="o.value.title | i18n"
+            [class.active]="selected?.id == o.key"
+            (click)="activate(o.key)"
+          >
+            @if (o.value.data?.poster; as poster) {
+              <img imageFallback [src]="poster | proxyImage: { width: 100 }" />
+            } @else {
+              <tui-icon icon="video" />
+            }
+          </button>
         }
         @case ("image[]") {
           @if (o.value.data; as data) {
@@ -171,7 +195,9 @@
             ) {
               <button
                 #buttonRef
-                [class.active]="active?.id == o.key && active?.index == i"
+                type="button"
+                [attr.aria-label]="(o.value.title | i18n) + ' ' + (i + 1)"
+                [class.active]="selected?.id == o.key && selected?.index == i"
                 (click)="activate(o.key, i)"
               >
                 <img
@@ -185,29 +211,74 @@
       }
     }
   </footer>
-  @for (o of outputs; track o.key) {
-    @if (active?.id == o.key) {
-      <label>{{ o.value.title | i18n }}</label>
-      @if (mode == "full") {
+</ng-template>
+
+@if (launch.outputs | keyvalue; as outputs) {
+  @if (mode == "full") {
+    <ng-container
+      *ngTemplateOutlet="stripTemplate; context: { outputs: outputs }"
+    ></ng-container>
+    @for (o of outputs; track o.key) {
+      @if (selected?.id == o.key) {
+        <label>{{ o.value.title | i18n }}</label>
         <div class="results" [attr.data-type]="o.value.type">
           <ng-container
             *ngTemplateOutlet="outputTemplate; context: { output: o.value }"
           ></ng-container>
         </div>
-      } @else {
+      }
+    }
+  } @else if (filled) {
+    @for (o of outputs; track o.key) {
+      @if (selected?.id == o.key) {
         <a
           class="results"
           [attr.data-type]="o.value.type"
+          [attr.aria-label]="o.value.title | i18n"
           [routerLink]="['outputs', launch._id]"
-          [queryParams]="active"
+          [queryParams]="selected"
           draggable="true"
           (dragstart)="startDrag($event, o.value)"
         >
           <ng-container
             *ngTemplateOutlet="outputTemplate; context: { output: o.value }"
           ></ng-container>
+          @switch (o.value.type) {
+            @case ("string") {
+              <span class="kind">string</span>
+            }
+            @case ("json") {
+              <span class="kind">json</span>
+            }
+            @case ("video") {
+              <span class="play" data-testid="video-badge">
+                <tui-icon icon="@tui.play" />
+              </span>
+            }
+            @case ("image[]") {
+              <span class="badge" data-testid="images-count">
+                {{ (selected?.index ?? 0) + 1 }} /
+                {{ o.value.data?.images?.length }}
+              </span>
+            }
+          }
         </a>
       }
     }
+    @if (thumbs > 1) {
+      <ng-container
+        *ngTemplateOutlet="stripTemplate; context: { outputs: outputs }"
+      ></ng-container>
+    }
+  } @else {
+    <div class="empty" data-testid="no-outputs">
+      @if (running) {
+        <tui-loader size="s" />
+        <span i18n="@@message.no_outputs_yet">No outputs yet</span>
+      } @else {
+        <tui-icon icon="@tui.workflow" />
+        <span i18n="@@message.no_outputs">No outputs</span>
+      }
+    </div>
   }
 }

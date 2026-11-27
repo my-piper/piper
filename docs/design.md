@@ -27,6 +27,7 @@ Style new UI through the tokens (`var(--surface-1)`, `var(--text-muted)`, `var(-
   - Text: 13px body (`--tui-typography-body-m`), 12px small, 11px captions.
   - Spacing: steps of 4px.
   - Lists are tables (32px rows) rather than card grids. Details open in a drawer rather than a new page.
+  - Exception: launch lists are card grids, because what a launch produced (images, video, text) is the point (#328). Each card previews an output in a 4:3 frame. The mockups are at https://claude.ai/artifact/WL8SdCEvjQdtwKXFTF38jD.
 - **Type.** Inter for the interface, JetBrains Mono for IDs, versions, values, durations, logs and port types.
 
 ## Sizes

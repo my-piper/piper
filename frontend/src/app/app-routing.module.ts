@@ -256,7 +256,6 @@ const routes: Routes = [
           {
             path: "nested",
             component: LaunchesPageComponent,
-            data: { launchesView: "table" },
             resolve: {
               filter: NestedLaunchesFilterResolver,
             },
@@ -323,7 +322,6 @@ const routes: Routes = [
           {
             path: "launches",
             component: LaunchesPageComponent,
-            data: { launchesView: "table" },
             resolve: {
               filter: LaunchesFilterResolver,
             },
@@ -489,7 +487,6 @@ const routes: Routes = [
       {
         path: "launches",
         component: LaunchesPageComponent,
-        data: { launchesView: "table" },
         resolve: {
           filter: AllLaunchesFilterResolver,
         },
