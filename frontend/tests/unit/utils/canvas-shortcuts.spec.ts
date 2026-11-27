@@ -33,6 +33,19 @@ describe("canvasShortcut", () => {
     expect(shortcuts).toEqual(["select-all", "select-all", "launch", "launch"]);
   });
 
+  it("duplicates with Ctrl or Cmd + D, not with Shift", () => {
+    const keys = [
+      press("d", { ctrlKey: true }),
+      press("D", { metaKey: true }),
+      press("d", { ctrlKey: true, shiftKey: true }),
+      press("c", { ctrlKey: true }),
+    ];
+
+    const shortcuts = keys.map(canvasShortcut);
+
+    expect(shortcuts).toEqual(["duplicate", "duplicate", null, null]);
+  });
+
   it("shows the shortcuts with ?", () => {
     const key = press("?", { shiftKey: true });
 

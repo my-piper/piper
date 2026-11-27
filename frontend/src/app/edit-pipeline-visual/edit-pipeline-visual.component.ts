@@ -73,6 +73,13 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { formatElapsed } from "src/utils/elapsed";
 import { acceptedInputTypes } from "src/utils/flow-types";
+import {
+  CanvasClip,
+  clipFromText,
+  clipToText,
+  copyNodes,
+  pasteClip,
+} from "src/utils/canvas-clipboard";
 import { sid } from "src/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
@@ -472,6 +479,15 @@ export class EditPipelineVisualComponent implements OnDestroy {
           this.selectAll();
         }
         break;
+      case "duplicate":
+        if (editing) {
+          event.preventDefault();
+          const clip = this.selectedClip();
+          if (clip) {
+            this.paste(clip, null);
+          }
+        }
+        break;
       case "launch":
         if (
           editing &&
@@ -489,6 +505,91 @@ export class EditPipelineVisualComponent implements OnDestroy {
         this.cd.detectChanges();
         break;
     }
+  }
+
+  /** Last pointer position over the page, for pasting at it. */
+  private pointer: { clientX: number; clientY: number } | null = null;
+
+  private selectedClip() {
+    const ids = [...this.selection]
+      .map(splitKey)
+      .filter(([type]) => type === "node")
+      .map(([, id]) => id);
+    return copyNodes(this.pipeline, this.launchRequest, ids);
+  }
+
+  /**
+   * Ctrl/⌘ + C on the canvas puts the selected nodes on the clipboard, unless
+   * a field has focus or the page has selected text to copy.
+   */
+  @HostListener("document:copy", ["$event"])
+  copySelection(event: ClipboardEvent) {
+    const target = event.target as HTMLElement | null;
+    const onCanvas =
+      target === this.document.body ||
+      (!!target && this.host.nativeElement.contains(target));
+    const text = this.document.getSelection()?.toString();
+    if (this.mode !== "project" || !onCanvas || isEditable(target) || text) {
+      return;
+    }
+    const clip = this.selectedClip();
+    if (clip && event.clipboardData) {
+      event.clipboardData.setData("text/plain", clipToText(clip));
+      event.preventDefault();
+    }
+  }
+
+  /** The canvas point under the pointer, or null when it is off the canvas. */
+  private pointerPoint() {
+    if (!this.pointer) {
+      return null;
+    }
+    const { clientX, clientY } = this.pointer;
+    const view = this.nodesRef.nativeElement.getBoundingClientRect();
+    if (
+      clientX < view.left ||
+      clientX > view.right ||
+      clientY < view.top ||
+      clientY > view.bottom
+    ) {
+      return null;
+    }
+    const zoom = this.pipeline.layout?.zoom || 1;
+    const pane = this.paneRef.nativeElement.getBoundingClientRect();
+    return {
+      x: Math.round((clientX - pane.left) / zoom),
+      y: Math.round((clientY - pane.top) / zoom),
+    };
+  }
+
+  /**
+   * Adds a copy of `clip` with its top-left node at `at`, or 40px off the
+   * originals without a point, and selects the copies.
+   */
+  paste(clip: CanvasClip, at: Point | null) {
+    const corner = clip.nodes
+      .map(([, plain]) => (plain as { arrange?: Point }).arrange)
+      .reduce(
+        (min, a) => ({
+          x: Math.min(min.x, a?.x ?? 0),
+          y: Math.min(min.y, a?.y ?? 0),
+        }),
+        { x: Infinity, y: Infinity },
+      );
+    const ids = pasteClip(
+      clip,
+      this.pipeline,
+      this.launchRequest,
+      at ?? { x: corner.x + 40, y: corner.y + 40 },
+      (node) => `${node._id}_${sid()}`,
+      ({ from, to }) => `${from}_to_${to}_${salt()}`,
+    );
+    if (this.pipeline.start.nodes.length <= 0) {
+      this.pipeline.start.nodes.push(ids[0]);
+    }
+    this.selection = new Set(ids.map((id) => `node:${id}`));
+    this.save();
+    this.cd.detectChanges();
   }
 
   selectAll() {
@@ -796,6 +897,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   @HostListener("document:mousemove", ["$event"])
   move(event: MouseEvent) {
+    this.pointer = { clientX: event.clientX, clientY: event.clientY };
     if (this.state === "flow") {
       const { nativeElement } = this.nodesRef;
       const rect = nativeElement.getBoundingClientRect();
@@ -1351,7 +1453,17 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   @HostListener("document:paste", ["$event"])
-  async paste(event: ClipboardEvent) {
+  async pasteFromClipboard(event: ClipboardEvent) {
+    // Nodes copied on a canvas go at the pointer.
+    const clip = clipFromText(event.clipboardData?.getData("text/plain"));
+    if (clip) {
+      if (this.mode === "project" && !isEditable(event.target)) {
+        event.preventDefault();
+        this.paste(clip, this.pointerPoint());
+      }
+      return;
+    }
+
     let clipboardItems: Array<ClipboardItem | File> = [];
 
     if (typeof navigator?.clipboard?.read === "function") {
