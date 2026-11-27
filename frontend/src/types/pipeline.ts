@@ -3,6 +3,7 @@ export type PipelineEventType =
   | "node_done"
   | "node_error"
   | "node_flow"
+  | "node_not_ready"
   | "pipeline_done";
 
 export type PipelineIOType =

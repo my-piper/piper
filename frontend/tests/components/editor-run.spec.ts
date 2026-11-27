@@ -475,6 +475,37 @@ describe("EditPipelineVisualComponent run feedback", () => {
     finish();
   }));
 
+  it("follows a node through the queue and waiting for its inputs", fakeAsync(() => {
+    const editor = setupEditor({ launch: launch() });
+    const { element, detectChanges, controller, socket } = editor;
+    const event = { launch: LAUNCH_ID, node: "node_two" };
+    editor.editor.launch.launchRequest.inclusive = undefined;
+
+    answerStatuses(editor, { node_one: { state: "done" } });
+    detectChanges();
+    const skipped = pill(element).dataset["state"];
+    socket.receive("node_flow", event);
+    answerStatuses(editor);
+    detectChanges();
+    const queued = pill(element).dataset["state"];
+    socket.receive("node_not_ready", event);
+    tick();
+    detectChanges();
+    const waiting = {
+      state: pill(element).dataset["state"],
+      title: pill(element).querySelector("[title]")?.getAttribute("title"),
+    };
+
+    expect(skipped).toBe("done");
+    expect(queued).toBe("running");
+    expect(waiting).toEqual({
+      state: "idle",
+      title: "Nothing is running and the workflow isn't finished",
+    });
+    controller.verify();
+    finish();
+  }));
+
   it("offers Retry on a node that failed in the editor and runs it again", fakeAsync(() => {
     const editor = setupEditor();
     const { element, detectChanges, controller } = editor;

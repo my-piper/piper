@@ -47,7 +47,6 @@ import {
   Node,
   NodeInput,
   NodeOutput,
-  NodeState,
   SCRIPT_NODE_SOURCE,
 } from "src/models/node";
 import { FlowTransformer, NodeFlow } from "src/models/node-flow";
@@ -72,6 +71,7 @@ import { Primitive } from "src/types/primitive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { formatElapsed } from "src/utils/elapsed";
+import { LaunchState, NodeRunState, launchState } from "src/utils/launch-state";
 import { acceptedInputTypes } from "src/utils/flow-types";
 import { sid } from "src/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
@@ -132,7 +132,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   running = false;
 
   /** Run states the canvas nodes report, keyed by node id. */
-  nodeStates: Record<string, NodeState> = {};
+  nodeStates: Record<string, NodeRunState> = {};
   /** Time since the launch started, while the canvas sees it run. */
   elapsed: string | null = null;
   private clock: ReturnType<typeof setInterval> | null = null;
@@ -275,24 +275,20 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   /** The launch as its nodes report it, for the top bar pill. */
-  get launchState(): "running" | "failed" | "done" | "idle" | null {
-    const states = Object.values(this.nodeStates);
-    if (states.length <= 0) {
-      return null;
-    }
-    if (states.includes("running")) {
-      return "running";
-    }
-    if (states.includes("error")) {
-      return "failed";
-    }
-    const nodes = [...this.pipeline.nodes.keys()];
-    return nodes.every((id) => this.nodeStates[id] === "done")
-      ? "done"
-      : "idle";
+  get launchState(): LaunchState | null {
+    const inclusive = this.launch?.launchRequest?.inclusive?.nodes ?? [];
+    return launchState(
+      {
+        nodes: [...this.pipeline.nodes.keys()],
+        flows: [...(this.pipeline.flows?.values() ?? [])],
+        start:
+          inclusive.length > 0 ? inclusive : (this.pipeline.start?.nodes ?? []),
+      },
+      this.nodeStates,
+    );
   }
 
-  setNodeState(id: string, state: NodeState | null) {
+  setNodeState(id: string, state: NodeRunState | null) {
     if (state) {
       this.nodeStates[id] = state;
     } else {

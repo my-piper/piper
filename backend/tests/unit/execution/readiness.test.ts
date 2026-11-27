@@ -116,8 +116,28 @@ describe("node readiness and duplicate execution", () => {
       expect(result).toBe(NodeJobResult.NODE_FLOWS_NOT_READY_YET);
       expect(doubles.execute).not.toHaveBeenCalled();
       expect(vi.getTimerCount()).toBe(0);
+      expect(doubles.notify).toHaveBeenCalledWith(
+        `launch:${context.launch._id}`,
+        "node_not_ready",
+        expect.objectContaining({ node: "echo_node" })
+      );
     }
   );
+
+  it("tells clients a node lacks a required input", async () => {
+    context.responses.delete(
+      NODE_INPUT(context.launch._id, "echo_node", "enabled")
+    );
+
+    const result = await context.run();
+
+    expect(result).toBe(NodeJobResult.NODE_INPUTS_NOT_READY_YET);
+    expect(doubles.notify).toHaveBeenCalledWith(
+      `launch:${context.launch._id}`,
+      "node_not_ready",
+      expect.objectContaining({ node: "echo_node" })
+    );
+  });
 
   it.each([
     { mode: "move", flowMode: "move", inclusive: [] },
