@@ -49,12 +49,25 @@
     border-color: var(--border);
   }
 
-  .name {
+  .text {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     min-width: 0;
+  }
+
+  .name,
+  .ref {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  // a Deploy's prefix/slug, telling apart Deploys of one project
+  .ref {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
   }
 
   .thumbnail {

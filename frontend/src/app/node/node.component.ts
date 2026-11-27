@@ -34,6 +34,7 @@ import { NodeRunState } from "src/utils/launch-state";
 import { UI } from "src/consts/ui";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
+import { deployRef } from "src/utils/deploy-node";
 import { toInstance } from "src/utils/models";
 import { nodeLayout, NodeLayout, WidgetRow } from "src/utils/node-layout";
 import { parseNumber, stepNumber } from "src/utils/number-widget";
@@ -200,6 +201,12 @@ export class NodeComponent implements OnDestroy {
   @HostBinding("class.collapsed")
   get collapsed() {
     return !!this.node?.arrange?.collapsed;
+  }
+
+  /** The title's hover text; a Deploy node adds its `prefix/slug`. */
+  get titleHint() {
+    const ref = deployRef(this.node);
+    return ref ? `${getLabel(this.node.title, this.language)} · ${ref}` : null;
   }
 
   /** How many inputs show on the node (sockets and widgets). */

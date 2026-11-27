@@ -2,6 +2,7 @@ import { DeployNode } from "src/models/deploy-node";
 import { Node } from "src/models/node";
 import {
   deployItem,
+  deployRef,
   matchDeploys,
   nodeFromDeploy,
   parseDeployRef,
@@ -92,6 +93,37 @@ describe("matchDeploys", () => {
       const matched = matchDeploys(listed, query);
 
       expect(matched.map(({ title }) => title)).toEqual(titles);
+    });
+  }
+});
+
+describe("deployRef", () => {
+  for (const { name, node, ref } of [
+    {
+      name: "a listed Deploy",
+      node: deployItem({ prefix: "owner", slug: "summarizer" }, "Summarizer"),
+      ref: "owner/summarizer",
+    },
+    {
+      name: "an unprefixed Deploy",
+      node: deployItem({ slug: "violations-detector-v6" }, "Violations"),
+      ref: "violations-detector-v6",
+    },
+    {
+      name: "a Deploy titled by its name",
+      node: deployItem({ prefix: "other", slug: "translator" }),
+      ref: null,
+    },
+    {
+      name: "a catalog node",
+      node: toInstance({ _id: "translate", title: "Translate" }, Node),
+      ref: null,
+    },
+  ]) {
+    it(`names ${name}`, () => {
+      const result = deployRef(node);
+
+      expect(result).toBe(ref);
     });
   }
 });
