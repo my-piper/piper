@@ -1,5 +1,9 @@
 import { Locator, Page } from "@playwright/test";
-import { Plain, PROJECT_A_ID } from "../fixtures/plain";
+import {
+  Plain,
+  PROJECT_A_ID,
+  smallGraphWithJsonTransformer,
+} from "../fixtures/plain";
 import { expect, expectSaved, test } from "./support/test";
 
 type Graph = {
@@ -240,4 +244,46 @@ test("picks pipeline outputs with nodes and moves them together", async ({
   };
   expect(saved.nodes["node_two"].arrange).toEqual({ x: 660, y: 100 });
   expect(saved.outputs["result"].arrange).toEqual({ x: 1000, y: 100 });
+});
+
+/** What the pointer hits at a screen point: a node's id, "flow" or "other". */
+async function hitAt(page: Page, [x, y]: readonly [number, number]) {
+  return page.evaluate(
+    ([px, py]) => {
+      const hit = document.elementFromPoint(px, py);
+      const node = hit?.closest<HTMLElement>(".node");
+      if (node) {
+        return node.dataset["node"];
+      }
+      return hit?.closest(".flow") ? "flow" : "other";
+    },
+    [x, y],
+  );
+}
+
+test("hides a flow midpoint and its delete button behind a node", async ({
+  page,
+  open,
+  api,
+}) => {
+  api.projects.get(PROJECT_A_ID)["pipeline"] = smallGraphWithJsonTransformer();
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeOne = page.getByTestId("node-node_one");
+  const midpoint = page
+    .locator(".pane > .flow")
+    .filter({ has: page.locator("app-edit-flow-transformer") });
+  await expect(midpoint).toBeVisible();
+  const remove = await center(midpoint.locator(".delete"));
+  const transformer = await center(
+    midpoint.locator("app-edit-flow-transformer"),
+  );
+  expect(await hitAt(page, remove)).toBe("flow");
+  const [node, flow] = [await center(nodeOne), await center(midpoint)];
+
+  await dragNode(page, nodeOne, flow[0] - node[0], flow[1] - node[1]);
+  await page.mouse.move(...remove);
+
+  expect(await hitAt(page, remove)).toBe("node_one");
+  expect(await hitAt(page, transformer)).toBe("node_one");
+  await expect(midpoint.locator(".delete")).toHaveCSS("opacity", "0");
 });
