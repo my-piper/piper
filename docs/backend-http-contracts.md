@@ -76,7 +76,9 @@ return 404. `GET /api/launches/:launch/logs` returns
 `{ available, logs, dropped }`: the Node Logs of every node (or only `?node=`),
 oldest first by `ts`, each tagged with `node`, `level`, `message`, `attempt` and
 `ts` (milliseconds; lines stored before `ts` was kept have none and come first,
-in their node's order). Each node keeps its newest 1000 lines; `dropped` counts
+in their node's order). `level` is one of `debug`, `info`, `warn` and `error`;
+the `log` level older Deno images record for `console.log`, and any unknown
+level, is returned as `info`. Each node keeps its newest 1000 lines; `dropped` counts
 the older lines removed per node. `available` is false, with no lines, once the
 launch's live state has expired.
 

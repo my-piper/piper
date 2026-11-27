@@ -95,7 +95,7 @@ The Launch whose Node started a Child Launch.
 _Avoid_: Outer launch, root launch
 
 **Node Log**:
-The lines a Node's script writes while it runs in a Launch, each with a level and the attempt it came from. A Launch's logs are the Node Logs of all its Nodes; a Child Launch keeps its own. Node Logs live only as long as the Launch's live state, so an old Launch can outlive its logs.
+The lines a Node's script writes while it runs in a Launch, each with a level (`debug`, `info`, `warn` or `error`; `console.log` is `info`) and the attempt it came from. A Launch's logs are the Node Logs of all its Nodes; a Child Launch keeps its own. Node Logs live only as long as the Launch's live state, so an old Launch can outlive its logs.
 _Avoid_: Console output, messages, launch events
 
 ### Configuration

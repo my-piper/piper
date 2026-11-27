@@ -13,8 +13,6 @@ import {
   UnknownError,
 } from "core-kit/types/errors";
 
-type LogLevel = "debug" | "info" | "warn" | "error";
-
 export class ExecutionError extends Error {
   @Expose()
   @Type(() => String)
@@ -59,9 +57,10 @@ export class LogEntry {
   @Type(() => Number)
   ts: number;
 
+  // as Deno sends it; packages/nodes/node-logs normalizes it to a LogLevel
   @Expose()
   @Type(() => String)
-  level: LogLevel;
+  level: string;
 
   @Expose()
   @Type(() => String)
