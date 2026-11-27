@@ -11,6 +11,7 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
 import { TUI_BREAKPOINT } from "@taiga-ui/core";
 import { filter, map } from "rxjs";
+import { SIDEBAR_KEY } from "src/consts/core";
 import { AppConfig } from "src/models/app-config";
 import { UserRole } from "src/models/user";
 import { MeManager } from "src/services/me.service";
@@ -69,8 +70,18 @@ function isFullBleed(route: ActivatedRouteSnapshot | null): boolean {
   return false;
 }
 
+/** Reads the stored sidebar state; storage can be unavailable. */
+function readExpanded(): boolean {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === "expanded";
+  } catch {
+    return false;
+  }
+}
+
 /**
- * The frame of every signed-in page: a 48px icon sidebar with the global
+ * The frame of every signed-in page: a 48px icon sidebar (expandable to
+ * labelled rows) with the global
  * sections, a 40px top bar with the current section, and the main area the
  * routed page renders into. Routes that need the whole width (canvases) set
  * `data: { fullBleed: true }`.
@@ -93,6 +104,10 @@ export class AppLayoutComponent {
   readonly topbar = inject(TopbarService);
   /** On phones the sidebar gives way to a drawer opened from the top bar. */
   readonly mobile = computed(() => this.breakpoint() === "mobile");
+  /** The desktop sidebar shows labels next to its icons. */
+  readonly expanded = signal(readExpanded());
+  readonly expandLabel = $localize`:@@label.expand_sidebar:Expand sidebar`;
+  readonly collapseLabel = $localize`:@@label.collapse_sidebar:Collapse sidebar`;
   /** Closed after every navigation and whenever the viewport leaves mobile. */
   readonly drawerOpen = signal(false);
   private readonly navigated = this.router.events.pipe(
@@ -124,6 +139,16 @@ export class AppLayoutComponent {
       .filter(Boolean);
     return this.sections().find(({ path }) => path === segment) ?? null;
   });
+
+  toggleSidebar() {
+    const expanded = !this.expanded();
+    this.expanded.set(expanded);
+    try {
+      localStorage.setItem(SIDEBAR_KEY, expanded ? "expanded" : "collapsed");
+    } catch {
+      // The state just lasts until reload.
+    }
+  }
 
   constructor() {
     this.navigated
