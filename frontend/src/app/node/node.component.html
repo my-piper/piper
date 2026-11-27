@@ -16,71 +16,85 @@
 }
 
 <div class="node" [class.done]="status?.state === 'done'">
-  <h2>{{ node.title | i18n }}</h2>
-  <ul class="inputs">
-    @for (g of node.render.inputs; track g.id) {
-      @for (i of g.group.inputs; track i.id) {
-        <ng-template #inputMenuPopover>
-          <tui-data-list size="s">
-            <button
-              tuiOption
-              type="button"
-              (click)="emitTakeOutInput(i.id, i.input)"
-              i18n="@@action.take_out"
-            >
-              Take out
-            </button>
-          </tui-data-list>
-        </ng-template>
-        @if (i.input.featured) {
-          <li>
-            <div class="title">{{ i.input.title | i18n }}</div>
-            <button
-              class="port"
-              [tuiDropdown]="inputMenuPopover"
-              [tuiDropdownOpen]="openMenu === 'input:' + i.id"
-              (tuiDropdownOpenChange)="
-                openMenu = $event ? 'input:' + i.id : null
-              "
-              tuiDropdownSided
-              tuiDropdownAlign="start"
-              [attr.data-testid]="'input-port-' + i.id"
-              (mouseup)="pinTo(i.id)"
-            ></button>
-          </li>
+  <header class="head">
+    <h2 [title]="node.title | i18n">{{ node.title | i18n }}</h2>
+  </header>
+  <div class="ports">
+    <ul class="inputs">
+      @for (g of node.render.inputs; track g.id) {
+        @for (i of g.group.inputs; track i.id) {
+          <ng-template #inputMenuPopover>
+            <tui-data-list size="s">
+              <button
+                tuiOption
+                type="button"
+                (click)="emitTakeOutInput(i.id, i.input)"
+                i18n="@@action.take_out"
+              >
+                Take out
+              </button>
+            </tui-data-list>
+          </ng-template>
+          @if (i.input.featured) {
+            <li [class.required]="i.input.required">
+              <button
+                class="port"
+                [class.array]="isArray(i.input.type)"
+                [attr.data-type]="i.input.type"
+                [tuiDropdown]="inputMenuPopover"
+                [tuiDropdownOpen]="openMenu === 'input:' + i.id"
+                (tuiDropdownOpenChange)="
+                  openMenu = $event ? 'input:' + i.id : null
+                "
+                tuiDropdownSided
+                tuiDropdownAlign="start"
+                [attr.data-testid]="'input-port-' + i.id"
+                (mouseup)="pinTo(i.id)"
+              ></button>
+              <div class="title" [title]="i.input.title | i18n">
+                {{ i.input.title | i18n }}
+              </div>
+            </li>
+          }
         }
       }
-    }
-  </ul>
-  <ul class="outputs">
-    @for (o of node.outputs | keyvalue; track o.key) {
-      <li>
-        <ng-template #outputMenuPopover>
-          <tui-data-list size="s">
-            <button
-              tuiOption
-              type="button"
-              (click)="emitTakeOutOutput(o.key, o.value)"
-              i18n="@@action.take_out"
-            >
-              Take out
-            </button>
-          </tui-data-list>
-        </ng-template>
-        <div class="title">{{ o.value.title | i18n }}</div>
-        <button
-          class="port"
-          [tuiDropdown]="outputMenuPopover"
-          [tuiDropdownOpen]="openMenu === 'output:' + o.key"
-          (tuiDropdownOpenChange)="openMenu = $event ? 'output:' + o.key : null"
-          tuiDropdownSided
-          tuiDropdownAlign="end"
-          [attr.data-testid]="'output-port-' + o.key"
-          (mousedown)="pinFrom(o.key)"
-        ></button>
-      </li>
-    }
-  </ul>
+    </ul>
+    <ul class="outputs">
+      @for (o of node.outputs | keyvalue; track o.key) {
+        <li>
+          <ng-template #outputMenuPopover>
+            <tui-data-list size="s">
+              <button
+                tuiOption
+                type="button"
+                (click)="emitTakeOutOutput(o.key, o.value)"
+                i18n="@@action.take_out"
+              >
+                Take out
+              </button>
+            </tui-data-list>
+          </ng-template>
+          <div class="title" [title]="o.value.title | i18n">
+            {{ o.value.title | i18n }}
+          </div>
+          <button
+            class="port"
+            [class.array]="isArray(o.value.type)"
+            [attr.data-type]="o.value.type"
+            [tuiDropdown]="outputMenuPopover"
+            [tuiDropdownOpen]="openMenu === 'output:' + o.key"
+            (tuiDropdownOpenChange)="
+              openMenu = $event ? 'output:' + o.key : null
+            "
+            tuiDropdownSided
+            tuiDropdownAlign="end"
+            [attr.data-testid]="'output-port-' + o.key"
+            (mousedown)="pinFrom(o.key)"
+          ></button>
+        </li>
+      }
+    </ul>
+  </div>
 
   <ul class="featured" [class.filled]="(outputs | keyvalue)?.length > 0">
     @for (o of node.outputs | keyvalue; track o.key) {

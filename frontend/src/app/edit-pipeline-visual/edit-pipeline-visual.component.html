@@ -634,11 +634,11 @@
       <defs>
         <pattern
           id="dot-pattern"
-          width="15"
-          height="15"
+          width="16"
+          height="16"
           patternUnits="userSpaceOnUse"
         >
-          <circle cx="5" cy="5" r="1" class="dot" />
+          <circle cx="8" cy="8" r="1" class="dot" />
         </pattern>
       </defs>
       <rect #gridRef width="100%" height="100%" fill="url(#dot-pattern)"></rect>
@@ -647,6 +647,11 @@
         @switch (flow.type) {
           @case ("node") {
             <path
+              class="pending"
+              [attr.data-type]="
+                (pipeline | node: flow.from | async)?.outputs?.get(flow.output)
+                  ?.type
+              "
               [attr.d]="
                 (pipeline | node: flow.from | async).arrange
                   | shift
@@ -667,7 +672,8 @@
           }
           @case ("input") {
             <path
-              class="param"
+              class="param pending"
+              [attr.data-type]="(pipeline | pipelineInput: flow.from)?.type"
               [attr.d]="
                 (pipeline | pipelineInput: flow.from).arrange
                   | curve: (mouse | multiply: pipeline.layout.zoom || 1)
@@ -679,7 +685,11 @@
 
       @for (f of pipeline.flows | keyvalue; track f.key) {
         <path
-          [attr.stroke]="f.value.color"
+          [attr.data-type]="
+            (pipeline | node: f.value.from | async)?.outputs?.get(
+              f.value.output
+            )?.type
+          "
           [attr.d]="
             (pipeline | node: f.value.from | async).arrange
               | shift
@@ -716,6 +726,7 @@
         @for (f of i.value.flows | keyvalue; track f.key) {
           <path
             class="flow param"
+            [attr.data-type]="i.value.type"
             [class.disabled]="
               mode !== 'project' ||
               (userRole.admin | can: project.createdBy | async | not)
@@ -745,6 +756,7 @@
         @for (f of o.value.flows | keyvalue; track f.key) {
           <path
             class="flow param to-output"
+            [attr.data-type]="o.value.type"
             [class.disabled]="
               mode !== 'project' ||
               (userRole.admin | can: project.createdBy | async | not)
@@ -770,6 +782,7 @@
         @if (!!o.value.from) {
           <path
             class="flow param to-output"
+            [attr.data-type]="o.value.type"
             [class.disabled]="
               mode !== 'project' ||
               (userRole.admin | can: project.createdBy | async | not)
