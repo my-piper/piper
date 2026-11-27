@@ -13,6 +13,7 @@ import { RoutedDialogComponent } from "src/app/routed-dialog/routed-dialog.compo
 /**
  * app-routed-dialog (#348) shows the host route's children in a tuiDialog:
  * open while a child is active, labelled by the child's data.dialogLabel,
+ * sized by the host unless the child sets data.dialogSize,
  * and closing navigates back to the host, keeping the query on request.
  */
 
@@ -84,6 +85,11 @@ async function setup(
               data: { dialogLabel: "Add item" },
             },
             {
+              path: "short",
+              component: ChildComponent,
+              data: { dialogLabel: "Short form", dialogSize: "s" },
+            },
+            {
               path: ":name",
               component: ChildComponent,
               data: {
@@ -128,6 +134,18 @@ describe("RoutedDialogComponent", () => {
     expect(label()).toBe("Add item");
     expect(dialog().getAttribute("data-size")).toBe("m");
     expect(host().activated[0]).toBeInstanceOf(ChildComponent);
+  });
+
+  it("takes the child's data.dialogSize over the host's size", async () => {
+    await setup("/items/short");
+
+    await expect
+      .poll(() => {
+        render();
+        return dialog()?.getAttribute("data-size");
+      })
+      .toBe("s");
+    expect(label()).toBe("Short form");
   });
 
   it("labels the dialog from the child's resolved data", async () => {

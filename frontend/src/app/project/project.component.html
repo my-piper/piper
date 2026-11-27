@@ -32,7 +32,10 @@
       [title]="(pipeline.description | i18n) ?? ''"
     >
       <tui-input-inline
-        [class.error]="form.controls.name.touched && form.controls.name.invalid"
+        [class.error]="
+          (form.controls.name.touched && form.controls.name.invalid) ||
+          projectManager.titleTaken
+        "
       >
         <input formControlName="name" data-testid="project-name" />
       </tui-input-inline>

@@ -12,6 +12,7 @@ import {
   Subject,
   tap,
 } from "rxjs";
+import { ConflictError } from "src/models/errors";
 import { NodeToLaunch } from "src/models/launch-request";
 import { PatchProject, Project } from "src/models/project";
 import { Primitive } from "src/types/primitive";
@@ -243,6 +244,13 @@ export class ProjectManager {
   updates = new Subject<object | null>();
   status = new BehaviorSubject<SaveStatus | null>(null);
   error = new BehaviorSubject<Error | null>(null);
+
+  /** The last save failed because another project has the pipeline's name. */
+  get titleTaken(): boolean {
+    return (
+      this.status.value === "error" && this.error.value instanceof ConflictError
+    );
+  }
 
   set project(project: Project) {
     this._project = project;

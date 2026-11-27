@@ -13,15 +13,12 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, ParamMap, Router } from "@angular/router";
 import { TuiDialogService } from "@taiga-ui/core";
-import { plainToInstance } from "class-transformer";
 import escape from "lodash/escape";
 import isEqual from "lodash/isEqual";
 import last from "lodash/last";
 import uniq from "lodash/uniq";
 import { Subscription, debounceTime, delay, filter, finalize, map } from "rxjs";
 import { DisplayError } from "src/models/errors";
-import { LaunchRequest } from "src/models/launch-request";
-import { Pipeline } from "src/models/pipeline";
 import { Project, ProjectsFilter } from "src/models/project";
 import { ProjectRunsSummary } from "src/models/project-stats";
 import { UserRole } from "src/models/user";
@@ -31,7 +28,6 @@ import { toInstance, toPlain } from "src/utils/models";
 import { confirmDelete } from "src/utils/confirm-delete";
 import { getLabel } from "src/utils/i18n";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
-import * as YAML from "yaml";
 import {
   Folder,
   FOLDER_SEPARATOR,
@@ -47,25 +43,6 @@ import { ImportProjectComponent } from "./import/import-project.component";
 function tagsOf(params: ParamMap): string[] {
   return uniq(params.getAll("tag").filter((t) => !!t));
 }
-
-const TEST_PIPELINE = `
-name: New project
-version: 1
-layout:
-  left: 200
-  top: 200
-  zoom: 1
-start:
-  nodes: []
-inputs: {}
-outputs: {}
-flows: {}
-nodes: {}`;
-
-const TEST_REQUEST = {
-  nodes: {},
-  inputs: {},
-};
 
 @Component({
   selector: "app-projects",
@@ -83,7 +60,6 @@ export class ProjectsComponent implements OnInit {
   error!: DisplayError;
   progress = {
     loading: false,
-    creating: false,
     deleting: false,
     renaming: false,
   };
@@ -445,33 +421,6 @@ export class ProjectsComponent implements OnInit {
     if (project) {
       this.load(project.cursor);
     }
-  }
-
-  create() {
-    this.progress.creating = true;
-    this.cd.detectChanges();
-
-    const request = new Project({
-      title: "Test project",
-      pipeline: plainToInstance(Pipeline, YAML.parse(TEST_PIPELINE)),
-      launchRequest: plainToInstance(LaunchRequest, TEST_REQUEST),
-    });
-    this.http
-      .post(`projects`, toPlain(request))
-      .pipe(
-        delay(UI_DELAY),
-        finalize(() => {
-          this.progress.creating = false;
-          this.cd.detectChanges();
-        }),
-        map((json) => plainToInstance(Project, json as object)),
-      )
-      .subscribe({
-        next: (project) => {
-          this.router.navigate([project._id], { relativeTo: this.route });
-        },
-        error: (err) => (this.error = err),
-      });
   }
 
   confirmRemove(project: Project) {

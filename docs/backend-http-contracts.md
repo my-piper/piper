@@ -38,7 +38,7 @@ These are exercised by `backend/tests/unit/sockets`.
 | Endpoint                                      | Current requirement                    | Successful status |
 | --------------------------------------------- | -------------------------------------- | ----------------- |
 | `GET /api/projects/:_id`                      | Project owner or admin                 | 200               |
-| `POST /api/projects`                          | Logged-in user                         | 200               |
+| `POST /api/projects`                          | Logged-in user; title not taken (409)  | 200               |
 | `DELETE /api/projects/:_id`                   | Project owner or admin                 | 204               |
 | `POST /api/projects/:_id/launch`              | Project owner or admin                 | 200               |
 | `GET /api/launches/:_id`                      | Launch visible to the user (see below) | 200               |
@@ -156,8 +156,20 @@ as anyone with a Deploy's link may launch it; a missing Deploy answers 400
 - Project creation uses production AJV validation; invalid creation data
   reports `Project schema invalid`. Malformed JSON is rejected by Express's
   body parser with 400 before the route writes data.
+- Project titles are unique per owner, compared without case
+  (`packages/projects/titles.ts`, the unique `owner_title_unique` index on
+  `createdBy._id` and `title`): users see only their own projects, so another
+  user's titles never block or show through. An admin's rename is checked
+  against the project owner's titles. A title
+  is saved without outer spaces and has 5 to 160 characters. Creating a
+  project with a taken title, or renaming its Pipeline (the `name` becomes
+  the title) to one, answers 409 `A project with this title already exists`
+  as text. A rename or import whose trimmed name is out of range answers 400
+  `Project title must have 5 to 160 characters`.
 - Two admin-only routes import a Pipeline as a new private Project owned by
-  the caller, titled with the Pipeline's `name`. Both take `{ yaml }`: a
+  the caller, titled with the Pipeline's `name`; when another project of the
+  caller has that title, the import takes the first free `<name> (n)` from 2
+  on. Both take `{ yaml }`: a
   Pipeline as YAML (or a URL to one), optionally followed by a line `------`
   and the Launch request as JSON. The separator line may carry trailing spaces
   and Windows line endings, and an empty Launch request after it imports as
@@ -312,6 +324,7 @@ Known defects are recorded as `it.fails` tests in `backend/tests/unit/http`:
 | `DataError`            | 400; message and exposed details, or plain message when details are null            |
 | `UnauthorizedError`    | 401 with message                                                                    |
 | `NotFoundError`        | 404 with message                                                                    |
+| `ConflictError`        | 409 with message (`backend/types/errors.ts`)                                        |
 | `TooManyRequestsError` | 429 with message                                                                    |
 | `PenTestingError`      | Existing 302 redirect                                                               |
 | Unexpected error       | Reported to Sentry; 500 with `SERVICE_OFFLINE\|Our service temporarily unavailable` |

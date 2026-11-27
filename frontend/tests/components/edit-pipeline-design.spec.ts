@@ -10,6 +10,7 @@ import { provideTaiga } from "@taiga-ui/core";
 import { of } from "rxjs";
 import { EditPipelineDesignComponent } from "src/app/edit-pipeline-design/edit-pipeline-design.component";
 import { TaigaFormsModule } from "src/app/taiga-forms.module";
+import { ConflictError, DataError } from "src/models/errors";
 import { Project } from "src/models/project";
 import { ProjectManager } from "src/services/project.manager";
 import { projectA } from "../fixtures/models";
@@ -157,6 +158,36 @@ describe("EditPipelineDesignComponent", () => {
     expect(project.pipeline.version).toBe(1);
     expect(element.textContent).toContain("Enter a version");
     expect(markDirty).toHaveBeenCalledTimes(0);
+    finish();
+  }));
+
+  it("says when the last save failed because another project has the name", fakeAsync(() => {
+    setup();
+    const manager = TestBed.inject(ProjectManager);
+
+    manager.status.next("error");
+    manager.error.next(
+      new ConflictError("A project with this title already exists"),
+    );
+    fixture.detectChanges();
+
+    expect(
+      element.querySelector("[data-testid=pipeline-name-taken]")?.textContent,
+    ).toBe("A project with this title already exists");
+    finish();
+  }));
+
+  it("says nothing about the name for other save failures", fakeAsync(() => {
+    setup();
+    const manager = TestBed.inject(ProjectManager);
+
+    manager.status.next("error");
+    manager.error.next(new DataError("Version on sever is more fresh"));
+    fixture.detectChanges();
+
+    expect(
+      element.querySelector("[data-testid=pipeline-name-taken]"),
+    ).toBeNull();
     finish();
   }));
 });

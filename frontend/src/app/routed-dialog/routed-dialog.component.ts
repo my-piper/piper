@@ -24,12 +24,13 @@ import {
   TuiSizeS,
 } from "@taiga-ui/core";
 import { EMPTY, filter } from "rxjs";
-import { dialogLabel } from "src/utils/route-dialog";
+import { dialogLabel, dialogSize } from "src/utils/route-dialog";
 
 /**
  * Shows the host route's child routes in a `tuiDialog` (docs/design.md#dialogs,
  * #348). The dialog is open while a child route is active, takes its label
- * from the child's `data.dialogLabel`, and closing it navigates back to the
+ * from the child's `data.dialogLabel` (and its size from `data.dialogSize`,
+ * when set), and closing it navigates back to the
  * host route.
  */
 @Component({
@@ -62,10 +63,13 @@ export class RoutedDialogComponent {
   // when navigation opens, closes or changes the child route
   private readonly childActive = signal(false);
   private readonly label = signal<string | undefined>(undefined);
+  private readonly childSize = signal<TuiSizeS | TuiSizeL | undefined>(
+    undefined,
+  );
 
   readonly open = computed(() => this.ready() && this.childActive());
   readonly options = computed(() => ({
-    size: this.size(),
+    size: this.childSize() ?? this.size(),
     dismissible: this.dismissible(),
     label: this.label(),
   }));
@@ -85,6 +89,7 @@ export class RoutedDialogComponent {
     const active = !!this.route.firstChild;
     this.childActive.set(active);
     this.label.set(active ? dialogLabel(this.route) : undefined);
+    this.childSize.set(dialogSize(this.route));
   }
 
   close() {

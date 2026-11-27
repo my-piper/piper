@@ -1,0 +1,45 @@
+@if (error) {
+  <div tuiNotification appearance="negative" role="alert" class="error">
+    {{ error.message }}
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="create()">
+  <tui-textfield>
+    <label tuiLabel for="project-title" i18n="@@label.title">Title</label>
+    <input
+      tuiInput
+      tuiAutoFocus
+      id="project-title"
+      formControlName="title"
+      data-testid="project-title"
+      [attr.maxlength]="maxLength"
+    />
+  </tui-textfield>
+  @if (form.controls.title.touched && form.controls.title.errors; as errors) {
+    <small class="field-error" data-testid="project-title-error">
+      @if (errors["taken"]) {
+        <ng-container i18n="@@message.project_title_taken"
+          >A project with this title already exists</ng-container
+        >
+      } @else {
+        <ng-container i18n="@@message.pipeline_name_length"
+          >Use 5 to 160 characters</ng-container
+        >
+      }
+    </small>
+  }
+
+  <footer>
+    <button
+      tuiButton
+      type="submit"
+      data-testid="create-project"
+      [loading]="progress.creating"
+      [disabled]="form.invalid || progress.creating"
+      i18n="@@action.create"
+    >
+      Create
+    </button>
+  </footer>
+</form>

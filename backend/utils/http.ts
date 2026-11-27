@@ -18,6 +18,7 @@ import { Request, Response } from "express";
 import assign from "lodash/assign";
 import { User, UserRole } from "models/user";
 import { resolveUser, WrongTokenError } from "packages/users/resolve-user";
+import { ConflictError } from "types/errors";
 import { Injector } from "types/injector";
 
 const USER_TOKEN_HEADER = "user-token";
@@ -122,6 +123,8 @@ export const handle =
         res.status(401).send(e.message);
       } else if (e instanceof NotFoundError) {
         res.status(404).send(e.message);
+      } else if (e instanceof ConflictError) {
+        res.status(409).send(e.message);
       } else if (e instanceof TooManyRequestsError) {
         res.status(429).send(e.message);
       } else if (e instanceof PenTestingError) {

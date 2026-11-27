@@ -73,6 +73,7 @@ import { ProjectArtefactsComponent } from "./project-artefacts/project-artefacts
 import { ProjectAssetsComponent } from "./project-assets/project-assets.component";
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectStatsComponent } from "./project-stats/project-stats.component";
+import { CreateProjectComponent } from "./projects/create/create-project.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
@@ -96,7 +97,7 @@ const CALL_VIA_API_LABEL: DialogLabel = ({ deploy }: Data) =>
   );
 
 /** Children of the Projects page, which a Project id can never be. */
-const PROJECTS_PAGES = new Set(["import"]);
+const PROJECTS_PAGES = new Set(["new", "import"]);
 
 export function projectIdMatcher(
   segments: UrlSegment[],
@@ -490,6 +491,15 @@ const routes: Routes = [
         component: ProjectsComponent,
         canActivate: [SigninNeededGuard],
         children: [
+          {
+            path: "new",
+            component: CreateProjectComponent,
+            data: {
+              dialogLabel: $localize`:@@label.new_project:New project`,
+              // the new project form is short
+              dialogSize: "s",
+            },
+          },
           {
             path: "import",
             component: ImportProjectComponent,
