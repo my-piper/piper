@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -81,7 +82,9 @@ import {
   refreshFromDeploy,
 } from "src/utils/deploy-node";
 import { acceptedInputTypes } from "src/utils/flow-types";
+import { MINIMAP_KEY } from "src/consts/core";
 import {
+  Box,
   frameAround,
   GROUP_COLORS,
   GROUP_MIN,
@@ -110,6 +113,23 @@ function splitKey(key: string): [string, string] {
   return [key.slice(0, at), key.slice(at + 1)];
 }
 
+/** The minimap shows unless this browser turned it off (#336). */
+function readMinimap(): boolean {
+  try {
+    return localStorage.getItem(MINIMAP_KEY) !== "false";
+  } catch {
+    return true;
+  }
+}
+
+function storeMinimap(shown: boolean) {
+  try {
+    localStorage.setItem(MINIMAP_KEY, String(shown));
+  } catch {
+    // Storage is a convenience: the minimap still toggles without it.
+  }
+}
+
 function salt() {
   return customAlphabet("1234567890abcdef", 5)();
 }
@@ -121,7 +141,7 @@ function salt() {
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class EditPipelineVisualComponent implements OnDestroy {
+export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly language = inject(CURRENT_LANGUAGE);
 
@@ -1631,6 +1651,42 @@ export class EditPipelineVisualComponent implements OnDestroy {
     target.addEventListener("pointercancel", up);
   }
 
+  /** Whether the minimap shows (#336); remembered per browser. */
+  minimap = readMinimap();
+  /** The visible area in canvas px, for the minimap. */
+  viewport: Box | null = null;
+
+  toggleMinimap() {
+    this.minimap = !this.minimap;
+    storeMinimap(this.minimap);
+    this.updateViewport();
+  }
+
+  /** Reads the scroller's position and size, in canvas px. */
+  updateViewport() {
+    const scroller = this.nodesRef?.nativeElement;
+    if (!scroller) {
+      return;
+    }
+    const zoom = this.pipeline.layout?.zoom || 1;
+    this.viewport = {
+      x: scroller.scrollLeft / zoom,
+      y: scroller.scrollTop / zoom,
+      w: scroller.clientWidth / zoom,
+      h: scroller.clientHeight / zoom,
+    };
+    this.cd.detectChanges();
+  }
+
+  /** Scrolls so the canvas point is in the middle of the view. */
+  centerOn({ x, y }: { x: number; y: number }) {
+    const scroller = this.nodesRef.nativeElement;
+    const zoom = this.pipeline.layout?.zoom || 1;
+    scroller.scrollLeft = x * zoom - scroller.clientWidth / 2;
+    scroller.scrollTop = y * zoom - scroller.clientHeight / 2;
+    this.updateViewport();
+  }
+
   /** The group colours, in the palette's order (#331). */
   readonly groupColors = GROUP_COLORS;
   /** The group whose title is being edited. */
@@ -1852,10 +1908,21 @@ export class EditPipelineVisualComponent implements OnDestroy {
     this.save();
   }
 
+  ngAfterViewInit() {
+    // After the first render, when the scroller has its size.
+    queueMicrotask(() => this.updateViewport());
+  }
+
+  @HostListener("window:resize")
+  onResize() {
+    this.updateViewport();
+  }
+
   updateLayoutZoom(zoom: number) {
     this.pipeline.layout ??= new Layout();
     assign(this.pipeline.layout, { zoom });
     this.save();
+    queueMicrotask(() => this.updateViewport());
   }
 
   @HostListener("document:paste", ["$event"])

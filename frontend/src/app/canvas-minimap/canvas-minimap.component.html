@@ -1,0 +1,41 @@
+@let d = drawing;
+<div
+  class="map"
+  role="img"
+  aria-label="Minimap: the whole pipeline with the visible area outlined"
+  i18n-aria-label="@@label.minimap"
+  data-testid="minimap"
+  [style.width.px]="size.w"
+  [style.height.px]="size.h"
+  (pointerdown)="press($event)"
+>
+  @for (g of d.groups; track g.id) {
+    <i
+      class="mm-group"
+      [attr.data-color]="g.color ?? 'gray'"
+      [style.left.px]="g.x"
+      [style.top.px]="g.y"
+      [style.width.px]="g.w"
+      [style.height.px]="g.h"
+    ></i>
+  }
+  @for (n of d.nodes; track n.id) {
+    <i
+      class="mm-node"
+      [attr.data-color]="n.color"
+      [attr.data-minimap-node]="n.id"
+      [style.left.px]="n.x"
+      [style.top.px]="n.y"
+      [style.width.px]="n.w"
+      [style.height.px]="n.h"
+    ></i>
+  }
+  <i
+    class="mm-view"
+    data-testid="minimap-view"
+    [style.left.px]="d.view.x"
+    [style.top.px]="d.view.y"
+    [style.width.px]="d.view.w"
+    [style.height.px]="d.view.h"
+  ></i>
+</div>

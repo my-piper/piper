@@ -534,3 +534,26 @@ test("groups the selected nodes and moves them together by the frame's bar", asy
   expect(after.y - before.y).toBeCloseTo(60, 0);
   await expect(frame.locator(".group-count")).toHaveText("2 nodes");
 });
+
+test("moves the view from the minimap and hides it from the zoom toolbar", async ({
+  page,
+  open,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const map = page.getByTestId("minimap");
+  await expect(map).toBeVisible();
+  const scroller = page.locator("app-edit-pipeline-visual > .nodes");
+  const before = await scroller.evaluate((el) => [el.scrollLeft, el.scrollTop]);
+  const box = await map.boundingBox();
+
+  await page.mouse.click(box.x + box.width - 4, box.y + box.height - 4);
+
+  const after = await scroller.evaluate((el) => [el.scrollLeft, el.scrollTop]);
+  expect(after[0] + after[1]).toBeGreaterThan(before[0] + before[1]);
+
+  await page.getByTestId("minimap-toggle").click();
+  await expect(map).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId("node-node_one")).toBeVisible();
+  await expect(page.getByTestId("minimap")).toHaveCount(0);
+});

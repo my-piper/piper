@@ -220,6 +220,21 @@
       </svg>
     </span>
   </button>
+  <button
+    tuiIconButton
+    appearance="outline-grayscale"
+    size="xs"
+    class="round"
+    type="button"
+    data-testid="minimap-toggle"
+    title="Minimap"
+    i18n-title="@@label.minimap_toggle"
+    iconStart="@tui.map"
+    style="--app-icon-size: 16px"
+    [class.toggled]="minimap"
+    [attr.aria-pressed]="minimap"
+    (click)="toggleMinimap()"
+  ></button>
   <ng-template #canvasHintTemplate>
     <dl class="canvas-hint" data-testid="canvas-hint">
       <dt i18n="@@label.canvas_hint_pan">Pan</dt>
@@ -287,9 +302,19 @@
   ></button>
 </div>
 
+@if (minimap && viewport) {
+  <app-canvas-minimap
+    class="minimap"
+    [pipeline]="pipeline"
+    [view]="viewport"
+    (centerAt)="centerOn($event)"
+  />
+}
+
 <div
   #nodesRef
   class="nodes"
+  (scroll)="updateViewport()"
   (dblclick)="canEdit && openNodeSearch($event)"
   [canvasPan]="{ ignore: '.node, .input, .output, .flow, .actions' }"
   [scrollInside]="{

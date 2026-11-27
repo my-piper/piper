@@ -17,6 +17,14 @@
   z-index: 6;
 }
 
+// The minimap (#336), in the canvas's bottom-right corner.
+.minimap {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 3;
+}
+
 .modal {
   header {
     display: flex;

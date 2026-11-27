@@ -53,6 +53,7 @@ import { PipelineInputComponent } from "src/app/pipeline-input/pipeline-input.co
 import { PipelineOutputComponent } from "src/app/pipeline-output/pipeline-output.component";
 import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
+import { CanvasMinimapComponent } from "src/app/canvas-minimap/canvas-minimap.component";
 import { DrawerCloseComponent } from "src/app/drawer-close/drawer-close.component";
 import { NodeSearchComponent } from "src/app/node-search/node-search.component";
 import { SelectNodeComponent } from "src/app/select-node/select-node.component";
@@ -297,6 +298,7 @@ import { UsersComponent } from "./users/users.component";
     ParseJsonPipe,
   ],
   imports: [
+    CanvasMinimapComponent,
     DrawerCloseComponent,
     BrowserModule,
     RouterModule,

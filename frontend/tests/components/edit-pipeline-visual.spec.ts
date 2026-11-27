@@ -2330,4 +2330,24 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
   });
+  describe("minimap", () => {
+    afterEach(() => localStorage.removeItem("canvas_minimap"));
+
+    it("shows the minimap until it is turned off, and remembers that", fakeAsync(() => {
+      const { element, detectChanges } = setupEditor();
+      tick();
+      detectChanges();
+      const shown = !!element.querySelector("app-canvas-minimap");
+
+      element
+        .querySelector<HTMLElement>('[data-testid="minimap-toggle"]')
+        .click();
+      detectChanges();
+
+      expect(shown).toBe(true);
+      expect(element.querySelector("app-canvas-minimap")).toBeNull();
+      expect(localStorage.getItem("canvas_minimap")).toBe("false");
+      finish();
+    }));
+  });
 });
