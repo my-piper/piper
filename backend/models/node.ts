@@ -364,10 +364,13 @@ export class NodeStatus {
   }
 }
 
+export const LOG_LEVELS = ["debug", "info", "warn", "error"] as const;
+export type LogLevel = (typeof LOG_LEVELS)[number];
+
 export class NodeLog {
   @Expose()
   @Type(() => String)
-  level: "debug" | "info" | "warn" | "error";
+  level: LogLevel;
 
   @Expose()
   @Type(() => String)
