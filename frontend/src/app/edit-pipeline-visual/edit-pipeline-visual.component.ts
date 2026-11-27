@@ -42,6 +42,7 @@ import { AppConfig } from "src/models/app-config";
 import { Arrange } from "src/models/arrange";
 import { InputFlow } from "src/models/input-flow";
 import { Launch } from "src/models/launch";
+import { LaunchRun } from "src/models/launch-run";
 import { LaunchRequest, NodeToLaunch } from "src/models/launch-request";
 import {
   Node,
@@ -182,9 +183,15 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
 
   /** Run states the canvas nodes report, keyed by node id. */
   nodeStates: Record<string, NodeRunState> = {};
-  /** Time since the launch started, while the canvas sees it run. */
+  /**
+   * Time since the launch started, while the canvas sees it run; the recorded
+   * total when it opens an already finished launch.
+   */
   elapsed: string | null = null;
   private clock: ReturnType<typeof setInterval> | null = null;
+  /** The clock ran for this launch, so its frozen value stays. */
+  private clocked = false;
+  private runRequested = false;
   launches: {
     [key: string]: Launch;
   } = {};
@@ -279,6 +286,8 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
         mode || "project",
       ];
       this.interrupted = false;
+      this.clocked = false;
+      this.runRequested = false;
       if (this.mode === "project") {
         this.checkDeployNodes();
       }
@@ -352,8 +361,10 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
 
   /** Ticks while a node runs; stopping freezes the last value. */
   private syncClock() {
-    const running = this.launchState === "running";
+    const state = this.launchState;
+    const running = state === "running";
     if (running && !this.clock) {
+      this.clocked = true;
       this.tick();
       this.clock = setInterval(() => {
         this.tick();
@@ -363,7 +374,39 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       clearInterval(this.clock);
       this.clock = null;
       this.tick();
+    } else if (state === "done" || state === "failed") {
+      this.showRecordedRun();
     }
+  }
+
+  /**
+   * On opening a finished launch no node runs, so the clock never starts: the
+   * total comes from the launch's recorded run, when there is one.
+   */
+  private showRecordedRun() {
+    const launch = this.launch;
+    if (!launch || this.clocked || this.runRequested) {
+      return;
+    }
+    this.runRequested = true;
+    this.http
+      .get(`launches/${launch._id}/run`)
+      .pipe(
+        map((json) => (json ? toInstance(json as object, LaunchRun) : null)),
+      )
+      .subscribe({
+        next: (run) => {
+          if (
+            Number.isFinite(run?.durationMs) &&
+            !this.clocked &&
+            this.launch === launch
+          ) {
+            this.elapsed = formatElapsed(run!.durationMs);
+            this.cd.detectChanges();
+          }
+        },
+        error: () => {},
+      });
   }
 
   private tick() {
