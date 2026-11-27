@@ -19,6 +19,7 @@ import {
   projectAPlain,
   projectBPlain,
   userPlain,
+  UserKind,
 } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
 import { expectConsoleError } from "../helpers/console";
@@ -67,8 +68,9 @@ describe("ProjectsComponent tags and groups", () => {
     counts: object[],
     url = "/projects",
     importPage: Type<unknown> = OutletStubComponent,
+    user: UserKind = "owner",
   ) {
-    seedAuthorization(userPlain("owner"));
+    seedAuthorization(userPlain(user));
     configureAppTestingModule([
       { path: "", component: OutletStubComponent },
       {
@@ -84,7 +86,7 @@ describe("ProjectsComponent tags and groups", () => {
     fixture.detectChanges();
     element = fixture.debugElement.query(By.directive(ProjectsComponent))
       .nativeElement as HTMLElement;
-    controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
+    controller.match("/api/me").forEach((r) => r.flush(userPlain(user)));
     controller.expectOne("/api/projects/tags/available").flush(tags);
     controller.expectOne("/api/projects/groups/counts").flush(counts);
   }
@@ -172,6 +174,87 @@ describe("ProjectsComponent tags and groups", () => {
 
     expect(selected.request.params.getAll("tags")).toEqual(["image"]);
     expect(cleared.request.params.has("tags")).toBe(false);
+    fixture.destroy();
+    finish();
+  }));
+
+  it("filters by the tags of the link it was opened with", fakeAsync(() => {
+    mount(
+      ["image", "video"],
+      [],
+      "/projects?tag=image&tag=gone&tag=image&tag=",
+    );
+
+    const list = expectList();
+    answer(list, []);
+
+    expect(list.request.params.getAll("tags")).toEqual(["image", "gone"]);
+    const chips = element.querySelectorAll("tui-filter label");
+    expect(Array.from(chips).map((c) => c.textContent.trim())).toEqual([
+      "#image",
+      "#video",
+      "#gone",
+    ]);
+    expect(tagChips().map((c) => c.checked)).toEqual([true, false, true]);
+    fixture.destroy();
+    finish();
+  }));
+
+  it("opens the import page without dropping the selected tags", fakeAsync(() => {
+    mount(["image"], [], "/projects?tag=image", OutletStubComponent, "admin");
+    answer(expectList(), []);
+
+    const link = Array.from(element.querySelectorAll("a")).find(
+      (a) => a.textContent.trim() === "Import",
+    );
+
+    expect(link.getAttribute("href")).toBe("/projects/import?tag=image");
+    fixture.destroy();
+    finish();
+  }));
+
+  it("follows the tags of a link that opens it again", fakeAsync(() => {
+    mount(["image", "video"], [], "/projects?tag=image");
+    answer(expectList(), []);
+    const router = TestBed.inject(Router);
+
+    router.navigateByUrl("/projects?tag=video");
+    tick();
+    const other = expectList();
+    answer(other, []);
+    router.navigateByUrl("/projects");
+    tick();
+    const cleared = expectList();
+    answer(cleared, []);
+
+    expect(other.request.params.getAll("tags")).toEqual(["video"]);
+    expect(cleared.request.params.has("tags")).toBe(false);
+    expect(tagChips().map((c) => c.checked)).toEqual([false, false]);
+    fixture.destroy();
+    finish();
+  }));
+
+  it("keeps the selected tags in the URL", fakeAsync(() => {
+    mount(["image", "video"], [], "/projects?folder=Marketing");
+    answer(expectList(), []);
+    const router = TestBed.inject(Router);
+
+    tagChips()[0].click();
+    tick();
+    answer(expectList(), []);
+    const selected = router.url;
+    tagChips()[1].click();
+    tick();
+    answer(expectList(), []);
+    const both = router.url;
+    tagChips()[0].click();
+    tagChips()[1].click();
+    tick();
+    controller.match((r) => r.url === "/api/projects");
+
+    expect(selected).toBe("/projects?folder=Marketing&tag=image");
+    expect(both).toBe("/projects?folder=Marketing&tag=image&tag=video");
+    expect(router.url).toBe("/projects?folder=Marketing");
     fixture.destroy();
     finish();
   }));
@@ -461,14 +544,19 @@ describe("ProjectsComponent tags and groups", () => {
     controller.verify();
   });
 
-  it("adds an imported project on top of the list and closes the dialog", async () => {
+  it("adds an imported project on top of the filtered list and closes the dialog", async () => {
     const modal = () => document.querySelector("tui-dialog");
     const titles = () =>
       Array.from(element.querySelectorAll("tbody td.title a")).map((a) =>
         a.textContent.trim(),
       );
     fakeAsync(() => {
-      mount([], [], "/projects/import", ImportProjectComponent);
+      mount(
+        ["image"],
+        [],
+        "/projects/import?tag=image",
+        ImportProjectComponent,
+      );
       answer(expectList(), [projectAPlain()]);
       finish();
     })();
@@ -492,7 +580,7 @@ describe("ProjectsComponent tags and groups", () => {
         fixture.detectChanges();
         return router.url;
       })
-      .toBe("/projects");
+      .toBe("/projects?tag=image");
 
     expect(request.request.body).toEqual({ yaml: "name: Imported" });
     expect(titles()).toEqual(["Project B", "Project A"]);

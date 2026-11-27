@@ -76,17 +76,7 @@
 }
 
 .tags {
-    list-style: none;
-    padding: 0;
-    margin: 0;
     display: flex;
     flex-wrap: wrap;
     gap: variables.$gutter-small;
-
-    li {
-        background: variables.$primary-light-color;
-        padding: variables.$gutter-tiny variables.$gutter-small;
-        border-radius: variables.$corner-large;
-        font-size: 0.85em;
-    }
 }

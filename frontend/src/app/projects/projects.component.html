@@ -46,6 +46,7 @@
         tuiButton
         appearance="secondary"
         [routerLink]="['import']"
+        queryParamsHandling="preserve"
         i18n="@@link.import"
       >
         Import
@@ -64,13 +65,13 @@
     </form>
   </header>
 
-  @if (allTags.length > 0) {
+  @if (filterTags.length > 0) {
     <ng-template #tagTemplate let-t>#{{ t | i18n }}</ng-template>
     <form class="tags" [formGroup]="form">
       <tui-filter
         formControlName="tags"
         size="s"
-        [items]="allTags"
+        [items]="filterTags"
         [content]="tagTemplate"
       />
     </form>

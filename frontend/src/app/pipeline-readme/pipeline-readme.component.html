@@ -1,13 +1,19 @@
-@if (project.pipeline.tags; as tags) {
-  <ul class="tags">
-    @for (t of tags; track t) {
-      <li>
-        @if (t | i18n; as tag) {
-          <a [routerLink]="['../..', { tag }]">#{{ tag }}</a>
-        }
-      </li>
+@if (project.pipeline.tags?.length) {
+  <div class="tags">
+    @for (t of project.pipeline.tags; track t) {
+      @if (t) {
+        <a
+          tuiChip
+          size="xs"
+          appearance="neutral"
+          routerLink="/projects"
+          [queryParams]="{ tag: t }"
+        >
+          #{{ t | i18n }}
+        </a>
+      }
     }
-  </ul>
+  </div>
 }
 
 @if (project?.pipeline?.readme; as readme) {
