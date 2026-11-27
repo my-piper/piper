@@ -63,7 +63,8 @@ $gutter-none: 0;
 $gutter-tiny: $gutter-base;
 $gutter-small: $gutter-base * 2;
 $gutter-normal: $gutter-base * 4;
-$gutter-big: $gutter-base * 5;
+// 12px: every gutter sits on the 4px grid (docs/design.md) except tiny.
+$gutter-big: $gutter-base * 6;
 $gutter-large: $gutter-base * 6;
 $gutter-huge: $gutter-base * 8;
 
