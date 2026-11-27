@@ -1,7 +1,4 @@
 import {
-  afterNextRender,
-  computed,
-  signal,
   ChangeDetectorRef,
   Component,
   DestroyRef,
@@ -14,27 +11,14 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import {
-  ActivatedRoute,
-  NavigationEnd,
-  ParamMap,
-  Router,
-} from "@angular/router";
-import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
+import { ActivatedRoute, ParamMap, Router } from "@angular/router";
+import { TuiDialogService } from "@taiga-ui/core";
 import { plainToInstance } from "class-transformer";
 import escape from "lodash/escape";
 import isEqual from "lodash/isEqual";
 import last from "lodash/last";
 import uniq from "lodash/uniq";
-import {
-  EMPTY,
-  Subscription,
-  debounceTime,
-  delay,
-  filter,
-  finalize,
-  map,
-} from "rxjs";
+import { Subscription, debounceTime, delay, filter, finalize, map } from "rxjs";
 import { DisplayError } from "src/models/errors";
 import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
@@ -59,7 +43,6 @@ import {
   removeFromFolders,
 } from "./folders";
 import { ImportProjectComponent } from "./import/import-project.component";
-import { dialogLabel } from "src/utils/route-dialog";
 // the tags of a projects link, without blanks and repeats
 function tagsOf(params: ParamMap): string[] {
   return uniq(params.getAll("tag").filter((t) => !!t));
@@ -90,11 +73,6 @@ const TEST_REQUEST = {
   styleUrls: ["./projects.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
-  providers: [
-    // Keep the child router context and let the route control the dialog lifetime.
-    TuiDialogService,
-    { provide: TUI_DIALOGS_CLOSE, useValue: EMPTY },
-  ],
 })
 export class ProjectsComponent implements OnInit {
   private readonly dialogs = inject(TuiDialogService);
@@ -114,21 +92,6 @@ export class ProjectsComponent implements OnInit {
 
   @ViewChildren("nameInput")
   nameInputs!: QueryList<ElementRef<HTMLInputElement>>;
-
-
-  // the root popup host must exist before opening a dialog on direct route entry
-  private readonly dialogReady = signal(false);
-  // a signal rather than a getter over route.firstChild, so OnPush re-renders
-  // when navigation opens or closes the child route
-  private readonly childActive = signal(false);
-  readonly dialogOpen = computed(
-    () => this.dialogReady() && this.childActive(),
-  );
-  // the child route names the dialog
-  readonly dialogOptions = computed(() => ({
-    size: "l" as const,
-    label: this.childActive() ? dialogLabel(this.route) : undefined,
-  }));
 
   activate(modal: unknown) {
     if (modal instanceof ImportProjectComponent) {
@@ -164,16 +127,7 @@ export class ProjectsComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private fb: FormBuilder,
     private destroyRef: DestroyRef,
-  ) {
-    afterNextRender(() => this.dialogReady.set(true));
-    this.childActive.set(!!this.route.firstChild);
-    this.router.events
-      .pipe(
-        filter((e) => e instanceof NavigationEnd),
-        takeUntilDestroyed(destroyRef),
-      )
-      .subscribe(() => this.childActive.set(!!this.route.firstChild));
-  }
+  ) {}
 
   // like a finder search: results come from every folder
   get searching(): boolean {
@@ -552,12 +506,5 @@ export class ProjectsComponent implements OnInit {
         },
         error: (err) => (this.error = err),
       });
-  }
-
-  back() {
-    this.router.navigate(["./"], {
-      relativeTo: this.route,
-      queryParamsHandling: "preserve",
-    });
   }
 }

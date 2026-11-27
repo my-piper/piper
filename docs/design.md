@@ -36,7 +36,8 @@ Style new UI through the tokens (`var(--surface-1)`, `var(--text-muted)`, `var(-
 
 Dialogs are `tuiDialog` templates (`docs/taiga-ui-notes.md`), styled in `src/styles/dialogs.scss` (#347):
 
-- **The title is the dialog's `label`.** Content never repeats it in an `<h1>`. A page routed into a parent's dialog (`<router-outlet>` inside `ng-template[tuiDialog]`) names it in its route's `data.dialogLabel` (text, or a function of the route's resolved data); the parent passes `dialogLabel(route)` from `src/utils/route-dialog.ts` as the label.
+- **The title is the dialog's `label`.** Content never repeats it in an `<h1>`.
+- **Child routes open in `<app-routed-dialog>`** (#348). A page that shows its child routes in a dialog renders `<app-routed-dialog>`, never its own `.modal` overlay. The dialog is open while a child route is active, and closing it navigates back to the parent. Each child route names the dialog in `data.dialogLabel` (text, or a function of the route's resolved data, from `src/utils/route-dialog.ts`). The parent sets `size` (`l` by default), `[dismissible]="false"` for forms, so Esc and an outside click don't drop edits, and `[keepQuery]="true"` when its query is a filter. `(activate)` hands over the child component.
 - **Sections inside the content are `<h2>`**, styled by the dialog (`heading-h6`, no margin).
 - **The content root sets no padding or width.** The dialog pads it with `space-4` as a border-box block, at zero specificity, so a root's own `display: flex | grid` and `gap` apply. A root with `width: 100%` or a viewport width overflows the dialog; size wide content with the dialog's `size` instead.
 - **Actions sit in a `<footer>` that ends the content**: a `flat-grayscale` Cancel, then the named primary action, right-aligned.
