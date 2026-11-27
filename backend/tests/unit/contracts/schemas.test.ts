@@ -103,6 +103,46 @@ function withEchoNode(changes: Record<string, unknown>) {
   };
 }
 
+describe("production pipeline schema for node layout", () => {
+  function withArrange(arrange: object) {
+    const pipeline = pipelineFixture();
+    const node = pipeline.nodes.echo_node;
+    return {
+      ...pipeline,
+      nodes: {
+        echo_node: { ...node, arrange: { ...node.arrange, ...arrange } },
+      },
+    };
+  }
+
+  it("keeps a collapsed, resized node through model transformation", () => {
+    const pipeline = withArrange({ collapsed: true, w: 320 });
+
+    const valid = validatePipeline(pipeline);
+    const restored = toPlain(toInstance(pipeline, Pipeline)) as {
+      nodes: Record<string, { arrange: object }>;
+    };
+
+    expect(valid).toBe(true);
+    expect(validatePipeline(restored)).toBe(true);
+    expect(restored.nodes.echo_node.arrange).toEqual(
+      expect.objectContaining({ collapsed: true, w: 320 })
+    );
+  });
+
+  it.each([
+    { w: 100, keyword: "minimum" },
+    { w: 800, keyword: "maximum" },
+  ])("rejects a node width of $w", ({ w, keyword }) => {
+    const valid = validatePipeline(withArrange({ w }));
+
+    expect(valid).toBe(false);
+    expect(validatePipeline.errors).toContainEqual(
+      expect.objectContaining({ keyword })
+    );
+  });
+});
+
 describe("production pipeline schema for deploy nodes", () => {
   it("accepts a node running a Deploy before and after model transformation", () => {
     const pipeline = withEchoNode({

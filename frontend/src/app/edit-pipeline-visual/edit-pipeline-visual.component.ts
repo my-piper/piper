@@ -1520,6 +1520,47 @@ export class EditPipelineVisualComponent implements OnDestroy {
     }
   }
 
+  /** Collapses a node to its title bar, or expands it (#320). */
+  setCollapsed(id: string, collapsed: boolean) {
+    const node = this.pipeline.nodes.get(id);
+    // The node offers the toggle only to people who can edit (canEdit).
+    if (!node || this.mode !== "project") {
+      return;
+    }
+    node.arrange ??= new Arrange({ x: 0, y: 0 });
+    node.arrange.collapsed = collapsed || undefined;
+    this.save();
+    this.cd.detectChanges();
+  }
+
+  /**
+   * A wire dropped on a collapsed node joins its first featured input that
+   * takes the wire's type and has no wire yet, else the first that takes it.
+   */
+  dropOnCollapsed(id: string) {
+    const node = this.pipeline.nodes.get(id);
+    const accepts = this.flow ? this.flowAccepts(this.flow) : null;
+    if (!node || !accepts) {
+      return;
+    }
+    const wired = (key: string) =>
+      [...(this.pipeline.flows?.values() ?? [])].some(
+        (f) => f.to === id && f.input === key,
+      ) ||
+      [...(this.pipeline.inputs?.values() ?? [])].some((i) =>
+        [...(i.flows?.values() ?? [])].some(
+          (f) => f.to === id && f.input === key,
+        ),
+      );
+    const fits = [...node.inputs.entries()].filter(
+      ([, input]) => input.featured && accepts.includes(input.type),
+    );
+    const [key] = fits.find(([k]) => !wired(k)) ?? fits[0] ?? [];
+    if (key) {
+      this.addFlow(id, key);
+    }
+  }
+
   /**
    * A node's inline widget changed an input value. Writes it where the node
    * drawer does, as a new map so the canvas re-reads it; `null` drops it,

@@ -1,6 +1,12 @@
+import { Arrange } from "src/models/arrange";
 import { Node } from "src/models/node";
 import { toInstance } from "src/utils/models";
-import { inputOffset, nodeLayout, widgetKind } from "src/utils/node-layout";
+import {
+  inputOffset,
+  nodeLayout,
+  outputOffset,
+  widgetKind,
+} from "src/utils/node-layout";
 
 function node(inputs: object, outputs: object = {}) {
   return toInstance({ _id: "n", title: "N", inputs, outputs }, Node);
@@ -47,5 +53,24 @@ describe("node layout", () => {
     const offset = inputOffset(node({}), "gone");
 
     expect(offset).toBe(14);
+  });
+
+  it("puts every socket of a collapsed node on its title bar", () => {
+    const n = node(
+      {
+        image: { order: 1, type: "image", featured: true },
+        steps: { order: 2, type: "integer", featured: true },
+      },
+      { a: { type: "image" }, b: { type: "json" } },
+    );
+    n.arrange = toInstance({ x: 0, y: 0, collapsed: true }, Arrange);
+
+    const layout = nodeLayout(n);
+
+    expect(layout).toEqual({ sockets: [], widgets: [], height: 28 });
+    expect([inputOffset(n, "image"), inputOffset(n, "steps")]).toEqual([
+      14, 14,
+    ]);
+    expect([outputOffset(n, "a"), outputOffset(n, "b")]).toEqual([14, 14]);
   });
 });

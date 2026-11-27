@@ -1757,4 +1757,91 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
   });
+  describe("collapsed nodes", () => {
+    function toggle(element: HTMLElement, id: string) {
+      return nodeElement(element, id).querySelector<HTMLButtonElement>(
+        '[data-testid="node-collapse"]',
+      );
+    }
+
+    it("collapses a node to its title bar and expands it again", fakeAsync(() => {
+      const project = connectionProject();
+      const { element, detectChanges, manager } = setupEditor({ project });
+      const node = project.pipeline.nodes.get("node_three");
+
+      toggle(element, "node_three").click();
+      detectChanges();
+      const collapsed = {
+        stored: node.arrange.collapsed,
+        ports: nodeElement(element, "node_three").querySelector(".ports"),
+        count: nodeElement(element, "node_three")
+          .querySelector('[data-testid="node-title"]')
+          ?.getAttribute("title"),
+        label: toggle(element, "node_three").getAttribute("aria-label"),
+      };
+      toggle(element, "node_three").click();
+      detectChanges();
+
+      expect(collapsed).toEqual({
+        stored: true,
+        ports: null,
+        count: "Typed ports · 6 in · 2 out",
+        label: "Expand node",
+      });
+      expect(node.arrange.collapsed).toBeUndefined();
+      expect(
+        nodeElement(element, "node_three").querySelector(".ports"),
+      ).not.toBeNull();
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("ends a collapsed node's wires on its title bar", fakeAsync(() => {
+      const project = connectionProject();
+      const node = project.pipeline.nodes.get("node_two");
+      node.arrange.collapsed = true;
+      const { element } = setupEditor({ project });
+
+      const { x, y } = node.arrange;
+      const ends = Array.from(
+        element.querySelectorAll(".pane > svg path:not(.param):not(.pending)"),
+      )
+        .map((p) => p.getAttribute("d"))
+        .filter((d) => d.endsWith(`${x},${y + 14}`));
+
+      expect(ends.length).toBe(1);
+      finish();
+    }));
+
+    it("joins a wire dropped on a collapsed node to its first free fitting input", fakeAsync(() => {
+      const project = connectionProject();
+      project.pipeline.nodes.get("node_three").arrange.collapsed = true;
+      const { element, detectChanges } = setupEditor({ project });
+
+      mouse(outputPin(nodeElement(element, "node_one"), "Text"), "mousedown");
+      detectChanges();
+      mouse(
+        nodeElement(element, "node_three").querySelector(
+          '[data-testid="collapsed-input"]',
+        ),
+        "mouseup",
+      );
+      detectChanges();
+
+      expect(flowsBetween(project, "node_one", "node_three")).toEqual([
+        expect.objectContaining({ output: "text", input: "words" }),
+      ]);
+      finish();
+    }));
+
+    it("shows a collapsed node to a viewer without letting them expand it", fakeAsync(() => {
+      const project = connectionProject();
+      project.pipeline.nodes.get("node_three").arrange.collapsed = true;
+      const { element } = setupEditor({ project, user: "stranger" });
+
+      expect(toggle(element, "node_three").disabled).toBe(true);
+      expect(toggle(element, "node_two")).toBeNull();
+      finish();
+    }));
+  });
 });

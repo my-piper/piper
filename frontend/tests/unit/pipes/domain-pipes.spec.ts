@@ -3,7 +3,8 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { Pipeline } from "src/models/pipeline";
 import { User, UserRole } from "src/models/user";
 import { CanPipe } from "src/pipes/can";
-import { InputFlowsPipe, OutputIndexPipe } from "src/pipes/node";
+import { InputFlowsPipe } from "src/pipes/node";
+import { outputOffset } from "src/utils/node-layout";
 import { PipelineInputPipe } from "src/pipes/input";
 import { MeManager } from "src/services/me.service";
 import { ProjectManager } from "src/services/project.manager";
@@ -156,12 +157,13 @@ describe("domain pipes", () => {
       expect(flows.getValue()).toEqual([]);
     });
 
-    it("indexes outputs in sorted key order", () => {
+    it("places outputs in sorted key order", () => {
       const node = smallGraph().nodes.get("node_two");
 
-      const index = new OutputIndexPipe().transform(node, "result");
+      const offset = outputOffset(node, "result");
 
-      expect(index).toBe(1);
+      // The second row: 1px border + 26px title + 4px padding + 22 + 11.
+      expect(offset).toBe(64);
     });
 
     it("rejects unknown pipeline inputs explicitly", () => {

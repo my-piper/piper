@@ -1,6 +1,9 @@
 import { UI } from "src/consts/ui";
 import { Node, NodeInput } from "src/models/node";
 
+/** The title bar's centre from the node's top (below its 1px border). */
+const TITLE_CENTRE = 1 + UI.node.title / 2;
+
 /** Widget rows a multi-line text input takes (#306). */
 const MULTILINE_ROWS = 3;
 
@@ -53,6 +56,10 @@ export function widgetKind(input: NodeInput): WidgetKind | null {
  * bar and the ports' padding, so wires meet the socket centres.
  */
 export function nodeLayout(node: Node): NodeLayout {
+  // Collapsed (#320): only the title bar; every socket sits at its centre.
+  if (node.arrange?.collapsed) {
+    return { sockets: [], widgets: [], height: TITLE_CENTRE * 2 };
+  }
   const row = UI.node.input.height;
   const top = 1 + UI.node.title + UI.node.padding;
   const sockets: InputRow[] = [];
@@ -88,5 +95,19 @@ export function nodeLayout(node: Node): NodeLayout {
 export function inputOffset(node: Node, input: string): number {
   const { sockets, widgets } = nodeLayout(node);
   const found = [...sockets, ...widgets].find(({ id }) => id === input);
-  return found?.y ?? 1 + UI.node.title / 2;
+  return found?.y ?? TITLE_CENTRE;
+}
+
+/**
+ * The socket centre of `output` from the node's top: outputs are socket rows
+ * in key order; on a collapsed node, the title bar's centre.
+ */
+export function outputOffset(node: Node, output: string): number {
+  const keys = [...(node.outputs?.keys() ?? [])].sort();
+  const index = keys.indexOf(output);
+  if (node.arrange?.collapsed || index < 0) {
+    return TITLE_CENTRE;
+  }
+  const row = UI.node.input.height;
+  return 1 + UI.node.title + UI.node.padding + index * row + row / 2;
 }

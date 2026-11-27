@@ -663,6 +663,8 @@
           (done)="mode === 'project' ? fillNodeOutputs(node.key, $event) : null"
           (setOutput)="setNodeOutput(node.key, $event.output, $event.value)"
           (inputChange)="setNodeInput(node.key, $event.input, $event.value)"
+          (collapse)="setCollapsed(node.key, $event)"
+          (collapsedDrop)="!!flow ? dropOnCollapsed(node.key) : null"
           (takeOutInput)="takeOutPipelineInput($event)"
           (takeOutOutput)="takeOutPipelineOutput($event)"
           (click)="
@@ -686,13 +688,11 @@
                 : {
                     x: ui.node.width,
                     y:
-                      ((pipeline
-                        | node: f.value.from
-                        | async
-                        | outputIndex: f.value.output) +
-                        1) *
-                        ui.node.input.height +
-                      ui.node.shift,
+                      (pipeline
+                      | node: f.value.from
+                      | async
+                      | outputOffset: f.value.output
+                      | async),
                   }
               | center
                 : ((pipeline | node: f.value.to | async).arrange
@@ -767,13 +767,11 @@
                     : {
                         x: ui.node.width,
                         y:
-                          ((pipeline
-                            | node: flow.from
-                            | async
-                            | outputIndex: flow.output) +
-                            1) *
-                            ui.node.input.height +
-                          ui.node.shift,
+                          (pipeline
+                          | node: flow.from
+                          | async
+                          | outputOffset: flow.output
+                          | async),
                       }
                   | curve: (mouse | multiply: pipeline.layout.zoom || 1)
               "
@@ -806,13 +804,11 @@
                 : {
                     x: ui.node.width,
                     y:
-                      ((pipeline
-                        | node: f.value.from
-                        | async
-                        | outputIndex: f.value.output) +
-                        1) *
-                        ui.node.input.height +
-                      ui.node.shift,
+                      (pipeline
+                      | node: f.value.from
+                      | async
+                      | outputOffset: f.value.output
+                      | async),
                   }
               | curve
                 : ((pipeline | node: f.value.to | async).arrange
@@ -872,13 +868,11 @@
                   : {
                       x: ui.node.width,
                       y:
-                        ((pipeline
-                          | node: f.value.from
-                          | async
-                          | outputIndex: f.value.output) +
-                          1) *
-                          ui.node.input.height +
-                        ui.node.shift,
+                        (pipeline
+                        | node: f.value.from
+                        | async
+                        | outputOffset: f.value.output
+                        | async),
                     }
                 | curve: (pipeline | pipelineOutput: o.key).arrange
             "
@@ -901,13 +895,11 @@
                         : {
                             x: ui.node.width,
                             y:
-                              ((pipeline
-                                | node: o.value.from
-                                | async
-                                | outputIndex: o.value.output) +
-                                1) *
-                                ui.node.input.height +
-                              ui.node.shift,
+                              (pipeline
+                              | node: o.value.from
+                              | async
+                              | outputOffset: o.value.output
+                              | async),
                           })
             "
           />
