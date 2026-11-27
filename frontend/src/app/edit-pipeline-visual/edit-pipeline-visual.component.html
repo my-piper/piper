@@ -780,13 +780,120 @@
           [attr.data-testid]="'group-bar-' + g.key"
           (pointerdown)="canEdit && dragGroup($event, g.key, 'move')"
         >
-          <span class="group-dot"></span>
-          <span class="group-title">{{ g.value.title }}</span>
+          <ng-template #groupPalette>
+            <div class="group-palette" role="group" aria-label="Group colour">
+              @for (color of groupColors; track color) {
+                <button
+                  type="button"
+                  class="group-swatch"
+                  [attr.data-color]="color"
+                  [attr.aria-label]="color"
+                  [attr.aria-pressed]="(g.value.color ?? 'gray') === color"
+                  [attr.data-testid]="'group-color-' + color"
+                  (click)="setGroupColor(g.key, color)"
+                ></button>
+              }
+            </div>
+          </ng-template>
+          @if (canEdit) {
+            <button
+              type="button"
+              class="group-dot"
+              aria-label="Group colour"
+              i18n-aria-label="@@label.group_colour"
+              [attr.data-testid]="'group-dot-' + g.key"
+              [tuiDropdown]="groupPalette"
+              [tuiDropdownOpen]="openGroupMenu === 'color:' + g.key"
+              (tuiDropdownOpenChange)="
+                openGroupMenu = $event ? 'color:' + g.key : null
+              "
+              (pointerdown)="$event.stopPropagation()"
+            ></button>
+          } @else {
+            <span class="group-dot"></span>
+          }
+          @if (renamingGroup === g.key) {
+            <input
+              #groupTitle
+              class="group-title-field"
+              [attr.data-testid]="'group-title-field-' + g.key"
+              aria-label="Group title"
+              i18n-aria-label="@@label.group_title"
+              [value]="g.value.title"
+              (pointerdown)="$event.stopPropagation()"
+              (keydown.enter)="renameGroup(g.key, groupTitle.value)"
+              (keydown.escape)="renamingGroup = null; $event.stopPropagation()"
+              (blur)="renameGroup(g.key, groupTitle.value)"
+            />
+          } @else {
+            <span
+              class="group-title"
+              [attr.data-testid]="'group-title-' + g.key"
+              (dblclick)="canEdit && startRenameGroup(g.key)"
+              >{{ g.value.title }}</span
+            >
+          }
           <span class="group-count">{{
             groupNodeCount(g.value) === 1
               ? "1 node"
               : groupNodeCount(g.value) + " nodes"
           }}</span>
+          @if (canEdit) {
+            <ng-template #groupMenu>
+              <tui-data-list>
+                <button
+                  tuiOption
+                  type="button"
+                  i18n="@@action.rename"
+                  (click)="startRenameGroup(g.key)"
+                >
+                  Rename
+                </button>
+                <button
+                  tuiOption
+                  type="button"
+                  i18n="@@action.fit_to_nodes"
+                  (click)="fitGroup(g.key)"
+                >
+                  Fit to nodes
+                </button>
+                <button
+                  tuiOption
+                  type="button"
+                  i18n="@@action.ungroup"
+                  (click)="ungroup(g.key)"
+                >
+                  Ungroup
+                </button>
+                <button
+                  tuiOption
+                  type="button"
+                  class="danger"
+                  i18n="@@action.delete_with_nodes"
+                  (click)="confirmDeleteGroup(g.key)"
+                >
+                  Delete with nodes
+                </button>
+              </tui-data-list>
+            </ng-template>
+            <button
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="xs"
+              type="button"
+              class="group-menu"
+              iconStart="@tui.ellipsis"
+              aria-label="Group menu"
+              i18n-aria-label="@@label.group_menu"
+              [attr.data-testid]="'group-menu-' + g.key"
+              [tuiDropdown]="groupMenu"
+              [tuiDropdownOpen]="openGroupMenu === 'menu:' + g.key"
+              (tuiDropdownOpenChange)="
+                openGroupMenu = $event ? 'menu:' + g.key : null
+              "
+              (pointerdown)="$event.stopPropagation()"
+            ></button>
+          }
         </header>
         @if (canEdit) {
           <span

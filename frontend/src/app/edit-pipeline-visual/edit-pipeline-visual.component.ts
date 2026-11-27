@@ -81,7 +81,13 @@ import {
   refreshFromDeploy,
 } from "src/utils/deploy-node";
 import { acceptedInputTypes } from "src/utils/flow-types";
-import { frameAround, GROUP_MIN, groupMembers } from "src/utils/groups";
+import {
+  frameAround,
+  GROUP_COLORS,
+  GROUP_MIN,
+  GroupColor,
+  groupMembers,
+} from "src/utils/groups";
 import { inputOffset } from "src/utils/node-layout";
 import {
   CanvasClip,
@@ -1548,30 +1554,21 @@ export class EditPipelineVisualComponent implements OnDestroy {
     if (this.mode !== "project") {
       return;
     }
-    const boxes = this.selectedNodes.map((id) => {
-      const { x, y } = this.pipeline.nodes.get(id).arrange;
-      const card = this.paneRef.nativeElement.querySelector<HTMLElement>(
-        `[data-pick="node:${CSS.escape(id)}"] app-node`,
-      );
-      return {
-        x,
-        y,
-        w: card?.offsetWidth ?? UI.node.width,
-        h: card?.offsetHeight ?? 0,
-      };
-    });
+    const boxes = this.nodeBoxes(this.selectedNodes);
     const frame = frameAround(boxes);
     if (!frame) {
       return;
     }
     this.pipeline.layout ??= new Layout();
     this.pipeline.layout.groups ??= new Map();
+    const id = `group_${sid(6)}`;
     this.pipeline.layout.groups.set(
-      `group_${sid(6)}`,
+      id,
       toInstance({ title: "Group", ...frame }, LayoutGroup),
     );
     this.save();
-    this.cd.detectChanges();
+    // A new group is ready to be named.
+    this.startRenameGroup(id);
   }
 
   /**
@@ -1632,6 +1629,110 @@ export class EditPipelineVisualComponent implements OnDestroy {
     target.addEventListener("pointermove", move);
     target.addEventListener("pointerup", up);
     target.addEventListener("pointercancel", up);
+  }
+
+  /** The group colours, in the palette's order (#331). */
+  readonly groupColors = GROUP_COLORS;
+  /** The group whose title is being edited. */
+  renamingGroup: string | null = null;
+  /** The open group dropdown: `color:<id>` or `menu:<id>`. */
+  openGroupMenu: string | null = null;
+
+  setGroupColor(id: string, color: GroupColor) {
+    const group = this.pipeline.layout?.groups?.get(id);
+    if (!group || this.mode !== "project") {
+      return;
+    }
+    group.color = color === "gray" ? undefined : color;
+    this.openGroupMenu = null;
+    this.save();
+    this.cd.detectChanges();
+  }
+
+  startRenameGroup(id: string) {
+    this.openGroupMenu = null;
+    this.renamingGroup = id;
+    this.cd.detectChanges();
+    const field = this.paneRef?.nativeElement.querySelector<HTMLInputElement>(
+      `[data-group="${CSS.escape(id)}"] .group-title-field`,
+    );
+    field?.focus();
+    field?.select();
+  }
+
+  /** A blank title keeps the old one. */
+  renameGroup(id: string, title: string) {
+    const group = this.pipeline.layout?.groups?.get(id);
+    if (this.renamingGroup !== id) {
+      return;
+    }
+    this.renamingGroup = null;
+    if (group && title.trim() && title.trim() !== group.title) {
+      group.title = title.trim();
+      this.save();
+    }
+    this.cd.detectChanges();
+  }
+
+  /** Fits the frame to the nodes it holds now. */
+  fitGroup(id: string) {
+    const group = this.pipeline.layout?.groups?.get(id);
+    this.openGroupMenu = null;
+    const frame = group
+      ? frameAround(this.nodeBoxes(groupMembers(this.pipeline, group)))
+      : null;
+    if (frame) {
+      assign(group, frame);
+      this.save();
+    }
+    this.cd.detectChanges();
+  }
+
+  /** Removes the frame and keeps its nodes. */
+  ungroup(id: string) {
+    this.openGroupMenu = null;
+    if (this.pipeline.layout?.groups?.delete(id)) {
+      this.save();
+    }
+    this.cd.detectChanges();
+  }
+
+  /** Removes the frame and the nodes it holds, after one confirmation. */
+  confirmDeleteGroup(id: string) {
+    this.openGroupMenu = null;
+    const group = this.pipeline.layout?.groups?.get(id);
+    if (!group) {
+      return;
+    }
+    const nodes = groupMembers(this.pipeline, group);
+    const title = escape(group.title);
+    const count = nodes.length;
+    this.confirmRemove(
+      $localize`:@@message.confirm_delete_group:Delete group «${title}:title:» and its ${count}:count: nodes? Their connections are deleted too.`,
+    ).subscribe(() => {
+      for (const node of nodes) {
+        this.removeNode(node);
+      }
+      this.pipeline.layout.groups.delete(id);
+      this.save();
+      this.cd.detectChanges();
+    });
+  }
+
+  /** Nodes' boxes on the canvas, measured: heights vary with content. */
+  private nodeBoxes(ids: string[]) {
+    return ids.map((id) => {
+      const { x, y } = this.pipeline.nodes.get(id).arrange;
+      const card = this.paneRef.nativeElement.querySelector<HTMLElement>(
+        `[data-pick="node:${CSS.escape(id)}"] app-node`,
+      );
+      return {
+        x,
+        y,
+        w: card?.offsetWidth ?? UI.node.width,
+        h: card?.offsetHeight ?? 0,
+      };
+    });
   }
 
   /** How many nodes a group's frame holds (#329). */
