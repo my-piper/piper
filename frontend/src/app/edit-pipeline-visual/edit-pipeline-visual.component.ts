@@ -45,6 +45,7 @@ import {
   Node,
   NodeInput,
   NodeOutput,
+  NodeState,
   SCRIPT_NODE_SOURCE,
 } from "src/models/node";
 import { FlowTransformer, NodeFlow } from "src/models/node-flow";
@@ -68,6 +69,7 @@ import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
+import { formatElapsed } from "src/utils/elapsed";
 import { sid } from "src/utils/string";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
@@ -117,6 +119,12 @@ export class EditPipelineVisualComponent implements OnDestroy {
   launch!: Launch;
   /** On the launch page: the Launch may still run, so it can be stopped. */
   running = false;
+
+  /** Run states the canvas nodes report, keyed by node id. */
+  nodeStates: Record<string, NodeState> = {};
+  /** Time since the launch started, while the canvas sees it run. */
+  elapsed: string | null = null;
+  private clock: ReturnType<typeof setInterval> | null = null;
   launches: {
     [key: string]: Launch;
   } = {};
@@ -241,7 +249,75 @@ export class EditPipelineVisualComponent implements OnDestroy {
     });
   }
 
+  /** The launch as its nodes report it, for the top bar pill. */
+  get launchState(): "running" | "failed" | "done" | "idle" | null {
+    const states = Object.values(this.nodeStates);
+    if (states.length <= 0) {
+      return null;
+    }
+    if (states.includes("running")) {
+      return "running";
+    }
+    if (states.includes("error")) {
+      return "failed";
+    }
+    const nodes = [...this.pipeline.nodes.keys()];
+    return nodes.every((id) => this.nodeStates[id] === "done")
+      ? "done"
+      : "idle";
+  }
+
+  setNodeState(id: string, state: NodeState | null) {
+    if (state) {
+      this.nodeStates[id] = state;
+    } else {
+      delete this.nodeStates[id];
+    }
+    if (this.mode === "launch") {
+      this.syncClock();
+    }
+    this.cd.detectChanges();
+  }
+
+  /** Ticks while a node runs; stopping freezes the last value. */
+  private syncClock() {
+    const running = this.launchState === "running";
+    if (running && !this.clock) {
+      this.tick();
+      this.clock = setInterval(() => {
+        this.tick();
+        this.cd.detectChanges();
+      }, 1000);
+    } else if (!running && this.clock) {
+      clearInterval(this.clock);
+      this.clock = null;
+      this.tick();
+    }
+  }
+
+  private tick() {
+    const from = this.launch?.startedAt ?? this.launch?.launchedAt;
+    this.elapsed = from
+      ? formatElapsed(Date.now() - new Date(from).getTime())
+      : null;
+  }
+
+  showNodeLog(id: string) {
+    const launch = this.launches[id] || this.launch;
+    if (!launch) {
+      return;
+    }
+    const right =
+      this.mode === "project"
+        ? ["launches", launch._id, "nodes", id, "logs"]
+        : ["nodes", id, "logs"];
+    this.router.navigate([{ outlets: { right, left: null } }], {
+      relativeTo: this.route,
+    });
+  }
+
   ngOnDestroy() {
+    clearInterval(this.clock);
     this.unsubscribe();
   }
 

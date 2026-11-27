@@ -116,15 +116,22 @@ test("runs from the canvas in a new tab, follows node events and interrupts ther
     nodeEventPlain("node_two", "launch_x"),
   );
 
+  const failed = tab.getByTestId("node-node_one");
+  await expect(failed.getByTestId("node-failed")).toBeVisible();
+  await expect(failed.getByRole("alert").locator("p")).toHaveText("Boom");
   await expect(
-    tab.getByTestId("node-node_one").locator("app-node > div.error"),
-  ).toBeVisible();
-  await expect(
-    tab.getByTestId("node-node_two").locator("app-node > div.error"),
+    tab.getByTestId("node-node_two").getByTestId("node-failed"),
   ).toHaveCount(0);
+  await expect(tab.getByTestId("launch-state")).toHaveAttribute(
+    "data-state",
+    "failed",
+  );
   expect(api.callsTo("POST", /\/launch$/).map((c) => c.body)).toEqual([
     { options: { bucket: "outputs" } },
   ]);
+
+  await failed.getByTestId("node-show-log").click();
+  await expect(tab).toHaveURL(/right:nodes\/node_one\/logs/);
 
   await tab.getByTestId("interrupt-launch").click();
 

@@ -52,6 +52,55 @@
   }
 }
 
+@keyframes wire-flow {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+// The launch's state and elapsed time, first in the launch toolbar.
+.launch-state {
+  --state: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--control-s, 24px);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--state) 14%, transparent);
+  color: var(--state);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--state);
+  }
+
+  &[data-state="running"] {
+    --state: var(--accent);
+  }
+
+  &[data-state="failed"] {
+    --state: var(--danger);
+  }
+
+  &[data-state="done"] {
+    --state: var(--success);
+  }
+
+  .elapsed {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+}
+
 // Rendered inside the popover, outside the component host.
 ::ng-deep .canvas-hint {
   display: grid;
@@ -280,6 +329,17 @@
         // The wire being drawn from a port to the pointer.
         &.pending {
           stroke-dasharray: 6 5;
+        }
+
+        // Wires into a running node march towards it.
+        &.running {
+          stroke-dasharray: 6 4;
+          animation: wire-flow 0.5s linear infinite;
+
+          @media (prefers-reduced-motion: reduce) {
+            stroke-dasharray: none;
+            animation: none;
+          }
         }
       }
     }
