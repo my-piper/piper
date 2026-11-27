@@ -177,6 +177,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
             if (!ready) {
               logger.info(`Flow is not done ${id}`);
+              notifyNode(nodeJob.node, "node_not_ready");
               return NodeJobResult.NODE_FLOWS_NOT_READY_YET;
             }
             continue;
@@ -190,6 +191,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   logger.debug("Node inputs", inputs);
   if (!checkInputs(inputs, node.inputs).ready) {
     logger.debug("Node is not ready yet");
+    notifyNode(nodeJob.node, "node_not_ready");
     return NodeJobResult.NODE_INPUTS_NOT_READY_YET;
   }
 
