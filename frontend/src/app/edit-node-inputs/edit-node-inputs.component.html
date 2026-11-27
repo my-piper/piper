@@ -1,10 +1,6 @@
 <header class="header" [formGroup]="form">
   <div class="heading">
-    <tui-textfield
-      class="title"
-      tuiTextfieldSize="m"
-      [tuiTextfieldCleaner]="false"
-    >
+    <tui-textfield class="title" [tuiTextfieldCleaner]="false">
       <input
         tuiInput
         formControlName="title"
@@ -24,7 +20,6 @@
     <button
       tuiIconButton
       appearance="flat"
-      size="s"
       type="button"
       iconStart="@tui.x"
       aria-label="Close"
@@ -184,7 +179,6 @@
             <button
               tuiButton
               appearance="secondary"
-              size="s"
               type="button"
               iconStart="@tui.plus"
               (click)="addDynamic(i.input)"
@@ -221,7 +215,6 @@
     <button
       tuiButton
       appearance="primary"
-      size="s"
       type="button"
       iconStart="@tui.pencil"
       (click)="edit()"
@@ -232,7 +225,6 @@
   <button
     tuiButton
     appearance="secondary"
-    size="s"
     type="button"
     iconStart="@tui.list-ordered"
     (click)="reorder()"
@@ -243,7 +235,6 @@
     submitButton
     tuiIconButton
     appearance="flat"
-    size="s"
     type="button"
     class="reset"
     iconStart="@tui.rotate-ccw"

@@ -13,7 +13,7 @@
     </header>
     <fieldset>
       <tui-textfield
-        tuiTextfieldSize="s"
+        tuiTextfieldSize="l"
         [tuiTextfieldCleaner]="false"
         [invalid]="form.controls.code.touched && form.controls.code.invalid"
       >
@@ -32,7 +32,7 @@
       <button
         tuiButton
         appearance="outline-grayscale"
-        size="s"
+        size="l"
         class="fluid"
         [loading]="progress.signup"
         [disabled]="progress.signup"
@@ -65,7 +65,7 @@
       <button
         tuiIconButton
         appearance="outline-grayscale"
-        size="s"
+        size="l"
         class="round"
         iconStart="theme"
         aria-label="Theme"
@@ -85,7 +85,7 @@
     <form data-cy="form-login" [formGroup]="form" (ngSubmit)="confirm()">
       <fieldset>
         <tui-textfield
-          tuiTextfieldSize="s"
+          tuiTextfieldSize="l"
           [tuiTextfieldCleaner]="false"
           [invalid]="form.controls.email.touched && form.controls.email.invalid"
         >
@@ -100,7 +100,7 @@
           />
         </tui-textfield>
         <tui-textfield
-          tuiTextfieldSize="s"
+          tuiTextfieldSize="l"
           [tuiTextfieldCleaner]="false"
           [invalid]="form.controls.login.touched && form.controls.login.invalid"
         >
@@ -115,7 +115,7 @@
           />
         </tui-textfield>
         <tui-textfield
-          tuiTextfieldSize="s"
+          tuiTextfieldSize="l"
           [tuiTextfieldCleaner]="false"
           [invalid]="
             form.controls.password.touched && form.controls.password.invalid
@@ -144,7 +144,7 @@
         <button
           tuiButton
           appearance="outline-grayscale"
-          size="s"
+          size="l"
           class="fluid"
           [loading]="progress.confirmation"
           [disabled]="progress.confirmation"
@@ -162,7 +162,7 @@
         <a
           tuiIconButton
           appearance="outline-grayscale"
-          size="s"
+          size="l"
           class="round"
           href="/oauth/google"
           iconStart="@img.google"
@@ -170,7 +170,7 @@
         <a
           tuiIconButton
           appearance="outline-grayscale"
-          size="s"
+          size="l"
           class="round"
           href="/oauth/yandex"
           iconStart="@img.yandex"

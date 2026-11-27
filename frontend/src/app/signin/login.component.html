@@ -9,7 +9,7 @@
       <button
         tuiIconButton
         appearance="outline-grayscale"
-        size="s"
+        size="l"
         class="round"
         iconStart="theme"
         aria-label="Theme"
@@ -29,7 +29,7 @@
     <form data-cy="form-login" [formGroup]="form" (ngSubmit)="login()">
       <fieldset>
         <tui-textfield
-          tuiTextfieldSize="s"
+          tuiTextfieldSize="l"
           [tuiTextfieldCleaner]="false"
           [invalid]="
             form.controls.identity.touched && form.controls.identity.invalid
@@ -48,7 +48,7 @@
         </tui-textfield>
         <div class="vertical stack tiny align-stretch">
           <tui-textfield
-            tuiTextfieldSize="s"
+            tuiTextfieldSize="l"
             [tuiTextfieldCleaner]="false"
             [invalid]="
               form.controls.password.touched && form.controls.password.invalid
@@ -76,7 +76,7 @@
         <button
           tuiButton
           appearance="outline-grayscale"
-          size="s"
+          size="l"
           class="fluid"
           [loading]="progress.login"
           [disabled]="progress.login"
@@ -89,7 +89,7 @@
           <a
             tuiButton
             appearance="outline-grayscale"
-            size="s"
+            size="l"
             class="fluid"
             href="/oauth/oidc"
             data-cy="sso-login"
@@ -108,7 +108,7 @@
             <a
               tuiIconButton
               appearance="outline-grayscale"
-              size="s"
+              size="l"
               class="round"
               href="/oauth/google"
               iconStart="@img.google"
@@ -118,7 +118,7 @@
             <a
               tuiIconButton
               appearance="outline-grayscale"
-              size="s"
+              size="l"
               class="round"
               href="/oauth/yandex"
               iconStart="@img.yandex"

@@ -16,26 +16,20 @@
       <button
         tuiButton
         appearance="outline-grayscale"
-        size="s"
         [loading]="progress.publishing"
         [disabled]="progress.publishing || form.invalid"
         (click)="publish()"
       >
         Publish
       </button>
-      <button
-        tuiButton
-        appearance="outline-destructive"
-        size="s"
-        (click)="remove()"
-      >
+      <button tuiButton appearance="outline-destructive" (click)="remove()">
         Remove
       </button>
     </footer>
   </form>
 } @else {
   <p>You can publish your node to common catalog for reusing.</p>
-  <button tuiButton appearance="outline-grayscale" size="s" (click)="create()">
+  <button tuiButton appearance="outline-grayscale" (click)="create()">
     Create config
   </button>
 }

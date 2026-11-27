@@ -5,7 +5,6 @@
     <a
       tuiButton
       appearance="outline-grayscale"
-      size="s"
       [hotKey]="'escape'"
       (hotKeyPressed)="back()"
       [routerLink]="['./']"
@@ -24,7 +23,7 @@
 
 <div class="app-container">
   <header>
-    <a tuiButton appearance="outline-grayscale" size="s" [routerLink]="['add']">
+    <a tuiButton appearance="outline-grayscale" [routerLink]="['add']">
       <tui-icon icon="add" class="icon left" />
       <ng-container i18n="@@action.create">Create</ng-container>
     </a>

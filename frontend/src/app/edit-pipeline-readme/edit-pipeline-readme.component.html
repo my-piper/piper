@@ -3,7 +3,6 @@
     <a
       tuiButton
       appearance="outline-grayscale"
-      size="s"
       [hotKey]="'escape'"
       (hotKeyPressed)="back()"
       [routerLink]="['./']"
@@ -30,13 +29,10 @@
     </ngx-monaco-editor>
   </div>
   <footer class="stack">
-    <a tuiButton appearance="outline-grayscale" size="s" [routerLink]="['view']"
-      >View</a
-    >
+    <a tuiButton appearance="outline-grayscale" [routerLink]="['view']">View</a>
     <button
       tuiButton
       appearance="outline-grayscale"
-      size="s"
       submitButton
       [disabled]="form.invalid"
       (click)="save()"

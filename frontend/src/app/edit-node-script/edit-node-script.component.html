@@ -52,7 +52,6 @@
   <footer class="stack">
     <button
       tuiButton
-      size="m"
       type="button"
       appearance="secondary"
       (click)="helpOpen = true"
@@ -62,7 +61,6 @@
     </button>
     <button
       tuiButton
-      size="m"
       type="button"
       [disabled]="!scriptLoaded || progress.saving || progress.formatting"
       [loading]="progress.formatting"
@@ -73,7 +71,6 @@
     </button>
     <button
       tuiButton
-      size="m"
       type="button"
       [disabled]="!scriptLoaded || progress.saving || progress.formatting"
       [loading]="progress.saving"
