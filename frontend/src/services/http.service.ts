@@ -12,6 +12,7 @@ import { BACKEND_API } from "src/consts/core";
 import { AppConfig } from "src/models/app-config";
 import {
   ClientClosedRequestError,
+  ConflictError,
   DataError,
   InternalError,
   NetworkError,
@@ -64,6 +65,8 @@ export class HttpService {
           return new UnauthorizedError(error);
         } else if (status == 404) {
           return new NotFoundError(error);
+        } else if (status == 409) {
+          return new ConflictError(error);
         } else if (status == 413) {
           return new RequestTooLargeError(error);
         } else if (status == 429) {

@@ -20,7 +20,6 @@ import {
   Router,
 } from "@angular/router";
 import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
-import { plainToInstance } from "class-transformer";
 import isEqual from "lodash/isEqual";
 import last from "lodash/last";
 import uniq from "lodash/uniq";
@@ -34,15 +33,12 @@ import {
   map,
 } from "rxjs";
 import { DisplayError } from "src/models/errors";
-import { LaunchRequest } from "src/models/launch-request";
-import { Pipeline } from "src/models/pipeline";
 import { Project, ProjectsFilter } from "src/models/project";
 import { ProjectRunsSummary } from "src/models/project-stats";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI, UI_DELAY } from "src/consts/ui";
 import { toInstance, toPlain } from "src/utils/models";
-import * as YAML from "yaml";
 import {
   Folder,
   FOLDER_SEPARATOR,
@@ -58,25 +54,6 @@ import { ImportProjectComponent } from "./import/import-project.component";
 function tagsOf(params: ParamMap): string[] {
   return uniq(params.getAll("tag").filter((t) => !!t));
 }
-
-const TEST_PIPELINE = `
-name: New project
-version: 1
-layout:
-  left: 200
-  top: 200
-  zoom: 1
-start:
-  nodes: []
-inputs: {}
-outputs: {}
-flows: {}
-nodes: {}`;
-
-const TEST_REQUEST = {
-  nodes: {},
-  inputs: {},
-};
 
 @Component({
   selector: "app-projects",
@@ -97,7 +74,6 @@ export class ProjectsComponent implements OnInit {
   error!: DisplayError;
   progress = {
     loading: false,
-    creating: false,
     deleting: false,
     renaming: false,
   };
@@ -108,14 +84,23 @@ export class ProjectsComponent implements OnInit {
   @ViewChildren("nameInput")
   nameInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
-  // the import page carries its own heading
-  readonly dialogOptions = { size: "l" as const };
+  // the import page carries its own heading; the short new project form
+  // takes the dialog header
+  readonly dialogOptions = computed(() =>
+    this.childPath() === "new"
+      ? {
+          size: "s" as const,
+          label: $localize`:@@label.new_project:New project`,
+        }
+      : { size: "l" as const },
+  );
 
   // the root popup host must exist before opening a dialog on direct route entry
   private readonly dialogReady = signal(false);
   // a signal rather than a getter over route.firstChild, so OnPush re-renders
   // when navigation opens or closes the child route
   private readonly childActive = signal(false);
+  private readonly childPath = signal<string | null>(null);
   readonly dialogOpen = computed(
     () => this.dialogReady() && this.childActive(),
   );
@@ -156,13 +141,19 @@ export class ProjectsComponent implements OnInit {
     destroyRef: DestroyRef,
   ) {
     afterNextRender(() => this.dialogReady.set(true));
-    this.childActive.set(!!this.route.firstChild);
+    this.updateChild();
     this.router.events
       .pipe(
         filter((e) => e instanceof NavigationEnd),
         takeUntilDestroyed(destroyRef),
       )
-      .subscribe(() => this.childActive.set(!!this.route.firstChild));
+      .subscribe(() => this.updateChild());
+  }
+
+  private updateChild() {
+    const child = this.route.firstChild;
+    this.childActive.set(!!child);
+    this.childPath.set(child?.snapshot.url[0]?.path ?? null);
   }
 
   // like a finder search: results come from every folder
@@ -481,33 +472,6 @@ export class ProjectsComponent implements OnInit {
     if (project) {
       this.load(project.cursor);
     }
-  }
-
-  create() {
-    this.progress.creating = true;
-    this.cd.detectChanges();
-
-    const request = new Project({
-      title: "Test project",
-      pipeline: plainToInstance(Pipeline, YAML.parse(TEST_PIPELINE)),
-      launchRequest: plainToInstance(LaunchRequest, TEST_REQUEST),
-    });
-    this.http
-      .post(`projects`, toPlain(request))
-      .pipe(
-        delay(UI_DELAY),
-        finalize(() => {
-          this.progress.creating = false;
-          this.cd.detectChanges();
-        }),
-        map((json) => plainToInstance(Project, json as object)),
-      )
-      .subscribe({
-        next: (project) => {
-          this.router.navigate([project._id], { relativeTo: this.route });
-        },
-        error: (err) => (this.error = err),
-      });
   }
 
   remove({ _id }: Project) {

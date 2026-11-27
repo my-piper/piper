@@ -1,0 +1,206 @@
+[
+  {
+    "update": "projects",
+    "updates": [
+      {
+        "q": {
+          "title": {
+            "$type": "string"
+          }
+        },
+        "u": [
+          {
+            "$set": {
+              "title": {
+                "$trim": {
+                  "input": "$title"
+                }
+              }
+            }
+          }
+        ],
+        "multi": true
+      }
+    ]
+  },
+  {
+    "aggregate": "projects",
+    "collation": {
+      "locale": "en",
+      "strength": 2
+    },
+    "cursor": {},
+    "pipeline": [
+      {
+        "$match": {
+          "title": {
+            "$type": "string"
+          }
+        }
+      },
+      {
+        "$setWindowFields": {
+          "partitionBy": "$title",
+          "sortBy": {
+            "createdAt": 1
+          },
+          "output": {
+            "n": {
+              "$documentNumber": {}
+            }
+          }
+        }
+      },
+      {
+        "$match": {
+          "n": {
+            "$gt": 1
+          }
+        }
+      },
+      {
+        "$set": {
+          "suffix": {
+            "$concat": [
+              " (",
+              {
+                "$toString": "$n"
+              },
+              ")"
+            ]
+          }
+        }
+      },
+      {
+        "$project": {
+          "original": "$title",
+          "title": {
+            "$concat": [
+              {
+                "$substrCP": [
+                  "$title",
+                  0,
+                  {
+                    "$subtract": [
+                      160,
+                      {
+                        "$strLenCP": "$suffix"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "$suffix"
+            ]
+          }
+        }
+      },
+      {
+        "$lookup": {
+          "from": "projects",
+          "localField": "title",
+          "foreignField": "title",
+          "as": "clash"
+        }
+      },
+      {
+        "$set": {
+          "title": {
+            "$cond": [
+              {
+                "$gt": [
+                  {
+                    "$size": "$clash"
+                  },
+                  0
+                ]
+              },
+              {
+                "$concat": [
+                  {
+                    "$substrCP": [
+                      "$original",
+                      0,
+                      {
+                        "$subtract": [
+                          160,
+                          {
+                            "$strLenCP": {
+                              "$concat": [
+                                " (",
+                                {
+                                  "$toString": "$_id"
+                                },
+                                ")"
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "$concat": [
+                      " (",
+                      {
+                        "$toString": "$_id"
+                      },
+                      ")"
+                    ]
+                  }
+                ]
+              },
+              "$title"
+            ]
+          }
+        }
+      },
+      {
+        "$project": {
+          "title": 1
+        }
+      },
+      {
+        "$out": "projects_title_renames"
+      }
+    ]
+  },
+  {
+    "aggregate": "projects_title_renames",
+    "cursor": {},
+    "pipeline": [
+      {
+        "$merge": {
+          "into": "projects",
+          "on": "_id",
+          "whenMatched": "merge",
+          "whenNotMatched": "discard"
+        }
+      }
+    ]
+  },
+  {
+    "drop": "projects_title_renames"
+  },
+  {
+    "createIndexes": "projects",
+    "indexes": [
+      {
+        "name": "title_unique",
+        "key": {
+          "title": 1
+        },
+        "unique": true,
+        "collation": {
+          "locale": "en",
+          "strength": 2
+        },
+        "partialFilterExpression": {
+          "title": {
+            "$type": "string"
+          }
+        }
+      }
+    ]
+  }
+]

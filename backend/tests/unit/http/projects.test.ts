@@ -6,6 +6,7 @@ import { pipelineFixture, launchRequestFixture } from "../../fixtures/pipeline";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { diff } from "jsondiffpatch/with-text-diffs";
 import { Environment } from "models/environment";
+import { MongoServerError } from "mongodb";
 import { decrypt, encrypt } from "packages/environment/crypt-environment";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -975,5 +976,143 @@ describe("project environment patch", () => {
       BASE_URL: "https://a",
     });
     expect(response.body.environment.visible).toEqual(["BASE_URL"]);
+  });
+});
+
+describe("unique project titles", () => {
+  function otherProjectHas(title: string) {
+    httpDoubles.projectsCursor.toArray.mockResolvedValue([
+      { _id: "other-project", title },
+    ]);
+  }
+
+  function duplicateKey() {
+    return new MongoServerError({
+      message: "E11000 duplicate key error",
+      code: 11000,
+      keyPattern: { title: 1 },
+    });
+  }
+
+  function renamePatch(name: string) {
+    const { pipeline } = scenario.project;
+    return diff(pipeline, { ...pipeline, name });
+  }
+
+  it("saves the title without outer spaces", async () => {
+    const response = await context.request
+      .post("/api/projects")
+      .set("user-token", userToken())
+      .send({ title: "  Spaced title ", pipeline: pipelineFixture() });
+
+    expect(response.status).toBe(200);
+    expect(response.body.title).toBe("Spaced title");
+    expect(httpDoubles.projects.find).toHaveBeenCalledExactlyOnceWith(
+      { title: "Spaced title" },
+      { collation: { locale: "en", strength: 2 }, projection: { _id: 1 } }
+    );
+  });
+
+  it("rejects creating a project with a taken title", async () => {
+    otherProjectHas("demo project");
+
+    const response = await context.request
+      .post("/api/projects")
+      .set("user-token", userToken())
+      .send({ title: "Demo project", pipeline: pipelineFixture() });
+
+    expect(response.status).toBe(409);
+    expect(response.text).toBe("A project with this title already exists");
+    expect(httpDoubles.projects.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("answers 409 when another request took the title first", async () => {
+    httpDoubles.projects.insertOne.mockRejectedValue(duplicateKey());
+
+    const response = await context.request
+      .post("/api/projects")
+      .set("user-token", userToken())
+      .send({ title: "Demo project", pipeline: pipelineFixture() });
+
+    expect(response.status).toBe(409);
+  });
+
+  it.each(["Shrt", "x".repeat(161)])(
+    "rejects a title outside 5 to 160 characters",
+    async (title) => {
+      const response = await context.request
+        .post("/api/projects")
+        .set("user-token", userToken())
+        .send({ title, pipeline: pipelineFixture() });
+
+      expect(response.status).toBe(400);
+      expect(httpDoubles.projects.insertOne).not.toHaveBeenCalled();
+    }
+  );
+
+  it("rejects renaming the pipeline to another project's title", async () => {
+    otherProjectHas("Taken title");
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: renamePatch("Taken title") });
+
+    expect(response.status).toBe(409);
+    expect(httpDoubles.projects.find).toHaveBeenCalledExactlyOnceWith(
+      { title: "Taken title", _id: { $ne: "project-http" } },
+      { collation: { locale: "en", strength: 2 }, projection: { _id: 1 } }
+    );
+    expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
+  });
+
+  it("rejects a rename whose trimmed name is shorter than 5 characters", async () => {
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: renamePatch("  abc  ") });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      "Project title must have 5 to 160 characters"
+    );
+    expect(httpDoubles.projects.updateOne).not.toHaveBeenCalled();
+  });
+
+  it("renames the project with the pipeline when the title is free", async () => {
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: renamePatch(" Fresh title ") });
+
+    expect(response.status).toBe(200);
+    const [, { $set }] = httpDoubles.projects.updateOne.mock.calls[0];
+    expect($set.title).toBe("Fresh title");
+  });
+
+  it("doesn't check the title when the pipeline keeps the project's name", async () => {
+    scenario.project.pipeline.name = scenario.project.title;
+    httpDoubles.projects.updateOne.mockResolvedValue({ matchedCount: 1 });
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: renamePatch(scenario.project.title) });
+
+    expect(response.status).toBe(200);
+    expect(httpDoubles.projects.find).not.toHaveBeenCalled();
+  });
+
+  it("answers 409 when a concurrent rename took the title first", async () => {
+    httpDoubles.projects.updateOne.mockRejectedValue(duplicateKey());
+
+    const response = await context.request
+      .patch("/api/projects/project-http/patch/revision-1")
+      .set("user-token", userToken())
+      .send({ pipeline: renamePatch("Fresh title") });
+
+    expect(response.status).toBe(409);
   });
 });

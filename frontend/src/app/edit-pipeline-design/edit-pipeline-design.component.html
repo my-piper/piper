@@ -8,6 +8,14 @@
       >Use 5 to 160 characters</small
     >
   }
+  @if (projectManager.titleTaken) {
+    <small
+      class="error"
+      data-testid="pipeline-name-taken"
+      i18n="@@message.project_title_taken"
+      >A project with this title already exists</small
+    >
+  }
 
   <tui-textfield>
     <label tuiLabel for="pipeline-description" i18n="@@label.description"

@@ -21,6 +21,9 @@ export class UnauthorizedError extends AppError {}
 
 export class NotFoundError extends AppError {}
 
+// 409: the write clashes with existing data, e.g. a taken project title
+export class ConflictError extends AppError {}
+
 export class InternalError extends AppError {}
 
 export class DataError extends AppError {

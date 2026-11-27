@@ -1,6 +1,6 @@
 <ng-template
   [tuiDialog]="dialogOpen()"
-  [tuiDialogOptions]="dialogOptions"
+  [tuiDialogOptions]="dialogOptions()"
   (tuiDialogChange)="!$event && back()"
 >
   <router-outlet (activate)="activate($event)"></router-outlet>
@@ -30,17 +30,15 @@
 
 <div class="app-container">
   <header class="toolbar">
-    <button
+    <a
       tuiButton
-      type="button"
       iconStart="@tui.plus"
-      [routerLink]="['add']"
-      [loading]="progress.creating"
-      [disabled]="progress.creating"
-      (click)="create()"
+      data-testid="new-project"
+      [routerLink]="['new']"
+      queryParamsHandling="preserve"
     >
       <ng-container i18n="@@action.create">Create</ng-container>
-    </button>
+    </a>
     @if (userRole.admin | can | async) {
       <a
         tuiButton

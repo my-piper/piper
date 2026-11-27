@@ -17,6 +17,11 @@ import { pruneEnvironment } from "packages/environment/prune-environment";
 import { dropRevealedSecrets } from "packages/environment/reveal-environment";
 import { isSecretPlaceholder } from "packages/environment/secret-placeholder";
 import { renameV1Variables } from "packages/environment/v1-variables";
+import {
+  checkTitleFree,
+  cleanTitle,
+  titleConflict,
+} from "packages/projects/titles";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { Primitive } from "types/primitive";
 import { checkAdmin, checkLogged, handle, isAdmin, toModel } from "utils/http";
@@ -43,7 +48,7 @@ api.patch(
             ...(request.launchRequest ? { launchRequest: 1 } : {}),
             // the Project Environment is pruned to what the pipeline declares
             ...(request.pipeline || request.environment
-              ? { pipeline: 1, environment: 1 }
+              ? { title: 1, pipeline: 1, environment: 1 }
               : {}),
           },
         }
@@ -93,7 +98,8 @@ api.patch(
       }
 
       const patched = toInstance(forPatch, Pipeline);
-      const { name: title, tags, thumbnail } = patched;
+      const { tags, thumbnail } = patched;
+      const title = cleanTitle(patched.name);
 
       if (!!patched.script && !isAdmin(currentUser)) {
         throw new DataError("You can't edit pipeline script");
@@ -170,10 +176,15 @@ api.patch(
       assign(update, { environment: project.environment });
     }
 
-    const { matchedCount } = await mongo.projects.updateOne(
-      { _id },
-      { $set: toPlain(update) }
-    );
+    // a rename may not take another Project's title
+    if (update.title !== undefined && update.title !== project.title) {
+      await checkTitleFree(update.title, _id);
+    }
+    const { matchedCount } = await mongo.projects
+      .updateOne({ _id }, { $set: toPlain(update) })
+      .catch((e) => {
+        throw titleConflict(e);
+      });
     if (matchedCount <= 0) {
       throw new NotFoundError();
     }

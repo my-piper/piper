@@ -3,6 +3,7 @@ import { toPlain } from "core-kit/packages/transform";
 import { LaunchRequest, NodeToLaunch } from "models/launch-request";
 import { Project } from "models/project";
 import { User } from "models/user";
+import { cleanTitle, freeTitle, titleConflict } from "packages/projects/titles";
 import { Primitive } from "types/primitive";
 import { ulid } from "ulid";
 import { sid } from "utils/string";
@@ -10,7 +11,8 @@ import { PipelineSource } from "./read-pipeline-source";
 
 /**
  * Saves an imported Pipeline as a new private Project of the user, titled
- * with the Pipeline's name, and answers it without the Pipeline's graph.
+ * with the Pipeline's name (numbered when another Project has it), and
+ * answers it without the Pipeline's graph.
  */
 export async function createImportedProject(
   user: User,
@@ -21,7 +23,7 @@ export async function createImportedProject(
     revision: sid(),
     createdAt: new Date(),
     createdBy: new User({ _id: user._id }),
-    title: pipeline.name,
+    title: await freeTitle(cleanTitle(pipeline.name)),
     pipeline,
     launchRequest:
       launchRequest ??
@@ -32,7 +34,11 @@ export async function createImportedProject(
     cursor: ulid(),
   });
   const plain = toPlain(project);
-  await mongo.projects.insertOne(plain as { _id: string });
+  try {
+    await mongo.projects.insertOne(plain as { _id: string });
+  } catch (e) {
+    throw titleConflict(e);
+  }
 
   const { version, description, thumbnail } = plain["pipeline"];
   plain["pipeline"] = { version, description, thumbnail };

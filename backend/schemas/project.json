@@ -19,7 +19,9 @@
       "required": ["_id"]
     },
     "title": {
-      "type": "string"
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 160
     },
     "tags": {
       "type": "array",

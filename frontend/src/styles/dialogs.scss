@@ -32,9 +32,15 @@ body tui-dialog[data-appearance~="taiga"][data-size] {
     inset-inline-end: 10px;
   }
 
+  // A routed dialog's <router-outlet> is an empty marker, not content; as
+  // an inline box it would still add a blank line above the page.
+  > router-outlet {
+    display: none;
+  }
+
   // Dialog content, including Taiga's own (TUI_CONFIRM renders an inline
   // ng-component), is a padded block.
-  > :not(header):not(button) {
+  > :not(header):not(button):not(router-outlet) {
     display: block;
     padding: var(--space-4);
   }

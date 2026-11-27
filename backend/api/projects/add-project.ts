@@ -5,6 +5,7 @@ import { toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import { Project } from "models/project";
 import { User } from "models/user";
+import { checkTitleFree, titleConflict } from "packages/projects/titles";
 import SCHEMAS from "schemas/compiled.json" with { type: "json" };
 import { ulid } from "ulid";
 import { checkLogged, handle } from "utils/http";
@@ -26,7 +27,7 @@ api.post(
         const { _id } = currentUser;
         return new User({ _id });
       })(),
-      title,
+      title: title?.trim(),
       tags: pipeline?.tags,
       pipeline,
       launchRequest,
@@ -44,7 +45,12 @@ api.post(
         )
       );
     }
-    await mongo.projects.insertOne(plain as { _id: string });
+    await checkTitleFree(project.title);
+    try {
+      await mongo.projects.insertOne(plain as { _id: string });
+    } catch (e) {
+      throw titleConflict(e);
+    }
 
     delete plain["pipeline"];
     delete plain["launchRequest"];
