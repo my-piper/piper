@@ -19,7 +19,6 @@
     <button
       tuiButton
       appearance="flat"
-      size="s"
       type="button"
       (click)="error = null"
       i18n="@@action.ok"
@@ -33,7 +32,6 @@
   <header class="toolbar">
     <button
       tuiButton
-      size="m"
       type="button"
       iconStart="@tui.plus"
       [routerLink]="['add']"
@@ -47,7 +45,6 @@
       <a
         tuiButton
         appearance="secondary"
-        size="m"
         [routerLink]="['import']"
         i18n="@@link.import"
       >
@@ -55,7 +52,7 @@
       </a>
     }
     <form class="search" [formGroup]="form">
-      <tui-textfield iconStart="@tui.search" tuiTextfieldSize="m">
+      <tui-textfield iconStart="@tui.search">
         <input
           tuiInput
           formControlName="search"

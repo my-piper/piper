@@ -4,7 +4,6 @@
     <button
       tuiButton
       appearance="flat"
-      size="s"
       type="button"
       (click)="error = null"
       i18n="@@action.ok"
@@ -35,7 +34,6 @@
 }
 <button
   tuiButton
-  size="m"
   type="button"
   [copyToClipboard]="yaml"
   [disabled]="progress.loading || !yaml"

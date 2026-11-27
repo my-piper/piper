@@ -1,0 +1,48 @@
+// The compact size scale (docs/design.md). Taiga reads these variables, so a
+// control without a size attribute is m (28px): buttons and textfields default
+// to m in app.module.ts. Keep s for tables, toolbars and canvas nodes.
+:root {
+  --control-xs: 20px;
+  --control-s: 24px;
+  --control-m: 28px;
+  --control-l: 32px;
+
+  --tui-height-xs: var(--control-xs);
+  --tui-height-s: var(--control-s);
+  --tui-height-m: var(--control-m);
+  --tui-height-l: var(--control-l);
+  --tui-padding-s: 0.5rem;
+  --tui-padding-m: 0.5rem;
+  --tui-padding-l: 0.75rem;
+
+  // Text: 13px body, 12px small, 11px caption; headings stepped down to fit.
+  --tui-typography-body-l: normal 0.875rem / 1.25rem
+    var(--tui-typography-family-text);
+  --tui-typography-body-m: normal 0.8125rem / 1.125rem
+    var(--tui-typography-family-text);
+  --tui-typography-body-s: normal 0.75rem / 1rem
+    var(--tui-typography-family-text);
+  --tui-typography-body-xs: normal 0.6875rem / 0.875rem
+    var(--tui-typography-family-text);
+  --tui-typography-ui-l: normal 0.875rem / 1.25rem
+    var(--tui-typography-family-text);
+  --tui-typography-ui-m: normal 0.8125rem / 1.125rem
+    var(--tui-typography-family-text);
+  --tui-typography-ui-s: normal 0.75rem / 1rem var(--tui-typography-family-text);
+  --tui-typography-ui-xs: normal 0.6875rem / 0.875rem
+    var(--tui-typography-family-text);
+  --tui-typography-ui-2xs: normal 0.625rem / 0.75rem
+    var(--tui-typography-family-text);
+  --tui-typography-heading-h1: 600 1.75rem / 2.125rem
+    var(--tui-typography-family-display);
+  --tui-typography-heading-h2: 600 1.5rem / 1.875rem
+    var(--tui-typography-family-display);
+  --tui-typography-heading-h3: 600 1.25rem / 1.625rem
+    var(--tui-typography-family-display);
+  --tui-typography-heading-h4: 600 1.125rem / 1.5rem
+    var(--tui-typography-family-display);
+  --tui-typography-heading-h5: 600 1rem / 1.375rem
+    var(--tui-typography-family-display);
+  --tui-typography-heading-h6: 600 0.875rem / 1.25rem
+    var(--tui-typography-family-display);
+}

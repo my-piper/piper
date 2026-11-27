@@ -1,10 +1,5 @@
 @if (!authorization) {
-  <button
-    tuiButton
-    appearance="outline-grayscale"
-    size="s"
-    (click)="generateToken()"
-  >
+  <button tuiButton appearance="outline-grayscale" (click)="generateToken()">
     <tui-icon icon="lock" class="icon left" style="--app-icon-size: 18px" />
     <ng-container i18n="@@action.generate_api_key"
       >Generate API key</ng-container
@@ -14,7 +9,7 @@
 
 @if (authorization?.token; as token) {
   <h2 i18n="@@label.your_api_token">Your API token</h2>
-  <tui-textfield tuiTextfieldSize="s" [tuiTextfieldCleaner]="false">
+  <tui-textfield [tuiTextfieldCleaner]="false">
     <textarea
       tuiTextarea
       readonly

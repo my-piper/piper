@@ -16,7 +16,6 @@
       <button
         tuiIconButton
         appearance="outline-grayscale"
-        size="s"
         class="round"
         type="button"
         [disabled]="folders.length <= 0"
@@ -25,7 +24,7 @@
         iconStart="menu"
         style="--app-icon-size: 20px"
       ></button>
-      <tui-textfield tuiTextfieldSize="s" [tuiTextfieldCleaner]="false">
+      <tui-textfield [tuiTextfieldCleaner]="false">
         <input tuiInput formControlName="folder" placeholder="Folder name" />
       </tui-textfield>
     </fieldset>
@@ -51,7 +50,6 @@
           <button
             tuiIconButton
             appearance="outline-grayscale"
-            size="s"
             class="round"
             [loading]="progress.removing[asset._id]"
             [disabled]="progress.removing[asset._id]"
@@ -87,7 +85,6 @@
               <button
                 tuiIconButton
                 appearance="outline-grayscale"
-                size="s"
                 class="round"
                 type="button"
                 (click)="select(asset)"

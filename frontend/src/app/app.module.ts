@@ -4,14 +4,16 @@ import {
   withInterceptorsFromDi,
   withXhr,
 } from "@angular/common/http";
-import { APP_INITIALIZER, NgModule, DOCUMENT } from "@angular/core";
+import { APP_INITIALIZER, NgModule, DOCUMENT, signal } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import {
   provideTaiga,
+  tuiButtonOptionsProvider,
   tuiHintOptionsProvider,
   tuiIconsProvider,
+  tuiTextfieldOptionsProvider,
   TuiAppearance,
   TuiButton,
   TuiDialog,
@@ -338,6 +340,9 @@ import { UsersComponent } from "./users/users.component";
     tuiIconsProvider(PIPER_ICONS),
     // hints open centered below their anchor, as ui-kit popovers did (#230)
     tuiHintOptionsProvider({ direction: ["bottom", "top"] }),
+    // compact defaults: m is 28px on the remapped scale in styles/sizes.scss
+    tuiButtonOptionsProvider({ size: "m" }),
+    tuiTextfieldOptionsProvider({ size: signal("m") }),
     provideValidationErrors(),
     {
       provide: APP_BASE_HREF,

@@ -12,7 +12,6 @@
     <button
       tuiButton
       appearance="flat"
-      size="s"
       type="button"
       (click)="error = null"
       i18n="@@action.ok"
@@ -27,7 +26,6 @@
     @if ((state?.updates || [] | packagesForUpdate) > 0) {
       <button
         tuiButton
-        size="s"
         type="button"
         [disabled]="progress.updating"
         [loading]="progress.updating"
@@ -73,7 +71,6 @@
     <a
       tuiButton
       iconStart="@tui.plus"
-      size="m"
       [routerLink]="['add']"
       i18n="@@action.create"
       >Create</a
@@ -81,7 +78,6 @@
     <a
       tuiButton
       appearance="secondary"
-      size="m"
       [routerLink]="['import']"
       i18n="@@link.import"
     >
@@ -93,7 +89,6 @@
         <button
           tuiButton
           appearance="secondary"
-          size="m"
           type="button"
           [loading]="true"
           disabled
@@ -106,7 +101,6 @@
         <button
           tuiButton
           appearance="secondary"
-          size="m"
           type="button"
           [loading]="true"
           disabled
@@ -119,7 +113,6 @@
         <button
           tuiButton
           appearance="secondary"
-          size="m"
           type="button"
           [disabled]="progress.loading.state || progress.checking"
           [loading]="progress.loading.state || progress.checking"

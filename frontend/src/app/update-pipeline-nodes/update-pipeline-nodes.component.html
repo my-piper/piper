@@ -19,7 +19,6 @@
       <button
         tuiButton
         appearance="outline-grayscale"
-        size="s"
         [disabled]="state.updated.all"
         i18n="@@action.update_all"
         (click)="updateAll()"
@@ -50,7 +49,6 @@
           <button
             tuiButton
             appearance="outline-grayscale"
-            size="s"
             [disabled]="state.updated[state.active]"
             i18n="@@action.update"
             (click)="update()"

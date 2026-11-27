@@ -59,11 +59,7 @@
 
     <form class="stack horizontal" [formGroup]="form">
       <fieldset>
-        <tui-textfield
-          tuiTextfieldSize="s"
-          [tuiTextfieldCleaner]="false"
-          style="width: 80px"
-        >
+        <tui-textfield [tuiTextfieldCleaner]="false" style="width: 80px">
           <input tuiInput formControlName="version" type="number" />
         </tui-textfield>
       </fieldset>
@@ -71,7 +67,6 @@
         <button
           tuiButton
           appearance="outline-grayscale"
-          size="s"
           type="button"
           [loading]="progress.publishing"
           [disabled]="form.invalid || progress.publishing"
