@@ -17,6 +17,7 @@ const doubles = vi.hoisted(() => ({
     lRange: vi.fn(),
     lTrim: vi.fn(),
     incrBy: vi.fn(),
+    multi: vi.fn(),
   },
   plans: {
     rapid: vi.fn(),
@@ -35,6 +36,7 @@ const doubles = vi.hoisted(() => ({
     errors: vi.fn(),
     nodeRuns: vi.fn(),
     launchRuns: vi.fn(),
+    nodeExecutions: vi.fn(),
   },
   execute: vi.fn(),
   notify: vi.fn(),
@@ -85,6 +87,7 @@ vi.mock("app/streams", () => ({
       runs: {
         nodes: { send: doubles.metrics.nodeRuns },
         launches: { send: doubles.metrics.launchRuns },
+        executions: { send: doubles.metrics.nodeExecutions },
       },
     },
   },
@@ -103,6 +106,20 @@ vi.mock("app/storage", () => ({
   bucket: doubles.bucket,
 }));
 vi.mock("packages/deno/execute", () => ({ execute: doubles.execute }));
+
+// Every redis.multi() chain resolves exec() with this result.
+export function transactionResult(result: unknown[]) {
+  doubles.redis.multi.mockImplementation(() => {
+    const transaction = new Proxy(
+      { exec: async () => result },
+      {
+        get: (target, name) =>
+          name in target ? target[name as "exec"] : () => transaction,
+      }
+    );
+    return transaction;
+  });
+}
 
 export function resetExecutionDoubles() {
   for (const mock of [
@@ -127,6 +144,8 @@ export function resetExecutionDoubles() {
   doubles.redis.sIsMember.mockResolvedValue(true);
   doubles.redis.lRange.mockResolvedValue([]);
   doubles.redis.rPush.mockResolvedValue(1);
+  // a transaction that finds no open node execution
+  transactionResult([{}, 0]);
   doubles.distinct.mockResolvedValue([]);
   doubles.bucket.mockReturnValue(null);
   doubles.execute.mockResolvedValue({

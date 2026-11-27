@@ -9,18 +9,19 @@ npm run test:integration -- deno.test.ts
 npm run test:integration -- e2e.test.ts
 ```
 
-The command starts MongoDB, Redis, and the project's pinned Deno image from
+The command starts MongoDB, Redis, ClickHouse, and the project's pinned Deno image from
 `compose.yaml`. Every invocation gets a random Compose project, Mongo database,
-and loopback ports. MongoDB and Redis data live in container tmpfs; no development
+and loopback ports. MongoDB, Redis and ClickHouse data live in container tmpfs; no development
 services, fixed ports, persistent volumes, or credentials are used. Images are
 downloaded on the first run. Suites run serially and are excluded from `npm test`.
 
 The runner waits for database health checks, supplies `PIPER_TEST_MONGO_URL`,
-`PIPER_TEST_MONGO_DATABASE`, `PIPER_TEST_REDIS_PORT`, and `PIPER_TEST_DENO_URL`,
+`PIPER_TEST_MONGO_DATABASE`, `PIPER_TEST_REDIS_PORT`, `PIPER_TEST_DENO_URL`, and
+`PIPER_TEST_CLICKHOUSE_URL`,
 then invokes the integration Vitest config. These settings are generated for the
 run; do not point them at an existing stack. Setup validates them, discards
 inherited application settings, and prevents `.env` loading. The application
-Redis client uses database 1, while BullMQ's independent connection uses database 5. Host connections are restricted to the three allocated service ports.
+Redis client uses database 1, while BullMQ's independent connection uses database 5. Host connections are restricted to the four allocated service ports.
 
 Pipeline tests exercise real MongoDB persistence, both Redis clients, Piper's
 queue wrappers, production worker registrations, and node/launch logic. Only
@@ -55,5 +56,11 @@ failures and SIGINT/SIGTERM. An uncatchable kill or daemon failure can prevent
 cleanup; the printed `piper-tests-*` project name identifies that run for manual
 `docker compose -f tests/integration/compose.yaml -p <project> down -v` cleanup.
 
-The same command runs in CI before image publication. Kafka, ClickHouse, object
-storage, and socket delivery remain outside this suite's scope.
+The node stats suite creates `node_executions` from its ClickHouse migration
+(without the Kafka consumer) and runs the project stats query on it. The
+pipeline suite checks, through real workers and Redis, that a node's repeats and
+retried attempts make one execution record, and that its last failed attempt or
+an interrupted launch closes it.
+
+The same command runs in CI before image publication. Kafka, object storage, and
+socket delivery remain outside this suite's scope.

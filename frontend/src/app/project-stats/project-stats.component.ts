@@ -9,7 +9,6 @@ import { addDays, format, parseISO } from "date-fns";
 import { Subscription, delay, finalize, map } from "rxjs";
 import {
   DailyRuns,
-  NODE_STATS_DAYS,
   ProjectStats,
   STATS_PERIODS,
   StatsPeriod,
@@ -43,7 +42,6 @@ export function fillDays(
 })
 export class ProjectStatsComponent implements OnInit {
   periods = STATS_PERIODS;
-  nodeStatsDays = NODE_STATS_DAYS;
 
   project!: Project;
   days: StatsPeriod = 30;

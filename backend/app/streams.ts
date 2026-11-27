@@ -1,5 +1,6 @@
 import { Stream } from "core-kit/packages/stream";
 import { LaunchRun } from "models/launch-run";
+import { NodeExecutionRecord } from "models/node-execution-record";
 import { NodeRun } from "models/node-run";
 import { PipelineErrorRecord } from "models/pipeline-error-record";
 import { PipelineFinishedMetric } from "models/pipeline-finished-metric";
@@ -17,6 +18,7 @@ export const streams = {
     runs: {
       nodes: new Stream("pipeline.runs.nodes", NodeRun),
       launches: new Stream("pipeline.runs.launches", LaunchRun),
+      executions: new Stream("pipeline.runs.executions", NodeExecutionRecord),
     },
   },
 };

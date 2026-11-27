@@ -86,6 +86,9 @@ export const NODE_FLOWS = (launch: string, node: string) =>
 
 export const NODE_JOB_DUE = (launch: string, node: string, job: string) =>
   `launch:${launch}:nodes:${node}:jobs:${job}:due`;
+// the node's open execution: its invocations until the final outcome
+export const NODE_EXECUTION = (launch: string, node: string) =>
+  `launch:${launch}:nodes:${node}:execution`;
 
 export const GLOBAL_ENVIRONMENT_KEY = "environment";
 /**

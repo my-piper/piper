@@ -134,7 +134,6 @@ export class ProjectStats extends RunsSummary {
   @Type(() => DailyRuns)
   daily: DailyRuns[] = [];
 
-  // node runs are kept for a week only, so they never span more than 7 days
   @Expose()
   @Type(() => NodeRunsStats)
   nodes: NodeRunsStats[] = [];

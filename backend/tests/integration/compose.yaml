@@ -27,6 +27,21 @@ services:
       timeout: 3s
       retries: 60
 
+  clickhouse:
+    # same version as tools/compose/compose.yaml
+    image: clickhouse/clickhouse-server:24.8.4
+    ports:
+      - "127.0.0.1::8123"
+    tmpfs:
+      - /var/lib/clickhouse
+    environment:
+      CLICKHOUSE_SKIP_USER_SETUP: "1"
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "-q", "SELECT 1"]
+      interval: 1s
+      timeout: 5s
+      retries: 60
+
   deno:
     image: ghcr.io/my-piper/piper-deno:sha-fcfb6e9
     ports:

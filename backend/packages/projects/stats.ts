@@ -58,6 +58,22 @@ const SUMMARY_COLUMNS = `
 // "last N days" includes today
 const PERIOD_FILTER = `day > today() - {days: UInt16}`;
 
+// node_executions has a row per execution: the invocations (repeats, retries)
+// of a node up to its outcome. Interrupted executions have no real duration.
+const NODE_EXECUTIONS_QUERY = `
+  SELECT node,
+    count() AS total,
+    countIf(result IN ('error', 'timeout', 'memory')) AS failed,
+    avgIf(durationMs, result != 'interrupted') AS avgDurationMs,
+    quantileTDigestIf(0.95)(durationMs, result != 'interrupted') AS p95DurationMs,
+    avgIf(waitMs, result != 'interrupted') AS avgWaitMs
+  FROM node_executions
+  WHERE project = {project: String}
+    AND startedAt > now() - toIntervalDay({days: UInt16})
+  GROUP BY node
+  ORDER BY avgDurationMs DESC
+  LIMIT 10`;
+
 function toNumber(value: Numeric): number | null {
   const number = Number(value);
   return value === null || !Number.isFinite(number) ? null : number;
@@ -139,21 +155,7 @@ export async function getProjectStats(
       ORDER BY day`,
       { project, days }
     ),
-    select<NodeRow>(
-      `SELECT node,
-        count() AS total,
-        countIf(result IN ('error', 'timeout', 'memory')) AS failed,
-        avg(durationMs) AS avgDurationMs,
-        quantileTDigest(0.95)(durationMs) AS p95DurationMs,
-        avg(waitMs) AS avgWaitMs
-      FROM node_runs
-      WHERE project = {project: String}
-        AND startedAt > now() - toIntervalDay({days: UInt16})
-      GROUP BY node
-      ORDER BY avgDurationMs DESC
-      LIMIT 10`,
-      { project, days }
-    ),
+    getNodeRunsStats(project, days),
   ]);
 
   const runs = toNumber(summary?.total) ?? 0;
@@ -175,16 +177,24 @@ export async function getProjectStats(
           avgDurationMs: average(row.totalDurationMs, toNumber(row.total) ?? 0),
         })
     ),
-    nodes: nodes.map(
-      (row) =>
-        new NodeRunsStats({
-          node: row.node,
-          runs: toNumber(row.total) ?? 0,
-          failed: toNumber(row.failed) ?? 0,
-          avgDurationMs: round(row.avgDurationMs) ?? 0,
-          p95DurationMs: round(row.p95DurationMs) ?? 0,
-          avgWaitMs: round(row.avgWaitMs) ?? 0,
-        })
-    ),
+    nodes,
   });
+}
+
+export async function getNodeRunsStats(
+  project: string,
+  days: StatsPeriod
+): Promise<NodeRunsStats[]> {
+  const rows = await select<NodeRow>(NODE_EXECUTIONS_QUERY, { project, days });
+  return rows.map(
+    (row) =>
+      new NodeRunsStats({
+        node: row.node,
+        runs: toNumber(row.total) ?? 0,
+        failed: toNumber(row.failed) ?? 0,
+        avgDurationMs: round(row.avgDurationMs) ?? 0,
+        p95DurationMs: round(row.p95DurationMs) ?? 0,
+        avgWaitMs: round(row.avgWaitMs) ?? 0,
+      })
+  );
 }

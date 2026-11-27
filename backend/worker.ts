@@ -159,6 +159,7 @@ await streams.pipeline.metrics.finished.connect();
 await streams.pipeline.errors.connect();
 await streams.pipeline.runs.nodes.connect();
 await streams.pipeline.runs.launches.connect();
+await streams.pipeline.runs.executions.connect();
 
 const program = new Command();
 program
