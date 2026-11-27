@@ -81,7 +81,7 @@ import {
   refreshFromDeploy,
 } from "src/utils/deploy-node";
 import { acceptedInputTypes } from "src/utils/flow-types";
-import { groupMembers } from "src/utils/groups";
+import { frameAround, GROUP_MIN, groupMembers } from "src/utils/groups";
 import { inputOffset } from "src/utils/node-layout";
 import {
   CanvasClip,
@@ -491,6 +491,12 @@ export class EditPipelineVisualComponent implements OnDestroy {
         if (editing) {
           event.preventDefault();
           this.selectAll();
+        }
+        break;
+      case "group":
+        if (editing) {
+          event.preventDefault();
+          this.groupSelection();
         }
         break;
       case "duplicate":
@@ -1524,6 +1530,108 @@ export class EditPipelineVisualComponent implements OnDestroy {
       this.save();
     }
     this.cd.detectChanges();
+  }
+
+  /** The selected nodes' ids, for grouping. */
+  get selectedNodes(): string[] {
+    return [...this.selection]
+      .map(splitKey)
+      .filter(([type, id]) => type === "node" && this.pipeline.nodes.has(id))
+      .map(([, id]) => id);
+  }
+
+  /**
+   * Wraps the selected nodes in a new group (#330). Node heights vary
+   * (widgets, previews), so each node's box is measured on the canvas.
+   */
+  groupSelection() {
+    if (this.mode !== "project") {
+      return;
+    }
+    const boxes = this.selectedNodes.map((id) => {
+      const { x, y } = this.pipeline.nodes.get(id).arrange;
+      const card = this.paneRef.nativeElement.querySelector<HTMLElement>(
+        `[data-pick="node:${CSS.escape(id)}"] app-node`,
+      );
+      return {
+        x,
+        y,
+        w: card?.offsetWidth ?? UI.node.width,
+        h: card?.offsetHeight ?? 0,
+      };
+    });
+    const frame = frameAround(boxes);
+    if (!frame) {
+      return;
+    }
+    this.pipeline.layout ??= new Layout();
+    this.pipeline.layout.groups ??= new Map();
+    this.pipeline.layout.groups.set(
+      `group_${sid(6)}`,
+      toInstance({ title: "Group", ...frame }, LayoutGroup),
+    );
+    this.save();
+    this.cd.detectChanges();
+  }
+
+  /**
+   * Drags a group's bar (moves the frame and the nodes it holds) or its
+   * corner (resizes the frame; nodes then in it belong to it). One save on
+   * release; px are divided by the canvas zoom.
+   */
+  dragGroup(event: PointerEvent, id: string, mode: "move" | "resize") {
+    const group = this.pipeline.layout?.groups?.get(id);
+    if (!group || this.mode !== "project" || event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    const target = event.currentTarget as HTMLElement;
+    const zoom = this.pipeline.layout?.zoom || 1;
+    const pointer = { x: event.clientX, y: event.clientY };
+    const frame = { x: group.x, y: group.y, w: group.w, h: group.h };
+    const members =
+      mode === "move"
+        ? groupMembers(this.pipeline, group).map((node) => {
+            const arrange = this.pipeline.nodes.get(node).arrange;
+            return { arrange, x: arrange.x, y: arrange.y };
+          })
+        : [];
+    let moved = false;
+    try {
+      target.setPointerCapture(event.pointerId);
+    } catch {
+      // A pointer the browser doesn't track (synthetic): moves still arrive.
+    }
+
+    const move = (e: PointerEvent) => {
+      const dx = Math.round((e.clientX - pointer.x) / zoom);
+      const dy = Math.round((e.clientY - pointer.y) / zoom);
+      moved ||= dx !== 0 || dy !== 0;
+      if (mode === "move") {
+        assign(group, { x: frame.x + dx, y: frame.y + dy });
+        for (const m of members) {
+          assign(m.arrange, { x: m.x + dx, y: m.y + dy });
+        }
+      } else {
+        assign(group, {
+          w: Math.max(GROUP_MIN.w, frame.w + dx),
+          h: Math.max(GROUP_MIN.h, frame.h + dy),
+        });
+      }
+      this.cd.detectChanges();
+    };
+    const up = () => {
+      target.removeEventListener("pointermove", move);
+      target.removeEventListener("pointerup", up);
+      target.removeEventListener("pointercancel", up);
+      if (moved) {
+        this.save();
+      }
+    };
+    target.addEventListener("pointermove", move);
+    target.addEventListener("pointerup", up);
+    target.addEventListener("pointercancel", up);
   }
 
   /** How many nodes a group's frame holds (#329). */

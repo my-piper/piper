@@ -251,6 +251,7 @@
     width: 5000px;
     height: 5000px;
     background: var(--canvas-background);
+    cursor: grab;
 
     // CanvasSelectDirective appends it outside the template.
     ::ng-deep .marquee {
@@ -324,6 +325,27 @@
         background: color-mix(in srgb, var(--g) 22%, transparent);
       }
 
+      .group-bar.movable {
+        cursor: move;
+        user-select: none;
+      }
+
+      // Bottom-right corner: drag to resize (#330).
+      .group-resize {
+        position: absolute;
+        right: -1px;
+        bottom: -1px;
+        width: 14px;
+        height: 14px;
+        border-radius: 0 0 var(--radius-lg) 0;
+        cursor: nwse-resize;
+        background: linear-gradient(
+          135deg,
+          transparent 50%,
+          color-mix(in srgb, var(--g) 70%, transparent) 50%
+        );
+      }
+
       .group-dot {
         flex: none;
         width: 10px;
@@ -349,8 +371,9 @@
       }
     }
 
+    // Only the wires take the pointer: the rest of this full-size layer lets
+    // it through to the group frames under it and to the pane (#330).
     > svg {
-      cursor: grab;
       position: absolute;
       top: 0;
       right: 0;
@@ -359,6 +382,7 @@
       width: 100%;
       height: 100%;
       z-index: 0;
+      pointer-events: none;
 
       .dot {
         fill: var(--grid-dot);
@@ -366,6 +390,8 @@
 
       // Wires take their source port's type colour (docs/design.md).
       path {
+        // The wires still take clicks (an output's wire removes it).
+        pointer-events: visibleStroke;
         --t: var(--type-any);
         stroke-width: var(--wire);
         stroke-linecap: round;
