@@ -150,3 +150,14 @@
         animation: spinner-animation 0.5s linear infinite;
     }
 }
+
+// Read by screen readers, not shown (table action headers, icon labels).
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

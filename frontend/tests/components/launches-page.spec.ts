@@ -9,11 +9,11 @@ import { userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 
-function setup() {
+function setup(data: object = { filter: {} }) {
   seedAuthorization(userPlain("owner"));
   configureAppTestingModule();
   TestBed.overrideProvider(ActivatedRoute, {
-    useValue: { data: of({ filter: {} }) },
+    useValue: { data: of(data) },
   });
   const fixture = TestBed.createComponent(LaunchesPageComponent);
   fixture.detectChanges();
@@ -42,6 +42,20 @@ describe("LaunchesPageComponent", () => {
     expect(page.close().textContent).toContain("ESC");
     expect(navigate).toHaveBeenCalledWith(["./"], expect.anything());
     page.fixture.destroy();
+    finish();
+  }));
+
+  it("lists launches as cards unless the route asks for a table", fakeAsync(() => {
+    const cards = setup();
+    const cardsView = cards.fixture.componentInstance.view;
+    cards.fixture.destroy();
+    TestBed.resetTestingModule();
+
+    const table = setup({ filter: {}, launchesView: "table" });
+
+    expect(cardsView).toBe("cards");
+    expect(table.fixture.componentInstance.view).toBe("table");
+    table.fixture.destroy();
     finish();
   }));
 });

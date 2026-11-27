@@ -210,13 +210,3 @@ tr:hover td.actions button {
 .loading td {
   text-align: center;
 }
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
