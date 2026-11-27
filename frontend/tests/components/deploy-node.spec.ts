@@ -81,6 +81,21 @@ describe("deploy nodes on the canvas", () => {
     finish();
   }));
 
+  it("names its Deploy in the node title's hover text", fakeAsync(() => {
+    const { controller, element, detectChanges } = setupEditor({
+      project: deployProject(),
+    });
+
+    controller.expectOne(SOCKETS_URL).flush(socketsPlain());
+    detectChanges();
+
+    const title = nodeBox(element, "node_two").querySelector(
+      '[data-testid="node-title"]',
+    );
+    expect(title.getAttribute("title")).toMatch(/ · owner\/summarizer$/);
+    finish();
+  }));
+
   it("warns about a deploy node that no longer matches its Deploy", fakeAsync(() => {
     const { controller, element, detectChanges } = setupEditor({
       project: deployProject(),

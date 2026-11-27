@@ -58,12 +58,20 @@
               <div
                 class="node"
                 [dragClone]="{ payload: dragPayload(node) }"
-                [title]="node.title | i18n"
+                [title]="
+                  (node.title | i18n) +
+                  (deployRef(node) ? ' · ' + deployRef(node) : '')
+                "
               >
                 @if (node.thumbnail; as thumbnail) {
                   <img class="thumbnail" [src]="thumbnail" alt="" />
                 }
-                <span class="name">{{ node.title | i18n }}</span>
+                <span class="text">
+                  <span class="name">{{ node.title | i18n }}</span>
+                  @if (deployRef(node); as ref) {
+                    <span class="ref" data-testid="deploy-ref">{{ ref }}</span>
+                  }
+                </span>
                 @for (t of node.tags; track t) {
                   <span
                     tuiChip

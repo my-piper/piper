@@ -17,7 +17,7 @@ import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
-import { deployItem, matchDeploys } from "src/utils/deploy-node";
+import { deployItem, deployRef, matchDeploys } from "src/utils/deploy-node";
 import { groupNodes, NodeGroup } from "src/utils/node-groups";
 
 const DEPLOYS_GROUP = "deploys";
@@ -147,6 +147,8 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
       nodes: matchDeploys(this.deploys, search),
     };
   }
+
+  readonly deployRef = deployRef;
 
   /** What dragging a palette item drops on the canvas. */
   dragPayload(node: Node) {

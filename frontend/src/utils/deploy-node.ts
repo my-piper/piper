@@ -51,6 +51,19 @@ export function deployName({ prefix, slug }: NodeDeploy): string {
 }
 
 /**
+ * The `prefix/slug` that tells a Deploy node apart from other Deploys of the
+ * same project, which share its title; `null` for other nodes and when the
+ * title already is that name.
+ */
+export function deployRef(node: Node): string | null {
+  if (!node?.deploy) {
+    return null;
+  }
+  const name = deployName(node.deploy);
+  return name === node.title ? null : name;
+}
+
+/**
  * A Deploy listed in a node palette. It isn't a real node: the canvas makes
  * one from its sockets when it is added.
  */

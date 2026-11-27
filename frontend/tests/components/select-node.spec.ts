@@ -100,6 +100,14 @@ function setup(deploys: Plain[] = []) {
       Array.from(element.querySelectorAll(".node .name")).map((title) =>
         title.textContent.trim(),
       ),
+    deployRows: () =>
+      Array.from(element.querySelectorAll<HTMLElement>(".node")).map((row) => ({
+        name: row.querySelector(".name")?.textContent.trim(),
+        ref:
+          row.querySelector('[data-testid="deploy-ref"]')?.textContent.trim() ??
+          null,
+        hint: row.getAttribute("title"),
+      })),
   };
 }
 
@@ -223,6 +231,32 @@ describe("SelectNodeComponent", () => {
     finish();
   }));
 
+  it("tells apart two Deploys of one project by their names", fakeAsync(() => {
+    const page = setup([
+      { ...deployPlain(), prefix: null, slug: "violations-detector-v6" },
+      { ...deployPlain(), prefix: null, slug: "violations-detector-v5" },
+    ]);
+    page.respond();
+
+    page.groups()[2].button.click();
+    page.settle();
+
+    expect(page.deployRows()).toEqual([
+      {
+        name: "Summarizer",
+        ref: "violations-detector-v6",
+        hint: "Summarizer · violations-detector-v6",
+      },
+      {
+        name: "Summarizer",
+        ref: "violations-detector-v5",
+        hint: "Summarizer · violations-detector-v5",
+      },
+    ]);
+    page.controller.verify();
+    finish();
+  }));
+
   it("offers another user's Deploy named by its link in the search", fakeAsync(() => {
     const page = setup();
     page.respond();
@@ -236,7 +270,13 @@ describe("SelectNodeComponent", () => {
     expect(
       page.groups().map(({ title, expanded }) => ({ title, expanded })),
     ).toEqual([{ title: "Deploys", expanded: true }]);
-    expect(page.visibleNodes()).toEqual(["other-user/translator"]);
+    expect(page.deployRows()).toEqual([
+      {
+        name: "other-user/translator",
+        ref: null,
+        hint: "other-user/translator",
+      },
+    ]);
     page.controller.verify();
     finish();
   }));

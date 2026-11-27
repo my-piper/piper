@@ -22,13 +22,13 @@
       data-testid="node-title"
       [title]="
         collapsed
-          ? (node.title | i18n) +
+          ? (titleHint ?? (node.title | i18n)) +
             ' · ' +
             featuredCount +
             ' in · ' +
             node.outputs.size +
             ' out'
-          : (node.title | i18n)
+          : (titleHint ?? (node.title | i18n))
       "
     >
       {{ node.title | i18n }}
