@@ -123,7 +123,6 @@ export class DragMoveDirective {
     this.timers.start = setTimeout(() => {
       this.mode = "move";
       this.renderer.setStyle(e, "cursor", "grabbing");
-      this.renderer.setStyle(e, "z-index", 1);
       this.cd.detectChanges();
     }, MOVE_DELAY);
   }

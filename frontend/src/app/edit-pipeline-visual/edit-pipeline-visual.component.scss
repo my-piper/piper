@@ -104,11 +104,22 @@
     backdrop-filter: blur(5px);
   }
 
+  // Pane stacking: edges (svg) 0 < flow midpoints 1 < items 2 < the item
+  // being dragged 3 < marquee 4. Items stay above flow midpoints so a node
+  // hides the midpoint and its delete button behind it.
+  .input,
+  .output,
+  .node {
+    &[data-mode="move"] {
+      z-index: 3;
+    }
+  }
+
   .input,
   .output {
     display: block;
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     user-select: none;
 
     &.disabled {
@@ -144,7 +155,7 @@
   .node {
     display: block;
     position: absolute;
-    z-index: 1;
+    z-index: 2;
 
     &.picked app-node {
       outline: 2px solid variables.$primary-color;
@@ -184,7 +195,7 @@
     // CanvasSelectDirective appends it outside the template.
     ::ng-deep .marquee {
       position: absolute;
-      z-index: 2;
+      z-index: 4;
       pointer-events: none;
       border: 1px solid variables.$primary-color;
       background: variables.with-alpha(variables.$primary-color, 0.1);
