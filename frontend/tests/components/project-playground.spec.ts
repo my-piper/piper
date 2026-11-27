@@ -282,12 +282,12 @@ describe("ProjectPlaygroundComponent", () => {
     finish();
   }));
 
-  it("resets to the project's values, keeping explicit falsy values", fakeAsync(() => {
+  it("resets to the project's values with its Reset button, keeping explicit falsy values", fakeAsync(() => {
     const playground = setup();
     type("topic", "Changed");
     type("count", "7");
 
-    playground.reset();
+    element.querySelector<HTMLButtonElement>("footer button.reset").click();
     fixture.detectChanges();
 
     expect(localStorage.getItem(PROJECT_A_ID)).toBeNull();

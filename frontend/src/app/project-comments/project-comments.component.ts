@@ -2,9 +2,13 @@ import {
   ChangeDetectorRef,
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
+import { TuiDialogService } from "@taiga-ui/core";
 import { last } from "lodash";
 import { delay, finalize, map } from "rxjs";
 import { AppConfig } from "src/models/app-config";
@@ -16,6 +20,7 @@ import {
 } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
+import { confirmDelete } from "src/utils/confirm-delete";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 
 @Component({
@@ -26,6 +31,9 @@ import { mapTo, toInstance, toPlain } from "src/utils/models";
   standalone: false,
 })
 export class ProjectCommentsComponent {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogs = inject(TuiDialogService);
+
   progress = {
     loading: false,
     deleting: false,
@@ -37,8 +45,6 @@ export class ProjectCommentsComponent {
   project!: Project;
   chunk: ProjectComment[] = [];
   comments: ProjectComment[] = [];
-
-  actionsOpen: string | null = null;
 
   messageControl = this.fb.control<string>(null, [Validators.required]);
   form = this.fb.group({
@@ -124,6 +130,22 @@ export class ProjectCommentsComponent {
       });
   }
 
+  confirmRemove(comment: ProjectComment) {
+    confirmDelete(
+      this.dialogs,
+      $localize`:@@message.confirm_delete_comment_label:Delete comment?`,
+      $localize`:@@message.confirm_delete_comment:The comment will be deleted. This can't be undone.`,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        // the list may have changed while the dialog was open
+        const index = this.comments.indexOf(comment);
+        if (index !== -1) {
+          this.remove(index, comment);
+        }
+      });
+  }
+
   remove(index: number, { _id }: ProjectComment) {
     this.progress.removing[index] = true;
     this.cd.detectChanges();
@@ -134,7 +156,6 @@ export class ProjectCommentsComponent {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.removing[index] = false;
-          this.actionsOpen = null;
           this.cd.detectChanges();
         }),
       )
