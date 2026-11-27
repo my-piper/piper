@@ -82,13 +82,13 @@ describe("EditPipelineVisualComponent runs", () => {
   it("launches the whole pipeline in a new tab and keeps the canvas free", fakeAsync(() => {
     const tab = tabDouble();
     const editor = setupEditor();
-    const { element, controller, detectChanges } = editor;
+    const { controller, detectChanges, topbar } = editor;
 
-    runButton(element).click();
+    runButton(topbar).click();
     detectChanges();
     const openedBeforeResponse = tab.open.mock.calls.length;
     const request = controller.expectOne(LAUNCH_URL);
-    const busy = isLoading(runButton(element));
+    const busy = isLoading(runButton(topbar));
     request.flush(launchResponsePlain());
     tick(UI_DELAY);
     detectChanges();
@@ -103,7 +103,7 @@ describe("EditPipelineVisualComponent runs", () => {
     expect(editor.editor.launch).toBeFalsy();
     expect(editor.editor.progress.launching).toBe(false);
     expect(editor.router.url).not.toContain("launch=");
-    expect(iconName(runButton(element))).toBe("play");
+    expect(iconName(runButton(topbar))).toBe("play");
     controller.verify();
     finish();
   }));
@@ -111,11 +111,11 @@ describe("EditPipelineVisualComponent runs", () => {
   it("waits for a pending save before launching", fakeAsync(() => {
     const tab = tabDouble();
     const editor = setupEditor();
-    const { controller, manager, detectChanges, element } = editor;
+    const { controller, manager, detectChanges, topbar } = editor;
     manager.project.pipeline.nodes.get("node_one").title = "Renamed";
     manager.markDirty();
 
-    runButton(element).click();
+    runButton(topbar).click();
     detectChanges();
     const early = controller.match(LAUNCH_URL);
     tick(AUTOSAVE);
@@ -138,11 +138,11 @@ describe("EditPipelineVisualComponent runs", () => {
     expectConsoleError("Process HTTP error 409");
     const tab = tabDouble();
     const editor = setupEditor();
-    const { controller, manager, detectChanges, element } = editor;
+    const { controller, manager, detectChanges, topbar } = editor;
     manager.project.pipeline.nodes.get("node_one").title = "Renamed";
     manager.markDirty();
 
-    runButton(element).click();
+    runButton(topbar).click();
     detectChanges();
     tick(AUTOSAVE);
     controller
@@ -154,7 +154,7 @@ describe("EditPipelineVisualComponent runs", () => {
     expect(controller.match(LAUNCH_URL).length).toBe(0);
     expect(tab.closed).toBe(true);
     expect(editor.editor.progress.launching).toBe(false);
-    expect(isLoading(runButton(element))).toBe(false);
+    expect(isLoading(runButton(topbar))).toBe(false);
     controller.verify();
     finish();
   }));
@@ -163,9 +163,9 @@ describe("EditPipelineVisualComponent runs", () => {
     expectConsoleError("Process HTTP error 400");
     const tab = tabDouble();
     const editor = setupEditor();
-    const { element, controller, detectChanges } = editor;
+    const { controller, detectChanges, topbar } = editor;
 
-    runButton(element).click();
+    runButton(topbar).click();
     controller.expectOne(LAUNCH_URL).flush("Launch request is invalid", {
       status: 400,
       statusText: "Bad Request",
@@ -176,7 +176,7 @@ describe("EditPipelineVisualComponent runs", () => {
     expect(openDialog()?.textContent).toContain("Launch request is invalid");
     expect(tab.closed).toBe(true);
     expect(editor.editor.progress.launching).toBe(false);
-    expect(isLoading(runButton(element))).toBe(false);
+    expect(isLoading(runButton(topbar))).toBe(false);
     controller.verify();
     finish();
   }));
@@ -316,20 +316,20 @@ describe("EditPipelineVisualComponent launch page", () => {
 
   it("interrupts the running launch and hides the interrupt button", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });
-    const { element, controller, detectChanges } = editor;
+    const { controller, detectChanges, topbar } = editor;
     answerNodeReads(editor);
 
-    interruptButton(element).click();
+    interruptButton(topbar).click();
     detectChanges();
     const interrupt = controller.expectOne(INTERRUPT_URL);
-    const busy = isLoading(interruptButton(element));
+    const busy = isLoading(interruptButton(topbar));
     interrupt.flush(null);
     tick(UI_DELAY);
     detectChanges();
 
     expect(interrupt.request.method).toBe("POST");
     expect(busy).toBe(true);
-    expect(interruptButton(element)).toBeNull();
+    expect(interruptButton(topbar)).toBeNull();
     expect(editor.editor.launch._id).toBe(LAUNCH_ID);
     controller.verify();
     finish();
@@ -338,18 +338,18 @@ describe("EditPipelineVisualComponent launch page", () => {
   it("keeps the interrupt button and shows the error when interrupting fails", fakeAsync(() => {
     expectConsoleError("Process HTTP error 404");
     const editor = setupEditor({ launch: launch() });
-    const { element, controller, detectChanges } = editor;
+    const { controller, detectChanges, topbar } = editor;
     answerNodeReads(editor);
 
-    interruptButton(element).click();
+    interruptButton(topbar).click();
     controller
       .expectOne(INTERRUPT_URL)
       .flush("Not found", { status: 404, statusText: "Not Found" });
     tick(UI_DELAY);
     detectChanges();
 
-    expect(interruptButton(element)).not.toBeNull();
-    expect(isLoading(interruptButton(element))).toBe(false);
+    expect(interruptButton(topbar)).not.toBeNull();
+    expect(isLoading(interruptButton(topbar))).toBe(false);
     expect(openDialog()).not.toBeNull();
     controller.verify();
     finish();
@@ -357,18 +357,18 @@ describe("EditPipelineVisualComponent launch page", () => {
 
   it("hides the interrupt button when its pipeline_done arrives, ignoring other launches", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });
-    const { element, controller, detectChanges, socket } = editor;
+    const { controller, detectChanges, socket, topbar } = editor;
     answerNodeReads(editor);
 
     socket.receive("pipeline_done", { launch: "launch_other" });
     detectChanges();
-    const afterOther = interruptButton(element);
+    const afterOther = interruptButton(topbar);
     socket.receive("pipeline_done", { launch: LAUNCH_ID });
     tick();
     detectChanges();
 
     expect(afterOther).not.toBeNull();
-    expect(interruptButton(element)).toBeNull();
+    expect(interruptButton(topbar)).toBeNull();
     expect(editor.editor.launch._id).toBe(LAUNCH_ID);
     controller.verify();
     finish();
@@ -411,7 +411,7 @@ describe("EditPipelineVisualComponent run feedback", () => {
 
   it("shows a failed node inline, marks the launch failed and opens its log", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });
-    const { element, detectChanges, router, controller } = editor;
+    const { element, detectChanges, router, controller, topbar } = editor;
 
     answerStatuses(editor, {
       node_one: { state: "error", error: "Boom" },
@@ -428,8 +428,8 @@ describe("EditPipelineVisualComponent run feedback", () => {
     expect(node.querySelector('[data-testid="node-failed"]')).not.toBeNull();
     expect(message?.trim()).toBe("Boom");
     expect(retry).toBeNull();
-    expect(pill(element).dataset["state"]).toBe("failed");
-    expect(pill(element).textContent).toContain("Failed");
+    expect(pill(topbar).dataset["state"]).toBe("failed");
+    expect(pill(topbar).textContent).toContain("Failed");
     expect(router.url).toContain("(right:nodes/node_one/logs)");
     answerStatuses(editor);
     controller.verify();
@@ -438,7 +438,7 @@ describe("EditPipelineVisualComponent run feedback", () => {
 
   it("counts the elapsed time while a node runs and animates its wires", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });
-    const { element, detectChanges, controller } = editor;
+    const { element, detectChanges, controller, topbar } = editor;
     editor.editor.launch.startedAt = new Date(Date.now() - 42_000);
 
     answerStatuses(editor, {
@@ -447,14 +447,14 @@ describe("EditPipelineVisualComponent run feedback", () => {
     });
     detectChanges();
     const running = {
-      state: pill(element).dataset["state"],
-      elapsed: element.querySelector('[data-testid="launch-elapsed"]')
+      state: pill(topbar).dataset["state"],
+      elapsed: topbar.querySelector('[data-testid="launch-elapsed"]')
         .textContent,
       wire: nodeWire(element).classList.contains("running"),
     };
     tick(1000);
     detectChanges();
-    const ticked = element.querySelector(
+    const ticked = topbar.querySelector(
       '[data-testid="launch-elapsed"]',
     ).textContent;
     tick(1000);
@@ -466,9 +466,9 @@ describe("EditPipelineVisualComponent run feedback", () => {
 
     expect(running).toEqual({ state: "running", elapsed: "0:42", wire: true });
     expect(ticked).toBe("0:43");
-    expect(pill(element).dataset["state"]).toBe("done");
+    expect(pill(topbar).dataset["state"]).toBe("done");
     expect(
-      element.querySelector('[data-testid="launch-elapsed"]').textContent,
+      topbar.querySelector('[data-testid="launch-elapsed"]').textContent,
     ).toBe("0:44");
     expect(nodeWire(element).classList.contains("running")).toBe(false);
     controller.verify();
@@ -477,23 +477,23 @@ describe("EditPipelineVisualComponent run feedback", () => {
 
   it("follows a node through the queue and waiting for its inputs", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });
-    const { element, detectChanges, controller, socket } = editor;
+    const { detectChanges, controller, socket, topbar } = editor;
     const event = { launch: LAUNCH_ID, node: "node_two" };
     editor.editor.launch.launchRequest.inclusive = undefined;
 
     answerStatuses(editor, { node_one: { state: "done" } });
     detectChanges();
-    const skipped = pill(element).dataset["state"];
+    const skipped = pill(topbar).dataset["state"];
     socket.receive("node_flow", event);
     answerStatuses(editor);
     detectChanges();
-    const queued = pill(element).dataset["state"];
+    const queued = pill(topbar).dataset["state"];
     socket.receive("node_not_ready", event);
     tick();
     detectChanges();
     const waiting = {
-      state: pill(element).dataset["state"],
-      title: pill(element).querySelector("[title]")?.getAttribute("title"),
+      state: pill(topbar).dataset["state"],
+      title: pill(topbar).querySelector("[title]")?.getAttribute("title"),
     };
 
     expect(skipped).toBe("done");
@@ -508,7 +508,7 @@ describe("EditPipelineVisualComponent run feedback", () => {
 
   it("offers Retry on a node that failed in the editor and runs it again", fakeAsync(() => {
     const editor = setupEditor();
-    const { element, detectChanges, controller } = editor;
+    const { element, detectChanges, controller, topbar } = editor;
     editor.editor.launches = { node_one: launch() };
     detectChanges();
 
@@ -534,7 +534,7 @@ describe("EditPipelineVisualComponent run feedback", () => {
     });
     expect(editor.editor.launches["node_one"]._id).toBe("launch_retry");
     expect(element.querySelector('[data-testid="node-failed"]')).toBeNull();
-    expect(element.querySelector('[data-testid="launch-state"]')).toBeNull();
+    expect(topbar.querySelector('[data-testid="launch-state"]')).toBeNull();
     controller.verify();
     finish();
   }));

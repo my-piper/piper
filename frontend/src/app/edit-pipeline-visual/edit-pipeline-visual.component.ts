@@ -4,6 +4,7 @@ import {
   ElementRef,
   HostListener,
   OnDestroy,
+  TemplateRef,
   ViewChild,
   ChangeDetectionStrategy,
   inject,
@@ -67,6 +68,7 @@ import { HttpService } from "src/services/http.service";
 import { LiveService } from "src/services/live.service";
 import { MeManager } from "src/services/me.service";
 import { ProjectManager } from "src/services/project.manager";
+import { TopbarService } from "src/services/topbar.service";
 import { NodeOutputs } from "src/types/node";
 import { Point } from "src/types/point";
 import { Primitive } from "src/types/primitive";
@@ -209,6 +211,11 @@ export class EditPipelineVisualComponent implements OnDestroy {
   @ViewChild("drawlerRight", { static: true })
   drawlerRight!: RouterOutlet;
 
+  /** Run state and the Launch action, shown in the app top bar. */
+  @ViewChild("topbarActions", { static: true })
+  topbarActions!: TemplateRef<unknown>;
+  private readonly topbar = inject(TopbarService);
+
   @ViewChild("nodesRef")
   nodesRef!: ElementRef<HTMLDivElement>;
 
@@ -233,6 +240,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.topbar.setActions(this.topbarActions);
     this.route.data.subscribe(({ project, launch, launches, mode }) => {
       [
         this.project,
@@ -364,6 +372,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.topbar.clearActions(this.topbarActions);
     clearInterval(this.clock);
     this.unsubscribe();
   }

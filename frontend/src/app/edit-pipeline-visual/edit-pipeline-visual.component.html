@@ -15,6 +15,78 @@
   />
 }
 
+<!-- The canvas's part of the app top bar (TopbarService.actions). -->
+<ng-template #topbarActions>
+  @if (canEdit) {
+    <button
+      tuiButton
+      appearance="primary"
+      size="s"
+      type="button"
+      data-testid="run-pipeline"
+      iconStart="play"
+      title="Launch (Ctrl/⌘ + Enter)"
+      i18n-title="@@label.launch_shortcut"
+      [loading]="progress.launching || (launches | keyvalue).length > 0"
+      [disabled]="(launches | keyvalue).length > 0"
+      (click)="run()"
+    >
+      <ng-container i18n="@@action.launch">Launch</ng-container>
+      <kbd class="kbd">⌘↵</kbd>
+    </button>
+  }
+  @if (mode === "launch") {
+    @if (launchState; as state) {
+      <span
+        class="launch-state"
+        role="status"
+        data-testid="launch-state"
+        [attr.data-state]="state"
+      >
+        @switch (state) {
+          @case ("running") {
+            <ng-container i18n="@@label.launch_running">Running</ng-container>
+          }
+          @case ("failed") {
+            <ng-container i18n="@@label.launch_failed">Failed</ng-container>
+          }
+          @case ("done") {
+            <ng-container i18n="@@label.launch_done">Done</ng-container>
+          }
+          @default {
+            <span
+              title="Nothing is running and the workflow isn't finished"
+              i18n-title="@@message.launch_idle"
+              i18n="@@label.launch_idle"
+              >Idle</span
+            >
+          }
+        }
+        @if (elapsed !== null) {
+          <span class="elapsed" data-testid="launch-elapsed">{{
+            elapsed
+          }}</span>
+        }
+      </span>
+    }
+    @if (running) {
+      <button
+        tuiButton
+        appearance="flat-grayscale"
+        size="s"
+        type="button"
+        data-testid="interrupt-launch"
+        [loading]="progress.interrupting"
+        [disabled]="progress.interrupting"
+        (click)="interrupt()"
+        iconStart="stop"
+      >
+        <ng-container i18n="@@action.stop">Stop</ng-container>
+      </button>
+    }
+  }
+</ng-template>
+
 <div class="drawler left" [class.hidden]="!drawlers.left">
   <div class="content">
     <router-outlet
@@ -238,19 +310,6 @@
         [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
         iconStart="add-node"
       ></a>
-      <div>
-        <button
-          tuiIconButton
-          appearance="outline-grayscale"
-          size="s"
-          class="round"
-          data-testid="run-pipeline"
-          [loading]="progress.launching || (launches | keyvalue).length > 0"
-          [disabled]="(launches | keyvalue).length > 0"
-          (click)="run()"
-          iconStart="play"
-        ></button>
-      </div>
       @if (config.assistant.active) {
         <a
           tuiIconButton
@@ -268,52 +327,6 @@
   }
   @if (mode === "launch") {
     <div class="actions stack">
-      @if (launchState; as state) {
-        <span
-          class="launch-state"
-          role="status"
-          data-testid="launch-state"
-          [attr.data-state]="state"
-        >
-          @switch (state) {
-            @case ("running") {
-              <ng-container i18n="@@label.launch_running">Running</ng-container>
-            }
-            @case ("failed") {
-              <ng-container i18n="@@label.launch_failed">Failed</ng-container>
-            }
-            @case ("done") {
-              <ng-container i18n="@@label.launch_done">Done</ng-container>
-            }
-            @default {
-              <span
-                title="Nothing is running and the workflow isn't finished"
-                i18n-title="@@message.launch_idle"
-                i18n="@@label.launch_idle"
-                >Idle</span
-              >
-            }
-          }
-          @if (elapsed !== null) {
-            <span class="elapsed" data-testid="launch-elapsed">{{
-              elapsed
-            }}</span>
-          }
-        </span>
-      }
-      @if (running) {
-        <button
-          tuiIconButton
-          appearance="outline-grayscale"
-          size="s"
-          class="round"
-          data-testid="interrupt-launch"
-          [loading]="progress.interrupting"
-          [disabled]="progress.interrupting"
-          (click)="interrupt()"
-          iconStart="stop"
-        ></button>
-      }
       <a
         tuiIconButton
         appearance="outline-grayscale"

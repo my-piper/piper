@@ -28,4 +28,19 @@ describe("TopbarService", () => {
 
     expect(topbar.content()).toBe(next);
   });
+
+  it("keeps page actions apart from page content", () => {
+    const topbar = new TopbarService();
+    const [crumbs, actions, stale] = [template(), template(), template()];
+
+    topbar.set(crumbs);
+    topbar.setActions(actions);
+    topbar.clearActions(stale);
+    const kept = topbar.actions();
+    topbar.clearActions(actions);
+
+    expect(kept).toBe(actions);
+    expect(topbar.actions()).toBeNull();
+    expect(topbar.content()).toBe(crumbs);
+  });
 });

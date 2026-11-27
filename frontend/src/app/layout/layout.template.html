@@ -110,6 +110,10 @@
         <span tuiBadge appearance="neutral" size="s" class="beta">beta</span>
       </div>
       <span class="spacer"></span>
+      } @if (topbar.actions(); as actions) {
+      <div class="page-actions" data-testid="app-topbar-actions">
+        <ng-container [ngTemplateOutlet]="actions" />
+      </div>
       }
       <app-me-user></app-me-user>
       @if (mobile()) {
