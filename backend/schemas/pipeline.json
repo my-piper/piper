@@ -68,6 +68,26 @@
         },
         "zoom": {
           "type": "number"
+        },
+        "groups": {
+          "type": "object",
+          "description": "Frames on the canvas that group nodes, by id",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "color": {
+                "type": "string",
+                "enum": ["gray", "blue", "green", "amber", "red", "violet"]
+              },
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "w": { "type": "number", "minimum": 120 },
+              "h": { "type": "number", "minimum": 80 }
+            },
+            "required": ["title", "x", "y", "w", "h"],
+            "additionalProperties": false
+          }
         }
       },
       "required": ["left", "top"],

@@ -24,6 +24,33 @@ export class Start {
   nodes: string[];
 }
 
+/** A frame on the canvas that groups the nodes inside it. */
+export class LayoutGroup {
+  @Expose()
+  @Type(() => String)
+  title: string;
+
+  @Expose()
+  @Type(() => String)
+  color?: "gray" | "blue" | "green" | "amber" | "red" | "violet";
+
+  @Expose()
+  @Type(() => Number)
+  x: number;
+
+  @Expose()
+  @Type(() => Number)
+  y: number;
+
+  @Expose()
+  @Type(() => Number)
+  w: number;
+
+  @Expose()
+  @Type(() => Number)
+  h: number;
+}
+
 export class Layout {
   @Expose()
   @Type(() => Number)
@@ -36,6 +63,11 @@ export class Layout {
   @Expose()
   @Type(() => Number)
   zoom: number;
+
+  /** Frames on the canvas, by id; optional. */
+  @Expose()
+  @Type(() => LayoutGroup)
+  groups?: Map<string, LayoutGroup>;
 }
 
 export class PipelineInput {

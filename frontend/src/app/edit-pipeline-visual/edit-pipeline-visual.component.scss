@@ -286,6 +286,69 @@
       }
     }
 
+    // Group frames (#329): under the wires (svg) and the nodes. Six muted
+    // tints, kept low in opacity so they read on both themes.
+    > .group {
+      --g: #8a8e98;
+      position: absolute;
+      z-index: 0;
+      box-sizing: border-box;
+      border: 1px solid color-mix(in srgb, var(--g) 55%, transparent);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--g) 10%, transparent);
+
+      &[data-color="blue"] {
+        --g: #4f8fe8;
+      }
+      &[data-color="green"] {
+        --g: #3fb27f;
+      }
+      &[data-color="amber"] {
+        --g: #e0a83a;
+      }
+      &[data-color="red"] {
+        --g: #e5655b;
+      }
+      &[data-color="violet"] {
+        --g: #9b7be8;
+      }
+
+      .group-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 28px;
+        padding: 0 var(--space-2) 0 10px;
+        border-radius: calc(var(--radius-lg) - 1px) calc(var(--radius-lg) - 1px)
+          0 0;
+        background: color-mix(in srgb, var(--g) 22%, transparent);
+      }
+
+      .group-dot {
+        flex: none;
+        width: 10px;
+        height: 10px;
+        border-radius: var(--radius-full);
+        background: var(--g);
+      }
+
+      .group-title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .group-count {
+        flex: none;
+        font: 500 11px/14px var(--font-mono);
+        color: var(--text-faint);
+      }
+    }
+
     > svg {
       cursor: grab;
       position: absolute;
