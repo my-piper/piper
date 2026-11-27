@@ -440,11 +440,21 @@
           !drag.dragged ? togglePick($event, 'input:' + input.key) : null
         "
       >
-        @if (
-          mode === "project" &&
-          (userRole.admin | can: project.createdBy | async)
-        ) {
-          <div class="item-actions">
+        <app-pipeline-input
+          [id]="input.key"
+          [input]="input.value"
+          [value]="
+            $safeNavigationMigration(launchRequest.inputs?.get(input.key))
+          "
+          [project]="project"
+          [launchRequest]="launchRequest"
+          [attr.disabled]="drag.dragged"
+          (output)="startInputFlow(input.key)"
+        >
+          @if (
+            mode === "project" &&
+            (userRole.admin | can: project.createdBy | async)
+          ) {
             <button
               tuiIconButton
               appearance="flat-grayscale"
@@ -456,19 +466,8 @@
               style="--app-icon-size: 16px"
               (click)="confirmRemoveInput(input.key)"
             ></button>
-          </div>
-        }
-        <app-pipeline-input
-          [id]="input.key"
-          [input]="input.value"
-          [value]="
-            $safeNavigationMigration(launchRequest.inputs?.get(input.key))
-          "
-          [project]="project"
-          [launchRequest]="launchRequest"
-          [attr.disabled]="drag.dragged"
-          (output)="startInputFlow(input.key)"
-        ></app-pipeline-input>
+          }
+        </app-pipeline-input>
       </div>
     }
 
@@ -536,26 +535,24 @@
           !drag.dragged ? togglePick($event, 'output:' + output.key) : null
         "
       >
-        <app-pipeline-output
-          [id]="output.key"
-          [output]="output.value"
-        ></app-pipeline-output>
-        @if (
-          mode === "project" &&
-          (userRole.admin | can: project.createdBy | async)
-        ) {
-          <button
-            tuiIconButton
-            appearance="flat-grayscale"
-            size="xs"
-            class="delete"
-            title="Delete"
-            i18n-title="@@action.delete"
-            iconStart="delete"
-            style="--app-icon-size: 16px"
-            (click)="confirmRemoveOutput(output.key)"
-          ></button>
-        }
+        <app-pipeline-output [id]="output.key" [output]="output.value">
+          @if (
+            mode === "project" &&
+            (userRole.admin | can: project.createdBy | async)
+          ) {
+            <button
+              tuiIconButton
+              appearance="flat-grayscale"
+              size="xs"
+              class="delete"
+              title="Delete"
+              i18n-title="@@action.delete"
+              iconStart="delete"
+              style="--app-icon-size: 16px"
+              (click)="confirmRemoveOutput(output.key)"
+            ></button>
+          }
+        </app-pipeline-output>
       </div>
     }
 
@@ -1111,34 +1108,6 @@
                         | async),
                     }
                 | curve: (pipeline | pipelineOutput: o.key).arrange
-            "
-          />
-        }
-        @if (!!o.value.from) {
-          <path
-            class="flow param to-output"
-            [attr.data-type]="o.value.type"
-            [class.disabled]="
-              mode !== 'project' ||
-              (userRole.admin | can: project.createdBy | async | not)
-            "
-            (click)="removeOutput(o.key)"
-            [attr.d]="
-              (pipeline | pipelineOutput: o.key).arrange
-                | curve
-                  : ((pipeline | node: o.value.from | async).arrange
-                      | shift
-                        : {
-                            x:
-                              (pipeline | node: o.value.from | async).arrange
-                                .w || ui.node.width,
-                            y:
-                              (pipeline
-                              | node: o.value.from
-                              | async
-                              | outputOffset: o.value.output
-                              | async),
-                          })
             "
           />
         }

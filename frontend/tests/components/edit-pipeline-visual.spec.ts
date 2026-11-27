@@ -661,6 +661,44 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
+    it("puts the Delete of a pipeline input in its title row", fakeAsync(() => {
+      const { element } = setupEditor();
+
+      const button = inputBox(element, "topic").querySelector("button.delete");
+
+      expect(button.parentElement.matches("app-pipeline-input > .head")).toBe(
+        true,
+      );
+      finish();
+    }));
+
+    it("puts the Delete of a pipeline output inside its box", fakeAsync(() => {
+      const { element } = setupEditor();
+
+      const button = outputBox(element, "result").querySelector(
+        "button.delete",
+      );
+
+      expect(button.parentElement.tagName).toBe("APP-PIPELINE-OUTPUT");
+      finish();
+    }));
+
+    it("keeps a pipeline output when its confirmation is cancelled", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges } = setupEditor({ project });
+
+      click(
+        outputBox(element, "result").querySelector("button.delete"),
+        detectChanges,
+      );
+      const asked = openDialog() !== null;
+      click(dialogButton("Cancel"), detectChanges);
+
+      expect(asked).toBe(true);
+      expect(project.pipeline.outputs.has("result")).toBe(true);
+      finish();
+    }));
+
     it("deletes flows on one click, without a confirmation", fakeAsync(() => {
       const project = projectA();
       const { element, detectChanges } = setupEditor({ project });

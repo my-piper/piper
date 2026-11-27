@@ -1,4 +1,7 @@
-<div class="title">{{ input.title | i18n }}</div>
+<div class="head">
+  <div class="title">{{ input.title | i18n }}</div>
+  <ng-content select=".delete"></ng-content>
+</div>
 <app-edit-pipeline-input
   [id]="id"
   [input]="input"

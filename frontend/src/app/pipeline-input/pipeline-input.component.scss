@@ -42,8 +42,19 @@
   }
 }
 
+.head {
+  display: flex;
+  align-items: center;
+  gap: variables.$gutter-small;
+  // The canvas's Delete button (#342) sits at the right end of the title row.
+  min-height: 24px;
+  margin: calc(-1 * variables.$gutter-small) calc(-1 * variables.$gutter-small)
+    0 0;
+}
+
 .title {
-  margin-right: variables.$gutter-huge;
+  flex: 1;
+  min-width: 0;
 }
 
 .port {
