@@ -7,7 +7,8 @@ set -uo pipefail
 file=$(jq -r '.tool_input.file_path // empty')
 [ -z "$file" ] || [ ! -f "$file" ] && exit 0
 
-root="${CLAUDE_PROJECT_DIR:-$(git -C "$(dirname "$file")" rev-parse --show-toplevel)}"
+# The edited file's own checkout: a session in the main checkout may edit a worktree.
+root="$(git -C "$(dirname "$file")" rev-parse --show-toplevel 2>/dev/null || echo "${CLAUDE_PROJECT_DIR:-}")"
 
 case "$file" in
   "$root"/backend/core-kit/* | */node_modules/*) exit 0 ;;
