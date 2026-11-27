@@ -8,3 +8,5 @@ export const SIDEBAR_KEY = "sidebar";
 export const HIDDEN_STRING = "[encrypted]";
 /** What Piper v1 showed in place of a Secret Variable's value. */
 export const V1_HIDDEN_STRING = "[hidden]";
+/** Whether the canvas minimap shows (`"true"`/`"false"`), per browser. */
+export const MINIMAP_KEY = "canvas_minimap";

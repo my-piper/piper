@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+.map {
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--canvas-background) 92%, transparent);
+  box-shadow: var(--shadow-popover);
+  cursor: pointer;
+  touch-action: none;
+
+  i {
+    position: absolute;
+    display: block;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+}
+
+// The six group tints (styles shared with the canvas frames).
+[data-color] {
+  --g: #8a8e98;
+}
+[data-color="blue"] {
+  --g: #4f8fe8;
+}
+[data-color="green"] {
+  --g: #3fb27f;
+}
+[data-color="amber"] {
+  --g: #e0a83a;
+}
+[data-color="red"] {
+  --g: #e5655b;
+}
+[data-color="violet"] {
+  --g: #9b7be8;
+}
+
+.mm-group {
+  border: 1px solid color-mix(in srgb, var(--g) 60%, transparent);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--g) 14%, transparent);
+}
+
+.mm-node {
+  min-width: 3px;
+  min-height: 2px;
+  border-radius: 2px;
+  background: var(--text-faint);
+
+  &[data-color] {
+    background: var(--g);
+  }
+}
+
+.mm-view {
+  border: 1.5px solid var(--accent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
