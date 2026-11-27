@@ -1,6 +1,6 @@
 <ng-template
   [tuiDialog]="dialogOpen()"
-  [tuiDialogOptions]="dialogOptions"
+  [tuiDialogOptions]="dialogOptions()"
   (tuiDialogChange)="!$event && back()"
 >
   <router-outlet (activate)="activate($event)"></router-outlet>

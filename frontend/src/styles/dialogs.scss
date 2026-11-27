@@ -1,7 +1,8 @@
-// Dialogs (docs/design.md, #262): a 44px header with a rule under it, a
-// space-4 body, and a footer of actions at the end (ghost Cancel, then the
-// named primary action). The selector repeats Taiga's own attributes, plus
-// `body`, so it outranks Taiga's dialog rules without !important.
+// Dialogs (docs/design.md#dialogs, #262, #347): a 44px header with a rule
+// under it, a space-4 body, and a footer of actions at the end (ghost Cancel,
+// then the named primary action). The selector repeats Taiga's own
+// attributes, plus `body`, so it outranks Taiga's dialog rules without
+// !important.
 
 body tui-dialog[data-appearance~="taiga"][data-size] {
   padding: 0;
@@ -9,7 +10,10 @@ body tui-dialog[data-appearance~="taiga"][data-size] {
   background: var(--surface-1);
   box-shadow: var(--shadow-popover);
 
-  > header {
+  // `:not(:last-child)` matches Taiga's own header margin rule, which would
+  // otherwise leave a gap under the rule.
+  > header,
+  > header:not(:last-child) {
     display: flex;
     align-items: center;
     box-sizing: border-box;
@@ -32,11 +36,15 @@ body tui-dialog[data-appearance~="taiga"][data-size] {
     inset-inline-end: 10px;
   }
 
-  // Dialog content, including Taiga's own (TUI_CONFIRM renders an inline
-  // ng-component), is a padded block.
-  > :not(header):not(button) {
-    display: block;
-    padding: var(--space-4);
+  // A routed dialog's outlet is an empty marker next to the page it renders.
+  > router-outlet {
+    display: none;
+  }
+
+  // Section titles inside the content; the dialog's title is its label.
+  h2 {
+    margin: 0;
+    font: var(--tui-typography-heading-h6);
   }
 
   // A content footer holds the actions, at the end.
@@ -46,4 +54,15 @@ body tui-dialog[data-appearance~="taiga"][data-size] {
     justify-content: flex-end;
     gap: var(--space-2);
   }
+}
+
+// Dialog content, including Taiga's own (TUI_CONFIRM renders an inline
+// ng-component), is a padded border-box block. `:where` keeps the rule at zero
+// specificity, so a content root's own display (flex, grid) wins; the root
+// sets no padding or width of its own (#347).
+:where(body tui-dialog[data-appearance~="taiga"][data-size])
+  > :where(:not(header, button, router-outlet)) {
+  display: block;
+  box-sizing: border-box;
+  padding: var(--space-4);
 }

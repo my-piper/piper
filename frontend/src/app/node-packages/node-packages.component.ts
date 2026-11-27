@@ -25,6 +25,7 @@ import { getLabel } from "src/utils/i18n";
 import { EditPackageComponent } from "./edit/edit-package.component";
 import { ImportPackageComponent } from "./import/import-package.component";
 import { PACKAGES_ROOM } from "src/consts/rooms";
+import { dialogLabel } from "src/utils/route-dialog";
 
 @Component({
   selector: "app-node-packages",
@@ -52,10 +53,16 @@ export class NodePackagesComponent {
   };
 
   state: NodePackageUpdatesState;
-  readonly dialogOptions = {
-    size: "l" as const,
-    label: $localize`:@@link.node_packages:Node packages`,
-  };
+  // The child route names the dialog (add, import, export, edit). One object
+  // per label, so change detection sees a stable binding.
+  private options = { size: "l" as const, label: undefined as string };
+  get dialogOptions() {
+    const label = dialogLabel(this.route);
+    if (label !== this.options.label) {
+      this.options = { size: "l", label };
+    }
+    return this.options;
+  }
 
   private readonly dialogReady = signal(false);
 

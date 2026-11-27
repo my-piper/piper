@@ -59,6 +59,7 @@ import {
   removeFromFolders,
 } from "./folders";
 import { ImportProjectComponent } from "./import/import-project.component";
+import { dialogLabel } from "src/utils/route-dialog";
 // the tags of a projects link, without blanks and repeats
 function tagsOf(params: ParamMap): string[] {
   return uniq(params.getAll("tag").filter((t) => !!t));
@@ -114,8 +115,6 @@ export class ProjectsComponent implements OnInit {
   @ViewChildren("nameInput")
   nameInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
-  // the import page carries its own heading
-  readonly dialogOptions = { size: "l" as const };
 
   // the root popup host must exist before opening a dialog on direct route entry
   private readonly dialogReady = signal(false);
@@ -125,6 +124,11 @@ export class ProjectsComponent implements OnInit {
   readonly dialogOpen = computed(
     () => this.dialogReady() && this.childActive(),
   );
+  // the child route names the dialog
+  readonly dialogOptions = computed(() => ({
+    size: "l" as const,
+    label: this.childActive() ? dialogLabel(this.route) : undefined,
+  }));
 
   activate(modal: unknown) {
     if (modal instanceof ImportProjectComponent) {

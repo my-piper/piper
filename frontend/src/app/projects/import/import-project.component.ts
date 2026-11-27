@@ -39,6 +39,10 @@ export class ImportProjectComponent {
   @Output()
   imported = new EventEmitter<Project>();
 
+  cancel() {
+    this.router.navigate([".."], { relativeTo: this.route });
+  }
+
   import() {
     // a failed import saved nothing: start over from the pasted YAML
     this.error = null;
