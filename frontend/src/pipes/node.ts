@@ -6,6 +6,7 @@ import { Node } from "src/models/node";
 import { NodeFlow } from "src/models/node-flow";
 import { Pipeline } from "src/models/pipeline";
 import { ProjectManager } from "src/services/project.manager";
+import { inputOffset } from "src/utils/node-layout";
 
 @Pipe({
   name: "node",
@@ -41,11 +42,15 @@ export class NodePipe implements PipeTransform {
   }
 }
 
+/**
+ * The socket centre of a node input from the node's top edge (nodeLayout),
+ * kept current as the project changes, for the canvas's wire ends.
+ */
 @Pipe({
-  name: "inputIndex",
+  name: "inputOffset",
   standalone: false,
 })
-export class InputIndexOfPipe implements PipeTransform {
+export class InputOffsetPipe implements PipeTransform {
   value: BehaviorSubject<number> | null = null;
 
   constructor(
@@ -54,21 +59,10 @@ export class InputIndexOfPipe implements PipeTransform {
   ) {}
 
   transform(node: Node, name: string): BehaviorSubject<number> {
-    const update = () => {
-      const keys = [];
-      for (const g of node.render.inputs) {
-        for (const i of g.group.inputs) {
-          if (!i.input.featured) {
-            continue;
-          }
-          keys.push(i.id);
-        }
-      }
-      this.value.next(keys.indexOf(name));
-    };
+    const update = () => this.value.next(inputOffset(node, name));
 
     if (!this.value) {
-      this.value = new BehaviorSubject<number>(0);
+      this.value = new BehaviorSubject<number>(inputOffset(node, name));
       this.projectManager.updates
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => update());

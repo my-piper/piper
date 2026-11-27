@@ -442,14 +442,11 @@
                       | shift
                         : {
                             y:
-                              ((pipeline
-                                | node: f.value.to
-                                | async
-                                | inputIndex: f.value.input
-                                | async) +
-                                1) *
-                                ui.node.input.height +
-                              ui.node.shift,
+                              (pipeline
+                              | node: f.value.to
+                              | async
+                              | inputOffset: f.value.input
+                              | async),
                           })
                 | position
             "
@@ -664,6 +661,7 @@
           (output)="startNodeFlow(node.key, $event)"
           (done)="mode === 'project' ? fillNodeOutputs(node.key, $event) : null"
           (setOutput)="setNodeOutput(node.key, $event.output, $event.value)"
+          (inputChange)="setNodeInput(node.key, $event.input, $event.value)"
           (takeOutInput)="takeOutPipelineInput($event)"
           (takeOutOutput)="takeOutPipelineOutput($event)"
           (click)="
@@ -700,14 +698,11 @@
                     | shift
                       : {
                           y:
-                            ((pipeline
-                              | node: f.value.to
-                              | async
-                              | inputIndex: f.value.input
-                              | async) +
-                              1) *
-                              ui.node.input.height +
-                            ui.node.shift,
+                            (pipeline
+                            | node: f.value.to
+                            | async
+                            | inputOffset: f.value.input
+                            | async),
                         })
               | position
           "
@@ -823,14 +818,11 @@
                     | shift
                       : {
                           y:
-                            ((pipeline
-                              | node: f.value.to
-                              | async
-                              | inputIndex: f.value.input
-                              | async) +
-                              1) *
-                              ui.node.input.height +
-                            ui.node.shift,
+                            (pipeline
+                            | node: f.value.to
+                            | async
+                            | inputOffset: f.value.input
+                            | async),
                         })
           "
         ></path>
@@ -853,14 +845,11 @@
                       | shift
                         : {
                             y:
-                              ((pipeline
-                                | node: f.value.to
-                                | async
-                                | inputIndex: f.value.input
-                                | async) +
-                                1) *
-                                ui.node.input.height +
-                              ui.node.shift,
+                              (pipeline
+                              | node: f.value.to
+                              | async
+                              | inputOffset: f.value.input
+                              | async),
                           })
             "
           />

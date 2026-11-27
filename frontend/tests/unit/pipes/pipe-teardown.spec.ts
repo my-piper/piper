@@ -10,7 +10,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { Pipeline } from "src/models/pipeline";
 import { DeclaredVariablesPipe } from "src/pipes/declared-variables";
 import { LaunchHeartbeatPipe } from "src/pipes/launch-heartbeat";
-import { InputFlowsPipe, InputIndexOfPipe, NodePipe } from "src/pipes/node";
+import { InputFlowsPipe, InputOffsetPipe, NodePipe } from "src/pipes/node";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { TickerPipe } from "src/pipes/ticker.pipe";
 import { ProjectManager } from "src/services/project.manager";
@@ -48,7 +48,7 @@ class TickerHostComponent {
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     {{ (pipeline | node: "node_one" | async)?.title }}
-    {{ pipeline.nodes.get("node_one") | inputIndex: "prompt" | async }}
+    {{ pipeline.nodes.get("node_one") | inputOffset: "prompt" | async }}
     {{ (pipeline | inputFlows: "node_two" : "text" | async)?.length }}
     {{ (pipeline | declaredVariables | async)?.size }}
   `,
@@ -91,7 +91,7 @@ describe("pipe teardown", () => {
       declarations: [
         TickerPipe,
         NodePipe,
-        InputIndexOfPipe,
+        InputOffsetPipe,
         InputFlowsPipe,
         DeclaredVariablesPipe,
         PipelineNodeUpdatesPipe,

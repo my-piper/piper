@@ -87,7 +87,7 @@ import { MarkdownPipe } from "src/pipes/markdown";
 import { MultiplyPipe } from "src/pipes/multiply";
 import {
   InputFlowsPipe,
-  InputIndexOfPipe,
+  InputOffsetPipe,
   NodePipe,
   OutputIndexPipe,
 } from "src/pipes/node";
@@ -194,7 +194,7 @@ import { UsersComponent } from "./users/users.component";
     PlainPipe,
     AssetsComponent,
     OutputIndexPipe,
-    InputIndexOfPipe,
+    InputOffsetPipe,
     SelectNodeComponent,
     NodeSearchComponent,
     SelectThemeComponent,

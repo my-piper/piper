@@ -84,6 +84,7 @@ import {
   refreshFromDeploy,
 } from "src/utils/deploy-node";
 import { acceptedInputTypes } from "src/utils/flow-types";
+import { inputOffset } from "src/utils/node-layout";
 import {
   CanvasClip,
   clipFromText,
@@ -1102,11 +1103,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
   ) {
     const { x, y, flow, accepts, added } = this.search;
     const step = added * 24;
-    // A wired node puts its first input row on the drop point.
-    const top = flow ? y - (UI.node.input.height + UI.node.shift) : y;
-    this.addNode(x + step, top + step, picked, (id, created) => {
+    this.addNode(x + step, y + step, picked, (id, created) => {
       if (flow && accepts) {
-        this.connectAdded(flow, id, created, accepts);
+        const input = this.connectAdded(flow, id, created, accepts);
+        // The connected socket sits on the drop point.
+        created.arrange.y -= input
+          ? inputOffset(created, input)
+          : UI.node.input.height + UI.node.shift;
       }
     });
     if (keepOpen) {
@@ -1122,19 +1125,20 @@ export class EditPipelineVisualComponent implements OnDestroy {
     id: string,
     node: Node,
     accepts: string[],
-  ) {
+  ): string | null {
     const inputs = [...node.inputs.entries()].filter(([, i]) =>
       accepts.includes(i.type),
     );
     const [key] = inputs.find(([, i]) => i.featured) ?? inputs[0] ?? [];
     if (!key) {
-      return;
+      return null;
     }
     if (type === "node") {
       this.addNodeFlow(from, output, id, key);
     } else {
       this.addInputFlow(from, id, key);
     }
+    return key;
   }
 
   addNodeFlow(from: string, output: string, to: string, input: string) {
@@ -1514,6 +1518,32 @@ export class EditPipelineVisualComponent implements OnDestroy {
     } else {
       this.closeDrawler();
     }
+  }
+
+  /**
+   * A node's inline widget changed an input value. Writes it where the node
+   * drawer does, as a new map so the canvas re-reads it; `null` drops it,
+   * so the input falls back to its default.
+   */
+  setNodeInput(node: string, input: string, value: Primitive | null) {
+    if (this.mode !== "project") {
+      return;
+    }
+    this.launchRequest.nodes ??= new Map();
+    let request = this.launchRequest.nodes.get(node);
+    if (!request) {
+      request = new NodeToLaunch();
+      this.launchRequest.nodes.set(node, request);
+    }
+    const inputs = new Map(request.inputs ?? []);
+    if (value === null) {
+      inputs.delete(input);
+    } else {
+      inputs.set(input, value);
+    }
+    request.inputs = inputs;
+    this.projectManager.markDirty(this);
+    this.cd.detectChanges();
   }
 
   setNodeOutput(node: string, output: string, value: Primitive) {
