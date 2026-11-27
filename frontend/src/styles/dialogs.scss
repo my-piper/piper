@@ -1,0 +1,49 @@
+// Dialogs (docs/design.md, #262): a 44px header with a rule under it, a
+// space-4 body, and a footer of actions at the end (ghost Cancel, then the
+// named primary action). The selector repeats Taiga's own attributes, plus
+// `body`, so it outranks Taiga's dialog rules without !important.
+
+body tui-dialog[data-appearance~="taiga"][data-size] {
+  padding: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-popover);
+
+  > header {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: 44px;
+    margin: 0;
+    padding: 0 44px 0 var(--space-4);
+    border-block-end: 1px solid var(--border);
+
+    h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 20px;
+      font-weight: 600;
+    }
+  }
+
+  // The close button sits in the header row.
+  > button:first-child {
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
+  }
+
+  // Dialog content, including Taiga's own (TUI_CONFIRM renders an inline
+  // ng-component), is a padded block.
+  > :not(header):not(button) {
+    display: block;
+    padding: var(--space-4);
+  }
+
+  // A content footer holds the actions, at the end.
+  footer:last-child,
+  footer.t-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+}
