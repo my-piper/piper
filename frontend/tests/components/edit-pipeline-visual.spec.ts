@@ -116,6 +116,37 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
+    it("marks the Auto start nodes in their header", fakeAsync(() => {
+      const { element } = setupEditor({ user: "stranger" });
+
+      const marks = ["node_one", "node_two"].map((id) => {
+        const mark = nodeElement(element, id).querySelector(
+          '[data-testid="node-auto-start"]',
+        );
+        return (
+          mark && [mark.getAttribute("aria-label"), mark.getAttribute("title")]
+        );
+      });
+
+      expect(marks).toEqual([["Auto start", "Auto start"], null]);
+      finish();
+    }));
+
+    it("runs every node from a plain play button", fakeAsync(() => {
+      const { element } = setupEditor();
+
+      const icons = ["node_one", "node_two"].map((id) =>
+        element
+          .querySelector(
+            `[data-testid="node-${id}"] .item-actions > button.run`,
+          )
+          .getAttribute("data-icon-start"),
+      );
+
+      expect(icons).toEqual(["play", "play"]);
+      finish();
+    }));
+
     it("opens the add-node drawer for an empty project", fakeAsync(() => {
       const project = projectWith({
         ...smallGraphPipeline(),
@@ -1802,6 +1833,19 @@ describe("EditPipelineVisualComponent", () => {
         '[data-testid="node-collapse"]',
       );
     }
+
+    it("keeps the Auto start mark on a collapsed node", fakeAsync(() => {
+      const { element, detectChanges } = setupEditor();
+
+      toggle(element, "node_one").click();
+      detectChanges();
+
+      const mark = nodeElement(element, "node_one").querySelector(
+        '[data-testid="node-auto-start"]',
+      );
+      expect(mark).not.toBeNull();
+      finish();
+    }));
 
     it("collapses a node to its title bar and expands it again", fakeAsync(() => {
       const project = connectionProject();

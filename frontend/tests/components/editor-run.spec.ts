@@ -10,7 +10,9 @@ import {
   SOCKET_EVENTS,
   USER_IDS,
 } from "../fixtures/plain";
-import { finish, setupEditor } from "../helpers/editor";
+import { finish, nodeElement, setupEditor } from "../helpers/editor";
+import { Inclusive } from "src/models/launch-request";
+import { toInstance } from "src/utils/models";
 import { expectConsoleError } from "../helpers/console";
 import { isLoading, iconName, openDialog } from "../helpers/taiga";
 import { LAUNCH_ROOM, USER_ROOM } from "src/consts/rooms";
@@ -60,8 +62,7 @@ function tabDouble() {
  */
 function answerNodeReads({ controller }: Editor) {
   const reads = controller.match(
-    (r: HttpRequest<unknown>) =>
-      r.method === "GET" && isNodeRead(r.url),
+    (r: HttpRequest<unknown>) => r.method === "GET" && isNodeRead(r.url),
   );
   for (const read of reads) {
     read.flush(read.request.url.endsWith("/status") ? null : {});
@@ -111,8 +112,7 @@ function answerStatuses(
   statuses: Record<string, Status> = {},
 ) {
   const reads = controller.match(
-    (r: HttpRequest<unknown>) =>
-      r.method === "GET" && isNodeRead(r.url),
+    (r: HttpRequest<unknown>) => r.method === "GET" && isNodeRead(r.url),
   );
   for (const read of reads) {
     const [, , , , node, kind] = read.request.url.split("/");
@@ -450,6 +450,31 @@ describe("EditPipelineVisualComponent launch page", () => {
       finish();
     }));
   }
+
+  it("marks the nodes the launch started from", fakeAsync(() => {
+    const started = launch();
+    started.launchRequest.inclusive = toInstance(
+      { nodes: ["node_two"] },
+      Inclusive,
+    );
+    const editor = setupEditor({ launch: started });
+    const { controller, detectChanges, element } = editor;
+    answerStatuses(editor);
+    detectChanges();
+
+    const marks = ["node_one", "node_two"].map(
+      (id) =>
+        nodeElement(element, id)
+          .querySelector('[data-testid="node-auto-start"]')
+          ?.getAttribute("aria-label") ?? null,
+    );
+
+    expect(marks).toEqual([null, "Started here"]);
+    answerStatuses(editor);
+    answerRun(editor);
+    controller.verify();
+    finish();
+  }));
 
   it("hides Stop once the last running node finishes", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });

@@ -590,13 +590,7 @@
                 (click)="
                   !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
                 "
-                [iconStart]="
-                  !!launches[node.key]
-                    ? 'stop'
-                    : (pipeline.start.nodes | includes: node.key)
-                      ? 'play-filled'
-                      : 'play'
-                "
+                [iconStart]="!!launches[node.key] ? 'stop' : 'play'"
                 style="--app-icon-size: 16px"
               ></button>
               @if (!!node.value.app) {
@@ -730,6 +724,13 @@
               : null
           "
           [launch]="launch || launches[node.key]"
+          [startMark]="
+            (startNodes | includes: node.key)
+              ? !!launch
+                ? 'launch'
+                : 'auto'
+              : null
+          "
           [retryable]="runnable"
           (stateChange)="setNodeState(node.key, $event)"
           (retry)="runNode(node.key)"

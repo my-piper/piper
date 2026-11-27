@@ -136,6 +136,19 @@ export class NodeComponent implements OnDestroy {
     return this._launch;
   }
 
+  /**
+   * Marks a node the pipeline starts at: `auto` for an Auto start node in
+   * the editor, `launch` for a node the shown launch started from (#356).
+   */
+  @Input()
+  startMark: "auto" | "launch" | null = null;
+
+  get startLabel() {
+    return this.startMark === "launch"
+      ? $localize`:@@label.started_here:Started here`
+      : $localize`:@@label.auto_start:Auto start`;
+  }
+
   @Input()
   inputs!: NodeInputs;
 

@@ -18,6 +18,16 @@
     @if (status?.state === "error") {
       <tui-icon class="failed" icon="error" data-testid="node-failed" />
     }
+    @if (startMark) {
+      <span
+        class="start-mark"
+        role="img"
+        data-testid="node-auto-start"
+        [attr.data-start]="startMark"
+        [attr.aria-label]="startLabel"
+        [title]="startLabel"
+      ></span>
+    }
     <h2
       data-testid="node-title"
       [title]="
