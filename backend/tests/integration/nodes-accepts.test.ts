@@ -17,7 +17,7 @@ describe("catalog filter by accepted input type", () => {
       .collection("nodes")
       .drop()
       .catch(() => undefined);
-    await db.collection<{ _id: string }>("nodes").insertMany([
+    await db.collection<{ _id: string; inputs?: object }>("nodes").insertMany([
       { _id: "upscale", inputs: { image: { type: "image" } } },
       {
         _id: "caption",
