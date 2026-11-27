@@ -41,6 +41,7 @@ import {
   LogEntry,
 } from "packages/deno";
 import { readChildren, startChildren } from "packages/launches/child-launches";
+import { isDeployNode, runDeployNode } from "packages/nodes/deploy-node";
 import { appendNodeLogs } from "packages/nodes/node-logs";
 import { LaunchChildrenNode, NodeJobResult, RepeatNode } from "types/node";
 import { PipelineEventType } from "types/pipeline";
@@ -176,6 +177,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
             if (!ready) {
               logger.info(`Flow is not done ${id}`);
+              notifyNode(nodeJob.node, "node_not_ready");
               return NodeJobResult.NODE_FLOWS_NOT_READY_YET;
             }
             continue;
@@ -189,6 +191,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   logger.debug("Node inputs", inputs);
   if (!checkInputs(inputs, node.inputs).ready) {
     logger.debug("Node is not ready yet");
+    notifyNode(nodeJob.node, "node_not_ready");
     return NodeJobResult.NODE_INPUTS_NOT_READY_YET;
   }
 
@@ -257,24 +260,32 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     const children = await readChildren(launch._id, nodeJob.node);
 
-    logger.debug("Run node script");
-    results = await execute(
-      node.script,
-      RUN_FUNCTION_NAME,
-      {
-        schema: {
-          node: toPlain(node),
+    if (isDeployNode(node)) {
+      logger.debug("Run deploy node");
+      results = {
+        result: await runDeployNode(node, converted, children),
+        logs: [],
+      };
+    } else {
+      logger.debug("Run node script");
+      results = await execute(
+        node.script,
+        RUN_FUNCTION_NAME,
+        {
+          schema: {
+            node: toPlain(node),
+          },
+          inputs: converted,
+          state,
+          env: toPlain(environment),
+          ...(children ? { children } : {}),
         },
-        inputs: converted,
-        state,
-        env: toPlain(environment),
-        ...(children ? { children } : {}),
-      },
-      {
-        timeout: getTimeout(node.execution),
-        isolation: node.isolated ? "process" : "none",
-      }
-    );
+        {
+          timeout: getTimeout(node.execution),
+          isolation: node.isolated ? "process" : "none",
+        }
+      );
+    }
     finishedAt = Date.now();
     logs = results.logs;
   } catch (e) {

@@ -1410,4 +1410,129 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
   });
+  describe("copy, paste and duplicate", () => {
+    function clipboardEvent(type: "copy" | "paste", text?: string) {
+      const data = new DataTransfer();
+      if (text !== undefined) {
+        data.setData("text/plain", text);
+      }
+      return new ClipboardEvent(type, {
+        clipboardData: data,
+        bubbles: true,
+        cancelable: true,
+      });
+    }
+
+    function copied(target: EventTarget) {
+      const event = clipboardEvent("copy");
+      target.dispatchEvent(event);
+      return {
+        prevented: event.defaultPrevented,
+        text: event.clipboardData.getData("text/plain"),
+      };
+    }
+
+    function addedFlows(project: Project, before: Set<string>) {
+      return [...project.pipeline.flows.entries()].filter(
+        ([key]) => !before.has(key),
+      );
+    }
+
+    it("copies the selected nodes and pastes them with new ids and their flow", fakeAsync(() => {
+      const project = projectA();
+      const { editor, element, manager, detectChanges } = setupEditor({
+        project,
+      });
+      const flowsBefore = new Set(project.pipeline.flows.keys());
+      const nodesBefore = new Set(project.pipeline.nodes.keys());
+      editor.selection = new Set(["node:node_one", "node:node_two"]);
+
+      const copy = copied(element);
+      const paste = clipboardEvent("paste", copy.text);
+      element.dispatchEvent(paste);
+      detectChanges();
+
+      const pasted = [...project.pipeline.nodes.keys()].filter(
+        (id) => !nodesBefore.has(id),
+      );
+      const [[, flow]] = addedFlows(project, flowsBefore);
+      const one = project.pipeline.nodes.get("node_one").arrange;
+      expect(copy.prevented).toBe(true);
+      expect(copy.text).toContain("piper/canvas-clip");
+      expect(paste.defaultPrevented).toBe(true);
+      expect(pasted.length).toBe(2);
+      expect(pasted.every((id) => /^\w+_[0-9a-f]{10}$/.test(id))).toBe(true);
+      expect(pasted).toContain(flow.from);
+      expect(pasted).toContain(flow.to);
+      expect(
+        Math.min(
+          ...pasted.map((id) => project.pipeline.nodes.get(id).arrange.x),
+        ),
+      ).toBe(
+        Math.min(one.x, project.pipeline.nodes.get("node_two").arrange.x) + 40,
+      );
+      expect([...editor.selection]).toEqual(pasted.map((id) => `node:${id}`));
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("leaves copy alone without selected nodes or in a field", fakeAsync(() => {
+      const { editor, element } = setupEditor();
+      const empty = copied(element);
+      editor.selection = new Set(["node:node_one"]);
+      const field = document.createElement("input");
+      element.appendChild(field);
+
+      const inField = copied(field);
+
+      expect([empty, inField]).toEqual([
+        { prevented: false, text: "" },
+        { prevented: false, text: "" },
+      ]);
+      finish();
+    }));
+
+    it("neither copies nor pastes nodes outside the project editor", fakeAsync(() => {
+      const project = projectA();
+      const { editor, element } = setupEditor({ project, mode: "scheme" });
+      editor.selection = new Set(["node:node_one"]);
+      const nodes = project.pipeline.nodes.size;
+
+      const copy = copied(element);
+      const paste = clipboardEvent(
+        "paste",
+        '{"piper/canvas-clip":1,"nodes":[["x",{"_id":"x"}]]}',
+      );
+      element.dispatchEvent(paste);
+
+      expect(copy).toEqual({ prevented: false, text: "" });
+      expect(paste.defaultPrevented).toBe(false);
+      expect(project.pipeline.nodes.size).toBe(nodes);
+      finish();
+    }));
+
+    it("duplicates the selection with Ctrl + D, 40px off the originals", fakeAsync(() => {
+      const project = projectA();
+      const { editor, element, detectChanges } = setupEditor({ project });
+      const one = project.pipeline.nodes.get("node_one").arrange;
+      editor.selection = new Set(["node:node_one"]);
+
+      const event = new KeyboardEvent("keydown", {
+        key: "d",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      element.dispatchEvent(event);
+      detectChanges();
+
+      const [id] = [...editor.selection].map((k) => k.slice("node:".length));
+      expect(event.defaultPrevented).toBe(true);
+      expect(id).not.toBe("node_one");
+      expect(project.pipeline.nodes.get(id).arrange).toEqual(
+        expect.objectContaining({ x: one.x + 40, y: one.y + 40 }),
+      );
+      finish();
+    }));
+  });
 });

@@ -4,6 +4,7 @@ export type PipelineEventType =
   | "node_progress"
   | "node_error"
   | "node_flow"
+  | "node_not_ready"
   | "node_reset"
   | "node_gonna_repeat"
   | "set_pipeline_output"

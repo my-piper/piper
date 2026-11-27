@@ -22,7 +22,6 @@ import {
   NodeInput,
   NodeOutput,
   NodeProgress,
-  NodeState,
   NodeStatus,
 } from "src/models/node";
 import { Project } from "src/models/project";
@@ -31,6 +30,7 @@ import { LiveService } from "src/services/live.service";
 import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
 import { createLogger } from "src/utils/logger";
+import { NodeRunState } from "src/utils/launch-state";
 import { toInstance } from "src/utils/models";
 import { LAUNCH_ROOM } from "src/consts/rooms";
 
@@ -174,7 +174,7 @@ export class NodeComponent implements OnDestroy {
 
   /** The node's run state, emitted when it changes (`null`: no launch). */
   @Output()
-  stateChange = new EventEmitter<NodeState | null>();
+  stateChange = new EventEmitter<NodeRunState | null>();
 
   @Output()
   retry = new EventEmitter<void>();
@@ -270,8 +270,9 @@ export class NodeComponent implements OnDestroy {
       .subscribe((data) => {
         const { launch, node } = plainToInstance(PipelineEvent, data);
         if (launch === this.launch?._id && node === this.id) {
-          this.logger.debug("Node is ready");
-          this.checkStatus();
+          this.logger.debug("Node is waiting for its inputs");
+          this.setStatus(this.status, "waiting");
+          this.cd.detectChanges();
         }
       });
 
@@ -293,6 +294,7 @@ export class NodeComponent implements OnDestroy {
         const { launch, node } = plainToInstance(PipelineEvent, data as object);
         if (launch === this.launch?._id && node === this.id) {
           this.logger.debug("Node is going to flow");
+          this.setStatus(this.status, "queued");
           this.load();
         }
       });
@@ -321,10 +323,21 @@ export class NodeComponent implements OnDestroy {
     this.cd.detectChanges();
   }
 
+  /** Set by flow events until the node's backend status catches up. */
+  private pending: "queued" | "waiting" | null = null;
+
+  private get runState(): NodeRunState | null {
+    return this.pending ?? this.status?.state ?? null;
+  }
+
   /** The parent hears about changes after this change detection pass. */
-  private setStatus(status: NodeStatus | null) {
-    const [prev, next] = [this.status?.state ?? null, status?.state ?? null];
-    this.status = status;
+  private setStatus(
+    status: NodeStatus | null,
+    pending: "queued" | "waiting" | null = null,
+  ) {
+    const prev = this.runState;
+    [this.status, this.pending] = [status, pending];
+    const next = this.runState;
     if (prev !== next) {
       queueMicrotask(() => this.stateChange.emit(next));
     }

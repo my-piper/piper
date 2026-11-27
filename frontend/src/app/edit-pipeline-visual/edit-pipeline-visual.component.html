@@ -175,6 +175,11 @@
         </dd>
         <dt i18n="@@label.canvas_hint_select_all">Select all</dt>
         <dd i18n="@@message.canvas_hint_select_all">Ctrl/⌘ + A</dd>
+        <dt i18n="@@label.canvas_hint_copy">Copy</dt>
+        <dd i18n="@@message.canvas_hint_copy">
+          Ctrl/⌘ + C copies the selected nodes, Ctrl/⌘ + V pastes them at the
+          pointer, Ctrl/⌘ + D duplicates them
+        </dd>
         <dt i18n="@@label.canvas_hint_delete">Delete</dt>
         <dd i18n="@@message.canvas_hint_delete">
           Delete or Backspace removes the selection
@@ -281,7 +286,12 @@
               <ng-container i18n="@@label.launch_done">Done</ng-container>
             }
             @default {
-              <ng-container i18n="@@label.launch_idle">Idle</ng-container>
+              <span
+                title="Nothing is running and the workflow isn't finished"
+                i18n-title="@@message.launch_idle"
+                i18n="@@label.launch_idle"
+                >Idle</span
+              >
             }
           }
           @if (elapsed !== null) {
