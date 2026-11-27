@@ -162,17 +162,12 @@
       outline-offset: 3px;
     }
 
-    &.disabled {
-      .actions {
+    // Viewers who can't edit the project don't get the run controls.
+    &.disabled .item-actions {
+      .run,
+      .app {
         display: none;
       }
-    }
-
-    .actions {
-      z-index: 1;
-      position: absolute;
-      left: 12px;
-      top: -32px;
     }
 
     .item-actions {

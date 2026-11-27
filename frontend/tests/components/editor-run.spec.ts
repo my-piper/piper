@@ -35,7 +35,7 @@ function runButton(element: HTMLElement): HTMLButtonElement {
 
 function nodeRunButton(element: HTMLElement, id: string): HTMLButtonElement {
   const node = element.querySelector(`[data-testid="node-${id}"]`);
-  return node.querySelector(".actions.align-center button[tuiIconButton]");
+  return node.querySelector(".item-actions > button.run");
 }
 
 /** Makes `window.open` return a stand-in browser tab and records its use. */

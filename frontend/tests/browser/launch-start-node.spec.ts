@@ -47,7 +47,7 @@ test("runs an individual node without selecting a pipeline start node", async ({
 
   await page
     .getByTestId("node-node_one")
-    .locator(":scope > .actions > button")
+    .locator(".item-actions > button.run")
     .click();
 
   await expect(page).toHaveURL(/node_one:launch_1/);

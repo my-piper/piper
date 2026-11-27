@@ -448,73 +448,74 @@
         (moving)="itemMoving('node:' + node.key, node.value.arrange, $event)"
         (moved)="itemMoved('node:' + node.key, node.value.arrange, $event)"
       >
-        @if (mode !== "scheme" && !launch) {
-          <div class="actions stack align-center">
-            <button
-              tuiIconButton
-              appearance="outline-grayscale"
-              size="xs"
-              class="round"
-              [loading]="progress.nodes.launching[node.key]"
-              [disabled]="progress.nodes.launching[node.key]"
-              (click)="
-                !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
-              "
-              [iconStart]="
-                !!launches[node.key]
-                  ? 'stop'
-                  : (pipeline.start.nodes | includes: node.key)
-                    ? 'play-filled'
-                    : 'play'
-              "
-              style="--app-icon-size: 20px"
-            ></button>
-            @if (!!node.value.app) {
-              <a
-                tuiIconButton
-                appearance="outline-grayscale"
-                size="s"
-                class="round"
-                [routerLink]="['apps', node.key]"
-                iconStart="cursor"
-                style="--app-icon-size: 18px"
-              ></a>
-            }
-          </div>
-        }
-        @if (
+        @let runnable = mode !== "scheme" && !launch;
+        @let editable =
           mode === "project" &&
           (userRole.admin | can: project.createdBy | async) &&
-          !launches[node.key]
-        ) {
+          !launches[node.key];
+        @if (runnable || editable) {
           <div class="item-actions">
-            @if (
-              node.value.source === scriptNodeSource ||
-              (userRole.engineer | can | async)
-            ) {
+            @if (runnable) {
               <button
                 tuiIconButton
                 appearance="flat-grayscale"
                 size="xs"
-                class="edit"
-                title="Edit"
-                i18n-title="@@action.edit"
-                iconStart="edit"
+                class="run"
+                [loading]="progress.nodes.launching[node.key]"
+                [disabled]="progress.nodes.launching[node.key]"
+                (click)="
+                  !!launches[node.key] ? stopNode(node.key) : runNode(node.key)
+                "
+                [iconStart]="
+                  !!launches[node.key]
+                    ? 'stop'
+                    : (pipeline.start.nodes | includes: node.key)
+                      ? 'play-filled'
+                      : 'play'
+                "
                 style="--app-icon-size: 16px"
-                (click)="editNode(node.key)"
+              ></button>
+              @if (!!node.value.app) {
+                <a
+                  tuiIconButton
+                  appearance="flat-grayscale"
+                  size="xs"
+                  class="app"
+                  [routerLink]="['apps', node.key]"
+                  iconStart="cursor"
+                  style="--app-icon-size: 16px"
+                ></a>
+              }
+            }
+            @if (editable) {
+              @if (
+                node.value.source === scriptNodeSource ||
+                (userRole.engineer | can | async)
+              ) {
+                <button
+                  tuiIconButton
+                  appearance="flat-grayscale"
+                  size="xs"
+                  class="edit"
+                  title="Edit"
+                  i18n-title="@@action.edit"
+                  iconStart="edit"
+                  style="--app-icon-size: 16px"
+                  (click)="editNode(node.key)"
+                ></button>
+              }
+              <button
+                tuiIconButton
+                appearance="flat-grayscale"
+                size="xs"
+                class="delete"
+                title="Delete"
+                i18n-title="@@action.delete"
+                iconStart="delete"
+                style="--app-icon-size: 16px"
+                (click)="confirmRemoveNode(node.key, node.value)"
               ></button>
             }
-            <button
-              tuiIconButton
-              appearance="flat-grayscale"
-              size="xs"
-              class="delete"
-              title="Delete"
-              i18n-title="@@action.delete"
-              iconStart="delete"
-              style="--app-icon-size: 16px"
-              (click)="confirmRemoveNode(node.key, node.value)"
-            ></button>
           </div>
         }
         <app-node
