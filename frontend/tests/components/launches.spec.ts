@@ -32,7 +32,7 @@ import {
   configureAppTestingModule,
   finish as flushAll,
 } from "../helpers/editor";
-import { hover, unhover } from "../helpers/taiga";
+import { hover, openDialog, unhover } from "../helpers/taiga";
 import { SocketDouble } from "../helpers/socket";
 import { LAUNCH_ROOM, USER_ROOM } from "src/consts/rooms";
 
@@ -215,23 +215,51 @@ describe("LaunchesComponent", () => {
     finish();
   }));
 
-  function chooseFromMenu(card: number, label: string) {
+  function cardButton(card: number, testId: string) {
     const cards = element.querySelectorAll(".card");
-    cards[card]
-      .querySelector<HTMLButtonElement>("button[aria-label=Actions]")
-      .click();
-    fixture.detectChanges();
-    Array.from(
-      document.querySelectorAll<HTMLElement>("tui-data-list [tuiOption]"),
-    )
-      .find((option) => option.textContent.includes(label))
-      .click();
+    return cards[card].querySelector<HTMLElement>(`[data-testid=${testId}]`);
   }
 
-  it("removes a launch through its card menu after the server confirms", fakeAsync(() => {
+  function dialogButton(label: string) {
+    return Array.from(openDialog().querySelectorAll("button")).find(
+      (b) => b.textContent.trim() === label,
+    );
+  }
+
+  function click(target: HTMLElement) {
+    target.click();
+    fixture.detectChanges();
+    tick(UI_DELAY);
+    fixture.detectChanges();
+  }
+
+  it("puts Open pipeline and Delete on the card instead of a menu", fakeAsync(() => {
+    setup();
+
+    const open = cardButton(0, "launch-open");
+    const remove = cardButton(0, "launch-delete");
+
+    expect(open.getAttribute("href")).toBe(`/launches/${LAUNCH_ID}`);
+    expect(open.getAttribute("target")).toBe("_blank");
+    expect(remove).not.toBeNull();
+    expect(element.querySelector("[aria-label=Actions]")).toBeNull();
+    finish();
+  }));
+
+  it("hides Delete on launches started by someone else", fakeAsync(() => {
+    setup([{ ...listedLaunch(), launchedBy: { _id: USER_IDS.engineer } }]);
+
+    const remove = cardButton(0, "launch-delete");
+
+    expect(remove).toBeNull();
+    finish();
+  }));
+
+  it("removes a launch after the user confirms and the server agrees", fakeAsync(() => {
     setup([listedLaunch(), listedLaunch("launch_two")]);
 
-    chooseFromMenu(0, "Delete");
+    click(cardButton(0, "launch-delete"));
+    click(dialogButton("Delete"));
     const request = controller.expectOne(`/api/launches/${LAUNCH_ID}`);
     request.flush(null);
     tick(UI_DELAY);
@@ -240,9 +268,18 @@ describe("LaunchesComponent", () => {
 
     expect(request.request.method).toBe("DELETE");
     expect(component.launches.map((l) => l._id)).toEqual(["launch_two"]);
-    expect(component.progress.removing[0]).toBe(false);
-    // a closed dropdown stays in the DOM until its leave animation ends
-    expect(document.querySelector("tui-dropdown:not(.tui-leave)")).toBeNull();
+    expect(component.progress.removing[LAUNCH_ID]).toBeUndefined();
+    finish();
+  }));
+
+  it("keeps the launch when the user cancels the confirmation", fakeAsync(() => {
+    setup();
+
+    click(cardButton(0, "launch-delete"));
+    click(dialogButton("Cancel"));
+
+    controller.expectNone(`/api/launches/${LAUNCH_ID}`);
+    expect(component.launches.map((l) => l._id)).toEqual([LAUNCH_ID]);
     finish();
   }));
 

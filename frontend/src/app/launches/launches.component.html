@@ -49,44 +49,35 @@
               [title]="l.launchedAt | date: 'medium'"
               >{{ l.launchedAt | timePassed }}</a
             >
-            <ng-template #actionsTemplate>
-              <tui-data-list>
-                <a
-                  tuiOption
-                  target="_blank"
-                  [routerLink]="['/launches', l._id]"
-                  (click)="actionsOpen = null"
-                >
-                  <tui-icon icon="@tui.external-link" />
-                  <ng-container i18n="@@link.open_pipeline">
-                    Open pipeline
-                  </ng-container>
-                </a>
-                @if (userRole.admin | can: l.launchedBy | async) {
-                  <button
-                    tuiOption
-                    type="button"
-                    [disabled]="progress.removing[i]"
-                    (click)="remove(i, l)"
-                  >
-                    <tui-icon icon="@tui.trash-2" />
-                    <ng-container i18n="@@action.delete">Delete</ng-container>
-                  </button>
-                }
-              </tui-data-list>
-            </ng-template>
-            <button
+            <a
               tuiIconButton
               appearance="flat-grayscale"
-              size="s"
-              type="button"
-              iconStart="@tui.ellipsis"
-              aria-label="Actions"
-              i18n-aria-label="@@label.actions"
-              [tuiDropdown]="actionsTemplate"
-              [tuiDropdownOpen]="actionsOpen === l._id"
-              (tuiDropdownOpenChange)="actionsOpen = $event ? l._id : null"
-            ></button>
+              size="xs"
+              iconStart="@tui.external-link"
+              target="_blank"
+              data-testid="launch-open"
+              aria-label="Open pipeline"
+              i18n-aria-label="@@link.open_pipeline"
+              tuiHint="Open pipeline"
+              i18n-tuiHint="@@link.open_pipeline"
+              [routerLink]="['/launches', l._id]"
+            ></a>
+            @if (userRole.admin | can: l.launchedBy | async) {
+              <button
+                tuiIconButton
+                appearance="flat-grayscale"
+                size="xs"
+                type="button"
+                iconStart="@tui.trash-2"
+                data-testid="launch-delete"
+                aria-label="Delete"
+                i18n-aria-label="@@action.delete"
+                tuiHint="Delete"
+                i18n-tuiHint="@@action.delete"
+                [disabled]="progress.removing[l._id]"
+                (click)="remove(l)"
+              ></button>
+            }
           </div>
           <div class="line meta">
             @if (l.launchedBy?.name; as name) {
