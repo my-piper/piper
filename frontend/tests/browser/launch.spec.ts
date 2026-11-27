@@ -78,7 +78,7 @@ test("runs the playground, shows scoped live results and launch failures", async
   expect((launch.body as Plain)["options"]).toEqual({ bucket: "artefacts" });
   await expect(card.locator("pre")).toContainText('"answer": 42');
   await expect(card.locator("pre")).not.toContainText('"answer": 7');
-  await expect(card.locator(".errors")).toBeVisible();
+  await expect(card.getByTestId("launch-status")).toHaveText("Failed");
 
   api.override("POST", /\/api\/projects\/project_aaaa\/launch$/, {
     status: 400,

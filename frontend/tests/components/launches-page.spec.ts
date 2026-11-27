@@ -44,18 +44,4 @@ describe("LaunchesPageComponent", () => {
     page.fixture.destroy();
     finish();
   }));
-
-  it("lists launches as cards unless the route asks for a table", fakeAsync(() => {
-    const cards = setup();
-    const cardsView = cards.fixture.componentInstance.view;
-    cards.fixture.destroy();
-    TestBed.resetTestingModule();
-
-    const table = setup({ filter: {}, launchesView: "table" });
-
-    expect(cardsView).toBe("cards");
-    expect(table.fixture.componentInstance.view).toBe("table");
-    table.fixture.destroy();
-    finish();
-  }));
 });

@@ -1,25 +1,17 @@
-@if (launches.length > 0 && view === "table") {
-  <table tuiTable size="s" class="launches-table" data-testid="launches-table">
-    <thead>
-      <tr>
-        <th tuiTh class="status-column" i18n="@@label.status">Status</th>
-        <th tuiTh i18n="@@label.launched">Launched</th>
-        <th tuiTh i18n="@@label.by">By</th>
-        <th tuiTh class="num" i18n="@@label.duration">Duration</th>
-        <th tuiTh class="num" i18n="@@label.outputs">Outputs</th>
-        <th tuiTh class="icon-column">
-          <span class="visually-hidden" i18n="@@label.actions">Actions</span>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (l of launches; track l._id; let i = $index) {
-        @let heartbeat = l._id | launchHeartbeat | ticker | async;
-        @let alive = !!heartbeat && (heartbeat | timeDiff: "s") < 10;
-        @let state =
-          alive ? "running" : l.errors?.length > 0 ? "failed" : "done";
-        <tr [attr.data-launch]="l._id">
-          <td tuiTd>
+@if (launches.length > 0) {
+  <div class="launches" data-testid="launches-cards">
+    @for (l of launches; track l._id; let i = $index) {
+      @let heartbeat = l._id | launchHeartbeat | ticker | async;
+      @let alive = !!heartbeat && (heartbeat | timeDiff: "s") < 10;
+      @let state = alive ? "running" : l.errors?.length > 0 ? "failed" : "done";
+      <article class="card" [attr.data-launch]="l._id">
+        <app-launch-outputs
+          mode="card"
+          [launch]="l"
+          [running]="state === 'running'"
+        ></app-launch-outputs>
+        <footer>
+          <div class="line">
             <ng-template #errorsHint>
               <ul class="errors-hint">
                 @for (error of l.errors; track $index) {
@@ -31,6 +23,7 @@
               class="status-pill"
               data-testid="launch-status"
               [attr.data-state]="state"
+              [attr.tabindex]="l.errors?.length > 0 ? 0 : null"
               [tuiHint]="l.errors?.length > 0 ? errorsHint : null"
             >
               @switch (state) {
@@ -49,27 +42,14 @@
                 }
               }
             </span>
-          </td>
-          <td tuiTd>
             <a
-              tuiLink
+              class="time"
               target="_blank"
               [routerLink]="['/launches', l._id]"
               [title]="l.launchedAt | date: 'medium'"
               >{{ l.launchedAt | timePassed }}</a
             >
-          </td>
-          <td tuiTd>{{ l.launchedBy?.name || l.launchedBy?._id || "—" }}</td>
-          <td tuiTd class="num">
-            @if (l._id | pipelineFinishedMetric | async; as metric) {
-              {{ metric.fromStart }} s
-            } @else {
-              —
-            }
-          </td>
-          <td tuiTd class="num">{{ l.outputs | keyvalue | length }}</td>
-          <td tuiTd class="actions">
-            <ng-template #rowActions>
+            <ng-template #actionsTemplate>
               <tui-data-list>
                 <a
                   tuiOption
@@ -98,157 +78,76 @@
             <button
               tuiIconButton
               appearance="flat-grayscale"
-              size="xs"
+              size="s"
               type="button"
-              iconStart="@tui.ellipsis-vertical"
+              iconStart="@tui.ellipsis"
               aria-label="Actions"
               i18n-aria-label="@@label.actions"
-              [tuiDropdown]="rowActions"
+              [tuiDropdown]="actionsTemplate"
               [tuiDropdownOpen]="actionsOpen === l._id"
               (tuiDropdownOpenChange)="actionsOpen = $event ? l._id : null"
             ></button>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-} @else if (launches.length > 0) {
-  <div
-    class="cards launches"
-    [class.busy-block]="launches.length <= 0 && progress.loading"
-  >
-    @for (l of launches; track l._id; let i = $index) {
-      <div class="card">
-        <header>
-          <ng-template #actionsTemplate>
-            <tui-data-list>
-              <a
-                tuiOption
-                target="_blank"
-                [routerLink]="['/launches', l._id]"
-                (click)="actionsOpen = null"
-              >
-                <tui-icon icon="@tui.external-link" />
-                <ng-container i18n="@@link.open_pipeline">
-                  Open pipeline
-                </ng-container>
-              </a>
-              @if (userRole.admin | can: l.launchedBy | async) {
-                <button
-                  tuiOption
-                  type="button"
-                  [disabled]="progress.removing[i]"
-                  (click)="remove(i, l)"
-                >
-                  <tui-icon icon="@tui.trash-2" />
-                  <ng-container i18n="@@action.delete">Delete</ng-container>
-                </button>
-              }
-            </tui-data-list>
-          </ng-template>
-          <button
-            tuiIconButton
-            class="actions"
-            appearance="secondary"
-            type="button"
-            iconStart="@tui.ellipsis-vertical"
-            aria-label="Actions"
-            i18n-aria-label="@@label.actions"
-            [tuiDropdown]="actionsTemplate"
-            [tuiDropdownOpen]="actionsOpen === l._id"
-            (tuiDropdownOpenChange)="actionsOpen = $event ? l._id : null"
-          ></button>
-          @if (l._id | pipelineFinishedMetric | async; as metric) {
-            <div class="metric">{{ metric.fromStart }} sec</div>
-          }
-        </header>
-        <article>
-          <ng-template #errorsTemplate>
-            <ul>
-              @for (error of l.errors; track $index) {
-                <li>{{ error }}</li>
-              }
-            </ul>
-          </ng-template>
-          @if (l.errors?.length > 0) {
-            <div class="errors">
-              <button
-                tuiIconButton
-                appearance="flat-grayscale"
-                [tuiHint]="errorsTemplate"
-                iconStart="error"
-                style="--app-icon-color: red"
-              ></button>
-            </div>
-          }
-          <app-launch-outputs
-            class="outputs"
-            mode="card"
-            [launch]="l"
-          ></app-launch-outputs>
-        </article>
-        <footer>
-          <ng-template #inputsPopover>
-            @if (l.inputs | keyvalue | orderBy: ["value.order"]; as inputs) {
-              @if (inputs.length > 0) {
-                <ul class="inputs">
-                  @for (i of inputs; track i.key) {
-                    <li>
-                      <b>{{ i.value.title | i18n }}:</b>
-                      <div class="value">
-                        @switch (i.value.type) {
-                          @case ("image") {
-                            <img
-                              [src]="
-                                $safeNavigationMigration(i.value.data?.url)
-                                  | proxyImage: { width: 100 }
-                              "
-                            />
-                          }
-                          @default {
-                            {{ i.value.data?.value }}
-                          }
-                        }
-                      </div>
-                    </li>
-                  }
-                </ul>
-              } @else {
-                <ng-container i18n="@@message.inputs_are_not_filled_yet">
-                  Inputs are not filled yet.
-                </ng-container>
-              }
+          </div>
+          <div class="line meta">
+            @if (l.launchedBy?.name; as name) {
+              <span class="launched-by">by {{ name }}</span>
             }
-          </ng-template>
-          <div class="stack horizontal align-center">
+            @if (l._id | pipelineFinishedMetric | async; as metric) {
+              <span class="duration" data-testid="launch-duration"
+                >{{ metric.fromStart }} s</span
+              >
+            }
+            <ng-template #inputsPopover>
+              @if (l.inputs | keyvalue | orderBy: ["value.order"]; as inputs) {
+                @if (inputs.length > 0) {
+                  <ul class="inputs">
+                    @for (i of inputs; track i.key) {
+                      <li>
+                        <b>{{ i.value.title | i18n }}:</b>
+                        <div class="value">
+                          @switch (i.value.type) {
+                            @case ("image") {
+                              <img
+                                [src]="
+                                  $safeNavigationMigration(i.value.data?.url)
+                                    | proxyImage: { width: 100 }
+                                "
+                              />
+                            }
+                            @default {
+                              {{ i.value.data?.value }}
+                            }
+                          }
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <ng-container i18n="@@message.inputs_are_not_filled_yet">
+                    Inputs are not filled yet.
+                  </ng-container>
+                }
+              }
+            </ng-template>
             <button
               tuiIconButton
               appearance="flat-grayscale"
-              [tuiHint]="inputsPopover"
+              size="xs"
+              type="button"
               iconStart="info"
+              aria-label="Inputs"
+              i18n-aria-label="@@label.inputs"
+              [tuiHint]="inputsPopover"
             ></button>
-            @if (l._id | launchHeartbeat | ticker | async; as heartbeat) {
-              @if ((heartbeat | timeDiff: "s") < 10) {
-                <tui-loader size="s" />
-              }
-            }
           </div>
-          <!-- name who started a launch, unless it is the current user -->
-          @if (
-            !!l.launchedBy &&
-            l.launchedBy._id !== config.authorization?.user?._id
-          ) {
-            <span class="launched-by"> by {{ l.launchedBy?.name }} | </span>
-          }
-          {{ l.launchedAt | timePassed }}
         </footer>
-      </div>
+      </article>
     }
   </div>
 } @else {
   @if (progress.loading) {
-    <div class="card-skeleton" data-testid="loading" style="--cols: 3">
-      @for (cell of 9 | mockArray; track $index) {
+    <div class="launches skeleton" data-testid="loading">
+      @for (cell of 8 | mockArray; track $index) {
         <div [tuiSkeleton]="true"></div>
       }
     </div>

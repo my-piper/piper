@@ -1,107 +1,111 @@
-@use "src/styles/mixins";
 @use "src/styles/variables";
-@use "src/styles/reset";
-@use "src/styles/cards";
+@use "src/styles/mixins";
 
-// Card base styles first; the rules below refine them.
-.cards {
-  @include cards.cards;
-}
-
-.card {
-  @include cards.card;
-}
-
+// Launch lists are card grids, not tables: what a launch produced is the
+// point (docs/design.md). Columns fill the width with cards at least
+// --card-min wide.
 :host {
+  --card-min: 240px;
   display: block;
   @include mixins.vertical-stack();
   padding: variables.$gutter-small;
 }
 
 :host-context(.project-playground) {
-  .launches {
-    @include mixins.wider-desktop() {
-      grid-template-columns: repeat(8, 1fr);
-    }
+  --card-min: 180px;
 
-    @include mixins.for-desktop() {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    @include mixins.for-tablet() {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @include mixins.for-mobile() {
-      grid-template-columns: 1fr;
-    }
+  .launched-by {
+    display: none;
   }
 }
 
 .launches {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  min-height: 100px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(var(--card-min), 100%), 1fr)
+  );
+  gap: var(--space-4);
+}
 
-  @include mixins.for-desktop() {
-    grid-template-columns: repeat(6, 1fr);
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  color: var(--text);
+  transition: border-color 120ms ease-out;
+
+  &:hover {
+    border-color: var(--border-strong);
   }
 
-  @include mixins.for-tablet() {
-    grid-template-columns: repeat(3, 1fr);
+  app-launch-outputs {
+    border-bottom: 1px solid var(--border);
+    border-radius: calc(var(--radius-md) - 1px) calc(var(--radius-md) - 1px) 0 0;
   }
 
-  @include mixins.for-mobile() {
-    grid-template-columns: 1fr;
+  footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-2);
   }
 
-  .card {
-    header {
-      .metric {
-        position: absolute;
-        top: -(variables.$gutter-tiny);
-        right: -(variables.$gutter-tiny);
-        background: variables.$control-background-color;
-        padding: variables.$gutter-tiny;
-        border-radius: variables.$corner-small;
-        font-size: 12px;
-      }
+  .line {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .status-pill {
+    flex: none;
+  }
+
+  .time {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .meta {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 16px;
+
+    .launched-by {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    article {
-      display: flex;
-      flex-direction: column;
-
-      .outputs {
-        flex: 1;
-      }
-
-      .errors {
-        z-index: 1;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(2px);
-      }
+    .duration {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
 
-    footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    button {
+      margin-left: auto;
     }
   }
 }
 
-:host-context(.project-playground) {
-  .launched-by {
-    display: none;
-  }
+.skeleton > div {
+  aspect-ratio: 4 / 3.9;
+  border-radius: var(--radius-md);
 }
 
 .inputs {
@@ -114,34 +118,14 @@
     display: flex;
 
     .value {
-      margin-left: variables.$gutter-tiny;
+      margin-left: var(--space-1);
 
       img {
         display: block;
         max-height: 30px;
-        border-radius: variables.$corner-small;
+        border-radius: var(--radius-sm);
       }
     }
-  }
-}
-
-.card-skeleton {
-  @include cards.card-skeleton;
-}
-
-// The list view of launches (data.launchesView: "table").
-.launches-table {
-  inline-size: 100%;
-  max-inline-size: 1280px;
-
-  .status-column {
-    inline-size: 1%;
-  }
-
-  .icon-column,
-  td.actions {
-    inline-size: 1%;
-    text-align: end;
   }
 }
 

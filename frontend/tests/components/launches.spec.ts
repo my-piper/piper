@@ -172,12 +172,16 @@ describe("LaunchesComponent", () => {
     setup();
 
     socket.receive("set_errors", setErrorsEventPlain("launch_other"));
-    const before = element.querySelector(".errors");
+    const before = element.querySelector(
+      "[data-testid=launch-status][data-state=failed]",
+    );
     socket.receive("set_errors", setErrorsEventPlain());
     fixture.detectChanges();
     answerCards();
 
-    const button = element.querySelector<HTMLElement>(".errors button");
+    const button = element.querySelector<HTMLElement>(
+      "[data-testid=launch-status][data-state=failed]",
+    );
     button.scrollIntoView();
     hover(button);
     tick(1000);
@@ -259,78 +263,182 @@ describe("LaunchesComponent", () => {
     expect(live.rooms.has(LAUNCH_ROOM(LAUNCH_ID))).toBe(false);
     finish();
   }));
-  describe("as a table", () => {
-    function rows() {
+  describe("as cards", () => {
+    const IMAGE = {
+      type: "image",
+      format: "png",
+      url: "https://cdn.test/a.png",
+      width: 640,
+      height: 480,
+    };
+
+    function withOutputs(_id: string, outputs: object) {
+      return { ...listedLaunch(_id), outputs };
+    }
+
+    function cards() {
       return Array.from(
         element.querySelectorAll<HTMLElement>(
-          "[data-testid=launches-table] tbody tr",
+          "[data-testid=launches-cards] .card",
         ),
       );
     }
 
     function states() {
-      return rows().map(
-        (row) =>
-          row.querySelector<HTMLElement>("[data-testid=launch-status]").dataset[
-            "state"
-          ],
+      return cards().map(
+        (card) =>
+          card.querySelector<HTMLElement>("[data-testid=launch-status]")
+            .dataset["state"],
       );
     }
 
-    it("lists one row per launch with its state, duration and outputs", fakeAsync(() => {
+    it("previews each launch's image, video, image array or text output", fakeAsync(() => {
+      seedCards([
+        withOutputs("l_image", {
+          image: { _id: "image", title: "Image", type: "image", data: IMAGE },
+        }),
+        withOutputs("l_video", {
+          video: {
+            _id: "video",
+            title: "Video",
+            type: "video",
+            data: {
+              type: "video",
+              format: "mp4",
+              url: "https://cdn.test/v.mp4",
+              poster: "https://cdn.test/v.jpg",
+              width: 1280,
+              height: 720,
+            },
+          },
+        }),
+        withOutputs("l_images", {
+          images: {
+            _id: "images",
+            title: "Images",
+            type: "image[]",
+            data: { type: "image[]", images: [IMAGE, IMAGE, IMAGE], count: 3 },
+          },
+        }),
+        withOutputs("l_text", {
+          text: {
+            _id: "text",
+            title: "Caption",
+            type: "string",
+            data: { type: "string", value: "A heron at dusk", length: 15 },
+          },
+        }),
+      ]);
+
+      const [image, video, images, text] = cards();
+
+      expect(
+        image.querySelector(".results[data-type=image] img"),
+      ).not.toBeNull();
+      expect(image.querySelector("app-launch-outputs footer")).toBeNull();
+      expect(video.querySelector("[data-testid=video-badge]")).not.toBeNull();
+      expect(video.querySelector(".results img")).not.toBeNull();
+      expect(video.querySelector(".results video")).toBeNull();
+      expect(
+        images.querySelector("[data-testid=images-count]").textContent,
+      ).toMatch(/1\s*\/\s*3/);
+      expect(
+        images.querySelectorAll("app-launch-outputs footer button").length,
+      ).toBe(3);
+      expect(text.querySelector(".kind").textContent).toBe("string");
+      expect(text.querySelector(".results").textContent).toContain(
+        "A heron at dusk",
+      );
+      finish();
+    }));
+
+    it("previews the first output that fills, even after the first render", fakeAsync(() => {
+      seedCards([
+        withOutputs(LAUNCH_ID, {
+          caption: { _id: "caption", title: "Caption", type: "string" },
+          image: { _id: "image", title: "Image", type: "image" },
+        }),
+      ]);
+      const before = cards()[0].querySelector("[data-testid=no-outputs]");
+
+      socket.receive("set_output", {
+        launch: LAUNCH_ID,
+        id: "image",
+        output: { _id: "image", title: "Image", type: "image", data: IMAGE },
+      });
+      fixture.detectChanges();
+
+      expect(before).not.toBeNull();
+      expect(
+        cards()[0].querySelector(".results")?.getAttribute("data-type"),
+      ).toBe("image");
+      finish();
+    }));
+
+    it("switches the preview with the thumbnail strip", fakeAsync(() => {
+      seedCards([
+        withOutputs(LAUNCH_ID, {
+          image: { _id: "image", title: "Image", type: "image", data: IMAGE },
+          caption: {
+            _id: "caption",
+            title: "Caption",
+            type: "string",
+            data: { type: "string", value: "A heron", length: 7 },
+          },
+        }),
+      ]);
+      const [card] = cards();
+      const before = card.querySelector(".results").getAttribute("data-type");
+
+      card
+        .querySelector<HTMLButtonElement>(
+          "app-launch-outputs footer button[aria-label=Caption]",
+        )
+        .click();
+      fixture.detectChanges();
+
+      expect(before).toBe("image");
+      expect(card.querySelector(".results").getAttribute("data-type")).toBe(
+        "string",
+      );
+      finish();
+    }));
+
+    it("shows a placeholder while a launch has no outputs", fakeAsync(() => {
+      seedCards([listedLaunch(), withOutputs("launch_two", {})], {
+        heartbeats: { [LAUNCH_ID]: new Date().toISOString() },
+      });
+
+      const placeholders = cards().map((card) =>
+        card.querySelector("[data-testid=no-outputs]")?.textContent.trim(),
+      );
+
+      expect(states()).toEqual(["running", "done"]);
+      expect(placeholders).toEqual(["No outputs yet", "No outputs"]);
+      finish();
+    }));
+
+    it("shows the state, duration and a link to the launch", fakeAsync(() => {
       const failed = { ...listedLaunch("launch_two"), errors: ["Boom"] };
-      seedRows([listedLaunch(), failed], {
+      seedCards([listedLaunch(), failed], {
         metrics: { [LAUNCH_ID]: { fromStart: 12 } },
       });
 
-      const [first] = rows();
-      const cells = Array.from(first.querySelectorAll("td")).map((td) =>
-        td.textContent.trim(),
-      );
+      const [first, second] = cards();
 
-      expect(element.querySelectorAll(".card").length).toBe(0);
       expect(states()).toEqual(["done", "failed"]);
-      expect(cells[3]).toBe("12 s");
-      expect(cells[4]).toBe("1");
-      expect(first.querySelector("a[href]")?.getAttribute("href")).toContain(
+      expect(
+        first.querySelector("[data-testid=launch-duration]").textContent.trim(),
+      ).toBe("12 s");
+      expect(second.querySelector("[data-testid=launch-duration]")).toBeNull();
+      expect(first.querySelector("a.time").getAttribute("href")).toContain(
         `/launches/${LAUNCH_ID}`,
       );
       finish();
     }));
 
-    it("marks a launch with a fresh heartbeat as running", fakeAsync(() => {
-      seedRows([listedLaunch()], {
-        heartbeats: { [LAUNCH_ID]: new Date().toISOString() },
-      });
-
-      expect(states()).toEqual(["running"]);
-      finish();
-    }));
-
-    it("deletes a launch from its row menu", fakeAsync(() => {
-      seedRows([listedLaunch(), listedLaunch("launch_two")]);
-
-      rows()[0]
-        .querySelector<HTMLButtonElement>("button[aria-label=Actions]")
-        .click();
-      fixture.detectChanges();
-      Array.from(
-        document.querySelectorAll<HTMLElement>("tui-data-list [tuiOption]"),
-      )
-        .find((option) => option.textContent.includes("Delete"))
-        .click();
-      controller.expectOne(`/api/launches/${LAUNCH_ID}`).flush(null);
-      tick(UI_DELAY);
-      fixture.detectChanges();
-      answerCards();
-
-      expect(component.launches.map((l) => l._id)).toEqual(["launch_two"]);
-      expect(rows().length).toBe(1);
-      finish();
-    }));
-
-    /** Renders the table, answering per-row metric and heartbeat reads. */
-    function seedRows(
+    /** Renders the cards, answering per-card metric and heartbeat reads. */
+    function seedCards(
       launches: object[],
       {
         metrics = {},
@@ -353,7 +461,6 @@ describe("LaunchesComponent", () => {
       const debug = fixture.debugElement.query(By.directive(LaunchesComponent));
       component = debug.componentInstance as LaunchesComponent;
       element = debug.nativeElement as HTMLElement;
-      component.view = "table";
       component.filter = new LaunchesFilter({ project: PROJECT_A_ID });
       fixture.detectChanges();
       controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
