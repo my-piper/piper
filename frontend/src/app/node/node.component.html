@@ -1,9 +1,38 @@
 <div class="node" [class.done]="status?.state === 'done'">
   <header class="head">
+    @if (!disabled || collapsed) {
+      <button
+        type="button"
+        class="collapse"
+        data-testid="node-collapse"
+        [attr.aria-label]="collapsed ? 'Expand node' : 'Collapse node'"
+        [attr.aria-expanded]="!collapsed"
+        [disabled]="disabled"
+        (click)="collapse.emit(!collapsed); $event.stopPropagation()"
+      >
+        <tui-icon
+          [icon]="collapsed ? '@tui.chevron-right' : '@tui.chevron-down'"
+        />
+      </button>
+    }
     @if (status?.state === "error") {
       <tui-icon class="failed" icon="error" data-testid="node-failed" />
     }
-    <h2 [title]="node.title | i18n">{{ node.title | i18n }}</h2>
+    <h2
+      data-testid="node-title"
+      [title]="
+        collapsed
+          ? (node.title | i18n) +
+            ' · ' +
+            featuredCount +
+            ' in · ' +
+            node.outputs.size +
+            ' out'
+          : (node.title | i18n)
+      "
+    >
+      {{ node.title | i18n }}
+    </h2>
     @if (node.deploy && launch) {
       <a
         class="child-launch"
@@ -18,426 +47,456 @@
         <tui-icon icon="@tui.external-link" />
       </a>
     }
+    @if (collapsed) {
+      <!-- One socket at each end of the bar for all its wires (#320). -->
+      <button
+        class="port collapsed-in"
+        aria-label="Inputs"
+        data-testid="collapsed-input"
+        (mouseup)="collapsedDrop.emit()"
+      ></button>
+      @if (firstOutput; as output) {
+        <button
+          class="port collapsed-out"
+          aria-label="Outputs"
+          data-testid="collapsed-output"
+          [attr.data-type]="node.outputs.get(output)?.type"
+          (mousedown)="pinFrom(output)"
+        ></button>
+      }
+    }
   </header>
-  <div class="ports">
-    <ul class="inputs">
-      @for (i of layout.sockets; track i.id) {
-        <li [class.required]="i.input.required">
-          <ng-template #inputMenuPopover>
-            <tui-data-list size="s">
-              <button
-                tuiOption
-                type="button"
-                (click)="emitTakeOutInput(i.id, i.input)"
-                i18n="@@action.take_out"
-              >
-                Take out
-              </button>
-            </tui-data-list>
-          </ng-template>
-          <button
-            class="port"
-            [class.array]="isArray(i.input.type)"
-            [attr.data-type]="i.input.type"
-            [tuiDropdown]="inputMenuPopover"
-            [tuiDropdownOpen]="openMenu === 'input:' + i.id"
-            (tuiDropdownOpenChange)="openMenu = $event ? 'input:' + i.id : null"
-            tuiDropdownSided
-            tuiDropdownAlign="start"
-            [attr.data-testid]="'input-port-' + i.id"
-            (mouseup)="pinTo(i.id)"
-          ></button>
-          <div class="title" [title]="i.input.title | i18n">
-            {{ i.input.title | i18n }}
-          </div>
-        </li>
-      }
-    </ul>
-    <ul class="outputs">
-      @for (o of node.outputs | keyvalue; track o.key) {
-        <li>
-          <ng-template #outputMenuPopover>
-            <tui-data-list size="s">
-              <button
-                tuiOption
-                type="button"
-                (click)="emitTakeOutOutput(o.key, o.value)"
-                i18n="@@action.take_out"
-              >
-                Take out
-              </button>
-            </tui-data-list>
-          </ng-template>
-          <div class="title" [title]="o.value.title | i18n">
-            {{ o.value.title | i18n }}
-          </div>
-          <button
-            class="port"
-            [class.array]="isArray(o.value.type)"
-            [attr.data-type]="o.value.type"
-            [tuiDropdown]="outputMenuPopover"
-            [tuiDropdownOpen]="openMenu === 'output:' + o.key"
-            (tuiDropdownOpenChange)="
-              openMenu = $event ? 'output:' + o.key : null
-            "
-            tuiDropdownSided
-            tuiDropdownAlign="end"
-            [attr.data-testid]="'output-port-' + o.key"
-            (mousedown)="pinFrom(o.key)"
-          ></button>
-        </li>
-      }
-    </ul>
-  </div>
-  @if (layout.widgets.length > 0) {
-    <ul class="widgets">
-      @for (w of layout.widgets; track w.id) {
-        @let title = w.input.title | i18n;
-        <li
-          class="widget"
-          [class.required]="w.input.required"
-          [attr.data-kind]="w.kind"
-          [style.height.px]="w.rows * rowHeight"
-        >
-          <ng-template #widgetMenuPopover>
-            <tui-data-list size="s">
-              <button
-                tuiOption
-                type="button"
-                (click)="emitTakeOutInput(w.id, w.input)"
-                i18n="@@action.take_out"
-              >
-                Take out
-              </button>
-            </tui-data-list>
-          </ng-template>
-          <button
-            class="port"
-            [attr.data-type]="w.input.type"
-            [tuiDropdown]="widgetMenuPopover"
-            [tuiDropdownOpen]="openMenu === 'input:' + w.id"
-            (tuiDropdownOpenChange)="openMenu = $event ? 'input:' + w.id : null"
-            tuiDropdownSided
-            tuiDropdownAlign="start"
-            [attr.data-testid]="'input-port-' + w.id"
-            (mouseup)="pinTo(w.id)"
-          ></button>
-          @let source = wiredFrom(w);
-          @if (source !== null) {
-            <!-- A wire supplies the value: the widget gives way (#307). -->
-            <span class="wired" [attr.data-testid]="'wired-' + w.id">
-              <span class="name" [title]="title">{{ title }}</span>
-              <span class="from" [title]="source">← {{ source }}</span>
-            </span>
-          } @else {
-            @switch (w.kind) {
-              @case ("number") {
-                <label class="field">
-                  <span class="name" [title]="title">{{ title }}</span>
-                  @if (!disabled) {
-                    <button
-                      type="button"
-                      class="step"
-                      [attr.aria-label]="'Decrease ' + title"
-                      (click)="stepWidget(w, -1)"
-                    >
-                      <tui-icon icon="@tui.chevron-left" />
-                    </button>
-                  }
-                  <input
-                    #numberField
-                    type="text"
-                    [attr.inputmode]="
-                      w.input.type === 'integer' ? 'numeric' : 'decimal'
-                    "
-                    [attr.aria-label]="title"
-                    [attr.data-testid]="'widget-' + w.id"
-                    [readOnly]="disabled"
-                    [value]="numberText(w)"
-                    (change)="typeNumber(w, numberField)"
-                    (keydown.enter)="numberField.blur()"
-                  />
-                  @if (!disabled) {
-                    <button
-                      type="button"
-                      class="step"
-                      [attr.aria-label]="'Increase ' + title"
-                      (click)="stepWidget(w, 1)"
-                    >
-                      <tui-icon icon="@tui.chevron-right" />
-                    </button>
-                  }
-                </label>
-              }
-              @case ("text") {
-                @if (w.input.multiline) {
-                  <label class="area" [class.missing]="isMissing(w)">
+  @if (!collapsed) {
+    <div class="ports">
+      <ul class="inputs">
+        @for (i of layout.sockets; track i.id) {
+          <li [class.required]="i.input.required">
+            <ng-template #inputMenuPopover>
+              <tui-data-list size="s">
+                <button
+                  tuiOption
+                  type="button"
+                  (click)="emitTakeOutInput(i.id, i.input)"
+                  i18n="@@action.take_out"
+                >
+                  Take out
+                </button>
+              </tui-data-list>
+            </ng-template>
+            <button
+              class="port"
+              [class.array]="isArray(i.input.type)"
+              [attr.data-type]="i.input.type"
+              [tuiDropdown]="inputMenuPopover"
+              [tuiDropdownOpen]="openMenu === 'input:' + i.id"
+              (tuiDropdownOpenChange)="
+                openMenu = $event ? 'input:' + i.id : null
+              "
+              tuiDropdownSided
+              tuiDropdownAlign="start"
+              [attr.data-testid]="'input-port-' + i.id"
+              (mouseup)="pinTo(i.id)"
+            ></button>
+            <div class="title" [title]="i.input.title | i18n">
+              {{ i.input.title | i18n }}
+            </div>
+          </li>
+        }
+      </ul>
+      <ul class="outputs">
+        @for (o of node.outputs | keyvalue; track o.key) {
+          <li>
+            <ng-template #outputMenuPopover>
+              <tui-data-list size="s">
+                <button
+                  tuiOption
+                  type="button"
+                  (click)="emitTakeOutOutput(o.key, o.value)"
+                  i18n="@@action.take_out"
+                >
+                  Take out
+                </button>
+              </tui-data-list>
+            </ng-template>
+            <div class="title" [title]="o.value.title | i18n">
+              {{ o.value.title | i18n }}
+            </div>
+            <button
+              class="port"
+              [class.array]="isArray(o.value.type)"
+              [attr.data-type]="o.value.type"
+              [tuiDropdown]="outputMenuPopover"
+              [tuiDropdownOpen]="openMenu === 'output:' + o.key"
+              (tuiDropdownOpenChange)="
+                openMenu = $event ? 'output:' + o.key : null
+              "
+              tuiDropdownSided
+              tuiDropdownAlign="end"
+              [attr.data-testid]="'output-port-' + o.key"
+              (mousedown)="pinFrom(o.key)"
+            ></button>
+          </li>
+        }
+      </ul>
+    </div>
+    @if (layout.widgets.length > 0) {
+      <ul class="widgets">
+        @for (w of layout.widgets; track w.id) {
+          @let title = w.input.title | i18n;
+          <li
+            class="widget"
+            [class.required]="w.input.required"
+            [attr.data-kind]="w.kind"
+            [style.height.px]="w.rows * rowHeight"
+          >
+            <ng-template #widgetMenuPopover>
+              <tui-data-list size="s">
+                <button
+                  tuiOption
+                  type="button"
+                  (click)="emitTakeOutInput(w.id, w.input)"
+                  i18n="@@action.take_out"
+                >
+                  Take out
+                </button>
+              </tui-data-list>
+            </ng-template>
+            <button
+              class="port"
+              [attr.data-type]="w.input.type"
+              [tuiDropdown]="widgetMenuPopover"
+              [tuiDropdownOpen]="openMenu === 'input:' + w.id"
+              (tuiDropdownOpenChange)="
+                openMenu = $event ? 'input:' + w.id : null
+              "
+              tuiDropdownSided
+              tuiDropdownAlign="start"
+              [attr.data-testid]="'input-port-' + w.id"
+              (mouseup)="pinTo(w.id)"
+            ></button>
+            @let source = wiredFrom(w);
+            @if (source !== null) {
+              <!-- A wire supplies the value: the widget gives way (#307). -->
+              <span class="wired" [attr.data-testid]="'wired-' + w.id">
+                <span class="name" [title]="title">{{ title }}</span>
+                <span class="from" [title]="source">← {{ source }}</span>
+              </span>
+            } @else {
+              @switch (w.kind) {
+                @case ("number") {
+                  <label class="field">
                     <span class="name" [title]="title">{{ title }}</span>
-                    <textarea
-                      #textArea
-                      [attr.aria-label]="title"
-                      [attr.data-testid]="'widget-' + w.id"
-                      [placeholder]="(w.input.placeholder | i18n) ?? ''"
-                      [readOnly]="disabled"
-                      [value]="textValue(w)"
-                      (change)="setText(w, textArea.value)"
-                    ></textarea>
-                  </label>
-                } @else {
-                  <label class="field" [class.missing]="isMissing(w)">
-                    <span class="name short" [title]="title">{{ title }}</span>
+                    @if (!disabled) {
+                      <button
+                        type="button"
+                        class="step"
+                        [attr.aria-label]="'Decrease ' + title"
+                        (click)="stepWidget(w, -1)"
+                      >
+                        <tui-icon icon="@tui.chevron-left" />
+                      </button>
+                    }
                     <input
-                      #textField
-                      class="text"
+                      #numberField
                       type="text"
+                      [attr.inputmode]="
+                        w.input.type === 'integer' ? 'numeric' : 'decimal'
+                      "
                       [attr.aria-label]="title"
                       [attr.data-testid]="'widget-' + w.id"
-                      [placeholder]="(w.input.placeholder | i18n) ?? ''"
                       [readOnly]="disabled"
-                      [value]="textValue(w)"
-                      (change)="setText(w, textField.value)"
-                      (keydown.enter)="textField.blur()"
+                      [value]="numberText(w)"
+                      (change)="typeNumber(w, numberField)"
+                      (keydown.enter)="numberField.blur()"
                     />
+                    @if (!disabled) {
+                      <button
+                        type="button"
+                        class="step"
+                        [attr.aria-label]="'Increase ' + title"
+                        (click)="stepWidget(w, 1)"
+                      >
+                        <tui-icon icon="@tui.chevron-right" />
+                      </button>
+                    }
                   </label>
                 }
-              }
-              @case ("choice") {
-                <label class="field" [class.missing]="isMissing(w)">
-                  <span class="name" [title]="title">{{ title }}</span>
-                  @if (w.input.freeform) {
-                    <input
-                      #freeField
-                      class="choice"
-                      type="text"
-                      [attr.list]="'choices-' + id + '-' + w.id"
-                      [attr.aria-label]="title"
-                      [attr.data-testid]="'widget-' + w.id"
-                      [readOnly]="disabled"
-                      [value]="textValue(w)"
-                      (change)="setText(w, freeField.value)"
-                    />
-                    <datalist [id]="'choices-' + id + '-' + w.id">
-                      @for (option of w.input.enum; track $index) {
-                        <option [value]="option"></option>
-                      }
-                    </datalist>
+                @case ("text") {
+                  @if (w.input.multiline) {
+                    <label class="area" [class.missing]="isMissing(w)">
+                      <span class="name" [title]="title">{{ title }}</span>
+                      <textarea
+                        #textArea
+                        [attr.aria-label]="title"
+                        [attr.data-testid]="'widget-' + w.id"
+                        [placeholder]="(w.input.placeholder | i18n) ?? ''"
+                        [readOnly]="disabled"
+                        [value]="textValue(w)"
+                        (change)="setText(w, textArea.value)"
+                      ></textarea>
+                    </label>
                   } @else {
-                    <select
-                      #choiceField
+                    <label class="field" [class.missing]="isMissing(w)">
+                      <span class="name short" [title]="title">{{
+                        title
+                      }}</span>
+                      <input
+                        #textField
+                        class="text"
+                        type="text"
+                        [attr.aria-label]="title"
+                        [attr.data-testid]="'widget-' + w.id"
+                        [placeholder]="(w.input.placeholder | i18n) ?? ''"
+                        [readOnly]="disabled"
+                        [value]="textValue(w)"
+                        (change)="setText(w, textField.value)"
+                        (keydown.enter)="textField.blur()"
+                      />
+                    </label>
+                  }
+                }
+                @case ("choice") {
+                  <label class="field" [class.missing]="isMissing(w)">
+                    <span class="name" [title]="title">{{ title }}</span>
+                    @if (w.input.freeform) {
+                      <input
+                        #freeField
+                        class="choice"
+                        type="text"
+                        [attr.list]="'choices-' + id + '-' + w.id"
+                        [attr.aria-label]="title"
+                        [attr.data-testid]="'widget-' + w.id"
+                        [readOnly]="disabled"
+                        [value]="textValue(w)"
+                        (change)="setText(w, freeField.value)"
+                      />
+                      <datalist [id]="'choices-' + id + '-' + w.id">
+                        @for (option of w.input.enum; track $index) {
+                          <option [value]="option"></option>
+                        }
+                      </datalist>
+                    } @else {
+                      <select
+                        #choiceField
+                        [attr.aria-label]="title"
+                        [attr.data-testid]="'widget-' + w.id"
+                        [disabled]="disabled"
+                        (change)="setChoice(w, choiceField.selectedIndex)"
+                      >
+                        @if (!w.input.required || choiceIndex(w) < 0) {
+                          <option [selected]="choiceIndex(w) < 0" value="">
+                            —
+                          </option>
+                        }
+                        @for (option of w.input.enum; track $index) {
+                          <option [selected]="choiceIndex(w) === $index">
+                            {{ option }}
+                          </option>
+                        }
+                      </select>
+                    }
+                  </label>
+                }
+                @case ("switch") {
+                  <span class="field">
+                    <span class="name" [title]="title">{{ title }}</span>
+                    <button
+                      type="button"
+                      role="switch"
+                      class="switch"
+                      [attr.aria-checked]="!!widgetValue(w)"
                       [attr.aria-label]="title"
                       [attr.data-testid]="'widget-' + w.id"
                       [disabled]="disabled"
-                      (change)="setChoice(w, choiceField.selectedIndex)"
-                    >
-                      @if (!w.input.required || choiceIndex(w) < 0) {
-                        <option [selected]="choiceIndex(w) < 0" value="">
-                          —
-                        </option>
-                      }
-                      @for (option of w.input.enum; track $index) {
-                        <option [selected]="choiceIndex(w) === $index">
-                          {{ option }}
-                        </option>
-                      }
-                    </select>
-                  }
-                </label>
-              }
-              @case ("switch") {
-                <span class="field">
-                  <span class="name" [title]="title">{{ title }}</span>
-                  <button
-                    type="button"
-                    role="switch"
-                    class="switch"
-                    [attr.aria-checked]="!!widgetValue(w)"
-                    [attr.aria-label]="title"
-                    [attr.data-testid]="'widget-' + w.id"
-                    [disabled]="disabled"
-                    (click)="toggleWidget(w)"
-                  ></button>
-                </span>
+                      (click)="toggleWidget(w)"
+                    ></button>
+                  </span>
+                }
               }
             }
-          }
-        </li>
-      }
-    </ul>
-  }
+          </li>
+        }
+      </ul>
+    }
 
-  @if (status?.state === "error") {
-    <div class="failure" role="alert">
-      <p [title]="status.error">{{ status.error }}</p>
-      <div class="failure-actions">
-        @if (retryable) {
+    @if (status?.state === "error") {
+      <div class="failure" role="alert">
+        <p [title]="status.error">{{ status.error }}</p>
+        <div class="failure-actions">
+          @if (retryable) {
+            <button
+              tuiButton
+              type="button"
+              appearance="flat"
+              size="xs"
+              data-testid="node-retry"
+              i18n="@@action.retry"
+              (click)="retry.emit()"
+            >
+              Retry
+            </button>
+          }
           <button
             tuiButton
             type="button"
-            appearance="flat"
+            appearance="flat-grayscale"
             size="xs"
-            data-testid="node-retry"
-            i18n="@@action.retry"
-            (click)="retry.emit()"
+            data-testid="node-show-log"
+            i18n="@@action.show_log"
+            (click)="showLog.emit()"
           >
-            Retry
+            Show log
           </button>
-        }
-        <button
-          tuiButton
-          type="button"
-          appearance="flat-grayscale"
-          size="xs"
-          data-testid="node-show-log"
-          i18n="@@action.show_log"
-          (click)="showLog.emit()"
-        >
-          Show log
-        </button>
+        </div>
       </div>
-    </div>
-  }
-  <ul class="featured" [class.filled]="(outputs | keyvalue)?.length > 0">
-    @for (o of node.outputs | keyvalue; track o.key) {
-      @if (o.value.featured) {
-        <li [attr.data-type]="o.value.type">
-          <ng-template
-            [tuiDialog]="pickOpen === o.key"
-            [tuiDialogOptions]="{ label: 'Pick artefact', size: 'l' }"
-            (tuiDialogChange)="pickOpen = $event ? o.key : null"
-          >
-            <app-artefacts
-              mode="select"
-              [filter]="{ project: project._id, node: id, type: o.value.type }"
-              (selected)="pickArtefact(o.key, $event)"
-            ></app-artefacts>
-          </ng-template>
-          <button
-            tuiIconButton
-            appearance="outline-grayscale"
-            size="s"
-            class="round pick-output"
-            (click)="pickOpen = o.key"
-            iconStart="grid"
-            style="--app-icon-size: 18px"
-          ></button>
-          @switch (o.value.type) {
-            @case ("image") {
-              <div class="image">
-                @if (outputs?.[o.key]; as value) {
-                  <img
-                    imageFallback
-                    [imageSize]="value"
-                    [inspect]="{ type: 'image', url: value }"
-                    [src]="value | proxyImage: { height: 500 }"
-                  />
-                } @else {
-                  <div class="no-value">
-                    <tui-icon icon="image" style="--app-icon-size: 64px" />
-                  </div>
-                }
-              </div>
-            }
-            @case ("image[]") {
-              @if (outputs?.[o.key]; as value) {
-                @if (value | split: "|"; as images) {
-                  <div class="images" [class.multiple]="images.length > 1">
-                    @for (image of images; track $index) {
-                      <img
-                        imageFallback
-                        [inspect]="{ type: 'image', url: image }"
-                        [imageSize]="image"
-                        [src]="image | proxyImage: { height: 500 }"
-                      />
-                    }
-                  </div>
-                }
-              } @else {
-                <div class="images">
-                  <div class="no-value">
-                    <tui-icon icon="image" style="--app-icon-size: 64px" />
-                  </div>
-                </div>
-              }
-            }
-            @case ("video") {
-              <div class="video">
-                @if (outputs?.[o.key]; as value) {
-                  <video
-                    [inspect]="{ type: 'video', url: value }"
-                    [src]="value"
-                    controls
-                  ></video>
-                } @else {
-                  <div class="no-value">
-                    <tui-icon icon="video" style="--app-icon-size: 64px" />
-                  </div>
-                }
-              </div>
-            }
-            @case ("audio") {
-              <div class="audio">
-                @if (outputs?.[o.key]; as value) {
-                  <audio [src]="value" controls></audio>
-                } @else {
-                  <div class="no-value">
-                    <tui-icon icon="audio" style="--app-icon-size: 64px" />
-                  </div>
-                }
-              </div>
-            }
-            @case ("json") {
-              @if (outputs?.[o.key]; as value) {
-                <pre class="json" [inspect]="{ type: 'json', text: value }">{{
-                  value
-                }}</pre>
-              } @else {
-                <div class="no-value">
-                  <tui-icon icon="json" style="--app-icon-size: 64px" />
-                </div>
-              }
-            }
-            @case ("string") {
-              @if (outputs?.[o.key]; as value) {
-                @switch (o.value.format) {
-                  @case ("markdown") {
-                    <div
-                      [inspect]="{ type: 'markdown', text: value }"
-                      class="string"
-                      [innerHTML]="value | markdown | async"
-                    ></div>
-                  }
-                  @case ("code") {
-                    <pre
-                      class="string"
-                      [innerHTML]="value | markdown | async"
-                    ></pre>
-                  }
-                  @default {
-                    <div class="string">
-                      {{ value }}
+    }
+    <ul class="featured" [class.filled]="(outputs | keyvalue)?.length > 0">
+      @for (o of node.outputs | keyvalue; track o.key) {
+        @if (o.value.featured) {
+          <li [attr.data-type]="o.value.type">
+            <ng-template
+              [tuiDialog]="pickOpen === o.key"
+              [tuiDialogOptions]="{ label: 'Pick artefact', size: 'l' }"
+              (tuiDialogChange)="pickOpen = $event ? o.key : null"
+            >
+              <app-artefacts
+                mode="select"
+                [filter]="{
+                  project: project._id,
+                  node: id,
+                  type: o.value.type,
+                }"
+                (selected)="pickArtefact(o.key, $event)"
+              ></app-artefacts>
+            </ng-template>
+            <button
+              tuiIconButton
+              appearance="outline-grayscale"
+              size="s"
+              class="round pick-output"
+              (click)="pickOpen = o.key"
+              iconStart="grid"
+              style="--app-icon-size: 18px"
+            ></button>
+            @switch (o.value.type) {
+              @case ("image") {
+                <div class="image">
+                  @if (outputs?.[o.key]; as value) {
+                    <img
+                      imageFallback
+                      [imageSize]="value"
+                      [inspect]="{ type: 'image', url: value }"
+                      [src]="value | proxyImage: { height: 500 }"
+                    />
+                  } @else {
+                    <div class="no-value">
+                      <tui-icon icon="image" style="--app-icon-size: 64px" />
                     </div>
                   }
+                </div>
+              }
+              @case ("image[]") {
+                @if (outputs?.[o.key]; as value) {
+                  @if (value | split: "|"; as images) {
+                    <div class="images" [class.multiple]="images.length > 1">
+                      @for (image of images; track $index) {
+                        <img
+                          imageFallback
+                          [inspect]="{ type: 'image', url: image }"
+                          [imageSize]="image"
+                          [src]="image | proxyImage: { height: 500 }"
+                        />
+                      }
+                    </div>
+                  }
+                } @else {
+                  <div class="images">
+                    <div class="no-value">
+                      <tui-icon icon="image" style="--app-icon-size: 64px" />
+                    </div>
+                  </div>
                 }
-              } @else {
-                <div class="no-value">
-                  <tui-icon icon="text" style="--app-icon-size: 64px" />
+              }
+              @case ("video") {
+                <div class="video">
+                  @if (outputs?.[o.key]; as value) {
+                    <video
+                      [inspect]="{ type: 'video', url: value }"
+                      [src]="value"
+                      controls
+                    ></video>
+                  } @else {
+                    <div class="no-value">
+                      <tui-icon icon="video" style="--app-icon-size: 64px" />
+                    </div>
+                  }
                 </div>
               }
-            }
-            @default {
-              @if (outputs?.[o.key]; as value) {
-                {{ value }}
-              } @else {
-                <div class="no-value">
-                  <tui-icon icon="text" style="--app-icon-size: 64px" />
+              @case ("audio") {
+                <div class="audio">
+                  @if (outputs?.[o.key]; as value) {
+                    <audio [src]="value" controls></audio>
+                  } @else {
+                    <div class="no-value">
+                      <tui-icon icon="audio" style="--app-icon-size: 64px" />
+                    </div>
+                  }
                 </div>
               }
+              @case ("json") {
+                @if (outputs?.[o.key]; as value) {
+                  <pre class="json" [inspect]="{ type: 'json', text: value }">{{
+                    value
+                  }}</pre>
+                } @else {
+                  <div class="no-value">
+                    <tui-icon icon="json" style="--app-icon-size: 64px" />
+                  </div>
+                }
+              }
+              @case ("string") {
+                @if (outputs?.[o.key]; as value) {
+                  @switch (o.value.format) {
+                    @case ("markdown") {
+                      <div
+                        [inspect]="{ type: 'markdown', text: value }"
+                        class="string"
+                        [innerHTML]="value | markdown | async"
+                      ></div>
+                    }
+                    @case ("code") {
+                      <pre
+                        class="string"
+                        [innerHTML]="value | markdown | async"
+                      ></pre>
+                    }
+                    @default {
+                      <div class="string">
+                        {{ value }}
+                      </div>
+                    }
+                  }
+                } @else {
+                  <div class="no-value">
+                    <tui-icon icon="text" style="--app-icon-size: 64px" />
+                  </div>
+                }
+              }
+              @default {
+                @if (outputs?.[o.key]; as value) {
+                  {{ value }}
+                } @else {
+                  <div class="no-value">
+                    <tui-icon icon="text" style="--app-icon-size: 64px" />
+                  </div>
+                }
+              }
             }
-          }
-        </li>
+          </li>
+        }
       }
-    }
-  </ul>
+    </ul>
+  }
 
   @if (status?.state !== "done" && !!progress) {
     <div class="progress">

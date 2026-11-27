@@ -53,6 +53,12 @@ $port-row: 22px;
       var(--shadow-node);
   }
 
+  // Collapsed (#320): the title bar is the whole node.
+  &.collapsed .node .head {
+    border-bottom: 0;
+    border-radius: calc(var(--radius-md) - 1px);
+  }
+
   &.disabled {
     .port {
       pointer-events: none;
@@ -162,6 +168,74 @@ $port-row: 22px;
     .failure-actions {
       display: flex;
       gap: var(--space-1);
+    }
+  }
+
+  .collapse {
+    @include reset.reset-button();
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin: 0 2px 0 -4px;
+    border-radius: var(--radius-xs);
+    color: var(--text-faint);
+    cursor: pointer;
+    --app-icon-size: 12px;
+
+    &:hover:not(:disabled) {
+      background: var(--surface-3);
+      color: var(--text);
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+
+  // A collapsed node's two sockets, at the ends of its title bar.
+  .collapsed-in,
+  .collapsed-out {
+    @include reset.reset-button();
+    --t: var(--type-any);
+    position: absolute;
+    top: calc(var(--node-title) / 2 - var(--socket) / 2);
+    width: var(--socket);
+    height: var(--socket);
+    border-radius: var(--radius-full);
+    background: var(--t);
+    box-shadow: 0 0 0 2px var(--surface-1);
+    cursor: crosshair;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+    }
+  }
+
+  .collapsed-in {
+    left: calc(var(--socket) / -2 - 1px);
+    background: var(--surface-1);
+    box-shadow:
+      inset 0 0 0 2px var(--text-faint),
+      0 0 0 2px var(--surface-1);
+  }
+
+  .collapsed-out {
+    right: calc(var(--socket) / -2 - 1px);
+
+    &[data-type="string"] {
+      --t: var(--type-string);
+    }
+    &[data-type="json"] {
+      --t: var(--type-json);
+    }
+    &[data-type="image"],
+    &[data-type="image[]"] {
+      --t: var(--type-image);
     }
   }
 

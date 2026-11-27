@@ -150,6 +150,16 @@
 								},
 								"y": {
 									"type": "number"
+								},
+								"w": {
+									"type": "number",
+									"minimum": 160,
+									"maximum": 640,
+									"description": "A canvas node's width in px; absent means the default 220"
+								},
+								"collapsed": {
+									"type": "boolean",
+									"description": "A canvas node shown as its title bar only"
 								}
 							},
 							"required": [
@@ -1355,6 +1365,16 @@
 					},
 					"y": {
 						"type": "number"
+					},
+					"w": {
+						"type": "number",
+						"minimum": 160,
+						"maximum": 640,
+						"description": "A canvas node's width in px; absent means the default 220"
+					},
+					"collapsed": {
+						"type": "boolean",
+						"description": "A canvas node shown as its title bar only"
 					}
 				},
 				"required": [
@@ -2670,6 +2690,16 @@
 								},
 								"y": {
 									"type": "number"
+								},
+								"w": {
+									"type": "number",
+									"minimum": 160,
+									"maximum": 640,
+									"description": "A canvas node's width in px; absent means the default 220"
+								},
+								"collapsed": {
+									"type": "boolean",
+									"description": "A canvas node shown as its title bar only"
 								}
 							},
 							"required": [
@@ -2767,6 +2797,16 @@
 								},
 								"y": {
 									"type": "number"
+								},
+								"w": {
+									"type": "number",
+									"minimum": 160,
+									"maximum": 640,
+									"description": "A canvas node's width in px; absent means the default 220"
+								},
+								"collapsed": {
+									"type": "boolean",
+									"description": "A canvas node shown as its title bar only"
 								}
 							},
 							"required": [
@@ -2975,6 +3015,16 @@
 								},
 								"y": {
 									"type": "number"
+								},
+								"w": {
+									"type": "number",
+									"minimum": 160,
+									"maximum": 640,
+									"description": "A canvas node's width in px; absent means the default 220"
+								},
+								"collapsed": {
+									"type": "boolean",
+									"description": "A canvas node shown as its title bar only"
 								}
 							},
 							"required": [
@@ -4250,6 +4300,16 @@
 							},
 							"y": {
 								"type": "number"
+							},
+							"w": {
+								"type": "number",
+								"minimum": 160,
+								"maximum": 640,
+								"description": "A canvas node's width in px; absent means the default 220"
+							},
+							"collapsed": {
+								"type": "boolean",
+								"description": "A canvas node shown as its title bar only"
 							}
 						},
 						"required": [
@@ -4344,6 +4404,16 @@
 							},
 							"y": {
 								"type": "number"
+							},
+							"w": {
+								"type": "number",
+								"minimum": 160,
+								"maximum": 640,
+								"description": "A canvas node's width in px; absent means the default 220"
+							},
+							"collapsed": {
+								"type": "boolean",
+								"description": "A canvas node shown as its title bar only"
 							}
 						},
 						"required": [
@@ -4693,6 +4763,16 @@
 										},
 										"y": {
 											"type": "number"
+										},
+										"w": {
+											"type": "number",
+											"minimum": 160,
+											"maximum": 640,
+											"description": "A canvas node's width in px; absent means the default 220"
+										},
+										"collapsed": {
+											"type": "boolean",
+											"description": "A canvas node shown as its title bar only"
 										}
 									},
 									"required": [
@@ -4790,6 +4870,16 @@
 										},
 										"y": {
 											"type": "number"
+										},
+										"w": {
+											"type": "number",
+											"minimum": 160,
+											"maximum": 640,
+											"description": "A canvas node's width in px; absent means the default 220"
+										},
+										"collapsed": {
+											"type": "boolean",
+											"description": "A canvas node shown as its title bar only"
 										}
 									},
 									"required": [
@@ -4998,6 +5088,16 @@
 										},
 										"y": {
 											"type": "number"
+										},
+										"w": {
+											"type": "number",
+											"minimum": 160,
+											"maximum": 640,
+											"description": "A canvas node's width in px; absent means the default 220"
+										},
+										"collapsed": {
+											"type": "boolean",
+											"description": "A canvas node shown as its title bar only"
 										}
 									},
 									"required": [
@@ -6273,6 +6373,16 @@
 									},
 									"y": {
 										"type": "number"
+									},
+									"w": {
+										"type": "number",
+										"minimum": 160,
+										"maximum": 640,
+										"description": "A canvas node's width in px; absent means the default 220"
+									},
+									"collapsed": {
+										"type": "boolean",
+										"description": "A canvas node shown as its title bar only"
 									}
 								},
 								"required": [
@@ -6367,6 +6477,16 @@
 									},
 									"y": {
 										"type": "number"
+									},
+									"w": {
+										"type": "number",
+										"minimum": 160,
+										"maximum": 640,
+										"description": "A canvas node's width in px; absent means the default 220"
+									},
+									"collapsed": {
+										"type": "boolean",
+										"description": "A canvas node shown as its title bar only"
 									}
 								},
 								"required": [

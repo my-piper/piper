@@ -89,7 +89,7 @@ import {
   InputFlowsPipe,
   InputOffsetPipe,
   NodePipe,
-  OutputIndexPipe,
+  OutputOffsetPipe,
 } from "src/pipes/node";
 import { NotPipe } from "src/pipes/not";
 import { ObjectPathsPipe } from "src/pipes/object-paths";
@@ -193,7 +193,7 @@ import { UsersComponent } from "./users/users.component";
     MapToPlainPipe,
     PlainPipe,
     AssetsComponent,
-    OutputIndexPipe,
+    OutputOffsetPipe,
     InputOffsetPipe,
     SelectNodeComponent,
     NodeSearchComponent,

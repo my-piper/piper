@@ -189,6 +189,29 @@ export class NodeComponent implements OnDestroy {
   @Output()
   retry = new EventEmitter<void>();
 
+  /** Asks to collapse (true) or expand (false) the node (#320). */
+  @Output()
+  collapse = new EventEmitter<boolean>();
+
+  /** A wire was dropped on a collapsed node's input socket. */
+  @Output()
+  collapsedDrop = new EventEmitter<void>();
+
+  @HostBinding("class.collapsed")
+  get collapsed() {
+    return !!this.node?.arrange?.collapsed;
+  }
+
+  /** How many inputs show on the node (sockets and widgets). */
+  get featuredCount() {
+    return [...this.node.inputs.values()].filter((i) => i.featured).length;
+  }
+
+  /** A collapsed node's output socket starts a wire from its first output. */
+  get firstOutput(): string | null {
+    return [...this.node.outputs.keys()].sort()[0] ?? null;
+  }
+
   /** A widget changed an input's value; `null` clears it to the default. */
   @Output()
   inputChange = new EventEmitter<{ input: string; value: Primitive | null }>();
