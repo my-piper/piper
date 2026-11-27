@@ -10,8 +10,9 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: var(--backdrop);
-  backdrop-filter: blur(5px);
+  // Solid, not a translucent backdrop: the canvas showing through competes
+  // with the page in it (#354).
+  background-color: var(--tui-background-base);
   margin: 0 !important;
 
   &.hidden {
@@ -19,7 +20,7 @@
   }
 
   >header {
-    margin: variables.$gutter-normal;
+    margin: var(--space-4) var(--space-4) 0;
     text-align: right;
 
     @include mixins.less-tablet() {
@@ -27,9 +28,10 @@
     }
   }
 
+  // Header and content share one gutter, so their edges line up (#354).
   >.content {
-    margin: variables.$gutter-normal;
-    overflow: scroll;
+    margin: var(--space-4);
+    overflow: auto;
     flex: 1;
     display: flex;
     flex-direction: column;

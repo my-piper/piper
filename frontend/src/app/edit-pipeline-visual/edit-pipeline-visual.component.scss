@@ -25,10 +25,14 @@
   z-index: 3;
 }
 
+// The node editor overlay (#354): its close button sits where a Taiga
+// dialog's does, in the top-right corner over the content.
 .modal {
-  header {
-    display: flex;
-    justify-content: space-between;
+  > .close {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: var(--space-4);
+    inset-inline-end: var(--space-4);
   }
 }
 

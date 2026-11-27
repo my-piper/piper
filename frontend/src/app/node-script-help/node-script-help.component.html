@@ -1,22 +1,38 @@
 @let current = example();
 
-<tui-tabs
-  vertical="start"
-  size="m"
-  [activeItemIndex]="active()"
-  (activeItemIndexChange)="active.set($event)"
->
-  @for (item of examples; track item.id) {
-    <button tuiTab type="button">{{ item.title }}</button>
-  }
-</tui-tabs>
+<!-- Taiga draws vertical and horizontal tabs as two components -->
+@if (narrow()) {
+  <tui-tabs
+    size="m"
+    [activeItemIndex]="active()"
+    (activeItemIndexChange)="active.set($event)"
+  >
+    @for (item of examples; track item.id) {
+      <button tuiTab type="button">{{ item.title }}</button>
+    }
+  </tui-tabs>
+} @else {
+  <tui-tabs
+    vertical="start"
+    size="m"
+    [activeItemIndex]="active()"
+    (activeItemIndexChange)="active.set($event)"
+  >
+    @for (item of examples; track item.id) {
+      <button tuiTab type="button">{{ item.title }}</button>
+    }
+  </tui-tabs>
+}
 
 <section [attr.aria-label]="current.title">
   <p class="description">{{ current.description }}</p>
   <div class="code">
-    <button class="copy" [tuiButtonCopy]="current.code">
-      <ng-container i18n="@@action.copy">Copy</ng-container>
-    </button>
+    <header class="toolbar">
+      <span class="title">{{ current.title }}</span>
+      <button [tuiButtonCopy]="current.code">
+        <ng-container i18n="@@action.copy">Copy</ng-container>
+      </button>
+    </header>
     @let colored = highlighted.hasValue() ? highlighted.value() : null;
     @if (colored) {
       <pre><code [innerHTML]="colored"></code></pre>
