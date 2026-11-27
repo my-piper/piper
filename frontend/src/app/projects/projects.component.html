@@ -77,12 +77,16 @@
   }
 
   <div class="table-container">
-    <table tuiTable size="m">
+    <table tuiTable size="s">
       <thead>
         <tr>
           <th tuiTh i18n="@@label.title">Title</th>
-          <th tuiTh class="version-column" i18n="@@label.ver">Ver.</th>
-          <th tuiTh class="runs runs-column" i18n="@@label.runs_last_30_days">
+          <th tuiTh class="version-column num" i18n="@@label.ver">Ver.</th>
+          <th
+            tuiTh
+            class="runs runs-column num"
+            i18n="@@label.runs_last_30_days"
+          >
             Runs · 30d
           </th>
           <th tuiTh class="user-column" i18n="@@label.created">Created</th>
@@ -131,10 +135,10 @@
             </div>
           }
         </td>
-        <td tuiTd class="version">
+        <td tuiTd class="version num">
           {{ p.pipeline.version }}
         </td>
-        <td tuiTd class="runs" data-testid="project-runs">
+        <td tuiTd class="runs num" data-testid="project-runs">
           @if (stats.get(p._id); as st) {
             <div>
               {{ st.runs | number }}
