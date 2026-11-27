@@ -6,5 +6,3 @@ export const THEME_KEY = "theme";
 export const HIDDEN_STRING = "[encrypted]";
 /** What Piper v1 showed in place of a Secret Variable's value. */
 export const V1_HIDDEN_STRING = "[hidden]";
-/** Remembers whether the navigation aside is expanded (`"true"`/`"false"`). */
-export const ASIDE_EXPANDED_KEY = "aside_expanded";
