@@ -161,13 +161,93 @@
                 }
               </label>
             }
-            @default {
-              <!-- Text, choice and switch widgets come in #306. -->
+            @case ("text") {
+              @if (w.input.multiline) {
+                <label class="area" [class.missing]="isMissing(w)">
+                  <span class="name" [title]="title">{{ title }}</span>
+                  <textarea
+                    #textArea
+                    [attr.aria-label]="title"
+                    [attr.data-testid]="'widget-' + w.id"
+                    [placeholder]="(w.input.placeholder | i18n) ?? ''"
+                    [readOnly]="disabled"
+                    [value]="textValue(w)"
+                    (change)="setText(w, textArea.value)"
+                  ></textarea>
+                </label>
+              } @else {
+                <label class="field" [class.missing]="isMissing(w)">
+                  <span class="name short" [title]="title">{{ title }}</span>
+                  <input
+                    #textField
+                    class="text"
+                    type="text"
+                    [attr.aria-label]="title"
+                    [attr.data-testid]="'widget-' + w.id"
+                    [placeholder]="(w.input.placeholder | i18n) ?? ''"
+                    [readOnly]="disabled"
+                    [value]="textValue(w)"
+                    (change)="setText(w, textField.value)"
+                    (keydown.enter)="textField.blur()"
+                  />
+                </label>
+              }
+            }
+            @case ("choice") {
+              <label class="field" [class.missing]="isMissing(w)">
+                <span class="name" [title]="title">{{ title }}</span>
+                @if (w.input.freeform) {
+                  <input
+                    #freeField
+                    class="choice"
+                    type="text"
+                    [attr.list]="'choices-' + id + '-' + w.id"
+                    [attr.aria-label]="title"
+                    [attr.data-testid]="'widget-' + w.id"
+                    [readOnly]="disabled"
+                    [value]="textValue(w)"
+                    (change)="setText(w, freeField.value)"
+                  />
+                  <datalist [id]="'choices-' + id + '-' + w.id">
+                    @for (option of w.input.enum; track $index) {
+                      <option [value]="option"></option>
+                    }
+                  </datalist>
+                } @else {
+                  <select
+                    #choiceField
+                    [attr.aria-label]="title"
+                    [attr.data-testid]="'widget-' + w.id"
+                    [disabled]="disabled"
+                    (change)="setChoice(w, choiceField.selectedIndex)"
+                  >
+                    @if (!w.input.required || choiceIndex(w) < 0) {
+                      <option [selected]="choiceIndex(w) < 0" value="">
+                        —
+                      </option>
+                    }
+                    @for (option of w.input.enum; track $index) {
+                      <option [selected]="choiceIndex(w) === $index">
+                        {{ option }}
+                      </option>
+                    }
+                  </select>
+                }
+              </label>
+            }
+            @case ("switch") {
               <span class="field">
                 <span class="name" [title]="title">{{ title }}</span>
-                <span class="value" [attr.data-testid]="'widget-' + w.id">{{
-                  widgetValue(w)
-                }}</span>
+                <button
+                  type="button"
+                  role="switch"
+                  class="switch"
+                  [attr.aria-checked]="!!widgetValue(w)"
+                  [attr.aria-label]="title"
+                  [attr.data-testid]="'widget-' + w.id"
+                  [disabled]="disabled"
+                  (click)="toggleWidget(w)"
+                ></button>
               </span>
             }
           }
