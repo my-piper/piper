@@ -210,12 +210,13 @@ export function outputPin(node: HTMLElement, title: string): HTMLElement {
 
 /** Port button of a node's featured input (by visible title). */
 export function inputPin(node: HTMLElement, title: string): HTMLElement {
-  return portPin(node, "ul.inputs li", title);
+  // Scalar inputs are widget rows (#305); their socket is wireable too.
+  return portPin(node, "ul.inputs li, ul.widgets li", title);
 }
 
 function portPin(node: HTMLElement, selector: string, title: string) {
   const port = Array.from(node.querySelectorAll(selector)).find(
-    (li) => li.querySelector(".title")?.textContent.trim() === title,
+    (li) => li.querySelector(".title, .name")?.textContent.trim() === title,
   );
   if (!port) {
     throw new Error(`Port ${title} is not rendered`);

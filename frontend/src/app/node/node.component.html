@@ -21,8 +21,8 @@
   </header>
   <div class="ports">
     <ul class="inputs">
-      @for (g of node.render.inputs; track g.id) {
-        @for (i of g.group.inputs; track i.id) {
+      @for (i of layout.sockets; track i.id) {
+        <li [class.required]="i.input.required">
           <ng-template #inputMenuPopover>
             <tui-data-list size="s">
               <button
@@ -35,28 +35,22 @@
               </button>
             </tui-data-list>
           </ng-template>
-          @if (i.input.featured) {
-            <li [class.required]="i.input.required">
-              <button
-                class="port"
-                [class.array]="isArray(i.input.type)"
-                [attr.data-type]="i.input.type"
-                [tuiDropdown]="inputMenuPopover"
-                [tuiDropdownOpen]="openMenu === 'input:' + i.id"
-                (tuiDropdownOpenChange)="
-                  openMenu = $event ? 'input:' + i.id : null
-                "
-                tuiDropdownSided
-                tuiDropdownAlign="start"
-                [attr.data-testid]="'input-port-' + i.id"
-                (mouseup)="pinTo(i.id)"
-              ></button>
-              <div class="title" [title]="i.input.title | i18n">
-                {{ i.input.title | i18n }}
-              </div>
-            </li>
-          }
-        }
+          <button
+            class="port"
+            [class.array]="isArray(i.input.type)"
+            [attr.data-type]="i.input.type"
+            [tuiDropdown]="inputMenuPopover"
+            [tuiDropdownOpen]="openMenu === 'input:' + i.id"
+            (tuiDropdownOpenChange)="openMenu = $event ? 'input:' + i.id : null"
+            tuiDropdownSided
+            tuiDropdownAlign="start"
+            [attr.data-testid]="'input-port-' + i.id"
+            (mouseup)="pinTo(i.id)"
+          ></button>
+          <div class="title" [title]="i.input.title | i18n">
+            {{ i.input.title | i18n }}
+          </div>
+        </li>
       }
     </ul>
     <ul class="outputs">
@@ -95,6 +89,92 @@
       }
     </ul>
   </div>
+  @if (layout.widgets.length > 0) {
+    <ul class="widgets">
+      @for (w of layout.widgets; track w.id) {
+        @let title = w.input.title | i18n;
+        <li
+          class="widget"
+          [class.required]="w.input.required"
+          [attr.data-kind]="w.kind"
+          [style.height.px]="w.rows * rowHeight"
+        >
+          <ng-template #widgetMenuPopover>
+            <tui-data-list size="s">
+              <button
+                tuiOption
+                type="button"
+                (click)="emitTakeOutInput(w.id, w.input)"
+                i18n="@@action.take_out"
+              >
+                Take out
+              </button>
+            </tui-data-list>
+          </ng-template>
+          <button
+            class="port"
+            [attr.data-type]="w.input.type"
+            [tuiDropdown]="widgetMenuPopover"
+            [tuiDropdownOpen]="openMenu === 'input:' + w.id"
+            (tuiDropdownOpenChange)="openMenu = $event ? 'input:' + w.id : null"
+            tuiDropdownSided
+            tuiDropdownAlign="start"
+            [attr.data-testid]="'input-port-' + w.id"
+            (mouseup)="pinTo(w.id)"
+          ></button>
+          @switch (w.kind) {
+            @case ("number") {
+              <label class="field">
+                <span class="name" [title]="title">{{ title }}</span>
+                @if (!disabled) {
+                  <button
+                    type="button"
+                    class="step"
+                    [attr.aria-label]="'Decrease ' + title"
+                    (click)="stepWidget(w, -1)"
+                  >
+                    <tui-icon icon="@tui.chevron-left" />
+                  </button>
+                }
+                <input
+                  #numberField
+                  type="text"
+                  [attr.inputmode]="
+                    w.input.type === 'integer' ? 'numeric' : 'decimal'
+                  "
+                  [attr.aria-label]="title"
+                  [attr.data-testid]="'widget-' + w.id"
+                  [readOnly]="disabled"
+                  [value]="numberText(w)"
+                  (change)="typeNumber(w, numberField)"
+                  (keydown.enter)="numberField.blur()"
+                />
+                @if (!disabled) {
+                  <button
+                    type="button"
+                    class="step"
+                    [attr.aria-label]="'Increase ' + title"
+                    (click)="stepWidget(w, 1)"
+                  >
+                    <tui-icon icon="@tui.chevron-right" />
+                  </button>
+                }
+              </label>
+            }
+            @default {
+              <!-- Text, choice and switch widgets come in #306. -->
+              <span class="field">
+                <span class="name" [title]="title">{{ title }}</span>
+                <span class="value" [attr.data-testid]="'widget-' + w.id">{{
+                  widgetValue(w)
+                }}</span>
+              </span>
+            }
+          }
+        </li>
+      }
+    </ul>
+  }
 
   @if (status?.state === "error") {
     <div class="failure" role="alert">

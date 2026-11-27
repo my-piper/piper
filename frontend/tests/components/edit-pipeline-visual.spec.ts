@@ -7,6 +7,7 @@ import { NodeFlow } from "src/models/node-flow";
 import { PipelineInput } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { toInstance, toPlain } from "src/utils/models";
+import { inputOffset } from "src/utils/node-layout";
 import { projectA, projectWith } from "../fixtures/models";
 import { patchResponsePlain, smallGraphPipeline } from "../fixtures/plain";
 import {
@@ -956,7 +957,7 @@ describe("EditPipelineVisualComponent", () => {
       const { element, editor, detectChanges } = setupEditor();
       const before = editor.pipeline.inputs.size;
       const port = nodeElement(element, "node_two").querySelector(
-        "ul.inputs button.port",
+        "ul.inputs button.port, ul.widgets button.port",
       ) as HTMLElement;
 
       port.click();
@@ -979,7 +980,7 @@ describe("EditPipelineVisualComponent", () => {
     it("does not select a node when one of its buttons is clicked", fakeAsync(() => {
       const { element, router, detectChanges } = setupEditor();
       const port = nodeElement(element, "node_two").querySelector(
-        "ul.inputs button.port",
+        "ul.inputs button.port, ul.widgets button.port",
       ) as HTMLElement;
 
       port.click();
@@ -1384,7 +1385,11 @@ describe("EditPipelineVisualComponent", () => {
       expect(list.request.params.get("accepts")).toBe("string");
       expect(accepts).toContain("string");
       expect(project.pipeline.nodes.get(id).arrange).toEqual(
-        expect.objectContaining({ x: point.x, y: point.y - 42 }),
+        // The connected `words` socket (a widget row) lands on the drop point.
+        expect.objectContaining({
+          x: point.x,
+          y: point.y - inputOffset(project.pipeline.nodes.get(id), "words"),
+        }),
       );
       expect(flowsBetween(project, "node_one", id)).toEqual([
         expect.objectContaining({ output: "text", input: "words" }),
@@ -1536,6 +1541,92 @@ describe("EditPipelineVisualComponent", () => {
       expect(project.pipeline.nodes.get(id).arrange).toEqual(
         expect.objectContaining({ x: one.x + 40, y: one.y + 40 }),
       );
+      finish();
+    }));
+  });
+  describe("inline widgets", () => {
+    function widget(element: HTMLElement, input: string) {
+      return nodeElement(element, "node_three").querySelector<HTMLInputElement>(
+        `[data-testid="widget-${input}"]`,
+      );
+    }
+
+    function stepButton(element: HTMLElement, label: string) {
+      return nodeElement(element, "node_three").querySelector<HTMLElement>(
+        `button[aria-label="${label}"]`,
+      );
+    }
+
+    function requested(project: Project, input: string) {
+      return project.launchRequest.nodes.get("node_three")?.inputs?.get(input);
+    }
+
+    it("steps a number widget and writes the value like the drawer", fakeAsync(() => {
+      const project = connectionProject();
+      const { element, detectChanges, manager } = setupEditor({ project });
+
+      stepButton(element, "Increase Amount").click();
+      detectChanges();
+      stepButton(element, "Increase Amount").click();
+      detectChanges();
+      stepButton(element, "Decrease Amount").click();
+      detectChanges();
+
+      expect(requested(project, "amount")).toBe(1);
+      expect(widget(element, "amount").value).toBe("1");
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("takes typed numbers, clears to the default and ignores junk", fakeAsync(() => {
+      const project = connectionProject();
+      const { element, detectChanges } = setupEditor({ project });
+      const field = () => widget(element, "amount");
+      const type = (text: string) => {
+        field().value = text;
+        field().dispatchEvent(new Event("change"));
+        detectChanges();
+      };
+
+      type("42");
+      const typed = requested(project, "amount");
+      type("forty");
+      const kept = [requested(project, "amount"), field().value];
+      type("");
+
+      expect(typed).toBe(42);
+      expect(kept).toEqual([42, "42"]);
+      expect(requested(project, "amount")).toBeUndefined();
+      finish();
+    }));
+
+    it("shows widgets read-only outside the editor", fakeAsync(() => {
+      const project = connectionProject();
+      const { element } = setupEditor({ project, mode: "scheme" });
+
+      expect(widget(element, "amount").readOnly).toBe(true);
+      expect(stepButton(element, "Increase Amount")).toBeNull();
+      finish();
+    }));
+
+    it("puts a widget input's wire end on its socket", fakeAsync(() => {
+      const project = connectionProject();
+      const { editor, element, detectChanges } = setupEditor({ project });
+
+      editor.addNodeFlow("node_one", "text", "node_three", "words");
+      detectChanges();
+
+      const node = project.pipeline.nodes.get("node_three");
+      const wire = Array.from(
+        element.querySelectorAll(".pane > svg path:not(.param):not(.pending)"),
+      )
+        .map((p) => p.getAttribute("d"))
+        .find((d) =>
+          d.endsWith(
+            `${node.arrange.x},${node.arrange.y + inputOffset(node, "words")}`,
+          ),
+        );
+      expect(wire).toBeDefined();
       finish();
     }));
   });

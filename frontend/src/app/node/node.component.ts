@@ -14,7 +14,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { plainToInstance } from "class-transformer";
 import { Socket } from "ngx-socket-io";
 import { catchError, filter, map, of } from "rxjs";
-import { UI } from "src/consts/ui";
 import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
 import {
@@ -31,7 +30,10 @@ import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
 import { createLogger } from "src/utils/logger";
 import { NodeRunState } from "src/utils/launch-state";
+import { UI } from "src/consts/ui";
 import { toInstance } from "src/utils/models";
+import { nodeLayout, NodeLayout, WidgetRow } from "src/utils/node-layout";
+import { parseNumber, stepNumber } from "src/utils/number-widget";
 import { LAUNCH_ROOM } from "src/consts/rooms";
 
 @Component({
@@ -85,18 +87,17 @@ export class NodeComponent implements OnDestroy {
   @Input()
   node!: Node;
 
+  readonly rowHeight = UI.node.input.height;
+
+  /** Where the featured inputs sit: socket rows, then widget rows. */
+  get layout(): NodeLayout {
+    return nodeLayout(this.node);
+  }
+
   @HostBinding("style.min-height.px")
   @Input()
   get height() {
-    return (
-      Math.max(
-        [...this.node.inputs.values()].filter((v) => v.featured).length,
-        this.node.outputs.size,
-      ) *
-        UI.node.input.height +
-      UI.node.title +
-      UI.node.padding * 2
-    );
+    return this.layout.height;
   }
 
   @Input()
@@ -178,6 +179,10 @@ export class NodeComponent implements OnDestroy {
 
   @Output()
   retry = new EventEmitter<void>();
+
+  /** A widget changed an input's value; `null` clears it to the default. */
+  @Output()
+  inputChange = new EventEmitter<{ input: string; value: Primitive | null }>();
 
   @Output()
   showLog = new EventEmitter<void>();
@@ -341,6 +346,34 @@ export class NodeComponent implements OnDestroy {
     if (prev !== next) {
       queueMicrotask(() => this.stateChange.emit(next));
     }
+  }
+
+  /** The value a widget shows: the launch request's, else the default. */
+  widgetValue({ id, input }: WidgetRow): Primitive | null {
+    return this.inputs?.[id] ?? input.default ?? null;
+  }
+
+  numberText(row: WidgetRow): string {
+    const value = this.widgetValue(row);
+    return value === null || value === "" ? "" : String(value);
+  }
+
+  stepWidget(row: WidgetRow, direction: 1 | -1) {
+    const current = Number(this.widgetValue(row));
+    this.inputChange.emit({
+      input: row.id,
+      value: stepNumber(isNaN(current) ? null : current, direction, row.input),
+    });
+  }
+
+  /** Typed text; text that is not a number puts the old value back. */
+  typeNumber(row: WidgetRow, field: HTMLInputElement) {
+    const value = parseNumber(field.value, row.input);
+    if (value === undefined) {
+      field.value = this.numberText(row);
+      return;
+    }
+    this.inputChange.emit({ input: row.id, value });
   }
 
   pinFrom(output: string) {
