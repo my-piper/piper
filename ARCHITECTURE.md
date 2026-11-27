@@ -159,7 +159,7 @@ POST /api/projects/:id/launch          POST /api/[:prefix/]:slug/launch (deploye
 2. For each incoming `wait` flow, require its id in the `NODE_FLOWS` set. Otherwise exit; an upstream node will plan this node again.
 3. Read inputs from Redis, check required inputs, and convert them.
 4. Take the *processing* lock and start a launch heartbeat (Redis key + `launch_heartbeat` event every 10s).
-5. Call the Deno service (`packages/deno/execute.ts` → `DENO_URL`) with `{ script, fn: "run", payload: { schema, inputs, state, env }, timeout, isolation }`. Logs from the run are appended to `NODE_LOGS`.
+5. Call the Deno service (`packages/deno/execute.ts` → `DENO_URL`) with `{ script, fn: "run", payload: { schema, inputs, state, env }, timeout, isolation }`. Logs from the run are appended to `NODE_LOGS`. A Run Deploy node (`source: deploy`, ADR 0011) skips this call: `runDeployNode` (`packages/nodes/deploy-node.ts`) returns the result a script would — `launch` for its one child on the first run, `repeat` while the child runs, `next` with the child's outputs — and is always planned on the `rapid` queue (`processQueue` in `packages/nodes/plan-node.ts`).
 6. Interpret the result by its `__type`:
    - **`repeat`** — save `state` and `progress`, then reschedule the same job with a delay (`DelayedError`). This is how long-running or polling nodes (for example, waiting on an external AI API) work without blocking a worker.
    - **`next`** — handle the outputs and plan follow-up work:

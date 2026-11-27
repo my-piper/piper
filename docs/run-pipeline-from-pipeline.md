@@ -8,7 +8,14 @@ All claims cite the source at the time of writing (`main`, after commit
 
 ## Short answer
 
-- **Use a Child Launch.** A node script returns
+- **Use a Run Deploy node** to run one Deploy and use its outputs. Pick the
+  Deploy in the canvas's node search or palette (your own Deploys are listed;
+  another user's is added by its link or `prefix/slug`). The node's inputs and
+  outputs are the Deploy's pipeline inputs and outputs, and it needs no script.
+  See "Run Deploy node" below and
+  [ADR 0011](adr/0011-deploy-as-native-node-source.md).
+- **Use a Child Launch from a script** when the node must choose the Deploy at
+  runtime or start several children. A node script returns
   `{ __type: "launch", launches: [{ key, deploy: { prefix, slug }, inputs }] }`.
   The backend starts each child from the Deploy, and on every later run passes
   `children.<key> = { launch, status, outputs }` into the script. The script then
@@ -22,6 +29,29 @@ All claims cite the source at the time of writing (`main`, after commit
   `repeat`, errors) offered a replacement.
 - Piper's public HTTP API (section 2) is still the way to launch a pipeline
   from **outside** Piper. Inside a node, prefer Child Launches.
+
+## Run Deploy node
+
+A node with `source: deploy` runs its Deploy as a Child Launch without a
+script:
+
+```yaml
+nodes:
+  summarize:
+    source: deploy
+    deploy: { prefix: <userId>, slug: summarizer }
+    inputs:  { prompt: { type: string } }
+    outputs: { result: { type: string } }
+```
+
+| Rule | Behaviour |
+| --- | --- |
+| Spec | `deploy: { prefix, slug }` is required with `source: deploy`, and such a node has no `script` (`backend/schemas/node.json`). |
+| Sockets | Copied from the Deploy's pipeline `inputs` and `outputs` when the node is added (`GET /api/deploys/[:prefix/]:slug/sockets`). Every input is a port. "Refresh from deploy" on the canvas re-copies them and drops wires to sockets the Deploy no longer has; a warning badge shows a mismatch. |
+| Version | The Deploy's current version runs; nothing is pinned. |
+| Run | `packages/nodes/deploy-node.ts`: the first run starts one child (key `deploy`) with the node's inputs as pipeline `inputs`, empty ones left out so the Deploy's own values apply. Later runs repeat every 3 s while the child runs, then emit its pipeline outputs. Always on the `rapid` queue. |
+| Failure | A missing Deploy, or sockets that no longer match (an input or output the Deploy doesn't declare, a required Deploy input the node lacks), fail the node fatally before the child starts. Otherwise the Child Launch rules below apply unchanged. |
+| UI | While it runs, the node links to the launch's nested launches. |
 
 ## 0. Child Launches
 
