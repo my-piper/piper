@@ -404,6 +404,30 @@ $port-row: 22px;
       }
     }
 
+    // A wired input: its name and where the value comes from.
+    .wired {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      height: 20px;
+      padding: 0 var(--space-2);
+      font-size: 11px;
+      line-height: 14px;
+      color: var(--text-muted);
+
+      .from {
+        min-width: 0;
+        margin-left: auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font: 500 11px/14px var(--font-mono);
+        color: var(--text-faint);
+      }
+    }
+
     .name.short {
       flex: none;
       max-width: 40%;

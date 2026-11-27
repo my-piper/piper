@@ -1690,6 +1690,43 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
+    it("gives way to a wire: the row names its source", fakeAsync(() => {
+      const project = connectionProject();
+      const { editor, element, detectChanges } = setupEditor({ project });
+      const before = widget(element, "words");
+
+      editor.addNodeFlow("node_one", "text", "node_three", "words");
+      detectChanges();
+
+      const wired = nodeElement(element, "node_three").querySelector(
+        '[data-testid="wired-words"]',
+      );
+      expect(before).not.toBeNull();
+      expect(widget(element, "words")).toBeNull();
+      expect(wired?.textContent).toContain("← Generate text");
+      finish();
+    }));
+
+    it("names a pipeline input as the source and drops the missing mark", fakeAsync(() => {
+      const { element } = setupEditor();
+
+      const node = nodeElement(element, "node_one");
+      const wired = node.querySelector('[data-testid="wired-prompt"]');
+
+      expect(wired?.textContent).toContain("← Topic");
+      expect(node.querySelector(".missing")).toBeNull();
+      finish();
+    }));
+
+    it("shows widgets read-only to someone who can't edit the project", fakeAsync(() => {
+      const project = connectionProject();
+      const { element } = setupEditor({ project, user: "stranger" });
+
+      expect(widget(element, "amount").readOnly).toBe(true);
+      expect(stepButton(element, "Increase Amount")).toBeNull();
+      finish();
+    }));
+
     it("shows widgets read-only outside the editor", fakeAsync(() => {
       const project = connectionProject();
       const { element } = setupEditor({ project, mode: "scheme" });
