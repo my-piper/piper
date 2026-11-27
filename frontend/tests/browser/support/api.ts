@@ -76,6 +76,11 @@ export class ApiFixture {
   /** Node catalog served by GET /api/nodes and GET /api/nodes/:id. */
   catalog: Plain[] = [catalogNode()];
   deploys: Plain[] = [];
+  /**
+   * Deploys a Run Deploy node can use, as GET /api/deploys/:prefix/:slug/sockets
+   * returns them (with `inputs` and `outputs`).
+   */
+  deployNodes: Plain[] = [];
   launches = new Map<string, Plain>();
   /** Redis-backed node state, keyed `launch/node`. */
   nodeStatus = new Map<string, Plain>();
@@ -580,6 +585,47 @@ export class ApiFixture {
       this.deploys = this.deploys.filter((d) => d["_id"] !== _id);
       return ok(null);
     };
+    // backend/api/me/list-deploys.ts: the user's own Deploys (admins also
+    // get the unprefixed ones) that have pipeline outputs, without sockets
+    this.on("GET", "/api/me/deploys", ({ user }) => {
+      const denied = this.requireUser(user);
+      if (denied) {
+        return denied;
+      }
+      const admin = (user["roles"] as string[]).includes("admin");
+      return ok(
+        this.deployNodes
+          .filter(
+            (d) =>
+              (d["prefix"] === user["_id"] || (admin && !d["prefix"])) &&
+              Object.keys((d["outputs"] ?? {}) as Plain).length > 0,
+          )
+          .map(({ prefix, slug, title, deployedAt }) => ({
+            prefix,
+            slug,
+            title,
+            deployedAt,
+          })),
+      );
+    });
+
+    // backend/api/deploys/get-deploy-sockets.ts: a missing Deploy is 400
+    const sockets: Handler = ({ params, user }) => {
+      const deploy = this.deployNodes.find(
+        (d) =>
+          (d["prefix"] ?? undefined) === params["prefix"] &&
+          d["slug"] === params["slug"],
+      );
+      return (
+        this.requireUser(user) ??
+        (deploy
+          ? ok(clone(deploy))
+          : dataError(`Deploy ${params["slug"]} is not found`))
+      );
+    };
+    this.on("GET", "/api/deploys/:slug/sockets", sockets);
+    this.on("GET", "/api/deploys/:prefix/:slug/sockets", sockets);
+
     this.on("DELETE", "/api/deploys/:slug", remove);
     this.on("DELETE", "/api/deploys/:prefix/:slug", remove);
   }

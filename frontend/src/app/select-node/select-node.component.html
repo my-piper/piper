@@ -54,7 +54,7 @@
             @for (node of group.nodes; track node._id) {
               <div
                 class="node"
-                [dragClone]="{ payload: { node: node._id } }"
+                [dragClone]="{ payload: dragPayload(node) }"
                 [title]="node.title | i18n"
               >
                 @if (node.thumbnail; as thumbnail) {
@@ -71,7 +71,7 @@
                     >#{{ t | i18n }}</span
                   >
                 }
-                @if (userRole.admin | can | async) {
+                @if (!node.deploy && (userRole.admin | can | async)) {
                   <span class="version">v{{ node.version }}</span>
                 }
               </div>

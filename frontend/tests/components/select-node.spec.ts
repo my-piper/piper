@@ -13,6 +13,8 @@ import { configureAppTestingModule, finish } from "../helpers/editor";
  * category and has no package.
  */
 const NODES_URL = "/api/nodes";
+/** backend/api/me/list-deploys.ts: the user's Deploys with pipeline outputs. */
+const DEPLOYS_URL = "/api/me/deploys";
 const SEARCH_DEBOUNCE = 500;
 /** Longer than the accordion expand transition. */
 const TRANSITION = 1000;
@@ -46,13 +48,23 @@ function catalogPlain(): Plain[] {
   ];
 }
 
+function deployPlain(): Plain {
+  return {
+    prefix: "owner",
+    slug: "summarizer",
+    title: "Summarizer",
+    deployedAt: "2026-01-01T00:00:00.000Z",
+  };
+}
+
 /** Renders the node catalog sidebar. Call in `fakeAsync`. */
-function setup() {
+function setup(deploys: Plain[] = []) {
   seedAuthorization(userPlain("admin"));
   configureAppTestingModule([]);
   const controller = TestBed.inject(HttpTestingController);
   const fixture = TestBed.createComponent(SelectNodeComponent);
   fixture.detectChanges();
+  controller.expectOne(DEPLOYS_URL).flush(deploys);
   const element = fixture.nativeElement as HTMLElement;
 
   /** Lets the UI delay and accordion transitions pass; admin checks read /api/me. */
@@ -183,6 +195,48 @@ describe("SelectNodeComponent", () => {
       page.groups().map(({ title, expanded }) => ({ title, expanded })),
     ).toEqual([{ title: "ArtWorks", expanded: true }]);
     expect(page.visibleNodes()).toEqual(["Detect NSFW", "Translate text"]);
+    page.controller.verify();
+    finish();
+  }));
+
+  it("lists the user's Deploys in their own group, dragged as Deploys", fakeAsync(() => {
+    const page = setup([deployPlain()]);
+    page.respond();
+
+    page.groups()[2].button.click();
+    page.settle();
+
+    expect(page.groups().map(({ title, count }) => ({ title, count }))).toEqual(
+      [
+        { title: "Built-in", count: "1" },
+        { title: "ArtWorks", count: "2" },
+        { title: "Deploys", count: "1" },
+      ],
+    );
+    expect(page.visibleNodes()).toEqual(["Summarizer"]);
+    expect(
+      page.fixture.componentInstance.dragPayload(
+        page.fixture.componentInstance.groups[2].nodes[0],
+      ),
+    ).toEqual({ deploy: { prefix: "owner", slug: "summarizer" } });
+    page.controller.verify();
+    finish();
+  }));
+
+  it("offers another user's Deploy named by its link in the search", fakeAsync(() => {
+    const page = setup();
+    page.respond();
+
+    page.fixture.componentInstance.searchControl.setValue(
+      "https://piper.example/api/other-user/translator/launch",
+    );
+    tick(SEARCH_DEBOUNCE);
+    page.respond([]);
+
+    expect(
+      page.groups().map(({ title, expanded }) => ({ title, expanded })),
+    ).toEqual([{ title: "Deploys", expanded: true }]);
+    expect(page.visibleNodes()).toEqual(["other-user/translator"]);
     page.controller.verify();
     finish();
   }));
