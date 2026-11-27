@@ -23,9 +23,12 @@ test("blocks a pipeline launch without a start node and runs after Auto start is
 
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
+  const mark = page.getByTestId("node-node_one").getByTestId("node-auto-start");
+  await expect(mark).toHaveCount(0);
   await page.getByTestId("node-node_one").locator("h2").click();
   await page.locator('input[formControlName="start"]').check();
   await expectSaved(page);
+  await expect(mark).toHaveAttribute("aria-label", "Auto start");
   const [tab] = await Promise.all([
     page.context().waitForEvent("page"),
     page.getByTestId("run-pipeline").click(),

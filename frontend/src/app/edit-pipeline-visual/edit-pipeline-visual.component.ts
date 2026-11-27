@@ -321,15 +321,25 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * The nodes the canvas marks as starting the pipeline (#356): on a launch,
+   * the nodes it started from (`inclusive` ones, else `start.nodes`);
+   * otherwise the Auto start nodes.
+   */
+  get startNodes(): string[] {
+    const inclusive = this.launch?.launchRequest?.inclusive?.nodes ?? [];
+    return inclusive.length > 0
+      ? inclusive
+      : (this.pipeline.start?.nodes ?? []);
+  }
+
   /** The launch as its nodes report it, for the top bar pill. */
   get launchState(): LaunchState | null {
-    const inclusive = this.launch?.launchRequest?.inclusive?.nodes ?? [];
     return launchState(
       {
         nodes: [...this.pipeline.nodes.keys()],
         flows: [...(this.pipeline.flows?.values() ?? [])],
-        start:
-          inclusive.length > 0 ? inclusive : (this.pipeline.start?.nodes ?? []),
+        start: this.startNodes,
       },
       this.nodeStates,
     );

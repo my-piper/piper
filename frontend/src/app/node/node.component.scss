@@ -160,6 +160,17 @@ $port-row: 22px;
     }
   }
 
+  // An Auto start node, or one the shown launch started from (#356): a
+  // solid triangle, so it does not read as the outlined Run button.
+  .start-mark {
+    flex: none;
+    width: 9px;
+    height: 10px;
+    margin: 0 var(--space-1) 0 2px;
+    background: var(--text-muted);
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
   .failed {
     flex: none;
     margin-right: var(--space-1);
