@@ -33,11 +33,11 @@ moving screens off `src/ui-kit` (#92). Test-side gotchas live in
   `invalidField` pipe did), bind
   `[invalid]="form.controls.x.touched && form.controls.x.invalid"`.
 - **A filled `tui-textfield` shows a clear (×) button by default.** Set
-  `[tuiTextfieldCleaner]="false"` where the old input had none (no redesign).
-- **Show error text only where the screen showed it before** (#134): most
-  forms only marked an invalid field with a red border, which `tui-textfield`
-  draws from `[invalid]`. Adding `<tui-error>` to such a field is new text,
-  i.e. a redesign.
+  `[tuiTextfieldCleaner]="false"` where a clear button doesn't help (most
+  forms; search and filter fields keep it).
+- **Error text says how to fix the value** (`docs/design.md`, Copy):
+  `tui-textfield` draws the red border from `[invalid]`; add `<tui-error>`
+  where the reason isn't obvious from the field.
 - **`tuiPassword` is an attribute of `<tui-icon>`**:
   `<tui-icon tuiPassword />` inside the `tui-textfield` adds the show/hide
   toggle; it needs `TuiIcon` (both come with `TaigaFormsModule`).

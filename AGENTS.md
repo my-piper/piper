@@ -65,7 +65,7 @@ JSON Schemas in `backend/schemas/` (pipeline, node, node-package, project, flow,
 
 Angular 22 app in `frontend/src`: feature components in `app/`, HTTP layer in `services/`, route data via `resolvers/`, models mirroring backend classes in `models/` (also `class-transformer`). Runtime config (captcha, auth features, URLs) is injected by the backend into `window.PRERENDER`. The app is built in English only, under `/en/`. Templates keep their `i18n` markers, but nothing is extracted or translated, and Localized Texts in data (`en=…;de=…`) always resolve to English.
 
-The UI is Taiga UI (#92). Shared pipes and directives live in `pipes/` and `directives/` and are declared in `app/shared.module.ts` for non-standalone components; providers live in `providers/`. Global styles are in `src/styles/` (tokens in `variables.scss` and `themes.scss`, breakpoints in `mixins.scss`, Piper-owned layout helpers in `layout.scss`). Before building UI, read `docs/taiga-ui-notes.md`.
+The UI is Taiga UI (#92). Shared pipes and directives live in `pipes/` and `directives/` and are declared in `app/shared.module.ts` for non-standalone components; providers live in `providers/`. Global styles are in `src/styles/` (design tokens in `themes.scss`, the size scale in `sizes.scss`, Sass helpers and legacy names in `variables.scss`, breakpoints in `mixins.scss`, Piper-owned layout helpers in `layout.scss`). Before building UI, read `docs/design.md` (tokens, size scale, canvas specs, link to the design system) and `docs/taiga-ui-notes.md`.
 
 To look at a page in a browser without the backend or an account, run `npm run browser:serve` in `frontend/`: it serves the app with the browser workflows' fixture API on `http://127.0.0.1:4300` and prints the sign-in.
 
