@@ -1,6 +1,7 @@
 import api from "app/api";
 import mongo from "app/mongo";
 import { toInstance, toPlain, validate } from "core-kit/packages/transform";
+import { hasInputOf } from "packages/nodes/accepts";
 import { matchesScriptNode, scriptNode } from "packages/nodes/script-node";
 import pick from "lodash/pick";
 import { handle } from "utils/http";
@@ -24,6 +25,7 @@ api.get(
     await validate(filter);
 
     const { search } = filter;
+    const accepts = (filter.accepts ?? "").split(",").filter(Boolean);
 
     const nodes = await mongo.nodes
       .find(
@@ -33,13 +35,15 @@ api.get(
                 title: { $regex: new RegExp(search, "i") },
               }
             : {}),
+          ...(accepts.length > 0 ? { $expr: hasInputOf(accepts) } : {}),
         },
         { projection: PROJECTION }
       )
       .toArray();
     const listed = await withPackageTitles(nodes);
 
-    if (!matchesScriptNode(search)) {
+    // The Script Node has no inputs until its author adds them.
+    if (accepts.length > 0 || !matchesScriptNode(search)) {
       return listed;
     }
     return [pick(toPlain(scriptNode()), Object.keys(PROJECTION)), ...listed];

@@ -85,7 +85,7 @@ function setup() {
         button,
       })),
     visibleNodes: () =>
-      Array.from(element.querySelectorAll(".node h3")).map((title) =>
+      Array.from(element.querySelectorAll(".node .name")).map((title) =>
         title.textContent.trim(),
       ),
   };

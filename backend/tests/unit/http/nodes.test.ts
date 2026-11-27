@@ -2,6 +2,7 @@ import { httpDoubles } from "../../helpers/http-boundaries";
 import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { userToken } from "../../fixtures/http";
+import { hasInputOf } from "packages/nodes/accepts";
 import { beforeEach, describe, expect, it } from "vitest";
 
 let context: Awaited<ReturnType<typeof createHttpApp>>;
@@ -92,6 +93,23 @@ describe("Script Node in the catalog", () => {
       },
       { _id: "lone_node", title: "Lone", package: "removed_package" },
     ]);
+  });
+
+  it("is left out when filtering by accepted input types", async () => {
+    httpDoubles.nodesCursor.toArray.mockResolvedValue([
+      { _id: "upscale", title: "Upscale" },
+    ]);
+
+    const response = await context.request.get(
+      "/api/nodes?accepts=image,image[]"
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body.map(({ _id }) => _id)).toEqual(["upscale"]);
+    expect(httpDoubles.nodes.find).toHaveBeenCalledWith(
+      { $expr: hasInputOf(["image", "image[]"]) },
+      expect.anything()
+    );
   });
 
   it("is left out of a search its title doesn't match", async () => {

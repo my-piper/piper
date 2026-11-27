@@ -96,10 +96,14 @@ launch's live state has expired.
 `GET /api/nodes` lists each node with its `package` and, when that Node
 Package is stored with a title, its `packageTitle`; the catalog sidebar groups
 nodes by it.
+Its optional `accepts` query is a comma-separated list of input types: only
+nodes with an input of one of them are listed (node search after a wire is
+dropped on the canvas).
 Both node reads also serve the builtin Script Node (`_id: "script"`,
 `source: "script"`) from code: `GET /api/nodes` lists it first whenever the
-`search` matches its title, and `GET /api/nodes/script` returns it with no
-inputs or outputs and an inline `run` script.
+`search` matches its title and no `accepts` is given, and
+`GET /api/nodes/script` returns it with no inputs or outputs and an inline
+`run` script.
 `POST /api/nodes` publishes a node to the catalog for engineers and admins;
 anyone else gets 400 and `You aren't admin`. Project patches store every node's
 script, environment and `isolated` mark as sent (ADR 0007); a `sign` an older

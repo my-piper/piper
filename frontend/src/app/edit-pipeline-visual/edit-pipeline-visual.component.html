@@ -1,5 +1,20 @@
 <app-error-dialog [error]="error" (closed)="error = null" />
 
+@let canEdit =
+  mode === "project" && (userRole.admin | can: project.createdBy | async);
+
+@if (search) {
+  <app-node-search
+    class="node-search"
+    data-testid="node-search"
+    [style.left.px]="search.left"
+    [style.top.px]="search.top"
+    [accepts]="search.accepts"
+    (picked)="addFromSearch($event.node, $event.keepOpen)"
+    (closed)="closeNodeSearch()"
+  />
+}
+
 <div class="drawler left" [class.hidden]="!drawlers.left">
   <div class="content">
     <router-outlet
@@ -154,6 +169,10 @@
         <dd i18n="@@message.canvas_hint_move">
           Drag any selected item to move the whole selection
         </dd>
+        <dt i18n="@@label.canvas_hint_add_node">Add node</dt>
+        <dd i18n="@@message.canvas_hint_add_node">
+          Double-click empty space, or drop a wire there to add a connected node
+        </dd>
         <dt i18n="@@label.canvas_hint_select_all">Select all</dt>
         <dd i18n="@@message.canvas_hint_select_all">Ctrl/⌘ + A</dd>
         <dt i18n="@@label.canvas_hint_delete">Delete</dt>
@@ -189,6 +208,7 @@
 <div
   #nodesRef
   class="nodes"
+  (dblclick)="canEdit && openNodeSearch($event)"
   [canvasPan]="{ ignore: '.node, .input, .output, .flow, .actions' }"
   [scrollInside]="{
     left: pipeline.layout?.left || 0,

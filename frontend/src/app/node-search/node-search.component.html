@@ -1,0 +1,89 @@
+<section
+  class="panel"
+  role="dialog"
+  aria-label="Add node"
+  i18n-aria-label="@@label.add_node"
+>
+  <tui-textfield iconStart="@tui.search">
+    <input
+      #field
+      tuiInput
+      type="text"
+      autocomplete="off"
+      role="combobox"
+      aria-controls="node-search-list"
+      aria-expanded="true"
+      data-testid="node-search-field"
+      placeholder="Search nodes"
+      i18n-placeholder="@@label.search_nodes"
+      [formControl]="query"
+      [attr.aria-activedescendant]="
+        items.length > 0 ? 'node-search-' + active : null
+      "
+      (keydown)="key($event)"
+    />
+  </tui-textfield>
+
+  @if (accepts?.length) {
+    <p class="accepts" data-testid="node-search-accepts">
+      <ng-container i18n="@@label.accepts">accepts</ng-container>
+      @for (type of accepts; track type) {
+        <code [attr.data-type]="type">{{ type }}</code>
+      }
+    </p>
+  }
+
+  <div class="list" id="node-search-list" role="listbox">
+    @if (error) {
+      <p class="empty" role="alert">{{ error.message }}</p>
+    } @else if (loading && items.length <= 0) {
+      @for (_ of [1, 2, 3]; track $index) {
+        <div class="skeleton" [tuiSkeleton]="true"></div>
+      }
+    } @else {
+      @for (section of sections; track section.id) {
+        <div class="section" role="presentation">
+          {{ section.title | i18n }}
+        </div>
+        @for (node of section.nodes; track node._id; let i = $index) {
+          <button
+            type="button"
+            role="option"
+            class="item"
+            [id]="'node-search-' + (section.offset + i)"
+            [class.active]="section.offset + i === active"
+            [attr.aria-selected]="section.offset + i === active"
+            [attr.data-testid]="'node-search-' + node._id"
+            (mouseenter)="active = section.offset + i"
+            (mousedown)="$event.preventDefault()"
+            (click)="pick(node, $event.shiftKey)"
+          >
+            <span class="title">{{ node.title | i18n }}</span>
+            @if (
+              node.packageTitle || node.package || node.category?.title;
+              as meta
+            ) {
+              <span class="meta">{{ meta | i18n }}</span>
+            }
+          </button>
+        }
+      } @empty {
+        <p class="empty" i18n="@@message.nothing_found">Nothing found.</p>
+      }
+    }
+  </div>
+
+  <footer class="hints" aria-hidden="true">
+    <span><kbd>↑</kbd><kbd>↓</kbd></span>
+    <span
+      ><kbd>↵</kbd> <ng-container i18n="@@label.add">add</ng-container></span
+    >
+    <span
+      ><kbd>⇧↵</kbd>
+      <ng-container i18n="@@label.add_keep_open"
+        >add, keep open</ng-container
+      ></span
+    >
+    <span><kbd>esc</kbd></span>
+  </footer>
+</section>

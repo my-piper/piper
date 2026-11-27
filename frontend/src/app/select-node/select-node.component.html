@@ -53,39 +53,26 @@
           <div class="nodes">
             @for (node of group.nodes; track node._id) {
               <div
-                tuiCardLarge="compact"
-                tuiAppearance="outline-grayscale"
                 class="node"
                 [dragClone]="{ payload: { node: node._id } }"
+                [title]="node.title | i18n"
               >
-                <header>
-                  @if (node.thumbnail; as thumbnail) {
-                    <img class="thumbnail" [src]="thumbnail" alt="" />
-                  }
-                  <h3>{{ node.title | i18n }}</h3>
-                </header>
-                @if (node.tags?.length || (userRole.admin | can | async)) {
-                  <footer>
-                    @for (t of node.tags; track t) {
-                      <span
-                        tuiChip
-                        size="xxs"
-                        [appearance]="
-                          tagAppearances[t | i18n: languages.en] ?? 'neutral'
-                        "
-                        >#{{ t | i18n }}</span
-                      >
-                    }
-                    @if (userRole.admin | can | async) {
-                      <span
-                        tuiBadge
-                        appearance="neutral"
-                        size="s"
-                        class="version"
-                        >ver. {{ node.version }}</span
-                      >
-                    }
-                  </footer>
+                @if (node.thumbnail; as thumbnail) {
+                  <img class="thumbnail" [src]="thumbnail" alt="" />
+                }
+                <span class="name">{{ node.title | i18n }}</span>
+                @for (t of node.tags; track t) {
+                  <span
+                    tuiChip
+                    size="xxs"
+                    [appearance]="
+                      tagAppearances[t | i18n: languages.en] ?? 'neutral'
+                    "
+                    >#{{ t | i18n }}</span
+                  >
+                }
+                @if (userRole.admin | can | async) {
+                  <span class="version">v{{ node.version }}</span>
                 }
               </div>
             }

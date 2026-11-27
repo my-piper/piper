@@ -1212,4 +1212,202 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
   });
+  describe("node search", () => {
+    const CATALOG = [
+      { _id: "upscale", title: "Upscale image" },
+      { _id: "echo", title: "Echo" },
+      { _id: "speaker", title: "Speaker" },
+    ];
+
+    function grid(element: HTMLElement) {
+      return element.querySelector(".pane > svg rect");
+    }
+
+    function searchField() {
+      return document.querySelector<HTMLInputElement>(
+        '[data-testid="node-search-field"]',
+      );
+    }
+
+    function press(key: string, init: KeyboardEventInit = {}) {
+      searchField().dispatchEvent(
+        new KeyboardEvent("keydown", { key, bubbles: true, ...init }),
+      );
+    }
+
+    function type(text: string) {
+      const field = searchField();
+      field.value = text;
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function activeItem() {
+      return document.querySelector(".node-search .item.active")?.textContent;
+    }
+
+    /** The canvas point under client coordinates, as the editor places nodes. */
+    function canvasPoint(element: HTMLElement, x: number, y: number) {
+      const rect = element.querySelector(".pane").getBoundingClientRect();
+      return { x: Math.round(x - rect.left), y: Math.round(y - rect.top) };
+    }
+
+    function catalogNode(_id: string, inputs: object = {}) {
+      return { _id, title: _id, arrange: { x: 0, y: 0 }, inputs, outputs: {} };
+    }
+
+    function addedIds(project: Project, prefix: string) {
+      return [...project.pipeline.nodes.keys()].filter((k) =>
+        k.startsWith(`${prefix}_`),
+      );
+    }
+
+    it("opens on a double-click on empty canvas and adds the best match there", fakeAsync(() => {
+      const project = projectA();
+      const { element, controller, detectChanges } = setupEditor({ project });
+      const box = grid(element).getBoundingClientRect();
+      const [x, y] = [box.left + 300, box.top + 400];
+
+      grid(element).dispatchEvent(
+        new MouseEvent("dblclick", { bubbles: true, clientX: x, clientY: y }),
+      );
+      detectChanges();
+      const list = controller.expectOne((r) => r.url === "/api/nodes");
+      list.flush(CATALOG);
+      detectChanges();
+      const focused = document.activeElement === searchField();
+      type("ech");
+      detectChanges();
+      press("Enter");
+      detectChanges();
+      controller.expectOne("/api/nodes/echo").flush(catalogNode("echo"));
+      tick(UI_DELAY);
+      detectChanges();
+
+      const [id] = addedIds(project, "echo");
+      expect(list.request.params.get("accepts")).toBeNull();
+      expect(focused).toBe(true);
+      expect(project.pipeline.nodes.get(id).arrange).toEqual(
+        expect.objectContaining(canvasPoint(element, x, y)),
+      );
+      expect(searchField()).toBeNull();
+      finish();
+    }));
+
+    it("stays closed on a double-click on a node", fakeAsync(() => {
+      const { element, controller, detectChanges } = setupEditor();
+
+      nodeElement(element, "node_one").dispatchEvent(
+        new MouseEvent("dblclick", { bubbles: true }),
+      );
+      detectChanges();
+
+      expect(searchField()).toBeNull();
+      expect(controller.match((r) => r.url === "/api/nodes").length).toBe(0);
+      finish();
+    }));
+
+    it("moves with the arrows, keeps open with Shift + Enter and closes with Esc", fakeAsync(() => {
+      const project = projectA();
+      const { element, controller, detectChanges } = setupEditor({ project });
+
+      grid(element).dispatchEvent(
+        new MouseEvent("dblclick", {
+          bubbles: true,
+          clientX: 500,
+          clientY: 300,
+        }),
+      );
+      detectChanges();
+      controller.expectOne((r) => r.url === "/api/nodes").flush(CATALOG);
+      detectChanges();
+      type("e");
+      detectChanges();
+      const first = activeItem();
+      press("ArrowDown");
+      const second = activeItem();
+      press("ArrowUp");
+      press("ArrowUp");
+      const wrapped = activeItem();
+      press("Enter", { shiftKey: true });
+      detectChanges();
+      controller.expectOne("/api/nodes/upscale").flush(catalogNode("upscale"));
+      tick(UI_DELAY);
+      detectChanges();
+      const keptOpen = searchField() !== null;
+      press("Escape");
+      detectChanges();
+
+      expect(
+        [first, second, wrapped].map((t) => t.trim().split(/\s+/)[0]),
+      ).toEqual(["Echo", "Speaker", "Upscale"]);
+      expect(keptOpen).toBe(true);
+      expect(addedIds(project, "upscale").length).toBe(1);
+      expect(searchField()).toBeNull();
+      finish();
+    }));
+
+    it("searches nodes accepting a wire dropped on empty canvas and connects the pick", fakeAsync(() => {
+      const project = connectionProject();
+      const { element, controller, detectChanges } = setupEditor({ project });
+      const box = grid(element).getBoundingClientRect();
+      const [x, y] = [box.left + 200, box.top + 600];
+
+      mouse(outputPin(nodeElement(element, "node_one"), "Text"), "mousedown");
+      detectChanges();
+      mouse(grid(element), "mouseup", { x, y });
+      detectChanges();
+      const list = controller.expectOne((r) => r.url === "/api/nodes");
+      list.flush(CATALOG);
+      detectChanges();
+      const accepts = document.querySelector(
+        '[data-testid="node-search-accepts"]',
+      ).textContent;
+      type("speak");
+      detectChanges();
+      press("Enter");
+      controller.expectOne("/api/nodes/speaker").flush(
+        catalogNode("speaker", {
+          voice: { title: "Voice", type: "audio" },
+          note: { title: "Note", type: "string" },
+          words: { title: "Words", type: "string", featured: true },
+        }),
+      );
+      tick(UI_DELAY);
+      detectChanges();
+
+      const [id] = addedIds(project, "speaker");
+      const point = canvasPoint(element, x, y);
+      expect(list.request.params.get("accepts")).toBe("string");
+      expect(accepts).toContain("string");
+      expect(project.pipeline.nodes.get(id).arrange).toEqual(
+        expect.objectContaining({ x: point.x, y: point.y - 42 }),
+      );
+      expect(flowsBetween(project, "node_one", id)).toEqual([
+        expect.objectContaining({ output: "text", input: "words" }),
+      ]);
+      finish();
+    }));
+
+    it("adds the node unconnected when none of its inputs fits", fakeAsync(() => {
+      const project = connectionProject();
+      const { element, controller, detectChanges } = setupEditor({ project });
+
+      mouse(outputPin(nodeElement(element, "node_one"), "Text"), "mousedown");
+      detectChanges();
+      mouse(grid(element), "mouseup", { x: 600, y: 600 });
+      detectChanges();
+      controller.expectOne((r) => r.url === "/api/nodes").flush(CATALOG);
+      detectChanges();
+      type("echo");
+      detectChanges();
+      press("Enter");
+      controller.expectOne("/api/nodes/echo").flush(catalogNode("echo"));
+      tick(UI_DELAY);
+
+      const [id] = addedIds(project, "echo");
+      expect(id).toBeDefined();
+      expect(flowsBetween(project, "node_one", id)).toEqual([]);
+      finish();
+    }));
+  });
 });
