@@ -42,8 +42,6 @@ export class ProjectPlaygroundComponent implements OnDestroy {
     inputs: this.inputsGroup,
   });
 
-  toolsOpen = false;
-
   constructor(
     private fb: FormBuilder,
     private http: HttpService,
@@ -187,6 +185,5 @@ export class ProjectPlaygroundComponent implements OnDestroy {
 
     this.inputsGroup.setValue(state, { emitEvent: false });
     this.fillRequest();
-    this.toolsOpen = false;
   }
 }
