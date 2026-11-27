@@ -32,6 +32,17 @@ Tests:
 
 VS Code: the "-- all --" launch compound starts server, worker, periodic, sockets, cli and frontend together.
 
+## Issue workflow
+
+Each issue is developed in its own git worktree, so parallel sessions never touch each other's files (#287). One issue gets one worktree, one branch and one PR, always based on `main`.
+
+- `make worktree ISSUE=<n> TYPE=<feat|fix|docs|chore> SLUG=<slug>` creates `.claude/worktrees/<n>-<slug>` on branch `<type>/<n>-<slug>` from `origin/main`. It initializes the submodule, installs Node from `.nvmrc`, runs `npm ci` in backend and frontend and copies the gitignored files listed in `.worktreeinclude` (`backend/.env`, …) from the main checkout. Work, test and commit inside that directory. `make worktree-setup` repeats the setup in an existing worktree.
+- The main checkout only tracks `main`. A `PreToolUse` hook refuses edits there. Only a user can allow an edit there, by starting the session with `PIPER_ALLOW_MAIN=1`.
+- When a session works through several issues (an epic), it runs `make worktree` for each issue and gives the subagent that directory. It does not use the Agent tool's `isolation: "worktree"`, which picks its own names.
+- Shells start on the system Node: prefix commands with `. ~/.nvm/nvm.sh && nvm use`.
+- Only one worktree at a time runs the app behind nginx at `http://localhost/`, because the ports are fixed: `make dev` takes them over from any other worktree. Tests run in parallel without conflicts; `npm run browser:serve` needs its own `PORT`. All worktrees share the `make up` infrastructure.
+- `make worktree-prune` removes clean worktrees whose PR is merged, together with their local branches (`DRY=1` only lists them).
+
 ## Architecture
 
 ### Backend process model

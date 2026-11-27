@@ -9,7 +9,7 @@ COMPOSE_ARGS=-f tools/compose/compose.yaml
 BACKEND=npm --prefix ./backend
 FRONTEND=npm --prefix ./frontend
 
-.PHONY: lint lint-backend lint-frontend lint-fix
+.PHONY: lint lint-backend lint-frontend lint-fix worktree worktree-setup worktree-prune
 
 install:
 	@set -e; \
@@ -143,3 +143,16 @@ check-install-scripts:
 
 check-lockfile:
 	./tools/check-lockfile.sh
+
+# One issue, one worktree (#287): make worktree ISSUE=<n> TYPE=<feat|fix|docs|chore> SLUG=<slug>
+worktree:
+	@test -n "$(ISSUE)" -a -n "$(TYPE)" -a -n "$(SLUG)" || { echo "usage: make worktree ISSUE=<n> TYPE=<feat|fix|docs|chore> SLUG=<slug>" >&2; exit 1; }
+	./tools/worktree.sh new "$(TYPE)" "$(ISSUE)" "$(SLUG)"
+
+# Submodule, Node from .nvmrc, npm ci and .worktreeinclude files in the current worktree
+worktree-setup:
+	./tools/worktree.sh setup .
+
+# Remove clean worktrees whose PR is merged; DRY=1 only lists them
+worktree-prune:
+	./tools/worktree.sh prune $(if $(DRY),--dry-run,)

@@ -19,3 +19,6 @@ packages/package.json
 packages/package-lock.json
 
 .playwright-mcp
+
+# Issue worktrees (make worktree, #287)
+.claude/worktrees/

@@ -1,0 +1,4 @@
+# Gitignored files tools/worktree.sh copies from the main checkout into a new
+# worktree (one path per line, relative to the repository root).
+backend/.env
+.claude/settings.local.json
