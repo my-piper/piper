@@ -3,7 +3,15 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  createComponent,
+  EnvironmentInjector,
+  inject,
+} from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import { TopbarService } from "src/services/topbar.service";
 import {
   ComponentFixture,
   discardPeriodicTasks,
@@ -141,19 +149,48 @@ export function setupEditor({
   );
   const editor = debug.componentInstance as EditPipelineVisualComponent;
   const element = debug.nativeElement as HTMLElement;
-  const detectChanges = () => fixture.detectChanges();
+  // A second TestBed fixture would detach the app root (TestBed keeps one
+  // root element in the DOM), so the outlet is created and attached by hand.
+  const bar = createComponent(TopbarOutletStubComponent, {
+    environmentInjector: TestBed.inject(EnvironmentInjector),
+  });
+  document.body.appendChild(bar.location.nativeElement);
+  bar.changeDetectorRef.detectChanges();
+  /** The app top bar's page slots: the Launch action and the run state. */
+  const topbar = bar.location.nativeElement as HTMLElement;
+  fixture.componentRef.onDestroy(() => {
+    bar.destroy();
+    topbar.remove();
+  });
+  const detectChanges = () => {
+    fixture.detectChanges();
+    bar.changeDetectorRef.detectChanges();
+  };
 
   return {
     fixture,
     detectChanges,
     editor,
     element,
+    topbar,
     controller,
     manager,
     socket,
     router,
     project,
   };
+}
+
+/** Shows the top bar slots pages fill, like AppLayoutComponent does. */
+@Component({
+  selector: "app-topbar-outlet-stub",
+  template: `<ng-container [ngTemplateOutlet]="topbar.content()" />
+    <ng-container [ngTemplateOutlet]="topbar.actions()" />`,
+  imports: [NgTemplateOutlet],
+  changeDetection: ChangeDetectionStrategy.Eager,
+})
+class TopbarOutletStubComponent {
+  readonly topbar = inject(TopbarService);
 }
 
 export function nodeElement(element: HTMLElement, id: string): HTMLElement {

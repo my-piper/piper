@@ -464,3 +464,14 @@
     }
   }
 }
+
+// The key hint inside the top bar's Launch button.
+.kbd {
+  margin-inline-start: var(--space-1);
+  padding: 0 3px;
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+}

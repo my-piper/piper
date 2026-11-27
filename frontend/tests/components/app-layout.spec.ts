@@ -56,19 +56,25 @@ class PageStubComponent {}
   template: `<ng-template #bar
       ><b data-testid="page-crumb">Mine</b></ng-template
     >
+    <ng-template #act
+      ><button data-testid="page-action">Go</button></ng-template
+    >
     <p>page</p>`,
   standalone: true,
 })
 class TopbarPageStubComponent implements OnInit, OnDestroy {
   private readonly topbar = inject(TopbarService);
   @ViewChild("bar", { static: true }) bar!: TemplateRef<unknown>;
+  @ViewChild("act", { static: true }) act!: TemplateRef<unknown>;
 
   ngOnInit() {
     this.topbar.set(this.bar);
+    this.topbar.setActions(this.act);
   }
 
   ngOnDestroy() {
     this.topbar.clear(this.bar);
+    this.topbar.clearActions(this.act);
   }
 }
 
@@ -211,10 +217,15 @@ describe("AppLayoutComponent", () => {
       "[data-testid=page-crumb]",
     )?.textContent;
     const pageSection = page.querySelector("[data-testid=app-crumbs]");
+    const pageAction = page.querySelector(
+      "[data-testid=app-topbar-actions] [data-testid=page-action]",
+    );
     const list = await open(harness, "/projects");
 
     expect(pageCrumb).toBe("Mine");
     expect(pageSection).toBeNull();
+    expect(pageAction).not.toBeNull();
+    expect(list.querySelector("[data-testid=app-topbar-actions]")).toBeNull();
     expect(list.querySelector("[data-testid=page-crumb]")).toBeNull();
     expect(list.querySelector("[data-testid=app-crumbs] b")?.textContent).toBe(
       "Pipelines",

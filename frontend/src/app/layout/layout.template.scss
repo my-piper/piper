@@ -126,6 +126,14 @@ app-layout .app-topbar {
     flex: 1;
   }
 
+  // A page's run state and primary action, before the user menu.
+  .page-actions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
   // A page's own content (breadcrumbs, tabs) takes the free width.
   .page {
     flex: 1;
