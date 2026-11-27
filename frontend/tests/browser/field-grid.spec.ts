@@ -50,3 +50,17 @@ test("stacks fields in one column below 560px", async ({ page, open }) => {
   const folder = await page.getByTestId("folder").boundingBox();
   expect(folder!.y).toBeGreaterThan(name!.y);
 });
+
+test("shrinks the single column on a grid narrower than a column", async ({
+  page,
+  open,
+}) => {
+  await open("/en/projects");
+
+  await mountFieldGrid(page, 240);
+
+  const width = await page
+    .getByTestId("field-grid")
+    .evaluate((el) => getComputedStyle(el).gridTemplateColumns);
+  expect(width).toBe("240px");
+});
