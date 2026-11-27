@@ -57,7 +57,10 @@ export class ImportProjectComponent {
       )
       .subscribe({
         next: (project) => {
-          this.router.navigate([".."], { relativeTo: this.route });
+          this.router.navigate([".."], {
+            relativeTo: this.route,
+            queryParamsHandling: "preserve",
+          });
           this.imported.emit(project);
         },
         error: (err) => (this.error = err),

@@ -13,10 +13,17 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  ParamMap,
+  Router,
+} from "@angular/router";
 import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
 import { plainToInstance } from "class-transformer";
+import isEqual from "lodash/isEqual";
 import last from "lodash/last";
+import uniq from "lodash/uniq";
 import {
   EMPTY,
   Subscription,
@@ -47,6 +54,11 @@ import {
   removeFromFolders,
 } from "./folders";
 import { ImportProjectComponent } from "./import/import-project.component";
+// the tags of a projects link, without blanks and repeats
+function tagsOf(params: ParamMap): string[] {
+  return uniq(params.getAll("tag").filter((t) => !!t));
+}
+
 const TEST_PIPELINE = `
 name: New project
 version: 1
@@ -120,6 +132,8 @@ export class ProjectsComponent implements OnInit {
   chunk: Project[] = [];
   projects: Project[] = [];
   allTags: string[] = [];
+  // the filter's chips: available tags plus selected ones no project has
+  filterTags: string[] = [];
   allFolders: Folder[] = [];
   // runs of the last 30 days; projects without runs have no entry
   stats = new Map<string, ProjectRunsSummary>();
@@ -180,6 +194,10 @@ export class ProjectsComponent implements OnInit {
   }
 
   ngOnInit() {
+    // a project page links here with ?tag=… to filter by it
+    const tags = tagsOf(this.route.snapshot.queryParamMap);
+    this.tagsControl.setValue(tags, { emitEvent: false });
+    this.updateFilterTags();
     this.loadTags();
     // a project page links back with its folder to open
     this.loadFolders(this.route.snapshot.queryParamMap.get("folder"));
@@ -188,7 +206,21 @@ export class ProjectsComponent implements OnInit {
     this.searchControl.valueChanges
       .pipe(debounceTime(500))
       .subscribe(() => this.load());
-    this.tagsControl.valueChanges.subscribe(() => this.load());
+    this.tagsControl.valueChanges.subscribe(() => {
+      this.syncTagsToUrl();
+      this.load();
+    });
+    // the page stays when a link opens it again with other tags
+    this.route.queryParamMap
+      .pipe(
+        map(tagsOf),
+        filter((tags) => !isEqual(tags, this.tagsControl.value)),
+      )
+      .subscribe((tags) => {
+        this.tagsControl.setValue(tags, { emitEvent: false });
+        this.updateFilterTags();
+        this.load();
+      });
   }
 
   // expands a folder by its stored group or, after a rename, by its path
@@ -261,6 +293,7 @@ export class ProjectsComponent implements OnInit {
   // shows a search result in place: drops the filters and opens its folder
   revealFolder(group: string) {
     this.form.setValue({ search: null, tags: [] }, { emitEvent: false });
+    this.syncTagsToUrl();
     this.load();
     this.expandTo(findFolder(this.allFolders, group));
   }
@@ -330,10 +363,32 @@ export class ProjectsComponent implements OnInit {
       .subscribe({
         next: (tags) => {
           this.allTags = tags;
+          this.updateFilterTags();
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
       });
+  }
+
+  // a tag from a link may belong to no project any more: it stays listed,
+  // so the filter shows why the list is empty and can clear it
+  private updateFilterTags() {
+    const missing = (this.tagsControl.value ?? []).filter(
+      (t) => !this.allTags.includes(t),
+    );
+    this.filterTags = [...this.allTags, ...missing];
+  }
+
+  // keeps the selected tags in the URL, so reload and shared links keep them
+  private syncTagsToUrl() {
+    this.updateFilterTags();
+    const tags = this.tagsControl.value ?? [];
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tag: tags.length > 0 ? tags : null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
   }
 
   isTagSelected(tag: string): boolean {
