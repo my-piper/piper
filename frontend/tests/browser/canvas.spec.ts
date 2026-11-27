@@ -501,3 +501,36 @@ test("resizes a node by dragging its right edge without moving it", async ({
   expect(after.x).toBeCloseTo(before.x, 0);
   expect(after.y).toBeCloseTo(before.y, 0);
 });
+
+test("groups the selected nodes and moves them together by the frame's bar", async ({
+  page,
+  open,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const one = page.getByTestId("node-node_one").locator("app-node");
+  await expect(one).toBeVisible();
+
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.press("ControlOrMeta+g");
+  const frame = page.locator(".pane > .group");
+  await expect(frame).toHaveCount(1);
+  await expect(frame.locator(".group-count")).toHaveText("2 nodes");
+
+  const before = await one.boundingBox();
+  const bar = await frame.locator(".group-bar").boundingBox();
+  await page.mouse.move(bar.x + bar.width / 2, bar.y + bar.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    bar.x + bar.width / 2 + 80,
+    bar.y + bar.height / 2 + 60,
+    {
+      steps: 6,
+    },
+  );
+  await page.mouse.up();
+
+  const after = await one.boundingBox();
+  expect(after.x - before.x).toBeCloseTo(80, 0);
+  expect(after.y - before.y).toBeCloseTo(60, 0);
+  await expect(frame.locator(".group-count")).toHaveText("2 nodes");
+});

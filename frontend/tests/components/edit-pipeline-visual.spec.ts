@@ -8,6 +8,7 @@ import { NodeInput } from "src/models/node";
 import { Layout, LayoutGroup, PipelineInput } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { toInstance, toPlain } from "src/utils/models";
+import { groupMembers } from "src/utils/groups";
 import { inputOffset } from "src/utils/node-layout";
 import { projectA, projectWith } from "../fixtures/models";
 import { patchResponsePlain, smallGraphPipeline } from "../fixtures/plain";
@@ -2002,6 +2003,139 @@ describe("EditPipelineVisualComponent", () => {
       expect(prepare.style.width).toBe("300px");
       expect(later.dataset["color"]).toBe("gray");
       expect(later.querySelector(".group-count").textContent).toBe("0 nodes");
+      finish();
+    }));
+
+    function drag(
+      target: Element,
+      from: { x: number; y: number },
+      to: { x: number; y: number },
+    ) {
+      const fire = (type: string, at: { x: number; y: number }) =>
+        target.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            clientX: at.x,
+            clientY: at.y,
+            button: 0,
+            pointerId: 1,
+          }),
+        );
+      fire("pointerdown", from);
+      fire("pointermove", to);
+      fire("pointerup", to);
+    }
+
+    it("groups the selected nodes with Ctrl + G around their boxes", fakeAsync(() => {
+      const project = projectA();
+      const { editor, element, detectChanges, manager } = setupEditor({
+        project,
+      });
+      editor.selection = new Set(["node:node_one", "node:node_two"]);
+      detectChanges();
+      const button = element.querySelector('[data-testid="group-selection"]');
+
+      element.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "g",
+          ctrlKey: true,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      detectChanges();
+
+      const [group] = [...project.pipeline.layout.groups.values()];
+      const one = project.pipeline.nodes.get("node_one").arrange;
+      expect(button).not.toBeNull();
+      expect(group.title).toBe("Group");
+      expect([group.x, group.y]).toEqual([
+        Math.max(0, one.x - 24),
+        Math.max(0, one.y - 52),
+      ]);
+      expect(groupMembers(project.pipeline, group).sort()).toEqual([
+        "node_one",
+        "node_two",
+      ]);
+      expect(element.querySelectorAll(".pane > .group").length).toBe(1);
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("offers Group only while nodes are selected", fakeAsync(() => {
+      const { element } = setupEditor();
+
+      expect(
+        element.querySelector('[data-testid="group-selection"]'),
+      ).toBeNull();
+      finish();
+    }));
+
+    it("moves a group and the nodes it holds by its bar", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges, manager } = setupEditor({ project });
+      const group = project.pipeline.layout.groups.get("prepare");
+      const one = { ...project.pipeline.nodes.get("node_one").arrange };
+      const two = { ...project.pipeline.nodes.get("node_two").arrange };
+      const frame = { x: group.x, y: group.y };
+
+      drag(
+        element.querySelector('[data-testid="group-bar-prepare"]'),
+        { x: 10, y: 10 },
+        { x: 60, y: 40 },
+      );
+      detectChanges();
+
+      expect([group.x, group.y]).toEqual([frame.x + 50, frame.y + 30]);
+      expect(project.pipeline.nodes.get("node_one").arrange).toEqual(
+        expect.objectContaining({ x: one.x + 50, y: one.y + 30 }),
+      );
+      expect(project.pipeline.nodes.get("node_two").arrange).toEqual(
+        expect.objectContaining({ x: two.x, y: two.y }),
+      );
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("resizes a group by its corner, no smaller than 120 × 80", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges } = setupEditor({ project });
+      const group = project.pipeline.layout.groups.get("prepare");
+      const corner = () =>
+        element.querySelector('[data-testid="group-resize-prepare"]');
+
+      drag(corner(), { x: 0, y: 0 }, { x: 40, y: 20 });
+      detectChanges();
+      const grown = [group.w, group.h];
+      drag(corner(), { x: 0, y: 0 }, { x: -1000, y: -1000 });
+      detectChanges();
+
+      expect(grown).toEqual([340, 220]);
+      expect([group.w, group.h]).toEqual([120, 80]);
+      finish();
+    }));
+
+    it("lets a viewer see groups but not move or resize them", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges } = setupEditor({
+        project,
+        user: "stranger",
+      });
+      const group = project.pipeline.layout.groups.get("prepare");
+      const x = group.x;
+
+      drag(
+        element.querySelector('[data-testid="group-bar-prepare"]'),
+        { x: 0, y: 0 },
+        { x: 80, y: 0 },
+      );
+      detectChanges();
+
+      expect(group.x).toBe(x);
+      expect(
+        element.querySelector('[data-testid="group-resize-prepare"]'),
+      ).toBeNull();
       finish();
     }));
 

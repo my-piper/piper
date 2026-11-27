@@ -46,6 +46,18 @@ describe("canvasShortcut", () => {
     expect(shortcuts).toEqual(["duplicate", "duplicate", null, null]);
   });
 
+  it("groups with Ctrl or Cmd + G, not with Shift", () => {
+    const keys = [
+      press("g", { ctrlKey: true }),
+      press("G", { metaKey: true }),
+      press("g", { ctrlKey: true, shiftKey: true }),
+    ];
+
+    const shortcuts = keys.map(canvasShortcut);
+
+    expect(shortcuts).toEqual(["group", "group", null]);
+  });
+
   it("shows the shortcuts with ?", () => {
     const key = press("?", { shiftKey: true });
 

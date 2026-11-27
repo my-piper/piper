@@ -252,6 +252,11 @@
           Ctrl/⌘ + C copies the selected nodes, Ctrl/⌘ + V pastes them at the
           pointer, Ctrl/⌘ + D duplicates them
         </dd>
+        <dt i18n="@@label.canvas_hint_group">Group</dt>
+        <dd i18n="@@message.canvas_hint_group">
+          Ctrl/⌘ + G wraps the selected nodes in a frame; drag its bar to move
+          them together, its corner to resize it
+        </dd>
         <dt i18n="@@label.canvas_hint_delete">Delete</dt>
         <dd i18n="@@message.canvas_hint_delete">
           Delete or Backspace removes the selection
@@ -310,6 +315,20 @@
         [routerLink]="[{ outlets: { left: ['add-node'], right: null } }]"
         iconStart="add-node"
       ></a>
+      @if (selectedNodes.length > 0) {
+        <button
+          tuiIconButton
+          appearance="outline-grayscale"
+          size="s"
+          class="round"
+          type="button"
+          data-testid="group-selection"
+          iconStart="@tui.group"
+          title="Group the selected nodes (Ctrl/⌘ + G)"
+          i18n-title="@@label.group_selection"
+          (click)="groupSelection()"
+        ></button>
+      }
       @if (config.assistant.active) {
         <a
           tuiIconButton
@@ -755,7 +774,12 @@
         [style.width.px]="g.value.w"
         [style.height.px]="g.value.h"
       >
-        <header class="group-bar">
+        <header
+          class="group-bar"
+          [class.movable]="canEdit"
+          [attr.data-testid]="'group-bar-' + g.key"
+          (pointerdown)="canEdit && dragGroup($event, g.key, 'move')"
+        >
           <span class="group-dot"></span>
           <span class="group-title">{{ g.value.title }}</span>
           <span class="group-count">{{
@@ -764,6 +788,15 @@
               : groupNodeCount(g.value) + " nodes"
           }}</span>
         </header>
+        @if (canEdit) {
+          <span
+            class="group-resize"
+            title="Drag to resize"
+            i18n-title="@@label.group_resize"
+            [attr.data-testid]="'group-resize-' + g.key"
+            (pointerdown)="dragGroup($event, g.key, 'resize')"
+          ></span>
+        }
       </section>
     }
 

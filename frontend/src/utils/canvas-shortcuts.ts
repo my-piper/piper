@@ -2,6 +2,7 @@ export type CanvasShortcut =
   | "delete"
   | "select-all"
   | "duplicate"
+  | "group"
   | "launch"
   | "help";
 
@@ -13,7 +14,7 @@ type Keys = Pick<
 /**
  * The canvas shortcut a key press asks for, or null. Delete/Backspace removes
  * the selection, Ctrl/⌘ + A selects everything, Ctrl/⌘ + D duplicates the
- * selected nodes, Ctrl/⌘ + Enter launches and
+ * selected nodes, Ctrl/⌘ + G groups them, Ctrl/⌘ + Enter launches and
  * `?` shows the shortcuts. Where the press lands is the caller's check.
  */
 export function canvasShortcut(event: Keys): CanvasShortcut | null {
@@ -33,6 +34,8 @@ export function canvasShortcut(event: Keys): CanvasShortcut | null {
         return "select-all";
       case "d":
         return "duplicate";
+      case "g":
+        return "group";
     }
     return null;
   }
