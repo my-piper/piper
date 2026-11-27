@@ -218,3 +218,44 @@ describe("pipeline import", () => {
     });
   });
 });
+
+describe("title of an imported project", () => {
+  it("numbers the title after the ones other projects have", async () => {
+    httpDoubles.projectsCursor.toArray.mockResolvedValue([
+      { _id: "first", title: "text to video v5" },
+      { _id: "second", title: "Text to Video V5 (2)" },
+    ]);
+
+    const response = await importYaml(pipelineYaml());
+
+    expect(response.status).toBe(200);
+    expect(response.body.title).toBe("Text to Video V5 (3)");
+    expect(inserted[0].title).toBe("Text to Video V5 (3)");
+    expect(httpDoubles.projects.find.mock.calls[0][0]).toMatchObject({
+      "createdBy._id": "admin-user",
+    });
+  });
+
+  it("refuses a name that is shorter than 5 characters once trimmed", async () => {
+    const response = await importYaml(
+      pipelineYaml().replace("name: Text to Video V5", 'name: "  abc  "')
+    );
+
+    expect(response.status).toBe(400);
+    expect(inserted).toEqual([]);
+  });
+
+  it("cuts a long title so the number still fits in 160 characters", async () => {
+    const name = "N".repeat(160);
+    httpDoubles.projectsCursor.toArray.mockResolvedValue([
+      { _id: "first", title: name },
+    ]);
+
+    const response = await importYaml(
+      pipelineYaml().replace("name: Text to Video V5", `name: ${name}`)
+    );
+
+    expect(response.status).toBe(200);
+    expect(inserted[0].title).toBe(`${"N".repeat(156)} (2)`);
+  });
+});

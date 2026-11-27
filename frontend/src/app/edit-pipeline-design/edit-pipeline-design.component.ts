@@ -31,7 +31,7 @@ export class EditPipelineDesignComponent implements OnInit {
   });
 
   constructor(
-    private projectManager: ProjectManager,
+    protected projectManager: ProjectManager,
     private fb: FormBuilder,
     private route: ActivatedRoute,
   ) {}

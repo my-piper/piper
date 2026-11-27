@@ -1,5 +1,11 @@
 import { inject, NgModule } from "@angular/core";
-import { Data, Router, RouterModule, Routes, UrlSegment } from "@angular/router";
+import {
+  Data,
+  Router,
+  RouterModule,
+  Routes,
+  UrlSegment,
+} from "@angular/router";
 import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
@@ -67,6 +73,7 @@ import { ProjectArtefactsComponent } from "./project-artefacts/project-artefacts
 import { ProjectAssetsComponent } from "./project-assets/project-assets.component";
 import { ProjectCommentsComponent } from "./project-comments/project-comments.component";
 import { ProjectStatsComponent } from "./project-stats/project-stats.component";
+import { CreateProjectComponent } from "./projects/create/create-project.component";
 import { ImportProjectComponent } from "./projects/import/import-project.component";
 import { LoginComponent } from "./signin/login.component";
 import { SigupComponent } from "./signup/signup.component";
@@ -76,7 +83,7 @@ import { UsersComponent } from "./users/users.component";
 import { titled } from "src/utils/route-dialog";
 
 /** Children of the Projects page, which a Project id can never be. */
-const PROJECTS_PAGES = new Set(["import"]);
+const PROJECTS_PAGES = new Set(["new", "import"]);
 
 export function projectIdMatcher(
   segments: UrlSegment[],
@@ -466,6 +473,13 @@ const routes: Routes = [
         component: ProjectsComponent,
         canActivate: [SigninNeededGuard],
         children: [
+          {
+            path: "new",
+            component: CreateProjectComponent,
+            data: {
+              dialogLabel: $localize`:@@label.new_project:New project`,
+            },
+          },
           {
             path: "import",
             component: ImportProjectComponent,

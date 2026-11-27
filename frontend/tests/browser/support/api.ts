@@ -63,6 +63,9 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 /** Text body like backend `handle()` sends for DataError without details. */
 const dataError = (message: string): Reply => ({ status: 400, text: message });
+/** backend/types/errors.ts ConflictError, answered as text with 409. */
+const conflict = (message: string): Reply => ({ status: 409, text: message });
+const TITLE_TAKEN = "A project with this title already exists";
 const ok = (json: unknown): Reply =>
   json === null ? { status: 204 } : { status: 200, json };
 
@@ -196,6 +199,19 @@ export class ApiFixture {
     return reply;
   }
 
+  /**
+   * Whether another project of the owner has the title, ignoring case like
+   * the backend's per-owner unique index.
+   */
+  private titleTaken(title: string, owner: string, except?: string): boolean {
+    return [...this.projects.values()].some(
+      (p) =>
+        p["_id"] !== except &&
+        (p["createdBy"] as Plain)?.["_id"] === owner &&
+        String(p["title"]).toLowerCase() === title.toLowerCase(),
+    );
+  }
+
   private requireUser(user: Plain | null): Reply | null {
     // backend/utils/http.ts checkLogged: DataError "You aren't logged".
     return user ? null : dataError("You aren't logged");
@@ -226,6 +242,50 @@ export class ApiFixture {
         group ? p["group"] === group : ungrouped ? !p["group"] : true,
       );
       return this.requireUser(user) ?? ok(clone(projects));
+    });
+
+    // backend/api/projects/add-project.ts: trims the title, validates its
+    // length (schemas/project.json), refuses a taken one with 409
+    // (packages/projects/titles.ts) and answers without the graph.
+    this.on("POST", "/api/projects", ({ body, user }) => {
+      const denied = this.requireUser(user);
+      if (denied) {
+        return denied;
+      }
+      const request = body as Plain;
+      const title = String(request["title"] ?? "").trim();
+      if (title.length < 5 || title.length > 160) {
+        return {
+          status: 400,
+          json: {
+            message: "Project schema invalid",
+            details: [
+              title.length < 5
+                ? "/title: must NOT have fewer than 5 characters"
+                : "/title: must NOT have more than 160 characters",
+            ],
+          },
+        };
+      }
+      if (this.titleTaken(title, user["_id"] as string)) {
+        return conflict(TITLE_TAKEN);
+      }
+      const _id = `project_new_${++this.revision}`;
+      const project: Plain = {
+        _id,
+        revision: `rev_${_id}`,
+        createdAt: new Date().toISOString(),
+        createdBy: { _id: user["_id"] },
+        title,
+        pipeline: request["pipeline"],
+        launchRequest: request["launchRequest"],
+        cursor: _id,
+      };
+      this.projects.set(_id, project);
+      const summary = clone(project);
+      delete summary["pipeline"];
+      delete summary["launchRequest"];
+      return ok(summary);
     });
 
     // backend/api/projects/tags/list-available-tags.ts: distinct sorted tags
@@ -367,7 +427,17 @@ export class ApiFixture {
               },
             };
           }
-          next["title"] = (next["pipeline"] as Plain)["name"];
+          next["title"] = String((next["pipeline"] as Plain)["name"]).trim();
+          if (
+            next["title"] !== project["title"] &&
+            this.titleTaken(
+              next["title"] as string,
+              (project["createdBy"] as Plain)["_id"] as string,
+              params["id"],
+            )
+          ) {
+            return conflict(TITLE_TAKEN);
+          }
         }
         for (const key of ["launchRequest", "environment"]) {
           if (request[key]) {
