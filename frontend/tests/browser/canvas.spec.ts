@@ -389,3 +389,35 @@ test("adds a node from search on double-click and connects one to a dropped wire
   await expect(added).toHaveCount(2);
   await expect(wires).toHaveCount(wiresBefore + 1);
 });
+
+test("copies nodes with their flow, pastes them at the pointer and duplicates them", async ({
+  page,
+  open,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeOne = page.getByTestId("node-node_one");
+  await expect(nodeOne).toBeVisible();
+  const nodes = page.locator('.pane > .node[data-testid^="node-"]');
+  const wires = page.locator(".pane > svg path:not(.param):not(.pending)");
+  const [nodesBefore, wiresBefore] = [await nodes.count(), await wires.count()];
+  const view = await page.locator(".nodes").boundingBox();
+
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.press("ControlOrMeta+c");
+  await page.mouse.move(view.x + 300, view.y + 450);
+  await page.keyboard.press("ControlOrMeta+v");
+
+  await expect(nodes).toHaveCount(nodesBefore + 2);
+  await expect(wires).toHaveCount(wiresBefore + 1);
+  // The copies are selected; the left one sits at the pointer.
+  const picked = page.locator(".pane > .node.picked");
+  await expect(picked).toHaveCount(2);
+  const first = await picked.first().boundingBox();
+  expect(first.x).toBeCloseTo(view.x + 300, -1);
+  expect(first.y).toBeCloseTo(view.y + 450, -1);
+
+  await page.keyboard.press("ControlOrMeta+d");
+
+  await expect(nodes).toHaveCount(nodesBefore + 4);
+  await expect(wires).toHaveCount(wiresBefore + 2);
+});
