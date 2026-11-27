@@ -231,22 +231,6 @@
       >
       <a
         tuiTab
-        iconStart="@tui.file-text"
-        [routerLink]="[
-          {
-            outlets: {
-              primary: ['readme', 'edit'],
-              left: null,
-              right: null,
-              bottom: null,
-            },
-          },
-        ]"
-        routerLinkActive="active"
-        ><ng-container i18n="@@link.readme">README</ng-container></a
-      >
-      <a
-        tuiTab
         iconStart="@tui.braces"
         [routerLink]="[
           {
@@ -260,49 +244,6 @@
         ]"
         routerLinkActive="active"
         >YAML</a
-      >
-      @if (userRole.engineer | can | async) {
-        <a
-          tuiTab
-          iconStart="@tui.code"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['script'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
-            },
-          ]"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.script">Script</ng-container></a
-        >
-      }
-      @if (userRole.admin | can | async) {
-        <a
-          tuiTab
-          iconStart="@tui.bot"
-          [routerLink]="['messages']"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.messages">Messages</ng-container></a
-        >
-      }
-      <a
-        tuiTab
-        iconStart="@tui.wrench"
-        [routerLink]="[
-          {
-            outlets: {
-              primary: ['tools'],
-              left: null,
-              right: null,
-              bottom: null,
-            },
-          },
-        ]"
-        routerLinkActive="active"
-        ><ng-container i18n="@@link.tools">Tools</ng-container></a
       >
     </tui-tabs>
   }

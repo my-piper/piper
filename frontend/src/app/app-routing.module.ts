@@ -31,7 +31,6 @@ import {
 } from "src/resolvers/node";
 import { NodePackageResolver } from "src/resolvers/node-package";
 import { ProjectResolver } from "src/resolvers/project";
-import { ProjectMessagesFilterResolver } from "src/resolvers/project-messages-filter";
 import { UserResolver } from "src/resolvers/user";
 import { AssetsComponent } from "./assets/assets.component";
 import { AssistantComponent } from "./assistant/assistant.component";
@@ -45,8 +44,6 @@ import { EditNodeScriptComponent } from "./edit-node-script/edit-node-script.com
 import { EditNodeYamlComponent } from "./edit-node-yaml/edit-node-yaml.component";
 import { EditPipelineDesignComponent } from "./edit-pipeline-design/edit-pipeline-design.component";
 import { EditPipelineEnvironmentComponent } from "./edit-pipeline-environment/edit-pipeline-environment.component";
-import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipeline-readme.component";
-import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
 import { LaunchOutputsPageComponent } from "./launch-outputs-page/launch-outputs-page.component";
 import { LaunchesPageComponent } from "./launches-page/launches-page.component";
 import { AppLayoutComponent } from "./layout/layout.component";
@@ -63,7 +60,6 @@ import { ImportPackageComponent } from "./node-packages/import/import-package.co
 import { NodePackagesComponent } from "./node-packages/node-packages.component";
 import { PipelineMessagesComponent } from "./pipeline-messages/pipeline-messages.component";
 import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.component";
-import { PipelineToolsComponent } from "./pipeline-tools/pipeline-tools.component";
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
@@ -297,26 +293,8 @@ const routes: Routes = [
             component: EditPipelineEnvironmentComponent,
           },
           {
-            path: "readme/edit",
-            component: EditPipelineReadmeComponent,
-            children: [
-              {
-                path: "view",
-                component: PipelineReadmeComponent,
-              },
-            ],
-          },
-          {
-            path: "readme",
-            component: PipelineReadmeComponent,
-          },
-          {
             path: "yaml",
             component: EditPipelineYamlComponent,
-          },
-          {
-            path: "script",
-            component: EditPipelineScriptComponent,
           },
           {
             path: "design",
@@ -366,17 +344,6 @@ const routes: Routes = [
           {
             path: "node-updates",
             component: UpdatePipelineNodesComponent,
-          },
-          {
-            path: "messages",
-            resolve: {
-              filter: ProjectMessagesFilterResolver,
-            },
-            component: PipelineMessagesComponent,
-          },
-          {
-            path: "tools",
-            component: PipelineToolsComponent,
           },
           {
             path: "assets",
