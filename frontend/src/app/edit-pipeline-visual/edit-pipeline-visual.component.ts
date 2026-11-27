@@ -1279,7 +1279,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
           content,
           yes: $localize`:@@action.delete:Delete`,
           no: $localize`:@@action.cancel:Cancel`,
-          appearance: ["primary-destructive", "secondary"],
+          // A named primary action, then a ghost Cancel (docs/design.md, #298).
+          appearance: ["primary-destructive", "flat-grayscale"],
         } satisfies TuiConfirmData,
       })
       .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef));

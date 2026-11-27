@@ -601,7 +601,7 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("keeps the node when the confirmation is cancelled", fakeAsync(() => {
+    it("keeps the node when the ghost Cancel of the confirmation is chosen", fakeAsync(() => {
       const project = projectA();
       const { element, detectChanges, manager } = setupEditor({ project });
 
@@ -609,8 +609,12 @@ describe("EditPipelineVisualComponent", () => {
         nodeBox(element, "node_one").querySelector("button.delete"),
         detectChanges,
       );
+      const appearances = ["Delete", "Cancel"].map((label) =>
+        dialogButton(label).getAttribute("data-appearance"),
+      );
       click(dialogButton("Cancel"), detectChanges);
 
+      expect(appearances).toEqual(["primary-destructive", "flat-grayscale"]);
       expect(project.pipeline.nodes.has("node_one")).toBe(true);
       expect(manager.status.value).not.toBe("dirty");
       finish();
