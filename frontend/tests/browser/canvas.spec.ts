@@ -251,7 +251,7 @@ async function hitAt(page: Page, [x, y]: readonly [number, number]) {
   return page.evaluate(
     ([px, py]) => {
       const hit = document.elementFromPoint(px, py);
-      const node = hit?.closest<HTMLElement>(".node");
+      const node = hit?.closest<HTMLElement>("[data-node]");
       if (node) {
         return node.dataset["node"];
       }

@@ -1,5 +1,5 @@
-$flow-color: rgba(#a91bb3, 0.8);
+// Canvas colours, as tokens (styles/themes.scss).
 $node-background-color: var(--node-background);
 // Pipeline inputs and outputs, kept apart from nodes and node flows.
-$param-color: #f5a524;
-$output-color: #17c964;
+$param-color: var(--accent-strong);
+$output-color: var(--success);

@@ -93,7 +93,8 @@ export class NodeComponent implements OnDestroy {
         this.node.outputs.size,
       ) *
         UI.node.input.height +
-      30
+      UI.node.title +
+      UI.node.padding * 2
     );
   }
 
@@ -150,6 +151,16 @@ export class NodeComponent implements OnDestroy {
       output: NodeOutput;
     };
   }>();
+
+  @HostBinding("attr.data-exec")
+  get execution() {
+    return this.node?.execution;
+  }
+
+  /** Array ports (`image[]`, …) draw a hollow socket. */
+  isArray(type: string | undefined) {
+    return !!type?.endsWith("[]");
+  }
 
   @HostBinding("class.running")
   get running() {

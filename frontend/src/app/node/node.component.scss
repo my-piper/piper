@@ -1,64 +1,54 @@
 @use "src/styles/variables";
 @use "src/styles/mixins";
-@use "src/variables" as app-variables;
 @use "src/styles/reset";
 
-@property --border-angle {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: 0turn;
-}
-
-$node-width: 250px;
-$node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
+// Geometry: the --node-* tokens (styles/themes.scss) and UI.node (consts/ui.ts),
+// which places flow ends on the port centres.
+$port-row: 22px;
 
 :host {
   display: block;
   position: relative;
-  width: $node-width;
+  width: var(--node-width);
   box-sizing: border-box;
   user-select: none;
-  border: solid 1px variables.with-alpha(variables.$graphite-color-200, 0.45);
-  border-radius: variables.$corner-large;
-  box-shadow: 2px 2px 2px rgba(black, 0.25);
-  background: variables.with-alpha(app-variables.$node-background-color, 0.75);
-  min-height: 100px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-node);
+  background: var(--surface-1);
+  color: var(--text);
 
-  @keyframes bg-spin {
-    to {
-      --border-angle: 1turn;
-    }
+  // The title bar's left edge shows how the node is scheduled.
+  --exec: var(--exec-regular);
+
+  &[data-exec="rapid"] {
+    --exec: var(--exec-rapid);
+  }
+
+  &[data-exec="deferred"] {
+    --exec: var(--exec-deferred);
+  }
+
+  &[data-exec="protracted"] {
+    --exec: var(--exec-protracted);
   }
 
   &.running {
-    --border-angle: 0turn;
-    $main-bg: conic-gradient(
-      from var(--border-angle),
-      app-variables.$node-background-color 5%,
-      app-variables.$node-background-color 60%,
-      app-variables.$node-background-color 95%
-    );
-    $gradient-border: conic-gradient(
-      from var(--border-angle),
-      transparent 25%,
-      #08f,
-      #f03 99%,
-      transparent
-    );
-    background:
-      $main-bg padding-box,
-      $gradient-border border-box,
-      $main-bg border-box;
-    background-position: center center;
-    animation: bg-spin 3s linear infinite;
+    border-color: var(--accent);
+    box-shadow:
+      0 0 0 1px var(--accent),
+      var(--shadow-node);
   }
 
   &.done {
-    border-color: variables.$green-color;
+    border-color: var(--success);
   }
 
   &.error {
-    border-color: red;
+    border-color: var(--danger);
+    box-shadow:
+      0 0 0 1px var(--danger),
+      var(--shadow-node);
   }
 
   &.disabled {
@@ -69,33 +59,17 @@ $node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
       display: none;
     }
   }
-
-  &:hover .node ul.inputs li .title,
-  &:hover .node ul.outputs li .title {
-    display: visible;
-    opacity: 1;
-  }
-
-  &.active {
-    box-shadow: 0 0 2px 4px rgba(app-variables.$flow-color, 0.35);
-  }
-
-  &.active .node ul.inputs li .title,
-  &.active .node ul.outputs li .title {
-    visibility: visible;
-    opacity: 1;
-  }
 }
 
 .error {
   position: absolute;
-  background: rgba(black, 0.5);
+  background: var(--backdrop);
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 1;
-  border-radius: variables.$corner-large;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,100 +78,168 @@ $node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
 .node {
   display: flex;
   flex-direction: column;
-  border-radius: variables.$corner-large;
+  width: 100%;
+  border-radius: var(--radius-md);
+
+  .head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: var(--node-title);
+    box-sizing: border-box;
+    // Room on the right for the canvas's Run / Edit / Delete buttons.
+    padding: 0 76px 0 calc(var(--space-2) + 2px);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    border-radius: calc(var(--radius-md) - 1px) calc(var(--radius-md) - 1px) 0 0;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--exec);
+      border-top-left-radius: calc(var(--radius-md) - 1px);
+    }
+  }
 
   h2 {
-    font-size: variables.$font-size-small;
-    font-weight: normal;
-    line-height: 30px;
-    vertical-align: middle;
-    width: calc($node-width - variables.$gutter-huge * 2);
+    margin: 0;
+    min-width: 0;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: 0 0 0 variables.$gutter-normal;
   }
 
-  display: flex;
-  width: 100%;
+  .ports {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: var(--space-1) 0;
+
+    &:not(:has(li)) {
+      display: none;
+    }
+  }
 
   ul.inputs,
   ul.outputs {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    position: absolute;
-    z-index: 1;
-    top: 30px;
+    min-width: 0;
 
     li {
-      font-size: 0.75em;
-      height: 30px;
       position: relative;
-      padding: 0 10px;
-      line-height: 1.25;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+      height: $port-row;
+      min-width: 0;
+      font-size: 11px;
+      line-height: 14px;
+      color: var(--text-muted);
 
       .title {
+        min-width: 0;
         white-space: nowrap;
-        line-height: 1.5;
         overflow: hidden;
-        max-width: 150px;
         text-overflow: ellipsis;
-        opacity: 0;
-        visibility: none;
-        transition: opacity 250ms;
       }
 
-      // Port handles; once ui-kit's button.circle, now styled only here.
+      &.required .title::after {
+        content: "*";
+        color: var(--danger);
+        margin-left: 2px;
+      }
+
+      // The socket sits on the node's edge, coloured by the port's type.
       .port {
         @include reset.reset-button();
+        --t: var(--type-any);
         position: absolute;
+        top: 50%;
         box-sizing: border-box;
-        transition: all 0.15s;
-        width: 18px;
-        height: 18px;
-        aspect-ratio: 1;
-        background: app-variables.$flow-color;
-        border: 5px solid app-variables.$node-background-color;
-        border-radius: 50%;
-        cursor: pointer;
+        width: var(--socket);
+        height: var(--socket);
+        margin-top: calc(var(--socket) / -2);
+        border-radius: var(--radius-full);
+        background: var(--t);
+        box-shadow: 0 0 0 2px var(--surface-1);
+        cursor: crosshair;
+        transition: transform 0.12s ease-out;
+
+        // A larger invisible hit area around the 10px dot.
+        &::after {
+          content: "";
+          position: absolute;
+          inset: -6px;
+        }
 
         &:hover {
-          background: app-variables.$node-background-color;
-          border-color: app-variables.$flow-color;
+          transform: scale(1.3);
+        }
+
+        &.array {
+          background: var(--surface-1);
+          box-shadow:
+            inset 0 0 0 2px var(--t),
+            0 0 0 2px var(--surface-1);
+        }
+
+        &[data-type="string"],
+        &[data-type="string[]"] {
+          --t: var(--type-string);
+        }
+        &[data-type="integer"] {
+          --t: var(--type-integer);
+        }
+        &[data-type="float"] {
+          --t: var(--type-float);
+        }
+        &[data-type="boolean"] {
+          --t: var(--type-boolean);
+        }
+        &[data-type="json"] {
+          --t: var(--type-json);
+        }
+        &[data-type="image"],
+        &[data-type="image[]"] {
+          --t: var(--type-image);
+        }
+        &[data-type="video"],
+        &[data-type="video[]"] {
+          --t: var(--type-video);
+        }
+        &[data-type="audio"] {
+          --t: var(--type-audio);
+        }
+        &[data-type="archive"] {
+          --t: var(--type-archive);
         }
       }
     }
+  }
 
-    &.inputs {
-      transform: translate(calc(-100% - 6px), -2px);
+  ul.inputs li {
+    padding-left: var(--space-3);
 
-      li {
-        .port {
-          right: -14px;
-        }
-
-        .title {
-          text-align: right;
-        }
-      }
+    .port {
+      left: calc(var(--socket) / -2 - 1px);
     }
+  }
 
-    &.outputs {
-      transform: translate(calc(100% + 6px), -2px);
-      right: 0;
+  ul.outputs li {
+    justify-content: flex-end;
+    padding-right: var(--space-3);
+    text-align: right;
 
-      li {
-        .port {
-          left: -14px;
-        }
-
-        .image-value {
-          justify-content: end;
-        }
-      }
+    .port {
+      right: calc(var(--socket) / -2 - 1px);
     }
   }
 
@@ -310,23 +352,23 @@ $node-border-color: variables.with-alpha(variables.$graphite-color-200, 0.25);
   display: flex;
   justify-content: space-between;
   position: absolute;
-  top: 0;
-  left: variables.$gutter-normal;
-  right: variables.$gutter-normal;
+  // The bottom edge of the title bar.
+  top: calc(var(--node-title) - 2px);
+  left: 0;
+  right: 0;
   z-index: 1;
-  height: 5px;
-  transform: translate(0, -100%);
-  border-radius: variables.$corner-small;
+  height: 2px;
+  background: var(--border);
   overflow: hidden;
 
   .processed {
-    background: variables.$green-color;
+    background: var(--accent);
     transition: width 250ms;
     height: 100%;
   }
 
   .losses {
-    background: red;
+    background: var(--danger);
     transition: width 250ms;
     height: 100%;
   }
