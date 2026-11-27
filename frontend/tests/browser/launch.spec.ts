@@ -132,6 +132,13 @@ test("runs from the canvas in a new tab, follows node events and interrupts ther
 
   await failed.getByTestId("node-show-log").click();
   await expect(tab).toHaveURL(/right:nodes\/node_one\/logs/);
+  await expect(tab.getByTestId("interrupt-launch")).toHaveCount(0);
+  api.nodeStatus.set("launch_1/node_two", { state: "running" });
+  server.emit(
+    LAUNCH_ROOM("launch_1"),
+    "node_running",
+    nodeEventPlain("node_two", "launch_1"),
+  );
 
   await tab.getByTestId("interrupt-launch").click();
 

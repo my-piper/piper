@@ -19,8 +19,7 @@ import { LAUNCH_ROOM, USER_ROOM } from "src/consts/rooms";
  * Wire contracts: POST /api/projects/:_id/launch merges the body into the
  * project's stored launch request and returns the launch without `pipeline`
  * (backend/api/projects/launch-project.ts); POST /api/launches/:id/interrupt
- * returns null (backend/api/launches/interrupt-launch.ts); `pipeline_done`
- * arrives in the launch room as `{ launch, node }`.
+ * returns null (backend/api/launches/interrupt-launch.ts).
  */
 const LAUNCH_URL = `/api/projects/${PROJECT_A_ID}/launch`;
 const INTERRUPT_URL = `/api/launches/${LAUNCH_ID}/interrupt`;
@@ -68,6 +67,30 @@ function answerNodeReads({ controller }: Editor) {
     read.flush(read.request.url.endsWith("/status") ? null : {});
   }
   return reads.map((r) => r.request.url);
+}
+
+type Status = { state: string; error?: string } | null;
+
+/** Answers every pending node read, with `statuses` per node id. */
+function answerStatuses(
+  { controller }: Editor,
+  statuses: Record<string, Status> = {},
+) {
+  const reads = controller.match(
+    (r: HttpRequest<unknown>) =>
+      r.method === "GET" && r.url.startsWith(`/api/launches/`),
+  );
+  for (const read of reads) {
+    const [, , , , node, kind] = read.request.url.split("/");
+    if (kind === "status") {
+      read.flush(statuses[node] ?? null);
+    } else if (kind === "progress") {
+      read.flush(null);
+    } else {
+      read.flush({});
+    }
+  }
+  tick();
 }
 
 /** Flushes saves `kick()` sends for the sanitized fixture. */
@@ -258,8 +281,8 @@ describe("EditPipelineVisualComponent runs", () => {
     fixture.destroy();
     socket.receive("node_done", { launch: LAUNCH_ID, node: "node_one" });
 
-    // Only MeManager's user room remains.
-    expect(userRefs).toBe(2);
+    // The editor holds no user room; only MeManager's remains.
+    expect(userRefs).toBe(1);
     expect(socket.listenerCount()).toBe(0);
     expect(live.rooms.get(USER_ROOM(USER_IDS.owner)).size).toBe(1);
     expect(live.rooms.has(LAUNCH_ROOM(LAUNCH_ID))).toBe(false);
@@ -314,10 +337,16 @@ describe("EditPipelineVisualComponent launch page", () => {
     return element.querySelector('[data-testid="interrupt-launch"]');
   }
 
+  const RUNNING = {
+    node_one: { state: "done" },
+    node_two: { state: "running" },
+  };
+
   it("interrupts the running launch and hides the interrupt button", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });
     const { controller, detectChanges, topbar } = editor;
-    answerNodeReads(editor);
+    answerStatuses(editor, RUNNING);
+    detectChanges();
 
     interruptButton(topbar).click();
     detectChanges();
@@ -331,6 +360,7 @@ describe("EditPipelineVisualComponent launch page", () => {
     expect(busy).toBe(true);
     expect(interruptButton(topbar)).toBeNull();
     expect(editor.editor.launch._id).toBe(LAUNCH_ID);
+    answerStatuses(editor);
     controller.verify();
     finish();
   }));
@@ -339,7 +369,8 @@ describe("EditPipelineVisualComponent launch page", () => {
     expectConsoleError("Process HTTP error 404");
     const editor = setupEditor({ launch: launch() });
     const { controller, detectChanges, topbar } = editor;
-    answerNodeReads(editor);
+    answerStatuses(editor, RUNNING);
+    detectChanges();
 
     interruptButton(topbar).click();
     controller
@@ -351,55 +382,60 @@ describe("EditPipelineVisualComponent launch page", () => {
     expect(interruptButton(topbar)).not.toBeNull();
     expect(isLoading(interruptButton(topbar))).toBe(false);
     expect(openDialog()).not.toBeNull();
+    answerStatuses(editor);
     controller.verify();
     finish();
   }));
 
-  it("hides the interrupt button when its pipeline_done arrives, ignoring other launches", fakeAsync(() => {
+  const loaded: [string, Record<string, Status>, boolean][] = [
+    ["a running node", RUNNING, true],
+    [
+      "a finished launch",
+      { node_one: { state: "done" }, node_two: { state: "done" } },
+      false,
+    ],
+    [
+      "a failed launch",
+      { node_one: { state: "error", error: "Boom" }, node_two: null },
+      false,
+    ],
+    ["no node states, e.g. expired", {}, false],
+  ];
+  for (const [name, statuses, offered] of loaded) {
+    it(`offers Stop on load only for ${name}`, fakeAsync(() => {
+      const editor = setupEditor({ launch: launch() });
+      const { controller, detectChanges, topbar } = editor;
+
+      answerStatuses(editor, statuses);
+      detectChanges();
+
+      expect(interruptButton(topbar) !== null).toBe(offered);
+      answerStatuses(editor);
+      controller.verify();
+      finish();
+    }));
+  }
+
+  it("hides Stop once the last running node finishes", fakeAsync(() => {
     const editor = setupEditor({ launch: launch() });
-    const { controller, detectChanges, socket, topbar } = editor;
-    answerNodeReads(editor);
-
-    socket.receive("pipeline_done", { launch: "launch_other" });
+    const { controller, detectChanges, topbar } = editor;
+    answerStatuses(editor, RUNNING);
     detectChanges();
-    const afterOther = interruptButton(topbar);
-    socket.receive("pipeline_done", { launch: LAUNCH_ID });
-    tick();
+    const running = interruptButton(topbar) !== null;
+
+    tick(2000);
+    answerStatuses(editor, { node_two: { state: "done" } });
+    answerStatuses(editor);
     detectChanges();
 
-    expect(afterOther).not.toBeNull();
+    expect(running).toBe(true);
     expect(interruptButton(topbar)).toBeNull();
-    expect(editor.editor.launch._id).toBe(LAUNCH_ID);
     controller.verify();
     finish();
   }));
 });
 
 describe("EditPipelineVisualComponent run feedback", () => {
-  type Status = { state: string; error?: string } | null;
-
-  /** Answers every pending node read, with `statuses` per node id. */
-  function answerStatuses(
-    { controller }: Editor,
-    statuses: Record<string, Status> = {},
-  ) {
-    const reads = controller.match(
-      (r: HttpRequest<unknown>) =>
-        r.method === "GET" && r.url.startsWith(`/api/launches/`),
-    );
-    for (const read of reads) {
-      const [, , , , node, kind] = read.request.url.split("/");
-      if (kind === "status") {
-        read.flush(statuses[node] ?? null);
-      } else if (kind === "progress") {
-        read.flush(null);
-      } else {
-        read.flush({});
-      }
-    }
-    tick();
-  }
-
   function pill(element: HTMLElement) {
     return element.querySelector<HTMLElement>('[data-testid="launch-state"]');
   }
