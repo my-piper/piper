@@ -145,9 +145,6 @@
     <table tuiTable size="s">
       <thead>
         <tr>
-          <th tuiTh class="icon-column">
-            <span class="visually-hidden" i18n="@@label.actions">Actions</span>
-          </th>
           <th tuiTh class="title-column" i18n="@@label.title">Title</th>
           <th tuiTh class="icon-column">
             <span class="visually-hidden" i18n="@@label.visibility"
@@ -157,46 +154,14 @@
           <th tuiTh class="version-column" i18n="@@label.version">Version</th>
           <th tuiTh class="nodes-column num" i18n="@@label.nodes">Nodes</th>
           <th tuiTh i18n="@@label.description">Description</th>
+          <th tuiTh class="actions-column">
+            <span class="visually-hidden" i18n="@@label.actions">Actions</span>
+          </th>
         </tr>
       </thead>
       <tbody tuiTbody>
         @for (p of packages; track p._id; let i = $index) {
           <tr>
-            <td tuiTd>
-              <ng-template #actionsTemplate>
-                <tui-data-list>
-                  <a
-                    tuiOption
-                    [routerLink]="[p._id]"
-                    (click)="actionsOpen = null"
-                  >
-                    <tui-icon icon="@tui.pencil"></tui-icon>
-                    <ng-container i18n="@@action.edit">Edit</ng-container>
-                  </a>
-                  <button
-                    tuiOption
-                    type="button"
-                    [disabled]="progress.deleting"
-                    (click)="remove(i, p)"
-                  >
-                    <tui-icon icon="@tui.trash-2"></tui-icon>
-                    <ng-container i18n="@@action.delete">Delete</ng-container>
-                  </button>
-                </tui-data-list>
-              </ng-template>
-              <button
-                tuiIconButton
-                appearance="flat"
-                size="s"
-                type="button"
-                iconStart="@tui.ellipsis-vertical"
-                aria-label="Actions"
-                i18n-aria-label="@@label.actions"
-                [tuiDropdown]="actionsTemplate"
-                [tuiDropdownOpen]="actionsOpen === p._id"
-                (tuiDropdownOpenChange)="actionsOpen = $event ? p._id : null"
-              ></button>
-            </td>
             <td tuiTd>
               <a tuiLink [routerLink]="[p._id, 'export']">{{
                 p.title | i18n
@@ -243,6 +208,34 @@
             </td>
             <td tuiTd class="num">{{ p.nodeCount }}</td>
             <td tuiTd>{{ p.description }}</td>
+            <td tuiTd class="actions">
+              <a
+                tuiIconButton
+                appearance="flat"
+                size="s"
+                class="edit"
+                iconStart="@tui.pencil"
+                aria-label="Edit"
+                i18n-aria-label="@@action.edit"
+                tuiHint="Edit"
+                i18n-tuiHint="@@action.edit"
+                [routerLink]="[p._id]"
+              ></a>
+              <button
+                tuiIconButton
+                appearance="flat"
+                size="s"
+                type="button"
+                class="delete"
+                iconStart="@tui.trash-2"
+                aria-label="Delete"
+                i18n-aria-label="@@action.delete"
+                tuiHint="Delete"
+                i18n-tuiHint="@@action.delete"
+                [disabled]="progress.deleting"
+                (click)="confirmRemove(p)"
+              ></button>
+            </td>
           </tr>
         }
         @if (progress.loading.packages) {

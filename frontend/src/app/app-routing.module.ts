@@ -1,5 +1,11 @@
 import { inject, NgModule } from "@angular/core";
-import { Router, RouterModule, Routes, UrlSegment } from "@angular/router";
+import {
+  Data,
+  Router,
+  RouterModule,
+  Routes,
+  UrlSegment,
+} from "@angular/router";
 import { AppComponent } from "src/app/app.component";
 import { AppModule } from "src/app/app.module";
 import { DeployPipelineComponent } from "src/app/deploy-pipeline/deploy-pipeline.component";
@@ -74,6 +80,7 @@ import { SigupComponent } from "./signup/signup.component";
 import { UpdatePipelineNodesComponent } from "./update-pipeline-nodes/update-pipeline-nodes.component";
 import { EditUserComponent } from "./users/edit/edit-user.component";
 import { UsersComponent } from "./users/users.component";
+import { titled } from "src/utils/route-dialog";
 
 /** Children of the Projects page, which a Project id can never be. */
 const PROJECTS_PAGES = new Set(["new", "import"]);
@@ -469,10 +476,16 @@ const routes: Routes = [
           {
             path: "new",
             component: CreateProjectComponent,
+            data: {
+              dialogLabel: $localize`:@@label.new_project:New project`,
+            },
           },
           {
             path: "import",
             component: ImportProjectComponent,
+            data: {
+              dialogLabel: $localize`:@@label.import_pipeline:Import a Pipeline (YAML or URL)`,
+            },
           },
         ],
       },
@@ -513,10 +526,16 @@ const routes: Routes = [
           {
             path: "add",
             component: EditPackageComponent,
+            data: {
+              dialogLabel: $localize`:@@label.new_package:New package`,
+            },
           },
           {
             path: "import",
             component: ImportPackageComponent,
+            data: {
+              dialogLabel: $localize`:@@label.import_package:Import package`,
+            },
           },
           {
             path: ":package/export",
@@ -524,12 +543,26 @@ const routes: Routes = [
               nodePackage: NodePackageResolver,
             },
             component: ExportPackageComponent,
+            data: {
+              dialogLabel: ({ nodePackage }: Data) =>
+                titled(
+                  $localize`:@@label.export_package:Export package`,
+                  nodePackage?.title,
+                ),
+            },
           },
           {
             path: ":package",
             component: EditPackageComponent,
             resolve: {
               nodePackage: NodePackageResolver,
+            },
+            data: {
+              dialogLabel: ({ nodePackage }: Data) =>
+                titled(
+                  $localize`:@@label.edit_package:Edit package`,
+                  nodePackage?.title,
+                ),
             },
           },
         ],

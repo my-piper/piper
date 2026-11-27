@@ -7,7 +7,7 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { plainToInstance } from "class-transformer";
 import { delay, finalize, map } from "rxjs";
 import { AppError } from "src/models/errors";
@@ -52,6 +52,7 @@ export class EditPackageComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private router: Router,
     private http: HttpService,
     private cd: ChangeDetectorRef,
   ) {}
@@ -61,6 +62,10 @@ export class EditPackageComponent implements OnInit {
       this.nodePackage = nodePackage;
       this.build();
     });
+  }
+
+  cancel() {
+    this.router.navigate([".."], { relativeTo: this.route });
   }
 
   private build() {

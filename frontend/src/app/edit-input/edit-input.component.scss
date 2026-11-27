@@ -37,8 +37,8 @@
 
 .select-asset {
   @include mixins.vertical-stack(variables.$gutter-small);
-  width: 80vmax;
-  height: 90vmin;
+  // fills the dialog's width; its own height keeps the tabs in view (#347)
+  block-size: 70vh;
 
   p {
     font-size: variables.$font-size-small;

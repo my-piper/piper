@@ -1,5 +1,5 @@
 import { PIXEL } from "../fixtures/launch-results";
-import { LAUNCH_ID, launchPlain } from "../fixtures/plain";
+import { LAUNCH_ID, launchPlain, USER_IDS } from "../fixtures/plain";
 import { expect, test } from "./support/test";
 
 const IMAGE = {
@@ -79,4 +79,34 @@ test("lists launches as cards that preview their media and open the outputs", as
   await expect(
     page.locator(".modal app-launch-outputs[data-mode=full] .results img"),
   ).toHaveAttribute("src", IMAGE.url);
+});
+
+test("opens and deletes a launch from the buttons on its card", async ({
+  page,
+  open,
+  api,
+}) => {
+  const owned = { launchedBy: { _id: USER_IDS.owner }, outputs: {} };
+  api.launches.set(LAUNCH_ID, { ...launchPlain(), ...owned });
+  api.launches.set("launch_two", {
+    ...launchPlain(),
+    ...owned,
+    _id: "launch_two",
+  });
+  await open("/en/launches");
+  const card = page.locator(`.card[data-launch=${LAUNCH_ID}]`);
+  const dialog = page.getByRole("dialog");
+
+  await card.getByTestId("launch-delete").click();
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(dialog).toHaveCount(0);
+  await card.getByTestId("launch-delete").click();
+  await dialog.getByRole("button", { name: "Delete" }).click();
+
+  await expect(page.locator(".card")).toHaveCount(1);
+  await expect(page.locator(".card[data-launch=launch_two]")).toBeVisible();
+  await expect(
+    page.locator(".card[data-launch=launch_two]").getByTestId("launch-open"),
+  ).toHaveAttribute("href", "/en/launches/launch_two");
+  expect(api.launches.has(LAUNCH_ID)).toBe(false);
 });

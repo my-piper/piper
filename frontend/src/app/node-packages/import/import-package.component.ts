@@ -38,6 +38,10 @@ export class ImportPackageComponent {
     private cd: ChangeDetectorRef,
   ) {}
 
+  cancel() {
+    this.router.navigate([".."], { relativeTo: this.route });
+  }
+
   upload({ target }: Event) {
     const input = target as HTMLInputElement;
     const file = input.files?.[0];

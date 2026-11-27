@@ -4,7 +4,12 @@ import { UsersComponent } from "src/app/users/users.component";
 import { UI_DELAY } from "src/consts/ui";
 import { userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
-import { iconName } from "../helpers/taiga";
+import {
+  dialogButton,
+  iconName,
+  openDialog,
+  popupRoot,
+} from "../helpers/taiga";
 import { configureAppTestingModule, finish } from "../helpers/editor";
 
 /** GET /api/users lists users (backend/api/users). */
@@ -22,10 +27,29 @@ function setup(users = [userPlain("owner"), userPlain("engineer")]) {
   fixture.detectChanges();
   const element: HTMLElement = fixture.nativeElement;
   const logins = () =>
-    Array.from(element.querySelectorAll("tbody tr td:nth-child(2)")).map((td) =>
+    Array.from(element.querySelectorAll("tbody tr td:nth-child(1)")).map((td) =>
       td.textContent.trim(),
     );
   return { fixture, controller, element, logins };
+}
+
+/**
+ * Clicks the first row's Delete and renders the confirmation. Returns a
+ * function that renders the page and the dialog again.
+ */
+function clickDelete(page: ReturnType<typeof setup>) {
+  // the portal host for the dialog, only where a spec needs it
+  const root = popupRoot();
+  const render = () => {
+    page.fixture.detectChanges();
+    root.detectChanges();
+    tick();
+  };
+  page.element
+    .querySelector<HTMLButtonElement>("tbody tr button.delete")
+    .click();
+  render();
+  return render;
 }
 
 describe("UsersComponent", () => {
@@ -55,6 +79,39 @@ describe("UsersComponent", () => {
     expect(iconName(icon)).toBe("img");
     expect(logo.backgroundImage).toContain("data:image/svg+xml");
     expect(logo.maskImage).toBe("none");
+    page.controller.verify();
+    finish();
+  }));
+
+  it("deletes a user after the confirmation", fakeAsync(() => {
+    const page = setup();
+
+    clickDelete(page);
+    page.controller.expectNone("/api/users/user_owner");
+    const question = openDialog().textContent;
+    dialogButton("Delete").click();
+    const request = page.controller.expectOne("/api/users/user_owner");
+    request.flush(null);
+    tick(UI_DELAY);
+    page.fixture.detectChanges();
+
+    expect(question).toContain("Delete user?");
+    expect(question).toContain("«user_owner» will be deleted");
+    expect(request.request.method).toBe("DELETE");
+    expect(page.logins()).toEqual(["user_engineer"]);
+    page.controller.verify();
+    finish();
+  }));
+
+  it("keeps the user when the deletion is cancelled", fakeAsync(() => {
+    const page = setup();
+
+    const render = clickDelete(page);
+    dialogButton("Cancel").click();
+    render();
+
+    page.controller.expectNone("/api/users/user_owner");
+    expect(page.logins()).toEqual(["user_owner", "user_engineer"]);
     page.controller.verify();
     finish();
   }));

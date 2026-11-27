@@ -10,6 +10,7 @@ import {
   QueryList,
   ViewChildren,
   ChangeDetectionStrategy,
+  inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
@@ -20,6 +21,7 @@ import {
   Router,
 } from "@angular/router";
 import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
+import escape from "lodash/escape";
 import isEqual from "lodash/isEqual";
 import last from "lodash/last";
 import uniq from "lodash/uniq";
@@ -39,6 +41,9 @@ import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI, UI_DELAY } from "src/consts/ui";
 import { toInstance, toPlain } from "src/utils/models";
+import { confirmDelete } from "src/utils/confirm-delete";
+import { getLabel } from "src/utils/i18n";
+import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import {
   Folder,
   FOLDER_SEPARATOR,
@@ -50,6 +55,7 @@ import {
   removeFromFolders,
 } from "./folders";
 import { ImportProjectComponent } from "./import/import-project.component";
+import { dialogLabel } from "src/utils/route-dialog";
 // the tags of a projects link, without blanks and repeats
 function tagsOf(params: ParamMap): string[] {
   return uniq(params.getAll("tag").filter((t) => !!t));
@@ -68,6 +74,8 @@ function tagsOf(params: ParamMap): string[] {
   ],
 })
 export class ProjectsComponent implements OnInit {
+  private readonly dialogs = inject(TuiDialogService);
+  private readonly language = inject(CURRENT_LANGUAGE);
   ui = UI;
   userRole = UserRole;
 
@@ -79,21 +87,9 @@ export class ProjectsComponent implements OnInit {
   };
 
   // the project whose row menu is open
-  actionsOpen: string | null = null;
 
   @ViewChildren("nameInput")
   nameInputs!: QueryList<ElementRef<HTMLInputElement>>;
-
-  // the import page carries its own heading; the short new project form
-  // takes the dialog header
-  readonly dialogOptions = computed(() =>
-    this.childPath() === "new"
-      ? {
-          size: "s" as const,
-          label: $localize`:@@label.new_project:New project`,
-        }
-      : { size: "l" as const },
-  );
 
   // the root popup host must exist before opening a dialog on direct route entry
   private readonly dialogReady = signal(false);
@@ -104,6 +100,12 @@ export class ProjectsComponent implements OnInit {
   readonly dialogOpen = computed(
     () => this.dialogReady() && this.childActive(),
   );
+  // the child route names the dialog
+  readonly dialogOptions = computed(() => ({
+    // the new project form is short
+    size: this.childPath() === "new" ? ("s" as const) : ("l" as const),
+    label: this.childActive() ? dialogLabel(this.route) : undefined,
+  }));
 
   activate(modal: unknown) {
     if (modal instanceof ImportProjectComponent) {
@@ -138,7 +140,7 @@ export class ProjectsComponent implements OnInit {
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
     private fb: FormBuilder,
-    destroyRef: DestroyRef,
+    private destroyRef: DestroyRef,
   ) {
     afterNextRender(() => this.dialogReady.set(true));
     this.updateChild();
@@ -474,6 +476,17 @@ export class ProjectsComponent implements OnInit {
     }
   }
 
+  confirmRemove(project: Project) {
+    const title = escape(getLabel(project.title, this.language));
+    confirmDelete(
+      this.dialogs,
+      $localize`:@@message.confirm_delete_project_label:Delete project?`,
+      $localize`:@@message.confirm_delete_project:Project «${title}:title:» will be deleted. This can't be undone.`,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.remove(project));
+  }
+
   remove({ _id }: Project) {
     this.progress.deleting = true;
     this.cd.detectChanges();
@@ -484,7 +497,6 @@ export class ProjectsComponent implements OnInit {
         delay(UI_DELAY),
         finalize(() => {
           this.progress.deleting = false;
-          this.actionsOpen = null;
           this.cd.detectChanges();
         }),
       )

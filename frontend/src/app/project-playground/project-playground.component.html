@@ -60,23 +60,16 @@
     </div>
   </button>
 
-  <ng-template #toolsMenu>
-    <tui-data-list>
-      <button tuiOption type="button" (click)="reset()">
-        <tui-icon icon="@tui.x" />
-        <ng-container i18n="@@action.reset">Reset</ng-container>
-      </button>
-    </tui-data-list>
-  </ng-template>
-
   <button
     tuiIconButton
     appearance="primary"
     type="button"
-    iconStart="@tui.ellipsis-vertical"
-    aria-label="Actions"
-    i18n-aria-label="@@label.actions"
-    [tuiDropdown]="toolsMenu"
-    [(tuiDropdownOpen)]="toolsOpen"
+    class="reset"
+    iconStart="@tui.rotate-ccw"
+    aria-label="Reset"
+    i18n-aria-label="@@action.reset"
+    tuiHint="Reset"
+    i18n-tuiHint="@@action.reset"
+    (click)="reset()"
   ></button>
 </footer>

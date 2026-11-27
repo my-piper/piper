@@ -32,6 +32,15 @@ Style new UI through the tokens (`var(--surface-1)`, `var(--text-muted)`, `var(-
 - **Dialogs.** A 44px header, a `space-4` body and a footer with a ghost Cancel and the named primary action. A dialog with more than about four fields lays them out in `.field-grid`: two columns once the grid is 560px wide, one below. A field with `.full` (a description, an editor) spans both columns.
 - **Type.** Inter for the interface, JetBrains Mono for IDs, versions, values, durations, logs and port types.
 
+## Dialogs
+
+Dialogs are `tuiDialog` templates (`docs/taiga-ui-notes.md`), styled in `src/styles/dialogs.scss` (#347):
+
+- **The title is the dialog's `label`.** Content never repeats it in an `<h1>`. A page routed into a parent's dialog (`<router-outlet>` inside `ng-template[tuiDialog]`) names it in its route's `data.dialogLabel` (text, or a function of the route's resolved data); the parent passes `dialogLabel(route)` from `src/utils/route-dialog.ts` as the label.
+- **Sections inside the content are `<h2>`**, styled by the dialog (`heading-h6`, no margin).
+- **The content root sets no padding or width.** The dialog pads it with `space-4` as a border-box block, at zero specificity, so a root's own `display: flex | grid` and `gap` apply. A root with `width: 100%` or a viewport width overflows the dialog; size wide content with the dialog's `size` instead.
+- **Actions sit in a `<footer>` that ends the content**: a `flat-grayscale` Cancel, then the named primary action, right-aligned.
+
 ## Sizes
 
 Taiga's size scale is remapped:

@@ -29,6 +29,7 @@ import {
   OutletStubComponent,
 } from "../helpers/editor";
 import { typeInto } from "../helpers/editor-stubs";
+import { dialogButton, openDialog } from "../helpers/taiga";
 
 /**
  * GET /api/projects/tags/available lists tags of the user's own projects and
@@ -104,17 +105,24 @@ describe("ProjectsComponent tags and groups", () => {
     return list;
   }
 
-  function deleteFromMenu(row: number) {
+  /** Clicks a row's Delete; the confirmation opens and stays open. */
+  function clickDelete(row: number) {
     const rows = element.querySelectorAll("tbody tr:not(.folder)");
-    rows[row]
-      .querySelector<HTMLButtonElement>("button[aria-label=Actions]")
-      .click();
+    rows[row].querySelector<HTMLButtonElement>("button.delete").click();
     fixture.detectChanges();
-    Array.from(
-      document.querySelectorAll<HTMLButtonElement>("tui-data-list button"),
-    )
-      .find((b) => b.textContent.includes("Delete"))
-      .click();
+    tick();
+    fixture.detectChanges();
+  }
+
+  function confirmDialog(label: "Delete" | "Cancel") {
+    dialogButton(label).click();
+    fixture.detectChanges();
+    tick();
+  }
+
+  function deleteRow(row: number) {
+    clickDelete(row);
+    confirmDialog("Delete");
   }
 
   function tagChips(): HTMLInputElement[] {
@@ -259,18 +267,35 @@ describe("ProjectsComponent tags and groups", () => {
     finish();
   }));
 
-  it("deletes a project through its row menu", fakeAsync(() => {
+  it("deletes a project with its row button after the confirmation", fakeAsync(() => {
     setup();
     const rows = () => element.querySelectorAll("tbody tr:not(.folder)");
 
-    deleteFromMenu(0);
+    clickDelete(0);
+    controller.expectNone(`/api/projects/${PROJECT_A_ID}`);
+    const question = openDialog().textContent;
+    confirmDialog("Delete");
     const request = controller.expectOne(`/api/projects/${PROJECT_A_ID}`);
     request.flush(null);
     tick(UI_DELAY);
     fixture.detectChanges();
 
+    expect(question).toContain("Delete project?");
+    expect(question).toContain("«Project A» will be deleted");
     expect(request.request.method).toBe("DELETE");
     expect(rows().length).toBe(0);
+    fixture.destroy();
+    finish();
+  }));
+
+  it("keeps the project when the deletion is cancelled", fakeAsync(() => {
+    setup();
+
+    clickDelete(0);
+    confirmDialog("Cancel");
+
+    controller.expectNone(`/api/projects/${PROJECT_A_ID}`);
+    expect(element.querySelectorAll("tbody tr:not(.folder)").length).toBe(1);
     fixture.destroy();
     finish();
   }));
@@ -279,7 +304,7 @@ describe("ProjectsComponent tags and groups", () => {
     setup();
     expectConsoleError("Process HTTP error 404");
 
-    deleteFromMenu(0);
+    deleteRow(0);
     controller
       .expectOne(`/api/projects/${PROJECT_A_ID}`)
       .flush("Not found", { status: 404, statusText: "Not Found" });
@@ -571,7 +596,7 @@ describe("ProjectsComponent tags and groups", () => {
     typeInto(modal().querySelector("textarea"), "name: Imported");
     fixture.detectChanges();
     modal()
-      .querySelector<HTMLButtonElement>("footer button[tuiButton]")
+      .querySelector<HTMLButtonElement>("footer button[tuiButton]:last-child")
       .click();
     const request = controller.expectOne("/api/pipelines/import");
     request.flush(projectBPlain());

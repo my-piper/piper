@@ -142,19 +142,17 @@
 </div>
 
 <div class="modal" [class.hidden]="!modal">
-  <header>
-    <a
-      tuiButton
-      appearance="outline-grayscale"
-      size="s"
-      [hotKey]="'escape'"
-      (hotKeyPressed)="back()"
-      [routerLink]="[{ outlets: { primary: [] } }]"
-    >
-      <tui-icon icon="close" class="icon right" />
-      <span tuiBadge appearance="neutral" size="s">ESC</span>
-    </a>
-  </header>
+  <!-- The close button Taiga dialogs draw; Esc closes the overlay too. -->
+  <a
+    tuiButtonX
+    class="close"
+    data-testid="modal-close"
+    i18n="@@action.close"
+    [hotKey]="'escape'"
+    (hotKeyPressed)="back()"
+    [routerLink]="[{ outlets: { primary: [] } }]"
+    >Close</a
+  >
   <div class="content">
     <router-outlet
       (activate)="modal = $event"

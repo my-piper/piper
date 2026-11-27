@@ -156,6 +156,13 @@ export function openDialog(): HTMLElement | null {
   return document.querySelector("tui-dialog");
 }
 
+/** The open dialog's button with exactly this label. */
+export function dialogButton(label: string): HTMLButtonElement | undefined {
+  return Array.from(
+    openDialog()?.querySelectorAll<HTMLButtonElement>("button") ?? [],
+  ).find((b) => b.textContent.trim() === label);
+}
+
 /**
  * Hovers an element the way Taiga's `tuiHint` listens for it. The hint shows
  * after its delay: `tick()` past it, then detect changes.

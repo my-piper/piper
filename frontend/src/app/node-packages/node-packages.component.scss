@@ -38,6 +38,16 @@
   width: 4.5rem;
 }
 
+// Edit and Delete side by side
+.actions-column {
+  width: 5rem;
+}
+
+td.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
 .updates,
 .release-notes {
   padding: 1rem;
