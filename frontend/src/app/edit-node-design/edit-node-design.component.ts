@@ -30,9 +30,11 @@ export class EditNodeDesignComponent implements OnInit {
       inputs,
       outputs,
     } = SCHEMAS.node.properties;
+    // the source rules (allOf) need fields this form doesn't edit
+    const { allOf: _sourceRules, ...node } = SCHEMAS.node;
     return {
       node: {
-        ...SCHEMAS.node,
+        ...node,
         properties: {
           _id,
           title,
