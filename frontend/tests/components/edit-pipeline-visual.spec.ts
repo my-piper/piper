@@ -4,6 +4,7 @@ import { fakeAsync, tick } from "@angular/core/testing";
 import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
 import { NodeFlow } from "src/models/node-flow";
+import { NodeInput } from "src/models/node";
 import { PipelineInput } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { toInstance, toPlain } from "src/utils/models";
@@ -1597,6 +1598,95 @@ describe("EditPipelineVisualComponent", () => {
       expect(typed).toBe(42);
       expect(kept).toEqual([42, "42"]);
       expect(requested(project, "amount")).toBeUndefined();
+      finish();
+    }));
+
+    /** node_three with a choice, a switch and a multi-line text added. */
+    function widgetProject() {
+      const project = connectionProject();
+      const node = project.pipeline.nodes.get("node_three");
+      const add = (id: string, plain: object) =>
+        node.inputs.set(id, toInstance(plain, NodeInput));
+      add("mode", {
+        order: 7,
+        title: "Mode",
+        type: "string",
+        featured: true,
+        enum: ["fast", "best"],
+      });
+      add("hires", {
+        order: 8,
+        title: "Hires",
+        type: "boolean",
+        featured: true,
+      });
+      add("notes", {
+        order: 9,
+        title: "Notes",
+        type: "string",
+        featured: true,
+        multiline: true,
+        required: true,
+      });
+      node.build();
+      return project;
+    }
+
+    it("edits text, choice and switch widgets", fakeAsync(() => {
+      const project = widgetProject();
+      const { element, detectChanges } = setupEditor({ project });
+      const words = widget(element, "words");
+      const mode = widget(element, "mode") as unknown as HTMLSelectElement;
+      const notes = widget(element, "notes") as unknown as HTMLTextAreaElement;
+
+      words.value = "hello";
+      words.dispatchEvent(new Event("change"));
+      mode.selectedIndex = 2;
+      mode.dispatchEvent(new Event("change"));
+      notes.value = "line one\nline two";
+      notes.dispatchEvent(new Event("change"));
+      widget(element, "hires").click();
+      detectChanges();
+
+      expect(requested(project, "words")).toBe("hello");
+      expect(requested(project, "mode")).toBe("best");
+      expect(requested(project, "notes")).toBe("line one\nline two");
+      expect(requested(project, "hires")).toBe(true);
+      expect(widget(element, "hires").getAttribute("aria-checked")).toBe(
+        "true",
+      );
+      finish();
+    }));
+
+    it("clears a choice and a text back to their defaults", fakeAsync(() => {
+      const project = widgetProject();
+      const { element, detectChanges } = setupEditor({ project });
+      const mode = () =>
+        widget(element, "mode") as unknown as HTMLSelectElement;
+      mode().selectedIndex = 1;
+      mode().dispatchEvent(new Event("change"));
+      detectChanges();
+
+      mode().selectedIndex = 0;
+      mode().dispatchEvent(new Event("change"));
+      widget(element, "words").value = "";
+      widget(element, "words").dispatchEvent(new Event("change"));
+      detectChanges();
+
+      expect(requested(project, "mode")).toBeUndefined();
+      expect(requested(project, "words")).toBeUndefined();
+      finish();
+    }));
+
+    it("marks a required widget left empty and gives multi-line text three rows", fakeAsync(() => {
+      const project = widgetProject();
+      const { element } = setupEditor({ project });
+
+      const notes = widget(element, "notes").closest("li") as HTMLElement;
+
+      expect(notes.querySelector(".area.missing")).not.toBeNull();
+      expect(notes.style.height).toBe("66px");
+      expect(widget(element, "words").closest(".missing")).toBeNull();
       finish();
     }));
 

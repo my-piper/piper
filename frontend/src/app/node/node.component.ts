@@ -376,6 +376,38 @@ export class NodeComponent implements OnDestroy {
     this.inputChange.emit({ input: row.id, value });
   }
 
+  textValue(row: WidgetRow): string {
+    const value = this.widgetValue(row);
+    return value === null ? "" : String(value);
+  }
+
+  /** A required input with nothing to run with. */
+  isMissing(row: WidgetRow): boolean {
+    return !!row.input.required && this.textValue(row) === "";
+  }
+
+  /** Text as typed; an emptied field falls back to the default. */
+  setText(row: WidgetRow, text: string) {
+    this.inputChange.emit({ input: row.id, value: text === "" ? null : text });
+  }
+
+  /** The choice shown, by its place in `enum`, or -1. */
+  choiceIndex(row: WidgetRow): number {
+    const value = this.widgetValue(row);
+    return (row.input.enum ?? []).findIndex((option) => option === value);
+  }
+
+  /** `index` counts the list's options, the "—" one first when shown. */
+  setChoice(row: WidgetRow, index: number) {
+    const blank = !row.input.required || this.choiceIndex(row) < 0 ? 1 : 0;
+    const option = row.input.enum?.[index - blank];
+    this.inputChange.emit({ input: row.id, value: option ?? null });
+  }
+
+  toggleWidget(row: WidgetRow) {
+    this.inputChange.emit({ input: row.id, value: !this.widgetValue(row) });
+  }
+
   pinFrom(output: string) {
     this.output.emit(output);
   }
