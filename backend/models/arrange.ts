@@ -18,4 +18,9 @@ export class Arrange {
   @Expose()
   @Type(() => Boolean)
   collapsed?: boolean;
+
+  /** A canvas node's tint, from the group palette (gray is no tint). */
+  @Expose()
+  @Type(() => String)
+  color?: "gray" | "blue" | "green" | "amber" | "red" | "violet";
 }

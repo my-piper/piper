@@ -16,6 +16,11 @@
     "collapsed": {
       "type": "boolean",
       "description": "A canvas node shown as its title bar only"
+    },
+    "color": {
+      "type": "string",
+      "enum": ["gray", "blue", "green", "amber", "red", "violet"],
+      "description": "A canvas node's tint, from the group palette"
     }
   },
   "required": ["x", "y"],

@@ -116,7 +116,7 @@ describe("production pipeline schema for node layout", () => {
   }
 
   it("keeps a collapsed, resized node through model transformation", () => {
-    const pipeline = withArrange({ collapsed: true, w: 320 });
+    const pipeline = withArrange({ collapsed: true, w: 320, color: "green" });
 
     const valid = validatePipeline(pipeline);
     const restored = toPlain(toInstance(pipeline, Pipeline)) as {
@@ -126,7 +126,7 @@ describe("production pipeline schema for node layout", () => {
     expect(valid).toBe(true);
     expect(validatePipeline(restored)).toBe(true);
     expect(restored.nodes.echo_node.arrange).toEqual(
-      expect.objectContaining({ collapsed: true, w: 320 })
+      expect.objectContaining({ collapsed: true, w: 320, color: "green" })
     );
   });
 
@@ -135,6 +135,16 @@ describe("production pipeline schema for node layout", () => {
     { w: 800, keyword: "maximum" },
   ])("rejects a node width of $w", ({ w, keyword }) => {
     const valid = validatePipeline(withArrange({ w }));
+
+    expect(valid).toBe(false);
+    expect(validatePipeline.errors).toContainEqual(
+      expect.objectContaining({ keyword })
+    );
+  });
+
+  it("rejects a node colour outside the palette", () => {
+    const valid = validatePipeline(withArrange({ color: "pink" }));
+    const keyword = "enum";
 
     expect(valid).toBe(false);
     expect(validatePipeline.errors).toContainEqual(
