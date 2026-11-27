@@ -52,6 +52,17 @@ export class NodeCategory {
   }
 }
 
+/** The Deploy a Node with source `deploy` runs as a Child Launch. */
+export class NodeDeploy {
+  @Expose()
+  @Type(() => String)
+  slug!: string;
+
+  @Expose()
+  @Type(() => String)
+  prefix?: string;
+}
+
 export class NodeCatalog {
   @Expose()
   @Type(() => String)
@@ -288,6 +299,10 @@ export class Node {
   @Expose()
   @Type(() => String)
   source: string;
+
+  @Expose()
+  @Type(() => NodeDeploy)
+  deploy?: NodeDeploy;
 
   @Expose()
   @Type(() => Boolean)

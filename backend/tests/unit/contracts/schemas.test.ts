@@ -94,6 +94,64 @@ describe("production pipeline schema", () => {
   });
 });
 
+function withEchoNode(changes: Record<string, unknown>) {
+  const pipeline = pipelineFixture();
+  const { script: _script, ...node } = pipeline.nodes.echo_node;
+  return {
+    ...pipeline,
+    nodes: { echo_node: { ...node, execution: undefined, ...changes } },
+  };
+}
+
+describe("production pipeline schema for deploy nodes", () => {
+  it("accepts a node running a Deploy before and after model transformation", () => {
+    const pipeline = withEchoNode({
+      source: "deploy",
+      deploy: { prefix: "user_1", slug: "summarizer" },
+    });
+
+    const valid = validatePipeline(JSON.parse(JSON.stringify(pipeline)));
+    const restored = toPlain(toInstance(pipeline, Pipeline));
+
+    expect(valid).toBe(true);
+    expect(validatePipeline(restored)).toBe(true);
+    expect(restored).toMatchObject({
+      nodes: {
+        echo_node: { deploy: { prefix: "user_1", slug: "summarizer" } },
+      },
+    });
+  });
+
+  it.each([
+    {
+      name: "a deploy node without its Deploy",
+      changes: { source: "deploy" },
+    },
+    {
+      name: "a deploy node with a script",
+      changes: {
+        source: "deploy",
+        deploy: { slug: "summarizer" },
+        script: "export function run() {}",
+      },
+    },
+    {
+      name: "a Deploy on a script node",
+      changes: { source: "script", deploy: { slug: "summarizer" } },
+    },
+    {
+      name: "a Deploy without a slug",
+      changes: { source: "deploy", deploy: { prefix: "user_1" } },
+    },
+  ])("rejects $name", ({ changes }) => {
+    const pipeline = JSON.parse(JSON.stringify(withEchoNode(changes)));
+
+    const valid = validatePipeline(pipeline);
+
+    expect(valid).toBe(false);
+  });
+});
+
 describe("production launch request schema", () => {
   it("accepts falsy inputs before and after model transformation", () => {
     const request = launchRequestFixture();

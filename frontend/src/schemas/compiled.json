@@ -190,8 +190,30 @@
 							"enum": [
 								"node",
 								"catalog",
-								"script"
+								"script",
+								"deploy"
 							]
+						},
+						"deploy": {
+							"title": "Deploy",
+							"description": "The Deploy a Node with source deploy runs as a Child Launch.",
+							"type": "object",
+							"properties": {
+								"prefix": {
+									"title": "Prefix",
+									"type": "string",
+									"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
+								},
+								"slug": {
+									"title": "Slug",
+									"type": "string",
+									"pattern": "^[a-z0-9\\-_]{5,40}$"
+								}
+							},
+							"required": [
+								"slug"
+							],
+							"additionalProperties": false
 						},
 						"locked": {
 							"type": "boolean"
@@ -562,6 +584,37 @@
 						"outputs"
 					],
 					"additionalProperties": false,
+					"allOf": [
+						{
+							"if": {
+								"properties": {
+									"source": {
+										"const": "deploy"
+									}
+								},
+								"required": [
+									"source"
+								]
+							},
+							"then": {
+								"required": [
+									"deploy"
+								],
+								"not": {
+									"required": [
+										"script"
+									]
+								}
+							},
+							"else": {
+								"not": {
+									"required": [
+										"deploy"
+									]
+								}
+							}
+						}
+					],
 					"definitions": {
 						"Inputs": {
 							"title": "Inputs",
@@ -1173,6 +1226,27 @@
 									"type"
 								]
 							}
+						},
+						"Deploy": {
+							"title": "Deploy",
+							"description": "The Deploy a Node with source deploy runs as a Child Launch.",
+							"type": "object",
+							"properties": {
+								"prefix": {
+									"title": "Prefix",
+									"type": "string",
+									"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
+								},
+								"slug": {
+									"title": "Slug",
+									"type": "string",
+									"pattern": "^[a-z0-9\\-_]{5,40}$"
+								}
+							},
+							"required": [
+								"slug"
+							],
+							"additionalProperties": false
 						}
 					}
 				}
@@ -1321,8 +1395,30 @@
 				"enum": [
 					"node",
 					"catalog",
-					"script"
+					"script",
+					"deploy"
 				]
+			},
+			"deploy": {
+				"title": "Deploy",
+				"description": "The Deploy a Node with source deploy runs as a Child Launch.",
+				"type": "object",
+				"properties": {
+					"prefix": {
+						"title": "Prefix",
+						"type": "string",
+						"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
+					},
+					"slug": {
+						"title": "Slug",
+						"type": "string",
+						"pattern": "^[a-z0-9\\-_]{5,40}$"
+					}
+				},
+				"required": [
+					"slug"
+				],
+				"additionalProperties": false
 			},
 			"locked": {
 				"type": "boolean"
@@ -1693,6 +1789,37 @@
 			"outputs"
 		],
 		"additionalProperties": false,
+		"allOf": [
+			{
+				"if": {
+					"properties": {
+						"source": {
+							"const": "deploy"
+						}
+					},
+					"required": [
+						"source"
+					]
+				},
+				"then": {
+					"required": [
+						"deploy"
+					],
+					"not": {
+						"required": [
+							"script"
+						]
+					}
+				},
+				"else": {
+					"not": {
+						"required": [
+							"deploy"
+						]
+					}
+				}
+			}
+		],
 		"definitions": {
 			"Inputs": {
 				"title": "Inputs",
@@ -2304,6 +2431,27 @@
 						"type"
 					]
 				}
+			},
+			"Deploy": {
+				"title": "Deploy",
+				"description": "The Deploy a Node with source deploy runs as a Child Launch.",
+				"type": "object",
+				"properties": {
+					"prefix": {
+						"title": "Prefix",
+						"type": "string",
+						"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
+					},
+					"slug": {
+						"title": "Slug",
+						"type": "string",
+						"pattern": "^[a-z0-9\\-_]{5,40}$"
+					}
+				},
+				"required": [
+					"slug"
+				],
+				"additionalProperties": false
 			}
 		}
 	},
@@ -2867,8 +3015,30 @@
 							"enum": [
 								"node",
 								"catalog",
-								"script"
+								"script",
+								"deploy"
 							]
+						},
+						"deploy": {
+							"title": "Deploy",
+							"description": "The Deploy a Node with source deploy runs as a Child Launch.",
+							"type": "object",
+							"properties": {
+								"prefix": {
+									"title": "Prefix",
+									"type": "string",
+									"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
+								},
+								"slug": {
+									"title": "Slug",
+									"type": "string",
+									"pattern": "^[a-z0-9\\-_]{5,40}$"
+								}
+							},
+							"required": [
+								"slug"
+							],
+							"additionalProperties": false
 						},
 						"locked": {
 							"type": "boolean"
@@ -3239,6 +3409,37 @@
 						"outputs"
 					],
 					"additionalProperties": false,
+					"allOf": [
+						{
+							"if": {
+								"properties": {
+									"source": {
+										"const": "deploy"
+									}
+								},
+								"required": [
+									"source"
+								]
+							},
+							"then": {
+								"required": [
+									"deploy"
+								],
+								"not": {
+									"required": [
+										"script"
+									]
+								}
+							},
+							"else": {
+								"not": {
+									"required": [
+										"deploy"
+									]
+								}
+							}
+						}
+					],
 					"definitions": {
 						"Inputs": {
 							"title": "Inputs",
@@ -3850,6 +4051,27 @@
 									"type"
 								]
 							}
+						},
+						"Deploy": {
+							"title": "Deploy",
+							"description": "The Deploy a Node with source deploy runs as a Child Launch.",
+							"type": "object",
+							"properties": {
+								"prefix": {
+									"title": "Prefix",
+									"type": "string",
+									"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
+								},
+								"slug": {
+									"title": "Slug",
+									"type": "string",
+									"pattern": "^[a-z0-9\\-_]{5,40}$"
+								}
+							},
+							"required": [
+								"slug"
+							],
+							"additionalProperties": false
 						}
 					}
 				}
@@ -4816,8 +5038,30 @@
 									"enum": [
 										"node",
 										"catalog",
-										"script"
+										"script",
+										"deploy"
 									]
+								},
+								"deploy": {
+									"title": "Deploy",
+									"description": "The Deploy a Node with source deploy runs as a Child Launch.",
+									"type": "object",
+									"properties": {
+										"prefix": {
+											"title": "Prefix",
+											"type": "string",
+											"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
+										},
+										"slug": {
+											"title": "Slug",
+											"type": "string",
+											"pattern": "^[a-z0-9\\-_]{5,40}$"
+										}
+									},
+									"required": [
+										"slug"
+									],
+									"additionalProperties": false
 								},
 								"locked": {
 									"type": "boolean"
@@ -5188,6 +5432,37 @@
 								"outputs"
 							],
 							"additionalProperties": false,
+							"allOf": [
+								{
+									"if": {
+										"properties": {
+											"source": {
+												"const": "deploy"
+											}
+										},
+										"required": [
+											"source"
+										]
+									},
+									"then": {
+										"required": [
+											"deploy"
+										],
+										"not": {
+											"required": [
+												"script"
+											]
+										}
+									},
+									"else": {
+										"not": {
+											"required": [
+												"deploy"
+											]
+										}
+									}
+								}
+							],
 							"definitions": {
 								"Inputs": {
 									"title": "Inputs",
@@ -5799,6 +6074,27 @@
 											"type"
 										]
 									}
+								},
+								"Deploy": {
+									"title": "Deploy",
+									"description": "The Deploy a Node with source deploy runs as a Child Launch.",
+									"type": "object",
+									"properties": {
+										"prefix": {
+											"title": "Prefix",
+											"type": "string",
+											"pattern": "^[a-z0-9\\-_\\.]{3,15}$"
+										},
+										"slug": {
+											"title": "Slug",
+											"type": "string",
+											"pattern": "^[a-z0-9\\-_]{5,40}$"
+										}
+									},
+									"required": [
+										"slug"
+									],
+									"additionalProperties": false
 								}
 							}
 						}
