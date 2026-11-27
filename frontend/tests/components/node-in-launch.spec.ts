@@ -33,7 +33,7 @@ async function setup() {
     await harness.navigateByUrl(url);
     harness.detectChanges();
     return harness.fixture.nativeElement.querySelector(
-      "app-node-in-launch header",
+      "app-node-in-launch nav.tabs",
     );
   };
 }

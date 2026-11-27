@@ -1,13 +1,16 @@
-<h1>{{ node.title | i18n }}</h1>
+<header class="drawer-header">
+  <h2>{{ node.title | i18n }}</h2>
+  <app-drawer-close outlet="right" />
+</header>
 
-<header>
-  <tui-tabs size="m">
+<nav class="tabs">
+  <tui-tabs size="s">
     <a tuiTab [routerLink]="['inputs']" routerLinkActive>Inputs</a>
     <a tuiTab [routerLink]="['outputs']" routerLinkActive>Outputs</a>
     <a tuiTab [routerLink]="['state']" routerLinkActive> State</a>
     <a tuiTab [routerLink]="['logs']" routerLinkActive>Logs</a>
     <a tuiTab [routerLink]="['jobs']" routerLinkActive>Jobs</a>
   </tui-tabs>
-</header>
+</nav>
 
 <router-outlet></router-outlet>

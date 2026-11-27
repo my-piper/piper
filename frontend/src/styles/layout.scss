@@ -161,3 +161,31 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+// The 40px header of a canvas drawer (#297): title, then the drawer's own
+// actions and its close button. It bleeds to the drawer's edges (the drawer
+// pads its content by space-3).
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  min-block-size: 40px;
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) var(--space-1);
+  padding: 0 var(--space-1) 0 var(--space-3);
+  border-block-end: 1px solid var(--border);
+
+  > h1,
+  > h2,
+  > .title {
+    flex: 1;
+    min-inline-size: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 600;
+  }
+}

@@ -20,7 +20,10 @@
   </div>
 }
 
-<h2 class="heading" i18n="@@message.select_node">Select node</h2>
+<header class="drawer-header">
+  <h2 i18n="@@message.select_node">Select node</h2>
+  <app-drawer-close outlet="left" />
+</header>
 
 <form [formGroup]="form">
   <tui-textfield iconStart="@tui.search">

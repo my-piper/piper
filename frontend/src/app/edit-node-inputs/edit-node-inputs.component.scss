@@ -18,10 +18,10 @@
   align-items: center;
   gap: 0.5rem;
 
+  // The node title stays editable in the drawer header.
   .title {
     flex: 1;
     min-inline-size: 0;
-    font: var(--tui-typography-heading-h6);
   }
 }
 
