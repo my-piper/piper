@@ -1,7 +1,7 @@
 import { expect, test } from "./support/test";
 
-const LIGHT_BACKGROUND = "rgb(247, 247, 249)";
-const DARK_BACKGROUND = "rgb(14, 14, 19)";
+const LIGHT_BACKGROUND = "rgb(245, 246, 248)";
+const DARK_BACKGROUND = "rgb(19, 20, 24)";
 
 test("follows the system color scheme until a theme is picked", async ({
   page,
@@ -55,7 +55,7 @@ test.describe("auth pages", () => {
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.locator(".frame")).toHaveCSS(
       "background-color",
-      "rgb(236, 236, 240)",
+      "rgb(241, 242, 245)",
     );
   });
 });

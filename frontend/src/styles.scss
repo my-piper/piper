@@ -14,7 +14,7 @@ html {
 
 body {
   min-height: 100vh;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-sans);
   font-optical-sizing: auto;
   font-style: normal;
   line-height: 1.5;
@@ -51,9 +51,4 @@ table {
 
 .table-container {
   overflow-x: auto;
-}
-
-.money {
-  font-family: "Quantico", sans-serif;
-  font-size: 0.8rem;
 }

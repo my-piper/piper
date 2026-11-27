@@ -5,7 +5,7 @@
 :host {
   display: flex;
   align-items: center;
-  background-color: rgba($color: variables.$primary-light-color, $alpha: 0.15);
+  background-color: variables.with-alpha(variables.$primary-light-color, 0.15);
   border-radius: 50px;
   padding: variables.$gutter-tiny;
   overflow: hidden;

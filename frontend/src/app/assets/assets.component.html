@@ -77,8 +77,10 @@
             <button class="archive" (click)="select(asset)">
               <tui-icon
                 icon="archive"
-                style="--app-icon-size: 64px"
-                [style.--app-icon-color]="ui.color.graphite100"
+                style="
+                  --app-icon-size: 64px;
+                  --app-icon-color: var(--text-muted);
+                "
               />
             </button>
           }
