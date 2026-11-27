@@ -42,6 +42,8 @@ const httpDoubles = vi.hoisted(() => ({
     bulkWrite: vi.fn(),
   },
   nodesCursor: { toArray: vi.fn() },
+  deploys: { find: vi.fn() },
+  deploysCursor: { sort: vi.fn(), toArray: vi.fn() },
   nodePackages: {
     findOne: vi.fn(),
     find: vi.fn(),
@@ -86,6 +88,7 @@ vi.mock("app/mongo", () => ({
     launchArtefacts: httpDoubles.launchArtefacts,
     nodes: httpDoubles.nodes,
     nodePackages: httpDoubles.nodePackages,
+    deploys: httpDoubles.deploys,
   },
 }));
 vi.mock("core-kit/packages/redis/redis", () => ({
@@ -142,6 +145,8 @@ export function resetHttpDoubles() {
     ...Object.values(httpDoubles.launchArtefacts),
     ...Object.values(httpDoubles.nodes),
     ...Object.values(httpDoubles.nodesCursor),
+    ...Object.values(httpDoubles.deploys),
+    ...Object.values(httpDoubles.deploysCursor),
     ...Object.values(httpDoubles.nodePackages),
     httpDoubles.notify,
     ...Object.values(httpDoubles.redis),
@@ -176,6 +181,9 @@ export function resetHttpDoubles() {
   httpDoubles.projectComments.countDocuments.mockResolvedValue(0);
   httpDoubles.nodes.find.mockReturnValue(httpDoubles.nodesCursor);
   httpDoubles.nodesCursor.toArray.mockResolvedValue([]);
+  httpDoubles.deploys.find.mockReturnValue(httpDoubles.deploysCursor);
+  httpDoubles.deploysCursor.sort.mockReturnValue(httpDoubles.deploysCursor);
+  httpDoubles.deploysCursor.toArray.mockResolvedValue([]);
   httpDoubles.launches.distinct.mockResolvedValue([]);
   httpDoubles.projects.aggregate.mockReturnValue(
     httpDoubles.projectsAggregation
