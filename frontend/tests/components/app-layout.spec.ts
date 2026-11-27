@@ -1,4 +1,12 @@
-import { Component, signal } from "@angular/core";
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
+} from "@angular/core";
 import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -35,12 +43,34 @@ import { Languages } from "src/enums/languages";
 import { CanPipe } from "src/pipes/can";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { SharedModule } from "src/app/shared.module";
+import { TopbarService } from "src/services/topbar.service";
 import { userPlain } from "../fixtures/plain";
 import { provideTestConfig, seedAuthorization } from "../helpers/config";
 import { provideSocketDouble } from "../helpers/socket";
 
 @Component({ template: "<p>page</p>", standalone: true })
 class PageStubComponent {}
+
+/** A page that fills the top bar, like the project page. */
+@Component({
+  template: `<ng-template #bar
+      ><b data-testid="page-crumb">Mine</b></ng-template
+    >
+    <p>page</p>`,
+  standalone: true,
+})
+class TopbarPageStubComponent implements OnInit, OnDestroy {
+  private readonly topbar = inject(TopbarService);
+  @ViewChild("bar", { static: true }) bar!: TemplateRef<unknown>;
+
+  ngOnInit() {
+    this.topbar.set(this.bar);
+  }
+
+  ngOnDestroy() {
+    this.topbar.clear(this.bar);
+  }
+}
 
 type Breakpoint = "desktopLarge" | "desktopSmall" | "mobile";
 
@@ -89,6 +119,7 @@ describe("AppLayoutComponent", () => {
             component: AppLayoutComponent,
             children: [
               { path: "projects", component: PageStubComponent },
+              { path: "own-bar", component: TopbarPageStubComponent },
               {
                 path: "canvas",
                 component: PageStubComponent,
@@ -170,6 +201,24 @@ describe("AppLayoutComponent", () => {
     const element = await open(harness, "/canvas");
 
     expect(element.querySelector("[data-testid=app-crumbs] b")).toBeNull();
+  });
+
+  it("lets a page fill the top bar while it is open", async () => {
+    const { harness } = await render("owner");
+
+    const page = await open(harness, "/own-bar");
+    const pageCrumb = page.querySelector(
+      "[data-testid=page-crumb]",
+    )?.textContent;
+    const pageSection = page.querySelector("[data-testid=app-crumbs]");
+    const list = await open(harness, "/projects");
+
+    expect(pageCrumb).toBe("Mine");
+    expect(pageSection).toBeNull();
+    expect(list.querySelector("[data-testid=page-crumb]")).toBeNull();
+    expect(list.querySelector("[data-testid=app-crumbs] b")?.textContent).toBe(
+      "Pipelines",
+    );
   });
 
   it("puts the mark first, linked to the site, and the theme menu last", async () => {

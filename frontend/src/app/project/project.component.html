@@ -1,280 +1,203 @@
 <app-error-dialog [error]="error" (closed)="error = null" />
 
-<header>
-  <div class="stack">
-    <div class="stack align-center flex">
+<!-- The project's part of the app top bar (TopbarService). -->
+<ng-template #topbar>
+  <nav
+    class="crumbs"
+    aria-label="Breadcrumbs"
+    i18n-aria-label="@@label.breadcrumbs"
+  >
+    <a
+      class="crumb"
+      data-testid="project-back"
+      [routerLink]="['..']"
+      [queryParams]="{ folder: null }"
+      i18n="@@link.pipelines"
+      >Pipelines</a
+    >
+    <tui-icon class="sep" icon="@tui.chevron-right" />
+    @if (project.group) {
       <a
-        tuiIconButton
-        appearance="flat"
-        iconStart="@tui.chevron-left"
-        data-testid="project-back"
-        aria-label="Back"
-        i18n-aria-label="@@action.back"
+        class="crumb"
+        data-testid="project-folder"
         [routerLink]="['..']"
-        [queryParams]="{ folder: project.group || null }"
-      ></a>
-      <ng-template
-        [tuiDialog]="settingsOpen"
-        [tuiDialogOptions]="{ label: 'Project settings', size: 's' }"
-        (tuiDialogChange)="settingsOpen = $event"
+        [queryParams]="{ folder: project.group }"
+        >{{ project.group }}</a
       >
-        <app-project-settings
-          [project]="project"
-          (updated)="settingsUpdated($event)"
-        ></app-project-settings>
-      </ng-template>
-      @if (userRole.admin | can: project.createdBy | async) {
-        <button
-          tuiIconButton
-          appearance="flat"
-          type="button"
-          iconStart="@tui.settings"
-          data-testid="project-settings"
-          title="Settings"
-          (click)="settingsOpen = true"
-        ></button>
-      }
-      <div class="title" [formGroup]="form">
-        @if (project.group) {
-          <a
-            class="folder"
-            data-testid="project-folder"
-            [routerLink]="['..']"
-            [queryParams]="{ folder: project.group }"
-            >{{ project.group }}</a
-          >
-        }
-        <tui-input-inline
-          [class.error]="
-            form.controls.name.touched && form.controls.name.invalid
-          "
-        >
-          <input formControlName="name" />
-        </tui-input-inline>
-        @if (pipeline.description; as description) {
-          <small>{{ description | i18n }}</small>
-        }
-      </div>
-    </div>
-  </div>
-  <div class="sections-row stack align-center justify-between">
+      <tui-icon class="sep" icon="@tui.chevron-right" />
+    }
+    <span
+      class="name"
+      [formGroup]="form"
+      [title]="(pipeline.description | i18n) ?? ''"
+    >
+      <tui-input-inline
+        [class.error]="form.controls.name.touched && form.controls.name.invalid"
+      >
+        <input formControlName="name" data-testid="project-name" />
+      </tui-input-inline>
+    </span>
     @if (userRole.admin | can: project.createdBy | async) {
-      <tui-tabs
-        size="m"
-        class="sections"
-        data-testid="project-sections"
-        [(activeItemIndex)]="activeTab"
+      <button
+        tuiIconButton
+        appearance="flat-grayscale"
+        size="xs"
+        type="button"
+        iconStart="@tui.settings"
+        data-testid="project-settings"
+        title="Settings"
+        i18n-title="@@label.settings"
+        (click)="settingsOpen = true"
+      ></button>
+    }
+  </nav>
+  @if (userRole.admin | can: project.createdBy | async) {
+    <tui-tabs
+      size="m"
+      class="sections"
+      data-testid="project-sections"
+      [underline]="false"
+      [(activeItemIndex)]="activeTab"
+    >
+      <a
+        tuiTab
+        iconStart="@tui.workflow"
+        routerLinkActive
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['./']"
+        ><ng-container i18n="@@link.canvas">Canvas</ng-container></a
       >
-        <a
-          tuiTab
-          iconStart="@tui.workflow"
-          routerLinkActive
-          [routerLinkActiveOptions]="{ exact: true }"
-          [routerLink]="['./']"
-          ><ng-container i18n="@@link.canvas">Canvas</ng-container></a
-        >
-        <a
-          tuiTab
-          iconStart="@tui.key-round"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['environment'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
+      <a
+        tuiTab
+        iconStart="@tui.key-round"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['environment'],
+              left: null,
+              right: null,
+              bottom: null,
             },
-          ]"
+          },
+        ]"
+        routerLinkActive="active"
+      >
+        <ng-container i18n="@@link.environment">Environment</ng-container>
+        @if (
+          (project.pipeline | declaredVariables | async)?.size;
+          as variables
+        ) {
+          @if (variables > 0) {
+            <span tuiBadge size="s" appearance="neutral">
+              {{ variables }}
+            </span>
+          }
+        }
+      </a>
+      <a
+        tuiTab
+        iconStart="@tui.archive"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['artefacts'],
+              left: null,
+              right: null,
+              bottom: null,
+            },
+          },
+        ]"
+        routerLinkActive="active"
+        ><ng-container i18n="@@link.artefacts">Artefacts</ng-container></a
+      >
+      @if ((project.pipeline.outputs | keyvalue | length) > 0) {
+        <a
+          tuiTab
+          iconStart="@tui.app-window"
+          [routerLink]="['/', 'play', project._id]"
+          target="_blank"
           routerLinkActive="active"
         >
-          <ng-container i18n="@@link.environment">Environment</ng-container>
-          @if (
-            (project.pipeline | declaredVariables | async)?.size;
-            as variables
-          ) {
-            @if (variables > 0) {
-              <span tuiBadge size="s" appearance="neutral">
-                {{ variables }}
-              </span>
-            }
-          }
+          <ng-container i18n="@@link.app">App</ng-container>
         </a>
-        <a
-          tuiTab
-          iconStart="@tui.archive"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['artefacts'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
+      }
+      <a
+        tuiTab
+        iconStart="@tui.cloud-upload"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['deploy'],
+              left: null,
+              right: null,
+              bottom: null,
             },
-          ]"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.artefacts">Artefacts</ng-container></a
-        >
-        @if ((project.pipeline.outputs | keyvalue | length) > 0) {
+          },
+        ]"
+        routerLinkActive="active"
+        ><ng-container i18n="@@link.deploy">Deploy</ng-container></a
+      >
+      <a
+        tuiTab
+        iconStart="@tui.image"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['assets'],
+              left: null,
+              right: null,
+              bottom: null,
+            },
+          },
+        ]"
+        routerLinkActive="active"
+        ><ng-container i18n="@@link.assets">Assets</ng-container></a
+      >
+      <a
+        tuiTab
+        iconStart="@tui.play"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['launches'],
+              left: null,
+              right: null,
+              bottom: null,
+            },
+          },
+        ]"
+        routerLinkActive="active"
+        ><ng-container i18n="@@link.launches">Launches</ng-container></a
+      >
+      <a
+        tuiTab
+        iconStart="@tui.chart-column"
+        data-testid="project-stats-tab"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['stats'],
+              left: null,
+              right: null,
+              bottom: null,
+            },
+          },
+        ]"
+        routerLinkActive="active"
+        ><ng-container i18n="@@link.stats">Stats</ng-container></a
+      >
+      @if (project._id | pipelineNodeUpdates | async; as nodeUpdates) {
+        @if (
+          ($safeNavigationMigration(nodeUpdates?.updates) | keyvalue).length;
+          as updates
+        ) {
           <a
             tuiTab
-            iconStart="@tui.app-window"
-            [routerLink]="['/', 'play', project._id]"
-            target="_blank"
-            routerLinkActive="active"
-          >
-            <ng-container i18n="@@link.app">App</ng-container>
-          </a>
-        }
-        <a
-          tuiTab
-          iconStart="@tui.cloud-upload"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['deploy'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
-            },
-          ]"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.deploy">Deploy</ng-container></a
-        >
-        <a
-          tuiTab
-          iconStart="@tui.image"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['assets'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
-            },
-          ]"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.assets">Assets</ng-container></a
-        >
-        <a
-          tuiTab
-          iconStart="@tui.play"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['launches'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
-            },
-          ]"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.launches">Launches</ng-container></a
-        >
-        <a
-          tuiTab
-          iconStart="@tui.chart-column"
-          data-testid="project-stats-tab"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['stats'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
-            },
-          ]"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.stats">Stats</ng-container></a
-        >
-        @if (project._id | pipelineNodeUpdates | async; as nodeUpdates) {
-          @if (
-            ($safeNavigationMigration(nodeUpdates?.updates) | keyvalue).length;
-            as updates
-          ) {
-            <a
-              tuiTab
-              iconStart="@tui.download"
-              [routerLink]="[
-                {
-                  outlets: {
-                    primary: ['node-updates'],
-                    left: null,
-                    right: null,
-                    bottom: null,
-                  },
-                },
-              ]"
-              routerLinkActive="active"
-            >
-              <ng-container i18n="@@link.updates">Updates</ng-container>
-              <span tuiBadge size="s" appearance="neutral">
-                {{ updates }}
-              </span>
-            </a>
-          }
-        }
-        <a
-          tuiTab
-          iconStart="@tui.palette"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['design'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
-            },
-          ]"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.design">Design</ng-container></a
-        >
-        <a
-          tuiTab
-          iconStart="@tui.file-text"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['readme', 'edit'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
-            },
-          ]"
-          routerLinkActive="active"
-          ><ng-container i18n="@@link.readme">README</ng-container></a
-        >
-        <a
-          tuiTab
-          iconStart="@tui.braces"
-          [routerLink]="[
-            {
-              outlets: {
-                primary: ['yaml'],
-                left: null,
-                right: null,
-                bottom: null,
-              },
-            },
-          ]"
-          routerLinkActive="active"
-          >YAML</a
-        >
-        @if (userRole.engineer | can | async) {
-          <a
-            tuiTab
-            iconStart="@tui.code"
+            iconStart="@tui.download"
             [routerLink]="[
               {
                 outlets: {
-                  primary: ['script'],
+                  primary: ['node-updates'],
                   left: null,
                   right: null,
                   bottom: null,
@@ -282,25 +205,70 @@
               },
             ]"
             routerLinkActive="active"
-            ><ng-container i18n="@@link.script">Script</ng-container></a
           >
+            <ng-container i18n="@@link.updates">Updates</ng-container>
+            <span tuiBadge size="s" appearance="neutral">
+              {{ updates }}
+            </span>
+          </a>
         }
-        @if (userRole.admin | can | async) {
-          <a
-            tuiTab
-            iconStart="@tui.bot"
-            [routerLink]="['messages']"
-            routerLinkActive="active"
-            ><ng-container i18n="@@link.messages">Messages</ng-container></a
-          >
-        }
+      }
+      <a
+        tuiTab
+        iconStart="@tui.palette"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['design'],
+              left: null,
+              right: null,
+              bottom: null,
+            },
+          },
+        ]"
+        routerLinkActive="active"
+        ><ng-container i18n="@@link.design">Design</ng-container></a
+      >
+      <a
+        tuiTab
+        iconStart="@tui.file-text"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['readme', 'edit'],
+              left: null,
+              right: null,
+              bottom: null,
+            },
+          },
+        ]"
+        routerLinkActive="active"
+        ><ng-container i18n="@@link.readme">README</ng-container></a
+      >
+      <a
+        tuiTab
+        iconStart="@tui.braces"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['yaml'],
+              left: null,
+              right: null,
+              bottom: null,
+            },
+          },
+        ]"
+        routerLinkActive="active"
+        >YAML</a
+      >
+      @if (userRole.engineer | can | async) {
         <a
           tuiTab
-          iconStart="@tui.wrench"
+          iconStart="@tui.code"
           [routerLink]="[
             {
               outlets: {
-                primary: ['tools'],
+                primary: ['script'],
                 left: null,
                 right: null,
                 bottom: null,
@@ -308,27 +276,67 @@
             },
           ]"
           routerLinkActive="active"
-          ><ng-container i18n="@@link.tools">Tools</ng-container></a
-        >
-      </tui-tabs>
-    }
-
-    @let status = projectManager.status | async;
-    <div class="status" role="status" [attr.data-status]="status">
-      @if (status) {
-        @let state = saveStatuses[status];
-        <span
-          tuiBadge
-          size="m"
-          [appearance]="state.appearance"
-          [iconStart]="state.icon"
-          >{{ state.label }}</span
+          ><ng-container i18n="@@link.script">Script</ng-container></a
         >
       }
-    </div>
+      @if (userRole.admin | can | async) {
+        <a
+          tuiTab
+          iconStart="@tui.bot"
+          [routerLink]="['messages']"
+          routerLinkActive="active"
+          ><ng-container i18n="@@link.messages">Messages</ng-container></a
+        >
+      }
+      <a
+        tuiTab
+        iconStart="@tui.wrench"
+        [routerLink]="[
+          {
+            outlets: {
+              primary: ['tools'],
+              left: null,
+              right: null,
+              bottom: null,
+            },
+          },
+        ]"
+        routerLinkActive="active"
+        ><ng-container i18n="@@link.tools">Tools</ng-container></a
+      >
+    </tui-tabs>
+  }
+  <span class="spacer"></span>
+  @let status = projectManager.status | async;
+  <div
+    class="status"
+    role="status"
+    data-testid="project-save-status"
+    [attr.data-status]="status"
+  >
+    @if (status) {
+      @let state = saveStatuses[status];
+      <span
+        tuiBadge
+        size="m"
+        [appearance]="state.appearance"
+        [iconStart]="state.icon"
+        >{{ state.label }}</span
+      >
+    }
   </div>
-</header>
+</ng-template>
 
+<ng-template
+  [tuiDialog]="settingsOpen"
+  [tuiDialogOptions]="{ label: 'Project settings', size: 's' }"
+  (tuiDialogChange)="settingsOpen = $event"
+>
+  <app-project-settings
+    [project]="project"
+    (updated)="settingsUpdated($event)"
+  ></app-project-settings>
+</ng-template>
 <div class="child" [class.edit]="child | is: editPipelineVisualComponent">
   <router-outlet
     (activate)="activate($event)"

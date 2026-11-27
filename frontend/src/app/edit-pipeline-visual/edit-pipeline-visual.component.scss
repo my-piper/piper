@@ -371,9 +371,9 @@
   flex-direction: column;
   position: fixed;
   z-index: 5;
-  color: var(--tui-text-primary);
-  background-color: var(--tui-background-base);
-  padding: 16px;
+  color: var(--text);
+  background-color: var(--surface-1);
+  padding: var(--space-3);
   transition: transform 150ms ease-in-out;
   box-shadow: var(--tui-shadow-medium);
   overflow: auto;
@@ -391,18 +391,18 @@
     top: 0;
     bottom: 0;
     transform: translateX(0);
-    width: 250px;
-    max-width: 250px;
+    // They overlay the canvas, never resize it (docs/design.md).
+    width: 360px;
+    max-width: calc(100% - 48px);
 
     &.wide {
-      width: 500px;
-      max-width: 500px;
+      width: 480px;
     }
   }
 
   &.left {
     left: 0;
-    border-right: 1px solid var(--tui-border-normal);
+    border-right: 1px solid var(--border);
 
     &.hidden {
       transform: translateX(-100%);
@@ -411,7 +411,7 @@
 
   &.right {
     right: 0;
-    border-left: 1px solid var(--tui-border-normal);
+    border-left: 1px solid var(--border);
 
     &.hidden {
       opacity: 0;
@@ -424,7 +424,7 @@
     right: 0;
     left: 0;
     margin: auto;
-    border-top: 1px solid var(--tui-border-normal);
+    border-top: 1px solid var(--border);
 
     &.hidden {
       opacity: 0;
@@ -432,11 +432,11 @@
     }
 
     &.shift-left {
-      left: 290px;
+      left: 400px;
     }
 
     &.shift-right {
-      right: 290px;
+      right: 400px;
     }
   }
 
