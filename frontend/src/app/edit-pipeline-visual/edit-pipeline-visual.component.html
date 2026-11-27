@@ -10,7 +10,7 @@
     [style.left.px]="search.left"
     [style.top.px]="search.top"
     [accepts]="search.accepts"
-    (picked)="addFromSearch($event.node, $event.keepOpen)"
+    (picked)="addFromSearch($event.pick, $event.keepOpen)"
     (closed)="closeNodeSearch()"
   />
 }
@@ -563,7 +563,28 @@
               }
             }
             @if (editable) {
-              @if (
+              @if (isDeployNode(node.value)) {
+                @if (deployProblems[node.key]?.length) {
+                  <tui-icon
+                    class="deploy-mismatch"
+                    icon="@tui.triangle-alert"
+                    data-testid="deploy-mismatch"
+                    [title]="deployProblems[node.key].join('; ')"
+                  />
+                }
+                <button
+                  tuiIconButton
+                  appearance="flat-grayscale"
+                  size="xs"
+                  class="refresh"
+                  title="Refresh from deploy"
+                  i18n-title="@@action.refresh_from_deploy"
+                  iconStart="@tui.refresh-cw"
+                  data-testid="deploy-refresh"
+                  style="--app-icon-size: 16px"
+                  (click)="refreshDeployNode(node.key)"
+                ></button>
+              } @else if (
                 node.value.source === scriptNodeSource ||
                 (userRole.engineer | can | async)
               ) {

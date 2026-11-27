@@ -3,6 +3,7 @@ import {
   Plain,
   PROJECT_A_ID,
   smallGraphWithJsonTransformer,
+  USER_IDS,
 } from "../fixtures/plain";
 import { expect, expectSaved, test } from "./support/test";
 
@@ -388,6 +389,57 @@ test("adds a node from search on double-click and connects one to a dropped wire
 
   await expect(added).toHaveCount(2);
   await expect(wires).toHaveCount(wiresBefore + 1);
+});
+
+test("adds the user's Deploy from search as a node and wires it", async ({
+  page,
+  api,
+  open,
+}) => {
+  api.deployNodes = [
+    {
+      prefix: USER_IDS.owner,
+      slug: "summarizer",
+      title: "Summarizer",
+      deployedAt: "2026-01-01T00:00:00.000Z",
+      inputs: { text: { title: "Text", type: "string" } },
+      outputs: { summary: { title: "Summary", type: "string" } },
+    },
+  ];
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeOne = page.getByTestId("node-node_one");
+  await expect(nodeOne).toBeVisible();
+  const view = await page.locator(".nodes").boundingBox();
+  const added = page.locator('[data-testid^="node-deploy_summarizer_"]');
+  const wires = page.locator(".pane > svg path:not(.param):not(.pending)");
+  const wiresBefore = await wires.count();
+
+  await page.mouse.dblclick(view.x + 600, view.y + 400);
+  await page.getByTestId("node-search-field").fill("summ");
+  await page.keyboard.press("Enter");
+  await expect(added).toHaveCount(1);
+  await expect(added.getByTestId("deploy-refresh")).toBeVisible();
+  await page.mouse.move(
+    ...(await center(nodeOne.getByTestId("output-port-text"))),
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    ...(await center(added.getByTestId("input-port-text"))),
+    {
+      steps: 8,
+    },
+  );
+  await page.mouse.up();
+  await expectSaved(page);
+
+  await expect(wires).toHaveCount(wiresBefore + 1);
+  const stored = Object.values(
+    storedPipeline(api).nodes as unknown as Record<string, Plain>,
+  ).find((node) => node["source"] === "deploy");
+  expect(stored).toMatchObject({
+    deploy: { prefix: USER_IDS.owner, slug: "summarizer" },
+    inputs: { text: { type: "string", featured: true } },
+  });
 });
 
 test("copies nodes with their flow, pastes them at the pointer and duplicates them", async ({

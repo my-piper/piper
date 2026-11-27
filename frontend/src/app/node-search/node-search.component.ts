@@ -15,16 +15,21 @@ import {
 import { FormControl } from "@angular/forms";
 import { finalize, map } from "rxjs";
 import { DisplayError } from "src/models/errors";
-import { Node, NodesFilter } from "src/models/node";
+import { DeployNode } from "src/models/deploy-node";
+import { Node, NodeDeploy, NodesFilter } from "src/models/node";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { HttpService } from "src/services/http.service";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import { groupNodes } from "src/utils/node-groups";
+import { deployItem, isDeployNode, matchDeploys } from "src/utils/deploy-node";
 import { rankNodes, recentNodes, rememberNode } from "src/utils/node-search";
 
 const BEST_MATCH_LIMIT = 50;
 
 type Section = { id: string; title: string; nodes: Node[]; offset: number };
+
+/** What was picked: a catalog node by id, or a Deploy to run as a node. */
+export type NodePick = { node: string } | { deploy: NodeDeploy };
 
 /**
  * The node search popover of the canvas (double-click, or a wire dropped on
@@ -50,7 +55,7 @@ export class NodeSearchComponent implements OnInit, AfterViewInit {
 
   /** A node was chosen; `keepOpen` when it was added with Shift + Enter. */
   @Output()
-  picked = new EventEmitter<{ node: string; keepOpen: boolean }>();
+  picked = new EventEmitter<{ pick: NodePick; keepOpen: boolean }>();
 
   @Output()
   closed = new EventEmitter<void>();
@@ -63,6 +68,8 @@ export class NodeSearchComponent implements OnInit, AfterViewInit {
   loading = false;
   error: DisplayError | null = null;
   catalog: Node[] = [];
+  /** The user's own Deploys, offered when no wire was dropped. */
+  deploys: Node[] = [];
   sections: Section[] = [];
   /** All listed nodes in display order; `active` indexes into it. */
   items: Node[] = [];
@@ -101,6 +108,35 @@ export class NodeSearchComponent implements OnInit, AfterViewInit {
         },
         error: (err) => (this.error = err),
       });
+
+    if (!this.accepts?.length) {
+      this.http
+        .get("me/deploys")
+        .pipe(
+          map((arr) =>
+            (arr as object[])
+              .map((e) => toInstance(e, DeployNode))
+              .map((d) => deployItem(d, d.title)),
+          ),
+        )
+        .subscribe({
+          next: (deploys) => {
+            this.deploys = deploys;
+            this.build();
+            this.cd.detectChanges();
+          },
+          // the catalog stays usable without them
+          error: () => (this.deploys = []),
+        });
+    }
+  }
+
+  private deploySection(query: string): Omit<Section, "offset"> {
+    return {
+      id: "deploys",
+      title: $localize`:@@label.deploys:Deploys`,
+      nodes: matchDeploys(this.deploys, query),
+    };
   }
 
   private build() {
@@ -128,6 +164,10 @@ export class NodeSearchComponent implements OnInit, AfterViewInit {
         });
       }
       sections.push(...groupNodes(this.catalog));
+    }
+    // a dropped wire needs inputs of its type, which the list doesn't carry
+    if (!this.accepts?.length) {
+      sections.push(this.deploySection(query));
     }
     let offset = 0;
     this.sections = sections
@@ -174,8 +214,12 @@ export class NodeSearchComponent implements OnInit, AfterViewInit {
   }
 
   pick(node: Node, keepOpen: boolean) {
-    rememberNode(node._id);
-    this.picked.emit({ node: node._id, keepOpen });
+    if (isDeployNode(node)) {
+      this.picked.emit({ pick: { deploy: node.deploy }, keepOpen });
+    } else {
+      rememberNode(node._id);
+      this.picked.emit({ pick: { node: node._id }, keepOpen });
+    }
     if (keepOpen) {
       this.field.nativeElement.focus();
     }

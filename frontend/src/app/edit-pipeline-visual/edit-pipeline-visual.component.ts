@@ -47,8 +47,10 @@ import {
   Node,
   NodeInput,
   NodeOutput,
+  NodeDeploy,
   SCRIPT_NODE_SOURCE,
 } from "src/models/node";
+import { DeployNode } from "src/models/deploy-node";
 import { FlowTransformer, NodeFlow } from "src/models/node-flow";
 import { OutputFlow } from "src/models/output-flow";
 import {
@@ -72,6 +74,13 @@ import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { formatElapsed } from "src/utils/elapsed";
 import { LaunchState, NodeRunState, launchState } from "src/utils/launch-state";
+import {
+  deployProblems,
+  deploySocketsPath,
+  isDeployNode,
+  nodeFromDeploy,
+  refreshFromDeploy,
+} from "src/utils/deploy-node";
 import { acceptedInputTypes } from "src/utils/flow-types";
 import {
   CanvasClip,
@@ -116,6 +125,13 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   userRole = UserRole;
   scriptNodeSource = SCRIPT_NODE_SOURCE;
+  isDeployNode = isDeployNode;
+
+  /**
+   * How each deploy node no longer matches its Deploy, by node key; checked
+   * when the pipeline opens. Empty for a node that matches.
+   */
+  deployProblems: Record<string, string[]> = {};
   ui = UI;
   zoom = { min: MIN_SCALE, max: MAX_SCALE, step: ZOOM_STEP };
   selectNodeComponent = SelectNodeComponent;
@@ -234,6 +250,9 @@ export class EditPipelineVisualComponent implements OnDestroy {
         mode || "project",
       ];
       this.running = this.mode === "launch";
+      if (this.mode === "project") {
+        this.checkDeployNodes();
+      }
 
       if (this.mode === "project" && this.pipeline.nodes.size <= 0) {
         setTimeout(() => {
@@ -820,20 +839,24 @@ export class EditPipelineVisualComponent implements OnDestroy {
   addNode(
     left: number,
     top: number,
-    payload: { node: string },
+    payload: { node: string } | { deploy: NodeDeploy },
     added?: (id: string, node: Node) => void,
   ) {
-    if ("node" in payload) {
+    if ("node" in payload || "deploy" in payload) {
       this.closeDrawler();
 
-      this.http
-        .get(`nodes/${payload.node}`)
+      const node$ =
+        "deploy" in payload
+          ? this.loadDeploy(payload.deploy).pipe(map(nodeFromDeploy))
+          : this.http
+              .get(`nodes/${payload.node}`)
+              .pipe(map((obj) => toInstance(obj as object, Node)));
+      node$
         .pipe(
           delay(UI_DELAY),
           finalize(() => {
             this.cd.detectChanges();
           }),
-          map((obj) => toInstance(obj as object, Node)),
         )
         .subscribe({
           next: (node) => {
@@ -848,6 +871,89 @@ export class EditPipelineVisualComponent implements OnDestroy {
           },
           error: (err) => (this.error = err),
         });
+    }
+  }
+
+  private loadDeploy(ref: NodeDeploy) {
+    return this.http
+      .get(deploySocketsPath(ref))
+      .pipe(map((obj) => toInstance(obj as object, DeployNode)));
+  }
+
+  private checkDeployNodes() {
+    this.deployProblems = {};
+    for (const [key, node] of this.pipeline.nodes) {
+      if (!isDeployNode(node) || !node.deploy) {
+        continue;
+      }
+      this.loadDeploy(node.deploy).subscribe({
+        next: (deploy) => {
+          this.deployProblems[key] = deployProblems(node, deploy);
+          this.cd.detectChanges();
+        },
+        error: () => {
+          this.deployProblems[key] = [
+            $localize`:@@message.deploy_unavailable:the Deploy is not found`,
+          ];
+          this.cd.detectChanges();
+        },
+      });
+    }
+  }
+
+  /**
+   * Re-copies a deploy node's sockets from its Deploy and drops the wires and
+   * values of the sockets the Deploy no longer has.
+   */
+  refreshDeployNode(key: string) {
+    const node = this.pipeline.nodes.get(key);
+    this.loadDeploy(node.deploy).subscribe({
+      next: (deploy) => {
+        refreshFromDeploy(node, deploy);
+        node.version = (node.version | 0) + 1;
+        this.dropDanglingFlows(key, node);
+        this.deployProblems[key] = [];
+        this.save();
+        this.cd.detectChanges();
+      },
+      error: (err) => (this.error = err),
+    });
+  }
+
+  private dropDanglingFlows(key: string, node: Node) {
+    const { flows, inputs, outputs } = this.pipeline;
+    const gone = (flow: {
+      from?: string;
+      to?: string;
+      input?: string;
+      output?: string;
+    }) =>
+      (flow.to === key && !node.inputs.has(flow.input)) ||
+      (flow.from === key && !node.outputs.has(flow.output));
+    for (const [id, flow] of flows) {
+      if (gone(flow)) {
+        flows.delete(id);
+      }
+    }
+    for (const [, input] of inputs || []) {
+      for (const [id, flow] of input.flows || []) {
+        if (gone(flow)) {
+          input.flows.delete(id);
+        }
+      }
+    }
+    for (const [, output] of outputs || []) {
+      for (const [id, flow] of output.flows || []) {
+        if (gone(flow)) {
+          output.flows.delete(id);
+        }
+      }
+    }
+    const values = this.launchRequest.nodes?.get(key)?.inputs;
+    for (const id of [...(values?.keys() ?? [])]) {
+      if (!node.inputs.has(id)) {
+        values.delete(id);
+      }
     }
   }
 
@@ -981,12 +1087,15 @@ export class EditPipelineVisualComponent implements OnDestroy {
    * Adds the node picked in the search at the search point, connected to the
    * dropped wire. A node added with the search kept open steps aside.
    */
-  addFromSearch(node: string, keepOpen: boolean) {
+  addFromSearch(
+    picked: { node: string } | { deploy: NodeDeploy },
+    keepOpen: boolean,
+  ) {
     const { x, y, flow, accepts, added } = this.search;
     const step = added * 24;
     // A wired node puts its first input row on the drop point.
     const top = flow ? y - (UI.node.input.height + UI.node.shift) : y;
-    this.addNode(x + step, top + step, { node }, (id, created) => {
+    this.addNode(x + step, top + step, picked, (id, created) => {
       if (flow && accepts) {
         this.connectAdded(flow, id, created, accepts);
       }

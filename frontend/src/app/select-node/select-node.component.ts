@@ -10,13 +10,17 @@ import {
 import { FormBuilder } from "@angular/forms";
 import { debounceTime, delay, finalize, map } from "rxjs";
 import { DisplayError } from "src/models/errors";
+import { DeployNode } from "src/models/deploy-node";
 import { Node, NodesFilter } from "src/models/node";
 import { UserRole } from "src/models/user";
 import { HttpService } from "src/services/http.service";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
+import { deployItem, matchDeploys } from "src/utils/deploy-node";
 import { groupNodes, NodeGroup } from "src/utils/node-groups";
+
+const DEPLOYS_GROUP = "deploys";
 
 @Component({
   selector: "app-select-node",
@@ -33,6 +37,8 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
   error: DisplayError;
 
   groups: NodeGroup[] = [];
+  /** The user's own Deploys, listed as a group after the catalog. */
+  deploys: Node[] = [];
   /** Chip appearance of the catalog tags that mark a node's price. */
   tagAppearances: Record<string, string> = {
     free: "positive",
@@ -57,6 +63,7 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.load();
+    this.loadDeploys();
 
     this.searchControl.valueChanges
       .pipe(debounceTime(500))
@@ -95,7 +102,9 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
       )
       .subscribe({
         next: (nodes) => {
-          this.groups = groupNodes(nodes);
+          this.groups = [...groupNodes(nodes), this.deployGroup(search)].filter(
+            ({ nodes }) => nodes.length > 0,
+          );
           this.openGroups =
             search || this.groups.length === 1
               ? new Set(this.groups.map(({ id }) => id))
@@ -104,6 +113,44 @@ export class SelectNodeComponent implements OnInit, AfterViewInit {
         },
         error: (err) => (this.error = err),
       });
+  }
+
+  private loadDeploys() {
+    this.http
+      .get("me/deploys")
+      .pipe(
+        map((arr) =>
+          (arr as object[])
+            .map((e) => toInstance(e, DeployNode))
+            .map((d) => deployItem(d, d.title)),
+        ),
+      )
+      .subscribe({
+        next: (deploys) => {
+          this.deploys = deploys;
+          const { search } = this.form.getRawValue();
+          this.groups = [
+            ...this.groups.filter(({ id }) => id !== DEPLOYS_GROUP),
+            this.deployGroup(search),
+          ].filter(({ nodes }) => nodes.length > 0);
+          this.cd.detectChanges();
+        },
+        // the catalog stays usable without them
+        error: () => (this.deploys = []),
+      });
+  }
+
+  private deployGroup(search: string): NodeGroup {
+    return {
+      id: DEPLOYS_GROUP,
+      title: $localize`:@@label.deploys:Deploys`,
+      nodes: matchDeploys(this.deploys, search),
+    };
+  }
+
+  /** What dragging a palette item drops on the canvas. */
+  dragPayload(node: Node) {
+    return node.deploy ? { deploy: node.deploy } : { node: node._id };
   }
 
   setOpen(group: string, open: boolean) {

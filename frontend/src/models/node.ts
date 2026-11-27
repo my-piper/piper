@@ -271,6 +271,9 @@ export const SCRIPT_NODE_SOURCE = "script";
 /** The id the Script Node has in the catalog, which is served from code. */
 export const SCRIPT_NODE_ID = "script";
 
+/** Marks a Node that runs a Deploy as a Child Launch instead of a script. */
+export const DEPLOY_NODE_SOURCE = "deploy";
+
 export class Node {
   @Expose()
   @Type(() => String)

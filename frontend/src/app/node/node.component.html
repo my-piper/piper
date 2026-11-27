@@ -4,6 +4,20 @@
       <tui-icon class="failed" icon="error" data-testid="node-failed" />
     }
     <h2 [title]="node.title | i18n">{{ node.title | i18n }}</h2>
+    @if (node.deploy && launch) {
+      <a
+        class="child-launch"
+        target="_blank"
+        title="Child launch"
+        i18n-title="@@label.child_launch"
+        data-testid="node-child-launch"
+        [routerLink]="['/launches', launch._id, 'nested']"
+        (click)="$event.stopPropagation()"
+        (mousedown)="$event.stopPropagation()"
+      >
+        <tui-icon icon="@tui.external-link" />
+      </a>
+    }
   </header>
   <div class="ports">
     <ul class="inputs">
