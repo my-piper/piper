@@ -56,11 +56,11 @@ failures and SIGINT/SIGTERM. An uncatchable kill or daemon failure can prevent
 cleanup; the printed `piper-tests-*` project name identifies that run for manual
 `docker compose -f tests/integration/compose.yaml -p <project> down -v` cleanup.
 
-The node stats suite creates `node_runs` from its ClickHouse migration (without
-the Kafka consumer) and runs the project stats query on it: a node that polls
-with `repeat` counts as one execution from its first invocation to its outcome,
-loop iterations and retried attempts are separate executions, and executions
-without an outcome are left out.
+The node stats suite creates `node_executions` from its ClickHouse migration
+(without the Kafka consumer) and runs the project stats query on it. The
+pipeline suite checks, through real workers and Redis, that a node's repeats and
+retried attempts make one execution record, and that its last failed attempt or
+an interrupted launch closes it.
 
 The same command runs in CI before image publication. Kafka, object storage, and
 socket delivery remain outside this suite's scope.

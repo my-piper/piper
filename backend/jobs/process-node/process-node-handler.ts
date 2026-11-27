@@ -48,7 +48,12 @@ import { PipelineEventType } from "types/pipeline";
 import { checkInputs, convertInputs, getNodeInputs } from "utils/node";
 import { getEnvironment } from "./environment";
 import { completeNode } from "./complete-node";
-import { getErrorResult, recordLaunchRun, recordNodeRun } from "./run-metrics";
+import {
+  getErrorResult,
+  recordLaunchRun,
+  recordNodeExecution,
+  recordNodeRun,
+} from "./run-metrics";
 import { LAUNCH_ROOM, USER_ROOM } from "consts/rooms";
 
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
@@ -125,11 +130,14 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     const interrupted = await readInstance(LAUNCH(nodeJob.launch), Launch);
     if (interrupted) {
       const interruptedAt = await redis.get(LAUNCH_INTERRUPTED(nodeJob.launch));
-      await recordLaunchRun(
+      const finishedAt = interruptedAt ? new Date(interruptedAt) : new Date();
+      await recordNodeExecution(
         interrupted,
+        nodeJob.node,
         "interrupted",
-        interruptedAt ? new Date(interruptedAt) : new Date()
+        finishedAt
       );
+      await recordLaunchRun(interrupted, "interrupted", finishedAt);
     }
     return NodeJobResult.LAUNCH_INTERRUPTED;
   }

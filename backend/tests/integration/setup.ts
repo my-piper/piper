@@ -61,7 +61,11 @@ vi.mock("app/streams", () => ({
     pipeline: {
       metrics: { outputs: { send: vi.fn() }, finished: { send: vi.fn() } },
       errors: { send: vi.fn() },
-      runs: { nodes: { send: vi.fn() }, launches: { send: vi.fn() } },
+      runs: {
+        nodes: { send: vi.fn() },
+        launches: { send: vi.fn() },
+        executions: { send: vi.fn() },
+      },
     },
   },
 }));

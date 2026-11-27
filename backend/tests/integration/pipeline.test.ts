@@ -11,12 +11,15 @@ import { Job, Queue, QueueEvents, Worker } from "bullmq";
 import {
   LAUNCH,
   LAUNCH_HEARTBEAT,
+  LAUNCH_INTERRUPTED,
+  NODE_EXECUTION,
   NODE_OUTPUTS,
   NODE_PROCESSED_LOCK,
   NODE_PROCESSING_LOCK,
   NODE_STATUS,
   PIPELINE_OUTPUT,
 } from "consts/redis";
+import { streams } from "app/streams";
 import { toPlain } from "core-kit/packages/transform";
 import { Launch } from "models/launch";
 import { randomUUID } from "node:crypto";
@@ -30,6 +33,7 @@ vi.mock("packages/deno/execute", () => ({ execute: vi.fn() }));
 
 const expectedOutput = { enabled: false, count: 0, text: "" };
 const executeMock = vi.mocked(execute);
+const executionsMock = vi.mocked(streams.pipeline.runs.executions.send);
 
 function nextResult(value: unknown) {
   return { result: { __type: "next", outputs: { result: value } }, logs: [] };
@@ -203,6 +207,127 @@ describe("launch storage and real node workers", () => {
     expect(executeMock.mock.calls[1][2]).toMatchObject({
       state: { cursor: 1 },
     });
+  });
+});
+
+describe("node execution records", () => {
+  function echoExecutions() {
+    return executionsMock.mock.calls
+      .map(([record]) => record)
+      .filter((record) => record.node === "echo_node");
+  }
+
+  async function planEcho(launch: Launch, options?: object) {
+    return queues.nodes.process.rapid.plan(
+      { launch: launch._id, node: "echo_node" },
+      options
+    );
+  }
+
+  async function repeatingEcho() {
+    const source = pipelineLaunch();
+    source.launchRequest.inclusive = { nodes: [] };
+    const launch = await run(source);
+    executeMock.mockResolvedValueOnce({
+      result: { __type: "repeat", delay: 60_000 },
+      logs: [],
+    });
+    const job = await planEcho(launch);
+    await vi.waitFor(async () => expect(await job.getState()).toBe("delayed"));
+    return { launch, job };
+  }
+
+  it("records a repeating node once, from its first invocation to its outcome", async () => {
+    const { launch, job } = await repeatingEcho();
+
+    expect(echoExecutions()).toEqual([]);
+    expect(
+      await redis.hGet(NODE_EXECUTION(launch._id, "echo_node"), "invocations")
+    ).toBe("1");
+
+    await job.promote();
+    await finished(job);
+    await completedPipeline(launch._id);
+
+    const [record, ...others] = echoExecutions();
+    expect(others).toEqual([]);
+    expect(record).toMatchObject({
+      launch: launch._id,
+      node: "echo_node",
+      execution: "rapid",
+      result: "done",
+      invocations: 2,
+      // a repeat is not a failed attempt
+      attempts: 1,
+    });
+    expect(record.finishedAt.getTime() - record.startedAt.getTime()).toBe(
+      record.durationMs
+    );
+    expect(record.durationMs).toBeGreaterThanOrEqual(record.activeMs);
+    expect(await redis.exists(NODE_EXECUTION(launch._id, "echo_node"))).toBe(0);
+  });
+
+  it("keeps a retried attempt in the same execution", async () => {
+    const source = pipelineLaunch();
+    source.launchRequest.inclusive = { nodes: [] };
+    const launch = await run(source);
+    executeMock.mockRejectedValueOnce(new Error("Temporary Deno failure"));
+
+    const job = await planEcho(launch, {
+      attempts: 2,
+      backoff: { type: "fixed", delay: 100 },
+    });
+    await finished(job);
+    await completedPipeline(launch._id);
+
+    expect(echoExecutions()).toEqual([
+      expect.objectContaining({ result: "done", invocations: 2, attempts: 2 }),
+    ]);
+  });
+
+  it("records the error of the last attempt", async () => {
+    const source = pipelineLaunch();
+    source.launchRequest.inclusive = { nodes: [] };
+    const launch = await run(source);
+    executeMock.mockRejectedValueOnce(new Error("Permanent Deno failure"));
+
+    const job = await planEcho(launch, { attempts: 1 });
+    await vi.waitFor(async () => expect(await job.getState()).toBe("failed"), {
+      timeout: 10_000,
+      interval: 20,
+    });
+
+    await vi.waitFor(() =>
+      expect(echoExecutions()).toEqual([
+        expect.objectContaining({
+          result: "error",
+          invocations: 1,
+          attempts: 1,
+        }),
+      ])
+    );
+    expect(await redis.exists(NODE_EXECUTION(launch._id, "echo_node"))).toBe(0);
+  });
+
+  it("records an open execution as interrupted when the launch is interrupted", async () => {
+    const { launch, job } = await repeatingEcho();
+    const interruptedAt = new Date();
+    await redis.set(
+      LAUNCH_INTERRUPTED(launch._id),
+      interruptedAt.toISOString()
+    );
+
+    await job.promote();
+    await finished(job);
+
+    expect(echoExecutions()).toEqual([
+      expect.objectContaining({
+        result: "interrupted",
+        invocations: 1,
+        finishedAt: interruptedAt,
+      }),
+    ]);
+    expect(executeMock).toHaveBeenCalledOnce();
   });
 });
 

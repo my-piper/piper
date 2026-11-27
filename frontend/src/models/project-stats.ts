@@ -6,9 +6,6 @@ import "reflect-metadata";
 export const STATS_PERIODS = [7, 30, 90] as const;
 export type StatsPeriod = (typeof STATS_PERIODS)[number];
 
-// node runs are kept for a week only
-export const NODE_STATS_DAYS = 7;
-
 export class RunsSummary {
   @Expose()
   @Type(() => Number)

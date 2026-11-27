@@ -26,7 +26,11 @@ import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { NodeStatus } from "models/node";
 import { PipelineEventType } from "types/pipeline";
-import { recordLaunchRun } from "./run-metrics";
+import {
+  getErrorResult,
+  recordLaunchRun,
+  recordNodeExecution,
+} from "./run-metrics";
 import { LAUNCH_ROOM } from "consts/rooms";
 
 export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
@@ -96,6 +100,7 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
     err instanceof MemoryLimitError;
 
   if (attemptsMade >= maxAttempts || fatal) {
+    await recordNodeExecution(launch, nodeJob.node, getErrorResult(err));
     await recordLaunchRun(launch, "error");
   } else {
     // the retry backoff is counted as wait time of the next run

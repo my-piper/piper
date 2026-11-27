@@ -58,45 +58,18 @@ const SUMMARY_COLUMNS = `
 // "last N days" includes today
 const PERIOD_FILTER = `day > today() - {days: UInt16}`;
 
-// node_runs has a row per invocation: a node that polls with `repeat` writes a
-// row per poll. An execution is the rows of one (launch, node) up to and
-// including the first one that is not a repeat, so loops give separate
-// executions and executions with only repeats (still polling, interrupted)
-// are left out. Duration is wall-clock across the repeats; wait is the
-// first invocation's.
+// node_executions has a row per execution: the invocations (repeats, retries)
+// of a node up to its outcome. Interrupted executions have no real duration.
 const NODE_EXECUTIONS_QUERY = `
-  WITH invocations AS (
-    SELECT node,
-      launch,
-      startedAt,
-      result,
-      waitMs,
-      startedAt + toIntervalMillisecond(durationMs) AS finishedAt,
-      sum(result != 'repeat') OVER (
-        PARTITION BY launch, node
-        ORDER BY startedAt, attempt
-        ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
-      ) AS executionIndex
-    FROM node_runs
-    WHERE project = {project: String}
-      AND startedAt > now() - toIntervalDay({days: UInt16})
-  ),
-  executions AS (
-    SELECT node,
-      argMax(result, finishedAt) AS outcome,
-      argMin(waitMs, startedAt) AS firstWaitMs,
-      dateDiff('millisecond', min(startedAt), max(finishedAt)) AS executionMs
-    FROM invocations
-    GROUP BY node, launch, executionIndex
-    HAVING outcome != 'repeat'
-  )
   SELECT node,
     count() AS total,
-    countIf(outcome IN ('error', 'timeout', 'memory')) AS failed,
-    avg(executionMs) AS avgDurationMs,
-    quantileTDigest(0.95)(executionMs) AS p95DurationMs,
-    avg(firstWaitMs) AS avgWaitMs
-  FROM executions
+    countIf(result IN ('error', 'timeout', 'memory')) AS failed,
+    avgIf(durationMs, result != 'interrupted') AS avgDurationMs,
+    quantileTDigestIf(0.95)(durationMs, result != 'interrupted') AS p95DurationMs,
+    avgIf(waitMs, result != 'interrupted') AS avgWaitMs
+  FROM node_executions
+  WHERE project = {project: String}
+    AND startedAt > now() - toIntervalDay({days: UInt16})
   GROUP BY node
   ORDER BY avgDurationMs DESC
   LIMIT 10`;
@@ -208,7 +181,6 @@ export async function getProjectStats(
   });
 }
 
-// The slowest nodes of a project, by executions rather than invocations.
 export async function getNodeRunsStats(
   project: string,
   days: StatsPeriod

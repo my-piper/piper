@@ -19,6 +19,22 @@
 - An unscoped launch gets `startedAt = launchedAt` at creation. A scoped launch
   gets it in `kick()`, saved with `KEEPTTL`.
 
+**Update (2026-11-27, #302): `node_executions`.** A node that polls with
+`repeat` writes a `node_runs` row per poll, so averaging `node_runs` measured a
+single poll. Each node execution (its repeats and retried attempts up to the
+final outcome) now also gets one `node_executions` row (migration
+`000014_node_executions`, stream `pipeline.runs.executions`, 90-day TTL), which
+the project stats page reads:
+
+- `recordNodeRun` adds every invocation to the open execution in the Redis hash
+  `NODE_EXECUTION` (`launch:<id>:nodes:<node>:execution`): first `startedAt` and
+  `waitMs`, summed `activeMs`, `invocations` and `attempts`.
+- `recordNodeExecution` closes it on `done`, on the last failed attempt or a
+  fatal error (`process-node-error.ts`), and as `interrupted` when the next node
+  job sees the interrupt flag. `durationMs` is wall-clock from the first
+  invocation.
+- A repeat is not an attempt: `attempts` counts BullMQ attempts only.
+
 Goal: collect statistics on pipeline (launch) and node run durations — wait
 time, execution time, repeats, retries and outcome — in ClickHouse, so they can
 be aggregated by project, pipeline, node and execution type (for example in a
@@ -126,7 +142,7 @@ ORDER BY (project, pipeline, launchedAt);
 ### Example query
 
 ```sql
--- p50/p95 per node over the last 7 days
+-- p50/p95 per node invocation over the last 7 days (per execution: node_executions)
 SELECT pipeline, node, count() runs,
        quantiles(0.5, 0.95)(durationMs) dur, quantile(0.95)(waitMs) wait95,
        countIf(result IN ('error','timeout')) / count() err_rate
@@ -147,7 +163,8 @@ GROUP BY pipeline, node ORDER BY dur[2] DESC;
 - **Pipeline identity:** projects and pipelines are only identified by title
   now, as in `pipeline_usages`. Prefer the stable `project._id`.
 - **Nodes that never finish:** a node killed together with its worker has no
-  row in `node_runs`.
+  row in `node_runs`, and its open execution expires with the launch without a
+  `node_executions` row.
 - **Abandoned launches:** a launch that stalls and loses its heartbeat never
   reaches `done`, `error` or `interrupted`, so it gets no `launch_runs` row.
   Covering those would need a periodic sweep (`periodic/`).

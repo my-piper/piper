@@ -1,6 +1,7 @@
 import {
   doubles,
   resetExecutionDoubles,
+  transactionResult,
 } from "../../helpers/execution-boundaries";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME } from "../../fixtures/launch";
@@ -14,7 +15,10 @@ import type { Job } from "core-kit/packages/queue";
 import { toInstance } from "core-kit/packages/transform";
 import { FatalError } from "core-kit/types/errors";
 import errorHandler from "jobs/process-node/process-node-error";
-import { recordLaunchRun } from "jobs/process-node/run-metrics";
+import {
+  recordLaunchRun,
+  recordNodeExecution,
+} from "jobs/process-node/run-metrics";
 import { ExecutionError } from "packages/deno/classes";
 import { NodeJobResult } from "types/node";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -215,5 +219,109 @@ describe("launch run metrics", () => {
     await recordLaunchRun(context.launch, "error");
 
     expect(doubles.metrics.launchRuns).not.toHaveBeenCalled();
+  });
+});
+
+describe("node execution records", () => {
+  // the open execution as Redis returns it: two invocations so far
+  function openExecution() {
+    transactionResult([
+      {
+        startedAt: String(NOW - 60_000),
+        waitMs: "120",
+        activeMs: "300",
+        invocations: "2",
+        attempts: "1",
+        finishedAt: String(NOW - 500),
+      },
+      1,
+    ]);
+  }
+
+  it("records the open execution when the node is done", async () => {
+    openExecution();
+
+    await context.run();
+
+    expect(doubles.redis.multi).toHaveBeenCalled();
+    expect(doubles.metrics.nodeExecutions).toHaveBeenCalledExactlyOnceWith({
+      startedAt: new Date(NOW - 60_000),
+      finishedAt: new Date(NOW - 500),
+      launch: context.launch._id,
+      project: "project-test",
+      pipeline: context.launch.pipeline.name,
+      node: "echo_node",
+      launchedBy: "user-test",
+      execution: "rapid",
+      result: "done",
+      waitMs: 120,
+      durationMs: 59_500,
+      activeMs: 300,
+      invocations: 2,
+      attempts: 1,
+    });
+  });
+
+  it("keeps the execution open on a repeat", async () => {
+    openExecution();
+    executeFor(100, { __type: "repeat", delay: 2000 });
+
+    await expect(context.run()).rejects.toThrow();
+
+    expect(doubles.metrics.nodeExecutions).not.toHaveBeenCalled();
+  });
+
+  it("keeps the execution open on an error with attempts left", async () => {
+    openExecution();
+
+    await errorHandler(
+      context.nodeJob,
+      new Error("temporary failure"),
+      context.job as unknown as Job
+    );
+
+    expect(doubles.metrics.nodeExecutions).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["the last attempt", new Error("failed permanently"), 3, "error"],
+    ["a fatal failure", new FatalError("cannot continue"), 0, "error"],
+  ])("records the execution on %s", async (_, error, attemptsMade, result) => {
+    openExecution();
+    context.job.attemptsMade = attemptsMade;
+
+    await errorHandler(context.nodeJob, error, context.job as unknown as Job);
+
+    expect(doubles.metrics.nodeExecutions).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ result, finishedAt: new Date(NOW - 500) })
+    );
+  });
+
+  it("records the execution as interrupted at the interrupt time", async () => {
+    openExecution();
+    const interruptedAt = new Date(NOW - 700);
+    doubles.redis.EXISTS.mockImplementation(async (key: string) =>
+      key === LAUNCH_INTERRUPTED(context.launch._id) ? 1 : 0
+    );
+    context.responses.set(
+      LAUNCH_INTERRUPTED(context.launch._id),
+      interruptedAt.toISOString()
+    );
+
+    await context.run();
+
+    expect(doubles.metrics.nodeExecutions).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        result: "interrupted",
+        finishedAt: interruptedAt,
+        durationMs: 59_300,
+      })
+    );
+  });
+
+  it("sends nothing without an open execution", async () => {
+    await recordNodeExecution(context.launch, "echo_node", "error");
+
+    expect(doubles.metrics.nodeExecutions).not.toHaveBeenCalled();
   });
 });
