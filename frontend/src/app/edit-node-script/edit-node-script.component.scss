@@ -11,7 +11,7 @@ form {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: variables.$gutter-normal;
+  gap: var(--space-3);
 
   .editor {
     flex: 1;

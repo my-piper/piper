@@ -1,10 +1,15 @@
+import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { TUI_BREAKPOINT } from "@taiga-ui/core";
 import { NodeScriptHelpComponent } from "src/app/node-script-help/node-script-help.component";
 import { SCRIPT_EXAMPLES } from "src/app/node-script-help/script-examples";
 import { configureAppTestingModule } from "../helpers/editor";
 
-function setup() {
+type Breakpoint = "mobile" | "desktopSmall" | "desktopLarge";
+
+function setup(breakpoint: Breakpoint = "desktopLarge") {
   configureAppTestingModule();
+  TestBed.overrideProvider(TUI_BREAKPOINT, { useValue: signal(breakpoint) });
   const fixture = TestBed.createComponent(NodeScriptHelpComponent);
   fixture.detectChanges();
   const element = fixture.nativeElement as HTMLElement;
@@ -101,6 +106,52 @@ describe("node script examples", () => {
     );
     expect(page.code()).toContain('__type: "launch"');
     expect(page.code()).toContain("children?.summary");
+  });
+
+  it("lists the examples in a column left of the chosen one", () => {
+    const page = setup();
+
+    const tabs = page.element.querySelector("tui-tabs");
+    const section = page.element.querySelector("section");
+    const list = tabs.getBoundingClientRect();
+    const shown = section.getBoundingClientRect();
+
+    expect(tabs.hasAttribute("vertical")).toBe(true);
+    expect(list.width).toBe(13 * 16);
+    // the gap is a global token, which component specs do not load
+    expect(shown.left).toBeGreaterThanOrEqual(list.right);
+    expect(shown.top).toBe(list.top);
+  });
+
+  it("runs the examples across the top below the mobile breakpoint", () => {
+    const page = setup("mobile");
+
+    const tabs = page.element.querySelector("tui-tabs");
+    const section = page.element.querySelector("section");
+
+    expect(tabs.hasAttribute("vertical")).toBe(false);
+    expect(page.tabs()).toHaveLength(SCRIPT_EXAMPLES.length);
+    expect(section.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      tabs.getBoundingClientRect().bottom,
+    );
+    expect(section.getBoundingClientRect().left).toBe(
+      tabs.getBoundingClientRect().left,
+    );
+  });
+
+  it("puts Copy in a toolbar above the code, named after the example", () => {
+    const page = setup();
+
+    page.tab("Libraries").click();
+    page.fixture.detectChanges();
+
+    const toolbar = page.element.querySelector(".code > .toolbar");
+    const copy = toolbar.querySelector("button");
+
+    expect(toolbar.nextElementSibling.tagName).toBe("PRE");
+    expect(toolbar.querySelector(".title").textContent).toBe("Libraries");
+    expect(copy.textContent.trim()).toBe("Copy");
+    expect(copy.getAttribute("data-size")).toBe("s");
   });
 
   it("gives only valid JavaScript with a run function", () => {

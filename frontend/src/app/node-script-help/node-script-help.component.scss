@@ -1,15 +1,30 @@
+// Examples on the left, the chosen one on the right (#354). Below Taiga's
+// mobile breakpoint (768px, as mixins.less-tablet) the tabs run across the
+// top instead: `narrow` in the component.
 :host {
   display: grid;
-  grid-template-columns: minmax(10rem, max-content) 1fr;
-  gap: 1.5rem;
-  min-height: 28rem;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: var(--space-4);
+  min-block-size: 28rem;
+
+  &.narrow {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    min-block-size: 0;
+  }
+}
+
+tui-tabs[vertical] {
+  align-self: start;
+  max-block-size: 28rem;
+  overflow-y: auto;
 }
 
 section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  min-width: 0;
+  gap: var(--space-3);
+  min-inline-size: 0;
 }
 
 .description {
@@ -19,28 +34,36 @@ section {
 }
 
 .code {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
   border-radius: var(--tui-radius-m);
   background: var(--tui-background-neutral-1);
+  overflow: hidden;
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .title {
+    overflow: hidden;
+    font: var(--tui-typography-body-s);
+    color: var(--tui-text-secondary);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 
   pre {
     margin: 0;
-    padding: 1rem;
+    padding: var(--space-3);
     overflow: auto;
     font-family: ui-monospace, Menlo, Consolas, monospace;
     font-size: 0.8125rem;
     line-height: 1.5;
-  }
-
-  .copy {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-  }
-}
-
-@media (max-width: 40rem) {
-  :host {
-    grid-template-columns: 1fr;
   }
 }
