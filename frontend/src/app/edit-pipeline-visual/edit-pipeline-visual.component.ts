@@ -18,7 +18,6 @@ import { TuiDialogService } from "@taiga-ui/core";
 import { TUI_CONFIRM, type TuiConfirmData } from "@taiga-ui/kit";
 import { assign, escape, isEmpty, mapValues, random } from "lodash";
 import { customAlphabet } from "nanoid";
-import { Socket } from "ngx-socket-io";
 import { stringify } from "qs";
 import {
   delay,
@@ -40,7 +39,6 @@ import {
 } from "src/directives/pitch-zoom.directive";
 import { AppConfig } from "src/models/app-config";
 import { Arrange } from "src/models/arrange";
-import { PipelineEvent } from "src/models/events";
 import { InputFlow } from "src/models/input-flow";
 import { Launch } from "src/models/launch";
 import { LaunchRequest, NodeToLaunch } from "src/models/launch-request";
@@ -65,8 +63,6 @@ import { UserRole } from "src/models/user";
 import { Ajv } from "src/providers/ajv";
 import SCHEMAS from "src/schemas/compiled.json";
 import { HttpService } from "src/services/http.service";
-import { LiveService } from "src/services/live.service";
-import { MeManager } from "src/services/me.service";
 import { ProjectManager } from "src/services/project.manager";
 import { TopbarService } from "src/services/topbar.service";
 import { NodeOutputs } from "src/types/node";
@@ -99,7 +95,6 @@ import { AssistantComponent } from "../assistant/assistant.component";
 import { EditNodeInputsComponent } from "../edit-node-inputs/edit-node-inputs.component";
 import { LaunchLogsComponent } from "../launch-logs/launch-logs.component";
 import { SelectNodeComponent } from "../select-node/select-node.component";
-import { USER_ROOM } from "src/consts/rooms";
 
 /** `node:<id>` → [`node`, `<id>`]; ids may contain colons. */
 function splitKey(key: string): [string, string] {
@@ -154,8 +149,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
   error: Error;
 
   launch!: Launch;
-  /** On the launch page: the Launch may still run, so it can be stopped. */
-  running = false;
+  /** On the launch page: Stop succeeded, so the button stays hidden. */
+  interrupted = false;
 
   /** Run states the canvas nodes report, keyed by node id. */
   nodeStates: Record<string, NodeRunState> = {};
@@ -233,9 +228,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
     private http: HttpService,
     private ajv: Ajv,
     private router: Router,
-    private live: LiveService,
-    private me: MeManager,
-    private socket: Socket,
     private cd: ChangeDetectorRef,
     private location: Location,
   ) {}
@@ -258,7 +250,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
         launches || {},
         mode || "project",
       ];
-      this.running = this.mode === "launch";
+      this.interrupted = false;
       if (this.mode === "project") {
         this.checkDeployNodes();
       }
@@ -284,23 +276,6 @@ export class EditPipelineVisualComponent implements OnDestroy {
       this.currentNode = null;
       this.cd.detectChanges();
     });
-
-    this.listen();
-  }
-
-  private listen() {
-    const release = this.live.subscribe(USER_ROOM(this.me.user._id));
-    this.destroyRef.onDestroy(release);
-    this.socket
-      .fromEvent<object>("pipeline_done")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { launch } = toInstance(data, PipelineEvent);
-        if (this.running && launch === this.launch._id) {
-          this.running = false;
-          this.cd.detectChanges();
-        }
-      });
   }
 
   back() {
@@ -320,6 +295,18 @@ export class EditPipelineVisualComponent implements OnDestroy {
           inclusive.length > 0 ? inclusive : (this.pipeline.start?.nodes ?? []),
       },
       this.nodeStates,
+    );
+  }
+
+  /**
+   * Stop is offered while the canvas sees the launch run, the same state the
+   * pill shows: on a reload of a finished launch no event clears it otherwise.
+   */
+  get stoppable(): boolean {
+    return (
+      this.mode === "launch" &&
+      !this.interrupted &&
+      this.launchState === "running"
     );
   }
 
@@ -755,7 +742,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.running = false;
+          this.interrupted = true;
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err),
