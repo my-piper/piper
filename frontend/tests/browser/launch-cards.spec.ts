@@ -76,9 +76,16 @@ test("lists launches as cards that preview their media and open the outputs", as
   await expect(page).toHaveURL(
     new RegExp(`/en/launches/outputs/${LAUNCH_ID}\\?id=image&index=0$`),
   );
+  const dialog = page.locator("tui-dialog");
+  await expect(dialog.locator("header h2")).toHaveText("Launch outputs");
   await expect(
-    page.locator(".modal app-launch-outputs[data-mode=full] .results img"),
+    dialog.locator("app-launch-outputs[data-mode=full] .results img"),
   ).toHaveAttribute("src", IMAGE.url);
+
+  await dialog.locator("button[tuiButtonX]").click();
+
+  await expect(page).toHaveURL(/\/en\/launches$/);
+  await expect(dialog).toHaveCount(0);
 });
 
 test("opens and deletes a launch from the buttons on its card", async ({

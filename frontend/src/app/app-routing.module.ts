@@ -80,7 +80,21 @@ import { SigupComponent } from "./signup/signup.component";
 import { UpdatePipelineNodesComponent } from "./update-pipeline-nodes/update-pipeline-nodes.component";
 import { EditUserComponent } from "./users/edit/edit-user.component";
 import { UsersComponent } from "./users/users.component";
-import { titled } from "src/utils/route-dialog";
+import { DialogLabel, titled } from "src/utils/route-dialog";
+
+const LAUNCH_OUTPUTS_LABEL = $localize`:@@label.launch_outputs:Launch outputs`;
+
+/** A dialog label naming a plain value (a login, a deploy address), not a Localized Text. */
+function named(prefix: string, name: string | undefined): string {
+  return name ? `${prefix}: ${name}` : prefix;
+}
+
+/** Names the deploy by its address, `prefix/slug` or `slug`. */
+const CALL_VIA_API_LABEL: DialogLabel = ({ deploy }: Data) =>
+  named(
+    $localize`:@@label.call_via_api:Call via API`,
+    deploy && [deploy.prefix, deploy.slug].filter(Boolean).join("/"),
+  );
 
 /** Children of the Projects page, which a Project id can never be. */
 const PROJECTS_PAGES = new Set(["new", "import"]);
@@ -198,6 +212,7 @@ const routes: Routes = [
                     resolve: {
                       launch: LaunchResolver,
                     },
+                    data: { dialogLabel: LAUNCH_OUTPUTS_LABEL },
                   },
                 ],
               },
@@ -317,6 +332,7 @@ const routes: Routes = [
                   deploy: DeployResolver,
                 },
                 component: PlayViaApiComponent,
+                data: { dialogLabel: CALL_VIA_API_LABEL },
               },
               {
                 path: ":prefix/:slug",
@@ -324,6 +340,7 @@ const routes: Routes = [
                   deploy: DeployResolver,
                 },
                 component: PlayViaApiComponent,
+                data: { dialogLabel: CALL_VIA_API_LABEL },
               },
             ],
           },
@@ -340,6 +357,7 @@ const routes: Routes = [
                 resolve: {
                   launch: LaunchResolver,
                 },
+                data: { dialogLabel: LAUNCH_OUTPUTS_LABEL },
               },
             ],
           },
@@ -478,6 +496,8 @@ const routes: Routes = [
             component: CreateProjectComponent,
             data: {
               dialogLabel: $localize`:@@label.new_project:New project`,
+              // the new project form is short
+              dialogSize: "s",
             },
           },
           {
@@ -516,6 +536,7 @@ const routes: Routes = [
             resolve: {
               launch: LaunchResolver,
             },
+            data: { dialogLabel: LAUNCH_OUTPUTS_LABEL },
           },
         ],
       },
@@ -574,12 +595,17 @@ const routes: Routes = [
           {
             path: "add",
             component: EditUserComponent,
+            data: { dialogLabel: $localize`:@@label.create_user:Create user` },
           },
           {
             path: ":user",
             component: EditUserComponent,
             resolve: {
               user: UserResolver,
+            },
+            data: {
+              dialogLabel: ({ user }: Data) =>
+                named($localize`:@@label.edit_user:Edit user`, user?._id),
             },
           },
         ],

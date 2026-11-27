@@ -1,4 +1,5 @@
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
+import { RoutedDialogComponent } from "src/app/routed-dialog/routed-dialog.component";
 import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -67,6 +68,7 @@ describe("DeployPipelineComponent", () => {
         TuiLoader,
         JsonEditorStubComponent,
         ErrorDialogComponent,
+        RoutedDialogComponent,
       ],
       providers: [
         provideTaiga(),

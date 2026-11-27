@@ -1,0 +1,11 @@
+<!-- Taiga reads the label once, when the dialog opens: keying the template on
+     it reopens the dialog when a navigation between child routes changes it. -->
+@for (label of [options().label]; track label) {
+  <ng-template
+    [tuiDialog]="open()"
+    [tuiDialogOptions]="options()"
+    (tuiDialogChange)="!$event && close()"
+  >
+    <router-outlet (activate)="activate.emit($event)"></router-outlet>
+  </ng-template>
+}

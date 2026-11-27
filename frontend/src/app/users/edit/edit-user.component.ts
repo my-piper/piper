@@ -7,7 +7,7 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { delay, finalize, map } from "rxjs";
 import { AppError } from "src/models/errors";
 import { User, UserRole } from "src/models/user";
@@ -58,11 +58,16 @@ export class EditUserComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpService,
     private route: ActivatedRoute,
+    private router: Router,
     private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.route.data.subscribe(({ user }) => (this.user = user));
+  }
+
+  cancel() {
+    this.router.navigate([".."], { relativeTo: this.route });
   }
 
   generatePassword() {

@@ -34,14 +34,11 @@ export class UsersComponent {
 
   userRole = UserRole;
 
-  private _modal!: EditUserComponent;
-
   error!: DisplayError;
   progress = { loading: false, deleting: false };
 
-  set modal(modal: EditUserComponent) {
-    this._modal = modal;
-    if (modal) {
+  activate(modal: unknown) {
+    if (modal instanceof EditUserComponent) {
       modal.added.subscribe((user) => this.users.unshift(user));
       modal.saved.subscribe((user) => {
         const index = this.users.findIndex((u) => u._id === user._id);
@@ -57,10 +54,6 @@ export class UsersComponent {
     }
   }
 
-  get modal() {
-    return this._modal;
-  }
-
   chunk: User[] = [];
   users: User[] = [];
 
@@ -73,10 +66,6 @@ export class UsersComponent {
 
   ngOnInit() {
     this.load();
-  }
-
-  back() {
-    this.router.navigate(["./"], { relativeTo: this.route });
   }
 
   private load(cursor?: string) {

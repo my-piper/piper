@@ -1,25 +1,10 @@
 <app-error-dialog [error]="error" (closed)="error = null" />
 
-<div class="modal" [class.hidden]="!modal">
-  <header>
-    <a
-      tuiButton
-      appearance="outline-grayscale"
-      [hotKey]="'escape'"
-      (hotKeyPressed)="back()"
-      [routerLink]="['./']"
-    >
-      <tui-icon icon="close" class="icon right" />
-      <span tuiBadge appearance="neutral" size="s">ESC</span>
-    </a>
-  </header>
-  <div class="content filled centered">
-    <router-outlet
-      (activate)="modal = $event"
-      (deactivate)="modal = null"
-    ></router-outlet>
-  </div>
-</div>
+<app-routed-dialog
+  size="m"
+  [dismissible]="false"
+  (activate)="activate($event)"
+/>
 
 <div class="app-container">
   <header>

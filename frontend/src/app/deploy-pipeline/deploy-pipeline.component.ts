@@ -5,7 +5,7 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import assign from "lodash/assign";
 import { debounceTime, delay, finalize, map } from "rxjs";
 import { Deploy } from "src/models/deploy";
@@ -20,7 +20,6 @@ import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { getLabel } from "src/utils/i18n";
 import { toInstance, toPlain } from "src/utils/models";
-import { PlayViaApiComponent } from "../play-via-api/play-via-api.component";
 
 @Component({
   selector: "app-deploy-pipeline",
@@ -47,8 +46,6 @@ export class DeployPipelineComponent implements OnInit {
   project!: Project;
   deploys: Deploy[] = [];
 
-  modal!: PlayViaApiComponent;
-
   form = this.fb.group({
     deploy: this.fb.control<object>(null),
   });
@@ -59,7 +56,6 @@ export class DeployPipelineComponent implements OnInit {
     private projectManager: ProjectManager,
     private http: HttpService,
     private route: ActivatedRoute,
-    private router: Router,
     private cd: ChangeDetectorRef,
   ) {}
 
@@ -157,9 +153,5 @@ export class DeployPipelineComponent implements OnInit {
         next: () => this.load(),
         error: (err) => (this.error = err),
       });
-  }
-
-  back() {
-    this.router.navigate(["./"], { relativeTo: this.route });
   }
 }

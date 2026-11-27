@@ -2,39 +2,45 @@
 @use "src/styles/mixins";
 
 :host {
-    display: block;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+pre {
+  margin: 0;
 }
 
 tui-textfield {
-    width: 100%;
+  width: 100%;
 }
 
 h3 sup {
-    color: red;
-    padding-left: variables.$gutter-tiny;
+  color: red;
+  padding-left: variables.$gutter-tiny;
 }
 
 table {
-    border-collapse: collapse;
-    overflow: hidden;
-    background: variables.$control-background-color;
-    font-size: .85em;
+  border-collapse: collapse;
+  overflow: hidden;
+  background: variables.$control-background-color;
+  font-size: 0.85em;
 }
 
 th,
 td {
-    border: 1px solid variables.$control-border-color;
-    padding: 8px;
-    text-align: left;
+  border: 1px solid variables.$control-border-color;
+  padding: 8px;
+  text-align: left;
 
-    &:nth-child(1) {
-        width: 15%;
-        vertical-align: top;
-    }
+  &:nth-child(1) {
+    width: 15%;
+    vertical-align: top;
+  }
 }
 
 code {
-    max-width: 30px;
-    white-space: pre-wrap;
-    word-break: break-word;
+  max-width: 30px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }

@@ -1,6 +1,4 @@
 import {
-  afterNextRender,
-  signal,
   ChangeDetectorRef,
   Component,
   ChangeDetectionStrategy,
@@ -9,11 +7,11 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { TUI_DIALOGS_CLOSE, TuiDialogService } from "@taiga-ui/core";
+import { TuiDialogService } from "@taiga-ui/core";
 import { plainToInstance } from "class-transformer";
 import assign from "lodash/assign";
 import escape from "lodash/escape";
-import { EMPTY, delay, finalize, map, merge } from "rxjs";
+import { delay, finalize, map, merge } from "rxjs";
 import { PackageUpdatedEvent } from "src/models/events";
 import { NodePackage, NodePackageUpdatesState } from "src/models/node-package";
 import { HttpService } from "src/services/http.service";
@@ -25,7 +23,6 @@ import { getLabel } from "src/utils/i18n";
 import { EditPackageComponent } from "./edit/edit-package.component";
 import { ImportPackageComponent } from "./import/import-package.component";
 import { PACKAGES_ROOM } from "src/consts/rooms";
-import { dialogLabel } from "src/utils/route-dialog";
 
 @Component({
   selector: "app-node-packages",
@@ -33,11 +30,6 @@ import { dialogLabel } from "src/utils/route-dialog";
   styleUrls: ["./node-packages.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
-  providers: [
-    // Keep the child router context and let the route control the dialog lifetime.
-    TuiDialogService,
-    { provide: TUI_DIALOGS_CLOSE, useValue: EMPTY },
-  ],
 })
 export class NodePackagesComponent {
   private readonly destroyRef = inject(DestroyRef);
@@ -53,24 +45,7 @@ export class NodePackagesComponent {
   };
 
   state: NodePackageUpdatesState;
-  // The child route names the dialog (add, import, export, edit). One object
-  // per label, so change detection sees a stable binding.
-  private options = { size: "l" as const, label: undefined as string };
-  get dialogOptions() {
-    const label = dialogLabel(this.route);
-    if (label !== this.options.label) {
-      this.options = { size: "l", label };
-    }
-    return this.options;
-  }
-
-  private readonly dialogReady = signal(false);
-
   updatesOpen = false;
-
-  get dialogOpen() {
-    return this.dialogReady() && !!this.route.firstChild;
-  }
 
   activate(modal: unknown) {
     if (modal) {
@@ -111,10 +86,7 @@ export class NodePackagesComponent {
     private route: ActivatedRoute,
     private router: Router,
     private cd: ChangeDetectorRef,
-  ) {
-    // The root popup host must exist before opening a dialog on direct route entry.
-    afterNextRender(() => this.dialogReady.set(true));
-  }
+  ) {}
 
   ngOnInit() {
     this.load();
@@ -282,9 +254,5 @@ export class NodePackagesComponent {
         },
         error: (err) => (this.error = err),
       });
-  }
-
-  back() {
-    this.router.navigate(["./"], { relativeTo: this.route });
   }
 }

@@ -1,10 +1,4 @@
-<ng-template
-  [tuiDialog]="dialogOpen()"
-  [tuiDialogOptions]="dialogOptions()"
-  (tuiDialogChange)="!$event && back()"
->
-  <router-outlet (activate)="activate($event)"></router-outlet>
-</ng-template>
+<app-routed-dialog [keepQuery]="true" (activate)="activate($event)" />
 
 @if (error) {
   <div tuiNotification appearance="negative" role="alert" class="error-message">

@@ -1,47 +1,79 @@
 import { HttpTestingController } from "@angular/common/http/testing";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
-import { ActivatedRoute, Router } from "@angular/router";
-import { of } from "rxjs";
-import { vi } from "vitest";
+import { Router } from "@angular/router";
+import { AppComponent } from "src/app/app.component";
 import { LaunchesPageComponent } from "src/app/launches-page/launches-page.component";
 import { UI_DELAY } from "src/consts/ui";
 import { userPlain } from "../fixtures/plain";
 import { seedAuthorization } from "../helpers/config";
-import { configureAppTestingModule, finish } from "../helpers/editor";
+import {
+  configureAppTestingModule,
+  finish,
+  OutletStubComponent,
+} from "../helpers/editor";
 
-function setup(data: object = { filter: {} }) {
+/**
+ * Renders the launches page in a real router, with a stub for the launch
+ * outputs child route. Call in `fakeAsync`.
+ */
+function setup(url: string) {
   seedAuthorization(userPlain("owner"));
-  configureAppTestingModule();
-  TestBed.overrideProvider(ActivatedRoute, {
-    useValue: { data: of(data) },
-  });
-  const fixture = TestBed.createComponent(LaunchesPageComponent);
-  fixture.detectChanges();
+  configureAppTestingModule([
+    {
+      path: "launches",
+      component: LaunchesPageComponent,
+      data: { filter: {} },
+      children: [
+        {
+          path: "outputs/:id",
+          component: OutletStubComponent,
+          data: { dialogLabel: "Launch outputs" },
+        },
+      ],
+    },
+  ]);
   const controller = TestBed.inject(HttpTestingController);
+  const router = TestBed.inject(Router);
+  const fixture = TestBed.createComponent(AppComponent);
+  router.navigateByUrl(url);
+  tick();
+  fixture.detectChanges();
   controller.match("/api/me").forEach((r) => r.flush(userPlain("owner")));
   controller
     .match((r) => r.url === "/api/launches")
     .forEach((r) => r.flush([]));
   tick(UI_DELAY);
   fixture.detectChanges();
-  const element: HTMLElement = fixture.nativeElement;
-  const close = () =>
-    element.querySelector<HTMLAnchorElement>(".modal header a");
-  return { fixture, controller, element, close };
+  return { fixture, controller, router };
 }
 
 describe("LaunchesPageComponent", () => {
-  it("closes the open launch outputs with Escape", fakeAsync(() => {
-    const page = setup();
-    const navigate = vi.spyOn(TestBed.inject(Router), "navigate");
-    page.fixture.componentInstance.modal = {} as never;
-    page.fixture.detectChanges();
+  it("shows launch outputs in a dialog and returns to the launches on close", async () => {
+    const page = fakeAsync(() => {
+      const page = setup("/launches/outputs/launch_1");
+      finish();
+      return page;
+    })();
+    const dialog = () => document.querySelector("tui-dialog");
 
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    await expect
+      .poll(() => {
+        page.fixture.detectChanges();
+        return dialog()?.textContent;
+      })
+      .toContain("outlet");
+    expect(dialog().querySelector("header h2").textContent.trim()).toBe(
+      "Launch outputs",
+    );
 
-    expect(page.close().textContent).toContain("ESC");
-    expect(navigate).toHaveBeenCalledWith(["./"], expect.anything());
-    page.fixture.destroy();
-    finish();
-  }));
+    dialog().querySelector<HTMLElement>("button[tuiButtonX]").click();
+
+    await expect
+      .poll(() => {
+        page.fixture.detectChanges();
+        return page.router.url;
+      })
+      .toBe("/launches");
+    await expect.poll(dialog).toBeNull();
+  });
 });

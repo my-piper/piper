@@ -1,11 +1,5 @@
 <app-error-dialog [error]="error" (closed)="error = null" />
 
-@if (!!user) {
-  <h1>{{ user._id }}</h1>
-} @else {
-  <h1>Add user</h1>
-}
-
 <form [formGroup]="form" (ngSubmit)="save()">
   <fieldset>
     <app-json-editor
@@ -18,7 +12,15 @@
   <footer>
     <button
       tuiButton
-      appearance="outline-grayscale"
+      appearance="flat-grayscale"
+      type="button"
+      (click)="cancel()"
+      i18n="@@action.cancel"
+    >
+      Cancel
+    </button>
+    <button
+      tuiButton
       [loading]="progress.saving"
       [disabled]="!form.valid || progress.saving"
       type="submit"

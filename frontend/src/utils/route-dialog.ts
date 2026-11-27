@@ -1,4 +1,5 @@
 import { ActivatedRoute, Data } from "@angular/router";
+import { TuiSizeL, TuiSizeS } from "@taiga-ui/core";
 import { Languages } from "src/enums/languages";
 import { getLabel } from "src/utils/i18n";
 
@@ -13,6 +14,13 @@ export function dialogLabel(route: ActivatedRoute): string | undefined {
   const data = route.firstChild?.snapshot.data;
   const label = data?.["dialogLabel"] as DialogLabel | undefined;
   return typeof label === "function" ? label(data) : label;
+}
+
+/** The child route's `data.dialogSize`, overriding the host's `size`. */
+export function dialogSize(
+  route: ActivatedRoute,
+): TuiSizeS | TuiSizeL | undefined {
+  return route.firstChild?.snapshot.data?.["dialogSize"];
 }
 
 /** `prefix`, then the Localized Text `title` in English, when there is one. */

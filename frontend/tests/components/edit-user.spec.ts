@@ -10,8 +10,9 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
+import { vi } from "vitest";
 import { EditUserComponent } from "src/app/users/edit/edit-user.component";
 import { Languages } from "src/enums/languages";
 import { User } from "src/models/user";
@@ -66,7 +67,6 @@ function setup(user?: User) {
     element,
     added,
     saved,
-    title: () => element.querySelector("h1").textContent.trim(),
     editor: () => element.querySelector("textarea.json-editor-stub"),
     save: () => {
       element.querySelector<HTMLButtonElement>("button[type=submit]").click();
@@ -90,7 +90,6 @@ describe("EditUserComponent", () => {
     request.flush({ ...typed, createdAt: "2026-01-02T00:00:00.000Z" });
     tick(UI_DELAY);
 
-    expect(page.title()).toBe("Add user");
     expect(request.request.method).toBe("POST");
     expect(request.request.body).toEqual(typed);
     expect(page.added.map((u) => u._id)).toEqual(["new_user"]);
@@ -109,11 +108,26 @@ describe("EditUserComponent", () => {
     request.flush(edited);
     tick(UI_DELAY);
 
-    expect(page.title()).toBe("user_owner");
     expect(page.editor().getAttribute("data-disable")).toBe("root._id");
     expect(request.request.method).toBe("PATCH");
     expect(request.request.body).toEqual(edited);
     expect(page.saved.map((u) => u.email)).toEqual(["renamed@piper.test"]);
+    page.controller.verify();
+    finish();
+  }));
+
+  it("returns to the users on Cancel without saving", fakeAsync(() => {
+    const page = setup();
+    const navigate = vi
+      .spyOn(TestBed.inject(Router), "navigate")
+      .mockResolvedValue(true);
+
+    page.element
+      .querySelector<HTMLButtonElement>("footer button[type=button]")
+      .click();
+
+    expect(navigate).toHaveBeenCalledWith([".."], expect.anything());
+    expect(page.added).toEqual([]);
     page.controller.verify();
     finish();
   }));

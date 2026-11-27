@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { LaunchesFilter } from "src/models/launch";
-import { LaunchOutputsComponent } from "../launch-outputs/launch-outputs.component";
 
 @Component({
   selector: "app-launches-page",
@@ -11,20 +10,11 @@ import { LaunchOutputsComponent } from "../launch-outputs/launch-outputs.compone
   standalone: false,
 })
 export class LaunchesPageComponent {
-  modal!: LaunchOutputsComponent;
-
   filter!: LaunchesFilter;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-  ) {}
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.route.data.subscribe(({ filter }) => (this.filter = filter));
-  }
-
-  back() {
-    this.router.navigate(["./"], { relativeTo: this.route });
   }
 }
