@@ -538,6 +538,20 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
+    it("puts Run, Edit and Delete in one row on the node", fakeAsync(() => {
+      const { element } = setupEditor({ project: scriptNodeProject() });
+
+      const row = nodeBox(element, "node_one").querySelectorAll(
+        ":scope > .item-actions > [tuiIconButton]",
+      );
+
+      const kinds = ["run", "app", "edit", "delete"];
+      expect(
+        Array.from(row, (b) => kinds.find((k) => b.classList.contains(k))),
+      ).toEqual(["run", "edit", "delete"]);
+      finish();
+    }));
+
     it("opens the node's script editor from Edit", fakeAsync(() => {
       const { element, router, detectChanges } = setupEditor({
         project: scriptNodeProject(),
