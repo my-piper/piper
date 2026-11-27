@@ -1048,4 +1048,168 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
   });
+
+  describe("keyboard shortcuts", () => {
+    function press(
+      target: EventTarget,
+      key: string,
+      modifiers: KeyboardEventInit = {},
+    ) {
+      const event = new KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...modifiers,
+      });
+      target.dispatchEvent(event);
+      return event;
+    }
+
+    function settle(detectChanges: () => void) {
+      detectChanges();
+      tick(UI_DELAY);
+      detectChanges();
+    }
+
+    function confirmDelete(detectChanges: () => void) {
+      Array.from(openDialog().querySelectorAll("button"))
+        .find((b) => b.textContent.trim() === "Delete")
+        .click();
+      settle(detectChanges);
+    }
+
+    it("selects every node, input and output with Ctrl + A", fakeAsync(() => {
+      const project = projectA();
+      const { editor, element } = setupEditor({ project });
+      const { nodes, inputs, outputs } = project.pipeline;
+
+      const event = press(element, "a", { ctrlKey: true });
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(editor.selection.size).toBe(
+        nodes.size + (inputs?.size ?? 0) + (outputs?.size ?? 0),
+      );
+      expect(editor.selection.has("node:node_one")).toBe(true);
+      finish();
+    }));
+
+    it("deletes the whole selection after one confirmation", fakeAsync(() => {
+      const project = projectA();
+      const { element, detectChanges, manager } = setupEditor({ project });
+      press(element, "a", { metaKey: true });
+
+      press(element, "Delete");
+      settle(detectChanges);
+      const asked = openDialog().textContent;
+      confirmDelete(detectChanges);
+
+      expect(asked).toContain("selected items");
+      expect(project.pipeline.nodes.size).toBe(0);
+      expect(project.pipeline.inputs?.size ?? 0).toBe(0);
+      expect(project.pipeline.outputs?.size ?? 0).toBe(0);
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("asks the item's own question when one item is selected", fakeAsync(() => {
+      const project = projectA();
+      const { editor, element, detectChanges } = setupEditor({ project });
+      editor.toggleSelection("input:topic");
+
+      press(element, "Backspace");
+      settle(detectChanges);
+      const asked = openDialog().textContent;
+      confirmDelete(detectChanges);
+
+      expect(asked).toContain("pipeline input");
+      expect(project.pipeline.inputs.has("topic")).toBe(false);
+      finish();
+    }));
+
+    it("asks a node's own question for a single selected node", fakeAsync(() => {
+      const project = projectA();
+      const { editor, element, detectChanges } = setupEditor({ project });
+      editor.toggleSelection("node:node_two");
+
+      press(element, "Delete");
+      settle(detectChanges);
+      const asked = openDialog().textContent;
+      confirmDelete(detectChanges);
+
+      expect(asked).toContain("Delete node");
+      expect(project.pipeline.nodes.has("node_two")).toBe(false);
+      finish();
+    }));
+
+    it("does nothing on Delete with an empty selection", fakeAsync(() => {
+      const { element, detectChanges } = setupEditor();
+
+      const event = press(element, "Delete");
+      settle(detectChanges);
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(openDialog()).toBeNull();
+      finish();
+    }));
+
+    it("leaves keys typed into a field alone", fakeAsync(() => {
+      const { editor, element } = setupEditor();
+      const field = document.createElement("input");
+      element.append(field);
+
+      const event = press(field, "a", { ctrlKey: true });
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(editor.selection.size).toBe(0);
+      field.remove();
+      finish();
+    }));
+
+    it("ignores presses outside the canvas", fakeAsync(() => {
+      const { editor } = setupEditor();
+      const outside = document.createElement("div");
+      document.body.append(outside);
+
+      press(outside, "a", { ctrlKey: true });
+
+      expect(editor.selection.size).toBe(0);
+      outside.remove();
+      finish();
+    }));
+
+    it("does not select or delete in the read-only scheme", fakeAsync(() => {
+      const { editor, element } = setupEditor({ mode: "scheme" });
+
+      const selectAll = press(element, "a", { ctrlKey: true });
+      const launch = press(element, "Enter", { ctrlKey: true });
+
+      expect(selectAll.defaultPrevented).toBe(false);
+      expect(launch.defaultPrevented).toBe(false);
+      expect(editor.selection.size).toBe(0);
+      finish();
+    }));
+
+    it("launches with Ctrl + Enter unless a launch is under way", fakeAsync(() => {
+      const { editor, element } = setupEditor();
+      const run = vi.spyOn(editor, "run").mockImplementation(() => {});
+
+      press(element, "Enter", { ctrlKey: true });
+      editor.progress.launching = true;
+      press(element, "Enter", { ctrlKey: true });
+
+      expect(run).toHaveBeenCalledTimes(1);
+      finish();
+    }));
+
+    it("opens the shortcut list with ?", fakeAsync(() => {
+      const { editor, element, detectChanges } = setupEditor();
+
+      press(element, "?", { shiftKey: true });
+      settle(detectChanges);
+
+      expect(editor.shortcutsOpen).toBe(true);
+      expect(openDialog().textContent).toContain("Ctrl/⌘ + Enter");
+      finish();
+    }));
+  });
 });

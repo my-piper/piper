@@ -305,3 +305,52 @@ test("shows every flow's delete button muted and in full on hover", async ({
 
   await expect(first).toHaveCSS("opacity", "1");
 });
+
+test("selects everything with Ctrl + A and deletes it with Delete after one confirmation", async ({
+  page,
+  open,
+  api,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeOne = page.getByTestId("node-node_one");
+  const nodeTwo = page.getByTestId("node-node_two");
+  await expect(nodeOne).toBeVisible();
+
+  await page.keyboard.press("ControlOrMeta+a");
+  await expect(nodeOne).toHaveClass(/picked/);
+  await expect(nodeTwo).toHaveClass(/picked/);
+  await page.keyboard.press("Delete");
+  const dialog = page.locator("tui-dialog");
+  await expect(dialog).toContainText("selected items");
+  await dialog.getByRole("button", { name: "Delete" }).click();
+
+  await expect(nodeOne).toHaveCount(0);
+  await expect(nodeTwo).toHaveCount(0);
+  await expectSaved(page);
+  expect(Object.keys(storedPipeline(api).nodes)).toEqual([]);
+});
+
+test("lists the shortcuts with ? and ignores keys typed into a field", async ({
+  page,
+  open,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const nodeOne = page.getByTestId("node-node_one");
+  await expect(nodeOne).toBeVisible();
+
+  await page.keyboard.press("?");
+  const dialog = page.locator("tui-dialog");
+  await expect(dialog).toContainText("Keyboard shortcuts");
+  await expect(dialog).toContainText("Ctrl/⌘ + Enter");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+
+  await nodeOne.locator("h2").click();
+  const field = page.locator(".drawler.right input").first();
+  await field.focus();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.press("Delete");
+
+  await expect(page.locator("tui-dialog")).toHaveCount(0);
+  await expect(nodeOne).toBeVisible();
+});

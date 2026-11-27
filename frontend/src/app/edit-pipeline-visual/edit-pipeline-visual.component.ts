@@ -8,6 +8,7 @@ import {
   ChangeDetectionStrategy,
   inject,
   DestroyRef,
+  DOCUMENT,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Location } from "@angular/common";
@@ -27,6 +28,7 @@ import {
   switchMap,
   take,
 } from "rxjs";
+import { canvasShortcut, isEditable } from "src/utils/canvas-shortcuts";
 import { EditNodeComponent } from "src/app/edit-node/edit-node.component";
 import { UI, UI_DELAY } from "src/consts/ui";
 import { SelectArea } from "src/directives/canvas-select.directive";
@@ -77,6 +79,12 @@ import { LaunchLogsComponent } from "../launch-logs/launch-logs.component";
 import { SelectNodeComponent } from "../select-node/select-node.component";
 import { USER_ROOM } from "src/consts/rooms";
 
+/** `node:<id>` → [`node`, `<id>`]; ids may contain colons. */
+function splitKey(key: string): [string, string] {
+  const at = key.indexOf(":");
+  return [key.slice(0, at), key.slice(at + 1)];
+}
+
 function salt() {
   return customAlphabet("1234567890abcdef", 5)();
 }
@@ -93,6 +101,8 @@ export class EditPipelineVisualComponent implements OnDestroy {
   private readonly language = inject(CURRENT_LANGUAGE);
 
   private readonly dialogs = inject(TuiDialogService);
+  private readonly document = inject(DOCUMENT);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   userRole = UserRole;
   scriptNodeSource = SCRIPT_NODE_SOURCE;
@@ -276,8 +286,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
 
   /** Canvas position of a selected item by its selection key. */
   private arrangeOf(key: string): Point | undefined {
-    const at = key.indexOf(":");
-    const [type, id] = [key.slice(0, at), key.slice(at + 1)];
+    const [type, id] = splitKey(key);
     const { nodes, inputs, outputs } = this.pipeline;
     const items = { node: nodes, input: inputs, output: outputs }[type] as
       | Map<string, { arrange: Point }>
@@ -340,6 +349,96 @@ export class EditPipelineVisualComponent implements OnDestroy {
   @HostListener("document:keydown.escape")
   escape() {
     this.clearSelection();
+  }
+
+  /** The keyboard shortcuts overlay, opened with `?`. */
+  shortcutsOpen = false;
+
+  /**
+   * Canvas shortcuts (`canvasShortcut`). Only presses on the canvas or the
+   * page itself count: fields, drawers and dialogs keep their keys.
+   */
+  @HostListener("document:keydown", ["$event"])
+  shortcut(event: KeyboardEvent) {
+    const target = event.target as HTMLElement | null;
+    const onCanvas =
+      target === this.document.body ||
+      (!!target && this.host.nativeElement.contains(target));
+    if (!onCanvas || isEditable(target) || target?.closest("tui-dialog")) {
+      return;
+    }
+    const editing = this.mode === "project";
+    switch (canvasShortcut(event)) {
+      case "delete":
+        if (editing && this.selection.size > 0) {
+          event.preventDefault();
+          this.confirmRemoveSelection();
+        }
+        break;
+      case "select-all":
+        if (editing) {
+          event.preventDefault();
+          this.selectAll();
+        }
+        break;
+      case "launch":
+        if (
+          editing &&
+          !this.progress.launching &&
+          isEmpty(this.launches) &&
+          this.pipeline.nodes.size > 0
+        ) {
+          event.preventDefault();
+          this.run();
+        }
+        break;
+      case "help":
+        event.preventDefault();
+        this.shortcutsOpen = true;
+        this.cd.detectChanges();
+        break;
+    }
+  }
+
+  selectAll() {
+    const { nodes, inputs, outputs } = this.pipeline;
+    this.selection = new Set([
+      ...[...nodes.keys()].map((id) => `node:${id}`),
+      ...[...(inputs?.keys() ?? [])].map((id) => `input:${id}`),
+      ...[...(outputs?.keys() ?? [])].map((id) => `output:${id}`),
+    ]);
+    this.cd.detectChanges();
+  }
+
+  /** Deletes the selected nodes, inputs and outputs after one confirmation. */
+  confirmRemoveSelection() {
+    const keys = [...this.selection];
+    if (keys.length === 1) {
+      const [type, id] = splitKey(keys[0]);
+      if (type === "node" && this.pipeline.nodes.has(id)) {
+        this.confirmRemoveNode(id, this.pipeline.nodes.get(id));
+      } else if (type === "input") {
+        this.confirmRemoveInput(id);
+      } else if (type === "output") {
+        this.confirmRemoveOutput(id);
+      }
+      return;
+    }
+    const count = keys.length;
+    this.confirmRemove(
+      $localize`:@@message.confirm_delete_selection:Delete ${count}:count: selected items? Their connections are deleted too.`,
+    ).subscribe(() => {
+      for (const key of keys) {
+        const [type, id] = splitKey(key);
+        if (type === "node" && this.pipeline.nodes.has(id)) {
+          this.removeNode(id);
+        } else if (type === "input" && this.pipeline.inputs?.has(id)) {
+          this.removeInput(id);
+        } else if (type === "output" && this.pipeline.outputs?.has(id)) {
+          this.removeOutput(id);
+        }
+      }
+    });
   }
 
   private save() {
