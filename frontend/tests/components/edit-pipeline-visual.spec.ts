@@ -2139,6 +2139,190 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
+    function chooseFromGroupMenu(
+      element: HTMLElement,
+      detectChanges: () => void,
+      label: string,
+    ) {
+      element
+        .querySelector<HTMLElement>('[data-testid="group-menu-prepare"]')
+        .click();
+      detectChanges();
+      Array.from(
+        document.querySelectorAll<HTMLElement>("tui-data-list [tuiOption]"),
+      )
+        .find((o) => o.textContent.trim() === label)
+        .click();
+      detectChanges();
+      tick(UI_DELAY);
+      detectChanges();
+    }
+
+    it("tints a group from its colour dot", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges, manager } = setupEditor({ project });
+      // A closed palette stays in the DOM while it leaves: take the newest.
+      const swatch = (color: string) =>
+        Array.from(
+          document.querySelectorAll<HTMLElement>(
+            `[data-testid="group-color-${color}"]`,
+          ),
+        ).at(-1);
+
+      element
+        .querySelector<HTMLElement>('[data-testid="group-dot-prepare"]')
+        .click();
+      detectChanges();
+      swatch("green").click();
+      detectChanges();
+      const green = project.pipeline.layout.groups.get("prepare").color;
+      element
+        .querySelector<HTMLElement>('[data-testid="group-dot-prepare"]')
+        .click();
+      detectChanges();
+      swatch("gray").click();
+      detectChanges();
+
+      expect(green).toBe("green");
+      expect(
+        project.pipeline.layout.groups.get("prepare").color,
+      ).toBeUndefined();
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("renames a group from its title; Esc and a blank title keep it", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges } = setupEditor({ project });
+      const group = project.pipeline.layout.groups.get("prepare");
+      const field = () =>
+        element.querySelector<HTMLInputElement>(
+          '[data-testid="group-title-field-prepare"]',
+        );
+      const rename = () => {
+        element
+          .querySelector('[data-testid="group-title-prepare"]')
+          .dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+        detectChanges();
+      };
+      const key = (k: string) =>
+        field().dispatchEvent(
+          new KeyboardEvent("keydown", { key: k, bubbles: true }),
+        );
+
+      rename();
+      field().value = "Ignored";
+      key("Escape");
+      detectChanges();
+      const afterEsc = group.title;
+      rename();
+      field().value = "   ";
+      key("Enter");
+      detectChanges();
+      const afterBlank = group.title;
+      rename();
+      field().value = "Inputs";
+      key("Enter");
+      detectChanges();
+
+      expect([afterEsc, afterBlank]).toEqual(["Prepare", "Prepare"]);
+      expect(group.title).toBe("Inputs");
+      expect(field()).toBeNull();
+      finish();
+    }));
+
+    it("opens a new group's title for naming", fakeAsync(() => {
+      const { editor, element, detectChanges } = setupEditor();
+      editor.selection = new Set(["node:node_one"]);
+      detectChanges();
+
+      editor.groupSelection();
+      detectChanges();
+
+      const field =
+        element.querySelector<HTMLInputElement>(".group-title-field");
+      expect(field?.value).toBe("Group");
+      expect(document.activeElement).toBe(field);
+      finish();
+    }));
+
+    it("fits a group to the nodes it holds", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges } = setupEditor({ project });
+      const group = project.pipeline.layout.groups.get("prepare");
+      const one = project.pipeline.nodes.get("node_one").arrange;
+
+      chooseFromGroupMenu(element, detectChanges, "Fit to nodes");
+
+      expect([group.x, group.y]).toEqual([
+        Math.max(0, one.x - 24),
+        Math.max(0, one.y - 52),
+      ]);
+      expect(group.w).toBe(
+        nodeElement(element, "node_one").offsetWidth +
+          48 -
+          Math.max(0, 24 - one.x),
+      );
+      finish();
+    }));
+
+    it("ungroups and keeps the nodes", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges } = setupEditor({ project });
+      const nodes = project.pipeline.nodes.size;
+
+      chooseFromGroupMenu(element, detectChanges, "Ungroup");
+
+      expect(project.pipeline.layout.groups.has("prepare")).toBe(false);
+      expect(project.pipeline.nodes.size).toBe(nodes);
+      expect(element.querySelector('[data-testid="group-prepare"]')).toBeNull();
+      finish();
+    }));
+
+    it("deletes a group with its nodes after one confirmation", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges } = setupEditor({ project });
+
+      chooseFromGroupMenu(element, detectChanges, "Delete with nodes");
+      const message = openDialog().textContent;
+      Array.from(openDialog().querySelectorAll("button"))
+        .find((b) => b.textContent.trim() === "Delete")
+        .click();
+      detectChanges();
+      tick(UI_DELAY);
+      detectChanges();
+
+      expect(message).toContain("Delete group «Prepare» and its 1 nodes?");
+      expect(project.pipeline.layout.groups.has("prepare")).toBe(false);
+      expect(project.pipeline.nodes.has("node_one")).toBe(false);
+      expect(project.pipeline.nodes.has("node_two")).toBe(true);
+      finish();
+    }));
+
+    it("gives a viewer no colour, rename or menu", fakeAsync(() => {
+      const project = groupedProject();
+      const { element, detectChanges } = setupEditor({
+        project,
+        user: "stranger",
+      });
+
+      element
+        .querySelector('[data-testid="group-title-prepare"]')
+        .dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+      detectChanges();
+
+      expect(
+        element.querySelector('[data-testid="group-dot-prepare"]'),
+      ).toBeNull();
+      expect(
+        element.querySelector('[data-testid="group-menu-prepare"]'),
+      ).toBeNull();
+      expect(
+        element.querySelector('[data-testid="group-title-field-prepare"]'),
+      ).toBeNull();
+      finish();
+    }));
+
     it("draws no frames for a pipeline without groups", fakeAsync(() => {
       const { element } = setupEditor();
 

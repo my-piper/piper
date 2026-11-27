@@ -350,8 +350,43 @@
         flex: none;
         width: 10px;
         height: 10px;
+        padding: 0;
+        border: 0;
         border-radius: var(--radius-full);
         background: var(--g);
+      }
+
+      button.group-dot {
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+          box-shadow:
+            0 0 0 2px var(--surface-1),
+            0 0 0 3px var(--g);
+          outline: none;
+        }
+      }
+
+      .group-title-field {
+        min-width: 0;
+        width: 160px;
+        height: 20px;
+        padding: 0 4px;
+        border: 1px solid var(--accent);
+        border-radius: var(--radius-sm);
+        background: var(--field-bg);
+        color: var(--text);
+        font: 600 13px/18px var(--font-sans);
+        outline: none;
+      }
+
+      .group-title {
+        cursor: text;
+      }
+
+      .group-menu {
+        margin-left: auto;
       }
 
       .group-title {
@@ -564,4 +599,49 @@
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 400;
+}
+
+// The group colour palette renders in a dropdown portal (#331).
+::ng-deep .group-palette {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+
+  .group-swatch {
+    --g: #8a8e98;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--g);
+    cursor: pointer;
+
+    &[data-color="blue"] {
+      --g: #4f8fe8;
+    }
+    &[data-color="green"] {
+      --g: #3fb27f;
+    }
+    &[data-color="amber"] {
+      --g: #e0a83a;
+    }
+    &[data-color="red"] {
+      --g: #e5655b;
+    }
+    &[data-color="violet"] {
+      --g: #9b7be8;
+    }
+
+    &[aria-pressed="true"] {
+      box-shadow:
+        0 0 0 2px var(--surface-1),
+        0 0 0 3px var(--text);
+    }
+  }
+}
+
+// A group menu's destructive option (portal).
+::ng-deep tui-data-list [tuiOption].danger {
+  color: var(--danger);
 }

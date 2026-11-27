@@ -1,6 +1,18 @@
 import { UI } from "src/consts/ui";
 import { LayoutGroup, Pipeline } from "src/models/pipeline";
 
+/** The palette a group's frame takes its tint from (pipeline schema). */
+export const GROUP_COLORS = [
+  "gray",
+  "blue",
+  "green",
+  "amber",
+  "red",
+  "violet",
+] as const;
+
+export type GroupColor = (typeof GROUP_COLORS)[number];
+
 /**
  * The nodes a group holds (#329): those whose title bar's centre is inside
  * the frame. Moving a node in or out changes its group; nothing is stored.
