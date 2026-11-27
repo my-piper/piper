@@ -33,45 +33,20 @@
     <table tuiTable size="s">
       <thead>
         <tr>
-          <th tuiTh class="actions-column"></th>
           <th tuiTh class="login-column" i18n="@@label.login">Login</th>
           <th tuiTh i18n="@@label.email">Email</th>
           <th tuiTh class="created-column" i18n="@@label.created_at">
             Created at
           </th>
           <th tuiTh class="badges-column"></th>
+          <th tuiTh class="actions-column">
+            <span class="visually-hidden" i18n="@@label.actions">Actions</span>
+          </th>
         </tr>
       </thead>
       <tbody>
         @for (u of users; track u._id; let i = $index) {
           <tr>
-            <td tuiTd>
-              <ng-template #actionsTemplate>
-                <tui-data-list>
-                  <button
-                    tuiOption
-                    type="button"
-                    [disabled]="progress.deleting"
-                    (click)="remove(i, u)"
-                  >
-                    <tui-icon icon="@tui.trash-2" />
-                    <ng-container i18n="@@action.delete">Delete</ng-container>
-                  </button>
-                </tui-data-list>
-              </ng-template>
-              <button
-                tuiIconButton
-                appearance="flat"
-                size="s"
-                type="button"
-                iconStart="@tui.ellipsis-vertical"
-                aria-label="Actions"
-                i18n-aria-label="@@label.actions"
-                [tuiDropdown]="actionsTemplate"
-                [tuiDropdownOpen]="actionsOpen === u._id"
-                (tuiDropdownOpenChange)="actionsOpen = $event ? u._id : null"
-              ></button>
-            </td>
             <td tuiTd title="Login" i18n-title="@@label.login">
               <a class="default" [routerLink]="[u._id]">
                 {{ u._id }}
@@ -95,6 +70,22 @@
                   <tui-icon icon="@img.google" style="--app-icon-size: 20px" />
                 }
               </div>
+            </td>
+            <td tuiTd class="actions">
+              <button
+                tuiIconButton
+                appearance="flat"
+                size="s"
+                type="button"
+                class="delete"
+                iconStart="@tui.trash-2"
+                aria-label="Delete"
+                i18n-aria-label="@@action.delete"
+                tuiHint="Delete"
+                i18n-tuiHint="@@action.delete"
+                [disabled]="progress.deleting"
+                (click)="confirmRemove(u)"
+              ></button>
             </td>
           </tr>
         }

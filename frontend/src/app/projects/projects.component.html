@@ -167,30 +167,19 @@
         </td>
         <td tuiTd class="actions">
           @if (userRole.admin | can: p.createdBy | async) {
-            <ng-template #actionsTemplate>
-              <tui-data-list>
-                <button
-                  tuiOption
-                  type="button"
-                  [disabled]="progress.deleting"
-                  (click)="remove(p)"
-                >
-                  <tui-icon icon="@tui.trash-2" />
-                  <ng-container i18n="@@action.delete">Delete</ng-container>
-                </button>
-              </tui-data-list>
-            </ng-template>
             <button
               tuiIconButton
               appearance="flat"
               size="s"
               type="button"
-              iconStart="@tui.ellipsis-vertical"
-              aria-label="Actions"
-              i18n-aria-label="@@label.actions"
-              [tuiDropdown]="actionsTemplate"
-              [tuiDropdownOpen]="actionsOpen === p._id"
-              (tuiDropdownOpenChange)="actionsOpen = $event ? p._id : null"
+              class="delete"
+              iconStart="@tui.trash-2"
+              aria-label="Delete"
+              i18n-aria-label="@@action.delete"
+              tuiHint="Delete"
+              i18n-tuiHint="@@action.delete"
+              [disabled]="progress.deleting"
+              (click)="confirmRemove(p)"
             ></button>
           }
         </td>
@@ -255,6 +244,8 @@
                 iconStart="@tui.pencil"
                 aria-label="Rename"
                 i18n-aria-label="@@action.rename"
+                tuiHint="Rename"
+                i18n-tuiHint="@@action.rename"
                 (click)="$event.stopPropagation(); startRename(f)"
               ></button>
             }

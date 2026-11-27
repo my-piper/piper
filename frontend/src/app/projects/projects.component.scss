@@ -187,24 +187,8 @@ tr:not(.folder) td.tree {
   }
 }
 
-// row actions stay quiet until the row is hovered or the button focused
 td.actions {
   text-align: right;
-
-  button {
-    opacity: 0.4;
-    transition: opacity 150ms ease-in-out;
-
-    &:hover,
-    &:focus-visible,
-    &[aria-expanded="true"] {
-      opacity: 1;
-    }
-  }
-}
-
-tr:hover td.actions button {
-  opacity: 1;
 }
 
 .loading td {
