@@ -11,7 +11,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { plainToInstance } from "class-transformer";
 import { assign, merge } from "lodash";
 import last from "lodash/last";
-import { delay, finalize, map } from "rxjs";
+import { TuiDialogService } from "@taiga-ui/core";
+import { TUI_CONFIRM, type TuiConfirmData } from "@taiga-ui/kit";
+import { delay, filter, finalize, map, switchMap } from "rxjs";
 import { AppConfig } from "src/models/app-config";
 import {
   SetLaunchErrorsEvent,
@@ -38,18 +40,17 @@ import { USER_ROOM } from "src/consts/rooms";
 })
 export class LaunchesComponent implements OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogs = inject(TuiDialogService);
 
   userRole = UserRole;
 
   private _filter!: LaunchesFilter;
 
   progress = {
-    removing: {} as { [key: number]: boolean },
+    removing: {} as { [launch: string]: boolean },
     loading: false,
   };
   error: Error;
-
-  actionsOpen: string | null = null;
 
   @Input()
   set filter(filter: LaunchesFilter) {
@@ -178,23 +179,41 @@ export class LaunchesComponent implements OnDestroy {
     }
   }
 
-  remove(index: number, launch: Launch) {
-    this.progress.removing[index] = true;
-    this.cd.detectChanges();
-
-    this.http
-      .delete(`launches/${launch._id}`)
+  remove(launch: Launch) {
+    this.dialogs
+      .open<boolean>(TUI_CONFIRM, {
+        label: $localize`:@@message.confirm_delete:Delete?`,
+        size: "s",
+        data: {
+          content: $localize`:@@message.confirm_delete_launch:Delete this launch and its outputs?`,
+          yes: $localize`:@@action.delete:Delete`,
+          no: $localize`:@@action.cancel:Cancel`,
+          // A named primary action, then a ghost Cancel (docs/design.md, #298).
+          appearance: ["primary-destructive", "flat-grayscale"],
+        } satisfies TuiConfirmData,
+      })
       .pipe(
-        delay(UI_DELAY),
-        finalize(() => {
-          this.progress.removing[index] = false;
-          this.actionsOpen = null;
+        filter(Boolean),
+        switchMap(() => {
+          this.progress.removing[launch._id] = true;
           this.cd.detectChanges();
+          return this.http.delete(`launches/${launch._id}`).pipe(
+            delay(UI_DELAY),
+            finalize(() => {
+              delete this.progress.removing[launch._id];
+              this.cd.detectChanges();
+            }),
+          );
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
-          this.launches.splice(index, 1);
+          // The list may have changed while the dialog was open.
+          const index = this.launches.indexOf(launch);
+          if (index >= 0) {
+            this.launches.splice(index, 1);
+          }
           this.cd.detectChanges();
         },
         error: (err) => (this.error = err.error),

@@ -440,18 +440,39 @@ export class ApiFixture {
       if (denied) {
         return denied;
       }
+      // Every listed launch fits on the first page: a cursor reads past it.
+      if (query.get("cursor")) {
+        return ok([]);
+      }
       const project = query.get("project");
       return ok(
         [...this.launches.values()]
           .reverse()
           .filter((l) => !project || (l["project"] as Plain)["_id"] === project)
-          .map(({ pipeline, ...launch }) => (void pipeline, clone(launch))),
+          // Stored launches carry the cursor the next page reads past.
+          .map(
+            ({ pipeline, ...launch }) => (
+              void pipeline, { cursor: launch["_id"], ...clone(launch) }
+            ),
+          ),
       );
     });
 
     // backend/api/launches/heartbeat.ts and metrics/finished.ts: null → 204
     this.on("GET", "/api/launches/:id/heartbeat", () => ok(null));
     this.on("GET", "/api/launches/:id/metrics/finished", () => ok(null));
+
+    // backend/api/launches/delete-launch.ts
+    this.on("DELETE", "/api/launches/:id", ({ params, user }) => {
+      const denied = this.requireUser(user);
+      if (denied) {
+        return denied;
+      }
+      if (!this.launches.delete(params["id"])) {
+        return { status: 404, text: "Not found" };
+      }
+      return ok(null);
+    });
 
     // backend/api/launches/interrupt-launch.ts
     this.on("POST", "/api/launches/:id/interrupt", ({ params, user }) => {
