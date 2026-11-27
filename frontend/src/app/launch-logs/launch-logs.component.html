@@ -1,4 +1,4 @@
-<header>
+<header [class.drawer-header]="!node()">
   <h2>
     @if (node(); as key) {
       Logs of {{ title(key) }}
@@ -9,7 +9,8 @@
   <button
     tuiButton
     type="button"
-    appearance="secondary"
+    appearance="flat-grayscale"
+    size="s"
     iconStart="@tui.refresh-cw"
     data-testid="refresh-logs"
     [loading]="loading()"
@@ -17,6 +18,9 @@
   >
     Refresh
   </button>
+  @if (!node()) {
+    <app-drawer-close outlet="right" />
+  }
 </header>
 
 @if (error(); as message) {

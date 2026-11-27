@@ -26,6 +26,7 @@ import { LiveService } from "src/services/live.service";
 import { getLabel } from "src/utils/i18n";
 import { toInstance } from "src/utils/models";
 import { LAUNCH_ROOM } from "src/consts/rooms";
+import { DrawerCloseComponent } from "src/app/drawer-close/drawer-close.component";
 
 const LEVELS: LogLevel[] = ["debug", "info", "warn", "error"];
 
@@ -36,7 +37,14 @@ const LEVELS: LogLevel[] = ["debug", "info", "warn", "error"];
   templateUrl: "./launch-logs.component.html",
   styleUrls: ["./launch-logs.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, TuiButton, TuiButtonLoading, TuiChip, TuiLoader],
+  imports: [
+    DatePipe,
+    DrawerCloseComponent,
+    TuiButton,
+    TuiButtonLoading,
+    TuiChip,
+    TuiLoader,
+  ],
 })
 export class LaunchLogsComponent implements OnInit {
   private readonly http = inject(HttpService);

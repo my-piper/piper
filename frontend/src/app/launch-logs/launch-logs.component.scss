@@ -10,7 +10,8 @@ header {
   justify-content: space-between;
   gap: 0.5rem;
 
-  h2 {
+  // Nested in a node's Logs tab; as the drawer it is a .drawer-header.
+  &:not(.drawer-header) h2 {
     margin: 0;
     font: var(--tui-font-heading-6);
   }
