@@ -1844,4 +1844,112 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
   });
+  describe("resizing nodes", () => {
+    function edge(element: HTMLElement, id: string) {
+      return nodeElement(element, id).querySelector<HTMLElement>(
+        '[data-testid="node-resize"]',
+      );
+    }
+
+    function pointer(target: Element, type: string, clientX: number) {
+      target.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          clientX,
+          button: 0,
+          pointerId: 1,
+        }),
+      );
+    }
+
+    it("drags the right edge to a snapped width and saves it on release", fakeAsync(() => {
+      const project = connectionProject();
+      const { element, detectChanges, manager } = setupEditor({ project });
+      const node = project.pipeline.nodes.get("node_one");
+      const handle = edge(element, "node_one");
+
+      pointer(handle, "pointerdown", 100);
+      pointer(handle, "pointermove", 197);
+      detectChanges();
+      const during = {
+        tip: nodeElement(element, "node_one").querySelector(
+          '[data-testid="node-resize-tip"]',
+        )?.textContent,
+        status: manager.status.value,
+        live: node.arrange.w,
+        liveStyle: nodeElement(element, "node_one").style.width,
+      };
+      pointer(handle, "pointerup", 197);
+      detectChanges();
+
+      expect(during).toEqual({
+        tip: "320",
+        status: null,
+        live: 320,
+        liveStyle: "320px",
+      });
+      expect(node.arrange.w).toBe(320);
+      expect(nodeElement(element, "node_one").style.width).toBe("320px");
+      expect(manager.status.value).toBe("dirty");
+      finish();
+    }));
+
+    it("starts the node's wires at its new right edge", fakeAsync(() => {
+      const project = connectionProject();
+      const node = project.pipeline.nodes.get("node_one");
+      node.arrange.w = 400;
+      const { element } = setupEditor({ project });
+
+      const starts = Array.from(
+        element.querySelectorAll(".pane > svg path:not(.param):not(.pending)"),
+      )
+        .map((p) => p.getAttribute("d"))
+        .filter((d) => d.startsWith(`M ${node.arrange.x + 400},`));
+
+      expect(starts.length).toBeGreaterThan(0);
+      finish();
+    }));
+
+    it("keeps a saved width when a DOM resize event bubbles out of the node", fakeAsync(() => {
+      const project = connectionProject();
+      const node = project.pipeline.nodes.get("node_one");
+      node.arrange.w = 400;
+      const { element, detectChanges } = setupEditor({ project });
+
+      nodeElement(element, "node_one")
+        .querySelector(".head")
+        .dispatchEvent(new Event("resize", { bubbles: true }));
+      detectChanges();
+
+      expect(node.arrange.w).toBe(400);
+      finish();
+    }));
+
+    it("goes back to the default width on a double-click", fakeAsync(() => {
+      const project = connectionProject();
+      const node = project.pipeline.nodes.get("node_one");
+      node.arrange.w = 400;
+      const { element, detectChanges } = setupEditor({ project });
+
+      edge(element, "node_one").dispatchEvent(
+        new MouseEvent("dblclick", { bubbles: true }),
+      );
+      detectChanges();
+
+      expect(node.arrange.w).toBeUndefined();
+      expect(nodeElement(element, "node_one").style.width).toBe("220px");
+      finish();
+    }));
+
+    it("shows a viewer the width without an edge to drag", fakeAsync(() => {
+      const project = connectionProject();
+      project.pipeline.nodes.get("node_one").arrange.w = 300;
+      const { element } = setupEditor({ project, user: "stranger" });
+
+      expect(edge(element, "node_one")).toBeNull();
+      expect(nodeElement(element, "node_one").style.width).toBe("300px");
+      finish();
+    }));
+  });
 });

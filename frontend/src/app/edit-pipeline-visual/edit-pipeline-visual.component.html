@@ -664,6 +664,7 @@
           (setOutput)="setNodeOutput(node.key, $event.output, $event.value)"
           (inputChange)="setNodeInput(node.key, $event.input, $event.value)"
           (collapse)="setCollapsed(node.key, $event)"
+          (widthChange)="setNodeWidth(node.key, $event.width, $event.done)"
           (collapsedDrop)="!!flow ? dropOnCollapsed(node.key) : null"
           (takeOutInput)="takeOutPipelineInput($event)"
           (takeOutOutput)="takeOutPipelineOutput($event)"
@@ -686,7 +687,9 @@
             (pipeline | node: f.value.from | async).arrange
               | shift
                 : {
-                    x: ui.node.width,
+                    x:
+                      (pipeline | node: f.value.from | async).arrange.w ||
+                      ui.node.width,
                     y:
                       (pipeline
                       | node: f.value.from
@@ -765,7 +768,9 @@
                 (pipeline | node: flow.from | async).arrange
                   | shift
                     : {
-                        x: ui.node.width,
+                        x:
+                          (pipeline | node: flow.from | async).arrange.w ||
+                          ui.node.width,
                         y:
                           (pipeline
                           | node: flow.from
@@ -802,7 +807,9 @@
             (pipeline | node: f.value.from | async).arrange
               | shift
                 : {
-                    x: ui.node.width,
+                    x:
+                      (pipeline | node: f.value.from | async).arrange.w ||
+                      ui.node.width,
                     y:
                       (pipeline
                       | node: f.value.from
@@ -866,7 +873,9 @@
               (pipeline | node: f.value.from | async).arrange
                 | shift
                   : {
-                      x: ui.node.width,
+                      x:
+                        (pipeline | node: f.value.from | async).arrange.w ||
+                        ui.node.width,
                       y:
                         (pipeline
                         | node: f.value.from
@@ -893,7 +902,9 @@
                   : ((pipeline | node: o.value.from | async).arrange
                       | shift
                         : {
-                            x: ui.node.width,
+                            x:
+                              (pipeline | node: o.value.from | async).arrange
+                                .w || ui.node.width,
                             y:
                               (pipeline
                               | node: o.value.from

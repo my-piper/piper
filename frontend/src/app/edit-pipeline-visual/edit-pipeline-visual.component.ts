@@ -1432,7 +1432,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
       }),
     );
 
-    const { x, y } = node.node.arrange;
+    const { x, y, w } = node.node.arrange;
 
     let id = output.id;
     if (this.pipeline.outputs.has(id)) {
@@ -1446,7 +1446,7 @@ export class EditPipelineVisualComponent implements OnDestroy {
         type,
         flows,
         arrange: new Arrange({
-          x: x + UI.node.width + 100,
+          x: x + (w || UI.node.width) + 100,
           y: y + 10,
         }),
       }),
@@ -1505,6 +1505,23 @@ export class EditPipelineVisualComponent implements OnDestroy {
     } else {
       this.closeDrawler();
     }
+  }
+
+  /**
+   * A node's width while its edge is dragged (#321); saved on release. The
+   * default width is stored as no width, like old pipelines.
+   */
+  setNodeWidth(id: string, width: number, done: boolean) {
+    const node = this.pipeline.nodes.get(id);
+    if (!node || this.mode !== "project" || typeof width !== "number") {
+      return;
+    }
+    node.arrange ??= new Arrange({ x: 0, y: 0 });
+    node.arrange.w = width === UI.node.width ? undefined : width;
+    if (done) {
+      this.save();
+    }
+    this.cd.detectChanges();
   }
 
   /** Collapses a node to its title bar, or expands it (#320). */

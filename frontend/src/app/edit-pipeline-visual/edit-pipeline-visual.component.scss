@@ -165,7 +165,8 @@
   .input,
   .output,
   .node {
-    &[data-mode="move"] {
+    &[data-mode="move"],
+    &:has(> app-node.resizing) {
       z-index: 3;
     }
   }

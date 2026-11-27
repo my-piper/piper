@@ -5,6 +5,7 @@ import {
   inputOffset,
   nodeLayout,
   outputOffset,
+  snapWidth,
   widgetKind,
 } from "src/utils/node-layout";
 
@@ -72,5 +73,11 @@ describe("node layout", () => {
       14, 14,
     ]);
     expect([outputOffset(n, "a"), outputOffset(n, "b")]).toEqual([14, 14]);
+  });
+
+  it("snaps a dragged width to 20 px within 160 to 640", () => {
+    const widths = [229, 231, 90, 999].map(snapWidth);
+
+    expect(widths).toEqual([220, 240, 160, 640]);
   });
 });

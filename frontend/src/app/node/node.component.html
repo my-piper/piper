@@ -517,3 +517,20 @@
     </div>
   }
 </div>
+
+<!-- Drag the right edge to resize; double-click resets (#321). -->
+@if (!disabled) {
+  <span
+    class="resize-edge"
+    data-testid="node-resize"
+    title="Drag to resize, double-click to reset"
+    i18n-title="@@label.node_resize"
+    (pointerdown)="startResize($event)"
+    (mousedown)="$event.stopPropagation()"
+    (click)="$event.stopPropagation()"
+    (dblclick)="resetWidth($event)"
+  ></span>
+}
+@if (resizing !== null) {
+  <span class="resize-tip" data-testid="node-resize-tip">{{ resizing }}</span>
+}
