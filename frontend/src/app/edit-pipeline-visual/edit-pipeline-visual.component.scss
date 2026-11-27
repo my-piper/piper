@@ -212,20 +212,12 @@
       opacity: 0.5;
       transition: opacity 150ms ease-in-out;
 
-      // The delete button shows only while the flow is hovered: flow
-      // midpoints crowd the canvas.
-      > .delete {
-        opacity: 0;
-        transition: opacity 150ms ease-in-out;
-      }
-
+      // Midpoints crowd the canvas, so they stay muted until hovered. The
+      // delete button is muted with them, never hidden: a hidden one isn't
+      // discoverable, and touch screens have no hover to reveal it.
       &:hover,
       &:focus-within {
         opacity: 1;
-
-        > .delete {
-          opacity: 1;
-        }
       }
     }
 

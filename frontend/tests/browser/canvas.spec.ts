@@ -285,5 +285,23 @@ test("hides a flow midpoint and its delete button behind a node", async ({
 
   expect(await hitAt(page, remove)).toBe("node_one");
   expect(await hitAt(page, transformer)).toBe("node_one");
-  await expect(midpoint.locator(".delete")).toHaveCSS("opacity", "0");
+  await expect(midpoint).toHaveCSS("opacity", "0.5");
+});
+
+test("shows every flow's delete button muted and in full on hover", async ({
+  page,
+  open,
+}) => {
+  await open(`/en/projects/${PROJECT_A_ID}`);
+  const midpoints = page.locator(".pane > .flow");
+  await expect(midpoints).not.toHaveCount(0);
+
+  for (const midpoint of await midpoints.all()) {
+    await expect(midpoint).toHaveCSS("opacity", "0.5");
+    await expect(midpoint.locator(".delete")).toHaveCSS("opacity", "1");
+  }
+  const first = midpoints.first();
+  await first.hover();
+
+  await expect(first).toHaveCSS("opacity", "1");
 });
