@@ -133,8 +133,6 @@ import { NodeScriptHelpComponent } from "./node-script-help/node-script-help.com
 import { EditNodeYamlComponent } from "./edit-node-yaml/edit-node-yaml.component";
 import { EditPipelineDesignComponent } from "./edit-pipeline-design/edit-pipeline-design.component";
 import { EditPipelineEnvironmentComponent } from "./edit-pipeline-environment/edit-pipeline-environment.component";
-import { EditPipelineReadmeComponent } from "./edit-pipeline-readme/edit-pipeline-readme.component";
-import { EditPipelineScriptComponent } from "./edit-pipeline-script/edit-pipeline-script.component";
 import { EnvironmentComponent } from "./environment/environment.component";
 import { ProjectSettingsComponent } from "./project-settings/project-settings.component";
 import { FeedSkeletonComponent } from "./feed-skeleton/feed-skeleton.component";
@@ -161,7 +159,6 @@ import {
 } from "./node-packages/pipes";
 import { PipelineMessagesComponent } from "./pipeline-messages/pipeline-messages.component";
 import { PipelineReadmeComponent } from "./pipeline-readme/pipeline-readme.component";
-import { PipelineToolsComponent } from "./pipeline-tools/pipeline-tools.component";
 import { PlayViaApiComponent } from "./play-via-api/play-via-api.component";
 import { PlayWithProjectComponent } from "./play-with-project/play-with-project.component";
 import { PlaygroundComponent } from "./playground/playground.component";
@@ -216,7 +213,6 @@ import { UsersComponent } from "./users/users.component";
     MarkdownPipe,
     LaunchOutputsComponent,
     PipelineMessagesComponent,
-    PipelineToolsComponent,
     PipelineFinishedMetricPipe,
     DurationPipe,
     RunDurationPipe,
@@ -275,13 +271,11 @@ import { UsersComponent } from "./users/users.component";
     MultiplyPipe,
     CanPipe,
     NotPipe,
-    EditPipelineReadmeComponent,
     PipelineReadmeComponent,
     PipelineNodeUpdatesPipe,
     MeUserComponent,
     EnvironmentComponent,
     PlayViaApiComponent,
-    EditPipelineScriptComponent,
     ProjectCommentsComponent,
     ChangePasswordComponent,
     UpdatePipelineNodesComponent,
