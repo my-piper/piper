@@ -136,7 +136,13 @@ async function launchOutput(launch: string) {
       ),
     WAIT
   );
-  return JSON.parse(await redis.get(PIPELINE_OUTPUT(launch, "result")));
+  // the pipeline output is written after the processed lock (complete-node)
+  let value: string | null = null;
+  await vi.waitFor(async () => {
+    value = await redis.get(PIPELINE_OUTPUT(launch, "result"));
+    expect(value).not.toBeNull();
+  }, WAIT);
+  return JSON.parse(value);
 }
 
 async function idleNodes() {
