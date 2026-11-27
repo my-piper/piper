@@ -154,8 +154,25 @@
         <dd i18n="@@message.canvas_hint_move">
           Drag any selected item to move the whole selection
         </dd>
+        <dt i18n="@@label.canvas_hint_select_all">Select all</dt>
+        <dd i18n="@@message.canvas_hint_select_all">Ctrl/⌘ + A</dd>
+        <dt i18n="@@label.canvas_hint_delete">Delete</dt>
+        <dd i18n="@@message.canvas_hint_delete">
+          Delete or Backspace removes the selection
+        </dd>
+        <dt i18n="@@label.canvas_hint_launch">Launch</dt>
+        <dd i18n="@@message.canvas_hint_launch">Ctrl/⌘ + Enter</dd>
       }
+      <dt i18n="@@label.canvas_hint_shortcuts">Shortcuts</dt>
+      <dd i18n="@@message.canvas_hint_shortcuts">? shows this list</dd>
     </dl>
+  </ng-template>
+  <ng-template
+    [tuiDialog]="shortcutsOpen"
+    [tuiDialogOptions]="{ label: 'Keyboard shortcuts', size: 's' }"
+    (tuiDialogChange)="shortcutsOpen = $event"
+  >
+    <ng-container [ngTemplateOutlet]="canvasHintTemplate"></ng-container>
   </ng-template>
   <button
     tuiIconButton
