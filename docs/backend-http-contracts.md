@@ -120,6 +120,27 @@ module, the version isn't a positive integer greater than the published one
 or is already complete in the registry, the archive exceeds 20 MB, or a node id
 belongs to another package. Nodes it publishes run `registry:<package>@<version>/<node>/script.js`.
 
+## Deploys for Nodes
+
+| Endpoint                                 | Current requirement | Successful status |
+| ---------------------------------------- | ------------------- | ----------------- |
+| `GET /api/me/deploys`                    | Logged in           | 200               |
+| `GET /api/deploys/:slug/sockets`         | Logged in           | 200               |
+| `GET /api/deploys/:prefix/:slug/sockets` | Logged in           | 200               |
+
+These serve the editor's Run Deploy node (ADR 0011). `GET /api/me/deploys`
+lists the Deploys under the current user's prefix, and for admins also the
+unprefixed ones, newest first, as `{ prefix, slug, title, deployedAt }`
+(`title` is the Project's). A Deploy without pipeline outputs is left out,
+since its Child Launch would never finish. The sockets route returns one
+Deploy as
+`{ prefix, slug, title, deployedAt, inputs, outputs }`; `inputs` and `outputs` are its pipeline inputs and outputs keyed by
+the same ids, in the Node input and output shape, without `flows` and
+`arrange`, titled by their id when untitled. Any logged-in user may read it,
+as anyone with a Deploy's link may launch it; a missing Deploy answers 400
+(`Deploy <slug> is not found`) and an anonymous request 400
+(`backend/tests/unit/http/deploys.test.ts`).
+
 ## Validation and serialization
 
 - Creating a project assigns server-generated IDs, ownership and creation
