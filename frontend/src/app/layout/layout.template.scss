@@ -125,6 +125,15 @@ app-layout .app-topbar {
   .spacer {
     flex: 1;
   }
+
+  // A page's own content (breadcrumbs, tabs) takes the free width.
+  .page {
+    flex: 1;
+    min-inline-size: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
 }
 
 app-layout main[tuiNavigationMain] {

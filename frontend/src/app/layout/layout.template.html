@@ -98,7 +98,11 @@
       <a class="app-logo" [href]="appConfig.siteUrl" aria-label="Piper">
         <ng-container [ngTemplateOutlet]="mark" />
       </a>
-      }
+      } @if (topbar.content(); as page) {
+      <div class="page" data-testid="app-topbar-page">
+        <ng-container [ngTemplateOutlet]="page" />
+      </div>
+      } @else {
       <div class="crumbs" data-testid="app-crumbs">
         @if (current(); as section) {
         <b>{{ section.label }}</b>
@@ -106,6 +110,7 @@
         <span tuiBadge appearance="neutral" size="s" class="beta">beta</span>
       </div>
       <span class="spacer"></span>
+      }
       <app-me-user></app-me-user>
       @if (mobile()) {
       <button

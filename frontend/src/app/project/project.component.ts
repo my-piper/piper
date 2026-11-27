@@ -2,7 +2,10 @@ import {
   ChangeDetectorRef,
   Component,
   Inject,
+  OnDestroy,
   OnInit,
+  TemplateRef,
+  ViewChild,
   ChangeDetectionStrategy,
   DestroyRef,
   inject,
@@ -19,6 +22,7 @@ import { Pipeline } from "src/models/pipeline";
 import { Project } from "src/models/project";
 import { UserRole } from "src/models/user";
 import { ProjectManager } from "src/services/project.manager";
+import { TopbarService } from "src/services/topbar.service";
 import { Languages } from "src/enums/languages";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
@@ -30,8 +34,13 @@ import { getLabel } from "src/utils/i18n";
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class ProjectComponent implements OnInit {
+export class ProjectComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly topbar = inject(TopbarService);
+
+  /** Breadcrumbs, section tabs and save status, shown in the app top bar. */
+  @ViewChild("topbar", { static: true })
+  topbarRef!: TemplateRef<unknown>;
 
   userRole = UserRole;
   /** Whether the project settings dialog is open. */
@@ -85,6 +94,7 @@ export class ProjectComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.topbar.set(this.topbarRef);
     this.route.data.subscribe(({ project }) => {
       [this.project, this.pipeline] = [project, project.pipeline];
       this.build();
@@ -109,6 +119,10 @@ export class ProjectComponent implements OnInit {
           this.projectManager.markDirty();
         }
       });
+  }
+
+  ngOnDestroy() {
+    this.topbar.clear(this.topbarRef);
   }
 
   build() {

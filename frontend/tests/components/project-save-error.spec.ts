@@ -1,4 +1,6 @@
-import { CommonModule } from "@angular/common";
+import { CommonModule, NgTemplateOutlet } from "@angular/common";
+import { Component, inject } from "@angular/core";
+import { By } from "@angular/platform-browser";
 import { provideHttpClient, withXhr } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -29,6 +31,7 @@ import { IsPipe } from "src/pipes/is";
 import { DeclaredVariablesPipe } from "src/pipes/declared-variables";
 import { PipelineNodeUpdatesPipe } from "src/pipes/pipeline-node-updates";
 import { ProjectManager } from "src/services/project.manager";
+import { TopbarService } from "src/services/topbar.service";
 import { UI_DELAY } from "src/consts/ui";
 import { Languages } from "src/enums/languages";
 import { ErrorDialogComponent } from "src/app/error-dialog/error-dialog.component";
@@ -50,6 +53,16 @@ import { provideSocketDouble } from "../helpers/socket";
 const NODE_UPDATES_URL = `/api/projects/${PROJECT_A_ID}/check-node-updates`;
 
 describe("ProjectComponent save errors", () => {
+  /** Shows the page's top bar like AppLayoutComponent does. */
+  @Component({
+    template: `<ng-container [ngTemplateOutlet]="topbar.content()" />
+      <router-outlet />`,
+    imports: [NgTemplateOutlet, RouterOutlet],
+  })
+  class TopbarHostComponent {
+    readonly topbar = inject(TopbarService);
+  }
+
   async function render() {
     seedAuthorization(userPlain("owner"));
     const project = projectA();
@@ -88,17 +101,23 @@ describe("ProjectComponent save errors", () => {
         { provide: CURRENT_LANGUAGE, useValue: Languages.en },
         provideRouter([
           {
-            path: "projects/:id",
-            component: ProjectComponent,
-            canDeactivate: [SaveProjectGuard],
-            resolve: {
-              project: () => {
-                TestBed.inject(ProjectManager).project = project;
-                return project;
+            path: "",
+            component: TopbarHostComponent,
+            children: [
+              {
+                path: "projects/:id",
+                component: ProjectComponent,
+                canDeactivate: [SaveProjectGuard],
+                resolve: {
+                  project: () => {
+                    TestBed.inject(ProjectManager).project = project;
+                    return project;
+                  },
+                },
               },
-            },
+              { path: "elsewhere", children: [] },
+            ],
           },
-          { path: "elsewhere", children: [] },
         ]),
       ],
     });
@@ -137,7 +156,8 @@ describe("ProjectComponent save errors", () => {
     ).click();
     harness.detectChanges();
     const dismissed = (
-      harness.routeDebugElement.componentInstance as ProjectComponent
+      harness.fixture.debugElement.query(By.directive(ProjectComponent))
+        .componentInstance as ProjectComponent
     ).error;
     manager.kick();
     controller
@@ -153,8 +173,8 @@ describe("ProjectComponent save errors", () => {
     expect(project.revision).toBe("rev_a_2");
     expect(manager.status.value).toBe("saved");
     expect(
-      harness.routeNativeElement
-        .querySelector("[data-status]")
+      (harness.fixture.nativeElement as HTMLElement)
+        .querySelector("[data-testid=project-save-status]")
         ?.getAttribute("data-status"),
     ).toBe("saved");
     controller.verify();

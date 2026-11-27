@@ -14,11 +14,11 @@ test("shows a failed save, retries on navigation and persists in order", async (
     text: "SERVICE_OFFLINE|Our service temporarily unavailable",
   });
   await open(`/en/projects/${PROJECT_A_ID}`);
-  const title = page.locator("header .title input");
+  const title = page.getByTestId("project-name");
   await expect(title).toHaveValue("Small graph");
 
   await title.fill("Renamed graph");
-  await expect(page.locator("header .status")).toHaveAttribute(
+  await expect(page.getByTestId("project-save-status")).toHaveAttribute(
     "data-status",
     "error",
   );

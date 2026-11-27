@@ -62,5 +62,5 @@ test("edits YAML in Monaco, rejects invalid input, then applies a valid edit", a
     "node_two",
   ]);
   await page.reload();
-  await expect(page.locator("header .title input")).toHaveValue("YAML graph");
+  await expect(page.getByTestId("project-name")).toHaveValue("YAML graph");
 });

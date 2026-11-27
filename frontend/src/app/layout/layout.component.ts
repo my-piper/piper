@@ -14,6 +14,7 @@ import { filter, map } from "rxjs";
 import { AppConfig } from "src/models/app-config";
 import { UserRole } from "src/models/user";
 import { MeManager } from "src/services/me.service";
+import { TopbarService } from "src/services/topbar.service";
 
 /** A global section of the app: a sidebar item and the top bar's crumb. */
 export type AppSection = {
@@ -88,6 +89,8 @@ export class AppLayoutComponent {
   private readonly me = inject(MeManager);
 
   readonly appConfig = inject(AppConfig);
+  /** The page's own top bar content, when it has one. */
+  readonly topbar = inject(TopbarService);
   /** On phones the sidebar gives way to a drawer opened from the top bar. */
   readonly mobile = computed(() => this.breakpoint() === "mobile");
   /** Closed after every navigation and whenever the viewport leaves mobile. */
