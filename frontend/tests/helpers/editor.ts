@@ -91,13 +91,16 @@ export function configureAppTestingModule(
 export function setupEditor({
   project = projectA(),
   user = "owner",
-  mode,
   launch,
+  editable = !launch,
+  runs = true,
 }: {
   project?: Project;
   user?: UserKind;
-  mode?: "project" | "scheme";
-  /** Renders the read-only page of this Launch (`mode: "launch"`). */
+  /** Route data flags; the defaults are the project page's. */
+  editable?: boolean;
+  runs?: boolean;
+  /** Renders the read-only page of this Launch. */
   launch?: Launch;
 } = {}) {
   seedAuthorization(userPlain(user));
@@ -105,7 +108,7 @@ export function setupEditor({
     {
       path: EDITOR_URL.slice(1),
       component: EditPipelineVisualComponent,
-      data: launch ? { mode: "launch" } : mode ? { mode } : {},
+      data: { editable, runs },
       resolve: launch ? { launch: () => launch } : { project: () => project },
       children: [
         {
@@ -141,7 +144,9 @@ export function setupEditor({
   router.navigateByUrl(EDITOR_URL);
   tick();
   fixture.detectChanges();
-  controller.expectOne("/api/me").flush(userPlain(user));
+  // Only an editable canvas asks who the user is (the engineer role decides
+  // which nodes offer Edit); a read-only one never does.
+  controller.match("/api/me").forEach((me) => me.flush(userPlain(user)));
   fixture.detectChanges();
 
   const debug = fixture.debugElement.query(
