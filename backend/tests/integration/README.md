@@ -32,7 +32,9 @@ scheduling cases independent of providers. Model transformations remain real.
 The Deno smoke suite uses the real HTTP adapter and service image, checking both
 isolation modes, serialized values, logs, and exception mapping. Scripts are local
 and do not call external AI providers. Service readiness and job completion use
-bounded polling; delayed jobs are explicitly promoted after their delayed state
+bounded polling; a finished launch is awaited through the live state
+(`finished.ts`: every pipeline output it waits for has a value), not by
+polling raw keys; delayed jobs are explicitly promoted after their delayed state
 has been asserted.
 
 The end-to-end suite runs the two-node fixture pipeline through real workers and

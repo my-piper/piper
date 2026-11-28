@@ -163,7 +163,7 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
 - Generating a token replaces the previous one. Only one hash is stored per user
   (`generate-api-token.ts:22-26`), and the UI warns about this
   (`play-via-api.component.ts:54-57`). Tokens live for 5 years
-  (`consts/redis.ts:84`).
+  (`USER_API_TOKEN_EXPIRED` in `consts/redis.ts`).
 - The sandbox gets no Piper credentials automatically. `env` holds only the
   variables that the node declares in its `environment` block, resolved from
   the global, user or pipeline environment (`jobs/process-node/environment.ts:26-86`)

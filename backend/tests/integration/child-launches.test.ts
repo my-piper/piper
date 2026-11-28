@@ -1,18 +1,12 @@
-import { mongo, redis, nodeQueue } from "./runtime";
+import { mongo, nodeQueue } from "./runtime";
 import { DEPLOY_PREFIX, pipelineLaunch, publishDeploy } from "./fixture";
+import { finishedOutput } from "./finished";
 import { Job } from "bullmq";
-import {
-  LAUNCH_INTERRUPTED,
-  NODE_CHILDREN,
-  NODE_PROCESSED_LOCK,
-  NODE_STATUS,
-  PIPELINE_ERRORS,
-  PIPELINE_OUTPUT,
-} from "consts/redis";
 import { FatalError } from "core-kit/types/errors";
 import { execute } from "packages/deno/execute";
 import { ChildLaunchState } from "packages/launches/child-launches";
 import { interrupt, run } from "packages/launches/launching";
+import { liveState } from "packages/launches/live-state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("packages/deno/execute", () => ({ execute: vi.fn() }));
@@ -127,22 +121,9 @@ async function childOf(parent: string) {
   return children[0];
 }
 
-// waits for the sink node, then returns the launch's pipeline output
+// waits until the launch has finished, then returns its pipeline output
 async function launchOutput(launch: string) {
-  await vi.waitFor(
-    async () =>
-      expect(await redis.exists(NODE_PROCESSED_LOCK(launch, "sink_node"))).toBe(
-        1
-      ),
-    WAIT
-  );
-  // the pipeline output is written after the processed lock (complete-node)
-  let value: string | null = null;
-  await vi.waitFor(async () => {
-    value = await redis.get(PIPELINE_OUTPUT(launch, "result"));
-    expect(value).not.toBeNull();
-  }, WAIT);
-  return JSON.parse(value);
+  return finishedOutput(launch, WAIT);
 }
 
 async function idleNodes() {
@@ -205,7 +186,7 @@ describe("child launches through real workers", () => {
         async () => expect(await parentNode.getState()).toBe("delayed"),
         WAIT
       );
-      const reserved = await redis.get(NODE_CHILDREN(parent._id, "echo_node"));
+      const reserved = await liveState.children(parent._id, "echo_node");
       childEcho.open();
       const child = await childOf(parent._id);
       await launchOutput(child._id);
@@ -215,7 +196,7 @@ describe("child launches through real workers", () => {
       expect(payloadsOf("parent")[1].children).toEqual({
         summary: { launch: child._id, status: "running", outputs: {} },
       });
-      expect(JSON.parse(reserved)).toEqual({ summary: child._id });
+      expect(reserved).toEqual({ summary: child._id });
       expect(parentResult).toEqual(childOutput);
       expect(await mongo.launches.countDocuments({ parent: parent._id })).toBe(
         1
@@ -236,7 +217,7 @@ describe("child launches through real workers", () => {
     const child = await childOf(parent._id);
     await vi.waitFor(
       async () =>
-        expect(await redis.lRange(PIPELINE_ERRORS(child._id), 0, -1)).toContain(
+        expect(await liveState.errors(child._id)).toContain(
           "child rejected the value"
         ),
       WAIT
@@ -244,31 +225,25 @@ describe("child launches through real workers", () => {
     await parentNode.promote();
     await vi.waitFor(
       async () =>
-        expect(
-          JSON.parse(await redis.get(NODE_STATUS(parent._id, "echo_node")))
-        ).toMatchObject({ state: "error" }),
+        expect(await liveState.status(parent._id, "echo_node")).toMatchObject({
+          state: "error",
+        }),
       WAIT
     );
 
     const message = `Child launch summary (${child._id}) failed: child rejected the value`;
-    expect(
-      JSON.parse(await redis.get(NODE_STATUS(parent._id, "echo_node")))
-    ).toMatchObject({ error: message });
-    // the error list is written after the node status (process-node-error)
-    await vi.waitFor(
-      async () =>
-        expect(
-          await redis.lRange(PIPELINE_ERRORS(parent._id), 0, -1)
-        ).toContain(message),
-      WAIT
-    );
+    expect(await liveState.status(parent._id, "echo_node")).toMatchObject({
+      error: message,
+    });
+    // the status and the error list are written in one transaction
+    expect(await liveState.errors(parent._id)).toContain(message);
     // a retryable error would leave the job waiting for its next attempt; a
     // fatal one removes it
     await vi.waitFor(
       async () => expect(await nodeQueue.getJob(parentNode.id)).toBeUndefined(),
       WAIT
     );
-    expect(await redis.exists(PIPELINE_OUTPUT(parent._id, "result"))).toBe(0);
+    expect(await liveState.output(parent, "result")).toBeUndefined();
   });
 
   it("stops the whole chain of children when the parent is interrupted", async () => {
@@ -300,10 +275,10 @@ describe("child launches through real workers", () => {
 
       expect(grandchild).toMatchObject({ parent: child._id, depth: 2 });
       for (const launch of [parent, child, grandchild]) {
-        expect(await redis.exists(LAUNCH_INTERRUPTED(launch._id))).toBe(1);
-        expect(await redis.exists(PIPELINE_OUTPUT(launch._id, "result"))).toBe(
-          0
-        );
+        expect(await liveState.interruptedAt(launch._id)).not.toBeNull();
+        expect(
+          await liveState.output(await liveState.get(launch._id), "result")
+        ).toBeUndefined();
       }
       expect(payloadsOf("parent")).toHaveLength(1);
       expect(payloadsOf("middle")).toHaveLength(1);

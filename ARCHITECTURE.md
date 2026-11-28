@@ -72,7 +72,7 @@ Any process can push events to browsers: `notify(room, event, payload)` from `co
 backend/
   api/<area>/        route modules; importing the file registers its routes
   app/               singletons: api (express), mongo, queues, streams, s3, storage, ajv, llm, cli, nocodb
-  consts/            env-derived config; consts/redis.ts holds every Redis key builder
+  consts/            env-derived config; consts/redis.ts holds the Redis keys outside a launch's live state
   models/            class-transformer models (+ models/jobs for queue payloads)
   packages/          domain logic (launches, deploy, deno, nodes, node-packages, pipelines, environment, users, oauth)
   jobs/              BullMQ job handlers
@@ -98,7 +98,7 @@ Every boundary (HTTP, Mongo, Redis, queues, Kafka, Deno) goes through `class-tra
 | Store | What lives there | Access |
 |---|---|---|
 | **MongoDB** | Users, projects (each embeds its pipeline), deploys, launches (summary, without pipeline), launch artefacts, node catalog (`nodes`), node packages, assets, batches, comments, assistant chat messages | `app/mongo.ts` (one typed collection per entity) |
-| **Redis** | Everything about a *running* launch: the launch document, node inputs/outputs/state/status/progress/logs/jobs, flow completion sets, processing locks, heartbeats, pipeline outputs and errors, scope queues. Also deploys (the hot copy used by the deploy API), global and per-user environment, API tokens. Also the BullMQ backend and socket.io adapter. | `core-kit/packages/redis`; keys in `consts/redis.ts`; launch keys expire after `LAUNCH_EXPIRED` (7 days by default) |
+| **Redis** | Everything about a *running* launch: the launch document, node inputs/outputs/state/status/progress/logs/jobs, flow completion sets, processing locks, heartbeats, pipeline outputs and errors, scope queues. Also deploys (the hot copy used by the deploy API), global and per-user environment, API tokens. Also the BullMQ backend and socket.io adapter. | `core-kit/packages/redis`; a launch's keys only through `packages/launches/live-state` (layout in its `keys.ts`; they expire after `LAUNCH_EXPIRED`, 7 days by default), other keys in `consts/redis.ts` |
 | **Kafka** | Append-only event streams: `pipeline.messages`, `pipeline.errors`, `pipeline.metrics.outputs`, `pipeline.metrics.finished` | `app/streams.ts` (`core-kit/packages/stream`) |
 | **ClickHouse** | Analytics tables fed from Kafka by `Kafka` engine tables plus materialized views (see `migrations/clickhouse`) | `core-kit/packages/clickhouse` |
 | **S3** | Uploaded assets, launch artefacts, pipeline outputs (separate buckets, resolved by `app/storage.ts`) | `app/s3.ts`, `app/storage.ts` |
