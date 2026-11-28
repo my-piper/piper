@@ -24,6 +24,7 @@ beforeAll(async () => {
   await launchQueue.waitUntilReady();
   await import("jobs/process-node/process-rapid-nodes");
   await import("jobs/run-launch");
+  await import("jobs/record-launch-interrupted");
 });
 
 beforeEach(() => {

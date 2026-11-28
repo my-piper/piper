@@ -12,7 +12,7 @@ import errorHandler from "jobs/process-node/process-node-error";
 import {
   recordLaunchRun,
   recordNodeExecution,
-} from "jobs/process-node/run-metrics";
+} from "packages/launches/run-metrics";
 import { ExecutionError } from "packages/deno/classes";
 import { NodeJobResult } from "types/node";
 import { beforeEach, describe, expect, it, vi } from "vitest";

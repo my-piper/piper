@@ -2,6 +2,7 @@ import { JobsQueue } from "core-kit/packages/queue";
 import { minutesToMilliseconds, secondsToMilliseconds } from "date-fns";
 import { CheckPackageUpdatesJob } from "models/jobs/check-package-updates";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
+import { RecordLaunchInterruptedJob } from "models/jobs/record-launch-interrupted-job";
 import { SaveNodeArtefactsJob } from "models/jobs/save-node-artefact";
 import { SetLaunchErrorsJob } from "models/jobs/set-launch-errors-job";
 import { SetLaunchInputsJob } from "models/jobs/set-launch-inputs-job";
@@ -78,6 +79,16 @@ export const queues = {
           attempts: 1,
         },
       }),
+    },
+    interrupted: {
+      record: new JobsQueue(
+        "record_launch_interrupted",
+        RecordLaunchInterruptedJob,
+        {
+          limiter: { max: 100, duration: secondsToMilliseconds(10) },
+          concurrency: 50,
+        }
+      ),
     },
   },
 };

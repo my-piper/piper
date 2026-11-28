@@ -16,6 +16,7 @@ app.get("/metrics", async (req, res) => {
       queues.launches.run.metrics(),
       queues.launches.outputs.set.metrics(),
       queues.launches.errors.set.metrics(),
+      queues.launches.interrupted.record.metrics(),
       queues.nodes.process.rapid.metrics(),
       queues.nodes.process.regular.metrics(),
       queues.nodes.process.deferred.metrics(),

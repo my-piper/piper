@@ -125,6 +125,13 @@ const Workers = new Map<string, Worker>([
             loader: () => import("./jobs/set-launch-errors"),
           },
         ],
+        [
+          "record_launch_interrupted",
+          {
+            queue: queues.launches.interrupted.record,
+            loader: () => import("./jobs/record-launch-interrupted"),
+          },
+        ],
       ]),
     },
   ],
@@ -210,7 +217,7 @@ const shutdown = async () => {
         promises.push(queue.queue.close());
       }
       return promises;
-    })(),
+    })()
   );
   logger.info("Queues are closed");
 
