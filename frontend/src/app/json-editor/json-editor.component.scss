@@ -108,7 +108,6 @@
       }
     }
 
-    button.json-editor-btn-edit_properties,
     button.json-editor-btn-collapse,
     button.json-editor-btn-delete,
     button.json-editor-btn-moveup,
@@ -160,10 +159,6 @@
       margin: 0 0.25rem 0.5rem 0;
     }
 
-    button.json-editor-btn-edit_properties::after {
-      mask-image: url(../../assets/icons/context-menu.svg);
-    }
-
     button.json-editor-btn-collapse::after {
       mask-image: url(../../assets/icons/folder.svg);
     }
@@ -199,40 +194,6 @@
 
       &:hover {
         background-color: var(--tui-background-neutral-1-hover);
-      }
-    }
-
-    .je-modal {
-      margin-top: 0.125rem;
-      padding: 0.25rem;
-      background-color: var(--tui-background-base-alt);
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-
-      input[type="checkbox"] {
-        position: relative;
-        width: 1.5em;
-        height: 1.5em;
-        min-width: 1.5em;
-        margin: 0 0.25rem 0 0;
-        padding: 0;
-        background: var(--tui-background-base);
-        border: 1px solid var(--tui-border-normal);
-        border-radius: 2px;
-        appearance: none;
-        outline: 0;
-        cursor: pointer;
-
-        &:checked {
-          background: var(--tui-background-accent-1)
-            url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMiAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuODMzOTggNC41ODM5OEw0Ljc1MDY1IDcuNTAwNjVMMTAuMTY3MyAyLjA4Mzk4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K")
-            no-repeat center center;
-        }
-      }
-
-      button.json-editor-btn-add {
-        padding: 0.25rem 1rem;
       }
     }
   }
