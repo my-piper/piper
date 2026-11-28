@@ -200,8 +200,8 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
 - `GET .../state` returns `{ launchedAt, errors: string[], outputs }`.
   `outputs` holds only the child pipeline's pipeline-level `outputs`, read from
   `PIPELINE_OUTPUT` keys. `json` outputs are parsed (`launching.ts:242-270`,
-  `models/launch.ts:353-368`). The child pipeline must declare `outputs`, or
-  nothing comes back.
+  `models/launch.ts:353-368`). At least one child pipeline output must be fed
+  by a Flow, otherwise Run Deploy refuses the Deploy (`child-launches.ts`).
 - There is no "finished" flag in `LaunchState` (`models/launch.ts:353-368`).
   The backend itself treats a launch as finished once every pipeline output fed
   by a Flow is filled (`isFinished` in `packages/launches/finished.ts`). A caller should poll
@@ -249,7 +249,8 @@ either kicks it or queues a `run_launch` job. It returns right away
   `models/run-scope.ts:4-16`). A scoped launch is pushed to a Redis list and
   waits in `run_launch` until its position is below `maxConcurrent`
   (`launching.ts:197-200`, `jobs/run-launch.ts:30-68`). It is removed from the
-  list when all pipeline outputs are filled (`complete-node.ts:287-292`).
+  list when every pipeline output fed by a Flow has a value (`isFinished` in
+  `packages/launches/finished.ts`).
   Launches whose heartbeat has died are pruned (`run-launch.ts:41-48`). Only
   deploy launches carry a scope; `launch-project.ts` passes none
   (`launch-project.ts:51-67`).
