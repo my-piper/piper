@@ -65,6 +65,11 @@
     flex: none;
   }
 
+  // Lighter than Taiga's default 2px stroke for the open/delete icons.
+  .action {
+    --tui-stroke-width: 0.09375rem;
+  }
+
   .time {
     flex: 1;
     min-width: 0;
