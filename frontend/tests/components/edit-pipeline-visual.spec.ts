@@ -3,6 +3,7 @@ import { hover, openDialog, unhover } from "../helpers/taiga";
 import { fakeAsync, tick } from "@angular/core/testing";
 import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
+import * as YAML from "yaml";
 import { NodeFlow } from "src/models/node-flow";
 import { NodeInput } from "src/models/node";
 import { Layout, LayoutGroup, PipelineInput } from "src/models/pipeline";
@@ -1588,6 +1589,52 @@ describe("EditPipelineVisualComponent", () => {
       expect(copy).toEqual({ prevented: false, text: "" });
       expect(paste.defaultPrevented).toBe(false);
       expect(project.pipeline.nodes.size).toBe(nodes);
+      finish();
+    }));
+
+    it("saves a Node pasted as YAML and makes it the first start node", fakeAsync(() => {
+      const project = projectWith({
+        ...smallGraphPipeline(),
+        start: { nodes: [] },
+      });
+      const baseline = cloneDeep(toPlain(project.pipeline));
+      const yaml = YAML.stringify({
+        _id: "pasted",
+        title: "Pasted",
+        arrange: { x: 0, y: 0 },
+        inputs: {},
+        outputs: {},
+      });
+      const item = new ClipboardItem({ "text/plain": "" });
+      vi.spyOn(item, "getType").mockResolvedValue({
+        text: () => Promise.resolve(yaml),
+      } as Blob);
+      vi.spyOn(navigator.clipboard, "read").mockResolvedValue([item]);
+      const { element, controller } = setupEditor({ project });
+
+      element.dispatchEvent(clipboardEvent("paste", yaml));
+      tick(AUTOSAVE);
+      const request = controller.expectOne(
+        "/api/projects/project_aaaa/patch/rev_a_1",
+      );
+      const body = request.request.body as { pipeline: object };
+      request.flush(patchResponsePlain("rev_a_2"));
+      tick(UI_DELAY);
+
+      const rebuilt = patch(cloneDeep(baseline), body.pipeline as never) as {
+        nodes: Record<string, { title: string }>;
+        start: { nodes: string[] };
+      };
+      const [id] = [...project.pipeline.nodes.keys()].filter((k) =>
+        k.startsWith("pasted_"),
+      );
+      expect(request.request.method).toBe("PATCH");
+      expect(rebuilt.nodes[id]).toEqual(
+        expect.objectContaining({ title: "Pasted" }),
+      );
+      expect(rebuilt.start.nodes).toEqual([id]);
+      expect(nodeElement(element, id)).toBeTruthy();
+      controller.verify();
       finish();
     }));
 
