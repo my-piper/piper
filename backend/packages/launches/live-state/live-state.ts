@@ -193,18 +193,23 @@ export class LaunchLiveState {
   }
 
   /**
-   * The first `count + 1` Launches waiting in a concurrency scope that are
-   * still alive, in order. Dead ones (no heartbeat) leave the scope.
+   * The first `count + 1` Launches waiting in a concurrency scope (`waiting`)
+   * and those of them still alive, in order (`live`). Dead ones (without a
+   * heartbeat) leave the scope.
    */
-  async scopeQueue(scope: string, count: number): Promise<string[]> {
-    const queue = await this.one<string[]>({
-      op: "lRange",
-      key: scope,
-      start: 0,
-      stop: count,
-    });
+  async scopeQueue(
+    scope: string,
+    count: number
+  ): Promise<{ waiting: number; live: string[] }> {
+    const queue =
+      (await this.one<string[]>({
+        op: "lRange",
+        key: scope,
+        start: 0,
+        stop: count,
+      })) ?? [];
     if (queue.length === 0) {
-      return [];
+      return { waiting: 0, live: [] };
     }
     const heartbeats = await this.store.exec(
       queue.map((id) => ({ op: "exists", key: LAUNCH_HEARTBEAT(id) }))
@@ -215,7 +220,10 @@ export class LaunchLiveState {
         dead.map((id) => ({ op: "lRem", key: scope, value: id }))
       );
     }
-    return queue.filter((_, i) => heartbeats[i] !== 0);
+    return {
+      waiting: queue.length,
+      live: queue.filter((_, i) => heartbeats[i] !== 0),
+    };
   }
 
   async leaveScope(scope: string, launch: string): Promise<void> {

@@ -1,4 +1,5 @@
-import { LAUNCH_EXPIRED, NODE_INPUT } from "consts/redis";
+import { liveStore } from "../../helpers/live-state";
+import { LAUNCH_EXPIRED, NODE_INPUT } from "packages/launches/live-state/keys";
 import { toInstance } from "core-kit/packages/transform";
 import { LaunchRequest } from "models/launch-request";
 import { Pipeline } from "models/pipeline";
@@ -6,8 +7,7 @@ import { run } from "packages/launches/launching";
 import { describe, expect, it, vi } from "vitest";
 import { pipelineFixture } from "../../fixtures/pipeline";
 
-const { redis, insertOne, planInputs } = vi.hoisted(() => ({
-  redis: { setEx: vi.fn(), readInstance: vi.fn() },
+const { insertOne, planInputs } = vi.hoisted(() => ({
   insertOne: vi.fn(),
   planInputs: vi.fn(),
 }));
@@ -17,10 +17,15 @@ vi.mock("app/queues", () => ({
   queues: { launches: { inputs: { set: { plan: planInputs } } } },
 }));
 vi.mock("app/storage", () => ({}));
-vi.mock("core-kit/packages/redis", () => ({
-  default: redis,
-  readInstance: redis.readInstance,
-}));
+// reached through imports only; launch inputs live in the live state
+vi.mock("core-kit/packages/redis", () => ({ default: {} }));
+
+// a node input as stored: the wire value the worker decodes
+async function stored(launch: string, input: string) {
+  const key = NODE_INPUT(launch, "echo_node", input);
+  const [value] = await liveStore.exec([{ op: "get", key }]);
+  return { value, ttl: liveStore.ttl(key) };
+}
 
 describe("launch input value preservation", () => {
   it.each([
@@ -48,13 +53,10 @@ describe("launch input value preservation", () => {
     const launch = await run({ pipeline, launchRequest });
 
     for (const [index, key] of ["enabled", "count", "text"].entries()) {
-      const inputKey = NODE_INPUT(launch._id, "echo_node", key);
-      const writes = redis.setEx.mock.calls.filter(([key]) => key === inputKey);
-      expect(writes.at(-1)).toEqual([
-        inputKey,
-        LAUNCH_EXPIRED,
-        expected[index],
-      ]);
+      expect(await stored(launch._id, key)).toEqual({
+        value: expected[index],
+        ttl: LAUNCH_EXPIRED,
+      });
     }
   });
 
@@ -66,11 +68,7 @@ describe("launch input value preservation", () => {
 
     const launch = await run({ pipeline, launchRequest });
 
-    expect(
-      redis.setEx.mock.calls.some(
-        ([key]) => key === NODE_INPUT(launch._id, "echo_node", "text")
-      )
-    ).toBe(false);
+    expect((await stored(launch._id, "text")).value).toBeNull();
   });
 
   it.each([
@@ -96,11 +94,7 @@ describe("launch input value preservation", () => {
     const launch = await run({ pipeline, launchRequest });
 
     for (const [index, key] of ["enabled", "count", "text"].entries()) {
-      expect(redis.setEx).toHaveBeenCalledWith(
-        NODE_INPUT(launch._id, "echo_node", key),
-        LAUNCH_EXPIRED,
-        expected[index]
-      );
+      expect((await stored(launch._id, key)).value).toBe(expected[index]);
     }
   });
 
@@ -112,18 +106,9 @@ describe("launch input value preservation", () => {
 
     const launch = await run({ pipeline, launchRequest });
 
-    expect(redis.setEx).toHaveBeenCalledWith(
-      NODE_INPUT(launch._id, "echo_node", "enabled"),
-      LAUNCH_EXPIRED,
-      "1"
-    );
+    expect((await stored(launch._id, "enabled")).value).toBe("1");
     for (const key of ["count", "text"]) {
-      expect(
-        redis.setEx.mock.calls.some(
-          ([writtenKey]) =>
-            writtenKey === NODE_INPUT(launch._id, "echo_node", key)
-        )
-      ).toBe(false);
+      expect((await stored(launch._id, key)).value).toBeNull();
     }
   });
 });

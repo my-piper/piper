@@ -1,8 +1,17 @@
-import { httpDoubles } from "../../helpers/http-boundaries";
+import {
+  httpDoubles,
+  liveState,
+  liveStore,
+} from "../../helpers/http-boundaries";
 import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { HTTP_TEST_TIME, userToken } from "../../fixtures/http";
-import { beforeEach, describe, expect, it } from "vitest";
+import { launchFixture } from "../../fixtures/launch";
+import {
+  LAUNCH_EXPIRED,
+  LAUNCH_INTERRUPTED,
+} from "packages/launches/live-state/keys";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let context: Awaited<ReturnType<typeof createHttpApp>>;
 
@@ -31,16 +40,14 @@ describe("project launch HTTP contract", () => {
     });
     expect(response.body).not.toHaveProperty("pipeline");
     expect(httpDoubles.launches.insertOne).toHaveBeenCalledOnce();
-    expect(httpDoubles.redis.setEx).toHaveBeenCalledWith(
-      "launch:http-generated-id:nodes:echo_node:inputs:count",
-      expect.any(Number),
-      "0"
-    );
-    expect(httpDoubles.redis.setEx).toHaveBeenCalledWith(
-      "launch:http-generated-id:nodes:echo_node:inputs:text",
-      expect.any(Number),
-      "override"
-    );
+    const launch = await liveState.get("http-generated-id");
+    expect(
+      await liveState.inputs(
+        launch._id,
+        "echo_node",
+        launch.pipeline.nodes.get("echo_node").inputs
+      )
+    ).toMatchObject({ count: 0, text: "override" });
     expect(httpDoubles.plans.rapid).toHaveBeenCalledExactlyOnceWith(
       { launch: "http-generated-id", node: "echo_node" },
       {}
@@ -113,7 +120,7 @@ describe("project launch HTTP contract", () => {
 
       expect(response.status).toBe(400);
       expect(httpDoubles.launches.insertOne).not.toHaveBeenCalled();
-      expect(httpDoubles.redis.setEx).not.toHaveBeenCalled();
+      expect(liveStore.keys()).toEqual([]);
     }
   );
 
@@ -132,6 +139,13 @@ describe("project launch HTTP contract", () => {
   });
 });
 
+async function storeLaunch() {
+  await liveState.create(
+    Object.assign(launchFixture(), { _id: "launch-http" }),
+    []
+  );
+}
+
 describe("launch interruption contract", () => {
   beforeEach(() => {
     httpDoubles.launches.findOne.mockImplementation(async ({ _id }) =>
@@ -142,25 +156,23 @@ describe("launch interruption contract", () => {
   });
 
   it("sets an expiring interruption marker for the launching user", async () => {
-    httpDoubles.redis.EXISTS.mockResolvedValue(1);
+    await storeLaunch();
 
     const response = await context.request
       .post("/api/launches/launch-http/interrupt")
       .set("user-token", userToken());
 
     expect(response.status).toBe(204);
-    expect(httpDoubles.redis.EXISTS).toHaveBeenCalledExactlyOnceWith(
-      "launch:launch-http"
+    expect(await liveState.interruptedAt("launch-http")).toEqual(
+      HTTP_TEST_TIME
     );
-    expect(httpDoubles.redis.setEx).toHaveBeenCalledExactlyOnceWith(
-      "launch:launch-http:interrupted",
-      604800,
-      HTTP_TEST_TIME.toISOString()
+    expect(liveStore.ttl(LAUNCH_INTERRUPTED("launch-http"))).toBe(
+      LAUNCH_EXPIRED
     );
   });
 
   it("interrupts child launches recursively", async () => {
-    httpDoubles.redis.EXISTS.mockResolvedValue(1);
+    await storeLaunch();
     httpDoubles.launches.distinct
       .mockResolvedValueOnce(["child-1"])
       .mockResolvedValueOnce(["grandchild-1"]);
@@ -173,24 +185,9 @@ describe("launch interruption contract", () => {
     expect(httpDoubles.launches.distinct).toHaveBeenCalledWith("_id", {
       parent: "child-1",
     });
-    expect(httpDoubles.redis.setEx).toHaveBeenNthCalledWith(
-      1,
-      "launch:launch-http:interrupted",
-      604800,
-      HTTP_TEST_TIME.toISOString()
-    );
-    expect(httpDoubles.redis.setEx).toHaveBeenNthCalledWith(
-      2,
-      "launch:child-1:interrupted",
-      604800,
-      HTTP_TEST_TIME.toISOString()
-    );
-    expect(httpDoubles.redis.setEx).toHaveBeenNthCalledWith(
-      3,
-      "launch:grandchild-1:interrupted",
-      604800,
-      HTTP_TEST_TIME.toISOString()
-    );
+    for (const launch of ["launch-http", "child-1", "grandchild-1"]) {
+      expect(await liveState.interruptedAt(launch)).toEqual(HTTP_TEST_TIME);
+    }
   });
 
   it("rejects interruption of a missing launch", async () => {
@@ -199,15 +196,17 @@ describe("launch interruption contract", () => {
       .set("user-token", userToken());
 
     expect(response.status).toBe(404);
-    expect(httpDoubles.redis.setEx).not.toHaveBeenCalled();
+    expect(await liveState.interruptedAt("missing")).toBeNull();
   });
 
   it("rejects anonymous interruption before reading Redis", async () => {
+    const exec = vi.spyOn(liveStore, "exec");
+
     const response = await context.request.post(
       "/api/launches/launch-http/interrupt"
     );
 
     expect(response.status).toBe(400);
-    expect(httpDoubles.redis.EXISTS).not.toHaveBeenCalled();
+    expect(exec).not.toHaveBeenCalled();
   });
 });

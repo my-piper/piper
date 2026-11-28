@@ -1,24 +1,12 @@
 import { vi } from "vitest";
+import { liveStore } from "./live-state";
 
 const doubles = vi.hoisted(() => ({
+  // Redis outside the Launch live state: the Environment and Deploys
   redis: {
     get: vi.fn(),
-    GET: vi.fn(),
-    EXISTS: vi.fn(),
-    setEx: vi.fn(),
-    set: vi.fn(),
-    sAdd: vi.fn(),
-    sIsMember: vi.fn(),
-    expire: vi.fn(),
-    del: vi.fn(),
-    rPush: vi.fn(),
-    lPush: vi.fn(),
-    lRem: vi.fn(),
-    lRange: vi.fn(),
-    lTrim: vi.fn(),
-    incrBy: vi.fn(),
-    multi: vi.fn(),
   },
+
   plans: {
     rapid: vi.fn(),
     regular: vi.fn(),
@@ -48,6 +36,7 @@ const doubles = vi.hoisted(() => ({
 }));
 
 export { doubles };
+export { liveState, liveStore } from "./live-state";
 
 vi.mock("core-kit/packages/redis/redis", () => ({ default: doubles.redis }));
 vi.mock("core-kit/packages/redis", async () => ({
@@ -107,21 +96,8 @@ vi.mock("app/storage", () => ({
 }));
 vi.mock("packages/deno/execute", () => ({ execute: doubles.execute }));
 
-// Every redis.multi() chain resolves exec() with this result.
-export function transactionResult(result: unknown[]) {
-  doubles.redis.multi.mockImplementation(() => {
-    const transaction = new Proxy(
-      { exec: async () => result },
-      {
-        get: (target, name) =>
-          name in target ? target[name as "exec"] : () => transaction,
-      }
-    );
-    return transaction;
-  });
-}
-
 export function resetExecutionDoubles() {
+  liveStore.clear();
   for (const mock of [
     ...Object.values(doubles.redis),
     ...Object.values(doubles.plans),
@@ -138,14 +114,6 @@ export function resetExecutionDoubles() {
   }
 
   doubles.redis.get.mockResolvedValue(null);
-  doubles.redis.GET.mockResolvedValue(null);
-  doubles.redis.EXISTS.mockResolvedValue(0);
-  doubles.redis.set.mockResolvedValue("OK");
-  doubles.redis.sIsMember.mockResolvedValue(true);
-  doubles.redis.lRange.mockResolvedValue([]);
-  doubles.redis.rPush.mockResolvedValue(1);
-  // a transaction that finds no open node execution
-  transactionResult([{}, 0]);
   doubles.distinct.mockResolvedValue([]);
   doubles.bucket.mockReturnValue(null);
   doubles.execute.mockResolvedValue({

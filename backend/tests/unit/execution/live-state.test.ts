@@ -55,7 +55,10 @@ describe("the Launch live state", () => {
       )
     ).toEqual({ enabled: false, count: 0 });
     await state.beat(launch._id);
-    expect(await state.scopeQueue("scope-test", 10)).toEqual([launch._id]);
+    expect(await state.scopeQueue("scope-test", 10)).toEqual({
+      waiting: 1,
+      live: [launch._id],
+    });
   });
 
   it("expires every key of a launch after LAUNCH_EXPIRED", async () => {
@@ -111,15 +114,22 @@ describe("the Launch live state", () => {
     await state.beat("first");
     await state.beat("second");
 
-    const live = await state.scopeQueue("scope-test", 5);
+    const queue = await state.scopeQueue("scope-test", 5);
 
-    expect(live).toEqual(["first", "second"]);
-    expect(await state.scopeQueue("scope-test", 5)).toEqual([
-      "first",
-      "second",
-    ]);
+    expect(queue).toEqual({ waiting: 3, live: ["first", "second"] });
+    expect(await state.scopeQueue("scope-test", 5)).toEqual({
+      waiting: 2,
+      live: ["first", "second"],
+    });
     vi.advanceTimersByTime(30_000);
-    expect(await state.scopeQueue("scope-test", 5)).toEqual([]);
+    expect(await state.scopeQueue("scope-test", 5)).toEqual({
+      waiting: 2,
+      live: [],
+    });
+    expect(await state.scopeQueue("scope-test", 5)).toEqual({
+      waiting: 0,
+      live: [],
+    });
   });
 
   describe("a node", () => {

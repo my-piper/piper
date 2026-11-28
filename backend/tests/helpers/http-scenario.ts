@@ -5,10 +5,11 @@ import {
   httpProjectFixture,
   httpUserFixture,
 } from "../fixtures/http";
-import { httpDoubles, resetHttpDoubles } from "./http-boundaries";
+import { httpDoubles, liveStore, resetHttpDoubles } from "./http-boundaries";
 
 export function httpScenario() {
   resetHttpDoubles();
+  liveStore.clear();
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(HTTP_TEST_TIME);
   vi.stubEnv("JWT_SECRET", HTTP_TEST_SECRET);

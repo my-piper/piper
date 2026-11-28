@@ -1,16 +1,12 @@
 import {
   jobDoubles,
+  liveState,
+  liveStore,
   resetJobDoubles,
   runJob,
 } from "../../helpers/job-boundaries";
 import { EXECUTION_TIME, launchFixture } from "../../fixtures/launch";
-import {
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  PIPELINE_OUTPUT,
-  PIPELINE_OUTPUT_DATA,
-} from "consts/redis";
-import { toPlain } from "core-kit/packages/transform";
+import { PIPELINE_OUTPUT } from "packages/launches/live-state/keys";
 import { PipelineIOType } from "types/pipeline";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -27,12 +23,23 @@ beforeEach(() => {
   vi.setSystemTime(EXECUTION_TIME);
   launch = launchFixture();
   outputValue = '{"items":[false,0,""]}';
-  jobDoubles.redis.get.mockImplementation(async (key: string) => {
-    if (key === LAUNCH(launch._id)) return JSON.stringify(toPlain(launch));
-    if (key === PIPELINE_OUTPUT(launch._id, "result")) return outputValue;
-    return null;
-  });
 });
+
+// stores the launch as the test changed it, with the output's stored (encoded)
+// value, then runs the job
+async function run(queue: string, payload: object) {
+  await liveState.create(launch, []);
+  if (outputValue !== null) {
+    await liveStore.exec([
+      {
+        op: "set",
+        key: PIPELINE_OUTPUT(launch._id, "result"),
+        value: outputValue,
+      },
+    ]);
+  }
+  return runJob(queue, payload);
+}
 
 describe("set launch output job", () => {
   it("stores output data, records an artefact, and notifies the launcher", async () => {
@@ -47,12 +54,10 @@ describe("set launch output job", () => {
       cursor: "fixed-cursor",
     };
 
-    await runJob("set_launch_output", { launch: launch._id, output: "result" });
+    await run("set_launch_output", { launch: launch._id, output: "result" });
 
-    expect(jobDoubles.redis.setEx).toHaveBeenCalledExactlyOnceWith(
-      PIPELINE_OUTPUT_DATA(launch._id, "result"),
-      LAUNCH_EXPIRED,
-      JSON.stringify({ value: { items: [false, 0, ""] }, type: "json" })
+    expect(await liveState.outputData(launch)).toEqual(
+      new Map([["result", { value: { items: [false, 0, ""] }, type: "json" }]])
     );
     expect(
       jobDoubles.mongo.launchArtefacts.insertOne
@@ -91,7 +96,7 @@ describe("set launch output job", () => {
       launch.pipeline.outputs.get("result").type = type;
       outputValue = encoded;
 
-      await runJob("set_launch_output", {
+      await run("set_launch_output", {
         launch: launch._id,
         output: "result",
       });
@@ -105,7 +110,7 @@ describe("set launch output job", () => {
   it("records an anonymous artefact without notifying", async () => {
     launch.launchedBy = undefined;
 
-    await runJob("set_launch_output", { launch: launch._id, output: "result" });
+    await run("set_launch_output", { launch: launch._id, output: "result" });
 
     expect(jobDoubles.mongo.launchArtefacts.insertOne).toHaveBeenCalledWith(
       expect.objectContaining({ launchedBy: null })
@@ -116,9 +121,9 @@ describe("set launch output job", () => {
   it("does nothing when the pipeline output has no value", async () => {
     outputValue = null;
 
-    await runJob("set_launch_output", { launch: launch._id, output: "result" });
+    await run("set_launch_output", { launch: launch._id, output: "result" });
 
-    expect(jobDoubles.redis.setEx).not.toHaveBeenCalled();
+    expect(await liveState.outputData(launch)).toEqual(new Map());
     expect(jobDoubles.mongo.launchArtefacts.insertOne).not.toHaveBeenCalled();
     expect(jobDoubles.mongo.launches.updateOne).not.toHaveBeenCalled();
   });

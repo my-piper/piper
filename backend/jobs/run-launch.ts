@@ -1,15 +1,9 @@
 import { queues } from "app/queues";
-import {
-  LAUNCH,
-  LAUNCH_HEARTBEAT,
-  LAUNCH_HEARTBEAT_EXPIRED,
-} from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
 import { DelayedError } from "core-kit/packages/queue";
-import redis, { readInstance } from "core-kit/packages/redis";
 import random from "lodash/random";
-import { Launch } from "models/launch";
 import { kick } from "packages/launches";
+import { liveState } from "packages/launches/live-state";
 import { RunLaunchJobResult } from "types/launch";
 
 const REPEAT_DELAY = 5000;
@@ -21,11 +15,7 @@ queues.launches.run.process(async (runJob, job) => {
 
   logger.info("Check if pipeline can run");
 
-  await redis.setEx(
-    LAUNCH_HEARTBEAT(runJob.launch),
-    LAUNCH_HEARTBEAT_EXPIRED,
-    new Date().toISOString()
-  );
+  await liveState.beat(runJob.launch);
 
   const { scope } = runJob;
   const { maxConcurrent } = scope;
@@ -34,20 +24,11 @@ queues.launches.run.process(async (runJob, job) => {
   if (maxConcurrent > 0) {
     const count = Math.ceil(maxConcurrent * 1.75);
     logger.debug(`Retrieve ${count} launches from scope ${scope.id}`);
-    const queue = (await redis.lRange(scope.id, 0, count)) || [];
-    if (queue.length > 0) {
-      logger.debug(`Queue scope ${scope.id}: ${queue.join(" | ")}`);
+    // dead launches (without a heartbeat) leave the scope on the way
+    const { waiting, live } = await liveState.scopeQueue(scope.id, count);
+    if (waiting > 0) {
+      logger.debug(`Live in scope ${scope.id}: ${live.join(" | ")}`);
 
-      const multi = redis.multi();
-      queue.forEach((id) => multi.exists(LAUNCH_HEARTBEAT(id)));
-      const heartbeats = await multi.exec();
-      const dead = queue.filter((_, i) => heartbeats[i] === 0);
-      if (dead.length > 0) {
-        logger.debug(`Dead launches: ${dead.join(" | ")}`);
-        await Promise.all(dead.map((id) => redis.lRem(scope.id, 0, id)));
-      }
-
-      const live = queue.filter((_, i) => heartbeats[i] !== 0);
       const position = live.indexOf(runJob.launch);
       if (position !== -1) {
         logger.debug(`Position in queue ${position}`);
@@ -73,7 +54,7 @@ queues.launches.run.process(async (runJob, job) => {
 
   logger.info("Pipeline can run");
 
-  const launch = await readInstance(LAUNCH(runJob.launch), Launch);
+  const launch = await liveState.get(runJob.launch);
   if (!launch) {
     logger.error("Launch is not found");
     return RunLaunchJobResult.LAUNCH_NOT_FOUND;

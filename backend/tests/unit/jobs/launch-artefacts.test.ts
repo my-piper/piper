@@ -1,11 +1,11 @@
 import {
   jobDoubles,
+  liveState,
   resetJobDoubles,
   runJob,
 } from "../../helpers/job-boundaries";
 import { EXECUTION_TIME, launchFixture } from "../../fixtures/launch";
-import { LAUNCH, NODE_OUTPUTS } from "consts/redis";
-import { toInstance, toPlain } from "core-kit/packages/transform";
+import { toInstance } from "core-kit/packages/transform";
 import { NodeOutput } from "models/node";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -22,17 +22,24 @@ beforeEach(() => {
   vi.setSystemTime(EXECUTION_TIME);
   launch = launchFixture();
   outputs = { result: '{\n  "enabled": false\n}' };
-  jobDoubles.redis.get.mockImplementation(async (key: string) => {
-    if (key === LAUNCH(launch._id)) return JSON.stringify(toPlain(launch));
-    if (key === NODE_OUTPUTS(launch._id, "echo_node"))
-      return outputs && JSON.stringify(outputs);
-    return null;
-  });
 });
+
+// stores the launch as the test changed it, with the node's outputs, then
+// runs the job
+async function run(queue: string, payload: object) {
+  await liveState.create(launch, []);
+  if (outputs) {
+    await liveState.nodeCompleted(launch, "echo_node", {
+      outputs: outputs as Record<string, string>,
+      processed: true,
+    });
+  }
+  return runJob(queue, payload);
+}
 
 describe("save launch artefacts job", () => {
   it("records one artefact per produced node output", async () => {
-    await runJob("save_node_artefacts", {
+    await run("save_node_artefacts", {
       launch: launch._id,
       node: "echo_node",
     });
@@ -56,7 +63,7 @@ describe("save launch artefacts job", () => {
   it("skips outputs the node did not produce", async () => {
     outputs = {};
 
-    await runJob("save_node_artefacts", {
+    await run("save_node_artefacts", {
       launch: launch._id,
       node: "echo_node",
     });
@@ -74,7 +81,7 @@ describe("save launch artefacts job", () => {
     outputs = { picture: "https://example.com/a.png", result: "[]" };
     jobDoubles.download.mockRejectedValue(failure);
 
-    await runJob("save_node_artefacts", {
+    await run("save_node_artefacts", {
       launch: launch._id,
       node: "echo_node",
     });
@@ -95,7 +102,7 @@ describe("save launch artefacts job", () => {
   it("does nothing when the node has no stored outputs", async () => {
     outputs = null;
 
-    await runJob("save_node_artefacts", {
+    await run("save_node_artefacts", {
       launch: launch._id,
       node: "echo_node",
     });
@@ -104,7 +111,7 @@ describe("save launch artefacts job", () => {
   });
 
   it("ignores a launch that is no longer in Redis", async () => {
-    await runJob("save_node_artefacts", {
+    await run("save_node_artefacts", {
       launch: "missing-launch",
       node: "echo_node",
     });

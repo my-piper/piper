@@ -2,17 +2,7 @@ import mongo from "app/mongo";
 import { queues } from "app/queues";
 import * as storage from "app/storage";
 import { BASE_URL } from "consts/core";
-import {
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  LAUNCH_INTERRUPTED,
-  NODE_INPUT,
-  PIPELINE_ERRORS,
-  PIPELINE_OUTPUT,
-  PIPELINE_OUTPUT_DATA,
-} from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
-import redis, { setValue } from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { FatalError, NotFoundError } from "core-kit/types/errors";
 import { dataUriToBuffer } from "data-uri-to-buffer";
@@ -40,7 +30,7 @@ import { PipelineIOType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import { ulid } from "ulid";
 import { getFileInfo, withTempContext } from "utils/files";
-import { fromRedisValue, toRedisValue } from "utils/redis";
+import { InputValue, liveState } from "./live-state";
 import { sid } from "utils/string";
 import { getPoster } from "utils/video";
 import { download, extFromMime } from "utils/web";
@@ -78,21 +68,16 @@ export async function run(
   }
 
   // set inputs for nodes
+  const inputs: InputValue[] = [];
   for (const [id, node] of pipeline.nodes) {
     logger.debug(`Node ${id}`);
     if (node.inputs) {
       for (const [key, input] of node.inputs) {
-        const save = (value: Primitive) =>
-          redis.setEx(
-            NODE_INPUT(_id, id, key),
-            LAUNCH_EXPIRED,
-            toRedisValue(input.type, value)
-          );
         const value = launchRequest.nodes?.get(id)?.inputs?.get(key);
         if (value !== undefined) {
-          await save(value);
+          inputs.push({ node: id, input: key, value });
         } else if (input.required && input.default !== undefined) {
-          await save(input.default);
+          inputs.push({ node: id, input: key, value: input.default });
         }
       }
     }
@@ -133,12 +118,7 @@ export async function run(
       if (value !== undefined) {
         if (input.flows) {
           for (const [, flow] of input.flows) {
-            const to = pipeline.nodes.get(flow.to).inputs.get(flow.input);
-            await redis.setEx(
-              NODE_INPUT(_id, flow.to, flow.input),
-              LAUNCH_EXPIRED,
-              toRedisValue(to.type, value)
-            );
+            inputs.push({ node: flow.to, input: flow.input, value });
           }
         }
       }
@@ -175,15 +155,10 @@ export async function run(
     })() as { _id: string }
   );
 
-  await redis.setEx(
-    LAUNCH(launch._id),
-    LAUNCH_EXPIRED,
-    JSON.stringify(toPlain(launch))
-  );
+  await liveState.create(launch, inputs);
 
   if (scope?.activated) {
     logger.debug(`Run pipeline in scope ${scope.id}`);
-    await redis.rPush(scope.id, launch._id);
     await queues.launches.run.plan({ launch: launch._id, scope });
   } else {
     await kick(launch);
@@ -199,9 +174,7 @@ export async function run(
 export async function kick(launch: Launch) {
   if (!launch.startedAt) {
     launch.startedAt = new Date();
-    await redis.set(LAUNCH(launch._id), JSON.stringify(toPlain(launch)), {
-      KEEPTTL: true,
-    });
+    await liveState.started(launch);
   }
 
   const {
@@ -216,11 +189,7 @@ export async function kick(launch: Launch) {
 
 // interrupts the launch and, recursively, every child launch it started
 export async function interrupt(id: string): Promise<void> {
-  await setValue(
-    LAUNCH_INTERRUPTED(id),
-    new Date().toISOString(),
-    LAUNCH_EXPIRED
-  );
+  await liveState.interrupt(id);
   const children = await mongo.launches.distinct("_id", { parent: id });
   for (const child of children) {
     await interrupt(child);
@@ -228,11 +197,11 @@ export async function interrupt(id: string): Promise<void> {
 }
 
 export async function getPlain(id: string): Promise<object> {
-  const json = await redis.get(LAUNCH(id));
-  if (!json) {
+  const plain = await liveState.getPlain(id);
+  if (!plain) {
     throw new NotFoundError(`Launch ${id} is not found`);
   }
-  return JSON.parse(json) as object;
+  return plain;
 }
 
 export async function get(id: string): Promise<Launch> {
@@ -245,48 +214,34 @@ export async function state(id: string): Promise<LaunchState> {
   const { launchedAt, pipeline } = launch;
 
   const outputs = new Map<string, Primitive>();
-
-  if (pipeline.outputs) {
-    for (const [key, output] of pipeline.outputs) {
-      const value = await redis.get(PIPELINE_OUTPUT(launch._id, key));
-      if (value !== null) {
-        const primitive = fromRedisValue(output.type, value);
-        const convert = () => {
-          switch (output.type) {
-            case "json":
-              return JSON.parse(primitive as string);
-            default:
-              return primitive;
-          }
-        };
-
-        outputs.set(key, convert());
-      }
+  for (const [key, value] of await liveState.outputs(launch)) {
+    switch (pipeline.outputs.get(key).type) {
+      case "json":
+        outputs.set(key, JSON.parse(value as string));
+        break;
+      default:
+        outputs.set(key, value);
     }
   }
 
-  const errors = (await redis.lRange(PIPELINE_ERRORS(id), 0, -1)) || [];
+  const errors = await liveState.errors(id);
   return new LaunchState({ launchedAt, errors, outputs });
 }
 
 export async function data(id: string): Promise<LaunchData> {
   const launch = await get(id);
 
-  const { launchedAt, pipeline } = launch;
+  const { launchedAt } = launch;
 
   const outputs = new Map<string, LaunchArtefact>();
-
-  if (pipeline.outputs) {
-    for (const [key] of pipeline.outputs) {
-      const value = await redis.get(PIPELINE_OUTPUT_DATA(launch._id, key));
-      if (value !== null) {
-        const json = JSON.parse(value);
-        outputs.set(key, toInstance(json, OUTPUT_TYPES[json["type"]]));
-      }
-    }
+  for (const [key, json] of await liveState.outputData(launch)) {
+    outputs.set(
+      key,
+      toInstance(json, OUTPUT_TYPES[(json as { type: string }).type])
+    );
   }
 
-  const errors = (await redis.lRange(PIPELINE_ERRORS(id), 0, -1)) || [];
+  const errors = await liveState.errors(id);
   return new LaunchData({ launchedAt, errors, outputs });
 }
 
