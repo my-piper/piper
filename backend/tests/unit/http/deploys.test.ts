@@ -29,12 +29,19 @@ function deployFixture(changes: object = {}) {
 }
 
 describe("Deploys a user can run from a Node", () => {
-  it("lists the user's Deploys that have pipeline outputs", async () => {
+  it("lists the user's Deploys that have pipeline outputs fed by a flow", async () => {
     httpDoubles.deploysCursor.toArray.mockResolvedValue([
       deployFixture(),
       deployFixture({
         slug: "no_outputs",
         pipeline: { ...pipelineFixture(), outputs: {} },
+      }),
+      deployFixture({
+        slug: "unfed_outputs",
+        pipeline: {
+          ...pipelineFixture(),
+          outputs: { unused: { type: "string" } },
+        },
       }),
     ]);
 

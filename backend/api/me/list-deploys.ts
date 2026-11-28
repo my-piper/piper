@@ -3,11 +3,12 @@ import mongo from "app/mongo";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { DeployNode } from "api/deploys/models/deploy-node";
 import { Deploy } from "models/deploy";
+import { canFinish } from "packages/launches/finished";
 import { checkLogged, handle, isAdmin } from "utils/http";
 
 // The Deploys a user can pick for a Node: those under their own prefix, and
-// for admins also the unprefixed ones. A Deploy without pipeline outputs is
-// left out, as its Child Launch would never finish.
+// for admins also the unprefixed ones. A Deploy without a pipeline output fed
+// by a Flow is left out, as its Child Launch would never finish.
 api.get(
   "/api/me/deploys",
   handle(({ currentUser }) => async () => {
@@ -34,7 +35,7 @@ api.get(
 
     return documents
       .map((document) => toInstance(document, Deploy))
-      .filter(({ pipeline }) => pipeline?.outputs?.size > 0)
+      .filter(({ pipeline }) => pipeline && canFinish(pipeline))
       .map(({ prefix, slug, deployedAt, project }) =>
         toPlain(
           new DeployNode({ prefix, slug, deployedAt, title: project?.title })

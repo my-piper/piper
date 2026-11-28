@@ -86,7 +86,7 @@ export async function run({ inputs, children }) {
 | Fan-out | At most 10 children per node. |
 | Identity | The child runs as the parent's `launchedBy`. |
 | Idempotency | `key -> childId` is saved in `NODE_CHILDREN` **before** the child starts. A key that already has a child is never launched again, so retries don't start duplicates. If starting the child throws, the child is interrupted and the key released, so the retry can start it. |
-| `children` payload | `{ [key]: { launch, status: "running" \| "finished", outputs } }`. A child is `finished` when every pipeline output is filled. Pipeline outputs only, with `json` parsed. Failed children never reach the script (see Failure). |
+| `children` payload | `{ [key]: { launch, status: "running" \| "finished", outputs } }`. A child is `finished` when every pipeline output fed by a Flow is filled (`packages/launches/finished.ts`). Pipeline outputs only, with `json` parsed. Failed children never reach the script (see Failure). |
 | Failure | If a child has errors, or its launch is missing or expired, the node's other children are interrupted and the parent node fails with a fatal (non-retried) error before its script runs. |
 | Depth | `Launch.depth` is 0 for a user's launch and parent + 1 for a child. More than 3 levels fails the node fatally. |
 | Interruption | `POST /api/launches/:id/interrupt` interrupts the launch and its children recursively. Children started while their parent was being interrupted are interrupted right after they start. |
@@ -203,8 +203,8 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
   `models/launch.ts:353-368`). The child pipeline must declare `outputs`, or
   nothing comes back.
 - There is no "finished" flag in `LaunchState` (`models/launch.ts:353-368`).
-  The backend itself treats a launch as finished once every pipeline output is
-  filled (`jobs/process-node/complete-node.ts:273-291`). A caller should poll
+  The backend itself treats a launch as finished once every pipeline output fed
+  by a Flow is filled (`isFinished` in `packages/launches/finished.ts`). A caller should poll
   until all expected outputs are present or `errors` is non-empty.
   **(inference from those two facts)**
 

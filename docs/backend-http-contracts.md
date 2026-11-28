@@ -138,7 +138,7 @@ belongs to another package. Nodes it publishes run `registry:<package>@<version>
 These serve the editor's Run Deploy node (ADR 0011). `GET /api/me/deploys`
 lists the Deploys under the current user's prefix, and for admins also the
 unprefixed ones, newest first, as `{ prefix, slug, title, deployedAt }`
-(`title` is the Project's). A Deploy without pipeline outputs is left out,
+(`title` is the Project's). A Deploy without a pipeline output fed by a Flow is left out,
 since its Child Launch would never finish. The sockets route returns one
 Deploy as
 `{ prefix, slug, title, deployedAt, inputs, outputs }`; `inputs` and `outputs` are its pipeline inputs and outputs keyed by

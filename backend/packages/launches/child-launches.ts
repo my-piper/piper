@@ -16,6 +16,7 @@ import { User } from "models/user";
 import * as deploys from "packages/deploy";
 import { ChildLaunchRequest } from "types/node";
 import { sid } from "utils/string";
+import { canFinish, isFinished } from "./finished";
 import { get, interrupt, run, state } from "./launching";
 
 export const MAX_CHILD_DEPTH = 3;
@@ -68,9 +69,9 @@ async function validate(
   for (const request of pending) {
     const { slug, prefix } = request.deploy;
     const deploy = await deploys.get(slug, prefix);
-    if (!deploy.pipeline.outputs?.size) {
+    if (!canFinish(deploy.pipeline)) {
       throw new FatalError(
-        `Deploy ${slug} has no pipeline outputs, so its child launch would never finish`
+        `Deploy ${slug} has no pipeline outputs fed by a flow, so its child launch would never finish`
       );
     }
     if (deploy.scope?.activated && deploy.scope.id === parent.scope?.id) {
@@ -199,7 +200,7 @@ export async function readChildren(
 
     states[key] = {
       launch,
-      status: outputs.size >= pipeline.outputs.size ? "finished" : "running",
+      status: isFinished(pipeline, outputs) ? "finished" : "running",
       outputs: Object.fromEntries(outputs),
     };
   }

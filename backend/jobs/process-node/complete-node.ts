@@ -21,6 +21,7 @@ import { PipelineEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
 import { NodeStatus } from "models/node";
+import { isFinished, requiredOutputs } from "packages/launches/finished";
 import { plan } from "packages/nodes/plan-node";
 import { NextNode, NodeJobResult } from "types/node";
 import { PipelineEventType } from "types/pipeline";
@@ -233,8 +234,7 @@ export async function completeNode({
   const processedAt = new Date();
 
   if (pipeline.outputs) {
-    let total = 0,
-      filled = 0;
+    const filled = new Set<string>();
     for (const [key, output] of pipeline.outputs) {
       if (output.flows) {
         for (const [, flow] of output.flows) {
@@ -264,29 +264,27 @@ export async function completeNode({
                 fromStart,
               });
 
-              filled++;
+              filled.add(key);
             }
           }
         }
       }
-      total++;
     }
 
-    if (filled > 0) {
-      for (const [key, output] of pipeline.outputs) {
-        if (output.flows) {
-          for (const [, flow] of output.flows) {
-            if (flow.from !== nodeJob.node) {
-              const value = await redis.get(PIPELINE_OUTPUT(launch._id, key));
-              if (value !== null) {
-                filled++;
-              }
-            }
-          }
+    if (filled.size > 0) {
+      const required = requiredOutputs(pipeline);
+      for (const key of required) {
+        if (
+          !filled.has(key) &&
+          (await redis.get(PIPELINE_OUTPUT(launch._id, key))) !== null
+        ) {
+          filled.add(key);
         }
       }
-      logger.info(`Filled ${filled} from ${total} in pipeline outputs`);
-      if (filled >= total) {
+      logger.info(
+        `Filled ${filled.size} from ${required.length} in pipeline outputs`
+      );
+      if (isFinished(pipeline, filled)) {
         const { scope } = launch;
         if (scope) {
           logger.info(`Remove launch from scope ${scope.id}`);

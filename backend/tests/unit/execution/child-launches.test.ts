@@ -13,7 +13,8 @@ import {
   NODE_CHILDREN,
   PIPELINE_OUTPUT,
 } from "consts/redis";
-import { toPlain } from "core-kit/packages/transform";
+import { toInstance, toPlain } from "core-kit/packages/transform";
+import { PipelineOutput } from "models/pipeline";
 import { DataError, FatalError } from "core-kit/types/errors";
 import { DelayedError } from "bullmq";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -138,6 +139,27 @@ describe("child launches", () => {
     }
   );
 
+  it("finishes a child whose pipeline has an output without flows", async () => {
+    startedChild('{"answer":42}');
+    const child = launchFixture();
+    child._id = "child-1";
+    child.pipeline.outputs.set(
+      "unused",
+      toInstance({ type: "string" }, PipelineOutput)
+    );
+    context.responses.set(LAUNCH("child-1"), JSON.stringify(toPlain(child)));
+
+    await context.run();
+
+    expect(payload().children).toEqual({
+      summary: {
+        launch: "child-1",
+        status: "finished",
+        outputs: { result: { answer: 42 } },
+      },
+    });
+  });
+
   it("leaves children out of the payload when the node started none", async () => {
     await context.run();
 
@@ -188,6 +210,26 @@ describe("child launches", () => {
     doubles.execute.mockResolvedValue(launchResult());
 
     await expect(context.run()).rejects.toBeInstanceOf(FatalError);
+
+    expect(doubles.insertOne).not.toHaveBeenCalled();
+  });
+
+  it("refuses a deploy whose pipeline outputs have no flows", async () => {
+    context.responses.set(
+      DEPLOY("child", "user-test"),
+      JSON.stringify({
+        ...deployFixture(),
+        pipeline: {
+          ...pipelineFixture(),
+          outputs: { unused: { type: "string" } },
+        },
+      })
+    );
+    doubles.execute.mockResolvedValue(launchResult());
+
+    await expect(context.run()).rejects.toThrow(
+      "no pipeline outputs fed by a flow"
+    );
 
     expect(doubles.insertOne).not.toHaveBeenCalled();
   });
