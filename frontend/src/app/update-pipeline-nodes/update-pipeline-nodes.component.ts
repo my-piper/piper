@@ -94,7 +94,6 @@ export class UpdatePipelineNodesComponent implements OnInit {
     this.cd.detectChanges();
   }
 
-
   select(node: string) {
     this.state.active = node;
     this.cd.detectChanges();

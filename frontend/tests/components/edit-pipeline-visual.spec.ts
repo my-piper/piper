@@ -240,7 +240,12 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor } = setupEditor({ project });
 
-      connect(editor, { node: "node_two", output: "result" }, "node_three", "amount");
+      connect(
+        editor,
+        { node: "node_two", output: "result" },
+        "node_three",
+        "amount",
+      );
 
       const [flow] = flowsBetween(project, "node_two", "node_three");
       expect(flow.transformer.type).toBe("json");
@@ -251,8 +256,18 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor } = setupEditor({ project });
 
-      connect(editor, { node: "node_three", output: "answer" }, "node_three", "other");
-      connect(editor, { node: "node_three", output: "answer" }, "node_three", "doc");
+      connect(
+        editor,
+        { node: "node_three", output: "answer" },
+        "node_three",
+        "other",
+      );
+      connect(
+        editor,
+        { node: "node_three", output: "answer" },
+        "node_three",
+        "doc",
+      );
 
       const flows = flowsBetween(project, "node_three", "node_three");
       expect(flows.map((f) => f.input)).toEqual(["doc"]);
@@ -264,9 +279,24 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor } = setupEditor({ project });
 
-      connect(editor, { node: "node_two", output: "images" }, "node_three", "picture");
-      connect(editor, { node: "node_two", output: "images" }, "node_three", "pictures");
-      connect(editor, { node: "node_three", output: "cover" }, "node_three", "words");
+      connect(
+        editor,
+        { node: "node_two", output: "images" },
+        "node_three",
+        "picture",
+      );
+      connect(
+        editor,
+        { node: "node_two", output: "images" },
+        "node_three",
+        "pictures",
+      );
+      connect(
+        editor,
+        { node: "node_three", output: "cover" },
+        "node_three",
+        "words",
+      );
 
       const flows = flowsBetween(project, "node_two", "node_three");
       const byInput = new Map(flows.map((f) => [f.input, f]));
@@ -295,8 +325,18 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor } = setupEditor({ project });
 
-      connect(editor, { node: "node_one", output: "text" }, "node_three", "words");
-      connect(editor, { node: "node_one", output: "text" }, "node_three", "words");
+      connect(
+        editor,
+        { node: "node_one", output: "text" },
+        "node_three",
+        "words",
+      );
+      connect(
+        editor,
+        { node: "node_one", output: "text" },
+        "node_three",
+        "words",
+      );
 
       const keys = [...project.pipeline.flows.keys()];
       expect(new Set(keys).size).toBe(keys.length);
@@ -1828,7 +1868,12 @@ describe("EditPipelineVisualComponent", () => {
       const { editor, element, detectChanges } = setupEditor({ project });
       const before = widget(element, "words");
 
-      connect(editor, { node: "node_one", output: "text" }, "node_three", "words");
+      connect(
+        editor,
+        { node: "node_one", output: "text" },
+        "node_three",
+        "words",
+      );
       detectChanges();
 
       const wired = nodeElement(element, "node_three").querySelector(
@@ -1873,7 +1918,12 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor, element, detectChanges } = setupEditor({ project });
 
-      connect(editor, { node: "node_one", output: "text" }, "node_three", "words");
+      connect(
+        editor,
+        { node: "node_one", output: "text" },
+        "node_three",
+        "words",
+      );
       detectChanges();
 
       const node = project.pipeline.nodes.get("node_three");
