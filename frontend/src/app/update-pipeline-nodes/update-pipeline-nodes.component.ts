@@ -12,6 +12,7 @@ import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI, UI_DELAY } from "src/consts/ui";
 import { toInstance } from "src/utils/models";
+import { PipelineEditor } from "src/utils/pipeline-editor";
 
 @Component({
   selector: "app-update-pipeline-nodes",
@@ -35,6 +36,8 @@ export class UpdatePipelineNodesComponent implements OnInit {
   };
 
   project!: Project;
+  /** Replaces Nodes the way the canvas does; each replacement is saved. */
+  private editor!: PipelineEditor;
 
   nodeUpdates!: PipelineNodeUpdates;
 
@@ -48,6 +51,8 @@ export class UpdatePipelineNodesComponent implements OnInit {
   ngOnInit() {
     this.route.data.subscribe(({ project }) => {
       this.project = project;
+      this.editor = new PipelineEditor(project.pipeline, project.launchRequest);
+      this.editor.changed.subscribe(() => this.projectManager.markDirty());
       this.load();
     });
   }
@@ -71,29 +76,24 @@ export class UpdatePipelineNodesComponent implements OnInit {
 
   update() {
     const { active: id } = this.state;
-    const { pipeline } = this.project;
 
     const node = this.nodeUpdates.updates.get(id);
-    pipeline.nodes.set(id, node.updated);
-
-    this.projectManager.markDirty();
+    this.editor.replaceNode(id, node.updated);
 
     this.state.updated[id] = true;
     this.cd.detectChanges();
   }
 
   updateAll() {
-    const { pipeline } = this.project;
     for (const [id, node] of this.nodeUpdates.updates) {
-      pipeline.nodes.set(id, node.updated);
+      this.editor.replaceNode(id, node.updated);
       this.state.updated[id] = true;
     }
-
-    this.projectManager.markDirty();
 
     this.state.updated.all = true;
     this.cd.detectChanges();
   }
+
 
   select(node: string) {
     this.state.active = node;

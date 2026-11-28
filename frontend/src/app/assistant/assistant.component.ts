@@ -3,10 +3,12 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
-import { assign } from "lodash";
 import { delay, filter, finalize, map } from "rxjs";
 import { AssistantRequest, ChatMessage } from "src/models/assistant-answer";
 import { Node } from "src/models/node";
@@ -15,8 +17,7 @@ import { Project } from "src/models/project";
 import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/consts/ui";
-import { sid } from "src/utils/string";
-import { addPipelineNode, removePipelineNode } from "src/utils/pipeline";
+import { PipelineEditor } from "src/utils/pipeline-editor";
 import { toInstance, toPlain } from "src/utils/models";
 import { getMergedData } from "../utils/route";
 
@@ -28,10 +29,13 @@ import { getMergedData } from "../utils/route";
   standalone: false,
 })
 export class AssistantComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   error!: Error;
   progress = { loading: false, sending: false, clearing: false };
 
   project!: Project;
+  /** The assistant's changes to the project's pipeline; each one is saved. */
+  private editor!: PipelineEditor;
   node!: { id: string; node: Node };
   messages: ChatMessage[] = [];
 
@@ -50,10 +54,19 @@ export class AssistantComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.data.subscribe(({ project }) => {
-      [this.project] = [project];
-      this.load();
-    });
+    this.route.data
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ project }) => {
+        [this.project] = [project];
+        this.editor = new PipelineEditor(
+          project.pipeline,
+          project.launchRequest,
+        );
+        this.editor.changed
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => this.projectManager.markDirty());
+        this.load();
+      });
 
     const readData = () => {
       const { node } = getMergedData(this.route.root);
@@ -123,8 +136,8 @@ export class AssistantComponent implements OnInit {
         this.messages.push(message);
         const { changes } = message;
         if (changes) {
-          const { pipeline } = this.project;
-          const { layout, nodes, flows } = pipeline;
+          const { layout } = this.project.pipeline;
+          const { editor } = this;
 
           for (const { action, catalog, data } of changes) {
             switch (action) {
@@ -133,43 +146,41 @@ export class AssistantComponent implements OnInit {
                   .get(`nodes/${catalog.id}`)
                   .pipe(map((obj) => toInstance(obj as object, Node)))
                   .subscribe({
-                    next: (node) => {
-                      const id = `${node._id}_${sid()}`;
-                      addPipelineNode(pipeline, id, node);
-                      const left = layout.left + Math.random() * 400 + 100;
-                      const top = layout.top + Math.random() * 400 + 100;
-                      assign(node.arrange, { x: left, y: top });
-                    },
+                    next: (node) =>
+                      editor.addNode(node, {
+                        at: {
+                          x: layout.left + Math.random() * 400 + 100,
+                          y: layout.top + Math.random() * 400 + 100,
+                        },
+                      }),
                     error: (err) => (this.error = err),
                   });
                 break;
               }
-              case "add_node": {
-                const node = toInstance(data.json, Node);
-                addPipelineNode(pipeline, data.id, node);
+              case "add_node":
+                editor.addNode(toInstance(data.json, Node), { id: data.id });
                 break;
-              }
-              case "replace_node": {
-                const {
-                  arrange: { x, y },
-                } = nodes.get(data.id);
-                const node = toInstance(data.json, Node);
-                assign(node.arrange, { x, y });
-                nodes.set(data.id, node);
+              case "replace_node":
+                editor.replaceNode(data.id, toInstance(data.json, Node));
                 break;
-              }
               case "remove_node":
-                removePipelineNode(pipeline, data.id);
+                editor.removeNode(data.id);
                 break;
               case "add_flow": {
-                const flow = toInstance(data.json, NodeFlow);
-                flows.set(data.id, flow);
+                const { from, output, to, input, transformer } = toInstance(
+                  data.json,
+                  NodeFlow,
+                );
+                editor.connect(
+                  { node: from, output },
+                  { node: to, input },
+                  transformer,
+                );
                 break;
               }
             }
           }
 
-          this.projectManager.markDirty();
           this.cd.detectChanges();
         }
       });

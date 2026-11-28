@@ -1,9 +1,6 @@
-import { LaunchRequest, NodeToLaunch } from "src/models/launch-request";
-import { Node } from "src/models/node";
-import { NodeFlow } from "src/models/node-flow";
+import { LaunchRequest } from "src/models/launch-request";
 import { Pipeline } from "src/models/pipeline";
-import { Point } from "src/types/point";
-import { toInstance, toPlain } from "src/utils/models";
+import { toPlain } from "src/utils/models";
 
 /**
  * Copied canvas nodes as plain data, detached from the pipeline they came
@@ -63,52 +60,4 @@ export function copyNodes(
       .filter((id) => !!launchRequest?.nodes?.get(id)?.inputs)
       .map((id) => [id, toPlain(launchRequest.nodes.get(id))]),
   };
-}
-
-/**
- * Adds a copy of `clip` to `pipeline` with new node ids (`nodeId`) and flow
- * keys (`flowKey`), its top-left node corner at `at`. Returns the new ids.
- */
-export function pasteClip(
-  clip: CanvasClip,
-  pipeline: Pipeline,
-  launchRequest: LaunchRequest | null,
-  at: Point,
-  nodeId: (node: Node) => string,
-  flowKey: (flow: NodeFlow) => string,
-): string[] {
-  const nodes = clip.nodes.map(
-    ([id, plain]) => [id, toInstance(plain, Node)] as const,
-  );
-  const left = Math.min(...nodes.map(([, n]) => n.arrange?.x ?? 0));
-  const top = Math.min(...nodes.map(([, n]) => n.arrange?.y ?? 0));
-
-  const ids = new Map<string, string>();
-  for (const [id, node] of nodes) {
-    const copy = nodeId(node);
-    ids.set(id, copy);
-    node.arrange = Object.assign(node.arrange ?? {}, {
-      x: at.x + (node.arrange?.x ?? 0) - left,
-      y: at.y + (node.arrange?.y ?? 0) - top,
-    });
-    pipeline.nodes.set(copy, node);
-  }
-
-  pipeline.flows ??= new Map();
-  for (const plain of clip.flows) {
-    const flow = toInstance(plain, NodeFlow);
-    flow.from = ids.get(flow.from);
-    flow.to = ids.get(flow.to);
-    pipeline.flows.set(flowKey(flow), flow);
-  }
-
-  if (launchRequest) {
-    launchRequest.nodes ??= new Map();
-    for (const [id, plain] of clip.inputs) {
-      const { inputs } = toInstance(plain, NodeToLaunch);
-      launchRequest.nodes.set(ids.get(id), new NodeToLaunch({ inputs }));
-    }
-  }
-
-  return [...ids.values()];
 }

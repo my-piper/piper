@@ -4,6 +4,7 @@ import { fakeAsync, tick } from "@angular/core/testing";
 import { diff, patch } from "jsondiffpatch/with-text-diffs";
 import { cloneDeep } from "lodash";
 import * as YAML from "yaml";
+import { EditPipelineVisualComponent } from "src/app/edit-pipeline-visual/edit-pipeline-visual.component";
 import { NodeFlow } from "src/models/node-flow";
 import { NodeInput } from "src/models/node";
 import { Layout, LayoutGroup, PipelineInput } from "src/models/pipeline";
@@ -27,6 +28,21 @@ import { expectConsoleError } from "../helpers/console";
 /** Debounce chain of ProjectManager.markDirty → PATCH (1000 + 3000 ms). */
 const AUTOSAVE = 4000;
 const UI_DELAY = 250;
+
+/** Draws a wire from `source` and drops it on a node input. */
+function connect(
+  editor: EditPipelineVisualComponent,
+  source: { node: string; output: string } | { input: string },
+  to: string,
+  input: string,
+) {
+  if ("node" in source) {
+    editor.startNodeFlow(source.node, source.output);
+  } else {
+    editor.startInputFlow(source.input);
+  }
+  editor.addFlow(to, input);
+}
 
 function flowsBetween(project: Project, from: string, to: string) {
   return [...project.pipeline.flows.values()].filter(
@@ -224,7 +240,7 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor } = setupEditor({ project });
 
-      editor.addNodeFlow("node_two", "result", "node_three", "amount");
+      connect(editor, { node: "node_two", output: "result" }, "node_three", "amount");
 
       const [flow] = flowsBetween(project, "node_two", "node_three");
       expect(flow.transformer.type).toBe("json");
@@ -235,8 +251,8 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor } = setupEditor({ project });
 
-      editor.addNodeFlow("node_three", "answer", "node_three", "other");
-      editor.addNodeFlow("node_three", "answer", "node_three", "doc");
+      connect(editor, { node: "node_three", output: "answer" }, "node_three", "other");
+      connect(editor, { node: "node_three", output: "answer" }, "node_three", "doc");
 
       const flows = flowsBetween(project, "node_three", "node_three");
       expect(flows.map((f) => f.input)).toEqual(["doc"]);
@@ -248,9 +264,9 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor } = setupEditor({ project });
 
-      editor.addNodeFlow("node_two", "images", "node_three", "picture");
-      editor.addNodeFlow("node_two", "images", "node_three", "pictures");
-      editor.addNodeFlow("node_three", "cover", "node_three", "words");
+      connect(editor, { node: "node_two", output: "images" }, "node_three", "picture");
+      connect(editor, { node: "node_two", output: "images" }, "node_three", "pictures");
+      connect(editor, { node: "node_three", output: "cover" }, "node_three", "words");
 
       const flows = flowsBetween(project, "node_two", "node_three");
       const byInput = new Map(flows.map((f) => [f.input, f]));
@@ -267,8 +283,8 @@ describe("EditPipelineVisualComponent", () => {
       const { editor } = setupEditor({ project });
       const flows = project.pipeline.inputs.get("topic").flows;
 
-      editor.addInputFlow("topic", "node_three", "amount");
-      editor.addInputFlow("topic", "node_three", "words");
+      connect(editor, { input: "topic" }, "node_three", "amount");
+      connect(editor, { input: "topic" }, "node_three", "words");
 
       const targets = [...flows.values()].map((f) => `${f.to}.${f.input}`);
       expect(targets).toEqual(["node_one.prompt", "node_three.words"]);
@@ -279,8 +295,8 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor } = setupEditor({ project });
 
-      editor.addNodeFlow("node_one", "text", "node_three", "words");
-      editor.addNodeFlow("node_one", "text", "node_three", "words");
+      connect(editor, { node: "node_one", output: "text" }, "node_three", "words");
+      connect(editor, { node: "node_one", output: "text" }, "node_three", "words");
 
       const keys = [...project.pipeline.flows.keys()];
       expect(new Set(keys).size).toBe(keys.length);
@@ -1812,7 +1828,7 @@ describe("EditPipelineVisualComponent", () => {
       const { editor, element, detectChanges } = setupEditor({ project });
       const before = widget(element, "words");
 
-      editor.addNodeFlow("node_one", "text", "node_three", "words");
+      connect(editor, { node: "node_one", output: "text" }, "node_three", "words");
       detectChanges();
 
       const wired = nodeElement(element, "node_three").querySelector(
@@ -1857,7 +1873,7 @@ describe("EditPipelineVisualComponent", () => {
       const project = connectionProject();
       const { editor, element, detectChanges } = setupEditor({ project });
 
-      editor.addNodeFlow("node_one", "text", "node_three", "words");
+      connect(editor, { node: "node_one", output: "text" }, "node_three", "words");
       detectChanges();
 
       const node = project.pipeline.nodes.get("node_three");

@@ -64,6 +64,34 @@ describe("UpdatePipelineNodesComponent", () => {
     finish();
   }));
 
+  it("drops the Flows of the sockets an updated node no longer has", fakeAsync(() => {
+    const page = setup();
+    const { node_two } = (
+      smallGraphPipeline() as {
+        nodes: Record<string, { outputs: Record<string, unknown> }>;
+      }
+    ).nodes;
+    const updated = { ...node_two, outputs: {}, version: 2 };
+    page.controller.expectOne(UPDATES_URL).flush({
+      updates: {
+        node_two: { current: node_two, updated, changes: updated },
+      },
+    });
+    tick(UI_DELAY);
+    page.fixture.detectChanges();
+
+    page.button("Update all").click();
+    page.fixture.detectChanges();
+
+    const { pipeline } = page.project;
+    expect(pipeline.nodes.get("node_two").version).toBe(2);
+    expect(pipeline.outputs.get("result").flows.size).toBe(0);
+    expect([...pipeline.flows.keys()]).toEqual(["one_to_two"]);
+    expect(page.manager.status.value).toBe("dirty");
+    page.controller.verify();
+    finish();
+  }));
+
   it("says so when no catalog node has an update", fakeAsync(() => {
     const page = setup();
 
