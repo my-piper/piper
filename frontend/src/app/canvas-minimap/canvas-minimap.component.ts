@@ -11,6 +11,7 @@ import { UI } from "src/consts/ui";
 import { Pipeline } from "src/models/pipeline";
 import { Box } from "src/utils/groups";
 import {
+  ioBox,
   minimapFrame,
   MinimapFrame,
   MINIMAP,
@@ -19,11 +20,11 @@ import {
 } from "src/utils/minimap";
 import { nodeLayout } from "src/utils/node-layout";
 
-type MapBox = Box & { id: string; color?: string };
+type MapBox = Box & { id: string; color?: string; kind?: string };
 
 /**
- * An overview of the whole pipeline (#336): its nodes, its group frames
- * and the visible area. A click or drag on it asks the canvas to centre
+ * An overview of the whole pipeline (#336): its nodes, its inputs and
+ * outputs (#361), its group frames and the visible area. A click or drag on it asks the canvas to centre
  * the view on that point.
  */
 @Component({
@@ -61,11 +62,24 @@ export class CanvasMinimapComponent {
     const groups = [...(this.pipeline.layout?.groups ?? new Map())].map(
       ([id, g]) => ({ id, x: g.x, y: g.y, w: g.w, h: g.h, color: g.color }),
     );
-    const frame = minimapFrame([...nodes, ...groups, this.view]);
+    const io = [
+      ...[...(this.pipeline.inputs ?? new Map())].map(([id, input]) => ({
+        id: `input:${id}`,
+        kind: "input",
+        ...ioBox("input", input.arrange),
+      })),
+      ...[...(this.pipeline.outputs ?? new Map())].map(([id, output]) => ({
+        id: `output:${id}`,
+        kind: "output",
+        ...ioBox("output", output.arrange),
+      })),
+    ];
+    const frame = minimapFrame([...nodes, ...io, ...groups, this.view]);
     const map = (b: MapBox): MapBox => ({ ...b, ...toMap(b, frame) });
     return {
       frame,
       nodes: nodes.map(map),
+      io: io.map(map),
       groups: groups.map(map),
       view: toMap(this.view, frame),
     };

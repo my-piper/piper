@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { CanvasMinimapComponent } from "src/app/canvas-minimap/canvas-minimap.component";
 import { Pipeline } from "src/models/pipeline";
 import { toInstance } from "src/utils/models";
-import { toMap } from "src/utils/minimap";
+import { ioBox, toMap } from "src/utils/minimap";
 
 function pipeline() {
   return toInstance(
@@ -22,6 +22,12 @@ function pipeline() {
           inputs: {},
           outputs: {},
         },
+      },
+      inputs: {
+        prompt: { title: "Prompt", type: "string", arrange: { x: -40, y: 60 } },
+      },
+      outputs: {
+        image: { title: "Image", type: "image", arrange: { x: 1300, y: 560 } },
       },
       layout: {
         left: 0,
@@ -63,6 +69,37 @@ describe("CanvasMinimapComponent", () => {
     expect(element.querySelector<HTMLElement>(".map").style.width).toBe(
       "220px",
     );
+  });
+
+  it("draws the pipeline inputs and outputs at their mapped boxes", () => {
+    const fixture = render();
+    const element = fixture.nativeElement as HTMLElement;
+    const frame = fixture.componentInstance.drawing.frame;
+
+    const input = element.querySelector<HTMLElement>(
+      '[data-minimap-io="input:prompt"]',
+    );
+    const output = element.querySelector<HTMLElement>(
+      '[data-minimap-io="output:image"]',
+    );
+
+    const expected = toMap(ioBox("input", { x: -40, y: 60 }), frame);
+    expect(parseFloat(input.style.left)).toBeCloseTo(expected.x, 1);
+    expect(parseFloat(input.style.top)).toBeCloseTo(expected.y, 1);
+    expect(parseFloat(input.style.width)).toBeCloseTo(expected.w, 1);
+    expect(input.dataset["kind"]).toBe("input");
+    expect(output.dataset["kind"]).toBe("output");
+  });
+
+  it("frames the inputs and outputs, so one far off stays on the map", () => {
+    const fixture = render();
+    const frame = fixture.componentInstance.drawing.frame;
+
+    const input = toMap(ioBox("input", { x: -40, y: 60 }), frame);
+    const output = toMap(ioBox("output", { x: 1300, y: 560 }), frame);
+
+    expect(input.x).toBeGreaterThanOrEqual(0);
+    expect(output.x + output.w).toBeLessThanOrEqual(220);
   });
 
   it("asks to centre the view on the clicked canvas point", () => {
