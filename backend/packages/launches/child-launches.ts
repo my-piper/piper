@@ -10,7 +10,7 @@ import * as deploys from "packages/deploy";
 import { ChildLaunchRequest } from "types/node";
 import { sid } from "utils/string";
 import { canFinish } from "./finished";
-import { get, interrupt, run, state } from "./launching";
+import { interrupt, run, stateOf } from "./launching";
 import { liveState } from "./live-state";
 
 export const MAX_CHILD_DEPTH = 3;
@@ -175,15 +175,15 @@ export async function readChildren(
 
   const states: Record<string, ChildLaunchState> = {};
   for (const [key, launch] of Object.entries(children)) {
-    if (!(await liveState.exists(launch))) {
+    const child = await liveState.get(launch);
+    if (!child) {
       return fail(
         `Child launch ${key} (${launch}) was not started or has expired`
       );
     }
 
-    const child = await get(launch);
     const [{ errors, outputs }, finished] = await Promise.all([
-      state(launch),
+      stateOf(child),
       liveState.isFinished(child),
     ]);
     if (errors.length > 0) {

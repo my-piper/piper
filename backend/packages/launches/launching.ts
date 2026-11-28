@@ -209,9 +209,12 @@ export async function get(id: string): Promise<Launch> {
 }
 
 export async function state(id: string): Promise<LaunchState> {
-  const launch = await get(id);
+  return stateOf(await get(id));
+}
 
-  const { launchedAt, pipeline } = launch;
+// the state of a Launch already loaded
+export async function stateOf(launch: Launch): Promise<LaunchState> {
+  const { _id: id, launchedAt, pipeline } = launch;
 
   const outputs = new Map<string, Primitive>();
   for (const [key, value] of await liveState.outputs(launch)) {

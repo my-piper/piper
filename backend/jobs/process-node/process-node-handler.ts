@@ -286,18 +286,20 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   const { result } = results;
 
-  const delayNode = async (
+  // keeps what the Node carries to its next run, and when that run is due
+  const keepForRepeat = async (
     delay: number,
     keep: { state?: object; progress?: object } = {}
-  ): Promise<never> => {
+  ): Promise<number> => {
     const dueAt = Date.now() + (delay || 1000);
     await liveState.nodeRepeats(launch._id, nodeJob.node, job.id, {
       dueAt,
       ...keep,
     });
-    if (keep.progress) {
-      notifyNode(nodeJob.node, "node_progress");
-    }
+    return dueAt;
+  };
+
+  const delayNode = async (dueAt: number): Promise<never> => {
     await job.moveToDelayed(dueAt);
     throw new DelayedError();
   };
@@ -318,21 +320,25 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     notifyNode(nodeJob.node, "node_gonna_repeat");
     await recordNodeRun(run, "repeat", finishedAt);
-    return delayNode(delay);
+    return delayNode(await keepForRepeat(delay));
   } else if (result?.["__type"] === "repeat") {
     const { delay, progress, state } = toInstance(result as object, RepeatNode);
+    // the state and progress are kept before anything else can fail, so a
+    // retry of this job resumes from them
+    const dueAt = await keepForRepeat(delay, {
+      ...(state ? { state } : {}),
+      ...(progress ? { progress: toPlain(progress) } : {}),
+    });
     if (progress) {
       logger.debug(progress);
+      notifyNode(nodeJob.node, "node_progress");
     }
 
     logger.debug(`Node ${nodeJob.node} is going to repeat with delay ${delay}`);
     notifyNode(nodeJob.node, "node_gonna_repeat");
 
     await recordNodeRun(run, "repeat", finishedAt);
-    return delayNode(delay, {
-      ...(state ? { state } : {}),
-      ...(progress ? { progress: toPlain(progress) } : {}),
-    });
+    return delayNode(dueAt);
   } else if (result?.["__type"] === "next") {
     await recordNodeRun(run, "done", finishedAt);
     return completeNode({

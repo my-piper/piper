@@ -178,6 +178,36 @@ describe("node results and scheduling", () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it("keeps repeat state/progress even when recording the run fails, and tells progress first", async () => {
+    const failure = new Error("stream unavailable");
+    doubles.metrics.nodeRuns.mockRejectedValue(failure);
+    doubles.execute.mockResolvedValue({
+      result: {
+        __type: "repeat",
+        state: { page: 3 },
+        progress: { total: 10, processed: 3 },
+      },
+      logs: [],
+    });
+
+    await expect(context.run()).rejects.toBe(failure);
+
+    const { _id } = context.launch;
+    expect(await liveState.state(_id, "echo_node")).toEqual({ page: 3 });
+    expect(await liveState.progress(_id, "echo_node")).toEqual({
+      total: 10,
+      processed: 3,
+    });
+    expect(context.job.moveToDelayed).not.toHaveBeenCalled();
+    expect(
+      doubles.notify.mock.calls
+        .map(([, event]) => event)
+        .filter(
+          (event) => event.startsWith("node_") && event !== "node_running"
+        )
+    ).toEqual(["node_progress", "node_gonna_repeat"]);
+  });
+
   it("uses the default repeat delay when it is omitted", async () => {
     doubles.execute.mockResolvedValue({
       result: { __type: "repeat" },
