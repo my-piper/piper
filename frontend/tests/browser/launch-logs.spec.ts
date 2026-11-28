@@ -10,6 +10,8 @@ test("shows the logs of the whole launch and of one node on the launch page", as
   api.launches.set(LAUNCH_ID, launchPlain());
   api.launchLogs.set(LAUNCH_ID, launchLogsPlain());
   await open(`/en/launches/${LAUNCH_ID}`);
+  // The open info card sits over the first node.
+  await page.getByTestId("launch-info-toggle").click();
 
   await page.getByTestId("launch-logs").click();
 

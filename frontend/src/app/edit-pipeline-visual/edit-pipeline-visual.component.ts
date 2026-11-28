@@ -74,7 +74,13 @@ import { Primitive } from "src/types/primitive";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { formatElapsed } from "src/utils/elapsed";
-import { LaunchState, NodeRunState, launchState } from "src/utils/launch-state";
+import {
+  LaunchState,
+  NodeProgress,
+  NodeRunState,
+  launchState,
+  nodeProgress,
+} from "src/utils/launch-state";
 import {
   deployProblems,
   deploySocketsPath,
@@ -188,6 +194,8 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
    * total when it opens an already finished launch.
    */
   elapsed: string | null = null;
+  /** The launch's recorded run, once it finished (for the info card). */
+  recordedRun: LaunchRun | null = null;
   private clock: ReturnType<typeof setInterval> | null = null;
   /** The clock ran for this launch, so its frozen value stays. */
   private clocked = false;
@@ -286,6 +294,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
         mode || "project",
       ];
       this.interrupted = false;
+      this.recordedRun = null;
       this.clocked = false;
       this.runRequested = false;
       if (this.mode === "project") {
@@ -345,6 +354,11 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     );
   }
 
+  /** Done, failed and running nodes of the launch, for the info card. */
+  get nodeProgress(): NodeProgress {
+    return nodeProgress([...this.pipeline.nodes.keys()], this.nodeStates);
+  }
+
   /**
    * Stop is offered while the canvas sees the launch run, the same state the
    * pill shows: on a reload of a finished launch no event clears it otherwise.
@@ -390,12 +404,13 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * On opening a finished launch no node runs, so the clock never starts: the
-   * total comes from the launch's recorded run, when there is one.
+   * The launch's recorded run, for the info card's finish time. On opening a
+   * finished launch no node runs, so the clock never starts: the total comes
+   * from that run too, when there is one.
    */
   private showRecordedRun() {
     const launch = this.launch;
-    if (!launch || this.clocked || this.runRequested) {
+    if (!launch || this.runRequested) {
       return;
     }
     this.runRequested = true;
@@ -406,6 +421,10 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       )
       .subscribe({
         next: (run) => {
+          if (this.launch !== launch) {
+            return;
+          }
+          this.recordedRun = run;
           if (
             Number.isFinite(run?.durationMs) &&
             !this.clocked &&

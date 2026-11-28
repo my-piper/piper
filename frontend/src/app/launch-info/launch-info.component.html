@@ -1,0 +1,212 @@
+@let l = launch();
+
+<!-- The Launch's part of the app top bar (TopbarService). -->
+<ng-template #crumbs>
+  <nav
+    class="crumbs"
+    aria-label="Breadcrumbs"
+    i18n-aria-label="@@label.breadcrumbs"
+    data-testid="launch-crumbs"
+  >
+    <a
+      class="crumb"
+      routerLink="/projects"
+      [queryParams]="{ folder: null }"
+      i18n="@@link.pipelines"
+      >Pipelines</a
+    >
+    <tui-icon class="sep" icon="@tui.chevron-right" />
+    @if (l.project?._id) {
+      <a
+        class="crumb"
+        data-testid="launch-crumb-project"
+        [routerLink]="['/projects', l.project._id]"
+        >{{ l.project.title }}</a
+      >
+      <tui-icon class="sep" icon="@tui.chevron-right" />
+      <a
+        class="crumb"
+        data-testid="launch-crumb-launches"
+        [routerLink]="['/projects', l.project._id, 'launches']"
+        i18n="@@link.launches"
+        >Launches</a
+      >
+      <tui-icon class="sep" icon="@tui.chevron-right" />
+    }
+    <span
+      class="current"
+      aria-current="page"
+      data-testid="launch-crumb-current"
+      [title]="l.launchedAt | date: 'medium'"
+      >{{ l.launchedAt | date: "d MMM, HH:mm" }}</span
+    >
+  </nav>
+</ng-template>
+
+<section
+  class="card"
+  data-testid="launch-info"
+  [class.expanded]="expanded()"
+  aria-label="Launch details"
+  i18n-aria-label="@@label.launch_details"
+>
+  <div class="bar">
+    <!-- The canvas's own buttons (launch logs). -->
+    <ng-content />
+    <button
+      tuiIconButton
+      appearance="outline-grayscale"
+      size="s"
+      type="button"
+      class="round toggle"
+      data-testid="launch-info-toggle"
+      [class.toggled]="expanded()"
+      [attr.aria-expanded]="expanded()"
+      title="Launch details"
+      i18n-title="@@label.launch_details"
+      (click)="toggle()"
+    >
+      <tui-icon class="icon" icon="@tui.info" />
+    </button>
+  </div>
+
+  @if (expanded()) {
+    <dl class="details" data-testid="launch-info-details">
+      <dt i18n="@@label.status">Status</dt>
+      <dd data-testid="launch-info-status" [attr.data-state]="state()">
+        @switch (state()) {
+          @case ("running") {
+            <ng-container i18n="@@label.launch_running">Running</ng-container>
+          }
+          @case ("failed") {
+            <ng-container i18n="@@label.launch_failed">Failed</ng-container>
+          }
+          @case ("done") {
+            <ng-container i18n="@@label.launch_done">Done</ng-container>
+          }
+          @default {
+            <ng-container i18n="@@label.launch_idle">Idle</ng-container>
+          }
+        }
+        @if (elapsed(); as elapsed) {
+          <span class="muted">· {{ elapsed }}</span>
+        }
+      </dd>
+
+      @if (l.launchedBy?._id; as by) {
+        <dt i18n="@@label.launched_by">Launched by</dt>
+        <dd data-testid="launch-info-by">{{ by }}</dd>
+      }
+
+      <dt i18n="@@label.launch_source">Source</dt>
+      <dd data-testid="launch-info-source" [title]="l.comment ?? ''">
+        @switch (source()) {
+          @case ("child") {
+            <ng-container i18n="@@label.launch_source_child"
+              >Child launch</ng-container
+            >
+          }
+          @case ("api") {
+            <ng-container i18n="@@label.launch_source_api">API</ng-container>
+          }
+          @default {
+            <ng-container i18n="@@label.launch_source_ui">Canvas</ng-container>
+          }
+        }
+      </dd>
+
+      @if (l.parent) {
+        <dt i18n="@@label.parent_launch">Parent</dt>
+        <dd>
+          <a
+            data-testid="launch-info-parent"
+            [routerLink]="['/launches', l.parent]"
+            i18n="@@link.open_parent_launch"
+            >Open parent launch</a
+          >
+        </dd>
+      }
+
+      <dt i18n="@@label.launch_queued">Queued</dt>
+      <dd data-testid="launch-info-queued">
+        {{ l.launchedAt | date: "medium" }}
+      </dd>
+
+      @if (l.startedAt) {
+        <dt i18n="@@label.launch_started">Started</dt>
+        <dd data-testid="launch-info-started">
+          {{ l.startedAt | date: "medium" }}
+        </dd>
+      }
+
+      @if (run()?.finishedAt; as finishedAt) {
+        <dt i18n="@@label.launch_finished">Finished</dt>
+        <dd data-testid="launch-info-finished">
+          {{ finishedAt | date: "medium" }}
+        </dd>
+      }
+
+      @if (progress(); as p) {
+        <dt i18n="@@label.nodes">Nodes</dt>
+        <dd data-testid="launch-info-nodes">
+          <ng-container i18n="@@label.nodes_done"
+            >{{ p.done }}/{{ p.total }} done</ng-container
+          >
+          @if (p.running > 0) {
+            <span class="muted" i18n="@@label.nodes_running"
+              >· {{ p.running }} running</span
+            >
+          }
+          @if (p.failed > 0) {
+            <span class="negative" i18n="@@label.nodes_failed"
+              >· {{ p.failed }} failed</span
+            >
+          }
+        </dd>
+      }
+
+      @if (errors() > 0) {
+        <dt i18n="@@label.errors">Errors</dt>
+        <dd>
+          <a
+            class="negative"
+            data-testid="launch-info-errors"
+            [routerLink]="[{ outlets: { right: ['logs'] } }]"
+            >{{ errors() }}</a
+          >
+        </dd>
+      }
+
+      <dt>ID</dt>
+      <dd class="id">
+        <code data-testid="launch-info-id">{{ l._id }}</code>
+        <button
+          tuiIconButton
+          appearance="flat-grayscale"
+          size="xs"
+          type="button"
+          data-testid="launch-info-copy"
+          [iconStart]="copied() ? '@tui.check' : '@tui.copy'"
+          title="Copy ID"
+          i18n-title="@@action.copy_id"
+          (click)="copyId()"
+        ></button>
+      </dd>
+    </dl>
+
+    <nav class="links">
+      <a
+        data-testid="launch-info-outputs"
+        routerLink="outputs"
+        i18n="@@link.outputs"
+        >Outputs</a
+      >
+      <a
+        data-testid="launch-info-nested"
+        routerLink="nested"
+        i18n="@@link.nested_launches"
+        >Nested launches</a
+      >
+    </nav>
+  }
+</section>

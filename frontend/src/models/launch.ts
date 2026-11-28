@@ -6,6 +6,8 @@ import { objectTransformer } from "src/transformers/object";
 import { PipelineIOType } from "src/types/pipeline";
 import { LaunchRequest } from "./launch-request";
 import { Project } from "./project";
+import { RunScope } from "./run-scope";
+import { User } from "./user";
 
 export class LaunchesFilter {
   @Expose()
@@ -41,6 +43,16 @@ export class Launch {
   @Expose()
   @Type(() => Project)
   project: Project;
+
+  /** Stored as `{ _id }` only; the app shows people by their id. */
+  @Expose()
+  @Type(() => User)
+  launchedBy?: User;
+
+  /** Set by a Deploy call: the run scope that limits its concurrency. */
+  @Expose()
+  @Type(() => RunScope)
+  scope?: RunScope;
 
   @Expose()
   @Type(() => String)
