@@ -19,6 +19,7 @@ import { Primitive } from "src/types/primitive";
 import { UI_DELAY } from "src/consts/ui";
 import { createLogger, LogLevel } from "src/utils/logger";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
+import { dropDangling } from "src/utils/pipeline-editor";
 import { HttpService } from "./http.service";
 
 const logger = createLogger("project_manager", LogLevel.debug);
@@ -30,37 +31,14 @@ function sanitize(project: Project) {
   // TODO: reset from launch request inputs what has pipeline input flows
   // TODO: clear empty node to launch inputs/outputs
 
-  // remove from start unknown nodes
+  // drop flows, start marks and launch values of unknown nodes and sockets,
+  // as the pipeline editor does on every edit
 
-  const start = pipeline.start.nodes;
-  let i = 0;
+  dropDangling(pipeline, launchRequest);
 
-  while (i < start.length) {
-    const id = start[i];
-    if (!pipeline.nodes.has(id)) {
-      start.splice(i, 1);
-    } else {
-      i++;
-    }
-  }
-
-  // remove unknown nodes from inputs
+  // remove pipeline inputs without flows
 
   for (const [id, input] of pipeline.inputs) {
-    const { flows } = input;
-    for (const [id, flow] of flows) {
-      const node = pipeline.nodes.get(flow.to);
-      if (!node) {
-        flows.delete(id);
-        continue;
-      }
-
-      const input = node.inputs.get(flow.input);
-      if (!input || !input.featured) {
-        flows.delete(id);
-      }
-    }
-
     if (input.flows.size === 0) {
       pipeline.inputs.delete(id);
       launchRequest.inputs.delete(id);
@@ -70,26 +48,9 @@ function sanitize(project: Project) {
   // remove default values from launch request
 
   for (const [node, nodeToLaunch] of launchRequest.nodes) {
-    if (!pipeline.nodes.has(node)) {
-      launchRequest.nodes.delete(node);
-      continue;
-    }
-
-    if (nodeToLaunch.inputs) {
-      for (const [id, value] of nodeToLaunch.inputs) {
-        const input = pipeline.nodes.get(node).inputs.get(id);
-        if (!input || value === input.default) {
-          nodeToLaunch.inputs.delete(id);
-        }
-      }
-    }
-
-    if (nodeToLaunch.outputs) {
-      for (const [id] of nodeToLaunch.outputs) {
-        const output = pipeline.nodes.get(node).outputs.get(id);
-        if (!output) {
-          nodeToLaunch.outputs.delete(id);
-        }
+    for (const [id, value] of nodeToLaunch.inputs ?? []) {
+      if (value === pipeline.nodes.get(node).inputs.get(id).default) {
+        nodeToLaunch.inputs.delete(id);
       }
     }
   }
@@ -103,16 +64,9 @@ function sanitize(project: Project) {
     }
   }
 
-  // remove unknown nodes from outputs
+  // remove pipeline outputs without flows
 
   for (const [id, output] of pipeline.outputs) {
-    const { flows } = output;
-    for (const [id, flow] of flows) {
-      if (!pipeline.nodes.get(flow.from)?.outputs.has(flow.output)) {
-        flows.delete(id);
-      }
-    }
-
     if (output.flows.size === 0) {
       pipeline.outputs.delete(id);
     }
@@ -120,21 +74,11 @@ function sanitize(project: Project) {
 
   // fill launch request nodes inputs
 
-  for (const [id, flow] of pipeline.flows) {
+  for (const [, flow] of pipeline.flows) {
     const [output, input] = [
-      pipeline.nodes.get(flow.from)?.outputs.get(flow.output),
-      pipeline.nodes.get(flow.to)?.inputs.get(flow.input),
+      pipeline.nodes.get(flow.from).outputs.get(flow.output),
+      pipeline.nodes.get(flow.to).inputs.get(flow.input),
     ];
-
-    if (!input || !input.featured) {
-      pipeline.flows.delete(id);
-      continue;
-    }
-
-    if (!output) {
-      pipeline.flows.delete(id);
-      continue;
-    }
 
     const value = launchRequest.nodes.get(flow.from)?.outputs?.get(flow.output);
     if (value !== undefined) {

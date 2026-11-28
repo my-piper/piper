@@ -19,7 +19,6 @@ import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import { TuiDialogService } from "@taiga-ui/core";
 import { confirmDelete } from "src/utils/confirm-delete";
 import { assign, escape, isEmpty, mapValues, random } from "lodash";
-import { customAlphabet } from "nanoid";
 import { stringify } from "qs";
 import {
   delay,
@@ -53,7 +52,6 @@ import {
   SCRIPT_NODE_SOURCE,
 } from "src/models/node";
 import { DeployNode } from "src/models/deploy-node";
-import { FlowTransformer, NodeFlow } from "src/models/node-flow";
 import { OutputFlow } from "src/models/output-flow";
 import {
   Layout,
@@ -89,7 +87,6 @@ import {
   nodeFromDeploy,
   refreshFromDeploy,
 } from "src/utils/deploy-node";
-import { acceptedInputTypes } from "src/utils/flow-types";
 import { MINIMAP_KEY } from "src/consts/core";
 import {
   Box,
@@ -105,16 +102,24 @@ import {
   clipFromText,
   clipToText,
   copyNodes,
-  pasteClip,
 } from "src/utils/canvas-clipboard";
 import { sid } from "src/utils/string";
-import { addPipelineNode, removePipelineNode } from "src/utils/pipeline";
+import { FlowSource, PipelineEditor } from "src/utils/pipeline-editor";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import { AssistantComponent } from "../assistant/assistant.component";
 import { EditNodeInputsComponent } from "../edit-node-inputs/edit-node-inputs.component";
 import { LaunchLogsComponent } from "../launch-logs/launch-logs.component";
 import { SelectNodeComponent } from "../select-node/select-node.component";
+
+/** The start of the wire being drawn, as the pipeline editor names it. */
+function flowSource({
+  type,
+  from,
+  output,
+}: EditPipelineVisualComponent["flow"]): FlowSource {
+  return type === "node" ? { node: from, output } : { input: from };
+}
 
 /** `node:<id>` → [`node`, `<id>`]; ids may contain colons. */
 function splitKey(key: string): [string, string] {
@@ -137,10 +142,6 @@ function storeMinimap(shown: boolean) {
   } catch {
     // Storage is a convenience: the minimap still toggles without it.
   }
-}
-
-function salt() {
-  return customAlphabet("1234567890abcdef", 5)();
 }
 
 @Component({
@@ -232,6 +233,10 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   launchRequest!: LaunchRequest;
   currentNode!: Node;
 
+  /** Structural edits of the shown pipeline; each one is saved. */
+  private editing!: PipelineEditor;
+  private editingChanges: Subscription | null = null;
+
   /**
    * Nodes, inputs and outputs picked with the marquee or Shift/Cmd + click,
    * keyed `node:<id>`, `input:<id>` or `output:<id>`; they move together.
@@ -303,6 +308,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
         launches || {},
         mode || "project",
       ];
+      this.edit(this.pipeline, this.launchRequest);
       this.interrupted = false;
       this.recordedRun = null;
       this.clocked = false;
@@ -333,6 +339,12 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       this.currentNode = null;
       this.cd.detectChanges();
     });
+  }
+
+  private edit(pipeline: Pipeline, launchRequest: LaunchRequest) {
+    this.editingChanges?.unsubscribe();
+    this.editing = new PipelineEditor(pipeline, launchRequest);
+    this.editingChanges = this.editing.changed.subscribe(() => this.save());
   }
 
   back() {
@@ -503,6 +515,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     this.unfollowLaunch();
     clearInterval(this.clock);
     this.unsubscribe();
+    this.editingChanges?.unsubscribe();
   }
 
   private unsubscribe() {
@@ -725,28 +738,8 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
    * originals without a point, and selects the copies.
    */
   paste(clip: CanvasClip, at: Point | null) {
-    const corner = clip.nodes
-      .map(([, plain]) => (plain as { arrange?: Point }).arrange)
-      .reduce(
-        (min, a) => ({
-          x: Math.min(min.x, a?.x ?? 0),
-          y: Math.min(min.y, a?.y ?? 0),
-        }),
-        { x: Infinity, y: Infinity },
-      );
-    const ids = pasteClip(
-      clip,
-      this.pipeline,
-      this.launchRequest,
-      at ?? { x: corner.x + 40, y: corner.y + 40 },
-      (node) => `${node._id}_${sid()}`,
-      ({ from, to }) => `${from}_to_${to}_${salt()}`,
-    );
-    if (this.pipeline.start.nodes.length <= 0) {
-      this.pipeline.start.nodes.push(ids[0]);
-    }
+    const ids = this.editing.paste(clip, at);
     this.selection = new Set(ids.map((id) => `node:${id}`));
-    this.save();
     this.cd.detectChanges();
   }
 
@@ -1003,11 +996,8 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
         )
         .subscribe({
           next: (node) => {
-            const id = `${node._id}_${sid()}`;
-            addPipelineNode(this.pipeline, id, node);
-            assign(node.arrange, { x: left, y: top });
+            const id = this.editing.addNode(node, { at: { x: left, y: top } });
             added?.(id, node);
-            this.save();
           },
           error: (err) => (this.error = err),
         });
@@ -1051,50 +1041,12 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       next: (deploy) => {
         refreshFromDeploy(node, deploy);
         node.version = (node.version | 0) + 1;
-        this.dropDanglingFlows(key, node);
         this.deployProblems[key] = [];
-        this.save();
+        this.editing.replaceNode(key, node);
         this.cd.detectChanges();
       },
       error: (err) => (this.error = err),
     });
-  }
-
-  private dropDanglingFlows(key: string, node: Node) {
-    const { flows, inputs, outputs } = this.pipeline;
-    const gone = (flow: {
-      from?: string;
-      to?: string;
-      input?: string;
-      output?: string;
-    }) =>
-      (flow.to === key && !node.inputs.has(flow.input)) ||
-      (flow.from === key && !node.outputs.has(flow.output));
-    for (const [id, flow] of flows) {
-      if (gone(flow)) {
-        flows.delete(id);
-      }
-    }
-    for (const [, input] of inputs || []) {
-      for (const [id, flow] of input.flows || []) {
-        if (gone(flow)) {
-          input.flows.delete(id);
-        }
-      }
-    }
-    for (const [, output] of outputs || []) {
-      for (const [id, flow] of output.flows || []) {
-        if (gone(flow)) {
-          output.flows.delete(id);
-        }
-      }
-    }
-    const values = this.launchRequest.nodes?.get(key)?.inputs;
-    for (const id of [...(values?.keys() ?? [])]) {
-      if (!node.inputs.has(id)) {
-        values.delete(id);
-      }
-    }
   }
 
   addInput(id: string, input: PipelineInput) {
@@ -1208,19 +1160,8 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   }
 
   /** Input types the wire being drawn can connect to. */
-  private flowAccepts({
-    type,
-    from,
-    output,
-  }: EditPipelineVisualComponent["flow"]) {
-    const source =
-      type === "node"
-        ? this.pipeline.nodes.get(from)?.outputs.get(output)?.type
-        : this.pipeline.inputs?.get(from)?.type;
-    if (!source) {
-      return null;
-    }
-    return type === "node" ? acceptedInputTypes(source) : [source];
+  private flowAccepts(flow: EditPipelineVisualComponent["flow"]) {
+    return this.editing.accepts(flowSource(flow));
   }
 
   /**
@@ -1251,7 +1192,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   }
 
   private connectAdded(
-    { type, from, output }: EditPipelineVisualComponent["flow"],
+    flow: EditPipelineVisualComponent["flow"],
     id: string,
     node: Node,
     accepts: string[],
@@ -1263,118 +1204,13 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     if (!key) {
       return null;
     }
-    if (type === "node") {
-      this.addNodeFlow(from, output, id, key);
-    } else {
-      this.addInputFlow(from, id, key);
-    }
+    this.editing.connect(flowSource(flow), { node: id, input: key });
     return key;
   }
 
-  addNodeFlow(from: string, output: string, to: string, input: string) {
-    const o = this.pipeline.nodes.get(from).outputs.get(output);
-    const i = this.pipeline.nodes.get(to).inputs.get(input);
-
-    const flow = mapTo(
-      {
-        from,
-        output,
-        to,
-        input,
-      },
-      NodeFlow,
-    );
-
-    switch (o.type) {
-      case "json":
-        switch (i.type) {
-          case "string":
-          case "integer":
-          case "float":
-          case "boolean":
-            assign(flow, {
-              transformer: mapTo({ type: "json" }, FlowTransformer),
-            });
-            break;
-          default:
-            console.log(o.schema, ">", i.schema?.id);
-            if (i.type !== "json" || o.schema !== i.schema?.id) {
-              return;
-            }
-        }
-
-        break;
-      case "image":
-        switch (i.type) {
-          case "image":
-            break;
-          case "image[]":
-            assign(flow, {
-              transformer: mapTo({ type: "array", index: 0 }, FlowTransformer),
-            });
-            break;
-          default:
-            return;
-        }
-        break;
-      case "image[]":
-        switch (i.type) {
-          case "image":
-            assign(flow, {
-              transformer: mapTo({ type: "array", index: 0 }, FlowTransformer),
-            });
-            break;
-          case "image[]":
-            break;
-          default:
-            return;
-        }
-        break;
-      default:
-        if (o.type !== i.type) {
-          return;
-        }
-    }
-
-    const key = `${from}_to_${to}_${salt()}`;
-    this.pipeline.flows.set(key, flow);
-    this.save();
-  }
-
-  addInputFlow(from: string, to: string, input: string) {
-    const o = this.pipeline.inputs.get(from);
-    const i = this.pipeline.nodes.get(to).inputs.get(input);
-
-    if (o.type !== i.type) {
-      return;
-    }
-
-    const key = `to_${to}_${input}_${salt()}`;
-    o.flows.set(
-      key,
-      mapTo(
-        {
-          to,
-          input,
-        },
-        InputFlow,
-      ),
-    );
-    this.save();
-  }
-
+  /** Ends the wire being drawn at a node input, when the types fit. */
   addFlow(to: string, input: string) {
-    const { type, from, output } = this.flow;
-
-    switch (type) {
-      case "node":
-        this.addNodeFlow(from, output, to, input);
-        break;
-      case "input":
-        this.addInputFlow(from, to, input);
-        break;
-    }
-
+    this.editing.connect(flowSource(this.flow), { node: to, input });
     [this.state, this.mouse] = ["default", null];
   }
 
@@ -1447,10 +1283,8 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   }
 
   removeNode(node: string) {
-    removePipelineNode(this.pipeline, node);
     this.selection.delete(`node:${node}`);
-
-    this.save();
+    this.editing.removeNode(node);
 
     this.closeDrawler();
   }
@@ -2063,9 +1897,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
                     },
                     Node,
                   );
-                  const id = [node._id || "imported", sid()].join("_");
-                  this.pipeline.nodes.set(id, node);
-                  added.push(id);
+                  added.push(this.editing.addNode(node));
                 } else {
                   const { errors } = validate;
                   console.error(errors);
@@ -2082,10 +1914,6 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     }
 
     if (added.length > 0) {
-      if (this.pipeline.start.nodes.length <= 0) {
-        this.pipeline.start.nodes.push(added[0]);
-      }
-      this.save();
       this.cd.detectChanges();
     }
   }

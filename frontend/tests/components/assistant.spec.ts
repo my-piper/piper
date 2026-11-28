@@ -160,6 +160,49 @@ describe("AssistantComponent", () => {
     finish();
   }));
 
+  it("adds a Flow only between fitting ports, typed like the canvas", fakeAsync(() => {
+    const project = projectA();
+    const page = setup(project);
+    const { pipeline } = project;
+
+    answer(page, [
+      {
+        action: "add_flow",
+        data: {
+          id: "two_to_one",
+          json: {
+            from: "node_two",
+            output: "result",
+            to: "node_one",
+            input: "prompt",
+            transformer: { type: "json", path: "data.text" },
+          },
+        },
+      },
+      {
+        action: "add_flow",
+        data: {
+          id: "images_to_prompt",
+          json: {
+            from: "node_two",
+            output: "images",
+            to: "node_one",
+            input: "prompt",
+          },
+        },
+      },
+    ]);
+
+    const added = [...pipeline.flows.values()].filter(
+      (f) => f.from === "node_two",
+    );
+    expect(added.map((f) => f.output)).toEqual(["result"]);
+    expect(added[0].transformer).toEqual(
+      expect.objectContaining({ type: "json", path: "data.text" }),
+    );
+    finish();
+  }));
+
   it("makes the first Node it adds the Start Node", fakeAsync(() => {
     const empty = smallGraphPipeline() as Record<string, unknown>;
     Object.assign(empty, {
