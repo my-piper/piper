@@ -86,7 +86,7 @@ export async function run({ inputs, children }) {
 | Fan-out | At most 10 children per node. |
 | Identity | The child runs as the parent's `launchedBy`. |
 | Idempotency | `key -> childId` is saved in `NODE_CHILDREN` **before** the child starts. A key that already has a child is never launched again, so retries don't start duplicates. If starting the child throws, the child is interrupted and the key released, so the retry can start it. |
-| `children` payload | `{ [key]: { launch, status: "running" \| "finished", outputs } }`. A child is `finished` when every pipeline output is filled. Pipeline outputs only, with `json` parsed. Failed children never reach the script (see Failure). |
+| `children` payload | `{ [key]: { launch, status: "running" \| "finished", outputs } }`. A child is `finished` when every pipeline output fed by a Flow is filled (`packages/launches/finished.ts`). Pipeline outputs only, with `json` parsed. Failed children never reach the script (see Failure). |
 | Failure | If a child has errors, or its launch is missing or expired, the node's other children are interrupted and the parent node fails with a fatal (non-retried) error before its script runs. |
 | Depth | `Launch.depth` is 0 for a user's launch and parent + 1 for a child. More than 3 levels fails the node fatally. |
 | Interruption | `POST /api/launches/:id/interrupt` interrupts the launch and its children recursively. Children started while their parent was being interrupted are interrupted right after they start. |
@@ -200,11 +200,11 @@ The UI's "play via API" page shows the same curl calls: the launch call with an
 - `GET .../state` returns `{ launchedAt, errors: string[], outputs }`.
   `outputs` holds only the child pipeline's pipeline-level `outputs`, read from
   `PIPELINE_OUTPUT` keys. `json` outputs are parsed (`launching.ts:242-270`,
-  `models/launch.ts:353-368`). The child pipeline must declare `outputs`, or
-  nothing comes back.
+  `models/launch.ts:353-368`). At least one child pipeline output must be fed
+  by a Flow, otherwise Run Deploy refuses the Deploy (`child-launches.ts`).
 - There is no "finished" flag in `LaunchState` (`models/launch.ts:353-368`).
-  The backend itself treats a launch as finished once every pipeline output is
-  filled (`jobs/process-node/complete-node.ts:273-291`). A caller should poll
+  The backend itself treats a launch as finished once every pipeline output fed
+  by a Flow is filled (`isFinished` in `packages/launches/finished.ts`). A caller should poll
   until all expected outputs are present or `errors` is non-empty.
   **(inference from those two facts)**
 
@@ -249,7 +249,8 @@ either kicks it or queues a `run_launch` job. It returns right away
   `models/run-scope.ts:4-16`). A scoped launch is pushed to a Redis list and
   waits in `run_launch` until its position is below `maxConcurrent`
   (`launching.ts:197-200`, `jobs/run-launch.ts:30-68`). It is removed from the
-  list when all pipeline outputs are filled (`complete-node.ts:287-292`).
+  list when every pipeline output fed by a Flow has a value (`isFinished` in
+  `packages/launches/finished.ts`).
   Launches whose heartbeat has died are pruned (`run-launch.ts:41-48`). Only
   deploy launches carry a scope; `launch-project.ts` passes none
   (`launch-project.ts:51-67`).

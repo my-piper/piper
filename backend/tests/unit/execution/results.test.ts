@@ -16,6 +16,8 @@ import {
   PIPELINE_OUTPUT,
 } from "consts/redis";
 import { DelayedError } from "bullmq";
+import { toInstance } from "core-kit/packages/transform";
+import { Pipeline, PipelineOutput } from "models/pipeline";
 import { NodeJobResult } from "types/node";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -107,6 +109,58 @@ describe("node results and scheduling", () => {
       "user:user-test",
       "pipeline_done",
       expect.objectContaining({ launch: context.launch._id })
+    );
+  });
+
+  it("keeps the launch running while an output fed by two flows is the only one filled", async () => {
+    context.launch.pipeline.outputs = toInstance(
+      {
+        outputs: {
+          result: {
+            type: "json",
+            flows: {
+              result_flow: { from: "echo_node", output: "result" },
+              late_flow: { from: "sink_node", output: "result" },
+            },
+          },
+          summary: {
+            type: "json",
+            flows: { summary_flow: { from: "sink_node", output: "summary" } },
+          },
+        },
+      },
+      Pipeline
+    ).outputs;
+    context.responses.set(PIPELINE_OUTPUT(context.launch._id, "result"), json);
+
+    await context.run();
+
+    expect(doubles.redis.setEx).toHaveBeenCalledWith(
+      PIPELINE_OUTPUT(context.launch._id, "result"),
+      LAUNCH_EXPIRED,
+      json
+    );
+    expect(doubles.metrics.finished).not.toHaveBeenCalled();
+    expect(doubles.redis.lRem).not.toHaveBeenCalled();
+  });
+
+  it("finishes the launch when an output without flows stays empty", async () => {
+    context.launch.pipeline.outputs.set(
+      "unused",
+      toInstance({ type: "string" }, PipelineOutput)
+    );
+
+    await context.run();
+
+    expect(doubles.metrics.finished).toHaveBeenCalledWith({
+      launch: context.launch._id,
+      finishedAt: EXECUTION_TIME,
+      fromStart: 5,
+    });
+    expect(doubles.redis.lRem).toHaveBeenCalledWith(
+      "scope-test",
+      0,
+      context.launch._id
     );
   });
 

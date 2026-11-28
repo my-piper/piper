@@ -169,7 +169,7 @@ POST /api/projects/:id/launch          POST /api/[:prefix/]:slug/launch (deploye
      - for every outgoing flow, write the (transformed) value into the target's `NODE_INPUT`, mark the flow done in the target's `NODE_FLOWS`, clear the target's status/state/progress/processed lock, and plan the target;
      - plan any explicit `kicks`;
      - write matching pipeline outputs (`PIPELINE_OUTPUT`), queue `set_launch_output`, and send an output metric.
-7. When every pipeline output is filled, the launch is finished:
+7. When every pipeline output fed by a Flow is filled (`packages/launches/finished.ts`, counted once per output), the launch is finished:
    - remove it from its scope queue;
    - send a `finished` metric;
    - notify the user with `pipeline_done`.
