@@ -1,4 +1,4 @@
-import { minimapFrame, toCanvas, toMap } from "src/utils/minimap";
+import { ioBox, minimapFrame, toCanvas, toMap } from "src/utils/minimap";
 
 describe("minimap geometry", () => {
   it("fits the bounds with a margin and centres them", () => {
@@ -29,5 +29,13 @@ describe("minimap geometry", () => {
     const frame = minimapFrame([]);
 
     expect(Number.isFinite(frame.scale)).toBe(true);
+  });
+
+  it("anchors inputs by their right edge and outputs by their left", () => {
+    const input = ioBox("input", { x: 100, y: 200 });
+    const output = ioBox("output", { x: 100, y: 200 });
+
+    expect(input).toEqual({ x: -120, y: 160, w: 220, h: 80 });
+    expect(output).toEqual({ x: 100, y: 176, w: 100, h: 48 });
   });
 });

@@ -3,6 +3,31 @@ import { Box } from "src/utils/groups";
 /** The minimap's size in px (#336). */
 export const MINIMAP = { w: 220, h: 140, margin: 40 };
 
+/**
+ * The nominal size of a pipeline input or output card, in canvas px (#361).
+ * The cards size to their content and the model stores no size; at map
+ * scale a typical size is close enough.
+ */
+export const MINIMAP_IO = {
+  input: { w: 220, h: 80 },
+  output: { w: 100, h: 48 },
+};
+
+/**
+ * A pipeline input or output card as a canvas box, anchored as the canvas
+ * anchors it: an input's right edge and an output's left edge sit at `x`,
+ * both centred on `y`.
+ */
+export function ioBox(
+  kind: "input" | "output",
+  at: { x?: number; y?: number } | undefined,
+): Box {
+  const { w, h } = MINIMAP_IO[kind];
+  const x = at?.x ?? 0;
+  const y = at?.y ?? 0;
+  return { x: kind === "input" ? x - w : x, y: y - h / 2, w, h };
+}
+
 export type MinimapFrame = {
   /** Map px per canvas px. */
   scale: number;

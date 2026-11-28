@@ -19,6 +19,17 @@
       [style.height.px]="g.h"
     ></i>
   }
+  @for (p of d.io; track p.id) {
+    <i
+      class="mm-io"
+      [attr.data-kind]="p.kind"
+      [attr.data-minimap-io]="p.id"
+      [style.left.px]="p.x"
+      [style.top.px]="p.y"
+      [style.width.px]="p.w"
+      [style.height.px]="p.h"
+    ></i>
+  }
   @for (n of d.nodes; track n.id) {
     <i
       class="mm-node"

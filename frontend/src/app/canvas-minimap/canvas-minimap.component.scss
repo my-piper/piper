@@ -58,6 +58,20 @@
   }
 }
 
+// Pipeline inputs and outputs (#361), tinted like their canvas cards.
+.mm-io {
+  --io: var(--accent-strong);
+  min-width: 3px;
+  min-height: 2px;
+  border: 1px solid color-mix(in srgb, var(--io) 70%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--io) 30%, transparent);
+
+  &[data-kind="output"] {
+    --io: var(--success);
+  }
+}
+
 .mm-view {
   border: 1.5px solid var(--accent);
   border-radius: 2px;
