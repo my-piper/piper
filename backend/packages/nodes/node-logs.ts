@@ -1,12 +1,4 @@
-import {
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  NODE_LOGS,
-  NODE_LOGS_DROPPED,
-  NODE_LOGS_LIMIT,
-} from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
-import redis, { exists } from "core-kit/packages/redis";
 import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
 import {
   LaunchLog,
@@ -17,6 +9,7 @@ import {
 } from "models/node";
 import { LogEntry } from "packages/deno";
 import * as launching from "packages/launches/launching";
+import { liveState } from "packages/launches/live-state";
 
 const logger = createLogger("node-logs");
 
@@ -43,26 +36,15 @@ export async function appendNodeLogs(
   attempt: number,
   entries: LogEntry[]
 ): Promise<void> {
-  const key = NODE_LOGS(launch, node);
-  const length = await redis.rPush(
-    key,
+  await liveState.appendLogs(
+    launch,
+    node,
     entries.map(({ ts, message, level }) =>
-      JSON.stringify(
-        toPlain(
-          mapTo({ ts, message, level: normalizeLevel(level), attempt }, NodeLog)
-        )
+      toPlain(
+        mapTo({ ts, message, level: normalizeLevel(level), attempt }, NodeLog)
       )
     )
   );
-  await redis.expire(key, LAUNCH_EXPIRED);
-
-  const overflow = length - NODE_LOGS_LIMIT;
-  if (overflow > 0) {
-    await redis.lTrim(key, -NODE_LOGS_LIMIT, -1);
-    const dropped = NODE_LOGS_DROPPED(launch, node);
-    await redis.incrBy(dropped, overflow);
-    await redis.expire(dropped, LAUNCH_EXPIRED);
-  }
 }
 
 // The Node Logs of a launch's nodes, oldest first. Lines without a timestamp
@@ -71,7 +53,7 @@ export async function readLaunchLogs(
   launch: string,
   node?: string
 ): Promise<LaunchLogs> {
-  if (!(await exists(LAUNCH(launch)))) {
+  if (!(await liveState.exists(launch))) {
     return new LaunchLogs({ available: false, logs: [], dropped: {} });
   }
 
@@ -85,17 +67,15 @@ export async function readLaunchLogs(
   const logs: LaunchLog[] = [];
   const dropped: Record<string, number> = {};
   for (const key of nodes) {
-    const lines = await redis.lRange(NODE_LOGS(launch, key), 0, -1);
+    const { lines, dropped: count } = await liveState.logs(launch, key);
     logs.push(
-      ...lines.map((line) => {
-        const log = JSON.parse(line);
+      ...lines.map((log: { level?: string }) => {
         return toInstance(
           { ...log, level: normalizeLevel(log.level), node: key },
           LaunchLog
         );
       })
     );
-    const count = Number(await redis.get(NODE_LOGS_DROPPED(launch, key)));
     if (count > 0) {
       dropped[key] = count;
     }

@@ -1,19 +1,13 @@
 import {
   doubles,
+  liveState,
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME, launchFixture } from "../../fixtures/launch";
 import { pipelineFixture } from "../../fixtures/pipeline";
-import {
-  DEPLOY,
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  NODE_CHILDREN,
-  NODE_OUTPUTS,
-  PIPELINE_OUTPUT,
-} from "consts/redis";
-import { toInstance, toPlain } from "core-kit/packages/transform";
+import { DEPLOY } from "consts/redis";
+import { toInstance } from "core-kit/packages/transform";
 import { FatalError } from "core-kit/types/errors";
 import { DelayedError } from "bullmq";
 import { Node, NodeInput } from "models/node";
@@ -21,6 +15,8 @@ import { plan } from "packages/nodes/plan-node";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let context: ReturnType<typeof nodeExecutionFixture>;
+// deploys in Redis by key, read by packages/deploy
+let deploys: Map<string, string>;
 
 function deployFixture(pipeline: object = pipelineFixture()) {
   return {
@@ -41,16 +37,18 @@ function runsDeploy() {
   return node;
 }
 
-function startedChild(output: string | null) {
+async function startedChild(output: string | null) {
   const child = launchFixture();
   child._id = "child-1";
-  context.responses.set(
-    NODE_CHILDREN(context.launch._id, "echo_node"),
-    JSON.stringify({ deploy: "child-1" })
-  );
-  context.responses.set(LAUNCH("child-1"), JSON.stringify(toPlain(child)));
+  await liveState.create(child, []);
+  await liveState.setChildren(context.launch._id, "echo_node", {
+    deploy: "child-1",
+  });
   if (output !== null) {
-    context.responses.set(PIPELINE_OUTPUT("child-1", "result"), output);
+    await liveState.nodeCompleted(child, "echo_node", {
+      processed: true,
+      pipelineOutputs: { result: output },
+    });
   }
 }
 
@@ -59,9 +57,11 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(EXECUTION_TIME);
   context = nodeExecutionFixture();
-  context.responses.set(
-    DEPLOY("child", "user-test"),
-    JSON.stringify(deployFixture())
+  deploys = new Map([
+    [DEPLOY("child", "user-test"), JSON.stringify(deployFixture())],
+  ]);
+  doubles.redis.get.mockImplementation(
+    async (key: string) => deploys.get(key) ?? null
   );
 });
 
@@ -78,11 +78,9 @@ describe("deploy nodes", () => {
       project: { _id: "project-child" },
       launchRequest: { inputs: { count: 0 } },
     });
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_CHILDREN(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      JSON.stringify({ deploy: child["_id"] })
-    );
+    expect(await liveState.children(context.launch._id, "echo_node")).toEqual({
+      deploy: child["_id"],
+    });
     expect(context.job.moveToDelayed).toHaveBeenCalledExactlyOnceWith(
       EXECUTION_TIME.getTime() + 3000
     );
@@ -90,7 +88,7 @@ describe("deploy nodes", () => {
 
   it("wait while their child runs", async () => {
     runsDeploy();
-    startedChild(null);
+    await startedChild(null);
 
     await expect(context.run()).rejects.toBeInstanceOf(DelayedError);
 
@@ -102,21 +100,19 @@ describe("deploy nodes", () => {
 
   it("pass on the outputs of their finished child", async () => {
     runsDeploy();
-    startedChild('{"answer":42}');
+    await startedChild('{"answer":42}');
 
     await context.run();
 
     expect(doubles.execute).not.toHaveBeenCalled();
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_OUTPUTS(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      JSON.stringify({ result: JSON.stringify({ answer: 42 }, null, "  ") })
-    );
+    expect(
+      await liveState.nodeOutputs(context.launch._id, "echo_node")
+    ).toEqual({ result: JSON.stringify({ answer: 42 }, null, "  ") });
   });
 
   it("fail without retries when the Deploy is gone", async () => {
     runsDeploy();
-    context.responses.delete(DEPLOY("child", "user-test"));
+    deploys.delete(DEPLOY("child", "user-test"));
 
     const run = context.run();
 
@@ -134,7 +130,7 @@ describe("deploy nodes", () => {
     const pipeline = pipelineFixture();
     pipeline.inputs["topic"] = { type: "string", required: true };
     pipeline.outputs = { summary: { type: "string", flows: {} } } as never;
-    context.responses.set(
+    deploys.set(
       DEPLOY("child", "user-test"),
       JSON.stringify(deployFixture(pipeline))
     );

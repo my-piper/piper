@@ -1,19 +1,12 @@
 import {
   doubles,
+  liveState,
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
+import { spyOnLiveState } from "../../helpers/live-state";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME } from "../../fixtures/launch";
-import {
-  GLOBAL_ENVIRONMENT_KEY,
-  LAUNCH_EXPIRED,
-  LAUNCH_HEARTBEAT,
-  NODE_LOGS,
-  NODE_LOGS_DROPPED,
-  NODE_PROCESSING_LOCK,
-  NODE_STATE,
-  NODE_STATUS,
-} from "consts/redis";
+import { GLOBAL_ENVIRONMENT_KEY } from "consts/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import { NodeExecution } from "enums/node-execution";
@@ -42,10 +35,10 @@ describe("node execution lifecycle", () => {
     "uses the %s timeout and real input/state conversion",
     async (execution, timeout) => {
       context.launch.pipeline.nodes.get("echo_node").execution = execution;
-      context.responses.set(
-        NODE_STATE(context.launch._id, "echo_node"),
-        '{"page":2}'
-      );
+      await liveState.nodeRepeats(context.launch._id, "echo_node", "job-0", {
+        dueAt: 0,
+        state: { page: 2 },
+      });
 
       await context.run();
 
@@ -59,9 +52,9 @@ describe("node execution lifecycle", () => {
         }),
         { timeout, isolation: "none" }
       );
-      expect(doubles.redis.del).toHaveBeenCalledWith(
-        NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
-      );
+      expect(
+        await liveState.isProcessing(context.launch._id, "echo_node")
+      ).toBe(false);
       expect(vi.getTimerCount()).toBe(0);
     }
   );
@@ -90,9 +83,8 @@ describe("node execution lifecycle", () => {
       Environment
     );
     encrypt(global);
-    context.responses.set(
-      GLOBAL_ENVIRONMENT_KEY,
-      JSON.stringify(toPlain(global))
+    doubles.redis.get.mockImplementation(async (key: string) =>
+      key === GLOBAL_ENVIRONMENT_KEY ? JSON.stringify(toPlain(global)) : null
     );
 
     await context.run();
@@ -118,16 +110,16 @@ describe("node execution lifecycle", () => {
           finish = resolve;
         })
     );
+    const beat = spyOnLiveState("beat");
     const running = context.run();
     await vi.advanceTimersByTimeAsync(0);
 
     await vi.advanceTimersByTimeAsync(10000);
 
-    expect(
-      doubles.redis.setEx.mock.calls.filter(
-        ([key]) => key === LAUNCH_HEARTBEAT(context.launch._id)
-      )
-    ).toHaveLength(2);
+    expect(beat).toHaveBeenCalledTimes(2);
+    expect(await liveState.heartbeat(context.launch._id)).toBe(
+      new Date(EXECUTION_TIME.getTime() + 10000).toISOString()
+    );
     finish({ result: { __type: "next" }, logs: [] });
     await running;
 
@@ -143,59 +135,38 @@ describe("node execution lifecycle", () => {
 
     await context.run();
 
-    expect(doubles.redis.rPush).toHaveBeenCalledWith(
-      NODE_LOGS(context.launch._id, "echo_node"),
-      [
-        JSON.stringify({
-          level: "info",
-          message: "hello",
-          attempt: 2,
-          ts: 1767323045000,
-        }),
-      ]
-    );
-    expect(doubles.redis.expire).toHaveBeenCalledWith(
-      NODE_LOGS(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED
+    expect(await liveState.logs(context.launch._id, "echo_node")).toEqual({
+      lines: [
+        { level: "info", message: "hello", attempt: 2, ts: 1767323045000 },
+      ],
+      dropped: 0,
+    });
+    expect(await liveState.isProcessing(context.launch._id, "echo_node")).toBe(
+      false
     );
     expect(vi.getTimerCount()).toBe(0);
   });
 
   it("keeps the newest 1000 log lines of a node and counts the dropped ones", async () => {
+    await liveState.appendLogs(
+      context.launch._id,
+      "echo_node",
+      Array.from({ length: 1002 }, (_, i) => ({ message: `old ${i}` }))
+    );
     doubles.execute.mockResolvedValue({
       result: { __type: "next" },
       logs: [{ ts: 1767323045000, message: "hello", level: "info" }],
     });
-    doubles.redis.rPush.mockResolvedValue(1003);
 
     await context.run();
 
-    expect(doubles.redis.lTrim).toHaveBeenCalledWith(
-      NODE_LOGS(context.launch._id, "echo_node"),
-      -1000,
-      -1
+    const { lines, dropped } = await liveState.logs(
+      context.launch._id,
+      "echo_node"
     );
-    expect(doubles.redis.incrBy).toHaveBeenCalledWith(
-      NODE_LOGS_DROPPED(context.launch._id, "echo_node"),
-      3
-    );
-    expect(doubles.redis.expire).toHaveBeenCalledWith(
-      NODE_LOGS_DROPPED(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED
-    );
-  });
-
-  it("does not trim the logs of a node under the line limit", async () => {
-    doubles.execute.mockResolvedValue({
-      result: { __type: "next" },
-      logs: [{ ts: 1767323045000, message: "hello", level: "info" }],
-    });
-    doubles.redis.rPush.mockResolvedValue(1000);
-
-    await context.run();
-
-    expect(doubles.redis.lTrim).not.toHaveBeenCalled();
-    expect(doubles.redis.incrBy).not.toHaveBeenCalled();
+    expect(lines).toHaveLength(1000);
+    expect(lines.at(-1)).toMatchObject({ message: "hello" });
+    expect(dropped).toBe(3);
   });
 
   it("does not restart the heartbeat if a refresh finishes after execution", async () => {
@@ -208,13 +179,12 @@ describe("node execution lifecycle", () => {
           finishExecution = resolve;
         })
     );
-    doubles.redis.setEx.mockImplementation((key: string) => {
-      if (key === LAUNCH_HEARTBEAT(context.launch._id) && ++heartbeats === 2) {
+    spyOnLiveState("beat").mockImplementation(async () => {
+      if (++heartbeats === 2) {
         return new Promise<void>((resolve) => {
           finishHeartbeat = resolve;
         });
       }
-      return undefined;
     });
     const running = context.run();
     await vi.advanceTimersByTimeAsync(0);
@@ -243,29 +213,16 @@ describe("node execution lifecycle", () => {
 
     await expect(context.run()).rejects.toBeInstanceOf(DataError);
 
-    expect(doubles.redis.rPush).toHaveBeenCalledWith(
-      NODE_LOGS(context.launch._id, "echo_node"),
-      [
-        JSON.stringify({
-          level: "error",
-          message: "bad input",
-          attempt: 0,
-          ts: 1767323045000,
-        }),
-      ]
-    );
-    expect(doubles.redis.del).toHaveBeenCalledWith(
-      NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
+    expect(
+      (await liveState.logs(context.launch._id, "echo_node")).lines
+    ).toEqual([
+      { level: "error", message: "bad input", attempt: 0, ts: 1767323045000 },
+    ]);
+    expect(await liveState.isProcessing(context.launch._id, "echo_node")).toBe(
+      false
     );
     expect(vi.getTimerCount()).toBe(0);
   });
-
-  function failSetEx(key: (launch: string, node: string) => string) {
-    return (failure: Error) =>
-      doubles.redis.setEx.mockImplementation(async (written: string) => {
-        if (written === key(context.launch._id, "echo_node")) throw failure;
-      });
-  }
 
   it.each([
     {
@@ -274,36 +231,34 @@ describe("node execution lifecycle", () => {
       releasesLock: true,
     },
     {
-      phase: "lock",
-      fail: failSetEx(NODE_PROCESSING_LOCK),
+      phase: "start",
+      fail: (failure: Error) =>
+        spyOnLiveState("nodeStarted").mockRejectedValue(failure),
       releasesLock: false,
     },
-    { phase: "status", fail: failSetEx(NODE_STATUS), releasesLock: true },
     {
-      phase: "unlock",
-      fail: (failure: Error) => doubles.redis.del.mockRejectedValue(failure),
+      phase: "stop",
+      fail: (failure: Error) =>
+        spyOnLiveState("nodeStopped").mockRejectedValue(failure),
       releasesLock: true,
     },
     {
       phase: "heartbeat",
-      fail: (failure: Error) => doubles.redis.setEx.mockRejectedValue(failure),
+      fail: (failure: Error) =>
+        spyOnLiveState("beat").mockRejectedValue(failure),
       releasesLock: false,
     },
   ])(
     "cleans up timers after a failure in $phase",
     async ({ phase, fail, releasesLock }) => {
       const failure = new Error(`${phase} failed`);
+      const stopped = spyOnLiveState("nodeStopped");
       fail(failure);
 
       await expect(context.run()).rejects.toBe(failure);
 
       expect(vi.getTimerCount()).toBe(0);
-      expect(
-        doubles.redis.del.mock.calls.some(
-          ([key]) =>
-            key === NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
-        )
-      ).toBe(releasesLock);
+      expect(stopped.mock.calls.length > 0).toBe(releasesLock);
     }
   );
 
@@ -315,8 +270,8 @@ describe("node execution lifecycle", () => {
 
     await expect(context.run()).rejects.toThrow("Wrong handler results");
 
-    expect(doubles.redis.del).toHaveBeenCalledWith(
-      NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
+    expect(await liveState.isProcessing(context.launch._id, "echo_node")).toBe(
+      false
     );
     expect(vi.getTimerCount()).toBe(0);
   });

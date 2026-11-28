@@ -1,20 +1,10 @@
 import {
   doubles,
+  liveState,
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME } from "../../fixtures/launch";
-import {
-  LAUNCH_EXPIRED,
-  NODE_FLOWS,
-  NODE_INPUT,
-  NODE_OUTPUTS,
-  NODE_PROCESSED_LOCK,
-  NODE_PROGRESS,
-  NODE_STATE,
-  NODE_STATUS,
-  PIPELINE_OUTPUT,
-} from "consts/redis";
 import { DelayedError } from "bullmq";
 import { toInstance } from "core-kit/packages/transform";
 import { Pipeline, PipelineOutput } from "models/pipeline";
@@ -37,46 +27,49 @@ describe("node results and scheduling", () => {
     const result = await context.run();
 
     expect(result).toBe(NodeJobResult.NODE_PROCESSED);
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_STATUS(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      '{"state":"done"}'
+    expect(await liveState.status(context.launch._id, "echo_node")).toEqual({
+      state: "done",
+    });
+    expect(
+      await liveState.nodeOutputs(context.launch._id, "echo_node")
+    ).toEqual({ result: json });
+    expect(await liveState.isProcessed(context.launch._id, "echo_node")).toBe(
+      true
     );
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_OUTPUTS(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      JSON.stringify({ result: json })
-    );
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_PROCESSED_LOCK(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      "x"
+    expect(await liveState.isProcessing(context.launch._id, "echo_node")).toBe(
+      false
     );
     expect(vi.getTimerCount()).toBe(0);
   });
 
   it("fills the downstream input, resets its state, and plans it", async () => {
+    const { _id } = context.launch;
+    await context.store();
+    await liveState.nodeRepeats(_id, "sink_node", "earlier", {
+      dueAt: 1,
+      state: { page: 2 },
+      progress: { total: 2, processed: 1 },
+    });
+    await liveState.nodeCompleted(context.launch, "sink_node", {
+      processed: true,
+    });
+
     await context.run();
 
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_INPUT(context.launch._id, "sink_node", "value"),
-      LAUNCH_EXPIRED,
-      json
+    expect(
+      await liveState.inputs(
+        _id,
+        "sink_node",
+        context.launch.pipeline.nodes.get("sink_node").inputs
+      )
+    ).toEqual({ value: json });
+    expect(await liveState.isFlowDone(_id, "sink_node", "result_flow")).toBe(
+      true
     );
-    expect(doubles.redis.sAdd).toHaveBeenCalledWith(
-      NODE_FLOWS(context.launch._id, "sink_node"),
-      "result_flow"
-    );
-    for (const key of [
-      NODE_STATUS,
-      NODE_STATE,
-      NODE_PROGRESS,
-      NODE_PROCESSED_LOCK,
-    ]) {
-      expect(doubles.redis.del).toHaveBeenCalledWith(
-        key(context.launch._id, "sink_node")
-      );
-    }
+    expect(await liveState.status(_id, "sink_node")).toBeNull();
+    expect(await liveState.state(_id, "sink_node")).toBeNull();
+    expect(await liveState.progress(_id, "sink_node")).toBeNull();
+    expect(await liveState.isProcessed(_id, "sink_node")).toBe(false);
     expect(doubles.plans.regular).toHaveBeenCalledExactlyOnceWith(
       { launch: context.launch._id, node: "sink_node" },
       { delay: 1000 }
@@ -86,11 +79,8 @@ describe("node results and scheduling", () => {
   it("publishes the pipeline output, finishes the launch, and notifies", async () => {
     await context.run();
 
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      PIPELINE_OUTPUT(context.launch._id, "result"),
-      LAUNCH_EXPIRED,
-      json
-    );
+    expect(await liveState.output(context.launch, "result")).toBe(json);
+    expect(await liveState.isFinished(context.launch)).toBe(true);
     expect(doubles.plans.output).toHaveBeenCalledWith({
       launch: context.launch._id,
       output: "result",
@@ -100,11 +90,7 @@ describe("node results and scheduling", () => {
       finishedAt: EXECUTION_TIME,
       fromStart: 5,
     });
-    expect(doubles.redis.lRem).toHaveBeenCalledWith(
-      "scope-test",
-      0,
-      context.launch._id
-    );
+    expect((await liveState.scopeQueue("scope-test", 10)).waiting).toBe(0);
     expect(doubles.notify).toHaveBeenCalledWith(
       "user:user-test",
       "pipeline_done",
@@ -131,17 +117,18 @@ describe("node results and scheduling", () => {
       },
       Pipeline
     ).outputs;
-    context.responses.set(PIPELINE_OUTPUT(context.launch._id, "result"), json);
+    await context.store();
+    await liveState.nodeCompleted(context.launch, "sink_node", {
+      processed: true,
+      pipelineOutputs: { result: json },
+    });
 
     await context.run();
 
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      PIPELINE_OUTPUT(context.launch._id, "result"),
-      LAUNCH_EXPIRED,
-      json
-    );
+    expect(await liveState.output(context.launch, "result")).toBe(json);
+    expect(await liveState.isFinished(context.launch)).toBe(false);
     expect(doubles.metrics.finished).not.toHaveBeenCalled();
-    expect(doubles.redis.lRem).not.toHaveBeenCalled();
+    expect((await liveState.scopeQueue("scope-test", 10)).waiting).toBe(1);
   });
 
   it("finishes the launch when an output without flows stays empty", async () => {
@@ -157,11 +144,7 @@ describe("node results and scheduling", () => {
       finishedAt: EXECUTION_TIME,
       fromStart: 5,
     });
-    expect(doubles.redis.lRem).toHaveBeenCalledWith(
-      "scope-test",
-      0,
-      context.launch._id
-    );
+    expect((await liveState.scopeQueue("scope-test", 10)).waiting).toBe(0);
   });
 
   it("saves repeat state/progress and delays the same job without completing it", async () => {
@@ -180,23 +163,18 @@ describe("node results and scheduling", () => {
     expect(context.job.moveToDelayed).toHaveBeenCalledExactlyOnceWith(
       EXECUTION_TIME.getTime() + 2500
     );
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_STATE(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      '{"page":2}'
-    );
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_PROGRESS(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      '{"total":10,"processed":2}'
+    const { _id } = context.launch;
+    expect(await liveState.state(_id, "echo_node")).toEqual({ page: 2 });
+    expect(await liveState.progress(_id, "echo_node")).toEqual({
+      total: 10,
+      processed: 2,
+    });
+    expect(await liveState.dueAt(_id, "echo_node", "job-test")).toBe(
+      EXECUTION_TIME.getTime() + 2500
     );
     expect(doubles.plans.regular).not.toHaveBeenCalled();
     expect(doubles.metrics.finished).not.toHaveBeenCalled();
-    expect(
-      doubles.redis.setEx.mock.calls.some(
-        ([key]) => key === NODE_PROCESSED_LOCK(context.launch._id, "echo_node")
-      )
-    ).toBe(false);
+    expect(await liveState.isProcessed(_id, "echo_node")).toBe(false);
     expect(vi.getTimerCount()).toBe(0);
   });
 
@@ -229,14 +207,16 @@ describe("node results and scheduling", () => {
     const result = await context.run();
 
     expect(result).toBe(NodeJobResult.NODE_PROCESSED);
-    expect(doubles.redis.del).toHaveBeenCalledWith(
-      NODE_INPUT(context.launch._id, "echo_node", "enabled")
-    );
     expect(
-      doubles.redis.setEx.mock.calls.some(
-        ([key]) => key === NODE_PROCESSED_LOCK(context.launch._id, "echo_node")
+      await liveState.inputs(
+        context.launch._id,
+        "echo_node",
+        context.launch.pipeline.nodes.get("echo_node").inputs
       )
-    ).toBe(false);
+    ).toEqual({ count: 0, text: "" });
+    expect(await liveState.isProcessed(context.launch._id, "echo_node")).toBe(
+      false
+    );
     expect(doubles.plans.regular).toHaveBeenCalledExactlyOnceWith(
       { launch: context.launch._id, node: "sink_node" },
       { delay: 250 }

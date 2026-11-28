@@ -1,33 +1,18 @@
 import { queues } from "app/queues";
 import { streams } from "app/streams";
-import {
-  LAUNCH_EXPIRED,
-  NODE_FLOWS,
-  NODE_INPUT,
-  NODE_OUTPUTS,
-  NODE_PROCESSED_LOCK,
-  NODE_CHILDREN,
-  NODE_PROGRESS,
-  NODE_STATE,
-  NODE_STATUS,
-  PIPELINE_OUTPUT,
-} from "consts/redis";
 import type { Logger } from "core-kit/packages/logger";
-import redis, { lock, saveInstance, unlock } from "core-kit/packages/redis";
 import { mapTo, toInstance } from "core-kit/packages/transform";
 import { differenceInSeconds } from "date-fns";
 import get from "lodash/get";
 import { PipelineEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
 import { Launch } from "models/launch";
-import { NodeStatus } from "models/node";
-import { isFinished, requiredOutputs } from "packages/launches/finished";
+import { InputValue, liveState } from "packages/launches/live-state";
 import { plan } from "packages/nodes/plan-node";
 import { NextNode, NodeJobResult } from "types/node";
 import { PipelineEventType } from "types/pipeline";
 import { Primitive } from "types/primitive";
 import { convertOutputs } from "utils/node";
-import { toRedisValue } from "utils/redis";
 import { recordLaunchRun } from "./run-metrics";
 
 type PipelineNotifier = (event: PipelineEventType, payload?: object) => void;
@@ -53,7 +38,6 @@ export async function completeNode({
 }: CompletionContext): Promise<NodeJobResult> {
   const { pipeline, launchRequest } = launch;
   const node = pipeline.nodes.get(nodeJob.node);
-  const PROCESSED_LOCK = NODE_PROCESSED_LOCK(nodeJob.launch, nodeJob.node);
 
   const { outputs, kicks, behavior, reset, delay } = toInstance(
     result as object,
@@ -70,42 +54,11 @@ export async function completeNode({
       bucket: launchRequest.options?.bucket,
     })(outputs, node.outputs);
     logger.debug("Converted outputs");
-
-    await redis.setEx(
-      NODE_OUTPUTS(launch._id, nodeJob.node),
-      LAUNCH_EXPIRED,
-      JSON.stringify(converted)
-    );
-
-    if (launchRequest.options?.bucket) {
-      await queues.launches.artefacts.save.plan({
-        launch: launch._id,
-        node: nodeJob.node,
-      });
-    }
   }
 
-  if (behavior === "normal") {
-    logger.debug("Set processed lock");
-    await lock(PROCESSED_LOCK, LAUNCH_EXPIRED);
-  }
-
-  if (reset) {
-    const { inputs } = reset;
-    logger.debug("Reset inputs for node");
-    for (const i of inputs) {
-      await redis.del(NODE_INPUT(launch._id, nodeJob.node, i));
-    }
-    notifyNode(nodeJob.node, "node_reset");
-  }
-
-  await saveInstance(
-    NODE_STATUS(launch._id, nodeJob.node),
-    mapTo({ state: "done" }, NodeStatus),
-    LAUNCH_EXPIRED
-  );
-  notifyNode(nodeJob.node, "node_done");
-
+  // what its Flows carry downstream
+  const inputs: InputValue[] = [];
+  const flows: { node: string; flow: string }[] = [];
   const related = new Set<string>();
   if (pipeline.flows) {
     for (const [id, flow] of pipeline.flows) {
@@ -121,12 +74,9 @@ export async function completeNode({
             pipeline.nodes.get(flow.to).inputs.get(flow.input),
           ];
 
-          const setNodeInputValue = async (value: Primitive) =>
-            redis.setEx(
-              NODE_INPUT(launch._id, flow.to, flow.input),
-              LAUNCH_EXPIRED,
-              toRedisValue(input.type, value)
-            );
+          const setNodeInputValue = async (value: Primitive) => {
+            inputs.push({ node: flow.to, input: flow.input, value });
+          };
 
           switch (flow.transformer?.type) {
             case "json": {
@@ -204,24 +154,52 @@ export async function completeNode({
         }
 
         // mark for next node flow is done
-        {
-          const key = NODE_FLOWS(launch._id, flow.to);
-          await redis.sAdd(key, id);
-          await redis.expire(key, LAUNCH_EXPIRED);
+        flows.push({ node: flow.to, flow: id });
+      }
+    }
+  }
+
+  // the pipeline outputs it gives, by each Flow into them
+  const given: { key: string; value: Primitive }[] = [];
+  for (const [key, output] of pipeline.outputs ?? []) {
+    for (const [, flow] of output.flows ?? []) {
+      if (flow.from === nodeJob.node) {
+        const value = converted[flow.output];
+        if (value !== undefined) {
+          given.push({ key, value });
         }
       }
     }
-    for (const node of related) {
-      notifyNode(node, "node_flow");
-      await redis.del(NODE_STATUS(launch._id, node));
-      await redis.del(NODE_STATE(launch._id, node));
-      await redis.del(NODE_CHILDREN(launch._id, node));
-      await redis.del(NODE_PROGRESS(launch._id, node));
-      await unlock(NODE_PROCESSED_LOCK(launch._id, node));
+  }
 
-      logger.debug(`Plan next node ${node}`);
-      await plan(node, pipeline.nodes.get(node), launch._id, { delay });
-    }
+  const { finished } = await liveState.nodeCompleted(launch, nodeJob.node, {
+    ...(outputs ? { outputs: converted } : {}),
+    processed: behavior === "normal",
+    resetInputs: reset?.inputs ?? [],
+    inputs,
+    flows,
+    rerun: [...related],
+    pipelineOutputs: Object.fromEntries(
+      given.map(({ key, value }) => [key, value])
+    ),
+  });
+
+  if (outputs && launchRequest.options?.bucket) {
+    await queues.launches.artefacts.save.plan({
+      launch: launch._id,
+      node: nodeJob.node,
+    });
+  }
+  if (reset) {
+    logger.debug("Reset inputs for node");
+    notifyNode(nodeJob.node, "node_reset");
+  }
+  notifyNode(nodeJob.node, "node_done");
+
+  for (const node of related) {
+    notifyNode(node, "node_flow");
+    logger.debug(`Plan next node ${node}`);
+    await plan(node, pipeline.nodes.get(node), launch._id, { delay });
   }
 
   if (kicks) {
@@ -233,79 +211,38 @@ export async function completeNode({
   const { launchedAt } = launch;
   const processedAt = new Date();
 
-  if (pipeline.outputs) {
-    const filled = new Set<string>();
-    for (const [key, output] of pipeline.outputs) {
-      if (output.flows) {
-        for (const [, flow] of output.flows) {
-          if (flow.from === nodeJob.node) {
-            const value = converted[flow.output];
-            if (value !== undefined) {
-              logger.info(`Set pipeline output [${key}]`);
+  for (const { key } of given) {
+    logger.info(`Set pipeline output [${key}]`);
+    notifyPipeline("set_pipeline_output");
 
-              await redis.setEx(
-                PIPELINE_OUTPUT(launch._id, key),
-                LAUNCH_EXPIRED,
-                toRedisValue(output.type, value)
-              );
-              notifyPipeline("set_pipeline_output");
+    queues.launches.outputs.set.plan({
+      launch: launch._id,
+      output: key,
+    });
 
-              queues.launches.outputs.set.plan({
-                launch: launch._id,
-                output: key,
-              });
+    streams.pipeline.metrics.outputs.send({
+      launch: launch._id,
+      output: key,
+      filledAt: processedAt,
+      fromStart: differenceInSeconds(processedAt, launchedAt),
+    });
+  }
 
-              const fromStart = differenceInSeconds(processedAt, launchedAt);
-
-              streams.pipeline.metrics.outputs.send({
-                launch: launch._id,
-                output: key,
-                filledAt: processedAt,
-                fromStart,
-              });
-
-              filled.add(key);
-            }
-          }
-        }
-      }
+  if (finished) {
+    const { scope } = launch;
+    if (scope) {
+      logger.info(`Remove launch from scope ${scope.id}`);
+      await liveState.leaveScope(scope.id, launch._id);
     }
 
-    if (filled.size > 0) {
-      const required = requiredOutputs(pipeline);
-      for (const key of required) {
-        if (
-          !filled.has(key) &&
-          (await redis.get(PIPELINE_OUTPUT(launch._id, key))) !== null
-        ) {
-          filled.add(key);
-        }
-      }
-      logger.info(
-        `Filled ${filled.size} from ${required.length} in pipeline outputs`
-      );
-      if (isFinished(pipeline, filled)) {
-        const { scope } = launch;
-        if (scope) {
-          logger.info(`Remove launch from scope ${scope.id}`);
-          await redis.lRem(scope.id, 0, launch._id);
-        }
+    streams.pipeline.metrics.finished.send({
+      launch: launch._id,
+      finishedAt: processedAt,
+      fromStart: differenceInSeconds(processedAt, launchedAt),
+    });
+    await recordLaunchRun(launch, "done", processedAt);
 
-        const fromStart = differenceInSeconds(processedAt, launchedAt);
-
-        streams.pipeline.metrics.finished.send({
-          launch: launch._id,
-          finishedAt: processedAt,
-          fromStart,
-        });
-        await recordLaunchRun(launch, "done", processedAt);
-
-        notifyUser(
-          "pipeline_done",
-          mapTo({ launch: launch._id }, PipelineEvent)
-        );
-      }
-    }
+    notifyUser("pipeline_done", mapTo({ launch: launch._id }, PipelineEvent));
   }
 
   return NodeJobResult.NODE_PROCESSED;

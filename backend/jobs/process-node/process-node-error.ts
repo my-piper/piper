@@ -1,19 +1,11 @@
 import { queues } from "app/queues";
 import { streams } from "app/streams";
 import { BASE_URL } from "consts/core";
-import {
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  NODE_JOB_DUE,
-  NODE_STATUS,
-  PIPELINE_ERRORS,
-} from "consts/redis";
 import { getLabel } from "core-kit/packages/i18n";
 import { notify } from "core-kit/packages/io";
 import { DEFAULT_LANGUAGE } from "core-kit/packages/locale";
 import { createLogger } from "core-kit/packages/logger";
 import { Job } from "core-kit/packages/queue";
-import redis, { readInstance, saveInstance } from "core-kit/packages/redis";
 import sentry from "core-kit/packages/sentry";
 import { mapTo } from "core-kit/packages/transform";
 import {
@@ -23,8 +15,7 @@ import {
 } from "core-kit/types/errors";
 import { PipelineEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
-import { Launch } from "models/launch";
-import { NodeStatus } from "models/node";
+import { liveState } from "packages/launches/live-state";
 import { PipelineEventType } from "types/pipeline";
 import {
   getErrorResult,
@@ -39,7 +30,7 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
     node: nodeJob.node,
   });
 
-  const launch = await readInstance(LAUNCH(nodeJob.launch), Launch);
+  const launch = await liveState.get(nodeJob.launch);
   if (!launch) {
     logger.error("Launch is not found");
     return;
@@ -53,22 +44,33 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
     );
   };
 
-  await saveInstance(
-    NODE_STATUS(launch._id, nodeJob.node),
-    new NodeStatus({
-      state: "error",
-      error: `${err.message}`,
-    }),
-    LAUNCH_EXPIRED
-  );
-  notifyNode(nodeJob.node, "node_error");
-
   const {
     attemptsMade,
     opts: { attempts: maxAttempts },
   } = job;
 
   logger.error(`Error for attempt ${attemptsMade} from ${maxAttempts}`);
+
+  const fatal =
+    err instanceof FatalError ||
+    err instanceof TimeoutError ||
+    err instanceof MemoryLimitError;
+  const lastAttempt = attemptsMade >= maxAttempts;
+
+  // the status and the Launch's error are written together; each failure is
+  // recorded once, even a fatal one on the last attempt
+  await liveState.nodeFailed(
+    launch._id,
+    nodeJob.node,
+    `${err.message}`,
+    fatal
+      ? { outcome: "fatal" }
+      : lastAttempt
+        ? { outcome: "exhausted" }
+        : // the retry backoff is counted as wait time of the next run
+          { outcome: "retry", job: job.id, dueAt: Date.now() }
+  );
+  notifyNode(nodeJob.node, "node_error");
 
   const { project } = launch;
   const node = launch.pipeline.nodes.get(nodeJob.node);
@@ -85,33 +87,12 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
     message: err.message,
   });
 
-  const fatal =
-    err instanceof FatalError ||
-    err instanceof TimeoutError ||
-    err instanceof MemoryLimitError;
-  const lastAttempt = attemptsMade >= maxAttempts;
-
   if (lastAttempt || fatal) {
     logger.error("Save error for launch");
-    // each failure is recorded once, even a fatal one on the last attempt
-    const key = PIPELINE_ERRORS(launch._id);
-    if (fatal) {
-      await redis.lPush(key, err.message);
-    } else {
-      await redis.rPush(key, err.message);
-    }
-    await redis.expire(key, LAUNCH_EXPIRED);
     queues.launches.errors.set.plan({ launch: launch._id });
 
     await recordNodeExecution(launch, nodeJob.node, getErrorResult(err));
     await recordLaunchRun(launch, "error");
-  } else {
-    // the retry backoff is counted as wait time of the next run
-    await redis.setEx(
-      NODE_JOB_DUE(launch._id, nodeJob.node, job.id),
-      LAUNCH_EXPIRED,
-      String(Date.now())
-    );
   }
 
   if (fatal) {

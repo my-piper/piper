@@ -1,10 +1,10 @@
 import {
   doubles,
+  liveState,
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME } from "../../fixtures/launch";
-import { LAUNCH_EXPIRED, NODE_STATUS, PIPELINE_ERRORS } from "consts/redis";
 import type { Job } from "core-kit/packages/queue";
 import {
   FatalError,
@@ -16,11 +16,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let context: ReturnType<typeof nodeExecutionFixture>;
 
-beforeEach(() => {
+beforeEach(async () => {
   resetExecutionDoubles();
   vi.useFakeTimers();
   vi.setSystemTime(EXECUTION_TIME);
   context = nodeExecutionFixture();
+  await context.store();
 });
 
 describe("worker execution error reporting", () => {
@@ -29,11 +30,14 @@ describe("worker execution error reporting", () => {
 
     await errorHandler(context.nodeJob, error, context.job as unknown as Job);
 
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_STATUS(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      '{"state":"error","error":"temporary failure"}'
-    );
+    expect(await liveState.status(context.launch._id, "echo_node")).toEqual({
+      state: "error",
+      error: "temporary failure",
+    });
+    expect(await liveState.errors(context.launch._id)).toEqual([]);
+    expect(
+      await liveState.dueAt(context.launch._id, "echo_node", "job-test")
+    ).toBe(EXECUTION_TIME.getTime());
     expect(doubles.metrics.errors).toHaveBeenCalledWith(
       expect.objectContaining({
         launch: context.launch._id,
@@ -65,10 +69,9 @@ describe("worker execution error reporting", () => {
       context.job as unknown as Job
     );
 
-    expect(doubles.redis.rPush).toHaveBeenCalledWith(
-      PIPELINE_ERRORS(context.launch._id),
-      "failed permanently"
-    );
+    expect(await liveState.errors(context.launch._id)).toEqual([
+      "failed permanently",
+    ]);
     expect(doubles.plans.errors).toHaveBeenCalledExactlyOnceWith({
       launch: context.launch._id,
     });
@@ -78,6 +81,11 @@ describe("worker execution error reporting", () => {
     "terminates %s failures immediately",
     async (ErrorType) => {
       const failure = new ErrorType("cannot continue");
+      await errorHandler(
+        context.nodeJob,
+        new Error("earlier failure"),
+        Object.assign({}, context.job, { attemptsMade: 3 }) as unknown as Job
+      );
 
       await errorHandler(
         context.nodeJob,
@@ -85,15 +93,15 @@ describe("worker execution error reporting", () => {
         context.job as unknown as Job
       );
 
-      expect(doubles.redis.lPush).toHaveBeenCalledWith(
-        PIPELINE_ERRORS(context.launch._id),
-        "cannot continue"
-      );
-      expect(doubles.plans.errors).toHaveBeenCalledExactlyOnceWith({
+      expect(await liveState.errors(context.launch._id)).toEqual([
+        "cannot continue",
+        "earlier failure",
+      ]);
+      expect(doubles.plans.errors).toHaveBeenLastCalledWith({
         launch: context.launch._id,
       });
       expect(context.job.remove).toHaveBeenCalledOnce();
-      expect(doubles.captureException).not.toHaveBeenCalled();
+      expect(doubles.captureException).toHaveBeenCalledOnce();
     }
   );
 
@@ -109,11 +117,9 @@ describe("worker execution error reporting", () => {
         context.job as unknown as Job
       );
 
-      expect(doubles.redis.lPush).toHaveBeenCalledExactlyOnceWith(
-        PIPELINE_ERRORS(context.launch._id),
-        "cannot continue"
-      );
-      expect(doubles.redis.rPush).not.toHaveBeenCalled();
+      expect(await liveState.errors(context.launch._id)).toEqual([
+        "cannot continue",
+      ]);
       expect(doubles.plans.errors).toHaveBeenCalledExactlyOnceWith({
         launch: context.launch._id,
       });
@@ -135,7 +141,7 @@ describe("worker execution error reporting", () => {
   });
 
   it("does nothing when the launch has expired", async () => {
-    doubles.redis.get.mockResolvedValue(null);
+    vi.advanceTimersByTime(8 * 24 * 3600 * 1000);
 
     await errorHandler(
       context.nodeJob,
@@ -143,7 +149,7 @@ describe("worker execution error reporting", () => {
       context.job as unknown as Job
     );
 
-    expect(doubles.redis.setEx).not.toHaveBeenCalled();
+    expect(await liveState.status(context.launch._id, "echo_node")).toBeNull();
     expect(doubles.metrics.errors).not.toHaveBeenCalled();
     expect(doubles.notify).not.toHaveBeenCalled();
   });

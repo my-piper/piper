@@ -1,16 +1,10 @@
 import {
   doubles,
+  liveState,
   resetExecutionDoubles,
-  transactionResult,
 } from "../../helpers/execution-boundaries";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME } from "../../fixtures/launch";
-import {
-  LAUNCH_EXPIRED,
-  LAUNCH_INTERRUPTED,
-  LAUNCH_RUN_RECORDED,
-  NODE_JOB_DUE,
-} from "consts/redis";
 import type { Job } from "core-kit/packages/queue";
 import { toInstance } from "core-kit/packages/transform";
 import { FatalError } from "core-kit/types/errors";
@@ -38,12 +32,17 @@ function executeFor(ms: number, result: object) {
   });
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   resetExecutionDoubles();
   vi.useFakeTimers();
   vi.setSystemTime(EXECUTION_TIME);
   context = nodeExecutionFixture();
+  await context.store();
 });
+
+function dueAt() {
+  return liveState.dueAt(context.launch._id, "echo_node", context.job.id);
+}
 
 describe("node run metrics", () => {
   it("records a finished run with wait and execution time", async () => {
@@ -76,18 +75,18 @@ describe("node run metrics", () => {
     expect(doubles.metrics.nodeRuns).toHaveBeenCalledWith(
       expect.objectContaining({ result: "repeat", durationMs: 100 })
     );
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_JOB_DUE(context.launch._id, "echo_node", context.job.id),
-      LAUNCH_EXPIRED,
-      String(NOW + 100 + 2000)
-    );
+    expect(await dueAt()).toBe(NOW + 100 + 2000);
   });
 
   it("measures the wait from a stored due time", async () => {
     withJobTiming(NOW - 60_000);
-    context.responses.set(
-      NODE_JOB_DUE(context.launch._id, "echo_node", context.job.id),
-      String(NOW - 300)
+    await liveState.nodeRepeats(
+      context.launch._id,
+      "echo_node",
+      context.job.id,
+      {
+        dueAt: NOW - 300,
+      }
     );
 
     await context.run();
@@ -130,10 +129,8 @@ describe("launch run metrics", () => {
 
     await context.run();
 
-    expect(doubles.redis.set).toHaveBeenCalledWith(
-      LAUNCH_RUN_RECORDED(context.launch._id),
-      "done",
-      { NX: true, EX: LAUNCH_EXPIRED }
+    expect(await liveState.markRunRecorded(context.launch._id, "error")).toBe(
+      false
     );
     expect(doubles.metrics.launchRuns).toHaveBeenCalledExactlyOnceWith({
       launchedAt: context.launch.launchedAt,
@@ -152,13 +149,7 @@ describe("launch run metrics", () => {
 
   it("records an interrupted launch at the interrupt time", async () => {
     const interruptedAt = new Date(NOW - 700);
-    doubles.redis.EXISTS.mockImplementation(async (key: string) =>
-      key === LAUNCH_INTERRUPTED(context.launch._id) ? 1 : 0
-    );
-    context.responses.set(
-      LAUNCH_INTERRUPTED(context.launch._id),
-      interruptedAt.toISOString()
-    );
+    await liveState.interrupt(context.launch._id, interruptedAt);
 
     const result = await context.run();
 
@@ -206,15 +197,11 @@ describe("launch run metrics", () => {
     );
 
     expect(doubles.metrics.launchRuns).not.toHaveBeenCalled();
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_JOB_DUE(context.launch._id, "echo_node", context.job.id),
-      LAUNCH_EXPIRED,
-      String(NOW)
-    );
+    expect(await dueAt()).toBe(NOW);
   });
 
   it("sends only the first outcome of a launch", async () => {
-    doubles.redis.set.mockResolvedValue(null);
+    await liveState.markRunRecorded(context.launch._id, "done");
 
     await recordLaunchRun(context.launch, "error");
 
@@ -223,30 +210,33 @@ describe("launch run metrics", () => {
 });
 
 describe("node execution records", () => {
-  // the open execution as Redis returns it: two invocations so far
-  function openExecution() {
-    transactionResult([
-      {
-        startedAt: String(NOW - 60_000),
-        waitMs: "120",
-        activeMs: "300",
-        invocations: "2",
-        attempts: "1",
-        finishedAt: String(NOW - 500),
-      },
-      1,
-    ]);
+  // an open execution with two invocations so far
+  async function openExecution() {
+    await liveState.addInvocation(context.launch._id, "echo_node", {
+      startedAt: new Date(NOW - 60_000),
+      finishedAt: NOW - 50_000,
+      waitMs: 120,
+      durationMs: 100,
+      attempt: 0,
+    });
+    await liveState.addInvocation(context.launch._id, "echo_node", {
+      startedAt: new Date(NOW - 1000),
+      finishedAt: NOW - 500,
+      waitMs: 900,
+      durationMs: 200,
+      attempt: 0,
+    });
   }
 
   it("records the open execution when the node is done", async () => {
-    openExecution();
+    await openExecution();
 
     await context.run();
 
-    expect(doubles.redis.multi).toHaveBeenCalled();
+    // the run that completes the node is its third invocation
     expect(doubles.metrics.nodeExecutions).toHaveBeenCalledExactlyOnceWith({
       startedAt: new Date(NOW - 60_000),
-      finishedAt: new Date(NOW - 500),
+      finishedAt: EXECUTION_TIME,
       launch: context.launch._id,
       project: "project-test",
       pipeline: context.launch.pipeline.name,
@@ -255,15 +245,18 @@ describe("node execution records", () => {
       execution: "rapid",
       result: "done",
       waitMs: 120,
-      durationMs: 59_500,
+      durationMs: 60_000,
       activeMs: 300,
-      invocations: 2,
+      invocations: 3,
       attempts: 1,
     });
+    expect(
+      await liveState.closeExecution(context.launch._id, "echo_node")
+    ).toBeNull();
   });
 
   it("keeps the execution open on a repeat", async () => {
-    openExecution();
+    await openExecution();
     executeFor(100, { __type: "repeat", delay: 2000 });
 
     await expect(context.run()).rejects.toThrow();
@@ -272,7 +265,7 @@ describe("node execution records", () => {
   });
 
   it("keeps the execution open on an error with attempts left", async () => {
-    openExecution();
+    await openExecution();
 
     await errorHandler(
       context.nodeJob,
@@ -287,7 +280,7 @@ describe("node execution records", () => {
     ["the last attempt", new Error("failed permanently"), 3, "error"],
     ["a fatal failure", new FatalError("cannot continue"), 0, "error"],
   ])("records the execution on %s", async (_, error, attemptsMade, result) => {
-    openExecution();
+    await openExecution();
     context.job.attemptsMade = attemptsMade;
 
     await errorHandler(context.nodeJob, error, context.job as unknown as Job);
@@ -298,15 +291,9 @@ describe("node execution records", () => {
   });
 
   it("records the execution as interrupted at the interrupt time", async () => {
-    openExecution();
+    await openExecution();
     const interruptedAt = new Date(NOW - 700);
-    doubles.redis.EXISTS.mockImplementation(async (key: string) =>
-      key === LAUNCH_INTERRUPTED(context.launch._id) ? 1 : 0
-    );
-    context.responses.set(
-      LAUNCH_INTERRUPTED(context.launch._id),
-      interruptedAt.toISOString()
-    );
+    await liveState.interrupt(context.launch._id, interruptedAt);
 
     await context.run();
 

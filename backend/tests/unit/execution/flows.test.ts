@@ -1,10 +1,12 @@
 import {
   doubles,
+  liveState,
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
+import { liveStore } from "../../helpers/live-state";
+import { NODE_INPUT } from "packages/launches/live-state/keys";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME } from "../../fixtures/launch";
-import { LAUNCH_EXPIRED, NODE_INPUT, PIPELINE_OUTPUT } from "consts/redis";
 import { toInstance } from "core-kit/packages/transform";
 import { PipelineOutput } from "models/pipeline";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -17,6 +19,15 @@ beforeEach(() => {
   vi.setSystemTime(EXECUTION_TIME);
   context = nodeExecutionFixture();
 });
+
+// the sink input as stored: the encoded text the next node reads (the wire
+// format is the contract here)
+async function sinkInput() {
+  const [value] = await liveStore.exec([
+    { op: "get", key: NODE_INPUT(context.launch._id, "sink_node", "value") },
+  ]);
+  return value;
+}
 
 describe("downstream flow conversion and completion", () => {
   it.each([
@@ -42,11 +53,7 @@ describe("downstream flow conversion and completion", () => {
 
       await context.run();
 
-      expect(doubles.redis.setEx).toHaveBeenCalledWith(
-        NODE_INPUT(context.launch._id, "sink_node", "value"),
-        LAUNCH_EXPIRED,
-        encoded
-      );
+      expect(await sinkInput()).toBe(encoded);
       expect(doubles.plans.regular).toHaveBeenCalledOnce();
     }
   );
@@ -73,11 +80,7 @@ describe("downstream flow conversion and completion", () => {
 
     await context.run();
 
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_INPUT(context.launch._id, "sink_node", "value"),
-      LAUNCH_EXPIRED,
-      "second.png"
-    );
+    expect(await sinkInput()).toBe("second.png");
   });
 
   it("does not schedule downstream nodes for absent outputs", async () => {
@@ -112,16 +115,18 @@ describe("downstream flow conversion and completion", () => {
           PipelineOutput
         )
       );
-      for (const [output, value] of Object.entries(stored))
-        context.responses.set(
-          PIPELINE_OUTPUT(context.launch._id, output),
-          value
-        );
+      await context.store();
+      await liveState.nodeCompleted(context.launch, "sink_node", {
+        processed: true,
+        pipelineOutputs: stored,
+      });
 
       await context.run();
 
       expect(doubles.metrics.finished).toHaveBeenCalledTimes(completions);
-      expect(doubles.redis.lRem).toHaveBeenCalledTimes(completions);
+      expect((await liveState.scopeQueue("scope-test", 10)).waiting).toBe(
+        1 - completions
+      );
     }
   );
 });

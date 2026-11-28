@@ -1,3 +1,4 @@
+import "../../helpers/live-state";
 import { toInstance } from "core-kit/packages/transform";
 import { Launch } from "models/launch";
 import { NodeOutput } from "models/node";
@@ -11,7 +12,6 @@ const { storage, download } = vi.hoisted(() => ({
 }));
 
 vi.mock("app/storage", () => storage);
-vi.mock("core-kit/packages/redis", () => ({ default: {} }));
 vi.mock("utils/web", () => ({ download }));
 
 const launch = new Launch({ _id: "launch" });

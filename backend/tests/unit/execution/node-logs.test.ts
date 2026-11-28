@@ -1,38 +1,33 @@
+import { liveState, liveStore } from "../../helpers/live-state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { redis, exists, launching, logger } = vi.hoisted(() => ({
-  redis: {
-    rPush: vi.fn(),
-    expire: vi.fn(),
-    lTrim: vi.fn(),
-    incrBy: vi.fn(),
-    lRange: vi.fn(),
-    get: vi.fn(),
-  },
-  exists: vi.fn(),
+const { launching, logger } = vi.hoisted(() => ({
   launching: { get: vi.fn() },
   logger: { warn: vi.fn() },
 }));
 
-vi.mock("core-kit/packages/redis", () => ({ default: redis, exists }));
 vi.mock("packages/launches/launching", () => launching);
 vi.mock("core-kit/packages/logger", () => ({ createLogger: () => logger }));
 
 const { appendNodeLogs, readLaunchLogs } = await import(
   "packages/nodes/node-logs"
 );
+const { launchFixture } = await import("../../fixtures/launch");
+const { NODE_LOGS } = await import("packages/launches/live-state/keys");
 
 const stored = (level: string) =>
   JSON.stringify({ level, message: "hello", attempt: 0, ts: 1 });
 
 describe("node logs levels", () => {
-  beforeEach(() => {
-    redis.rPush.mockResolvedValue(1);
-    exists.mockResolvedValue(true);
+  beforeEach(async () => {
+    liveStore.clear();
+    await liveState.create(
+      Object.assign(launchFixture(), { _id: "launch" }),
+      []
+    );
     launching.get.mockResolvedValue({
       pipeline: { nodes: new Map([["node", {}]]) },
     });
-    redis.get.mockResolvedValue(null);
   });
 
   it.each([
@@ -46,15 +41,21 @@ describe("node logs levels", () => {
 
     await appendNodeLogs("launch", "node", 0, [entry]);
 
-    const [, [line]] = redis.rPush.mock.calls[0];
-    expect(JSON.parse(line).level).toBe(expected);
+    const { lines } = await liveState.logs("launch", "node");
+    expect(lines).toEqual([expect.objectContaining({ level: expected })]);
   });
 
   it.each([
     { level: "log", expected: "info" },
     { level: "warn", expected: "warn" },
   ])("reads a stored $level line as $expected", async ({ level, expected }) => {
-    redis.lRange.mockResolvedValue([stored(level)]);
+    await liveStore.exec([
+      {
+        op: "rPush",
+        key: NODE_LOGS("launch", "node"),
+        values: [stored(level)],
+      },
+    ]);
 
     const { logs } = await readLaunchLogs("launch");
 
@@ -66,8 +67,8 @@ describe("node logs levels", () => {
 
     await appendNodeLogs("launch", "node", 0, [entry, entry]);
 
-    const [, lines] = redis.rPush.mock.calls[0];
-    expect(lines.map((line: string) => JSON.parse(line).level)).toEqual([
+    const { lines } = await liveState.logs("launch", "node");
+    expect(lines.map((line: { level: string }) => line.level)).toEqual([
       "info",
       "info",
     ]);

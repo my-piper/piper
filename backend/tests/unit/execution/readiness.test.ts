@@ -1,15 +1,11 @@
 import {
   doubles,
+  liveState,
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
+import { liveStore, spyOnLiveState } from "../../helpers/live-state";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME } from "../../fixtures/launch";
-import {
-  LAUNCH_INTERRUPTED,
-  NODE_INPUT,
-  NODE_PROCESSED_LOCK,
-  NODE_PROCESSING_LOCK,
-} from "consts/redis";
 import { toInstance } from "core-kit/packages/transform";
 import { NodeFlow } from "models/node-flow";
 import { NodeJobResult } from "types/node";
@@ -29,66 +25,65 @@ describe("node readiness and duplicate execution", () => {
     {
       name: "interrupted launch",
       result: NodeJobResult.LAUNCH_INTERRUPTED,
-      prepare: () =>
-        doubles.redis.EXISTS.mockImplementation(async (key) =>
-          Number(key === LAUNCH_INTERRUPTED(context.launch._id))
-        ),
+      prepare: () => liveState.interrupt(context.launch._id),
     },
     {
       name: "already processed node",
       result: NodeJobResult.NODE_HAS_BEEN_PROCESSED_ALREADY,
       prepare: () =>
-        doubles.redis.GET.mockImplementation(async (key) =>
-          key === NODE_PROCESSED_LOCK(context.launch._id, "echo_node")
-            ? "x"
-            : null
-        ),
+        liveState.nodeCompleted(context.launch, "echo_node", {
+          processed: true,
+        }),
     },
     {
       name: "missing launch",
       result: NodeJobResult.LAUNCH_NOT_FOUND,
-      prepare: () => doubles.redis.get.mockResolvedValue(null),
+      prepare: () => liveStore.clear(),
     },
     {
       name: "missing node",
       result: NodeJobResult.NODE_NOT_FOUND_IN_WORKFLOW,
-      prepare: () => context.launch.pipeline.nodes.delete("echo_node"),
+      prepare: async () => {
+        context.launch.pipeline.nodes.delete("echo_node");
+        await context.store();
+      },
     },
     {
       name: "excluded node",
       result: NodeJobResult.NODE_IN_NOT_INCLUSIVE,
-      prepare: () => {
+      prepare: async () => {
         context.launch.launchRequest.inclusive = { nodes: ["sink_node"] };
+        await context.store();
       },
     },
     {
       name: "missing required input",
       result: NodeJobResult.NODE_INPUTS_NOT_READY_YET,
-      prepare: () =>
-        context.responses.delete(
-          NODE_INPUT(context.launch._id, "echo_node", "enabled")
-        ),
+      prepare: async () => {
+        liveStore.clear();
+        context.inputs.splice(0, 1);
+        await context.store();
+      },
     },
     {
       name: "already running node",
       result: NodeJobResult.NODE_IS_PROCESSING_NOW_ALREADY,
-      prepare: () =>
-        doubles.redis.GET.mockImplementation(async (key) =>
-          key === NODE_PROCESSING_LOCK(context.launch._id, "echo_node")
-            ? "x"
-            : null
-        ),
+      prepare: () => liveState.nodeStarted(context.launch._id, "echo_node"),
     },
   ])(
     "skips a $name without starting execution",
     async ({ prepare, result }) => {
-      prepare();
+      await context.store();
+      await prepare();
+      const status = await liveState.status(context.launch._id, "echo_node");
 
-      const actual = await context.run();
+      const actual = await context.handle();
 
       expect(actual).toBe(result);
       expect(doubles.execute).not.toHaveBeenCalled();
-      expect(doubles.redis.setEx).not.toHaveBeenCalled();
+      expect(await liveState.status(context.launch._id, "echo_node")).toEqual(
+        status
+      );
       expect(vi.getTimerCount()).toBe(0);
     }
   );
@@ -109,7 +104,6 @@ describe("node readiness and duplicate execution", () => {
           NodeFlow
         )
       );
-      doubles.redis.sIsMember.mockResolvedValue(false);
 
       const result = await context.run();
 
@@ -125,9 +119,7 @@ describe("node readiness and duplicate execution", () => {
   );
 
   it("tells clients a node lacks a required input", async () => {
-    context.responses.delete(
-      NODE_INPUT(context.launch._id, "echo_node", "enabled")
-    );
+    context.inputs.splice(0, 1);
 
     const result = await context.run();
 
@@ -159,12 +151,12 @@ describe("node readiness and duplicate execution", () => {
         )
       );
       context.launch.launchRequest.inclusive = { nodes: inclusive };
-      doubles.redis.sIsMember.mockResolvedValue(false);
+      const flowDone = spyOnLiveState("isFlowDone");
 
       const result = await context.run();
 
       expect(result).toBe(NodeJobResult.NODE_PROCESSED);
-      expect(doubles.redis.sIsMember).not.toHaveBeenCalled();
+      expect(flowDone).not.toHaveBeenCalled();
       expect(doubles.execute).toHaveBeenCalledOnce();
       expect(vi.getTimerCount()).toBe(0);
     }

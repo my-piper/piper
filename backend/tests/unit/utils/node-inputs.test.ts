@@ -1,3 +1,4 @@
+import { liveStore } from "../../helpers/live-state";
 import { toInstance } from "core-kit/packages/transform";
 import { DataError } from "core-kit/types/errors";
 import { Launch } from "models/launch";
@@ -13,9 +14,6 @@ import {
 import { describe, expect, it, vi } from "vitest";
 import { pipelineFixture } from "../../fixtures/pipeline";
 
-const { redis } = vi.hoisted(() => ({ redis: { get: vi.fn() } }));
-
-vi.mock("core-kit/packages/redis", () => ({ default: redis }));
 vi.mock("app/storage", () => ({}));
 
 describe("node input conversion", () => {
@@ -187,19 +185,18 @@ describe("reading node inputs from Redis", () => {
       Node
     );
     const launch = new Launch({ _id: "launch" });
-    redis.get.mockImplementation(
-      async (key: string) =>
-        ({
-          "launch:launch:nodes:echo:inputs:enabled": "",
-          "launch:launch:nodes:echo:inputs:count": "0",
-          "launch:launch:nodes:echo:inputs:text": "",
-          "launch:launch:nodes:echo:inputs:empty": "<!null!>",
-        })[key] ?? null
+    // values as stored, an explicit null included
+    await liveStore.exec(
+      Object.entries({
+        "launch:launch:nodes:echo:inputs:enabled": "",
+        "launch:launch:nodes:echo:inputs:count": "0",
+        "launch:launch:nodes:echo:inputs:text": "",
+        "launch:launch:nodes:echo:inputs:empty": "<!null!>",
+      }).map(([key, value]) => ({ op: "set", key, value }))
     );
 
     const inputs = await getNodeInputs({ launch, node })("echo");
 
     expect(inputs).toEqual({ enabled: false, count: 0, text: "" });
-    expect(redis.get).toHaveBeenCalledTimes(5);
   });
 });

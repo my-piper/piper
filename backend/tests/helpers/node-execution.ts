@@ -1,9 +1,9 @@
-import { doubles } from "./execution-boundaries";
-import { LAUNCH, NODE_INPUT } from "consts/redis";
+import "./execution-boundaries";
+import { liveState } from "./live-state";
 import type { Job } from "core-kit/packages/queue";
-import { toPlain } from "core-kit/packages/transform";
 import handler from "jobs/process-node/process-node-handler";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
+import type { InputValue } from "packages/launches/live-state/live-state";
 import { vi } from "vitest";
 import { launchFixture } from "../fixtures/launch";
 
@@ -17,23 +17,33 @@ export function nodeExecutionFixture() {
     moveToDelayed: vi.fn(),
     remove: vi.fn(),
   };
-  // Read responses only: writes remain spies, rather than an in-memory Redis implementation.
-  const responses = new Map<string, string>([
-    [NODE_INPUT(launch._id, "echo_node", "enabled"), ""],
-    [NODE_INPUT(launch._id, "echo_node", "count"), "0"],
-    [NODE_INPUT(launch._id, "echo_node", "text"), ""],
-  ]);
-  doubles.redis.get.mockImplementation(async (key: string) =>
-    key === LAUNCH(launch._id)
-      ? JSON.stringify(toPlain(launch))
-      : (responses.get(key) ?? null)
-  );
+  // the echo_node inputs the launch starts with (falsy on purpose)
+  const inputs: InputValue[] = [
+    { node: "echo_node", input: "enabled", value: false },
+    { node: "echo_node", input: "count", value: 0 },
+    { node: "echo_node", input: "text", value: "" },
+  ];
+
+  // Stores the launch (with `inputs` the first time) as the test changed it.
+  const store = async () => {
+    if (await liveState.exists(launch._id)) {
+      await liveState.started(launch);
+    } else {
+      await liveState.create(launch, inputs);
+    }
+  };
 
   return {
     launch,
     nodeJob,
     job,
-    responses,
-    run: () => handler(nodeJob, job as unknown as Job),
+    inputs,
+    store,
+    // runs the node job without storing the launch first
+    handle: () => handler(nodeJob, job as unknown as Job),
+    run: async () => {
+      await store();
+      return handler(nodeJob, job as unknown as Job);
+    },
   };
 }
