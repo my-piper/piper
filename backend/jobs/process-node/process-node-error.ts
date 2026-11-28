@@ -85,21 +85,24 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
     message: err.message,
   });
 
-  if (attemptsMade >= maxAttempts) {
-    logger.error("Save error for launch");
-    const key = PIPELINE_ERRORS(launch._id);
-    await redis.rPush(key, err.message);
-    await redis.expire(key, LAUNCH_EXPIRED);
-
-    queues.launches.errors.set.plan({ launch: launch._id });
-  }
-
   const fatal =
     err instanceof FatalError ||
     err instanceof TimeoutError ||
     err instanceof MemoryLimitError;
+  const lastAttempt = attemptsMade >= maxAttempts;
 
-  if (attemptsMade >= maxAttempts || fatal) {
+  if (lastAttempt || fatal) {
+    logger.error("Save error for launch");
+    // each failure is recorded once, even a fatal one on the last attempt
+    const key = PIPELINE_ERRORS(launch._id);
+    if (fatal) {
+      await redis.lPush(key, err.message);
+    } else {
+      await redis.rPush(key, err.message);
+    }
+    await redis.expire(key, LAUNCH_EXPIRED);
+    queues.launches.errors.set.plan({ launch: launch._id });
+
     await recordNodeExecution(launch, nodeJob.node, getErrorResult(err));
     await recordLaunchRun(launch, "error");
   } else {
@@ -112,10 +115,6 @@ export default async (nodeJob: ProcessNodeJob, err: Error, job: Job) => {
   }
 
   if (fatal) {
-    const key = PIPELINE_ERRORS(launch._id);
-    await redis.lPush(key, err.message);
-    await redis.expire(key, LAUNCH_EXPIRED);
-    queues.launches.errors.set.plan({ launch: launch._id });
     try {
       await job.remove();
     } catch (e) {
