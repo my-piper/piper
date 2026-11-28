@@ -98,6 +98,10 @@ _Avoid_: Outer launch, root launch
 The lines a Node's script writes while it runs in a Launch, each with a level (`debug`, `info`, `warn` or `error`; `console.log` is `info`) and the attempt it came from. A Launch's logs are the Node Logs of all its Nodes; a Child Launch keeps its own. Node Logs live only as long as the Launch's live state, so an old Launch can outlive its logs.
 _Avoid_: Console output, messages, launch events
 
+**Launch feed**:
+The frontend module that follows one Launch live: it hears its Nodes' events, loads and polls the state of the Nodes a screen watches, and works out the Launch's state from them. The canvas, the Node cards, the Node drawers and the Node Logs read from it.
+_Avoid_: Launch socket, live state, launch stream
+
 ### Configuration
 
 **Environment**:
