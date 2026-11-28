@@ -159,27 +159,31 @@ POST /api/projects/:id/launch          POST /api/[:prefix/]:slug/launch (deploye
 2. For each incoming `wait` flow, require its id in the `NODE_FLOWS` set. Otherwise exit; an upstream node will plan this node again.
 3. Read inputs from Redis, check required inputs, and convert them.
 4. Take the *processing* lock and start a launch heartbeat (Redis key + `launch_heartbeat` event every 10s).
-5. Call the Deno service (`packages/deno/execute.ts` → `DENO_URL`) with `{ script, fn: "run", payload: { schema, inputs, state, env }, timeout, isolation }`. Logs from the run are appended to `NODE_LOGS`. A Run Deploy node (`source: deploy`, ADR 0011) skips this call: `runDeployNode` (`packages/nodes/deploy-node.ts`) returns the result a script would — `launch` for its one child on the first run, `repeat` while the child runs, `next` with the child's outputs — and is always planned on the `rapid` queue (`processQueue` in `packages/nodes/plan-node.ts`).
-6. Interpret the result by its `__type`:
-   - **`repeat`** — save `state` and `progress`, then reschedule the same job with a delay (`DelayedError`). This is how long-running or polling nodes (for example, waiting on an external AI API) work without blocking a worker.
-   - **`next`** — handle the outputs and plan follow-up work:
+5. Run the node (`execute-node.ts`): call the Deno service (`packages/deno/execute.ts` → `DENO_URL`) with `{ script, fn: "run", payload: { schema, inputs, state, env }, timeout, isolation }`. A Run Deploy node (`source: deploy`, ADR 0011) skips this call: `runDeployNode` (`packages/nodes/deploy-node.ts`) returns the result a script would — `launch` for its one child on the first run, `repeat` while the child runs, `next` with the child's outputs — and is always planned on the `rapid` queue (`processQueue` in `packages/nodes/plan-node.ts`). Either way the run comes to a **Node Outcome** (`packages/nodes/outcome.ts`): `launch`, `repeat`, `next` or `error`; anything thrown and any result of unknown `__type` is an `error`. Logs from the run are appended to `NODE_LOGS`, and the processing lock is released.
+6. Apply the outcome in one step (`apply-outcome.ts` `applyOutcome`), which also records the run metrics (`packages/launches/run-metrics.ts`) once:
+   - **`launch`** — start the Child Launches (ADR 0001), then repeat.
+   - **`repeat`** — save `state` and `progress`, then reschedule the same job with a delay. BullMQ needs a processor that delays its own job to throw `DelayedError`; `applyOutcome` is the one place in node processing that does.
+   - **`next`** — `complete-node.ts` handles the outputs and plans follow-up work:
      - convert the outputs (media may be re-uploaded to S3) and store them in `NODE_OUTPUTS`;
      - optionally queue an artefact save;
      - set the processed lock (unless `behavior` is not `normal`) and optionally reset inputs;
-     - for every outgoing flow, write the (transformed) value into the target's `NODE_INPUT`, mark the flow done in the target's `NODE_FLOWS`, clear the target's status/state/progress/processed lock, and plan the target;
+     - for every outgoing flow, write the value its transformer gives (`packages/nodes/flow-value.ts`) into the target's `NODE_INPUT`, mark the flow done in the target's `NODE_FLOWS`, clear the target's status/state/progress/processed lock, and plan the target;
      - plan any explicit `kicks`;
      - write matching pipeline outputs (`PIPELINE_OUTPUT`), queue `set_launch_output`, and send an output metric.
+   - **`error`** — record the failed run and rethrow, so BullMQ retries or fails the job.
 7. When every pipeline output fed by a Flow is filled (`packages/launches/finished.ts`, counted once per output), the launch is finished:
-   - remove it from its scope queue;
-   - send a `finished` metric;
+   - remove it from its scope queue (`packages/launches/scope.ts`, which also decides a waiting launch's turn for `run-launch`);
+   - send a `finished` metric and the `done` launch run;
    - notify the user with `pipeline_done`.
 
-Failures go to `process-node-error.ts`:
+Failures go to `process-node-error.ts`, the BullMQ `failed` hook, which calls `applyFailure` in `apply-outcome.ts`:
 - sets the node status to `error` and emits `node_error`;
 - writes to the `pipeline.errors` stream;
-- after the final attempt, writes the error into the launch errors.
+- after the final attempt, writes the error into the launch errors and records the `error` execution and launch run.
 
 `FatalError`, `TimeoutError` and `MemoryLimitError` (thrown inside node scripts or by the sandbox) are not retried: the error is recorded and the job is removed. Other errors go through BullMQ retries and are reported to Sentry.
+
+Interrupting a launch (`launching.interrupt`, recursive over its Child Launches) sets `LAUNCH_INTERRUPTED` and plans a `record_launch_interrupted` job, which records the interrupted executions and launch run: the API server that interrupts has no Kafka producer.
 
 Workers never hold launch state in memory; everything lives in Redis. This lets any worker pick up any node, and lets nodes re-plan each other freely. Idempotency comes from the processing/processed locks.
 
@@ -192,6 +196,7 @@ These run in the `set_launches_io` worker group and similar, so node processing 
 | `set_launch_output` | `jobs/set-launch-output.ts` | Build output data (`PIPELINE_OUTPUT_DATA`), insert into `launchArtefacts`, update the Mongo launch, emit `set_output` |
 | `save_node_artefacts` | `jobs/save-launch-artefacts.ts` | When the request sets a `bucket`, store node outputs as `launchArtefacts` |
 | `set_launch_errors` | `jobs/set-launch-errors.ts` | Copy `PIPELINE_ERRORS` to the Mongo launch, emit `set_errors` |
+| `record_launch_interrupted` | `jobs/record-launch-interrupted.ts` | Record an interrupted launch's open node executions and launch run |
 | `packages_updates` / `update_package` | `jobs/check-package-updates.ts`, `jobs/update-package.ts` | Node package update checks and installs |
 
 ## Deploys (pipelines as APIs)

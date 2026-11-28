@@ -1,7 +1,7 @@
 # Run duration metrics plan
 
 **Status (2026-10-30): implemented** (helpers in
-`backend/jobs/process-node/run-metrics.ts`, migrations `000007_node_runs` and
+`backend/packages/launches/run-metrics.ts`, migrations `000007_node_runs` and
 `000008_launch_runs`). Decisions made during implementation:
 
 - `project` is `project._id`; `pipeline` is `pipeline.name`.
@@ -13,9 +13,12 @@
   `pipeline_errors`.
 - Each launch gets at most one `launch_runs` row: the first outcome claims
   `LAUNCH_RUN_RECORDED` with `SET NX`.
-- `interrupted` is recorded by the next node job that sees the interrupt flag,
-  with the interrupt time as `finishedAt`. The API server has no Kafka producer.
-  A launch interrupted when no node job runs afterwards gets no row.
+- `interrupted` is recorded with the interrupt time as `finishedAt`. The API
+  server has no Kafka producer, so `launching.interrupt` plans a
+  `record_launch_interrupted` job (worker group `set_launches_io`) that closes
+  every open node execution and the launch run (#365). A node job that sees the
+  interrupt flag still closes its own node's execution, reopened by a run that
+  was in flight during the interrupt.
 - An unscoped launch gets `startedAt = launchedAt` at creation. A scoped launch
   gets it in `kick()`, saved with `KEEPTTL`.
 
@@ -30,8 +33,8 @@ the project stats page reads:
   `NODE_EXECUTION` (`launch:<id>:nodes:<node>:execution`): first `startedAt` and
   `waitMs`, summed `activeMs`, `invocations` and `attempts`.
 - `recordNodeExecution` closes it on `done`, on the last failed attempt or a
-  fatal error (`process-node-error.ts`), and as `interrupted` when the next node
-  job sees the interrupt flag. `durationMs` is wall-clock from the first
+  fatal error (`applyFailure` in `apply-outcome.ts`), and as `interrupted` when
+  the launch is interrupted. `durationMs` is wall-clock from the first
   invocation.
 - A repeat is not an attempt: `attempts` counts BullMQ attempts only.
 
@@ -176,6 +179,7 @@ GROUP BY pipeline, node ORDER BY dur[2] DESC;
    `app/streams.ts`; connect them in `worker.ts`.
 3. Two ClickHouse migrations (`make clickhouse-migrate-add`).
 4. Set `startedAt` in `kick()`.
-5. Emit events in `process-node-handler.ts`, `complete-node.ts`,
-   `process-node-error.ts` and the interrupt path.
+5. Emit events where a node's outcome is applied
+   (`jobs/process-node/apply-outcome.ts`) and on the interrupt path
+   (`jobs/record-launch-interrupted.ts`).
 6. Unit tests for the emitted payloads (`backend/tests/unit/jobs`).
