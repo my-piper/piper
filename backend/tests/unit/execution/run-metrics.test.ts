@@ -4,6 +4,7 @@ import {
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
+import { spyOnLiveState } from "../../helpers/live-state";
 import { EXECUTION_TIME } from "../../fixtures/launch";
 import type { Job } from "core-kit/packages/queue";
 import { toInstance } from "core-kit/packages/transform";
@@ -111,6 +112,51 @@ describe("node run metrics", () => {
       expect.objectContaining({ result })
     );
   });
+
+  it.each([
+    {
+      name: "records a failed run and fails with its error",
+      run: () =>
+        doubles.execute.mockRejectedValue(
+          toInstance(
+            {
+              message: "too slow",
+              code: "TIMEOUT_ERROR",
+              logs: [{ ts: NOW, level: "info", message: "started" }],
+            },
+            ExecutionError
+          )
+        ),
+      error: "too slow",
+      results: ["timeout"],
+    },
+    {
+      name: "fails a successful run before applying it",
+      run: () =>
+        doubles.execute.mockResolvedValue({
+          result: { __type: "next", outputs: {} },
+          logs: [{ ts: NOW, level: "info", message: "done" }],
+        }),
+      error: "logs unavailable",
+      results: [],
+    },
+  ])(
+    "when its logs cannot be stored, $name",
+    async ({ run, error, results }) => {
+      run();
+      spyOnLiveState("appendLogs").mockRejectedValue(
+        new Error("logs unavailable")
+      );
+
+      await expect(context.run()).rejects.toThrow(error);
+
+      expect(
+        doubles.metrics.nodeRuns.mock.calls.map(
+          ([row]) => (row as { result: string }).result
+        )
+      ).toEqual(results);
+    }
+  );
 
   it("records unexpected script results as errors", async () => {
     doubles.execute.mockResolvedValue({ result: { __type: "?" }, logs: [] });

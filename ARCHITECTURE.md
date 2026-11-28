@@ -167,7 +167,7 @@ POST /api/projects/:id/launch          POST /api/[:prefix/]:slug/launch (deploye
      - convert the outputs (media may be re-uploaded to S3) and store them in `NODE_OUTPUTS`;
      - optionally queue an artefact save;
      - set the processed lock (unless `behavior` is not `normal`) and optionally reset inputs;
-     - for every outgoing flow, write the value its transformer gives (`packages/nodes/flow-value.ts`) into the target's `NODE_INPUT`, mark the flow done in the target's `NODE_FLOWS`, clear the target's status/state/progress/processed lock, and plan the target;
+     - mark every outgoing flow done in the target's `NODE_FLOWS`. When the node gave the flow's output, also clear the target's status/state/progress/processed lock and plan the target, and write the value the flow's transformer gives (`packages/nodes/flow-value.ts`) into the target's `NODE_INPUT`. A transformer can give no value (a missing JSON path, an unfitting type): then the target is planned without that input;
      - plan any explicit `kicks`;
      - write matching pipeline outputs (`PIPELINE_OUTPUT`), queue `set_launch_output`, and send an output metric.
    - **`error`** — record the failed run and rethrow, so BullMQ retries or fails the job.

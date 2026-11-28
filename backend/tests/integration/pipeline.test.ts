@@ -330,12 +330,14 @@ describe("node execution records", () => {
         }),
       ])
     );
-    expect(launchRunsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        launch: launch._id,
-        status: "interrupted",
-        finishedAt: interruptedAt,
-      })
+    await vi.waitFor(() =>
+      expect(launchRunsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          launch: launch._id,
+          status: "interrupted",
+          finishedAt: interruptedAt,
+        })
+      )
     );
     expect(await job.getState()).toBe("delayed");
 

@@ -212,18 +212,22 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       logger.debug("Release processing lock");
       await liveState.nodeStopped(launch._id, nodeJob.node);
     }
+  }
 
-    if (execution?.logs?.length > 0) {
-      await appendNodeLogs(
-        launch._id,
-        nodeJob.node,
-        attemptsMade,
-        execution.logs
-      );
+  const { outcome, logs } = execution;
+  if (logs?.length > 0) {
+    try {
+      await appendNodeLogs(launch._id, nodeJob.node, attemptsMade, logs);
+    } catch (e) {
+      // a failed run is still recorded and fails with its own error
+      if (outcome.type !== "error") {
+        throw e;
+      }
+      logger.error(e);
     }
   }
 
-  return applyOutcome(run, execution.outcome, {
+  return applyOutcome(run, outcome, {
     logger,
     notify: { node: notifyNode, pipeline: notifyPipeline, user: notifyUser },
   });

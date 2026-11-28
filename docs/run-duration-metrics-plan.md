@@ -18,7 +18,10 @@
   `record_launch_interrupted` job (worker group `set_launches_io`) that closes
   every open node execution and the launch run (#365). A node job that sees the
   interrupt flag still closes its own node's execution, reopened by a run that
-  was in flight during the interrupt.
+  was in flight during the interrupt. Recording is best effort and apart from
+  the interrupt itself: when the job cannot be planned, `interrupt` logs it and
+  the launch stays interrupted, and its rows are then recorded only if a later
+  node job sees the flag.
 - An unscoped launch gets `startedAt = launchedAt` at creation. A scoped launch
   gets it in `kick()`, saved with `KEEPTTL`.
 
@@ -48,7 +51,7 @@ Grafana dashboard).
 | Source | What it holds |
 |---|---|
 | `/metrics` (`backend/metrics.ts`) | BullMQ queue counters only. No timings. |
-| `pipeline_metrics_finished` | `launch, finishedAt, fromStart`: seconds from launch until the last pipeline output is filled. Sent from `jobs/process-node/complete-node.ts`. |
+| `pipeline_metrics_finished` | `launch, finishedAt, fromStart`: seconds from launch until the last pipeline output is filled. Sent from `jobs/process-node/apply-outcome.ts` when a node's completion finishes the launch. |
 | `pipeline_metrics_outputs` | `launch, output, filledAt, fromStart`: the same, per output. Sent from `complete-node.ts`. |
 | `pipeline_errors` | One row per failed attempt, without a duration. |
 | `pipeline_usages` | Costs only. |
@@ -106,10 +109,11 @@ ORDER BY (project, pipeline, node, startedAt)
 TTL toDateTime(startedAt) + INTERVAL 12 MONTH;
 ```
 
-- **Where it's emitted:** in `process-node-handler.ts`. Time the `execute`
-  call, then send `repeat` or `done` once the result is classified, or the
-  error type (`error`, `timeout` for `TimeoutError`, `memory` for
-  `MemoryLimitError`) in the catch block.
+- **Where it's emitted:** in `applyOutcome` (`jobs/process-node/apply-outcome.ts`),
+  once per node outcome: `repeat` for `repeat` and Child Launches, `done` for
+  `next`, or the error type (`error`, `timeout` for `TimeoutError`, `memory`
+  for `MemoryLimitError`). The run is timed around `executeNode`
+  (`jobs/process-node/execute-node.ts`).
 - **Wait time:** from the BullMQ `job` fields (`timestamp`, `processedOn`,
   `opts.delay`).
 
@@ -135,10 +139,13 @@ ORDER BY (project, pipeline, launchedAt);
 ```
 
 - **Where it's emitted:**
-  - `done`: next to the existing "finished" send in `complete-node.ts`.
-  - `error`: in `jobs/process-node/process-node-error.ts`, when attempts are
-    exhausted or on a fatal error.
-  - `interrupted`: where `LAUNCH_INTERRUPTED` is set.
+  - `done`: next to the "finished" send in `applyOutcome`
+    (`jobs/process-node/apply-outcome.ts`).
+  - `error`: in `applyFailure` (`apply-outcome.ts`, called by
+    `process-node-error.ts`), when attempts are exhausted or on a fatal error.
+  - `interrupted`: by the `record_launch_interrupted` job
+    (`jobs/record-launch-interrupted.ts`) that `launching.interrupt` plans, or
+    by a later node job that sees `LAUNCH_INTERRUPTED`.
 - **Setting `startedAt`:** set it in `kick()` (`packages/launches/launching.ts`)
   and save it to the launch in Redis.
 
