@@ -16,6 +16,7 @@ import { HttpService } from "src/services/http.service";
 import { ProjectManager } from "src/services/project.manager";
 import { UI_DELAY } from "src/consts/ui";
 import { sid } from "src/utils/string";
+import { addPipelineNode, removePipelineNode } from "src/utils/pipeline";
 import { toInstance, toPlain } from "src/utils/models";
 import { getMergedData } from "../utils/route";
 
@@ -122,9 +123,8 @@ export class AssistantComponent implements OnInit {
         this.messages.push(message);
         const { changes } = message;
         if (changes) {
-          const {
-            pipeline: { layout, nodes, flows },
-          } = this.project;
+          const { pipeline } = this.project;
+          const { layout, nodes, flows } = pipeline;
 
           for (const { action, catalog, data } of changes) {
             switch (action) {
@@ -135,7 +135,7 @@ export class AssistantComponent implements OnInit {
                   .subscribe({
                     next: (node) => {
                       const id = `${node._id}_${sid()}`;
-                      nodes.set(id, node);
+                      addPipelineNode(pipeline, id, node);
                       const left = layout.left + Math.random() * 400 + 100;
                       const top = layout.top + Math.random() * 400 + 100;
                       assign(node.arrange, { x: left, y: top });
@@ -146,7 +146,7 @@ export class AssistantComponent implements OnInit {
               }
               case "add_node": {
                 const node = toInstance(data.json, Node);
-                nodes.set(data.id, node);
+                addPipelineNode(pipeline, data.id, node);
                 break;
               }
               case "replace_node": {
@@ -159,7 +159,7 @@ export class AssistantComponent implements OnInit {
                 break;
               }
               case "remove_node":
-                nodes.delete(data.id);
+                removePipelineNode(pipeline, data.id);
                 break;
               case "add_flow": {
                 const flow = toInstance(data.json, NodeFlow);
