@@ -59,6 +59,9 @@ check templates.
   lowers `async`/`await` in dependencies so `fakeAsync` controls them.
 - `helpers/` — explicit infrastructure doubles: `config.ts` (PRERENDER/AppConfig,
   stored authorization), `socket.ts` (`SocketDouble` for ngx-socket-io),
+  `launch-events.ts` (`provideFakeLaunchFeeds()`: the Launch feed on a fake
+  event source, for specs that render a node drawer or the logs without the
+  canvas editor; emit node events with `FakeLaunchEvents.emit`),
   `isolation.ts` (global guards), `console.ts` (`expectConsoleError`),
   `component.ts` (`componentOf`: find a component by input value),
   `proxy-zone.ts` (runs specs in a zone.js ProxyZone, as zone.js does for Jasmine).

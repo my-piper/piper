@@ -10,10 +10,10 @@ import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { LaunchOutputsComponent } from "src/app/launch-outputs/launch-outputs.component";
 import { NodeJobsComponent } from "src/app/node-jobs/node-jobs.component";
+import { NodeInputsComponent } from "src/app/node-inputs/node-inputs.component";
 import { NodeOutputsComponent } from "src/app/node-outputs/node-outputs.component";
 import { NodeStateComponent } from "src/app/node-state/node-state.component";
 import { Launch } from "src/models/launch";
-import { LiveService } from "src/services/live.service";
 import { toInstance } from "src/utils/models";
 import {
   launchWithOutputsPlain,
@@ -21,17 +21,19 @@ import {
   PIXEL,
 } from "../fixtures/launch-results";
 import { launch } from "../fixtures/models";
-import { LAUNCH_ID, SOCKET_EVENTS, userPlain } from "../fixtures/plain";
+import { LAUNCH_ID, userPlain } from "../fixtures/plain";
 import { configureAppTestingModule, finish } from "../helpers/editor";
-import { SocketDouble } from "../helpers/socket";
-import { LAUNCH_ROOM } from "src/consts/rooms";
+import {
+  FakeLaunchEvents,
+  provideFakeLaunchFeeds,
+} from "../helpers/launch-events";
 import { seedAuthorization } from "../helpers/config";
 
 /**
  * Node result reads: GET /api/launches/:launch/:node/{inputs,outputs,status}
  * and /api/launches/:launch/nodes/:node/{state,jobs}
- * (backend/api/launches/nodes/*). Node events arrive in the launch room as
- * `{ launch, node }` (backend/jobs/process-node/process-node-handler.ts).
+ * (backend/api/launches/nodes/*). Node events come from the Launch feed, on a
+ * fake event source; the socket side is in unit/services/launch-events.spec.ts.
  */
 const UI_DELAY = 250;
 
@@ -131,9 +133,9 @@ type RouteData = {
 
 /** Components under the node drawer read `{ launch, node: { id, node } }`. */
 function setupNodeView<T>(component: Type<T>, id = "node_one") {
-  // The socket connects only while signed in.
   seedAuthorization(userPlain("owner"));
   configureAppTestingModule();
+  TestBed.configureTestingModule({ providers: provideFakeLaunchFeeds() });
   const current = launch();
   const data = new BehaviorSubject<RouteData>({
     launch: current,
@@ -141,7 +143,7 @@ function setupNodeView<T>(component: Type<T>, id = "node_one") {
   });
   TestBed.overrideProvider(ActivatedRoute, { useValue: { data } });
   const controller = TestBed.inject(HttpTestingController);
-  const socket = TestBed.inject(SocketDouble);
+  const events = TestBed.inject(FakeLaunchEvents);
   const fixture = TestBed.createComponent(component);
   fixture.detectChanges();
   const select = (node: string) =>
@@ -152,7 +154,7 @@ function setupNodeView<T>(component: Type<T>, id = "node_one") {
   return {
     fixture,
     controller,
-    socket,
+    events,
     select,
     element: fixture.nativeElement as HTMLElement,
   };
@@ -163,22 +165,20 @@ describe("NodeOutputsComponent", () => {
 
   function answerInitial(
     controller: HttpTestingController,
-    status = nodeStatusPlain("running"),
+    status = nodeStatusPlain("stopped"),
   ) {
     controller.expectOne(`${base}/inputs`).flush({ prompt: "Cats" });
     controller.expectOne(`${base}/outputs`).flush({});
     controller.expectOne(`${base}/status`).flush(status);
   }
 
-  it("loads node results and joins the launch room", fakeAsync(() => {
+  it("loads node results and listens to its launch", fakeAsync(() => {
     const view = setupNodeView(NodeOutputsComponent);
 
     answerInitial(view.controller);
     view.fixture.detectChanges();
 
-    expect(view.socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
-      LAUNCH_ROOM(LAUNCH_ID),
-    ]);
+    expect(view.events.listeners(LAUNCH_ID)).toBe(1);
     expect(view.element.querySelector("li b").textContent).toBe("Text");
     view.controller.verify();
     finish();
@@ -197,32 +197,17 @@ describe("NodeOutputsComponent", () => {
     finish();
   }));
 
-  it("reloads on events for its node and launch only", fakeAsync(() => {
+  it("polls the status while the node runs", fakeAsync(() => {
     const view = setupNodeView(NodeOutputsComponent);
-    answerInitial(view.controller);
+    answerInitial(view.controller, nodeStatusPlain("running"));
+    view.controller.expectOne(`${base}/progress`).flush(null);
 
-    view.socket.receive("node_done", {
-      launch: "launch_other",
-      node: "node_one",
-    });
-    view.socket.receive("node_done", { launch: LAUNCH_ID, node: "node_two" });
-    const unrelated = view.controller.match(() => true);
-    view.socket.receive("node_done", { launch: LAUNCH_ID, node: "node_one" });
-    const own = view.controller.match(() => true);
-    own.forEach((r) =>
-      r.flush(
-        r.request.url.endsWith("/status")
-          ? nodeStatusPlain("done")
-          : { text: "Hi" },
-      ),
-    );
+    tick(2000);
+    view.controller.expectOne(`${base}/status`).flush(nodeStatusPlain("done"));
+    view.controller.expectOne(`${base}/outputs`).flush({ text: "Hi" });
     view.fixture.detectChanges();
+    tick(2000);
 
-    expect(unrelated.length).toBe(0);
-    expect(own.map((r) => r.request.url).sort()).toEqual([
-      `${base}/outputs`,
-      `${base}/status`,
-    ]);
     expect(view.element.querySelector("li").classList.contains("filled")).toBe(
       true,
     );
@@ -230,39 +215,88 @@ describe("NodeOutputsComponent", () => {
     finish();
   }));
 
-  it("switches nodes without stacking rooms or listeners", fakeAsync(() => {
+  it("reloads on events for its node and launch only", fakeAsync(() => {
     const view = setupNodeView(NodeOutputsComponent);
-    const live = TestBed.inject(LiveService);
     answerInitial(view.controller);
-    const listeners = view.socket.listenerCount();
 
-    view.select("node_two");
-    view.controller.match(() => true).forEach((r) => r.flush({}));
-    view.socket.receive("node_flow", { launch: LAUNCH_ID, node: "node_two" });
-    const reloads = view.controller.match(() => true);
-    reloads.forEach((r) => r.flush({}));
+    view.events.emit("launch_other", "done", "node_one");
+    view.events.emit(LAUNCH_ID, "done", "node_two");
+    const unrelated = view.controller.match(() => true);
+    view.events.emit(LAUNCH_ID, "done", "node_one");
+    const status = view.controller.match(() => true);
+    status.forEach((r) => r.flush(nodeStatusPlain("done")));
+    const outputs = view.controller.match(() => true);
+    outputs.forEach((r) => r.flush({ text: "Hi" }));
+    view.fixture.detectChanges();
 
-    expect(view.socket.listenerCount()).toBe(listeners);
-    expect(reloads.map((r) => r.request.url)).toEqual([
-      `/api/launches/${LAUNCH_ID}/node_two/inputs`,
-    ]);
-    expect(live.rooms.get(LAUNCH_ROOM(LAUNCH_ID)).size).toBe(1);
+    expect(unrelated.length).toBe(0);
+    expect(status.map((r) => r.request.url)).toEqual([`${base}/status`]);
+    expect(outputs.map((r) => r.request.url)).toEqual([`${base}/outputs`]);
+    expect(view.element.querySelector("li").classList.contains("filled")).toBe(
+      true,
+    );
     view.controller.verify();
     finish();
   }));
 
-  it("stops listening and leaves the room when destroyed", fakeAsync(() => {
+  it("switches nodes on one listener for the launch", fakeAsync(() => {
+    const view = setupNodeView(NodeOutputsComponent);
+    answerInitial(view.controller);
+
+    view.select("node_two");
+    view.controller.match(() => true).forEach((r) => r.flush({}));
+    view.events.emit(LAUNCH_ID, "flow", "node_one");
+    const stale = view.controller.match(() => true);
+    view.events.emit(LAUNCH_ID, "flow", "node_two");
+    const reloads = view.controller.match(() => true);
+    reloads.forEach((r) => r.flush({}));
+
+    expect(view.events.listeners(LAUNCH_ID)).toBe(1);
+    expect(stale.length).toBe(0);
+    expect(reloads.map((r) => r.request.url)).toEqual([
+      `/api/launches/${LAUNCH_ID}/node_two/inputs`,
+      `/api/launches/${LAUNCH_ID}/node_two/outputs`,
+    ]);
+    view.controller.verify();
+    finish();
+  }));
+
+  it("stops listening when destroyed", fakeAsync(() => {
     const view = setupNodeView(NodeOutputsComponent);
     answerInitial(view.controller);
 
     view.fixture.destroy();
-    view.socket.receive("node_done", { launch: LAUNCH_ID, node: "node_one" });
+    view.events.emit(LAUNCH_ID, "done", "node_one");
 
     expect(view.controller.match(() => true).length).toBe(0);
-    expect(view.socket.listenerCount()).toBe(0);
-    expect(view.socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
-      LAUNCH_ROOM(LAUNCH_ID),
-    ]);
+    expect(view.events.total()).toBe(0);
+    finish();
+  }));
+});
+
+describe("NodeInputsComponent", () => {
+  const base = `/api/launches/${LAUNCH_ID}/node_one`;
+
+  it("shows the node's inputs and reloads them when a value flows in", fakeAsync(() => {
+    const view = setupNodeView(NodeInputsComponent);
+    view.controller.expectOne(`${base}/inputs`).flush({});
+    view.controller.expectOne(`${base}/outputs`).flush({});
+    view.controller
+      .expectOne(`${base}/status`)
+      .flush(nodeStatusPlain("stopped"));
+    view.fixture.detectChanges();
+    const before = view.element.querySelector("li.filled");
+
+    view.events.emit(LAUNCH_ID, "flow", "node_one");
+    view.controller.expectOne(`${base}/inputs`).flush({ prompt: "Cats" });
+    view.controller.expectOne(`${base}/outputs`).flush({});
+    view.fixture.detectChanges();
+
+    expect(before).toBeNull();
+    expect(view.element.querySelector("li.filled b").textContent).toBe(
+      "Prompt",
+    );
+    view.controller.verify();
     finish();
   }));
 });
@@ -271,7 +305,6 @@ const NODE_VIEWS: {
   name: string;
   component: Type<unknown>;
   path: string;
-  events: string[];
   respond: unknown;
   rendered: (element: HTMLElement) => string;
 }[] = [
@@ -279,7 +312,6 @@ const NODE_VIEWS: {
     name: "NodeStateComponent",
     component: NodeStateComponent,
     path: "state",
-    events: ["node_gonna_repeat"],
     respond: { attempt: 2 },
     rendered: (e) => e.querySelector("pre")?.textContent,
   },
@@ -287,7 +319,6 @@ const NODE_VIEWS: {
     name: "NodeJobsComponent",
     component: NodeJobsComponent,
     path: "jobs",
-    events: ["node_gonna_repeat"],
     respond: [
       {
         id: 7,
@@ -325,22 +356,15 @@ for (const view of NODE_VIEWS) {
       finish();
     }));
 
-    it("reloads on its node's events from its launch only", fakeAsync(() => {
+    it("reloads when its node repeats in its launch only", fakeAsync(() => {
       const setup = setupNodeView(view.component);
       load(setup);
 
-      for (const event of view.events) {
-        setup.socket.receive(event, {
-          launch: "launch_other",
-          node: "node_one",
-        });
-        setup.socket.receive(event, { launch: LAUNCH_ID, node: "node_two" });
-      }
+      setup.events.emit("launch_other", "repeat", "node_one");
+      setup.events.emit(LAUNCH_ID, "repeat", "node_two");
+      setup.events.emit(LAUNCH_ID, "done", "node_one");
       const unrelated = setup.controller.match(() => true);
-      setup.socket.receive(view.events[0], {
-        launch: LAUNCH_ID,
-        node: "node_one",
-      });
+      setup.events.emit(LAUNCH_ID, "repeat", "node_one");
       const own = setup.controller.match(url);
       own.forEach((r) => r.flush(view.respond));
       tick(UI_DELAY);
@@ -351,16 +375,15 @@ for (const view of NODE_VIEWS) {
       finish();
     }));
 
-    it("subscribes once even when the selected node changes", fakeAsync(() => {
+    it("listens once even when the selected node changes", fakeAsync(() => {
       const setup = setupNodeView(view.component);
       load(setup);
-      const listeners = setup.socket.listenerCount();
 
       setup.select("node_two");
       setup.controller.match(() => true).forEach((r) => r.flush(view.respond));
       tick(UI_DELAY);
 
-      expect(setup.socket.listenerCount()).toBe(listeners);
+      expect(setup.events.listeners(LAUNCH_ID)).toBe(1);
       setup.controller.verify();
       finish();
     }));
@@ -370,12 +393,10 @@ for (const view of NODE_VIEWS) {
       load(setup);
 
       setup.fixture.destroy();
-      for (const event of view.events) {
-        setup.socket.receive(event, { launch: LAUNCH_ID, node: "node_one" });
-      }
+      setup.events.emit(LAUNCH_ID, "repeat", "node_one");
 
       expect(setup.controller.match(() => true).length).toBe(0);
-      expect(setup.socket.listenerCount()).toBe(0);
+      expect(setup.events.total()).toBe(0);
       finish();
     }));
   });

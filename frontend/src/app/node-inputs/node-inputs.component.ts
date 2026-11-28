@@ -1,19 +1,18 @@
 import {
-  ChangeDetectorRef,
   Component,
   OnInit,
   ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { plainToInstance } from "class-transformer";
-import { Socket } from "ngx-socket-io";
-import { map } from "rxjs";
-import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
-import { Node, NodeStatus } from "src/models/node";
-import { HttpService } from "src/services/http.service";
-import { NodeInputs, NodeOutputs } from "src/types/node";
+import { Node } from "src/models/node";
+import { LaunchFeeds, NodeFeed } from "src/services/launch-feeds";
+import { NodeInputs } from "src/types/node";
 
+/** The inputs of the node the drawer opens, live from the Launch feed. */
 @Component({
   selector: "app-node-inputs",
   templateUrl: "./node-inputs.component.html",
@@ -22,92 +21,34 @@ import { NodeInputs, NodeOutputs } from "src/types/node";
   standalone: false,
 })
 export class NodeInputsComponent implements OnInit {
+  private readonly feeds = inject(LaunchFeeds);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+
   launch: Launch;
   id!: string;
   node!: Node;
 
-  inputs!: NodeInputs;
-  outputs!: NodeOutputs;
-  status!: NodeStatus;
+  private feed: NodeFeed | null = null;
 
-  constructor(
-    private socket: Socket,
-    private http: HttpService,
-    private route: ActivatedRoute,
-    private cd: ChangeDetectorRef,
-  ) {}
+  get inputs(): NodeInputs | undefined {
+    return this.feed?.inputs();
+  }
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.feed?.release());
+  }
 
   ngOnInit() {
-    this.route.data.subscribe(({ launch, node: { id, node } }) => {
-      [this.launch, this.id, this.node] = [launch, id, node];
-      this.loadInputs();
-      this.loadOutputs();
-      this.loadStatus();
-      this.listen();
-    });
-  }
-
-  private listen() {
-    this.socket.fromEvent<object>("node_running").subscribe((data: object) => {
-      const { node } = plainToInstance(PipelineEvent, data);
-      if (node === this.id) {
-        console.log("Node is running", node);
-        this.loadStatus();
-      }
-    });
-
-    this.socket.fromEvent<object>("node_done").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      console.log("Load results for", launch, node);
-      if (node === this.id) {
-        this.loadStatus();
-        this.loadOutputs();
-      }
-    });
-
-    this.socket.fromEvent<object>("node_not_ready").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      console.log("Load results for", launch, node);
-      if (node === this.id) {
-        this.loadStatus();
-        this.loadOutputs();
-      }
-    });
-
-    this.socket.fromEvent<object>("node_flow").subscribe((data) => {
-      const { launch, node } = plainToInstance(PipelineEvent, data);
-      console.log("Load results for", launch, node);
-      if (node === this.id) {
-        this.loadInputs();
-      }
-    });
-  }
-
-  private loadInputs() {
-    this.http
-      .get(`launches/${this.launch._id}/${this.id}/inputs`)
-      .subscribe((inputs) => {
-        this.inputs = inputs as NodeInputs;
-        this.cd.detectChanges();
-      });
-  }
-
-  private loadOutputs() {
-    this.http
-      .get(`launches/${this.launch._id}/${this.id}/outputs`)
-      .subscribe((outputs) => {
-        this.outputs = outputs as NodeOutputs;
-        this.cd.detectChanges();
-      });
-  }
-
-  private loadStatus() {
-    this.http
-      .get(`launches/${this.launch._id}/${this.id}/status`)
-      .pipe(map((json) => plainToInstance(NodeStatus, json)))
-      .subscribe((status) => {
-        this.status = status;
-        this.cd.detectChanges();
+    this.route.data
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ launch, node: { id, node } }) => {
+        [this.launch, this.id, this.node] = [launch, id, node];
+        // Watch the new node before releasing the old one: the launch's room
+        // stays joined while the drawer switches nodes.
+        const previous = this.feed;
+        this.feed = this.feeds.watch(launch._id, id);
+        previous?.release();
       });
   }
 

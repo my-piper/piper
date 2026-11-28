@@ -8,27 +8,30 @@ import { BehaviorSubject } from "rxjs";
 import { LaunchLogsComponent } from "src/app/launch-logs/launch-logs.component";
 import { launchLogsPlain } from "../fixtures/launch-results";
 import { launch } from "../fixtures/models";
-import { LAUNCH_ID, SOCKET_EVENTS, userPlain } from "../fixtures/plain";
+import { LAUNCH_ID, userPlain } from "../fixtures/plain";
 import { configureAppTestingModule, finish } from "../helpers/editor";
-import { SocketDouble } from "../helpers/socket";
-import { LAUNCH_ROOM } from "src/consts/rooms";
+import {
+  FakeLaunchEvents,
+  provideFakeLaunchFeeds,
+} from "../helpers/launch-events";
 import { seedAuthorization } from "../helpers/config";
 
 /**
  * GET /api/launches/:launch/logs?node= (backend/api/launches/launch-logs.ts).
- * Node events arrive in the launch room as `{ launch, node }`.
+ * Node events come from the Launch feed, on a fake event source.
  */
 const URL = `/api/launches/${LAUNCH_ID}/logs`;
 
 let fixture: ComponentFixture<LaunchLogsComponent>;
 let element: HTMLElement;
 let controller: HttpTestingController;
-let socket: SocketDouble;
+let events: FakeLaunchEvents;
 
 function render(node?: string) {
   // The socket connects only while signed in.
   seedAuthorization(userPlain("owner"));
   configureAppTestingModule();
+  TestBed.configureTestingModule({ providers: provideFakeLaunchFeeds() });
   const current = launch();
   const data = new BehaviorSubject<object>({
     launch: current,
@@ -38,7 +41,7 @@ function render(node?: string) {
   });
   TestBed.overrideProvider(ActivatedRoute, { useValue: { data } });
   controller = TestBed.inject(HttpTestingController);
-  socket = TestBed.inject(SocketDouble);
+  events = TestBed.inject(FakeLaunchEvents);
   fixture = TestBed.createComponent(LaunchLogsComponent);
   fixture.detectChanges();
   element = fixture.nativeElement;
@@ -70,7 +73,7 @@ function chip(text: string): HTMLButtonElement {
 }
 
 describe("LaunchLogsComponent", () => {
-  it("shows the logs of every node oldest first and joins the launch room", fakeAsync(() => {
+  it("shows the logs of every node oldest first and listens to its launch", fakeAsync(() => {
     render();
 
     const request = respond();
@@ -85,9 +88,8 @@ describe("LaunchLogsComponent", () => {
       element.querySelector("[data-testid=logs-dropped]").textContent.trim(),
     ).toBe("5 earlier lines of Make JSON dropped");
     expect(element.querySelector("[data-testid=node-filter]")).not.toBeNull();
-    expect(socket.emittedEvents(SOCKET_EVENTS.joinRoom)).toEqual([
-      LAUNCH_ROOM(LAUNCH_ID),
-    ]);
+    expect(events.listeners(LAUNCH_ID)).toBe(1);
+    expect(events.total()).toBe(1);
     controller.verify();
     finish();
   }));
@@ -146,9 +148,10 @@ describe("LaunchLogsComponent", () => {
     render();
     respond();
 
-    socket.receive("node_done", { launch: "launch_other", node: "node_one" });
+    events.emit("launch_other", "done", "node_one");
+    events.emit(LAUNCH_ID, "progress", "node_one");
     const unrelated = requests();
-    socket.receive("node_error", { launch: LAUNCH_ID, node: "node_two" });
+    events.emit(LAUNCH_ID, "error", "node_two");
     const fromEvent = requests();
     fromEvent.forEach((r) => r.flush(launchLogsPlain()));
     (
@@ -168,24 +171,21 @@ describe("LaunchLogsComponent", () => {
     render("node_one");
     respond();
 
-    socket.receive("node_done", { launch: LAUNCH_ID, node: "node_two" });
+    events.emit(LAUNCH_ID, "done", "node_two");
 
     expect(requests().length).toBe(0);
     finish();
   }));
 
-  it("leaves the launch room and stops listening when destroyed", fakeAsync(() => {
+  it("stops listening to its launch when destroyed", fakeAsync(() => {
     render();
     respond();
 
     fixture.destroy();
-    socket.receive("node_done", { launch: LAUNCH_ID, node: "node_one" });
+    events.emit(LAUNCH_ID, "done", "node_one");
 
     expect(requests().length).toBe(0);
-    expect(socket.listenerCount()).toBe(0);
-    expect(socket.emittedEvents(SOCKET_EVENTS.leaveRoom)).toEqual([
-      LAUNCH_ROOM(LAUNCH_ID),
-    ]);
+    expect(events.total()).toBe(0);
     finish();
   }));
 });

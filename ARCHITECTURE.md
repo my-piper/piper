@@ -219,7 +219,7 @@ Angular 22 module-based app (`frontend/src`):
   - playground, launches and node inspection (`node-logs`, `node-jobs`, `node-state`, `node-outputs`);
   - deploy and API playground (`deploy-pipeline`, `play-via-api`);
   - node packages, assets, artefacts, users, assistant.
-- `services/` — `http.service.ts` (REST), `live.service.ts` (socket.io rooms for launch and user events; it connects with the user token while signed in and joins its rooms again after every reconnect), `me.service.ts`, `project.manager.ts` (editing state for the open project).
+- `services/` — `http.service.ts` (REST), `live.service.ts` (socket.io rooms for launch and user events; it connects with the user token while signed in and joins its rooms again after every reconnect), `me.service.ts`, `project.manager.ts` (editing state for the open project). `launch-feeds.ts` is the Launch feed: one per launch, provided by the canvas editor for its cards and drawers. It listens to the launch's node events (`launch-events.ts`, the socket adapter), loads and polls the watched nodes' status, inputs, outputs and progress, and works out the launch state (`utils/launch-state.ts`); the Node card, node drawers, logs and the editor read from it.
 - `resolvers/` and `guards/` load route data and handle auth. `models/` mirrors backend models with class-transformer.
 - Runtime config comes from `window.PRERENDER`, injected by the backend.
 - The app is built in English only (`ng build --localize` with no translations), and every route sits under `/en/`.

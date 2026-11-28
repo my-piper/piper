@@ -11,6 +11,7 @@ import {
   inject,
   DestroyRef,
   DOCUMENT,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Location } from "@angular/common";
@@ -78,9 +79,9 @@ import {
   LaunchState,
   NodeProgress,
   NodeRunState,
-  launchState,
   nodeProgress,
 } from "src/utils/launch-state";
+import { LaunchFeed, LaunchFeeds, NodeFeed } from "src/services/launch-feeds";
 import {
   deployProblems,
   deploySocketsPath,
@@ -148,9 +149,12 @@ function salt() {
   styleUrls: ["./edit-pipeline-visual.component.scss"],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
+  // One Launch feed per launch for the cards and the drawers of this view.
+  providers: [LaunchFeeds],
 })
 export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly feeds = inject(LaunchFeeds);
   private readonly language = inject(CURRENT_LANGUAGE);
 
   private readonly dialogs = inject(TuiDialogService);
@@ -188,8 +192,13 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   /** On the launch page: Stop succeeded, so the button stays hidden. */
   interrupted = false;
 
-  /** Run states the canvas nodes report, keyed by node id. */
-  nodeStates: Record<string, NodeRunState> = {};
+  /**
+   * On the launch page: the Launch feed of the launch and of all its nodes,
+   * whether their cards are rendered or not.
+   */
+  private readonly launchFeed = signal<LaunchFeed | null>(null);
+  private launchNodes: NodeFeed[] = [];
+  private launchChanges: Subscription | null = null;
   /**
    * Time since the launch started, while the canvas sees it run; the recorded
    * total when it opens an already finished launch.
@@ -298,6 +307,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       this.recordedRun = null;
       this.clocked = false;
       this.runRequested = false;
+      this.followLaunch(this.mode === "launch" ? this.launch : null);
       if (this.mode === "project") {
         this.checkDeployNodes();
       }
@@ -343,21 +353,32 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       : (this.pipeline.start?.nodes ?? []);
   }
 
-  /** The launch as its nodes report it, for the top bar pill. */
+  /** The launch state from its Launch feed, for the top bar pill. */
   get launchState(): LaunchState | null {
-    return launchState(
-      {
+    return (
+      this.launchFeed()?.launchState({
         nodes: [...this.pipeline.nodes.keys()],
         flows: [...(this.pipeline.flows?.values() ?? [])],
         start: this.startNodes,
-      },
-      this.nodeStates,
+      }) ?? null
     );
   }
 
   /** Done, failed and running nodes of the launch, for the info card. */
   get nodeProgress(): NodeProgress {
-    return nodeProgress([...this.pipeline.nodes.keys()], this.nodeStates);
+    return nodeProgress(
+      [...this.pipeline.nodes.keys()],
+      this.launchFeed()?.states() ?? {},
+    );
+  }
+
+  /**
+   * A node's run state, for its wires: in the shown launch, else in the
+   * node's own run from the editor.
+   */
+  nodeState(id: string): NodeRunState | null {
+    const launch = this.launch ?? this.launches[id];
+    return launch ? (this.feeds.peek(launch._id)?.states()[id] ?? null) : null;
   }
 
   /**
@@ -372,16 +393,33 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  setNodeState(id: string, state: NodeRunState | null) {
-    if (state) {
-      this.nodeStates[id] = state;
-    } else {
-      delete this.nodeStates[id];
+  /** Watches every node of the shown launch; `null` stops. */
+  private followLaunch(launch: Launch | null) {
+    if (launch && launch._id === this.launchFeed()?.launch) {
+      return;
     }
-    if (this.mode === "launch") {
-      this.syncClock();
+    this.unfollowLaunch();
+    if (launch) {
+      const feed = this.feeds.open(launch._id);
+      this.launchFeed.set(feed);
+      // The clock follows the launch state as node states arrive.
+      this.launchChanges = feed.changes.subscribe(() => {
+        this.syncClock();
+        this.cd.detectChanges();
+      });
+      this.launchNodes = [...launch.pipeline.nodes.keys()].map((node) =>
+        this.feeds.watch(launch._id, node),
+      );
     }
-    this.cd.detectChanges();
+  }
+
+  private unfollowLaunch() {
+    this.launchChanges?.unsubscribe();
+    this.launchChanges = null;
+    this.launchNodes.forEach((node) => node.release());
+    this.launchNodes = [];
+    this.launchFeed()?.release();
+    this.launchFeed.set(null);
   }
 
   /** Ticks while a node runs; stopping freezes the last value. */
@@ -462,6 +500,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.topbar.clearActions(this.topbarActions);
+    this.unfollowLaunch();
     clearInterval(this.clock);
     this.unsubscribe();
   }
