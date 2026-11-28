@@ -101,6 +101,7 @@ import {
   pasteClip,
 } from "src/utils/canvas-clipboard";
 import { sid } from "src/utils/string";
+import { addPipelineNode, removePipelineNode } from "src/utils/pipeline";
 import { mapTo, toInstance, toPlain } from "src/utils/models";
 import * as YAML from "yaml";
 import { AssistantComponent } from "../assistant/assistant.component";
@@ -945,10 +946,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
         .subscribe({
           next: (node) => {
             const id = `${node._id}_${sid()}`;
-            this.pipeline.nodes.set(id, node);
-            if (this.pipeline.start.nodes.length <= 0) {
-              this.pipeline.start.nodes.push(id);
-            }
+            addPipelineNode(this.pipeline, id, node);
             assign(node.arrange, { x: left, y: top });
             added?.(id, node);
             this.save();
@@ -1391,32 +1389,8 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   }
 
   removeNode(node: string) {
-    const { nodes, flows, inputs, outputs, start } = this.pipeline;
-    nodes.delete(node);
+    removePipelineNode(this.pipeline, node);
     this.selection.delete(`node:${node}`);
-
-    // Drop references now: the template resolves flow ends through the
-    // `node` pipe, which throws for unknown nodes before sanitation runs.
-    for (const [id, flow] of flows) {
-      if (flow.from === node || flow.to === node) {
-        flows.delete(id);
-      }
-    }
-    for (const [, input] of inputs || []) {
-      for (const [id, flow] of input.flows || []) {
-        if (flow.to === node) {
-          input.flows.delete(id);
-        }
-      }
-    }
-    for (const [, output] of outputs || []) {
-      for (const [id, flow] of output.flows || []) {
-        if (flow.from === node) {
-          output.flows.delete(id);
-        }
-      }
-    }
-    start.nodes = start.nodes.filter((id) => id !== node);
 
     this.save();
 
