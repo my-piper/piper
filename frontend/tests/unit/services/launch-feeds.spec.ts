@@ -12,6 +12,7 @@ import {
 import { LaunchFeeds } from "src/services/launch-feeds";
 import { LAUNCH_ID } from "../../fixtures/plain";
 import { provideTestConfig } from "../../helpers/config";
+import { expectConsoleError } from "../../helpers/console";
 import {
   FakeLaunchEvents,
   provideFakeLaunchFeeds,
@@ -90,6 +91,47 @@ describe("LaunchFeeds", () => {
     expect(node.state()).toBe("done");
     expect(node.outputs()).toEqual({ text: "Hi" });
     expect(done).toEqual([{ text: "Hi" }]);
+    controller.verify();
+    node.release();
+    flushMicrotasks();
+  }));
+
+  it("keeps one status check going when an event arrives during a poll", fakeAsync(() => {
+    setup();
+    const node = feeds.watch(LAUNCH_ID, "node_one");
+    answerStart("node_one", { state: "running" });
+    controller.expectOne(`${base("node_one")}/progress`).flush(null);
+    tick(2000);
+    const poll = controller.expectOne(`${base("node_one")}/status`);
+
+    events.emit(LAUNCH_ID, "running", "node_one");
+    const check = controller.expectOne(`${base("node_one")}/status`);
+    check.flush({ state: "running" });
+    controller.expectOne(`${base("node_one")}/progress`).flush(null);
+    tick(2000);
+    const next = controller.match(`${base("node_one")}/status`);
+    next.forEach((r) => r.flush({ state: "error" }));
+
+    expect(poll.cancelled).toBe(true);
+    expect(next.length).toBe(1);
+    expect(node.state()).toBe("error");
+    controller.verify();
+    node.release();
+    flushMicrotasks();
+  }));
+
+  it("keeps the inputs it has when reloading them fails", fakeAsync(() => {
+    expectConsoleError("Process HTTP error 500");
+    setup();
+    const node = feeds.watch(LAUNCH_ID, "node_one");
+    answerStart("node_one");
+
+    events.emit(LAUNCH_ID, "reset", "node_one");
+    controller
+      .expectOne(`${base("node_one")}/inputs`)
+      .flush("Boom", { status: 500, statusText: "Server Error" });
+
+    expect(node.inputs()).toEqual({ prompt: "Cats" });
     controller.verify();
     node.release();
     flushMicrotasks();

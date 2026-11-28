@@ -9,6 +9,7 @@ import {
 import { plainToInstance } from "class-transformer";
 import {
   catchError,
+  EMPTY,
   filter,
   map,
   Observable,
@@ -168,6 +169,7 @@ class Channel {
   private readonly changes$ = new Subject<Record<string, NodeRunState>>();
   private readonly trackers = new Map<string, Tracker>();
   private readonly subscription: Subscription;
+  private closed = false;
 
   readonly feed: LaunchFeed;
 
@@ -230,6 +232,7 @@ class Channel {
   }
 
   close() {
+    this.closed = true;
     this.subscription.unsubscribe();
     this.events$.complete();
     this.changes$.complete();
@@ -238,6 +241,9 @@ class Channel {
   }
 
   private publish(node: string, state: NodeRunState | null) {
+    if (this.closed) {
+      return;
+    }
     const states = this.states();
     if ((states[node] ?? null) === state) {
       return;
@@ -265,6 +271,8 @@ class Tracker {
   private readonly outputs = signal<NodeOutputs | null | undefined>(undefined);
   private readonly done$ = new Subject<NodeOutputs>();
   private timer: ReturnType<typeof setTimeout> | null = null;
+  /** The status request in flight: a new check replaces it. */
+  private statusRequest: Subscription | null = null;
   private stopped = false;
 
   readonly feed: NodeFeed;
@@ -300,6 +308,7 @@ class Tracker {
   stop() {
     this.stopped = true;
     clearTimeout(this.timer);
+    this.statusRequest?.unsubscribe();
     this.done$.complete();
   }
 
@@ -346,11 +355,15 @@ class Tracker {
   }
 
   private loadInputs() {
-    this.http.get(this.url("inputs")).subscribe((inputs) => {
-      if (!this.stopped) {
-        this.inputs.set(inputs as NodeInputs);
-      }
-    });
+    this.http
+      .get(this.url("inputs"))
+      // A failed load keeps the inputs shown so far.
+      .pipe(catchError(() => EMPTY))
+      .subscribe((inputs) => {
+        if (!this.stopped) {
+          this.inputs.set(inputs as NodeInputs);
+        }
+      });
   }
 
   private loadOutputs(then?: (outputs: NodeOutputs) => void) {
@@ -368,11 +381,13 @@ class Tracker {
       });
   }
 
+  /** One check chain at a time: a new check drops the pending one. */
   private checkStatus() {
     clearTimeout(this.timer);
 
     const check = () => {
-      this.http
+      this.statusRequest?.unsubscribe();
+      this.statusRequest = this.http
         .get(this.url("status"))
         .pipe(
           filter((json) => !!json),
