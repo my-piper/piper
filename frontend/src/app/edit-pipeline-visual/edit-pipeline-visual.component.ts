@@ -2008,6 +2008,9 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       clipboardItems = Array.from(event.clipboardData.files);
     }
 
+    // A Node pasted as YAML goes in like one added from the catalog.
+    const validate = this.ajv.compile(SCHEMAS.node);
+    const added: string[] = [];
     for (const item of clipboardItems) {
       if (item instanceof ClipboardItem) {
         for (const type of item.types) {
@@ -2017,7 +2020,6 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
               const text = await blob.text();
               try {
                 const data = YAML.parse(text) as object;
-                const validate = this.ajv.compile(SCHEMAS.node);
                 if (validate(data)) {
                   const node = toInstance(
                     {
@@ -2031,6 +2033,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
                   );
                   const id = [node._id || "imported", sid()].join("_");
                   this.pipeline.nodes.set(id, node);
+                  added.push(id);
                 } else {
                   const { errors } = validate;
                   console.error(errors);
@@ -2044,6 +2047,14 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
           }
         }
       }
+    }
+
+    if (added.length > 0) {
+      if (this.pipeline.start.nodes.length <= 0) {
+        this.pipeline.start.nodes.push(added[0]);
+      }
+      this.save();
+      this.cd.detectChanges();
     }
   }
 
