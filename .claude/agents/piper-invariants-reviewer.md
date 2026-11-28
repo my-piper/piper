@@ -32,10 +32,14 @@ Check only the ones the diff touches.
 - Long-running handlers have an explicit `timeout`; node-processing queues keep
   the rapid < regular < deferred < protracted timeout ordering.
 
-### Redis (`backend/consts/redis.ts`)
+### Redis (`backend/consts/redis.ts`, `backend/packages/launches/live-state/`)
 
 - New keys are built by an exported builder in `consts/redis.ts`, not
   string-concatenated at the call site.
+- A Launch's live state (`launch:<id>:*` keys) is read and written only through
+  `liveState` (`packages/launches/live-state`); its builders live in that
+  module's `keys.ts`. A production module that imports those keys or touches
+  them with the Redis client is a defect.
 - Keys under `launch:<id>:*` are written with `LAUNCH_EXPIRED` (or another
   explicit TTL). Keys written without an expiry are a defect: the repo ships
   `misc/no-ttl-keys.sh` because such keys have leaked before.

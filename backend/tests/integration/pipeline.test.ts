@@ -8,17 +8,13 @@ import {
 } from "./runtime";
 import { pipelineLaunch } from "./fixture";
 import { Job, Queue, QueueEvents, Worker } from "bullmq";
+// raw keys only where a test checks the Redis layout itself
 import {
   LAUNCH,
-  LAUNCH_HEARTBEAT,
-  LAUNCH_INTERRUPTED,
   NODE_EXECUTION,
-  NODE_OUTPUTS,
-  NODE_PROCESSED_LOCK,
   NODE_PROCESSING_LOCK,
-  NODE_STATUS,
-  PIPELINE_OUTPUT,
-} from "consts/redis";
+} from "packages/launches/live-state/keys";
+import { liveState } from "packages/launches/live-state";
 import { streams } from "app/streams";
 import { toPlain } from "core-kit/packages/transform";
 import { Launch } from "models/launch";
@@ -55,16 +51,17 @@ async function finished(job: Job, queue = nodeQueue) {
   return queue.getJob(job.id);
 }
 
+// waits until the launch has finished, then checks its output
 async function completedPipeline(id: string) {
+  const launch = await liveState.get(id);
   await vi.waitFor(
-    async () => {
-      expect(
-        JSON.parse(await redis.get(PIPELINE_OUTPUT(id, "result")))
-      ).toEqual(expectedOutput);
-      expect(await redis.exists(NODE_PROCESSED_LOCK(id, "sink_node"))).toBe(1);
-    },
+    async () => expect(await liveState.isFinished(launch)).toBe(true),
     { timeout: 10_000, interval: 20 }
   );
+  expect(
+    JSON.parse((await liveState.output(launch, "result")) as string)
+  ).toEqual(expectedOutput);
+  expect(await liveState.isProcessed(id, "sink_node")).toBe(true);
 }
 
 describe("launch storage and real node workers", () => {
@@ -107,16 +104,10 @@ describe("launch storage and real node workers", () => {
 
     expect(executeMock).toHaveBeenCalledTimes(2);
     for (const node of ["echo_node", "sink_node"]) {
-      const outputs = JSON.parse(
-        await redis.get(NODE_OUTPUTS(launch._id, node))
-      );
-      expect(JSON.parse(outputs.result)).toEqual(expectedOutput);
-      expect(await redis.exists(NODE_PROCESSING_LOCK(launch._id, node))).toBe(
-        0
-      );
-      expect(
-        JSON.parse(await redis.get(NODE_STATUS(launch._id, node)))
-      ).toMatchObject({
+      const outputs = await liveState.nodeOutputs(launch._id, node);
+      expect(JSON.parse(outputs.result as string)).toEqual(expectedOutput);
+      expect(await liveState.isProcessing(launch._id, node)).toBe(false);
+      expect(await liveState.status(launch._id, node)).toMatchObject({
         state: "done",
       });
     }
@@ -174,9 +165,7 @@ describe("launch storage and real node workers", () => {
 
     expect(result.attemptsMade).toBe(2);
     expect(executeMock).toHaveBeenCalledTimes(3);
-    expect(
-      await redis.exists(NODE_PROCESSING_LOCK(launch._id, "echo_node"))
-    ).toBe(0);
+    expect(await liveState.isProcessing(launch._id, "echo_node")).toBe(false);
   });
 
   it("resumes RepeatNode as a delayed job without spending a failed attempt", async () => {
@@ -195,9 +184,7 @@ describe("launch storage and real node workers", () => {
     await vi.waitFor(async () => expect(await job.getState()).toBe("delayed"));
 
     expect((await nodeQueue.getJob(job.id)).attemptsMade).toBe(0);
-    expect(
-      await redis.exists(NODE_PROCESSING_LOCK(launch._id, "echo_node"))
-    ).toBe(0);
+    expect(await liveState.isProcessing(launch._id, "echo_node")).toBe(false);
 
     await job.promote();
     const result = await finished(job);
@@ -312,10 +299,7 @@ describe("node execution records", () => {
   it("records an open execution as interrupted when the launch is interrupted", async () => {
     const { launch, job } = await repeatingEcho();
     const interruptedAt = new Date();
-    await redis.set(
-      LAUNCH_INTERRUPTED(launch._id),
-      interruptedAt.toISOString()
-    );
+    await liveState.interrupt(launch._id, interruptedAt);
 
     await job.promote();
     await finished(job);
@@ -357,9 +341,7 @@ describe("scope concurrency", () => {
       });
 
       expect(executeMock).toHaveBeenCalledOnce();
-      expect(
-        await redis.exists(NODE_PROCESSING_LOCK(first._id, "echo_node"))
-      ).toBe(1);
+      expect(await liveState.isProcessing(first._id, "echo_node")).toBe(true);
 
       release();
       await completedPipeline(first._id);
@@ -377,7 +359,7 @@ describe("scope concurrency", () => {
     const source = pipelineLaunch();
     source.scope.activated = true;
     const blocker = `live-${randomUUID()}`;
-    await redis.setEx(LAUNCH_HEARTBEAT(blocker), 60, "alive");
+    await liveState.beat(blocker);
     await redis.rPush(source.scope.id, blocker);
 
     const launch = await run(source);

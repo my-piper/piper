@@ -1,12 +1,8 @@
-import { mongo, redis } from "./runtime";
+import { mongo } from "./runtime";
 import { DEPLOY_PREFIX, pipelineLaunch, publishDeploy } from "./fixture";
-import {
-  NODE_LOGS,
-  NODE_PROCESSED_LOCK,
-  NODE_STATUS,
-  PIPELINE_OUTPUT,
-} from "consts/redis";
+import { finishedOutput } from "./finished";
 import { run } from "packages/launches/launching";
+import { liveState } from "packages/launches/live-state";
 import { describe, expect, it, vi } from "vitest";
 
 const echoScript = `export function run({ inputs }) {
@@ -43,21 +39,14 @@ describe("pipeline executed by the real Deno service", () => {
     source.pipeline.nodes.get("sink_node").script = sinkScript;
 
     const launch = await run(source);
-    await vi.waitFor(
-      async () =>
-        expect(
-          await redis.exists(NODE_PROCESSED_LOCK(launch._id, "sink_node"))
-        ).toBe(1),
-      { timeout: 20_000, interval: 50 }
-    );
 
-    expect(
-      JSON.parse(await redis.get(PIPELINE_OUTPUT(launch._id, "result")))
-    ).toEqual({ enabled: false, count: 0, text: "" });
-    const logs = (
-      await redis.lRange(NODE_LOGS(launch._id, "echo_node"), 0, -1)
-    ).map((log) => JSON.parse(log));
-    expect(logs).toContainEqual(
+    expect(await finishedOutput(launch._id)).toEqual({
+      enabled: false,
+      count: 0,
+      text: "",
+    });
+    const { lines } = await liveState.logs(launch._id, "echo_node");
+    expect(lines).toContainEqual(
       expect.objectContaining({
         level: "info",
         message: expect.stringContaining('"count":0'),
@@ -74,19 +63,15 @@ describe("pipeline executed by the real Deno service", () => {
     const launch = await run(source);
     await vi.waitFor(
       async () =>
-        expect(
-          JSON.parse(await redis.get(NODE_STATUS(launch._id, "sink_node")))
-        ).toMatchObject({
+        expect(await liveState.status(launch._id, "sink_node")).toMatchObject({
           state: "error",
           error: expect.stringContaining("sink rejected the value"),
         }),
       { timeout: 20_000, interval: 50 }
     );
 
-    expect(await redis.exists(PIPELINE_OUTPUT(launch._id, "result"))).toBe(0);
-    expect(
-      await redis.exists(NODE_PROCESSED_LOCK(launch._id, "sink_node"))
-    ).toBe(0);
+    expect(await liveState.output(launch, "result")).toBeUndefined();
+    expect(await liveState.isProcessed(launch._id, "sink_node")).toBe(false);
   });
 
   it("runs a Child Launch in Deno and resumes the parent with its output", async () => {
@@ -99,17 +84,12 @@ describe("pipeline executed by the real Deno service", () => {
     source.pipeline.nodes.get("sink_node").script = sinkScript;
 
     const launch = await run(source);
-    await vi.waitFor(
-      async () =>
-        expect(
-          await redis.exists(NODE_PROCESSED_LOCK(launch._id, "sink_node"))
-        ).toBe(1),
-      { timeout: 20_000, interval: 50 }
-    );
 
-    expect(
-      JSON.parse(await redis.get(PIPELINE_OUTPUT(launch._id, "result")))
-    ).toEqual({ enabled: false, count: 0, text: "from parent" });
+    expect(await finishedOutput(launch._id)).toEqual({
+      enabled: false,
+      count: 0,
+      text: "from parent",
+    });
     expect(
       await mongo.launches.countDocuments({ parent: launch._id, depth: 1 })
     ).toBe(1);

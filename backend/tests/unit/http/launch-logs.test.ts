@@ -1,27 +1,27 @@
-import { httpDoubles } from "../../helpers/http-boundaries";
+import {
+  httpDoubles,
+  liveState,
+  liveStore,
+} from "../../helpers/http-boundaries";
 import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { httpUserFixture, userToken } from "../../fixtures/http";
 import { launchFixture } from "../../fixtures/launch";
 import {
-  LAUNCH,
   NODE_LOGS,
   NODE_LOGS_DROPPED,
-  NODE_STATUS,
-} from "consts/redis";
-import { toPlain } from "core-kit/packages/transform";
-import { beforeEach, describe, expect, it } from "vitest";
+} from "packages/launches/live-state/keys";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const LAUNCH_ID = "launch-test";
 
 let context: Awaited<ReturnType<typeof createHttpApp>>;
 let scenario: ReturnType<typeof httpScenario>;
-let lists: Map<string, string[]>;
+let exec: ReturnType<typeof vi.spyOn>;
 
 beforeEach(async () => {
   scenario = httpScenario();
   scenario.users.set("launcher-user", httpUserFixture("launcher-user"));
-  lists = new Map();
   httpDoubles.launches.findOne.mockImplementation(async ({ _id }) =>
     _id === LAUNCH_ID
       ? {
@@ -31,9 +31,6 @@ beforeEach(async () => {
         }
       : null
   );
-  httpDoubles.redis.lRange.mockImplementation(
-    async (key: string) => lists.get(key) ?? []
-  );
   context = await createHttpApp([
     () => import("api/launches/launch-logs"),
     () => import("api/launches/get-launch"),
@@ -41,14 +38,17 @@ beforeEach(async () => {
   ]);
 });
 
-function storeLiveLaunch() {
-  scenario.redisResponses.set(
-    LAUNCH(LAUNCH_ID),
-    JSON.stringify(toPlain(launchFixture()))
-  );
-  httpDoubles.redis.EXISTS.mockImplementation(async (key: string) =>
-    key === LAUNCH(LAUNCH_ID) ? 1 : 0
-  );
+async function storeLiveLaunch() {
+  await liveState.create(launchFixture(), []);
+}
+
+// Lines as stored, older formats included (no ts, unknown levels).
+async function storeLines(key: string, lines: string[]) {
+  await liveStore.exec([{ op: "rPush", key, values: lines }]);
+}
+
+function watchStore() {
+  exec = vi.spyOn(liveStore, "exec");
 }
 
 function line(log: object) {
@@ -57,15 +57,17 @@ function line(log: object) {
 
 describe("launch logs HTTP contract", () => {
   it("returns the logs of every node oldest first, tagged with their node", async () => {
-    storeLiveLaunch();
-    lists.set(NODE_LOGS(LAUNCH_ID, "echo_node"), [
+    await storeLiveLaunch();
+    await storeLines(NODE_LOGS(LAUNCH_ID, "echo_node"), [
       line({ level: "info", message: "echo 1", attempt: 0, ts: 100 }),
       line({ level: "warn", message: "echo 2", attempt: 1, ts: 300 }),
     ]);
-    lists.set(NODE_LOGS(LAUNCH_ID, "sink_node"), [
+    await storeLines(NODE_LOGS(LAUNCH_ID, "sink_node"), [
       line({ level: "error", message: "sink", attempt: 0, ts: 200 }),
     ]);
-    scenario.redisResponses.set(NODE_LOGS_DROPPED(LAUNCH_ID, "sink_node"), "7");
+    await liveStore.exec([
+      { op: "incrBy", key: NODE_LOGS_DROPPED(LAUNCH_ID, "sink_node"), by: 7 },
+    ]);
 
     const response = await context.request
       .get(`/api/launches/${LAUNCH_ID}/logs`)
@@ -102,11 +104,11 @@ describe("launch logs HTTP contract", () => {
   });
 
   it("returns only the logs of the requested node", async () => {
-    storeLiveLaunch();
-    lists.set(NODE_LOGS(LAUNCH_ID, "echo_node"), [
+    await storeLiveLaunch();
+    await storeLines(NODE_LOGS(LAUNCH_ID, "echo_node"), [
       line({ level: "info", message: "echo", attempt: 0, ts: 100 }),
     ]);
-    lists.set(NODE_LOGS(LAUNCH_ID, "sink_node"), [
+    await storeLines(NODE_LOGS(LAUNCH_ID, "sink_node"), [
       line({ level: "info", message: "sink", attempt: 0, ts: 200 }),
     ]);
 
@@ -127,12 +129,12 @@ describe("launch logs HTTP contract", () => {
   });
 
   it("puts lines stored without a timestamp first, in their node's order", async () => {
-    storeLiveLaunch();
-    lists.set(NODE_LOGS(LAUNCH_ID, "echo_node"), [
+    await storeLiveLaunch();
+    await storeLines(NODE_LOGS(LAUNCH_ID, "echo_node"), [
       line({ level: "info", message: "old 1", attempt: 0 }),
       line({ level: "info", message: "old 2", attempt: 0 }),
     ]);
-    lists.set(NODE_LOGS(LAUNCH_ID, "sink_node"), [
+    await storeLines(NODE_LOGS(LAUNCH_ID, "sink_node"), [
       line({ level: "info", message: "new", attempt: 0, ts: 100 }),
     ]);
 
@@ -148,13 +150,17 @@ describe("launch logs HTTP contract", () => {
   });
 
   it("reports logs as unavailable once the live launch has expired", async () => {
+    watchStore();
+
     const response = await context.request
       .get(`/api/launches/${LAUNCH_ID}/logs`)
       .set("user-token", userToken());
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ available: false, logs: [], dropped: {} });
-    expect(httpDoubles.redis.lRange).not.toHaveBeenCalled();
+    expect(
+      exec.mock.calls.flatMap(([commands]) => commands).map(({ op }) => op)
+    ).toEqual(["exists"]);
   });
 
   it.each([
@@ -163,7 +169,7 @@ describe("launch logs HTTP contract", () => {
     { kind: "an admin", user: "admin-user", status: 200 },
     { kind: "another user", user: "other-user", status: 404 },
   ])("answers $kind with $status", async ({ user, status }) => {
-    storeLiveLaunch();
+    await storeLiveLaunch();
 
     const response = await context.request
       .get(`/api/launches/${LAUNCH_ID}/logs`)
@@ -177,18 +183,16 @@ describe("launch logs HTTP contract", () => {
     { route: `/api/launches/${LAUNCH_ID}` },
     { route: `/api/launches/${LAUNCH_ID}/echo_node/status` },
   ])("hides $route from another user", async ({ route }) => {
-    storeLiveLaunch();
-    scenario.redisResponses.set(
-      NODE_STATUS(LAUNCH_ID, "echo_node"),
-      '{"state":"done"}'
-    );
+    await storeLiveLaunch();
+    await liveState.nodeStarted(LAUNCH_ID, "echo_node");
+    watchStore();
 
     const response = await context.request
       .get(route)
       .set("user-token", userToken("other-user"));
 
     expect(response.status).toBe(404);
-    expect(httpDoubles.redis.lRange).not.toHaveBeenCalled();
+    expect(exec).not.toHaveBeenCalled();
   });
 
   it.each([

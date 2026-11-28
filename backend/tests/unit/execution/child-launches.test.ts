@@ -1,25 +1,21 @@
 import {
   doubles,
+  liveState,
   resetExecutionDoubles,
 } from "../../helpers/execution-boundaries";
 import { nodeExecutionFixture } from "../../helpers/node-execution";
 import { EXECUTION_TIME, launchFixture } from "../../fixtures/launch";
 import { pipelineFixture } from "../../fixtures/pipeline";
-import {
-  DEPLOY,
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  LAUNCH_INTERRUPTED,
-  NODE_CHILDREN,
-  PIPELINE_OUTPUT,
-} from "consts/redis";
-import { toInstance, toPlain } from "core-kit/packages/transform";
+import { DEPLOY } from "consts/redis";
+import { toInstance } from "core-kit/packages/transform";
 import { PipelineOutput } from "models/pipeline";
 import { DataError, FatalError } from "core-kit/types/errors";
 import { DelayedError } from "bullmq";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let context: ReturnType<typeof nodeExecutionFixture>;
+// deploys in Redis by key, read by packages/deploy
+let deploys: Map<string, string>;
 
 function deployFixture() {
   return {
@@ -50,17 +46,30 @@ function launchResult(overrides: object = {}) {
   };
 }
 
-function startedChild(output: string | null) {
+async function startedChild(
+  output: string | null,
+  change: (child: ReturnType<typeof launchFixture>) => void = () => {}
+) {
   const child = launchFixture();
   child._id = "child-1";
-  context.responses.set(
-    NODE_CHILDREN(context.launch._id, "echo_node"),
-    JSON.stringify({ summary: "child-1" })
-  );
-  context.responses.set(LAUNCH("child-1"), JSON.stringify(toPlain(child)));
+  change(child);
+  await liveState.create(child, []);
+  await liveState.setChildren(context.launch._id, "echo_node", {
+    summary: "child-1",
+  });
   if (output !== null) {
-    context.responses.set(PIPELINE_OUTPUT("child-1", "result"), output);
+    await liveState.nodeCompleted(child, "echo_node", {
+      processed: true,
+      pipelineOutputs: { result: output },
+    });
   }
+}
+
+async function failedChild() {
+  await startedChild(null);
+  await liveState.nodeFailed("child-1", "echo_node", "Upstream API is down", {
+    outcome: "exhausted",
+  });
 }
 
 function payload() {
@@ -71,12 +80,8 @@ function childRequest(key: string, slug = "child") {
   return { key, deploy: { prefix: "user-test", slug } };
 }
 
-function interrupted(launch: string) {
-  expect(doubles.redis.setEx).toHaveBeenCalledWith(
-    LAUNCH_INTERRUPTED(launch),
-    LAUNCH_EXPIRED,
-    EXECUTION_TIME.toISOString()
-  );
+async function interrupted(launch: string) {
+  expect(await liveState.interruptedAt(launch)).toEqual(EXECUTION_TIME);
 }
 
 function insertedLaunch() {
@@ -88,9 +93,11 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(EXECUTION_TIME);
   context = nodeExecutionFixture();
-  context.responses.set(
-    DEPLOY("child", "user-test"),
-    JSON.stringify(deployFixture())
+  deploys = new Map([
+    [DEPLOY("child", "user-test"), JSON.stringify(deployFixture())],
+  ]);
+  doubles.redis.get.mockImplementation(
+    async (key: string) => deploys.get(key) ?? null
   );
 });
 
@@ -110,11 +117,10 @@ describe("child launches", () => {
         inputs: { enabled: true, count: 1, text: "from parent" },
       },
     });
-    expect(doubles.redis.setEx).toHaveBeenCalledWith(
-      NODE_CHILDREN(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      JSON.stringify({ summary: child["_id"] })
-    );
+    expect(await liveState.children(context.launch._id, "echo_node")).toEqual({
+      summary: child["_id"],
+    });
+    expect(await liveState.exists(child["_id"] as string)).toBe(true);
     expect(context.job.moveToDelayed).toHaveBeenCalledExactlyOnceWith(
       EXECUTION_TIME.getTime() + 3000
     );
@@ -129,7 +135,7 @@ describe("child launches", () => {
   ])(
     "gives the script the child's state ($expected.status)",
     async ({ output, expected }) => {
-      startedChild(output);
+      await startedChild(output);
 
       await context.run();
 
@@ -140,14 +146,12 @@ describe("child launches", () => {
   );
 
   it("finishes a child whose pipeline has an output without flows", async () => {
-    startedChild('{"answer":42}');
-    const child = launchFixture();
-    child._id = "child-1";
-    child.pipeline.outputs.set(
-      "unused",
-      toInstance({ type: "string" }, PipelineOutput)
+    await startedChild('{"answer":42}', (child) =>
+      child.pipeline.outputs.set(
+        "unused",
+        toInstance({ type: "string" }, PipelineOutput)
+      )
     );
-    context.responses.set(LAUNCH("child-1"), JSON.stringify(toPlain(child)));
 
     await context.run();
 
@@ -167,8 +171,7 @@ describe("child launches", () => {
   });
 
   it("fails the parent node without running its script when a child failed", async () => {
-    startedChild(null);
-    doubles.redis.lRange.mockResolvedValue(["Upstream API is down"]);
+    await failedChild();
 
     const run = context.run();
 
@@ -180,7 +183,7 @@ describe("child launches", () => {
   });
 
   it("does not start a second child for a key the node already used", async () => {
-    startedChild(null);
+    await startedChild(null);
     doubles.execute.mockResolvedValue(launchResult());
 
     await expect(context.run()).rejects.toBeInstanceOf(DelayedError);
@@ -200,7 +203,7 @@ describe("child launches", () => {
   });
 
   it("refuses a deploy without pipeline outputs, which could never finish", async () => {
-    context.responses.set(
+    deploys.set(
       DEPLOY("child", "user-test"),
       JSON.stringify({
         ...deployFixture(),
@@ -215,7 +218,7 @@ describe("child launches", () => {
   });
 
   it("refuses a deploy whose pipeline outputs have no flows", async () => {
-    context.responses.set(
+    deploys.set(
       DEPLOY("child", "user-test"),
       JSON.stringify({
         ...deployFixture(),
@@ -235,20 +238,23 @@ describe("child launches", () => {
   });
 
   it("makes a re-planned downstream node forget its children, like its state", async () => {
+    await liveState.setChildren(context.launch._id, "sink_node", {
+      summary: "child-1",
+    });
+
     await context.run();
 
-    expect(doubles.redis.del).toHaveBeenCalledWith(
-      NODE_CHILDREN(context.launch._id, "sink_node")
+    expect(await liveState.children(context.launch._id, "sink_node")).toBe(
+      null
     );
   });
 
   it("interrupts the node's other children when one of them failed", async () => {
-    startedChild(null);
-    doubles.redis.lRange.mockResolvedValue(["Upstream API is down"]);
+    await failedChild();
 
     await expect(context.run()).rejects.toBeInstanceOf(FatalError);
 
-    interrupted("child-1");
+    await interrupted("child-1");
   });
 
   it("checks every requested child before starting any of them", async () => {
@@ -276,7 +282,7 @@ describe("child launches", () => {
   });
 
   it("refuses a deploy sharing the parent's concurrency scope, which could deadlock", async () => {
-    context.responses.set(
+    deploys.set(
       DEPLOY("child", "user-test"),
       JSON.stringify({
         ...deployFixture(),
@@ -297,20 +303,21 @@ describe("child launches", () => {
     await expect(context.run()).rejects.toThrow("Mongo is down");
 
     const child = insertedLaunch()["_id"] as string;
-    interrupted(child);
-    expect(doubles.redis.setEx).toHaveBeenLastCalledWith(
-      NODE_CHILDREN(context.launch._id, "echo_node"),
-      LAUNCH_EXPIRED,
-      "{}"
+    await interrupted(child);
+    expect(await liveState.children(context.launch._id, "echo_node")).toEqual(
+      {}
     );
   });
 
   it("interrupts children started while the parent was being interrupted", async () => {
-    doubles.redis.EXISTS.mockResolvedValueOnce(0).mockResolvedValueOnce(1);
+    // the parent is interrupted while its child is being stored
+    doubles.insertOne.mockImplementation(() =>
+      liveState.interrupt(context.launch._id)
+    );
     doubles.execute.mockResolvedValue(launchResult());
 
     await expect(context.run()).rejects.toBeInstanceOf(DelayedError);
 
-    interrupted(insertedLaunch()["_id"] as string);
+    await interrupted(insertedLaunch()["_id"] as string);
   });
 });

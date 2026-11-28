@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+import "./live-state";
 
 const httpDoubles = vi.hoisted(() => ({
   users: {
@@ -78,6 +79,7 @@ const httpDoubles = vi.hoisted(() => ({
 }));
 
 export { httpDoubles };
+export { liveState, liveStore } from "./live-state";
 
 vi.mock("app/mongo", () => ({
   default: {

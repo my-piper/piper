@@ -1,14 +1,15 @@
 import {
   jobDoubles,
+  liveState,
+  liveStore,
   resetJobDoubles,
   runJob,
 } from "../../helpers/job-boundaries";
 import { launchFixture } from "../../fixtures/launch";
-import { LAUNCH, PIPELINE_ERRORS } from "consts/redis";
-import { toPlain } from "core-kit/packages/transform";
-import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 let launch: ReturnType<typeof launchFixture>;
+let errors: string[];
 
 beforeAll(async () => {
   await import("jobs/set-launch-errors");
@@ -17,23 +18,24 @@ beforeAll(async () => {
 beforeEach(() => {
   resetJobDoubles();
   launch = launchFixture();
-  jobDoubles.redis.get.mockImplementation(async (key: string) =>
-    key === LAUNCH(launch._id) ? JSON.stringify(toPlain(launch)) : null
-  );
-  jobDoubles.redis.lRange.mockImplementation(async (key: string) =>
-    key === PIPELINE_ERRORS(launch._id) ? ["first failure", "second"] : []
-  );
+  errors = ["first failure", "second"];
 });
+
+// stores the launch as the test changed it, with its errors, then runs the job
+async function run(queue: string, payload: object) {
+  await liveState.create(launch, []);
+  for (const error of errors) {
+    await liveState.nodeFailed(launch._id, "echo_node", error, {
+      outcome: "exhausted",
+    });
+  }
+  return runJob(queue, payload);
+}
 
 describe("set launch errors job", () => {
   it("copies the Redis error list into the update and notifies the launcher", async () => {
-    await runJob("set_launch_errors", { launch: launch._id });
+    await run("set_launch_errors", { launch: launch._id });
 
-    expect(jobDoubles.redis.lRange).toHaveBeenCalledExactlyOnceWith(
-      PIPELINE_ERRORS(launch._id),
-      0,
-      -1
-    );
     expect(jobDoubles.mongo.launches.updateOne).toHaveBeenCalledExactlyOnceWith(
       expect.anything(),
       { $set: { errors: ["first failure", "second"] } }
@@ -46,7 +48,7 @@ describe("set launch errors job", () => {
   });
 
   it("updates the launch document by its id", async () => {
-    await runJob("set_launch_errors", { launch: launch._id });
+    await run("set_launch_errors", { launch: launch._id });
 
     expect(jobDoubles.mongo.launches.updateOne).toHaveBeenCalledWith(
       { _id: launch._id },
@@ -55,9 +57,9 @@ describe("set launch errors job", () => {
   });
 
   it("stores an empty list when Redis has no errors", async () => {
-    jobDoubles.redis.lRange.mockResolvedValue(null);
+    errors = [];
 
-    await runJob("set_launch_errors", { launch: launch._id });
+    await run("set_launch_errors", { launch: launch._id });
 
     expect(jobDoubles.mongo.launches.updateOne).toHaveBeenCalledWith(
       expect.anything(),
@@ -68,16 +70,18 @@ describe("set launch errors job", () => {
   it("skips notification for a launch without a launcher", async () => {
     launch.launchedBy = undefined;
 
-    await runJob("set_launch_errors", { launch: launch._id });
+    await run("set_launch_errors", { launch: launch._id });
 
     expect(jobDoubles.mongo.launches.updateOne).toHaveBeenCalledOnce();
     expect(jobDoubles.notify).not.toHaveBeenCalled();
   });
 
   it("ignores a launch that is no longer in Redis", async () => {
+    const read = vi.spyOn(liveStore, "exec");
+
     await runJob("set_launch_errors", { launch: "missing-launch" });
 
-    expect(jobDoubles.redis.lRange).not.toHaveBeenCalled();
+    expect(read).toHaveBeenCalledOnce();
     expect(jobDoubles.mongo.launches.updateOne).not.toHaveBeenCalled();
   });
 });

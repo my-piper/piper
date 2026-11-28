@@ -1,11 +1,10 @@
 import {
   jobDoubles,
+  liveState,
   resetJobDoubles,
   runJob,
 } from "../../helpers/job-boundaries";
 import { launchFixture } from "../../fixtures/launch";
-import { LAUNCH } from "consts/redis";
-import { toPlain } from "core-kit/packages/transform";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 let launch: ReturnType<typeof launchFixture>;
@@ -17,10 +16,13 @@ beforeAll(async () => {
 beforeEach(() => {
   resetJobDoubles();
   launch = launchFixture();
-  jobDoubles.redis.get.mockImplementation(async (key: string) =>
-    key === LAUNCH(launch._id) ? JSON.stringify(toPlain(launch)) : null
-  );
 });
+
+// stores the launch as the test changed it, then runs the job
+async function run(queue: string, payload: object) {
+  await liveState.create(launch, []);
+  return runJob(queue, payload);
+}
 
 function storedInputs() {
   const [[filter, update]] = jobDoubles.mongo.launches.updateOne.mock.calls;
@@ -35,7 +37,7 @@ describe("set launch inputs job", () => {
       ["text", "hello"],
     ]);
 
-    await runJob("set_launch_inputs", { launch: launch._id });
+    await run("set_launch_inputs", { launch: launch._id });
 
     expect(storedInputs()).toEqual({
       filter: { _id: launch._id },
@@ -55,7 +57,7 @@ describe("set launch inputs job", () => {
   it("falls back to pipeline defaults for inputs missing from the request", async () => {
     launch.launchRequest.inputs = new Map();
 
-    await runJob("set_launch_inputs", { launch: launch._id });
+    await run("set_launch_inputs", { launch: launch._id });
 
     expect(storedInputs().inputs).toEqual({
       enabled: { type: "boolean", data: { value: true } },
@@ -65,7 +67,7 @@ describe("set launch inputs job", () => {
   });
 
   it("keeps falsy request inputs instead of their defaults", async () => {
-    await runJob("set_launch_inputs", { launch: launch._id });
+    await run("set_launch_inputs", { launch: launch._id });
 
     expect(storedInputs().inputs).toEqual({
       enabled: { type: "boolean", data: { value: false } },
@@ -77,7 +79,7 @@ describe("set launch inputs job", () => {
   it("skips notification for a launch without a launcher", async () => {
     launch.launchedBy = undefined;
 
-    await runJob("set_launch_inputs", { launch: launch._id });
+    await run("set_launch_inputs", { launch: launch._id });
 
     expect(jobDoubles.mongo.launches.updateOne).toHaveBeenCalledOnce();
     expect(jobDoubles.notify).not.toHaveBeenCalled();

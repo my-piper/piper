@@ -1,21 +1,14 @@
 import mongo from "app/mongo";
 import { queues } from "app/queues";
-import {
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  PIPELINE_OUTPUT,
-  PIPELINE_OUTPUT_DATA,
-} from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
-import redis, { readInstance } from "core-kit/packages/redis";
 import { mapTo, toPlain } from "core-kit/packages/transform";
 import { SetLaunchOutputEvent } from "models/events";
-import { Launch, LaunchArtefact, OUTPUT_TYPES } from "models/launch";
+import { LaunchArtefact, OUTPUT_TYPES } from "models/launch";
 import { User } from "models/user";
 import { getIOData } from "packages/launches/launching";
+import { liveState } from "packages/launches/live-state";
 import { ulid } from "ulid";
-import { fromRedisValue } from "utils/redis";
 import { sid } from "utils/string";
 import { USER_ROOM } from "consts/rooms";
 
@@ -25,14 +18,14 @@ queues.launches.outputs.set.process(async (job) => {
   });
 
   logger.info(`Set output ${job.output} in launch ${job.launch}`);
-  const launch = await readInstance(LAUNCH(job.launch), Launch);
+  const launch = await liveState.get(job.launch);
   if (!launch) {
     logger.error("Launch is not found");
     return;
   }
 
-  const value = await redis.get(PIPELINE_OUTPUT(launch._id, job.output));
-  if (value === null) {
+  const value = await liveState.output(launch, job.output);
+  if (value === undefined) {
     logger.error("Output has no value");
     return;
   }
@@ -46,22 +39,20 @@ queues.launches.outputs.set.process(async (job) => {
     "outputs",
     job.output,
     type,
-    fromRedisValue(type, value)
+    value
   );
-  await redis.setEx(
-    PIPELINE_OUTPUT_DATA(launch._id, job.output),
-    LAUNCH_EXPIRED,
-    JSON.stringify(
-      (() => {
-        const plain = toPlain(data);
-        for (const type of Object.keys(OUTPUT_TYPES)) {
-          if (data instanceof OUTPUT_TYPES[type]) {
-            plain["type"] = type;
-          }
+  await liveState.setOutputData(
+    launch._id,
+    job.output,
+    (() => {
+      const plain = toPlain(data);
+      for (const type of Object.keys(OUTPUT_TYPES)) {
+        if (data instanceof OUTPUT_TYPES[type]) {
+          plain["type"] = type;
         }
-        return plain;
-      })()
-    )
+      }
+      return plain;
+    })()
   );
 
   const output = new LaunchArtefact({

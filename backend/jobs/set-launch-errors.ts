@@ -1,13 +1,10 @@
 import mongo from "app/mongo";
 import { queues } from "app/queues";
-import { LAUNCH, PIPELINE_ERRORS } from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
-import { readInstance } from "core-kit/packages/redis";
-import redis from "core-kit/packages/redis/redis";
 import { toPlain } from "core-kit/packages/transform";
 import { SetLaunchErrorsEvent } from "models/events";
-import { Launch } from "models/launch";
+import { liveState } from "packages/launches/live-state";
 import { USER_ROOM } from "consts/rooms";
 
 queues.launches.errors.set.process(async (setErrorsJob) => {
@@ -15,14 +12,14 @@ queues.launches.errors.set.process(async (setErrorsJob) => {
     launch: setErrorsJob.launch,
   });
 
-  const launch = await readInstance(LAUNCH(setErrorsJob.launch), Launch);
+  const launch = await liveState.get(setErrorsJob.launch);
   if (!launch) {
     logger.error("Launch is not found");
     return;
   }
 
   logger.info(`Set errors for launch ${launch._id}`);
-  const errors = (await redis.lRange(PIPELINE_ERRORS(launch._id), 0, -1)) || [];
+  const errors = await liveState.errors(launch._id);
   await mongo.launches.updateOne({ _id: launch._id }, { $set: { errors } });
 
   const event = toPlain(

@@ -1,13 +1,12 @@
 import mongo from "app/mongo";
 import { queues } from "app/queues";
-import { LAUNCH } from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
-import { readInstance } from "core-kit/packages/redis";
 import { toPlain } from "core-kit/packages/transform";
 import { SetLaunchInputsEvent } from "models/events";
 import { Launch, LaunchInput } from "models/launch";
 import { getIOData } from "packages/launches";
+import { liveState } from "packages/launches/live-state";
 import { USER_ROOM } from "consts/rooms";
 
 queues.launches.inputs.set.process(async (job) => {
@@ -16,7 +15,7 @@ queues.launches.inputs.set.process(async (job) => {
   });
 
   logger.info(`Set inputs for launch ${job.launch}`);
-  const launch = await readInstance(LAUNCH(job.launch), Launch);
+  const launch = await liveState.get(job.launch);
   if (!launch) {
     logger.error("Launch is not found");
     return;

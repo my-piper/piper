@@ -1,39 +1,11 @@
-import {
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  LAUNCH_HEARTBEAT,
-  LAUNCH_HEARTBEAT_EXPIRED,
-  LAUNCH_INTERRUPTED,
-  NODE_FLOWS,
-  NODE_JOB_DUE,
-  NODE_JOBS,
-  NODE_PROCESSED_LOCK,
-  NODE_PROCESSING_LOCK,
-  NODE_PROCESSING_TIMEOUT,
-  NODE_PROGRESS,
-  NODE_STATE,
-  NODE_STATUS,
-} from "consts/redis";
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
 import { DelayedError, Job } from "core-kit/packages/queue";
-import redis, {
-  exists,
-  lock,
-  locked,
-  readInstance,
-  readObject,
-  saveInstance,
-  saveObject,
-  unlock,
-} from "core-kit/packages/redis";
 import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
 import { NodeExecution } from "enums/node-execution";
 import { HeartbeatEvent, PipelineEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
-import { Launch } from "models/launch";
-import { NodeStatus } from "models/node";
 import {
   execute,
   ExecutionError,
@@ -41,6 +13,7 @@ import {
   LogEntry,
 } from "packages/deno";
 import { readChildren, startChildren } from "packages/launches/child-launches";
+import { liveState } from "packages/launches/live-state";
 import { isDeployNode, runDeployNode } from "packages/nodes/deploy-node";
 import { appendNodeLogs } from "packages/nodes/node-logs";
 import { LaunchChildrenNode, NodeJobResult, RepeatNode } from "types/node";
@@ -74,11 +47,7 @@ function getTimeout(execution: NodeExecution): number {
 }
 
 export default async (nodeJob: ProcessNodeJob, job: Job) => {
-  {
-    const key = NODE_JOBS(nodeJob.launch, nodeJob.node);
-    await redis.sAdd(key, job.id);
-    await redis.expire(key, LAUNCH_EXPIRED);
-  }
+  await liveState.addJob(nodeJob.launch, nodeJob.node, job.id);
 
   const logger = createLogger("process-node", {
     launch: nodeJob.launch,
@@ -125,12 +94,12 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     `Processing job ${job.id} for node ${attemptsMade} / ${maxAttempts}`
   );
 
-  if (await exists(LAUNCH_INTERRUPTED(nodeJob.launch))) {
+  const interruptedAt = await liveState.interruptedAt(nodeJob.launch);
+  if (interruptedAt) {
     logger.debug("Launch has been interrupted");
-    const interrupted = await readInstance(LAUNCH(nodeJob.launch), Launch);
+    const interrupted = await liveState.get(nodeJob.launch);
     if (interrupted) {
-      const interruptedAt = await redis.get(LAUNCH_INTERRUPTED(nodeJob.launch));
-      const finishedAt = interruptedAt ? new Date(interruptedAt) : new Date();
+      const finishedAt = interruptedAt;
       await recordNodeExecution(
         interrupted,
         nodeJob.node,
@@ -142,13 +111,12 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     return NodeJobResult.LAUNCH_INTERRUPTED;
   }
 
-  const PROCESSED_LOCK = NODE_PROCESSED_LOCK(nodeJob.launch, nodeJob.node);
-  if (await locked(PROCESSED_LOCK)) {
+  if (await liveState.isProcessed(nodeJob.launch, nodeJob.node)) {
     logger.debug("Node has been processed already before");
     return NodeJobResult.NODE_HAS_BEEN_PROCESSED_ALREADY;
   }
 
-  const launch = await readInstance(LAUNCH(nodeJob.launch), Launch);
+  const launch = await liveState.get(nodeJob.launch);
   if (!launch) {
     logger.error("Launch is not found");
     return NodeJobResult.LAUNCH_NOT_FOUND;
@@ -177,8 +145,9 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
             continue;
           case "wait":
           default: {
-            const ready = await redis.sIsMember(
-              NODE_FLOWS(launch._id, nodeJob.node),
+            const ready = await liveState.isFlowDone(
+              launch._id,
+              nodeJob.node,
               id
             );
             logger.debug(`Flow ${id} ${ready ? "ready" : "not ready"}`);
@@ -208,10 +177,9 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   logger.debug(JSON.stringify(inputs));
 
   // node is ready
-  const state = await readObject(NODE_STATE(launch._id, nodeJob.node));
+  const state = await liveState.state(launch._id, nodeJob.node);
 
-  const PROCESSING_LOCK = NODE_PROCESSING_LOCK(nodeJob.launch, nodeJob.node);
-  if (await locked(PROCESSING_LOCK)) {
+  if (await liveState.isProcessing(launch._id, nodeJob.node)) {
     logger.debug("Node is processing now already");
     return NodeJobResult.NODE_IS_PROCESSING_NOW_ALREADY;
   }
@@ -221,11 +189,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
   let processingLocked = false;
   const heartbeat = async () => {
     logger.debug("Launch heartbeat");
-    await redis.setEx(
-      LAUNCH_HEARTBEAT(launch._id),
-      LAUNCH_HEARTBEAT_EXPIRED,
-      new Date().toISOString()
-    );
+    await liveState.beat(launch._id);
     notifyPipeline(
       "launch_heartbeat",
       mapTo({ launch: launch._id, heartbeat: new Date() }, HeartbeatEvent)
@@ -237,33 +201,27 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     }
   };
   let [results, logs]: [ExecutionResult, LogEntry[]] = [null, null];
-  const DUE = NODE_JOB_DUE(launch._id, nodeJob.node, job.id);
   let run: Parameters<typeof recordNodeRun>[0] = null;
   let finishedAt: number = null;
   try {
     await heartbeat();
 
     logger.debug("Set processing lock");
-    await lock(PROCESSING_LOCK, NODE_PROCESSING_TIMEOUT);
+    await liveState.nodeStarted(launch._id, nodeJob.node);
     processingLocked = true;
 
     logger.debug("Processing node");
-    await saveInstance(
-      NODE_STATUS(launch._id, nodeJob.node),
-      new NodeStatus({ state: "running" }),
-      LAUNCH_EXPIRED
-    );
     notifyNode(nodeJob.node, "node_running");
 
     const environment = await getEnvironment({ launch, node });
 
-    const due = await redis.get(DUE);
+    const due = await liveState.dueAt(launch._id, nodeJob.node, job.id);
     run = {
       launch,
       node: nodeJob.node,
       attempt: attemptsMade,
       startedAt: new Date(),
-      dueAt: due ? Number(due) : job.timestamp + (job.opts.delay ?? 0),
+      dueAt: due ?? job.timestamp + (job.opts.delay ?? 0),
     };
 
     const children = await readChildren(launch._id, nodeJob.node);
@@ -318,7 +276,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     if (processingLocked) {
       logger.debug("Release processing lock");
-      await unlock(PROCESSING_LOCK);
+      await liveState.nodeStopped(launch._id, nodeJob.node);
     }
 
     if (logs?.length > 0) {
@@ -328,10 +286,21 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
   const { result } = results;
 
-  const delayNode = async (delay: number): Promise<never> => {
-    const repeatAt = Date.now() + (delay || 1000);
-    await redis.setEx(DUE, LAUNCH_EXPIRED, String(repeatAt));
-    await job.moveToDelayed(repeatAt);
+  // keeps what the Node carries to its next run, and when that run is due
+  const keepForRepeat = async (
+    delay: number,
+    keep: { state?: object; progress?: object } = {}
+  ): Promise<number> => {
+    const dueAt = Date.now() + (delay || 1000);
+    await liveState.nodeRepeats(launch._id, nodeJob.node, job.id, {
+      dueAt,
+      ...keep,
+    });
+    return dueAt;
+  };
+
+  const delayNode = async (dueAt: number): Promise<never> => {
+    await job.moveToDelayed(dueAt);
     throw new DelayedError();
   };
 
@@ -351,24 +320,17 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
 
     notifyNode(nodeJob.node, "node_gonna_repeat");
     await recordNodeRun(run, "repeat", finishedAt);
-    return delayNode(delay);
+    return delayNode(await keepForRepeat(delay));
   } else if (result?.["__type"] === "repeat") {
     const { delay, progress, state } = toInstance(result as object, RepeatNode);
-    if (state) {
-      await saveObject(
-        NODE_STATE(launch._id, nodeJob.node),
-        state,
-        LAUNCH_EXPIRED
-      );
-    }
-
+    // the state and progress are kept before anything else can fail, so a
+    // retry of this job resumes from them
+    const dueAt = await keepForRepeat(delay, {
+      ...(state ? { state } : {}),
+      ...(progress ? { progress: toPlain(progress) } : {}),
+    });
     if (progress) {
       logger.debug(progress);
-      await saveInstance(
-        NODE_PROGRESS(launch._id, nodeJob.node),
-        progress,
-        LAUNCH_EXPIRED
-      );
       notifyNode(nodeJob.node, "node_progress");
     }
 
@@ -376,7 +338,7 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     notifyNode(nodeJob.node, "node_gonna_repeat");
 
     await recordNodeRun(run, "repeat", finishedAt);
-    return delayNode(delay);
+    return delayNode(dueAt);
   } else if (result?.["__type"] === "next") {
     await recordNodeRun(run, "done", finishedAt);
     return completeNode({

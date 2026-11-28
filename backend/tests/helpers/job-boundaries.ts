@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+import { liveStore } from "./live-state";
 
 type Handler = (payload: object) => Promise<unknown>;
 
@@ -20,6 +21,7 @@ const jobDoubles = vi.hoisted(() => ({
 }));
 
 export { jobDoubles };
+export { liveState, liveStore } from "./live-state";
 
 vi.mock("core-kit/packages/queue", async () => {
   const { DelayedError } = await import("bullmq");
@@ -69,6 +71,7 @@ vi.mock("utils/string", () => ({ sid: () => "fixed-artefact" }));
 vi.mock("ulid", () => ({ ulid: () => "fixed-cursor" }));
 
 export function resetJobDoubles() {
+  liveStore.clear();
   for (const mock of [
     ...jobDoubles.plans.values(),
     ...Object.values(jobDoubles.redis),

@@ -1,6 +1,6 @@
-import { mongo, redis } from "./runtime";
+import { mongo } from "./runtime";
 import { DEPLOY_PREFIX, pipelineLaunch, publishDeploy } from "./fixture";
-import { NODE_PROCESSED_LOCK, PIPELINE_OUTPUT } from "consts/redis";
+import { finishedOutput } from "./finished";
 import { execute } from "packages/deno/execute";
 import { run } from "packages/launches/launching";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -19,14 +19,7 @@ async function echoAndSink(script: string, _fn: string, payload: unknown) {
 }
 
 async function launchOutput(launch: string) {
-  await vi.waitFor(
-    async () =>
-      expect(await redis.exists(NODE_PROCESSED_LOCK(launch, "sink_node"))).toBe(
-        1
-      ),
-    WAIT
-  );
-  return JSON.parse(await redis.get(PIPELINE_OUTPUT(launch, "result")));
+  return finishedOutput(launch, WAIT);
 }
 
 beforeEach(() => {

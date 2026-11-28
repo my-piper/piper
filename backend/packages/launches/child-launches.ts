@@ -1,10 +1,3 @@
-import {
-  LAUNCH,
-  LAUNCH_EXPIRED,
-  LAUNCH_INTERRUPTED,
-  NODE_CHILDREN,
-} from "consts/redis";
-import redis, { exists, readObject, saveObject } from "core-kit/packages/redis";
 import { toInstance, toPlain } from "core-kit/packages/transform";
 import { FatalError } from "core-kit/types/errors";
 import merge from "lodash/merge";
@@ -16,8 +9,9 @@ import { User } from "models/user";
 import * as deploys from "packages/deploy";
 import { ChildLaunchRequest } from "types/node";
 import { sid } from "utils/string";
-import { canFinish, isFinished } from "./finished";
-import { get, interrupt, run, state } from "./launching";
+import { canFinish } from "./finished";
+import { interrupt, run, stateOf } from "./launching";
+import { liveState } from "./live-state";
 
 export const MAX_CHILD_DEPTH = 3;
 export const MAX_CHILDREN_PER_NODE = 10;
@@ -37,7 +31,7 @@ async function readChildLaunches(
   parent: string,
   node: string
 ): Promise<ChildLaunches | null> {
-  return (await readObject(NODE_CHILDREN(parent, node))) as ChildLaunches;
+  return liveState.children(parent, node);
 }
 
 // every check runs before any child starts, so a bad request never leaves
@@ -128,7 +122,6 @@ export async function startChildren(
   node: string,
   requests: ChildLaunchRequest[]
 ): Promise<void> {
-  const key = NODE_CHILDREN(parent._id, node);
   const children = (await readChildLaunches(parent._id, node)) ?? {};
   const starts = await validate(parent, requests, children);
 
@@ -137,7 +130,7 @@ export async function startChildren(
     // missing child fails the node instead of a retry starting a duplicate
     const _id = sid();
     children[request.key] = _id;
-    await saveObject(key, children, LAUNCH_EXPIRED);
+    await liveState.setChildren(parent._id, node, children);
 
     try {
       await launchChild(parent, node, _id, request, deploy);
@@ -146,13 +139,13 @@ export async function startChildren(
       // release the key
       await interrupt(_id);
       delete children[request.key];
-      await saveObject(key, children, LAUNCH_EXPIRED);
+      await liveState.setChildren(parent._id, node, children);
       throw e;
     }
   }
 
   // the parent may have been interrupted while its children were starting
-  if (await exists(LAUNCH_INTERRUPTED(parent._id))) {
+  if (await liveState.interruptedAt(parent._id)) {
     for (const child of starts.keys()) {
       await interrupt(children[child.key]);
     }
@@ -182,15 +175,16 @@ export async function readChildren(
 
   const states: Record<string, ChildLaunchState> = {};
   for (const [key, launch] of Object.entries(children)) {
-    if (!(await redis.get(LAUNCH(launch)))) {
+    const child = await liveState.get(launch);
+    if (!child) {
       return fail(
         `Child launch ${key} (${launch}) was not started or has expired`
       );
     }
 
-    const [{ pipeline }, { errors, outputs }] = await Promise.all([
-      get(launch),
-      state(launch),
+    const [{ errors, outputs }, finished] = await Promise.all([
+      stateOf(child),
+      liveState.isFinished(child),
     ]);
     if (errors.length > 0) {
       return fail(
@@ -200,7 +194,7 @@ export async function readChildren(
 
     states[key] = {
       launch,
-      status: isFinished(pipeline, outputs) ? "finished" : "running",
+      status: finished ? "finished" : "running",
       outputs: Object.fromEntries(outputs),
     };
   }

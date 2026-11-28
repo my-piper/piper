@@ -1,15 +1,10 @@
 import { streams } from "app/streams";
-import {
-  LAUNCH_EXPIRED,
-  LAUNCH_RUN_RECORDED,
-  NODE_EXECUTION,
-} from "consts/redis";
-import redis from "core-kit/packages/redis";
 import { MemoryLimitError, TimeoutError } from "core-kit/types/errors";
 import { Launch } from "models/launch";
 import { LaunchRunStatus } from "models/launch-run";
 import { NodeExecutionResult } from "models/node-execution-record";
 import { NodeRunResult } from "models/node-run";
+import { liveState } from "packages/launches/live-state";
 
 type NodeRunContext = {
   launch: Launch;
@@ -57,19 +52,13 @@ export async function recordNodeRun(
     durationMs,
   });
 
-  const key = NODE_EXECUTION(launch._id, node);
-  await redis
-    .multi()
-    .hSetNX(key, "startedAt", String(startedAt.getTime()))
-    .hSetNX(key, "waitMs", String(waitMs))
-    .hIncrBy(key, "activeMs", durationMs)
-    .hIncrBy(key, "invocations", 1)
-    .hSet(key, {
-      attempts: String(attempt + 1),
-      finishedAt: String(finishedAt),
-    })
-    .expire(key, LAUNCH_EXPIRED)
-    .exec();
+  await liveState.addInvocation(launch._id, node, {
+    startedAt,
+    finishedAt,
+    waitMs,
+    durationMs,
+    attempt,
+  });
 
   // an error ends the execution only on its last attempt, which
   // process-node-error decides
@@ -86,17 +75,13 @@ export async function recordNodeExecution(
   result: NodeExecutionResult,
   finishedAt?: Date
 ) {
-  const key = NODE_EXECUTION(launch._id, node);
-  const [open] = (await redis.multi().hGetAll(key).del(key).exec()) as [
-    Record<string, string>,
-    number,
-  ];
-  if (!open?.startedAt) {
+  const open = await liveState.closeExecution(launch._id, node);
+  if (!open) {
     return;
   }
 
-  const startedAt = Number(open.startedAt);
-  const finished = finishedAt?.getTime() ?? Number(open.finishedAt);
+  const { startedAt } = open;
+  const finished = finishedAt?.getTime() ?? open.finishedAt;
   const { project, pipeline, launchedBy } = launch;
   await streams.pipeline.runs.executions.send({
     startedAt: new Date(startedAt),
@@ -108,11 +93,11 @@ export async function recordNodeExecution(
     launchedBy: launchedBy?._id,
     execution: pipeline.nodes.get(node)?.execution,
     result,
-    waitMs: toMs(Number(open.waitMs)),
+    waitMs: toMs(open.waitMs),
     durationMs: toMs(finished - startedAt),
-    activeMs: toMs(Number(open.activeMs)),
-    invocations: toMs(Number(open.invocations)),
-    attempts: toMs(Number(open.attempts)),
+    activeMs: toMs(open.activeMs),
+    invocations: toMs(open.invocations),
+    attempts: toMs(open.attempts),
   });
 }
 
@@ -122,11 +107,7 @@ export async function recordLaunchRun(
   status: LaunchRunStatus,
   finishedAt: Date = new Date()
 ) {
-  const recorded = await redis.set(LAUNCH_RUN_RECORDED(launch._id), status, {
-    NX: true,
-    EX: LAUNCH_EXPIRED,
-  });
-  if (recorded !== "OK") {
+  if (!(await liveState.markRunRecorded(launch._id, status))) {
     return;
   }
 

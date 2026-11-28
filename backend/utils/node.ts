@@ -1,17 +1,14 @@
 import * as storage from "app/storage";
-import { plainToClass } from "class-transformer";
-import { NODE_INPUT, NODE_STATUS } from "consts/redis";
 import { createLogger } from "core-kit/packages/logger";
-import redis from "core-kit/packages/redis";
 import { DataError } from "core-kit/types/errors";
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import { Launch } from "models/launch";
-import { Node, NodeInput, NodeOutput, NodeStatus } from "models/node";
+import { Node, NodeInput, NodeOutput } from "models/node";
 import { Pipeline } from "models/pipeline";
 import { NodeInputs, NodeOutputs } from "types/node";
 import { PipelineIOType } from "types/pipeline";
 import { Primitive } from "types/primitive";
-import { fromRedisValue } from "utils/redis";
+import { liveState } from "packages/launches/live-state";
 import { isDataUri } from "./data-uri";
 import { getFileInfo } from "./files";
 import { sid } from "./string";
@@ -71,26 +68,8 @@ export const convertInputs =
 
 export const getNodeInputs =
   ({ launch, node }: { launch: Launch; node: Node }) =>
-  async (id: string): Promise<{ [key: string]: Primitive }> => {
-    const inputs: { [key: string]: Primitive } = {};
-    for (const [key, input] of node.inputs) {
-      const value = await (async () => {
-        const value = await redis.get(NODE_INPUT(launch._id, id, key));
-        return value !== null ? fromRedisValue(input.type, value) : null;
-      })();
-      if (value !== null) {
-        inputs[key] = value;
-      }
-    }
-    return inputs;
-  };
-
-export const getNodeStatus =
-  ({ launch }: { launch: Launch }) =>
-  async (node: string): Promise<NodeStatus | null> => {
-    const json = await redis.get(NODE_STATUS(launch._id, node));
-    return json ? plainToClass(NodeStatus, JSON.parse(json) as object) : null;
-  };
+  async (id: string): Promise<{ [key: string]: Primitive }> =>
+    liveState.inputs(launch._id, id, node.inputs);
 
 export type InputsReadiness = {
   required: string[];

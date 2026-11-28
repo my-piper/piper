@@ -56,21 +56,28 @@ Mocks, environment/global stubs, and real timers are restored between tests. Set
 mock results in each test and close any resources created by the suite.
 
 Data contract suites in `tests/unit/contracts` cover Redis wire values, nested
-model maps and dates, exposed fields, and production pipeline/launch-request
-schema validation. Small reusable fixtures are in `tests/fixtures`. Suites in
-`tests/unit/utils` exercise real node input/output conversion with explicit
-storage, download, and Redis doubles. Launch regressions assert the
-values written to Redis and passed to Deno while keeping domain logic real.
+model maps and dates, exposed fields, the Redis store of the Launch live state,
+and production pipeline/launch-request schema validation. Small reusable
+fixtures are in `tests/fixtures`. Suites in `tests/unit/utils` exercise real
+node input/output conversion with explicit storage and download doubles.
 
-Execution suites in `tests/unit/execution` cover planning, launch persistence and
-starting nodes, readiness guards, node results and downstream flows, repeat/next
-behavior, worker errors, and environment precedence/decryption.
-`tests/helpers/execution-boundaries.ts` supplies explicit MongoDB, Redis client,
-queue, Deno, storage, stream, and notification doubles. Import this helper first
-so its module factories are registered before application imports. Redis
-transformation/locking helpers remain real; read responses are configured per
-scenario and writes are asserted through spies. The helpers do not emulate Redis
-or BullMQ semantics.
+A Launch's live state (`packages/launches/live-state`) runs on its in-memory
+store in unit tests: `tests/helpers/live-state.ts` swaps the Redis store for
+one `MemoryStore` per test file and exports `liveState` to prepare and assert
+it, so tests check Launch and Node state, not Redis calls. Import it (or a
+boundary helper that re-exports it) before application modules, and clear
+`liveStore` between tests (the reset helpers do). `spyOnLiveState(method)`
+spies on a transition of the application's instance too, e.g. to make it fail.
+Only suites that pin the stored wire format read raw keys from the store.
+
+Execution suites in `tests/unit/execution` cover the live state itself,
+planning, launch persistence and starting nodes, readiness guards, node results
+and downstream flows, repeat/next behavior, worker errors, and environment
+precedence/decryption. `tests/helpers/execution-boundaries.ts` supplies
+explicit MongoDB, Redis client (for the Environment and Deploys), queue, Deno,
+storage, stream, and notification doubles. Import this helper first so its
+module factories are registered before application imports. The helpers do not
+emulate BullMQ semantics.
 
 Use fixed launch/job IDs and fake time for execution tests. Heartbeat tests
 advance fake timers while Deno is pending and check that no timers remain after
