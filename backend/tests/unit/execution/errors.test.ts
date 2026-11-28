@@ -97,6 +97,30 @@ describe("worker execution error reporting", () => {
     }
   );
 
+  it.each([FatalError, TimeoutError, MemoryLimitError])(
+    "records a %s failure on the last attempt once",
+    async (ErrorType) => {
+      context.job.attemptsMade = 3;
+      const failure = new ErrorType("cannot continue");
+
+      await errorHandler(
+        context.nodeJob,
+        failure,
+        context.job as unknown as Job
+      );
+
+      expect(doubles.redis.lPush).toHaveBeenCalledExactlyOnceWith(
+        PIPELINE_ERRORS(context.launch._id),
+        "cannot continue"
+      );
+      expect(doubles.redis.rPush).not.toHaveBeenCalled();
+      expect(doubles.plans.errors).toHaveBeenCalledExactlyOnceWith({
+        launch: context.launch._id,
+      });
+      expect(context.job.remove).toHaveBeenCalledOnce();
+    }
+  );
+
   it("does not mask a fatal failure when removing a locked job fails", async () => {
     context.job.remove.mockRejectedValue(new Error("job is locked"));
 
