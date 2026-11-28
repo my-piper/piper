@@ -106,6 +106,8 @@ test("runs from the canvas in a new tab, follows node events and interrupts ther
   ]);
   await expect(tab).toHaveURL(/\/en\/launches\/launch_1$/);
   await joined(server, LAUNCH_ROOM("launch_1"));
+  // The open info card sits over the first node.
+  await tab.getByTestId("launch-info-toggle").click();
   api.nodeStatus.set("launch_1/node_one", { state: "error", error: "Boom" });
   server.emit(
     LAUNCH_ROOM("launch_1"),

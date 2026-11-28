@@ -169,6 +169,11 @@
     border-radius: 30px;
     padding: variables.$gutter-big;
     backdrop-filter: blur(5px);
+
+    // The launch info card opens into a panel, so the pill's corners tighten.
+    &.launch:has(.card.expanded) {
+      border-radius: var(--radius-lg);
+    }
   }
 
   // Pane stacking: edges (svg) 0 < flow midpoints 1 < items 2 < the item

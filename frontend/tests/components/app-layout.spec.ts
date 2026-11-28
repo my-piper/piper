@@ -126,6 +126,7 @@ describe("AppLayoutComponent", () => {
             component: AppLayoutComponent,
             children: [
               { path: "projects", component: PageStubComponent },
+              { path: "launches", component: PageStubComponent },
               { path: "own-bar", component: TopbarPageStubComponent },
               {
                 path: "canvas",
@@ -213,6 +214,22 @@ describe("AppLayoutComponent", () => {
     expect(
       element.querySelector("[data-testid=app-crumbs] b")?.textContent,
     ).toBe("Pipelines");
+  });
+
+  it("drops the beta badge for the Launches section only", async () => {
+    const { harness } = await render("owner");
+
+    const launches = await open(harness, "/launches");
+    const launchesBadge = launches.querySelector(
+      "[data-testid=app-crumbs] .beta",
+    );
+    const pipelines = await open(harness, "/projects");
+    const pipelinesBadge = pipelines.querySelector(
+      "[data-testid=app-crumbs] .beta",
+    );
+
+    expect(launchesBadge).toBeNull();
+    expect(pipelinesBadge).not.toBeNull();
   });
 
   it("names no section in the top bar outside the global sections", async () => {

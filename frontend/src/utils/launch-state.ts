@@ -109,3 +109,25 @@ function finished(
   }
   return result;
 }
+
+/** How far a launch got, counted over every node of its pipeline. */
+export interface NodeProgress {
+  done: number;
+  failed: number;
+  running: number;
+  total: number;
+}
+
+export function nodeProgress(
+  nodes: string[],
+  states: Record<string, NodeRunState>,
+): NodeProgress {
+  const count = (...wanted: NodeRunState[]) =>
+    nodes.filter((id) => wanted.includes(states[id])).length;
+  return {
+    done: count("done"),
+    failed: count("error"),
+    running: count("running", "queued"),
+    total: nodes.length,
+  };
+}

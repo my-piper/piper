@@ -1,4 +1,4 @@
-import { LaunchGraph, launchState } from "src/utils/launch-state";
+import { LaunchGraph, launchState, nodeProgress } from "src/utils/launch-state";
 
 const flow = (from: string, to: string) => ({ from, to });
 
@@ -147,5 +147,22 @@ describe("launchState", () => {
     });
 
     expect(state).toBe("done");
+  });
+});
+
+describe("nodeProgress", () => {
+  it("counts done, failed and running nodes over the whole pipeline", () => {
+    const nodes = ["a", "b", "c", "d", "e"];
+    const states = {
+      a: "done",
+      b: "error",
+      c: "running",
+      d: "queued",
+      unknown: "done",
+    } as const;
+
+    const progress = nodeProgress(nodes, states);
+
+    expect(progress).toEqual({ done: 1, failed: 1, running: 2, total: 5 });
   });
 });

@@ -56,6 +56,7 @@ import { ProjectComponent } from "src/app/project/project.component";
 import { ProjectsComponent } from "src/app/projects/projects.component";
 import { CanvasMinimapComponent } from "src/app/canvas-minimap/canvas-minimap.component";
 import { DrawerCloseComponent } from "src/app/drawer-close/drawer-close.component";
+import { LaunchInfoComponent } from "src/app/launch-info/launch-info.component";
 import { NodeSearchComponent } from "src/app/node-search/node-search.component";
 import { SelectNodeComponent } from "src/app/select-node/select-node.component";
 import { SelectThemeComponent } from "src/app/select-theme/select-theme.component";
@@ -302,6 +303,7 @@ import { UsersComponent } from "./users/users.component";
   imports: [
     CanvasMinimapComponent,
     DrawerCloseComponent,
+    LaunchInfoComponent,
     BrowserModule,
     RouterModule,
     ReactiveFormsModule,

@@ -80,7 +80,7 @@
             }
           </div>
           <div class="line meta">
-            @if (l.launchedBy?.name; as name) {
+            @if (l.launchedBy?._id; as name) {
               <span class="launched-by">by {{ name }}</span>
             }
             @if (l._id | pipelineFinishedMetric | async; as metric) {

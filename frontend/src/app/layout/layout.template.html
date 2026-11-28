@@ -131,8 +131,9 @@
       <div class="crumbs" data-testid="app-crumbs">
         @if (current(); as section) {
         <b>{{ section.label }}</b>
-        }
+        } @if (!current()?.stable) {
         <span tuiBadge appearance="neutral" size="s" class="beta">beta</span>
+        }
       </div>
       <span class="spacer"></span>
       } @if (topbar.actions(); as actions) {

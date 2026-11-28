@@ -23,6 +23,8 @@ export type AppSection = {
   label: string;
   icon: string;
   admin?: boolean;
+  /** Out of beta: the top bar crumb drops the "beta" badge. */
+  stable?: boolean;
 };
 
 const SECTIONS: AppSection[] = [
@@ -41,6 +43,7 @@ const SECTIONS: AppSection[] = [
     path: "launches",
     label: $localize`:@@link.launches:Launches`,
     icon: "@tui.history",
+    stable: true,
   },
   {
     path: "assets",

@@ -367,27 +367,35 @@
       }
     </div>
   }
-  @if (mode === "launch") {
-    <div class="actions stack">
-      <a
-        tuiIconButton
-        appearance="outline-grayscale"
-        size="s"
-        class="round"
-        data-testid="launch-logs"
-        title="Launch logs"
-        [class.toggled]="drawlers.right | is: launchLogsComponent"
-        [routerLink]="[
-          {
-            outlets: {
-              right:
-                (drawlers.right | is: launchLogsComponent) ? null : ['logs'],
-            },
-          },
-        ]"
+  @if (mode === "launch" && launch) {
+    <div class="actions launch">
+      <app-launch-info
+        [launch]="launch"
+        [state]="launchState"
+        [elapsed]="elapsed"
+        [run]="recordedRun"
+        [progress]="nodeProgress"
       >
-        <tui-icon class="icon" icon="@tui.scroll-text" />
-      </a>
+        <a
+          tuiIconButton
+          appearance="outline-grayscale"
+          size="s"
+          class="round"
+          data-testid="launch-logs"
+          title="Launch logs"
+          [class.toggled]="drawlers.right | is: launchLogsComponent"
+          [routerLink]="[
+            {
+              outlets: {
+                right:
+                  (drawlers.right | is: launchLogsComponent) ? null : ['logs'],
+              },
+            },
+          ]"
+        >
+          <tui-icon class="icon" icon="@tui.scroll-text" />
+        </a>
+      </app-launch-info>
     </div>
   }
 
