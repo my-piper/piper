@@ -226,7 +226,14 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   state: "default" | "flow" = "default";
   subscriptions: Subscription[] = [];
 
-  mode: "project" | "launch" | "scheme" = "project";
+  /**
+   * The canvas edits the pipeline: the project page sets it in route data.
+   * Only the owner or an admin reaches that page (`checkProjectAccess` on the
+   * backend answers 404 to anyone else), so no ownership check is needed.
+   */
+  editable = false;
+  /** Nodes open their runs on click: everywhere but the scheme page. */
+  runs = false;
 
   project!: Project;
   pipeline!: Pipeline;
@@ -292,40 +299,44 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.topbar.setActions(this.topbarActions);
-    this.route.data.subscribe(({ project, launch, launches, mode }) => {
-      [
-        this.project,
-        this.pipeline,
-        this.launchRequest,
-        this.launch,
-        this.launches,
-        this.mode,
-      ] = [
-        project || launch.project,
-        project?.pipeline || launch.pipeline,
-        project?.launchRequest || launch.launchRequest,
-        launch,
-        launches || {},
-        mode || "project",
-      ];
-      this.edit(this.pipeline, this.launchRequest);
-      this.interrupted = false;
-      this.recordedRun = null;
-      this.clocked = false;
-      this.runRequested = false;
-      this.followLaunch(this.mode === "launch" ? this.launch : null);
-      if (this.mode === "project") {
-        this.checkDeployNodes();
-      }
+    this.route.data.subscribe(
+      ({ project, launch, launches, editable, runs }) => {
+        [
+          this.project,
+          this.pipeline,
+          this.launchRequest,
+          this.launch,
+          this.launches,
+          this.editable,
+          this.runs,
+        ] = [
+          project || launch.project,
+          project?.pipeline || launch.pipeline,
+          project?.launchRequest || launch.launchRequest,
+          launch,
+          launches || {},
+          !!editable,
+          !!runs,
+        ];
+        this.edit(this.pipeline, this.launchRequest);
+        this.interrupted = false;
+        this.recordedRun = null;
+        this.clocked = false;
+        this.runRequested = false;
+        this.followLaunch(this.launch ?? null);
+        if (this.editable) {
+          this.checkDeployNodes();
+        }
 
-      if (this.mode === "project" && this.pipeline.nodes.size <= 0) {
-        setTimeout(() => {
-          this.router.navigate([{ outlets: { left: ["add-node"] } }], {
-            relativeTo: this.route,
-          });
-        }, 500);
-      }
-    });
+        if (this.editable && this.pipeline.nodes.size <= 0) {
+          setTimeout(() => {
+            this.router.navigate([{ outlets: { left: ["add-node"] } }], {
+              relativeTo: this.route,
+            });
+          }, 500);
+        }
+      },
+    );
 
     this.drawlerRight.activateEvents
       .pipe(
@@ -398,11 +409,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
    * pill shows: on a reload of a finished launch no event clears it otherwise.
    */
   get stoppable(): boolean {
-    return (
-      this.mode === "launch" &&
-      !this.interrupted &&
-      this.launchState === "running"
-    );
+    return !!this.launch && !this.interrupted && this.launchState === "running";
   }
 
   /** Watches every node of the shown launch; `null` stops. */
@@ -502,9 +509,10 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       return;
     }
     const right =
-      this.mode === "project"
-        ? ["launches", launch._id, "nodes", id, "logs"]
-        : ["nodes", id, "logs"];
+      // The launch page's drawers hang off the Launch itself.
+      this.launch
+        ? ["nodes", id, "logs"]
+        : ["launches", launch._id, "nodes", id, "logs"];
     this.router.navigate([{ outlets: { right, left: null } }], {
       relativeTo: this.route,
     });
@@ -594,7 +602,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   togglePick(event: MouseEvent, key: string) {
     const target = event.target as HTMLElement;
     if (
-      this.mode === "project" &&
+      this.editable &&
       (event.shiftKey || event.metaKey || event.ctrlKey) &&
       !target.closest("a, button, input, textarea, select")
     ) {
@@ -630,7 +638,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     if (!onCanvas || isEditable(target) || target?.closest("tui-dialog")) {
       return;
     }
-    const editing = this.mode === "project";
+    const editing = this.editable;
     switch (canvasShortcut(event)) {
       case "delete":
         if (editing && this.selection.size > 0) {
@@ -700,7 +708,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
       target === this.document.body ||
       (!!target && this.host.nativeElement.contains(target));
     const text = this.document.getSelection()?.toString();
-    if (this.mode !== "project" || !onCanvas || isEditable(target) || text) {
+    if (!this.editable || !onCanvas || isEditable(target) || text) {
       return;
     }
     const clip = this.selectedClip();
@@ -1401,9 +1409,9 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * A click on a canvas node: in project mode a modifier click toggles the
-   * node in the selection (elsewhere it is ignored); a plain click clears the selection and opens the node's
-   * drawer, or closes it when the node is already open. Clicks on empty
+   * A click on a canvas node: on an editable canvas a modifier click toggles
+   * the node in the selection (elsewhere it is ignored); a plain click clears
+   * the selection and opens the node's drawer, or closes it when the node is already open. Clicks on empty
    * canvas space are handled by `clickOnGrid`.
    */
   clickOnNode(event: MouseEvent, id: string, node: Node) {
@@ -1413,7 +1421,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     }
 
     if (event.shiftKey || event.metaKey || event.ctrlKey) {
-      if (this.mode === "project") {
+      if (this.editable) {
         this.toggleSelection(`node:${id}`);
       }
       return;
@@ -1427,10 +1435,9 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
           [
             {
               outlets: {
-                right:
-                  this.mode === "project"
-                    ? ["launches", launch._id, "nodes", id]
-                    : ["nodes", id],
+                right: this.launch
+                  ? ["nodes", id]
+                  : ["launches", launch._id, "nodes", id],
                 left: null,
               },
             },
@@ -1458,7 +1465,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
    */
   setNodeWidth(id: string, width: number, done: boolean) {
     const node = this.pipeline.nodes.get(id);
-    if (!node || this.mode !== "project" || typeof width !== "number") {
+    if (!node || !this.editable || typeof width !== "number") {
       return;
     }
     node.arrange ??= new Arrange({ x: 0, y: 0 });
@@ -1482,7 +1489,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
    * (widgets, previews), so each node's box is measured on the canvas.
    */
   groupSelection() {
-    if (this.mode !== "project") {
+    if (!this.editable) {
       return;
     }
     const boxes = this.nodeBoxes(this.selectedNodes);
@@ -1509,7 +1516,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
    */
   dragGroup(event: PointerEvent, id: string, mode: "move" | "resize") {
     const group = this.pipeline.layout?.groups?.get(id);
-    if (!group || this.mode !== "project" || event.button !== 0) {
+    if (!group || !this.editable || event.button !== 0) {
       return;
     }
     event.preventDefault();
@@ -1608,7 +1615,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   /** Tints a node's title bar (#337); gray takes the tint off. */
   setNodeColor(id: string, color: GroupColor) {
     const node = this.pipeline.nodes.get(id);
-    if (!node || this.mode !== "project") {
+    if (!node || !this.editable) {
       return;
     }
     node.arrange ??= new Arrange({ x: 0, y: 0 });
@@ -1620,7 +1627,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
 
   setGroupColor(id: string, color: GroupColor) {
     const group = this.pipeline.layout?.groups?.get(id);
-    if (!group || this.mode !== "project") {
+    if (!group || !this.editable) {
       return;
     }
     group.color = color === "gray" ? undefined : color;
@@ -1724,7 +1731,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
   setCollapsed(id: string, collapsed: boolean) {
     const node = this.pipeline.nodes.get(id);
     // The node offers the toggle only to people who can edit (canEdit).
-    if (!node || this.mode !== "project") {
+    if (!node || !this.editable) {
       return;
     }
     node.arrange ??= new Arrange({ x: 0, y: 0 });
@@ -1767,7 +1774,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
    * so the input falls back to its default.
    */
   setNodeInput(node: string, input: string, value: Primitive | null) {
-    if (this.mode !== "project") {
+    if (!this.editable) {
       return;
     }
     this.launchRequest.nodes ??= new Map();
@@ -1854,7 +1861,7 @@ export class EditPipelineVisualComponent implements AfterViewInit, OnDestroy {
     // Nodes copied on a canvas go at the pointer.
     const clip = clipFromText(event.clipboardData?.getData("text/plain"));
     if (clip) {
-      if (this.mode === "project" && !isEditable(event.target)) {
+      if (this.editable && !isEditable(event.target)) {
         event.preventDefault();
         this.paste(clip, this.pointerPoint());
       }

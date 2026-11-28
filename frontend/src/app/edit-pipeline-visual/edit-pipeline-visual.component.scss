@@ -225,14 +225,6 @@
       outline-offset: 1px;
     }
 
-    // Viewers who can't edit the project don't get the run controls.
-    &.disabled .item-actions {
-      .run,
-      .app {
-        display: none;
-      }
-    }
-
     // A node's colour dot (#337), first among its actions.
     .node-dot {
       --g: #8a8e98;

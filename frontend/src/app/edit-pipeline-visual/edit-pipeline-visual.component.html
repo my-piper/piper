@@ -1,8 +1,5 @@
 <app-error-dialog [error]="error" (closed)="error = null" />
 
-@let canEdit =
-  mode === "project" && (userRole.admin | can: project.createdBy | async);
-
 @if (search) {
   <app-node-search
     class="node-search"
@@ -17,7 +14,7 @@
 
 <!-- The canvas's part of the app top bar (TopbarService.actions). -->
 <ng-template #topbarActions>
-  @if (canEdit) {
+  @if (editable) {
     <button
       tuiButton
       appearance="primary"
@@ -35,7 +32,7 @@
       <kbd class="kbd">⌘↵</kbd>
     </button>
   }
-  @if (mode === "launch") {
+  @if (launch) {
     @if (launchState; as state) {
       <span
         class="launch-state"
@@ -244,7 +241,7 @@
         Ctrl/⌘ + wheel, Ctrl/⌘ + plus/minus, Ctrl/⌘ + 0 to reset, Shift + 1 to
         fit
       </dd>
-      @if (mode === "project") {
+      @if (editable) {
         <dt i18n="@@label.canvas_hint_select">Select</dt>
         <dd i18n="@@message.canvas_hint_select">
           Shift + drag empty space, Shift/Ctrl/⌘ + click to add or remove, Esc
@@ -313,20 +310,16 @@
   #nodesRef
   class="nodes"
   (scroll)="updateViewport()"
-  (dblclick)="canEdit && openNodeSearch($event)"
+  (dblclick)="editable && openNodeSearch($event)"
   [canvasPan]="{ ignore: '.node, .input, .output, .flow, .actions' }"
   [scrollInside]="{
     left: pipeline.layout?.left || 0,
     top: pipeline.layout?.top || 0,
-    disabled:
-      mode !== 'project' ||
-      (userRole.admin | can: project.createdBy | async | not),
+    disabled: !editable,
   }"
   (updated)="updateLayoutPosition({ left: $event.left, top: $event.top })"
 >
-  @if (
-    mode === "project" && (userRole.admin | can: project.createdBy | async)
-  ) {
+  @if (editable) {
     <div class="actions stack">
       <a
         tuiIconButton
@@ -367,7 +360,7 @@
       }
     </div>
   }
-  @if (mode === "launch" && launch) {
+  @if (launch) {
     <div class="actions launch">
       <app-launch-info
         [launch]="launch"
@@ -411,7 +404,7 @@
     [canvasSelect]="{
       ignore: '.node, .input, .output, .flow, .actions',
       zoom: pipeline.layout?.zoom || 1,
-      disabled: mode !== 'project',
+      disabled: !editable,
     }"
     (selectStart)="startAreaSelection()"
     (selecting)="selectArea($event)"
@@ -427,10 +420,7 @@
     @for (input of pipeline.inputs | keyvalue; track input.key) {
       <div
         class="input"
-        [class.disabled]="
-          mode !== 'project' ||
-          (userRole.admin | can: project.createdBy | async | not)
-        "
+        [class.disabled]="!editable"
         [class.picked]="selection.has('input:' + input.key)"
         [attr.data-pick]="'input:' + input.key"
         #drag="appDragMove"
@@ -457,10 +447,7 @@
           [attr.disabled]="drag.dragged"
           (output)="startInputFlow(input.key)"
         >
-          @if (
-            mode === "project" &&
-            (userRole.admin | can: project.createdBy | async)
-          ) {
+          @if (editable) {
             <button
               tuiIconButton
               appearance="flat-grayscale"
@@ -477,9 +464,7 @@
       </div>
     }
 
-    @if (
-      mode === "project" && (userRole.admin | can: project.createdBy | async)
-    ) {
+    @if (editable) {
       @for (input of pipeline.inputs | keyvalue; track input.key) {
         @for (f of input.value.flows | keyvalue; track f.key) {
           <div
@@ -519,10 +504,7 @@
     @for (output of pipeline.outputs | keyvalue; track output.key) {
       <div
         class="output"
-        [class.disabled]="
-          mode !== 'project' ||
-          (userRole.admin | can: project.createdBy | async | not)
-        "
+        [class.disabled]="!editable"
         [class.picked]="selection.has('output:' + output.key)"
         [attr.data-pick]="'output:' + output.key"
         #drag="appDragMove"
@@ -542,10 +524,7 @@
         "
       >
         <app-pipeline-output [id]="output.key" [output]="output.value">
-          @if (
-            mode === "project" &&
-            (userRole.admin | can: project.createdBy | async)
-          ) {
+          @if (editable) {
             <button
               tuiIconButton
               appearance="flat-grayscale"
@@ -570,22 +549,18 @@
         [attr.data-testid]="'node-' + node.key"
         [attr.data-node]="node.key"
         [attr.data-pick]="'node:' + node.key"
-        [class.disabled]="userRole.admin | can: project.createdBy | async | not"
         #drag="appDragMove"
         [appDragMove]="{
           position: { x: node.value.arrange.x, y: node.value.arrange.y },
           zoom: pipeline.layout?.zoom || 1,
-          disabled: mode !== 'project',
+          disabled: !editable,
         }"
         (moving)="itemMoving('node:' + node.key, node.value.arrange, $event)"
         (moved)="itemMoved('node:' + node.key, node.value.arrange, $event)"
       >
-        @let runnable = mode !== "scheme" && !launch;
-        @let editable =
-          mode === "project" &&
-          (userRole.admin | can: project.createdBy | async) &&
-          !launches[node.key];
-        @if (runnable || editable) {
+        @let runnable = runs && !launch;
+        @let nodeEditable = editable && !launches[node.key];
+        @if (runnable || nodeEditable) {
           <div class="item-actions">
             @if (runnable) {
               <button
@@ -613,7 +588,7 @@
                 ></a>
               }
             }
-            @if (editable) {
+            @if (nodeEditable) {
               <ng-template #nodePalette>
                 <div
                   class="group-palette"
@@ -650,7 +625,7 @@
                 "
               ></button>
             }
-            @if (editable) {
+            @if (nodeEditable) {
               @if (isDeployNode(node.value)) {
                 @if (deployProblems[node.key]?.length) {
                   <tui-icon
@@ -704,7 +679,7 @@
         }
         <app-node
           [class.active]="currentNode === node.value"
-          [disabled]="!canEdit"
+          [disabled]="!editable"
           [pipeline]="pipeline"
           [id]="node.key"
           [project]="project"
@@ -720,7 +695,7 @@
             ) | mapToPlain
           "
           [outputs]="
-            (['project', 'scheme'] | includes: mode)
+            !launch
               ? !!launches[node.key]
                 ? $safeNavigationMigration(
                     launches[node.key].launchRequest.nodes.get(node.key)
@@ -744,7 +719,7 @@
           (showLog)="showNodeLog(node.key)"
           (input)="!!flow ? addFlow(node.key, $event) : null"
           (output)="startNodeFlow(node.key, $event)"
-          (done)="mode === 'project' ? fillNodeOutputs(node.key, $event) : null"
+          (done)="editable ? fillNodeOutputs(node.key, $event) : null"
           (setOutput)="setNodeOutput(node.key, $event.output, $event.value)"
           (inputChange)="setNodeInput(node.key, $event.input, $event.value)"
           (collapse)="setCollapsed(node.key, $event)"
@@ -753,7 +728,7 @@
           (takeOutInput)="takeOutPipelineInput($event)"
           (takeOutOutput)="takeOutPipelineOutput($event)"
           (click)="
-            mode !== 'scheme' && !drag.dragged
+            runs && !drag.dragged
               ? clickOnNode($event, node.key, node.value)
               : null
           "
@@ -761,9 +736,7 @@
       </div>
     }
 
-    @if (
-      mode === "project" && (userRole.admin | can: project.createdBy | async)
-    ) {
+    @if (editable) {
       @for (f of pipeline.flows | keyvalue; track f.key) {
         <div
           class="flow"
@@ -841,9 +814,9 @@
       >
         <header
           class="group-bar"
-          [class.movable]="canEdit"
+          [class.movable]="editable"
           [attr.data-testid]="'group-bar-' + g.key"
-          (pointerdown)="canEdit && dragGroup($event, g.key, 'move')"
+          (pointerdown)="editable && dragGroup($event, g.key, 'move')"
         >
           <ng-template #groupPalette>
             <div class="group-palette" role="group" aria-label="Group colour">
@@ -860,7 +833,7 @@
               }
             </div>
           </ng-template>
-          @if (canEdit) {
+          @if (editable) {
             <button
               type="button"
               class="group-dot"
@@ -894,7 +867,7 @@
             <span
               class="group-title"
               [attr.data-testid]="'group-title-' + g.key"
-              (dblclick)="canEdit && startRenameGroup(g.key)"
+              (dblclick)="editable && startRenameGroup(g.key)"
               >{{ g.value.title }}</span
             >
           }
@@ -903,7 +876,7 @@
               ? "1 node"
               : groupNodeCount(g.value) + " nodes"
           }}</span>
-          @if (canEdit) {
+          @if (editable) {
             <ng-template #groupMenu>
               <tui-data-list>
                 <button
@@ -960,7 +933,7 @@
             ></button>
           }
         </header>
-        @if (canEdit) {
+        @if (editable) {
           <span
             class="group-resize"
             title="Drag to resize"
@@ -1068,10 +1041,7 @@
             class="flow param"
             [class.running]="nodeState(f.value.to) === 'running'"
             [attr.data-type]="i.value.type"
-            [class.disabled]="
-              mode !== 'project' ||
-              (userRole.admin | can: project.createdBy | async | not)
-            "
+            [class.disabled]="!editable"
             [attr.d]="
               (pipeline | pipelineInput: i.key).arrange
                 | curve
@@ -1095,10 +1065,7 @@
           <path
             class="flow param to-output"
             [attr.data-type]="o.value.type"
-            [class.disabled]="
-              mode !== 'project' ||
-              (userRole.admin | can: project.createdBy | async | not)
-            "
+            [class.disabled]="!editable"
             [attr.d]="
               (pipeline | node: f.value.from | async).arrange
                 | shift

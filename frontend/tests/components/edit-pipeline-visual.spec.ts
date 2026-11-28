@@ -110,31 +110,28 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("offers editing controls to the owner only", fakeAsync(() => {
-      const owner = setupEditor({ user: "owner" });
+    it("offers editing controls on an editable canvas", fakeAsync(() => {
+      const { element } = setupEditor();
 
-      const ownerAdd = owner.element.querySelector(".actions a[tuiIconButton]");
-      const ownerDisabled = owner.element.querySelectorAll(".node.disabled");
+      const add = element.querySelector(".actions a[tuiIconButton]");
 
-      expect(ownerAdd).not.toBeNull();
-      expect(ownerDisabled.length).toBe(0);
+      expect(add).not.toBeNull();
       finish();
     }));
 
-    it("hides editing controls from another user", fakeAsync(() => {
-      const { element } = setupEditor({ user: "stranger" });
+    it("hides editing controls on a read-only canvas", fakeAsync(() => {
+      const { element } = setupEditor({ editable: false });
 
       const add = element.querySelector(".actions a[tuiIconButton]");
       const buttons = element.querySelectorAll("button.edit, button.delete");
 
       expect(add).toBeNull();
       expect(buttons.length).toBe(0);
-      expect(element.querySelectorAll(".node.disabled").length).toBe(2);
       finish();
     }));
 
     it("marks the Auto start nodes in their header", fakeAsync(() => {
-      const { element } = setupEditor({ user: "stranger" });
+      const { element } = setupEditor({ editable: false });
 
       const marks = ["node_one", "node_two"].map((id) => {
         const mark = nodeElement(element, id).querySelector(
@@ -833,7 +830,11 @@ describe("EditPipelineVisualComponent", () => {
 
     it("does not move nodes in a read-only scheme", fakeAsync(() => {
       const project = projectA();
-      const { element, manager } = setupEditor({ project, mode: "scheme" });
+      const { element, manager } = setupEditor({
+        project,
+        editable: false,
+        runs: false,
+      });
       const title = nodeElement(element, "node_one").querySelector("h2");
       const before = { ...project.pipeline.nodes.get("node_one").arrange };
 
@@ -1311,7 +1312,7 @@ describe("EditPipelineVisualComponent", () => {
     }));
 
     it("does not select or delete in the read-only scheme", fakeAsync(() => {
-      const { editor, element } = setupEditor({ mode: "scheme" });
+      const { editor, element } = setupEditor({ editable: false, runs: false });
 
       const selectAll = press(element, "a", { ctrlKey: true });
       const launch = press(element, "Enter", { ctrlKey: true });
@@ -1631,7 +1632,11 @@ describe("EditPipelineVisualComponent", () => {
 
     it("neither copies nor pastes nodes outside the project editor", fakeAsync(() => {
       const project = projectA();
-      const { editor, element } = setupEditor({ project, mode: "scheme" });
+      const { editor, element } = setupEditor({
+        project,
+        editable: false,
+        runs: false,
+      });
       editor.selection = new Set(["node:node_one"]);
       const nodes = project.pipeline.nodes.size;
 
@@ -1896,18 +1901,13 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("shows widgets read-only to someone who can't edit the project", fakeAsync(() => {
-      const project = connectionProject();
-      const { element } = setupEditor({ project, user: "stranger" });
-
-      expect(widget(element, "amount").readOnly).toBe(true);
-      expect(stepButton(element, "Increase Amount")).toBeNull();
-      finish();
-    }));
-
     it("shows widgets read-only outside the editor", fakeAsync(() => {
       const project = connectionProject();
-      const { element } = setupEditor({ project, mode: "scheme" });
+      const { element } = setupEditor({
+        project,
+        editable: false,
+        runs: false,
+      });
 
       expect(widget(element, "amount").readOnly).toBe(true);
       expect(stepButton(element, "Increase Amount")).toBeNull();
@@ -2030,10 +2030,10 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("shows a collapsed node to a viewer without letting them expand it", fakeAsync(() => {
+    it("shows a collapsed node on a read-only canvas without letting it expand", fakeAsync(() => {
       const project = connectionProject();
       project.pipeline.nodes.get("node_three").arrange.collapsed = true;
-      const { element } = setupEditor({ project, user: "stranger" });
+      const { element } = setupEditor({ project, editable: false });
 
       expect(toggle(element, "node_three").disabled).toBe(true);
       expect(toggle(element, "node_two")).toBeNull();
@@ -2138,10 +2138,10 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("shows a viewer the width without an edge to drag", fakeAsync(() => {
+    it("shows the width on a read-only canvas without an edge to drag", fakeAsync(() => {
       const project = connectionProject();
       project.pipeline.nodes.get("node_one").arrange.w = 300;
-      const { element } = setupEditor({ project, user: "stranger" });
+      const { element } = setupEditor({ project, editable: false });
 
       expect(edge(element, "node_one")).toBeNull();
       expect(nodeElement(element, "node_one").style.width).toBe("300px");
@@ -2311,11 +2311,11 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("lets a viewer see groups but not move or resize them", fakeAsync(() => {
+    it("shows groups on a read-only canvas without moving or resizing them", fakeAsync(() => {
       const project = groupedProject();
       const { element, detectChanges } = setupEditor({
         project,
-        user: "stranger",
+        editable: false,
       });
       const group = project.pipeline.layout.groups.get("prepare");
       const x = group.x;
@@ -2494,11 +2494,11 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("gives a viewer no colour, rename or menu", fakeAsync(() => {
+    it("gives groups on a read-only canvas no colour, rename or menu", fakeAsync(() => {
       const project = groupedProject();
       const { element, detectChanges } = setupEditor({
         project,
-        user: "stranger",
+        editable: false,
       });
 
       element
@@ -2584,10 +2584,10 @@ describe("EditPipelineVisualComponent", () => {
       finish();
     }));
 
-    it("shows a viewer the tint without the dot", fakeAsync(() => {
+    it("shows the tint on a read-only canvas without the dot", fakeAsync(() => {
       const project = projectA();
       project.pipeline.nodes.get("node_one").arrange.color = "amber";
-      const { element } = setupEditor({ project, user: "stranger" });
+      const { element } = setupEditor({ project, editable: false });
 
       expect(nodeElement(element, "node_one").getAttribute("data-color")).toBe(
         "amber",

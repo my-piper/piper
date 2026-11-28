@@ -171,10 +171,8 @@ const routes: Routes = [
               },
               {
                 path: "scheme",
+                // A read-only canvas without runs: no flags.
                 component: EditPipelineVisualComponent,
-                data: {
-                  mode: "scheme",
-                },
               },
               {
                 path: "api/:prefix/:slug",
@@ -226,7 +224,7 @@ const routes: Routes = [
         data: {
           fullBleed: true,
           project: null,
-          mode: "launch",
+          runs: true,
         },
         resolve: {
           launch: LaunchResolver,
@@ -376,6 +374,10 @@ const routes: Routes = [
           {
             path: "",
             component: EditPipelineVisualComponent,
+            data: {
+              editable: true,
+              runs: true,
+            },
             resolve: {
               launches: LaunchesResolver,
             },
