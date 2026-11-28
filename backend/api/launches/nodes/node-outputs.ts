@@ -1,6 +1,5 @@
 import api from "app/api";
-import { NODE_OUTPUTS } from "consts/redis";
-import redis from "core-kit/packages/redis";
+import { liveState } from "packages/launches/live-state";
 import { handle } from "utils/http";
 import { checkLaunchVisible } from "packages/launches/access";
 
@@ -9,7 +8,8 @@ api.get(
   handle(({ currentUser }) => async ({ params: { launch, node } }) => {
     await checkLaunchVisible(currentUser, launch);
 
-    const data = await redis.get(NODE_OUTPUTS(launch, node));
-    return data || {};
+    // sent as the stored JSON text, as before
+    const data = await liveState.nodeOutputs(launch, node);
+    return data ? JSON.stringify(data) : {};
   })
 );

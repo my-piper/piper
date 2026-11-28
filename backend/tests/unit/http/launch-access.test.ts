@@ -1,11 +1,13 @@
-import { httpDoubles } from "../../helpers/http-boundaries";
+import {
+  httpDoubles,
+  liveState,
+  liveStore,
+} from "../../helpers/http-boundaries";
 import { createHttpApp } from "../../helpers/http-app";
 import { httpScenario } from "../../helpers/http-scenario";
 import { httpUserFixture, userToken } from "../../fixtures/http";
 import { launchFixture } from "../../fixtures/launch";
-import { LAUNCH } from "consts/redis";
-import { toPlain } from "core-kit/packages/transform";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const LAUNCH_ID = "launch-test";
 
@@ -31,6 +33,7 @@ const ROUTES = [
 ] as const;
 
 let context: Awaited<ReturnType<typeof createHttpApp>>;
+let exec: ReturnType<typeof vi.spyOn>;
 
 beforeEach(async () => {
   const scenario = httpScenario();
@@ -46,11 +49,8 @@ beforeEach(async () => {
   );
   httpDoubles.launches.deleteOne.mockResolvedValue({ deletedCount: 1 });
   httpDoubles.clickhouse.query.mockResolvedValue({ json: async () => [] });
-  scenario.redisResponses.set(
-    LAUNCH(LAUNCH_ID),
-    JSON.stringify(toPlain(launchFixture()))
-  );
-  httpDoubles.redis.EXISTS.mockResolvedValue(1);
+  await liveState.create(launchFixture(), []);
+  exec = vi.spyOn(liveStore, "exec");
   context = await createHttpApp([() => import("api/launches")]);
 });
 
@@ -63,8 +63,7 @@ function send(
 
 function untouched() {
   expect(httpDoubles.launches.deleteOne).not.toHaveBeenCalled();
-  expect(httpDoubles.redis.get).not.toHaveBeenCalled();
-  expect(httpDoubles.redis.setEx).not.toHaveBeenCalled();
+  expect(exec).not.toHaveBeenCalled();
   expect(httpDoubles.clickhouse.query).not.toHaveBeenCalled();
 }
 

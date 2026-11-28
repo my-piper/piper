@@ -1,8 +1,7 @@
 import api from "app/api";
-import { LAUNCH } from "consts/redis";
-import { exists } from "core-kit/packages/redis";
 import { NotFoundError } from "core-kit/types/errors";
 import { interrupt } from "packages/launches/launching";
+import { liveState } from "packages/launches/live-state";
 import { handle } from "utils/http";
 import { checkLaunchVisible } from "packages/launches/access";
 
@@ -11,7 +10,7 @@ api.post(
   handle(({ currentUser }) => async ({ params: { id } }) => {
     await checkLaunchVisible(currentUser, id);
 
-    if (!(await exists(LAUNCH(id)))) {
+    if (!(await liveState.exists(id))) {
       throw new NotFoundError();
     }
 
