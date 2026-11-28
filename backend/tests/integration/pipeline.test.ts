@@ -20,7 +20,7 @@ import { toPlain } from "core-kit/packages/transform";
 import { Launch } from "models/launch";
 import { randomUUID } from "node:crypto";
 import { execute } from "packages/deno/execute";
-import { get, run } from "packages/launches/launching";
+import { get, interrupt, run } from "packages/launches/launching";
 import { NodeJobResult } from "types/node";
 import { RunLaunchJobResult } from "types/launch";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -30,6 +30,7 @@ vi.mock("packages/deno/execute", () => ({ execute: vi.fn() }));
 const expectedOutput = { enabled: false, count: 0, text: "" };
 const executeMock = vi.mocked(execute);
 const executionsMock = vi.mocked(streams.pipeline.runs.executions.send);
+const launchRunsMock = vi.mocked(streams.pipeline.runs.launches.send);
 
 function nextResult(value: unknown) {
   return { result: { __type: "next", outputs: { result: value } }, logs: [] };
@@ -311,6 +312,39 @@ describe("node execution records", () => {
         finishedAt: interruptedAt,
       }),
     ]);
+    expect(executeMock).toHaveBeenCalledOnce();
+  });
+
+  it("records an interrupted launch when it is interrupted, without a later node job", async () => {
+    const { launch, job } = await repeatingEcho();
+
+    await interrupt(launch._id);
+
+    const interruptedAt = await liveState.interruptedAt(launch._id);
+    await vi.waitFor(() =>
+      expect(echoExecutions()).toEqual([
+        expect.objectContaining({
+          result: "interrupted",
+          invocations: 1,
+          finishedAt: interruptedAt,
+        }),
+      ])
+    );
+    await vi.waitFor(() =>
+      expect(launchRunsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          launch: launch._id,
+          status: "interrupted",
+          finishedAt: interruptedAt,
+        })
+      )
+    );
+    expect(await job.getState()).toBe("delayed");
+
+    await job.promote();
+    await finished(job);
+
+    expect(echoExecutions()).toHaveLength(1);
     expect(executeMock).toHaveBeenCalledOnce();
   });
 });

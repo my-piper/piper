@@ -17,6 +17,7 @@ const doubles = vi.hoisted(() => ({
     inputs: vi.fn(),
     errors: vi.fn(),
     run: vi.fn(),
+    interrupted: vi.fn(),
   },
   metrics: {
     outputs: vi.fn(),
@@ -62,6 +63,7 @@ vi.mock("app/queues", () => ({
       inputs: { set: { plan: doubles.plans.inputs } },
       errors: { set: { plan: doubles.plans.errors } },
       run: { plan: doubles.plans.run },
+      interrupted: { record: { plan: doubles.plans.interrupted } },
     },
   },
 }));

@@ -4,7 +4,7 @@ import { Launch } from "models/launch";
 import { LaunchRunStatus } from "models/launch-run";
 import { NodeExecutionResult } from "models/node-execution-record";
 import { NodeRunResult } from "models/node-run";
-import { liveState } from "packages/launches/live-state";
+import { liveState } from "./live-state";
 
 type NodeRunContext = {
   launch: Launch;
@@ -126,4 +126,20 @@ export async function recordLaunchRun(
     queuedMs: toMs(startedAt.getTime() - launchedAt.getTime()),
     durationMs: toMs(finishedAt.getTime() - startedAt.getTime()),
   });
+}
+
+/**
+ * Records an interrupted Launch at the interrupt time: the open execution of
+ * each of the given Nodes (all of them by default) and the Launch's run.
+ * Whatever was recorded before wins.
+ */
+export async function recordInterrupted(
+  launch: Launch,
+  interruptedAt: Date,
+  nodes: string[] = [...launch.pipeline.nodes.keys()]
+) {
+  for (const node of nodes) {
+    await recordNodeExecution(launch, node, "interrupted", interruptedAt);
+  }
+  await recordLaunchRun(launch, "interrupted", interruptedAt);
 }

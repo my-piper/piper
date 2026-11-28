@@ -1,50 +1,22 @@
 import { notify } from "core-kit/packages/io";
 import { createLogger } from "core-kit/packages/logger";
-import { DelayedError, Job } from "core-kit/packages/queue";
-import { mapTo, toInstance, toPlain } from "core-kit/packages/transform";
+import { Job } from "core-kit/packages/queue";
+import { mapTo } from "core-kit/packages/transform";
 import secondsToMilliseconds from "date-fns/fp/secondsToMilliseconds";
-import { NodeExecution } from "enums/node-execution";
 import { HeartbeatEvent, PipelineEvent } from "models/events";
 import { ProcessNodeJob } from "models/jobs/process-node-job";
-import {
-  execute,
-  ExecutionError,
-  ExecutionResult,
-  LogEntry,
-} from "packages/deno";
-import { readChildren, startChildren } from "packages/launches/child-launches";
 import { liveState } from "packages/launches/live-state";
-import { isDeployNode, runDeployNode } from "packages/nodes/deploy-node";
+import { recordInterrupted } from "packages/launches/run-metrics";
 import { appendNodeLogs } from "packages/nodes/node-logs";
-import { LaunchChildrenNode, NodeJobResult, RepeatNode } from "types/node";
+import { NodeJobResult } from "types/node";
 import { PipelineEventType } from "types/pipeline";
 import { checkInputs, convertInputs, getNodeInputs } from "utils/node";
+import { applyOutcome, NodeRun } from "./apply-outcome";
 import { getEnvironment } from "./environment";
-import { completeNode } from "./complete-node";
-import {
-  getErrorResult,
-  recordLaunchRun,
-  recordNodeExecution,
-  recordNodeRun,
-} from "./run-metrics";
+import { executeNode, NodeExecutionResult } from "./execute-node";
 import { LAUNCH_ROOM, USER_ROOM } from "consts/rooms";
 
 const HEARTBEAT_INTERVAL = secondsToMilliseconds(10);
-const RUN_FUNCTION_NAME = "run";
-
-function getTimeout(execution: NodeExecution): number {
-  switch (execution) {
-    case NodeExecution.rapid:
-      return 3_000;
-    case NodeExecution.deferred:
-      return 60_000;
-    case NodeExecution.protracted:
-      return 300_000;
-    case NodeExecution.regular:
-    default:
-      return 20_000;
-  }
-}
 
 export default async (nodeJob: ProcessNodeJob, job: Job) => {
   await liveState.addJob(nodeJob.launch, nodeJob.node, job.id);
@@ -99,14 +71,9 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     logger.debug("Launch has been interrupted");
     const interrupted = await liveState.get(nodeJob.launch);
     if (interrupted) {
-      const finishedAt = interruptedAt;
-      await recordNodeExecution(
-        interrupted,
-        nodeJob.node,
-        "interrupted",
-        finishedAt
-      );
-      await recordLaunchRun(interrupted, "interrupted", finishedAt);
+      // the interrupt records the Launch; a run that was in flight then has
+      // reopened this Node's execution since
+      await recordInterrupted(interrupted, interruptedAt, [nodeJob.node]);
     }
     return NodeJobResult.LAUNCH_INTERRUPTED;
   }
@@ -200,9 +167,8 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       }, HEARTBEAT_INTERVAL);
     }
   };
-  let [results, logs]: [ExecutionResult, LogEntry[]] = [null, null];
-  let run: Parameters<typeof recordNodeRun>[0] = null;
-  let finishedAt: number = null;
+  let execution: NodeExecutionResult = null;
+  let run: NodeRun = null;
   try {
     await heartbeat();
 
@@ -216,59 +182,27 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
     const environment = await getEnvironment({ launch, node });
 
     const due = await liveState.dueAt(launch._id, nodeJob.node, job.id);
+    const startedAt = new Date();
+    execution = await executeNode({
+      launch,
+      node: nodeJob.node,
+      inputs: converted,
+      state,
+      environment,
+    });
     run = {
       launch,
       node: nodeJob.node,
+      job,
       attempt: attemptsMade,
-      startedAt: new Date(),
+      startedAt,
       dueAt: due ?? job.timestamp + (job.opts.delay ?? 0),
+      finishedAt: Date.now(),
     };
-
-    const children = await readChildren(launch._id, nodeJob.node);
-
-    if (isDeployNode(node)) {
-      logger.debug("Run deploy node");
-      results = {
-        result: await runDeployNode(node, converted, children),
-        logs: [],
-      };
-    } else {
-      logger.debug("Run node script");
-      results = await execute(
-        node.script,
-        RUN_FUNCTION_NAME,
-        {
-          schema: {
-            node: toPlain(node),
-          },
-          inputs: converted,
-          state,
-          env: toPlain(environment),
-          ...(children ? { children } : {}),
-        },
-        {
-          timeout: getTimeout(node.execution),
-          isolation: node.isolated ? "process" : "none",
-        }
-      );
-    }
-    finishedAt = Date.now();
-    logs = results.logs;
   } catch (e) {
-    finishedAt ??= Date.now();
     logger.error(e);
     logger.error("Error while processing");
-
-    const error = e instanceof ExecutionError ? e.typed() : e;
-    if (e instanceof ExecutionError) {
-      logs = e.logs;
-    }
-
-    if (run) {
-      await recordNodeRun(run, getErrorResult(error), finishedAt);
-    }
-
-    throw error;
+    throw e;
   } finally {
     logger.debug("Clear heartbeat timer");
     heartbeatActive = false;
@@ -278,80 +212,23 @@ export default async (nodeJob: ProcessNodeJob, job: Job) => {
       logger.debug("Release processing lock");
       await liveState.nodeStopped(launch._id, nodeJob.node);
     }
-
-    if (logs?.length > 0) {
-      await appendNodeLogs(launch._id, nodeJob.node, attemptsMade, logs);
-    }
   }
 
-  const { result } = results;
-
-  // keeps what the Node carries to its next run, and when that run is due
-  const keepForRepeat = async (
-    delay: number,
-    keep: { state?: object; progress?: object } = {}
-  ): Promise<number> => {
-    const dueAt = Date.now() + (delay || 1000);
-    await liveState.nodeRepeats(launch._id, nodeJob.node, job.id, {
-      dueAt,
-      ...keep,
-    });
-    return dueAt;
-  };
-
-  const delayNode = async (dueAt: number): Promise<never> => {
-    await job.moveToDelayed(dueAt);
-    throw new DelayedError();
-  };
-
-  if (result?.["__type"] === "launch") {
-    const { launches, delay } = toInstance(
-      result as object,
-      LaunchChildrenNode
-    );
-
-    logger.debug(`Node ${nodeJob.node} starts ${launches.length} children`);
+  const { outcome, logs } = execution;
+  if (logs?.length > 0) {
     try {
-      await startChildren(launch, nodeJob.node, launches);
+      await appendNodeLogs(launch._id, nodeJob.node, attemptsMade, logs);
     } catch (e) {
-      await recordNodeRun(run, getErrorResult(e), finishedAt);
-      throw e;
+      // a failed run is still recorded and fails with its own error
+      if (outcome.type !== "error") {
+        throw e;
+      }
+      logger.error(e);
     }
-
-    notifyNode(nodeJob.node, "node_gonna_repeat");
-    await recordNodeRun(run, "repeat", finishedAt);
-    return delayNode(await keepForRepeat(delay));
-  } else if (result?.["__type"] === "repeat") {
-    const { delay, progress, state } = toInstance(result as object, RepeatNode);
-    // the state and progress are kept before anything else can fail, so a
-    // retry of this job resumes from them
-    const dueAt = await keepForRepeat(delay, {
-      ...(state ? { state } : {}),
-      ...(progress ? { progress: toPlain(progress) } : {}),
-    });
-    if (progress) {
-      logger.debug(progress);
-      notifyNode(nodeJob.node, "node_progress");
-    }
-
-    logger.debug(`Node ${nodeJob.node} is going to repeat with delay ${delay}`);
-    notifyNode(nodeJob.node, "node_gonna_repeat");
-
-    await recordNodeRun(run, "repeat", finishedAt);
-    return delayNode(dueAt);
-  } else if (result?.["__type"] === "next") {
-    await recordNodeRun(run, "done", finishedAt);
-    return completeNode({
-      launch,
-      nodeJob,
-      result: result as object,
-      logger,
-      notifyNode,
-      notifyPipeline,
-      notifyUser,
-    });
-  } else {
-    await recordNodeRun(run, "error", finishedAt);
-    throw new Error(`Wrong handler results ${JSON.stringify(results)}`);
   }
+
+  return applyOutcome(run, outcome, {
+    logger,
+    notify: { node: notifyNode, pipeline: notifyPipeline, user: notifyUser },
+  });
 };

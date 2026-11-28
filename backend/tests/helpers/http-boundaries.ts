@@ -70,6 +70,7 @@ const httpDoubles = vi.hoisted(() => ({
     deferred: vi.fn(),
     protracted: vi.fn(),
     inputs: vi.fn(),
+    interrupted: vi.fn(),
   },
   clickhouse: { query: vi.fn(), insert: vi.fn() },
   sendEmail: vi.fn(),
@@ -115,7 +116,10 @@ vi.mock("app/queues", () => ({
         protracted: { plan: httpDoubles.plans.protracted },
       },
     },
-    launches: { inputs: { set: { plan: httpDoubles.plans.inputs } } },
+    launches: {
+      inputs: { set: { plan: httpDoubles.plans.inputs } },
+      interrupted: { record: { plan: httpDoubles.plans.interrupted } },
+    },
   },
 }));
 vi.mock("core-kit/packages/clickhouse", () => ({

@@ -169,6 +169,10 @@ describe("launch interruption contract", () => {
     expect(liveStore.ttl(LAUNCH_INTERRUPTED("launch-http"))).toBe(
       LAUNCH_EXPIRED
     );
+    // the API server sends no streams: a worker records the interrupted run
+    expect(httpDoubles.plans.interrupted).toHaveBeenCalledExactlyOnceWith({
+      launch: "launch-http",
+    });
   });
 
   it("interrupts child launches recursively", async () => {
@@ -187,7 +191,22 @@ describe("launch interruption contract", () => {
     });
     for (const launch of ["launch-http", "child-1", "grandchild-1"]) {
       expect(await liveState.interruptedAt(launch)).toEqual(HTTP_TEST_TIME);
+      expect(httpDoubles.plans.interrupted).toHaveBeenCalledWith({ launch });
     }
+  });
+
+  it("interrupts the launch even when its metrics cannot be planned", async () => {
+    await storeLaunch();
+    httpDoubles.plans.interrupted.mockRejectedValue(new Error("queue down"));
+
+    const response = await context.request
+      .post("/api/launches/launch-http/interrupt")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(204);
+    expect(await liveState.interruptedAt("launch-http")).toEqual(
+      HTTP_TEST_TIME
+    );
   });
 
   it("rejects interruption of a missing launch", async () => {
