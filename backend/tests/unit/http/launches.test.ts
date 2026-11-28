@@ -195,6 +195,20 @@ describe("launch interruption contract", () => {
     }
   });
 
+  it("interrupts the launch even when its metrics cannot be planned", async () => {
+    await storeLaunch();
+    httpDoubles.plans.interrupted.mockRejectedValue(new Error("queue down"));
+
+    const response = await context.request
+      .post("/api/launches/launch-http/interrupt")
+      .set("user-token", userToken());
+
+    expect(response.status).toBe(204);
+    expect(await liveState.interruptedAt("launch-http")).toEqual(
+      HTTP_TEST_TIME
+    );
+  });
+
   it("rejects interruption of a missing launch", async () => {
     const response = await context.request
       .post("/api/launches/missing/interrupt")

@@ -74,7 +74,7 @@ export async function executeNode({
         isolation: node.isolated ? "process" : "none",
       }
     );
-    return { outcome: toOutcome(result), logs };
+    return { outcome: toOutcome(result, logs), logs };
   } catch (e) {
     if (e instanceof ExecutionError) {
       return { outcome: { type: "error", error: e.typed() }, logs: e.logs };

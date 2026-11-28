@@ -217,7 +217,7 @@ const shutdown = async () => {
         promises.push(queue.queue.close());
       }
       return promises;
-    })()
+    })(),
   );
   logger.info("Queues are closed");
 

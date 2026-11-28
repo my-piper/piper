@@ -191,7 +191,12 @@ export async function kick(launch: Launch) {
 // worker records the interrupted runs
 export async function interrupt(id: string): Promise<void> {
   await liveState.interrupt(id);
-  await queues.launches.interrupted.record.plan({ launch: id });
+  try {
+    await queues.launches.interrupted.record.plan({ launch: id });
+  } catch (e) {
+    // the interrupt holds without its metrics
+    logger.error(e);
+  }
   const children = await mongo.launches.distinct("_id", { parent: id });
   for (const child of children) {
     await interrupt(child);

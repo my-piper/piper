@@ -152,6 +152,8 @@ export async function applyOutcome(
       return NodeJobResult.NODE_PROCESSED;
     }
     case "error":
+      logger.error(outcome.error);
+      logger.error("Error while processing");
       await recordNodeRun(run, getErrorResult(outcome.error), finishedAt);
       throw outcome.error;
   }

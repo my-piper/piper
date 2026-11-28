@@ -20,8 +20,8 @@ export type NodeOutcome =
   | { type: "next"; next: NextNode }
   | { type: "error"; error: Error };
 
-/** The outcome of a run that returned this result. */
-export function toOutcome(result: unknown): NodeOutcome {
+/** The outcome of a run that returned this result and wrote these logs. */
+export function toOutcome(result: unknown, logs: unknown[] = []): NodeOutcome {
   switch ((result as { __type?: unknown } | null)?.__type) {
     case "launch": {
       const { launches, delay } = toInstance(
@@ -47,7 +47,9 @@ export function toOutcome(result: unknown): NodeOutcome {
     default:
       return {
         type: "error",
-        error: new Error(`Wrong handler results ${JSON.stringify(result)}`),
+        error: new Error(
+          `Wrong handler results ${JSON.stringify({ result, logs })}`
+        ),
       };
   }
 }

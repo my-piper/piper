@@ -420,14 +420,16 @@ describe("a run's result as an outcome", () => {
       result: { __type: "unknown" },
       outcome: {
         type: "error",
-        error: new Error('Wrong handler results {"__type":"unknown"}'),
+        error: new Error(
+          'Wrong handler results {"result":{"__type":"unknown"},"logs":[]}'
+        ),
       },
     },
     {
       result: null,
       outcome: {
         type: "error",
-        error: new Error("Wrong handler results null"),
+        error: new Error('Wrong handler results {"result":null,"logs":[]}'),
       },
     },
   ])("reads $result", ({ result, outcome }) => {
