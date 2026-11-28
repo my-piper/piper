@@ -238,13 +238,25 @@ describe("ProjectManager graph sanitation", () => {
   });
 
   describe("json transformer", () => {
-    const cases: [string, string, string, string | number | boolean][] = [
+    const cases: [
+      string,
+      string,
+      string,
+      string | number | boolean | undefined,
+    ][] = [
       ["string from string", "data.answer", "answer", "42"],
       ["string from number", "data.number", "answer", "7"],
       ["integer from number", "data.zero", "amount", 0],
       ["integer from string", "data.answer", "amount", 42],
+      ["float from number", "data.ratio", "ratio", 0.25],
+      ["float from string", "data.half", "ratio", 0.5],
       ["boolean from false", "data.no", "enabled", false],
       ["boolean from truthy", "data.answer", "enabled", true],
+      ["json from an object", "data.doc", "doc", '{"a":1}'],
+      ["no string from an object", "data.doc", "answer", undefined],
+      ["no integer from an object", "data.doc", "amount", undefined],
+      ["no float from an object", "data.doc", "ratio", undefined],
+      ["no json from a string", "data.answer", "doc", undefined],
     ];
 
     for (const [name, path, input, expected] of cases) {
@@ -270,13 +282,24 @@ describe("ProjectManager graph sanitation", () => {
           type: "integer",
           featured: true,
         };
+        plain.nodes["node_three"].inputs["ratio"] = {
+          title: "Ratio",
+          type: "float",
+          featured: true,
+        };
+        plain.nodes["node_three"].inputs["doc"] = {
+          title: "Doc",
+          type: "json",
+          featured: true,
+        };
         plain.flows["two_to_three"].input = input;
         const project = projectWith(plain);
         project.launchRequest.nodes
           .get("node_two")
           .outputs.set(
             "result",
-            '{"data":{"answer":"42","number":7,"zero":0,"no":false}}',
+            '{"data":{"answer":"42","number":7,"zero":0,"no":false,' +
+              '"ratio":0.25,"half":"0.5","doc":{"a":1}}}',
           );
 
         sanitized(project);
