@@ -7,14 +7,9 @@ import {
   OnDestroy,
   Output,
   ChangeDetectionStrategy,
-  DestroyRef,
   inject,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { plainToInstance } from "class-transformer";
-import { Socket } from "ngx-socket-io";
-import { catchError, filter, map, of } from "rxjs";
-import { PipelineEvent } from "src/models/events";
+import { Subscription } from "rxjs";
 import { Launch } from "src/models/launch";
 import {
   Node,
@@ -25,17 +20,14 @@ import {
 } from "src/models/node";
 import { Pipeline } from "src/models/pipeline";
 import { Project } from "src/models/project";
-import { HttpService } from "src/services/http.service";
-import { LiveService } from "src/services/live.service";
+import { LaunchFeeds, NodeFeed } from "src/services/launch-feeds";
 import { NodeInputs, NodeOutputs } from "src/types/node";
 import { Primitive } from "src/types/primitive";
 import { createLogger } from "src/utils/logger";
-import { NodeRunState } from "src/utils/launch-state";
 import { UI } from "src/consts/ui";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { getLabel } from "src/utils/i18n";
 import { deployRef } from "src/utils/deploy-node";
-import { toInstance } from "src/utils/models";
 import {
   nodeLayout,
   NodeLayout,
@@ -43,7 +35,6 @@ import {
   WidgetRow,
 } from "src/utils/node-layout";
 import { parseNumber, stepNumber } from "src/utils/number-widget";
-import { LAUNCH_ROOM } from "src/consts/rooms";
 
 @Component({
   selector: "app-node",
@@ -53,9 +44,13 @@ import { LAUNCH_ROOM } from "src/consts/rooms";
   standalone: false,
 })
 export class NodeComponent implements OnDestroy {
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly feeds = inject(LaunchFeeds);
+  private readonly cd = inject(ChangeDetectorRef);
 
   private _launch!: Launch;
+  /** The node's live state in the launch it shows, from the Launch feed. */
+  private feed: NodeFeed | null = null;
+  private doneSubscription: Subscription | null = null;
   private _id!: string;
 
   logger: ReturnType<typeof createLogger>;
@@ -121,14 +116,11 @@ export class NodeComponent implements OnDestroy {
     if (launch) {
       if (this._launch?._id !== launch?._id) {
         this._launch = launch;
-        this.reset();
-        this.load();
-        this.listen();
+        this.watch();
       }
     } else {
       this._launch = null;
-      this.reset();
-      this.silent();
+      this.unwatch();
     }
   }
 
@@ -149,14 +141,31 @@ export class NodeComponent implements OnDestroy {
       : $localize`:@@label.auto_start:Auto start`;
   }
 
-  @Input()
-  inputs!: NodeInputs;
+  /** The inputs the launch request gives, shown until the launch has its own. */
+  @Input("inputs")
+  requestInputs!: NodeInputs;
 
-  @Input()
-  outputs!: NodeOutputs;
+  /** The outputs to show without a launch, or until the launch has its own. */
+  @Input("outputs")
+  requestOutputs!: NodeOutputs;
 
-  status!: NodeStatus;
-  progress!: NodeProgress;
+  get inputs(): NodeInputs {
+    const inputs = this.feed?.inputs();
+    return inputs !== undefined ? inputs : this.requestInputs;
+  }
+
+  get outputs(): NodeOutputs | null {
+    const outputs = this.feed?.outputs();
+    return outputs !== undefined ? outputs : this.requestOutputs;
+  }
+
+  get status(): NodeStatus | null {
+    return this.feed?.status() ?? null;
+  }
+
+  get progress(): NodeProgress | null {
+    return this.feed?.progress() ?? null;
+  }
 
   @Output()
   takeOutInput = new EventEmitter<{
@@ -206,10 +215,6 @@ export class NodeComponent implements OnDestroy {
   /** Retry is offered on a failed node only where it can be run again. */
   @Input()
   retryable = false;
-
-  /** The node's run state, emitted when it changes (`null`: no launch). */
-  @Output()
-  stateChange = new EventEmitter<NodeRunState | null>();
 
   @Output()
   retry = new EventEmitter<void>();
@@ -330,153 +335,25 @@ export class NodeComponent implements OnDestroy {
   @Output()
   setOutput = new EventEmitter<{ output: string; value: Primitive }>();
 
-  subscriptions: { launch: () => void } = { launch: null };
-
-  timers: { status: ReturnType<typeof setTimeout> | null } = { status: null };
-
-  constructor(
-    private socket: Socket,
-    private http: HttpService,
-    private cd: ChangeDetectorRef,
-    private live: LiveService,
-  ) {}
-
   ngOnDestroy(): void {
-    this.subscriptions.launch?.();
-    this.silent();
+    this.unwatch();
   }
 
-  private listen() {
-    this.silent();
-
-    this.logger.debug("Listen node events");
-
-    this.subscriptions.launch = this.live.subscribe(
-      LAUNCH_ROOM(this.launch._id),
-    );
-    this.listenEvents();
-    this.checkStatus();
+  /** Reads the node's state in the launch from the Launch feed. */
+  private watch() {
+    this.unwatch();
+    this.logger.debug("Watch node", this.launch._id);
+    this.feed = this.feeds.watch(this.launch._id, this.id);
+    this.doneSubscription = this.feed.done.subscribe((outputs) => {
+      this.logger.debug("Node done");
+      this.done.emit(outputs);
+    });
   }
 
-  private listening = false;
-
-  /** Socket listeners filter by the current launch, so they are set up once. */
-  private listenEvents() {
-    if (this.listening) {
-      return;
-    }
-    this.listening = true;
-
-    this.socket
-      .fromEvent<object>("node_running")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { launch, node } = toInstance(data, PipelineEvent);
-        if (launch === this.launch?._id && node === this.id) {
-          this.logger.debug("Node is running");
-          this.checkStatus();
-        }
-      });
-
-    this.socket
-      .fromEvent<object>("node_done")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        if (launch === this.launch?._id && node === this.id) {
-          this.logger.debug("Node done");
-          this.checkStatus();
-        }
-      });
-
-    this.socket
-      .fromEvent<object>("node_progress")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        if (launch === this.launch?._id && node === this.id) {
-          this.logger.debug("Progress");
-          this.loadProgress();
-        }
-      });
-
-    this.socket
-      .fromEvent<object>("node_not_ready")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        if (launch === this.launch?._id && node === this.id) {
-          this.logger.debug("Node is waiting for its inputs");
-          this.setStatus(this.status, "waiting");
-          this.cd.detectChanges();
-        }
-      });
-
-    this.socket
-      .fromEvent<object>("node_error")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        if (launch === this.launch?._id && node === this.id) {
-          this.logger.debug("Node error");
-          this.checkStatus();
-        }
-      });
-
-    this.socket
-      .fromEvent<object>("node_flow")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data: object) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data as object);
-        if (launch === this.launch?._id && node === this.id) {
-          this.logger.debug("Node is going to flow");
-          this.setStatus(this.status, "queued");
-          this.load();
-        }
-      });
-
-    this.socket
-      .fromEvent<object>("node_reset")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        if (launch === this.launch?._id && node === this.id) {
-          this.logger.debug(`Node is reset ${node}`);
-          this.loadInputs();
-        }
-      });
-  }
-
-  silent() {
-    this.logger.debug("Silent");
-    this.subscriptions.launch?.();
-    clearTimeout(this.timers.status);
-  }
-
-  reset() {
-    this.setStatus(null);
-    this.progress = null;
-    this.cd.detectChanges();
-  }
-
-  /** Set by flow events until the node's backend status catches up. */
-  private pending: "queued" | "waiting" | null = null;
-
-  private get runState(): NodeRunState | null {
-    return this.pending ?? this.status?.state ?? null;
-  }
-
-  /** The parent hears about changes after this change detection pass. */
-  private setStatus(
-    status: NodeStatus | null,
-    pending: "queued" | "waiting" | null = null,
-  ) {
-    const prev = this.runState;
-    [this.status, this.pending] = [status, pending];
-    const next = this.runState;
-    if (prev !== next) {
-      queueMicrotask(() => this.stateChange.emit(next));
-    }
+  private unwatch() {
+    this.doneSubscription?.unsubscribe();
+    this.feed?.release();
+    [this.feed, this.doneSubscription] = [null, null];
   }
 
   /** The value a widget shows: the launch request's, else the default. */
@@ -571,84 +448,6 @@ export class NodeComponent implements OnDestroy {
 
   pinTo(input: string) {
     this.input.emit(input);
-  }
-
-  private load() {
-    this.logger.debug("Load node state");
-    this.loadInputs();
-    this.loadOutputs().subscribe((outputs) => {
-      this.outputs = outputs;
-      this.cd.detectChanges();
-    });
-  }
-
-  private loadInputs() {
-    this.http
-      .get(`launches/${this.launch._id}/${this.id}/inputs`)
-      .subscribe((inputs) => {
-        this.inputs = inputs as NodeInputs;
-        this.cd.detectChanges();
-      });
-  }
-
-  private loadOutputs() {
-    return this.http.get(`launches/${this.launch._id}/${this.id}/outputs`).pipe(
-      catchError(() => of(null)),
-      map((obj) => obj as NodeOutputs),
-    );
-  }
-
-  private checkStatus() {
-    clearTimeout(this.timers.status);
-
-    const check = () => {
-      this.logger.debug("Check status");
-      this.loadStatus().subscribe((status) => {
-        this.setStatus(status);
-        this.cd.detectChanges();
-
-        switch (status.state) {
-          case "running":
-            this.loadProgress();
-            this.timers.status = setTimeout(check, 2000);
-            break;
-          case "done":
-            this.loadOutputs().subscribe((outputs) => {
-              this.outputs = outputs;
-              this.cd.detectChanges();
-
-              this.logger.debug("Node done");
-              this.done.emit(outputs);
-            });
-            break;
-          case "error":
-            break;
-          default:
-        }
-      });
-    };
-
-    check();
-  }
-
-  private loadStatus() {
-    return this.http.get(`launches/${this.launch._id}/${this.id}/status`).pipe(
-      filter((json) => !!json),
-      map((json) => plainToInstance(NodeStatus, json)),
-    );
-  }
-
-  private loadProgress() {
-    this.http
-      .get(`launches/${this.launch._id}/${this.id}/progress`)
-      .pipe(
-        filter((json) => !!json),
-        map((json) => plainToInstance(NodeProgress, json)),
-      )
-      .subscribe((progress) => {
-        this.progress = progress;
-        this.cd.detectChanges();
-      });
   }
 
   emitTakeOutInput(key: string, input: NodeInput) {

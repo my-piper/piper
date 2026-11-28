@@ -14,18 +14,15 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { TuiButton, TuiLoader } from "@taiga-ui/core";
 import { TuiButtonLoading, TuiChip } from "@taiga-ui/kit";
-import { Socket } from "ngx-socket-io";
-import { finalize, merge, Subscription } from "rxjs";
+import { finalize, Subscription } from "rxjs";
 import { Languages } from "src/enums/languages";
-import { PipelineEvent } from "src/models/events";
 import { Launch } from "src/models/launch";
 import { LaunchLogs, LogLevel } from "src/models/launch-logs";
 import { CURRENT_LANGUAGE } from "src/providers/current-language";
 import { HttpService } from "src/services/http.service";
-import { LiveService } from "src/services/live.service";
+import { LaunchFeeds } from "src/services/launch-feeds";
 import { getLabel } from "src/utils/i18n";
 import { toInstance } from "src/utils/models";
-import { LAUNCH_ROOM } from "src/consts/rooms";
 import { DrawerCloseComponent } from "src/app/drawer-close/drawer-close.component";
 
 const LEVELS: LogLevel[] = ["debug", "info", "warn", "error"];
@@ -48,8 +45,7 @@ const LEVELS: LogLevel[] = ["debug", "info", "warn", "error"];
 })
 export class LaunchLogsComponent implements OnInit {
   private readonly http = inject(HttpService);
-  private readonly socket = inject(Socket);
-  private readonly live = inject(LiveService);
+  private readonly feeds = inject(LaunchFeeds);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -90,11 +86,10 @@ export class LaunchLogsComponent implements OnInit {
 
   // follow new lines only while the newest line is in view
   private follow = true;
-  private release: (() => void) | null = null;
   private events: Subscription | null = null;
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.release?.());
+    this.destroyRef.onDestroy(() => this.events?.unsubscribe());
     afterEveryRender(() => {
       if (this.follow && this.lastLine()) {
         this.lastLine().scrollIntoView({ block: "end" });
@@ -158,22 +153,13 @@ export class LaunchLogsComponent implements OnInit {
       });
   }
 
+  /** New lines come when a node repeats, fails or finishes. */
   private listen(launch: Launch) {
-    this.release?.();
-    this.release = this.live.subscribe(LAUNCH_ROOM(launch._id));
     this.events?.unsubscribe();
-    this.events = merge(
-      this.socket.fromEvent<object>("node_gonna_repeat"),
-      this.socket.fromEvent<object>("node_error"),
-      this.socket.fromEvent<object>("node_done"),
-    )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const event = toInstance(data, PipelineEvent);
-        if (
-          event.launch === launch._id &&
-          (!this.node() || event.node === this.node())
-        ) {
+    this.events = this.feeds
+      .events(launch._id, null, ["repeat", "error", "done"])
+      .subscribe(({ node }) => {
+        if (!this.node() || node === this.node()) {
           this.load();
         }
       });

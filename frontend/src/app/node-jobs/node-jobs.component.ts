@@ -8,13 +8,20 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { plainToInstance } from "class-transformer";
-import { Socket } from "ngx-socket-io";
-import { delay, finalize, map } from "rxjs";
-import { PipelineEvent } from "src/models/events";
+import {
+  delay,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  map,
+  switchMap,
+  tap,
+} from "rxjs";
 import { Launch } from "src/models/launch";
 import { Node } from "src/models/node";
 import { NodeJob } from "src/models/node-job";
 import { HttpService } from "src/services/http.service";
+import { LaunchFeeds } from "src/services/launch-feeds";
 import { UI_DELAY } from "src/consts/ui";
 
 @Component({
@@ -36,31 +43,26 @@ export class NodeJobsComponent {
 
   jobs: NodeJob[];
 
-  constructor(
-    private socket: Socket,
-    private http: HttpService,
-    private route: ActivatedRoute,
-    private cd: ChangeDetectorRef,
-  ) {}
+  private readonly feeds = inject(LaunchFeeds);
+  private readonly http = inject(HttpService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly cd = inject(ChangeDetectorRef);
 
   ngOnInit() {
-    this.listen();
-    this.route.data.subscribe(({ launch, node: { id, node } }) => {
-      [this.launch, this.id, this.node] = [launch, id, node];
-      this.load();
-    });
-  }
-
-  private listen() {
-    this.socket
-      .fromEvent<object>("node_gonna_repeat")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { launch, node } = plainToInstance(PipelineEvent, data);
-        if (launch === this.launch?._id && node === this.id) {
+    // Reloads when its node is about to repeat, from the launch's feed.
+    this.route.data
+      .pipe(
+        tap(({ launch, node: { id, node } }) => {
+          [this.launch, this.id, this.node] = [launch, id, node];
           this.load();
-        }
-      });
+        }),
+        map(({ launch }) => (launch as Launch)._id),
+        distinctUntilChanged(),
+        switchMap((launch) => this.feeds.events(launch, null, ["repeat"])),
+        filter(({ node }) => node === this.id),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.load());
   }
 
   private load() {

@@ -740,7 +740,6 @@
               : null
           "
           [retryable]="runnable"
-          (stateChange)="setNodeState(node.key, $event)"
           (retry)="runNode(node.key)"
           (showLog)="showNodeLog(node.key)"
           (input)="!!flow ? addFlow(node.key, $event) : null"
@@ -1028,7 +1027,7 @@
 
       @for (f of pipeline.flows | keyvalue; track f.key) {
         <path
-          [class.running]="nodeStates[f.value.to] === 'running'"
+          [class.running]="nodeState(f.value.to) === 'running'"
           [attr.data-type]="
             (pipeline | node: f.value.from | async)?.outputs?.get(
               f.value.output
@@ -1067,7 +1066,7 @@
         @for (f of i.value.flows | keyvalue; track f.key) {
           <path
             class="flow param"
-            [class.running]="nodeStates[f.value.to] === 'running'"
+            [class.running]="nodeState(f.value.to) === 'running'"
             [attr.data-type]="i.value.type"
             [class.disabled]="
               mode !== 'project' ||

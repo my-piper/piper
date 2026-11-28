@@ -92,7 +92,7 @@ export function launchWithOutputsPlain(): Plain {
 }
 
 export function nodeStatusPlain(
-  state: "running" | "done" | "error",
+  state: "stopped" | "running" | "done" | "error",
   error?: string,
 ): Plain {
   return {
